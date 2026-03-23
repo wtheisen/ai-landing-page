@@ -9,6 +9,7 @@
 
     const CANVAS_W = 560, CANVAS_H = 400;
     const SCREE_W = 560, SCREE_H = 160;
+    const PROJ_W = 560, PROJ_H = 220;
     const PAD = 10;
     const POINT_R = 5;
 
@@ -22,6 +23,7 @@
 
     let canvas, ctx, dpr;
     let screeCanvas, screeCtx, screeDpr;
+    let projectionCanvas, projectionCtx, projectionDpr;
 
     // ============================================
     // Coordinate transforms (data [0,1] → canvas)
@@ -86,11 +88,17 @@
         const projected = pts.map(p => {
             const dx = p.x - mx, dy = p.y - my;
             const proj1 = dx * v1.x + dy * v1.y;
+            const proj2 = dx * v2.x + dy * v2.y;
             return {
                 original: p,
                 pc1: proj1,
+                pc2: proj2,
                 // Reconstruction from PC1 only
-                recon1: { x: mx + proj1 * v1.x, y: my + proj1 * v1.y }
+                recon1: { x: mx + proj1 * v1.x, y: my + proj1 * v1.y },
+                recon2: {
+                    x: mx + proj1 * v1.x + proj2 * v2.x,
+                    y: my + proj1 * v1.y + proj2 * v2.y
+                }
             };
         });
 
@@ -108,6 +116,7 @@
     function generateDataset(type) {
         points = [];
         const n = 60;
+        const clamp = value => Math.max(0.05, Math.min(0.95, value));
         const g = () => {
             let u = 0, v = 0;
             while (u === 0) u = Math.random();
@@ -122,14 +131,14 @@
                     const s = g() * 0.03;
                     const x = 0.5 + t + s;
                     const y = 0.5 + t * 0.8 + s;
-                    points.push({ x: Math.max(0.05, Math.min(0.95, x)), y: Math.max(0.05, Math.min(0.95, y)) });
+                    points.push({ x: clamp(x), y: clamp(y) });
                 }
                 break;
             case 'uncorrelated':
                 for (let i = 0; i < n; i++) {
                     points.push({
-                        x: 0.5 + g() * 0.12,
-                        y: 0.5 + g() * 0.12
+                        x: clamp(0.5 + g() * 0.12),
+                        y: clamp(0.5 + g() * 0.12)
                     });
                 }
                 break;
@@ -140,7 +149,7 @@
                     const s2 = g() * 0.02;
                     const x = 0.5 + s1 * Math.cos(angle) - s2 * Math.sin(angle);
                     const y = 0.5 + s1 * Math.sin(angle) + s2 * Math.cos(angle);
-                    points.push({ x: Math.max(0.05, Math.min(0.95, x)), y: Math.max(0.05, Math.min(0.95, y)) });
+                    points.push({ x: clamp(x), y: clamp(y) });
                 }
                 break;
             case 'circular':
@@ -148,8 +157,8 @@
                     const angle = Math.random() * 2 * Math.PI;
                     const r = 0.15 + g() * 0.02;
                     points.push({
-                        x: 0.5 + r * Math.cos(angle),
-                        y: 0.5 + r * Math.sin(angle)
+                        x: clamp(0.5 + r * Math.cos(angle)),
+                        y: clamp(0.5 + r * Math.sin(angle))
                     });
                 }
                 break;
@@ -292,7 +301,7 @@
         const pw = SCREE_W - pad.l - pad.r;
         const ph = SCREE_H - pad.t - pad.b;
         const { eigenvalues } = pcaResult;
-        const total = eigenvalues[0] + eigenvalues[1];
+        const total = Math.max(1e-12, eigenvalues[0] + eigenvalues[1]);
         const ratios = eigenvalues.map(e => e / total);
 
         // Bars
@@ -347,6 +356,85 @@
         screeCtx.fillText('0%', pad.l - 5, pad.t + ph + 3);
     }
 
+    function renderProjectionSpace() {
+        const c = getColors();
+        const CU = window.VizLib.CanvasUtils;
+        if (!projectionCanvas || !projectionCtx) return;
+        CU.resetCanvasTransform(projectionCtx, projectionDpr);
+        CU.clearCanvas(projectionCtx, PROJ_W, PROJ_H, c.bg);
+        if (!pcaResult) return;
+
+        const pad = { l: 54, r: 20, t: 18, b: 36 };
+        const plotW = PROJ_W - pad.l - pad.r;
+        const plotH = PROJ_H - pad.t - pad.b;
+        const xVals = pcaResult.projected.map(p => p.pc1);
+        const yVals = numComponents === 1 ? [0] : pcaResult.projected.map(p => p.pc2);
+        const maxAbsX = Math.max(0.05, ...xVals.map(v => Math.abs(v))) * 1.15;
+        const maxAbsY = (numComponents === 1 ? 1 : Math.max(0.05, ...yVals.map(v => Math.abs(v))) * 1.2);
+
+        const xToCanvas = value => pad.l + ((value + maxAbsX) / (2 * maxAbsX)) * plotW;
+        const yToCanvas = value => pad.t + plotH - ((value + maxAbsY) / (2 * maxAbsY)) * plotH;
+        const axisY = numComponents === 1 ? pad.t + plotH / 2 : yToCanvas(0);
+        const axisX = xToCanvas(0);
+
+        projectionCtx.strokeStyle = c.border;
+        projectionCtx.lineWidth = 1;
+        projectionCtx.beginPath();
+        projectionCtx.moveTo(pad.l, axisY);
+        projectionCtx.lineTo(pad.l + plotW, axisY);
+        projectionCtx.moveTo(axisX, pad.t);
+        projectionCtx.lineTo(axisX, pad.t + plotH);
+        projectionCtx.stroke();
+
+        projectionCtx.fillStyle = c.muted;
+        projectionCtx.font = '11px sans-serif';
+        projectionCtx.textAlign = 'center';
+        projectionCtx.fillText('PC1', pad.l + plotW / 2, PROJ_H - 10);
+        projectionCtx.save();
+        projectionCtx.translate(14, pad.t + plotH / 2);
+        projectionCtx.rotate(-Math.PI / 2);
+        projectionCtx.fillText(numComponents === 1 ? 'collapsed' : 'PC2', 0, 0);
+        projectionCtx.restore();
+
+        projectionCtx.fillStyle = c.muted;
+        projectionCtx.textAlign = 'left';
+        projectionCtx.fillText('0', axisX + 5, axisY - 6);
+
+        if (numComponents === 1) {
+            projectionCtx.setLineDash([4, 4]);
+            projectionCtx.strokeStyle = c.projection;
+            projectionCtx.beginPath();
+            projectionCtx.moveTo(pad.l, axisY);
+            projectionCtx.lineTo(pad.l + plotW, axisY);
+            projectionCtx.stroke();
+            projectionCtx.setLineDash([]);
+        }
+
+        for (const proj of pcaResult.projected) {
+            const cx = xToCanvas(proj.pc1);
+            const cy = numComponents === 1 ? axisY : yToCanvas(proj.pc2);
+
+            projectionCtx.fillStyle = numComponents === 1 ? c.projected : c.point;
+            projectionCtx.beginPath();
+            projectionCtx.arc(cx, cy, 4.5, 0, Math.PI * 2);
+            projectionCtx.fill();
+
+            if (numComponents === 2) {
+                projectionCtx.strokeStyle = 'rgba(255,255,255,0.75)';
+                projectionCtx.lineWidth = 1;
+                projectionCtx.stroke();
+            }
+        }
+
+        projectionCtx.fillStyle = c.muted;
+        projectionCtx.font = '12px sans-serif';
+        projectionCtx.textAlign = 'right';
+        const label = numComponents === 1
+            ? '1D embedding along PC1'
+            : '2D coordinates in the PC basis';
+        projectionCtx.fillText(label, PROJ_W - 10, 16);
+    }
+
     // ============================================
     // Metrics
     // ============================================
@@ -356,16 +444,28 @@
 
         if (pcaResult) {
             const { eigenvalues, mean } = pcaResult;
-            const total = eigenvalues[0] + eigenvalues[1];
+            const total = Math.max(1e-12, eigenvalues[0] + eigenvalues[1]);
+            const explained1 = eigenvalues[0] / total;
+            let reconError = 0;
+
+            for (const proj of pcaResult.projected) {
+                const recon = numComponents === 1 ? proj.recon1 : proj.recon2;
+                const dx = proj.original.x - recon.x;
+                const dy = proj.original.y - recon.y;
+                reconError += dx * dx + dy * dy;
+            }
+            reconError /= pcaResult.projected.length;
+
             set('metric-var1', eigenvalues[0].toFixed(6));
             set('metric-var2', eigenvalues[1].toFixed(6));
-            set('metric-expl1', (eigenvalues[0] / total * 100).toFixed(1) + '%');
-            set('metric-expl12', '100%');
+            set('metric-expl1', (explained1 * 100).toFixed(1) + '%');
+            set('metric-expl-selected', ((numComponents === 1 ? explained1 : 1) * 100).toFixed(1) + '%');
+            set('metric-recon', reconError.toFixed(6));
             set('metric-mean', `(${mean.x.toFixed(3)}, ${mean.y.toFixed(3)})`);
         } else {
             set('metric-var1', '-'); set('metric-var2', '-');
-            set('metric-expl1', '-'); set('metric-expl12', '-');
-            set('metric-mean', '-');
+            set('metric-expl1', '-'); set('metric-expl-selected', '-');
+            set('metric-recon', '-'); set('metric-mean', '-');
         }
     }
 
@@ -382,19 +482,23 @@
         pcaResult = computePCA(points);
         computed = true;
         document.getElementById('scree-panel').style.display = '';
+        document.getElementById('projection-panel').style.display = '';
         setStatus('PCA computed');
         updateMetrics();
         render();
         renderScree();
+        renderProjectionSpace();
     }
 
     function doReset() {
         pcaResult = null;
         computed = false;
         document.getElementById('scree-panel').style.display = 'none';
+        document.getElementById('projection-panel').style.display = 'none';
         setStatus('Ready');
         updateMetrics();
         render();
+        renderProjectionSpace();
     }
 
     // ============================================
@@ -409,6 +513,11 @@
         if (screeCanvas) {
             const s = window.VizLib.CanvasUtils.setupHiDPICanvas(screeCanvas);
             screeCtx = s.ctx; screeDpr = s.dpr;
+        }
+        projectionCanvas = document.getElementById('projection-canvas');
+        if (projectionCanvas) {
+            const p = window.VizLib.CanvasUtils.setupHiDPICanvas(projectionCanvas);
+            projectionCtx = p.ctx; projectionDpr = p.dpr;
         }
 
         canvas.addEventListener('click', function(e) {
@@ -452,7 +561,9 @@
                 document.querySelectorAll('[data-k]').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
                 numComponents = parseInt(this.dataset.k);
+                updateMetrics();
                 render();
+                renderProjectionSpace();
             });
         });
 
@@ -475,7 +586,7 @@
             });
         });
 
-        document.addEventListener('themechange', () => { render(); renderScree(); });
+        document.addEventListener('themechange', () => { render(); renderScree(); renderProjectionSpace(); });
 
         render();
         updateMetrics();

@@ -23,6 +23,7 @@
 }
 
 #pca-canvas { cursor: crosshair; position: relative; z-index: 2; }
+#projection-canvas { width: 100%; height: auto; }
 
 .legend-color.data-point { background-color: var(--pca-point-color); border-radius: 50%; }
 .legend-line.pc1-line { background-color: var(--pca-pc1-color); height: 3px; width: 24px; }
@@ -48,6 +49,9 @@
     border-left: 1px solid var(--viz-border); padding-left: 20px;
 }
 .pca-playback-col .btn { width: 90px; }
+
+#projection-panel .panel-body,
+#scree-panel .panel-body { padding-top: 12px; padding-bottom: 12px; }
 
 @media (max-width: 992px) {
     .pca-controls-panel { flex-direction: column; }

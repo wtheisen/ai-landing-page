@@ -17,7 +17,6 @@ cardTags:
   - Unsupervised
 cardHaystack: "principal component analysis pca eigenvector eigenvalue variance explained dimensionality reduction projection scree plot"
 cardOrder: 22
-cardImage: static/img/vis_cards/pca.png
 ---
 
 {% from "components/legend.njk" import legend %}
@@ -77,6 +76,18 @@ cardImage: static/img/vis_cards/pca.png
             <div class="panel-body canvas-panel-body">
                 <div class="canvas-wrapper">
                     <canvas id="scree-canvas" width="560" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- PCA Coordinate Space -->
+        <div class="panel panel-default" id="projection-panel" style="display:none;">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-arrows"></i> Principal Component Coordinates</h3>
+            </div>
+            <div class="panel-body canvas-panel-body">
+                <div class="canvas-wrapper">
+                    <canvas id="projection-canvas" width="560" height="220"></canvas>
                 </div>
             </div>
         </div>
@@ -143,6 +154,7 @@ cardImage: static/img/vis_cards/pca.png
                         <li><strong>Click canvas</strong> to add data points</li>
                         <li><strong>Press Compute</strong> to find principal components</li>
                         <li><strong>Select 1 component</strong> to see 2D→1D projection</li>
+                        <li><strong>Inspect the PCA coordinates panel</strong> to compare original points with transformed coordinates</li>
                         <li><strong>Toggle projections</strong> to see projection lines</li>
                         <li><strong>Try different datasets</strong> to see how PC directions change</li>
                     </ul>
@@ -185,7 +197,8 @@ cardImage: static/img/vis_cards/pca.png
                 {icon: 'fa-arrows-alt', label: 'PC1 Variance', id: 'metric-var1', default: '-'},
                 {icon: 'fa-arrows-alt', label: 'PC2 Variance', id: 'metric-var2', default: '-'},
                 {icon: 'fa-percent', label: 'Explained (PC1)', id: 'metric-expl1', default: '-'},
-                {icon: 'fa-percent', label: 'Explained (PC1+2)', id: 'metric-expl12', default: '-'},
+                {icon: 'fa-percent', label: 'Explained (Selected)', id: 'metric-expl-selected', default: '-'},
+                {icon: 'fa-line-chart', label: 'Reconstruction MSE', id: 'metric-recon', default: '-'},
                 {icon: 'fa-dot-circle-o', label: 'Mean', id: 'metric-mean', default: '-'},
                 {icon: 'fa-info-circle', label: 'Status', id: 'metric-status', default: 'Add points to begin'}
             ]
