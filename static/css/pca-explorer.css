@@ -1,0 +1,275 @@
+/* PCA Explorer Styles */
+
+:root {
+    --pce-axis1: #e41a1c;
+    --pce-axis1-bg: rgba(228, 26, 28, 0.12);
+    --pce-axis2: #377eb8;
+    --pce-axis2-bg: rgba(55, 126, 184, 0.12);
+    --pce-proj: rgba(100, 100, 100, 0.25);
+    --pce-ellipse: rgba(150, 100, 200, 0.4);
+    --pce-optimal: rgba(100, 100, 100, 0.3);
+    --pce-mean: #ff9800;
+    --pce-point: #555;
+    --pce-point-stroke: rgba(255, 255, 255, 0.8);
+    --pce-handle-stroke: #fff;
+    --pce-pc1: #8e44ad;
+    --pce-pc2: #27ae60;
+    --pce-total-bar: #6c757d;
+}
+
+[data-theme="gruvbox-dark"] {
+    --pce-axis1: #fb4934;
+    --pce-axis1-bg: rgba(251, 73, 52, 0.18);
+    --pce-axis2: #83a598;
+    --pce-axis2-bg: rgba(131, 165, 152, 0.18);
+    --pce-proj: rgba(168, 153, 132, 0.25);
+    --pce-ellipse: rgba(211, 134, 155, 0.4);
+    --pce-optimal: rgba(168, 153, 132, 0.35);
+    --pce-mean: #fe8019;
+    --pce-point: var(--gruvbox-fg-dim);
+    --pce-point-stroke: rgba(40, 40, 40, 0.6);
+    --pce-handle-stroke: var(--gruvbox-bg);
+    --pce-pc1: #d3869b;
+    --pce-pc2: #8ec07c;
+    --pce-total-bar: var(--gruvbox-gray);
+}
+
+/* Canvas */
+#pce-canvas {
+    display: block;
+    width: 100%;
+    cursor: crosshair;
+}
+
+.pce-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    color: var(--viz-text-muted);
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+.pce-overlay.hidden { display: none; }
+
+/* Heading badges */
+.pce-heading-stats { display: flex; gap: 6px; align-items: center; }
+.pce-heading-stats .viz-badge { font-family: var(--viz-mono-font); font-size: 0.7rem; padding: 2px 6px; }
+#badge-axis1-var { border-color: var(--pce-pc1); color: var(--pce-pc1); }
+#badge-axis2-var { border-color: var(--pce-pc2); color: var(--pce-pc2); }
+.pce-badge-total { font-weight: 600; }
+
+/* Legend swatches */
+.legend-color.pce-data-dot { background: var(--pce-point); border-radius: 50%; }
+.legend-line.pce-axis1-line { background: var(--pce-axis1); height: 3px; width: 24px; }
+.legend-line.pce-axis2-line { background: var(--pce-axis2); height: 3px; width: 24px; }
+.pce-footer { display: flex; align-items: center; }
+.pce-proj-toggles { margin-left: auto; display: flex; gap: 8px; }
+.pce-proj-toggle { font-size: 0.72rem; margin: 0; cursor: pointer; }
+.legend-line.pce-ellipse-line { background: transparent; height: 3px; width: 24px; border: 1.5px dashed var(--pce-ellipse); border-radius: 50%; }
+.legend-line.pce-pc1-line { background: var(--pce-pc1); height: 3px; width: 24px; }
+.legend-line.pce-pc2-line { background: var(--pce-pc2); height: 3px; width: 24px; }
+
+/* Variance meter panel */
+.pce-var-meters { display: flex; flex-direction: column; gap: 6px; }
+.pce-var-row { display: flex; align-items: center; gap: 8px; }
+.pce-var-label { font-size: 0.72rem; font-family: var(--viz-mono-font); min-width: 55px; text-align: right; }
+.pce-axis1-label { color: var(--pce-pc1); }
+.pce-axis2-label { color: var(--pce-pc2); }
+.pce-var-track {
+    flex: 1;
+    height: 14px;
+    background: var(--viz-hover-bg);
+    border: 1px solid var(--viz-border);
+    border-radius: 2px;
+    position: relative;
+    overflow: visible;
+}
+.pce-var-bar {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 0.08s ease-out;
+}
+.pce-axis1-bar { background: var(--pce-pc1); opacity: 0.7; }
+.pce-axis2-bar { background: var(--pce-pc2); opacity: 0.7; }
+.pce-total-bar { background: var(--pce-total-bar); opacity: 0.5; }
+.pce-var-optimal {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    width: 2px;
+    opacity: 0.6;
+}
+.pce-axis1-optimal { background: var(--pce-pc1); }
+.pce-axis2-optimal { background: var(--pce-pc2); }
+.pce-var-value {
+    font-size: 0.72rem;
+    font-family: var(--viz-mono-font);
+    min-width: 38px;
+    text-align: right;
+}
+.pce-cov-row { padding-top: 4px; margin-top: 2px; border-top: 1px solid var(--viz-border); }
+.pce-cov-row .pce-var-label { color: var(--viz-text-muted); }
+.pce-cov-bar { background: var(--pce-ellipse); opacity: 0.7; }
+.pce-var-total-row .pce-var-label { color: var(--viz-text-muted); }
+.pce-var-total-row { padding-top: 4px; margin-top: 2px; }
+
+/* Controls tab */
+.pce-controls .option-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pce-controls .option-row > label:first-child { min-width: 60px; font-size: 0.75rem; margin: 0; }
+.pce-controls .option-row select { width: auto; min-width: 130px; font-size: 0.75rem; }
+.pce-checkbox-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.pce-checkbox-group .checkbox-label { font-size: 0.75rem; margin: 0; }
+.pce-actions { display: flex; gap: 8px; }
+.pce-actions .btn { font-size: 0.75rem; }
+
+/* Distribution canvas */
+.pce-dist-canvas {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    border: 1px solid var(--viz-border);
+    border-radius: 3px;
+}
+
+/* Math tab */
+.pce-math-block {
+    background: var(--viz-hover-bg);
+    border: 1px solid var(--viz-border);
+    border-radius: 3px;
+    padding: 6px 8px;
+    margin-bottom: 10px;
+    font-family: var(--viz-mono-font);
+    font-size: 0.72rem;
+    line-height: 1.5;
+    overflow-x: auto;
+}
+.pce-math-block .formula-note { font-family: inherit; color: var(--viz-text-muted); }
+.pce-math-row { display: flex; justify-content: space-between; }
+.pce-math-label { color: var(--viz-text-muted); }
+.pce-math-val-axis1 { color: var(--pce-pc1); font-weight: 600; }
+.pce-math-val-axis2 { color: var(--pce-pc2); font-weight: 600; }
+
+/* ── Math tab: covariance matrix ── */
+.pce-matrix-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.pce-matrix-eq {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--viz-text);
+}
+.pce-matrix {
+    border-collapse: collapse;
+    font-family: var(--viz-mono-font);
+    font-size: 0.75rem;
+}
+.pce-matrix thead th {
+    text-align: center;
+    padding: 0 8px 3px;
+    font-weight: 600;
+    color: var(--viz-text-muted);
+    font-size: 0.7rem;
+}
+.pce-matrix tbody th {
+    text-align: right;
+    padding: 3px 8px 3px 0;
+    font-weight: 600;
+    color: var(--viz-text-muted);
+    font-size: 0.7rem;
+}
+.pce-matrix td {
+    text-align: center;
+    padding: 4px 10px;
+    border: 1px solid var(--viz-border);
+}
+.pce-cov-diag {
+    font-weight: 600;
+    background: var(--viz-hover-bg);
+}
+.pce-matrix-note {
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--viz-text-muted);
+    margin-top: 4px;
+}
+
+/* ── Math tab: eigen table ── */
+.pce-eigen-table, .pce-your-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--viz-mono-font);
+    font-size: 0.72rem;
+}
+.pce-eigen-table thead th, .pce-your-table thead th {
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--viz-text-muted);
+    padding: 2px 6px 4px;
+    border-bottom: 1px solid var(--viz-border);
+    text-align: center;
+}
+.pce-eigen-table thead th:first-child, .pce-your-table thead th:first-child { text-align: left; }
+.pce-eigen-table td, .pce-your-table td {
+    padding: 4px 6px;
+    text-align: center;
+    border-bottom: 1px solid var(--viz-border);
+}
+.pce-eigen-label { font-weight: 700; text-align: left !important; }
+.pce-eigen-row-pc1 .pce-eigen-label { color: var(--pce-axis1); }
+.pce-eigen-row-pc2 .pce-eigen-label { color: var(--pce-axis2); }
+.pce-your-label { font-weight: 700; text-align: left !important; }
+
+/* mini percent bar in eigen table */
+.pce-pct-bar {
+    display: inline-block;
+    width: 40px;
+    height: 8px;
+    background: var(--viz-hover-bg);
+    border: 1px solid var(--viz-border);
+    border-radius: 2px;
+    vertical-align: middle;
+    overflow: hidden;
+    margin-right: 4px;
+}
+.pce-pct-fill {
+    display: block;
+    height: 100%;
+    border-radius: 1px;
+}
+.pce-pct-pc1 { background: var(--pce-axis1); opacity: 0.6; }
+.pce-pct-pc2 { background: var(--pce-axis2); opacity: 0.6; }
+
+/* ── Math tab: your-axes footer ── */
+.pce-your-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--viz-text-muted);
+    margin-top: 6px;
+    padding-top: 5px;
+    border-top: 1px solid var(--viz-border);
+}
+.pce-gap-label strong { color: var(--pce-axis1); }
+.pce-formula {
+    text-align: center;
+    margin-top: 8px;
+    padding: 5px 8px;
+    background: var(--viz-hover-bg);
+    border: 1px solid var(--viz-border);
+    border-radius: 3px;
+    font-family: var(--viz-mono-font);
+    font-size: 0.7rem;
+    color: var(--viz-text-muted);
+}
+
+@media (max-width: 992px) {
+    .pce-heading-stats { flex-wrap: wrap; }
+}

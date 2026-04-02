@@ -1,0 +1,214 @@
+---
+layout: base.njk
+title: PCA Explorer
+icon: fa-crosshairs
+navigation:
+  - name: "Home"
+    link: "index.html"
+    icon: "fa-home"
+permalink: "pca-explorer.html"
+extraScript: "static/js/pca-explorer.js"
+tags: visualization
+cardTitle: "PCA Explorer"
+cardIcon: fa-crosshairs
+cardDescription: "Drag principal component axes to explore variance maximization, projections, and the geometry of PCA in 2D."
+cardTags:
+  - Dimensionality Reduction
+  - Unsupervised
+cardHaystack: "pca principal component analysis eigenvector eigenvalue variance projection covariance ellipse drag interactive geometry"
+cardOrder: 23
+---
+
+{% from "components/info-tabs.njk" import infoTabs %}
+{% from "components/legend.njk" import legend %}
+
+<link rel="stylesheet" href="static/css/pca-explorer.css">
+
+<div class="row" id="main-content">
+    {% include "components/share-button.njk" %}
+    <!-- Left Column -->
+    <div class="col-md-7">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <div class="panel-heading-content">
+                    <span class="panel-title-text"><i class="fa fa-crosshairs"></i> Data Space</span>
+                    <span class="pce-heading-stats">
+                        <span class="viz-badge" id="badge-axis1-var" title="Variance along PC1">PC1: —</span>
+                        <span class="viz-badge" id="badge-axis2-var" title="Variance along PC2">PC2: —</span>
+                        <span class="viz-badge pce-badge-total" id="badge-total-var" title="Total captured">Total: —</span>
+                    </span>
+                </div>
+            </div>
+            <div class="panel-body canvas-panel-body">
+                <canvas id="pce-canvas"></canvas>
+                <div id="pce-overlay" class="pce-overlay">
+                    <span>Select a dataset or click to add points</span>
+                </div>
+            </div>
+            <div class="panel-footer legend-footer pce-footer">
+                {{ legend(
+                    items=[
+                        {class: 'pce-data-dot', label: 'Data'},
+                        {class: 'pce-pc1-line', label: 'PC1', type: 'line'},
+                        {class: 'pce-pc2-line', label: 'PC2', type: 'line'}
+                    ]
+                ) }}
+                <span class="pce-proj-toggles">
+                    <label class="pce-proj-toggle pce-axis1-label"><input type="checkbox" id="pce-toggle-proj1" checked> PC1</label>
+                    <label class="pce-proj-toggle pce-axis2-label"><input type="checkbox" id="pce-toggle-proj2" checked> PC2</label>
+                </span>
+            </div>
+        </div>
+
+        <!-- Variance Meter -->
+        <div class="panel panel-default" id="pce-variance-panel">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-bar-chart"></i> Variance Captured</h3>
+            </div>
+            <div class="panel-body compact-panel">
+                <div class="pce-var-meters">
+                    <div class="pce-var-row">
+                        <span class="pce-var-label pce-axis1-label">PC1</span>
+                        <div class="pce-var-track">
+                            <div class="pce-var-bar pce-axis1-bar" id="pce-bar1" style="width:0%"></div>
+                            <div class="pce-var-optimal pce-axis1-optimal" id="pce-opt1" style="left:0%"></div>
+                        </div>
+                        <span class="pce-var-value" id="pce-val1">0%</span>
+                    </div>
+                    <div class="pce-var-row">
+                        <span class="pce-var-label pce-axis2-label">PC2</span>
+                        <div class="pce-var-track">
+                            <div class="pce-var-bar pce-axis2-bar" id="pce-bar2" style="width:0%"></div>
+                            <div class="pce-var-optimal pce-axis2-optimal" id="pce-opt2" style="left:0%"></div>
+                        </div>
+                        <span class="pce-var-value" id="pce-val2">0%</span>
+                    </div>
+                    <div class="pce-var-row pce-cov-row">
+                        <span class="pce-var-label">Cov</span>
+                        <div class="pce-var-track pce-cov-track">
+                            <div class="pce-var-bar pce-cov-bar" id="pce-bar-cov" style="width:0%"></div>
+                        </div>
+                        <span class="pce-var-value" id="pce-val-cov">0</span>
+                    </div>
+                    <div class="pce-var-row pce-var-total-row">
+                        <span class="pce-var-label">Combined</span>
+                        <div class="pce-var-track">
+                            <div class="pce-var-bar pce-total-bar" id="pce-bar-total" style="width:0%"></div>
+                        </div>
+                        <span class="pce-var-value" id="pce-val-total">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-md-5">
+        {{ infoTabs(
+            tabs=[
+                {id: 'about', icon: 'fa-info-circle', label: 'About', active: true, content: '
+                    <h4><i class="fa fa-crosshairs"></i> PCA Explorer</h4>
+                    <p>
+                        Drag the axis handles to rotate your own principal components and watch
+                        how the captured variance changes. PCA finds the directions that
+                        <strong>maximize variance</strong> &mdash; can you find them by hand?
+                    </p>
+                    <h4><i class="fa fa-mouse-pointer"></i> Interactions</h4>
+                    <ul class="interaction-list">
+                        <li><strong>Drag axis handles</strong> (circles at arrow tips) to rotate</li>
+                        <li><strong>Click canvas</strong> to add data points</li>
+                        <li><strong>Snap to PCA</strong> animates to the optimal directions</li>
+                        <li><strong>Lock orthogonal</strong> keeps axes perpendicular</li>
+                        <li><strong>Watch the variance bars</strong> &mdash; PCA maximizes Axis 1</li>
+                    </ul>
+                    <h4><i class="fa fa-lightbulb-o"></i> What to Notice</h4>
+                    <ul class="interaction-list">
+                        <li>The optimal PC1 aligns with the covariance ellipse&rsquo;s long axis</li>
+                        <li>Projection lines are shortest when axes align with PCA</li>
+                        <li>Uncorrelated data has equal variance in all directions</li>
+                        <li>The ghost lines show where the true PCs are</li>
+                    </ul>
+                '},
+                {id: 'algorithm', icon: 'fa-book', label: 'Algorithm', content: '
+                    <h4><i class="fa fa-cogs"></i> PCA Steps</h4>
+                    <ol class="algorithm-steps">
+                        <li><strong>Center</strong> the data by subtracting the mean</li>
+                        <li><strong>Compute</strong> the 2&times;2 covariance matrix</li>
+                        <li><strong>Eigendecompose</strong> &mdash; eigenvectors are the PC directions, eigenvalues are the variances</li>
+                        <li><strong>Sort</strong> by eigenvalue (largest first = PC1)</li>
+                        <li><strong>Project</strong> data onto the top-k eigenvectors</li>
+                    </ol>
+                    <h4><i class="fa fa-question-circle"></i> Why Maximize Variance?</h4>
+                    <p>
+                        Maximizing variance along the projection axis preserves the most
+                        information about the data&rsquo;s spread. Equivalently, it minimizes
+                        the reconstruction error (the projection line lengths).
+                    </p>
+                '},
+                {id: 'math', icon: 'fa-superscript', label: 'Math', content: '
+                    <h4><i class="fa fa-area-chart"></i> Distributions Along Axes</h4>
+                    <canvas id="pce-dist-canvas" class="pce-dist-canvas"></canvas>
+
+                    <h4><i class="fa fa-th"></i> Covariance Matrix</h4>
+                    <div id="pce-cov-display" class="pce-math-block">
+                        <span class="formula-note">Add points to see the covariance matrix.</span>
+                    </div>
+
+                    <h4><i class="fa fa-arrows"></i> Eigenvectors &amp; Eigenvalues</h4>
+                    <div id="pce-eigen-display" class="pce-math-block">
+                        <span class="formula-note">Computed after adding points.</span>
+                    </div>
+
+                    <h4><i class="fa fa-line-chart"></i> Variance Along Your Axes</h4>
+                    <div id="pce-your-var-display" class="pce-math-block">
+                        <span class="formula-note">Drag the axes to see live variance calculations.</span>
+                    </div>
+                '},
+                {id: 'controls', icon: 'fa-sliders', label: 'Controls', content: '
+                    <div class="pce-controls">
+                        <div class="option-row">
+                            <label>Dataset:</label>
+                            <select id="pce-dataset" class="form-control input-sm">
+                                <option value="custom">Custom (click to add)</option>
+                                <option value="correlated" selected>Correlated</option>
+                                <option value="uncorrelated">Uncorrelated</option>
+                                <option value="anisotropic">Anisotropic</option>
+                                <option value="clustered">Two Clusters</option>
+                                <option value="circular">Circular</option>
+                            </select>
+                        </div>
+                        <div class="option-row">
+                            <label>x&#x2081; noise:</label>
+                            <input type="range" id="pce-noise-x1" min="0" max="1" step="0.05" value="0.5">
+                            <span id="pce-noise-x1-val" class="range-value">0.50</span>
+                        </div>
+                        <div class="option-row">
+                            <label>x&#x2082; noise:</label>
+                            <input type="range" id="pce-noise-x2" min="0" max="1" step="0.05" value="0.5">
+                            <span id="pce-noise-x2-val" class="range-value">0.50</span>
+                        </div>
+                        <div class="pce-checkbox-group">
+                            <label class="checkbox-label"><input type="checkbox" id="pce-lock-ortho"> Lock orthogonal</label>
+                        </div>
+                        <div class="option-row">
+                            <label>Projection:</label>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button type="button" class="btn btn-default" data-proj="0">None</button>
+                                <button type="button" class="btn btn-default" data-proj="1">PC1 only</button>
+                                <button type="button" class="btn btn-default active" data-proj="2">PC1+PC2</button>
+                            </div>
+                        </div>
+                        <div class="pce-actions">
+                            <button id="pce-btn-snap" class="btn btn-sm btn-success" title="Animate axes to optimal PCA directions">
+                                <i class="fa fa-magic"></i> Snap to PCA
+                            </button>
+                            <button id="pce-btn-clear" class="btn btn-sm btn-danger" title="Clear all points">
+                                <i class="fa fa-trash"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                '}
+            ]
+        ) }}
+    </div>
+</div>
