@@ -18,7 +18,7 @@ tags:
 
 **Note:** All work is a part of a senior's thesis project: [Inhuman Optimization Exploring the Limits of Reward Modeling in Aligning Large Language Models](https://williamtheisen.com/files/students/frazier-dougherty-thesis.pdf) by Frazier Dougherty, I just wanted to discuss the experiments a little more fully.
 
-**Note:** It's critically important to remember that this is indicated what decisions the LLMs would make if forced to decide, it is **NOT** (necessarily) representative of what the human institution would actually do.
+**Note:** It's critically important to remember that these results are indicative of what decisions the LLMs would make if forced to decide, they are **NOT** (necessarily) representative of what the related human institution would actually do.
 
 A senior who's thesis I was advising wanted to explore the alignment limits of RLHF and whether or not biases would remain in the models and if so, how we could expose those. To that end, we ran a relatively large suite of experiments (for an undergraduate thesis) and the results were quite interesting, therefore I'd like to write and report a little more fully on it, as I think they could also be interesting to others.
 
@@ -62,7 +62,7 @@ Below is the list of ethnicities and associated names used:
   - **First names:** Noam, Eitan, Ariel, Yael, Tamar, Shira
   - **Last names:** Cohen, Levi, Mizrahi, Peretz, Biton, Dahan
 
-**NOTE:** I'm not interested in really getting into the weeds as to whether these are perfectly representative or anything.
+**NOTE:** I'm not really interested in getting into the weeds as to whether these are perfectly representative or anything.
 
 In addition to these, we tested several adversarial examples:
 
@@ -82,7 +82,7 @@ We selected five models on which to run these experiments:
 
 Total API Costs: $482
 
-### Experiment 0: Testing Model's Stated Values
+### Experiment 0: Assessing the Models' Stated Values
 
 To lay the groundwork for the experiments, we first asked the models whether they thought an applicants name (and by proxy assumptions about ethnicity and gender) or age should play a role in the decision making process.
 
@@ -126,15 +126,35 @@ For the pairwise experiments, the non-name variables needed to be held stable. W
 
 ![Per-Question Gender Gaps](https://ai.williamtheisen.com/static/img/monuments/gender_gap_heatmap_combined.png)
 
+Probably the most interesting plot generated, here we have the per-ethnicity gender gaps both for individual models, and averaged, for each question. For **Q1: Loan Approval** the models (other than claude) displayed relatively little gender bias. Claude however was -14 for inferred-female names, representing a massive bias against implied-female names on personal loan applications. For every ethnicity except implied-Chinese, models displayed a negative preference. The largest gap was a 31 percentage point difference between implied-Islamic males and implied-Islamic females for Claude.
+
+For **Q2: School Approval** there was widespread pro-implied-female bias. Every model demonstrated a pro-implied-female bias with Claude reversing course and coming in with a whopping 23 percentage-point delta on the implied-female acceptance rates. For every ethnicity and every model, implied-female applicants were preferred to their implied-male counterparts, given identical applications. Claude gave implied-female names a 47 percentage point preference over their implied-male counterparts.
+
+**Q3: Job Hires** also demonstrates a pro-implied-female bias across every model except gemini. Claude again showed the largest divergences, preferring implied-spanish-female and implied-caucasian-female applicants at 37 and 36 percentage points, respectively. The largest gender gap however was between implied-Indian applicants, with implied-Indian-female applicants having a +12 percentage point advantage averaged across the five models.
+
+Anecdotally, many people I talk to seem to prefer claude for day-to-day tasks but interestingly, Claude yielded the largest spreads with -14, +23, and +17 female advantages across the three questions. Maybe inconsistency is an inherently humanizing trait. By far the least divergent model was gemini (though still demonstrating small preferences on every question: -1, +1, -6).
+
 #### Adversarial Name Results per Question
 
 ### Exploration: Effect of Name Length on Approval Rates
 
 #### Q1: Personal Loan Approval
 
+![Effects of Name Length Results for Loans by Gender](https://ai.williamtheisen.com/static/img/monuments/name_length_loan_gender.png)
+
+![Inter-Ethnicity Effects of Name Length Results](https://ai.williamtheisen.com/static/img/monuments/name_length_loan_ethnicity.png)
+
 #### Q2: College Application
 
+![Effects of Name Length Results for Schools by Gender](https://ai.williamtheisen.com/static/img/monuments/name_length_school_gender.png)
+
+![Inter-Ethnicity Effects of Name Schools Results](https://ai.williamtheisen.com/static/img/monuments/name_length_school_ethnicity.png)
+
 #### Q3: Job Application
+
+![Effects of Name Length Results for Jobs by Gender](https://ai.williamtheisen.com/static/img/monuments/name_length_salary_gender.png)
+
+![Inter-Ethnicity Effects of Name Length Results](https://ai.williamtheisen.com/static/img/monuments/name_length_salary_ethnicity.png)
 
 #### Q4: Job Application varying Ages
 
@@ -147,5 +167,3 @@ For the pairwise experiments, the non-name variables needed to be held stable. W
 #### Q3: Job Application
 
 #### Q4: Job Application varying Ages
-
-![Hello World in C as code and tokens](https://ai.williamtheisen.com/static/img/code_tokens.png)
