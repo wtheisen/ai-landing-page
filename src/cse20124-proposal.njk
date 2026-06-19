@@ -1,0 +1,914 @@
+---
+layout: base.njk
+title: "CSE 20124 Course Change Proposal"
+permalink: "cse20124-proposal.html"
+eleventyExcludeFromCollections: true
+description: "Proposed lecture and lab schedule for CSE 20124 — Intro to AI for Engineeers"
+---
+
+<style>
+/* ============================================================
+   Five-column comparison layout
+     col 1  — current schedule (CSE 30124, reference)
+     col 2-4 — rationale paragraphs
+     col 5  — proposed schedule (CSE 20124, recommended)
+   ============================================================ */
+.compare-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1.05fr 1.05fr;
+    gap: 22px 60px;
+    align-items: start;
+    margin-bottom: 28px;
+    position: relative;
+}
+.compare-col {
+    min-width: 0;
+}
+
+/* Split-lecture connector arrows (drawn by the script as an SVG overlay
+   in the channel between the two schedules). */
+.split-arrows {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 3;
+}
+.split-arrow {
+    fill: none;
+    transition: opacity 120ms ease;
+}
+.split-arrows.is-dimmed .split-arrow:not(.is-active) {
+    opacity: 0.08;
+}
+.split-arrow.is-active {
+    stroke-width: 2.4px;
+    stroke-opacity: 1;
+}
+
+/* Curly brace wrapping each rationale block, prong pointing toward
+   the schedule region it applies to (drawn by the script). */
+.rationale-brace {
+    fill: none;
+    stroke: rgba(0, 43, 92, 0.38);
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+}
+/* Connector from a rationale brace to the requirement block it discusses. */
+.req-connector {
+    fill: none;
+    stroke: rgba(0, 43, 92, 0.4);
+    stroke-width: 1.5px;
+    stroke-linecap: round;
+}
+/* Thin separators between rationale blocks (wide layout, drawn in SVG). */
+.rationale-sep {
+    stroke: #d6d6d6;
+    stroke-width: 1px;
+}
+
+/* Endpoint dots in the lecture title cells (added by the script).
+   Sit above the arrow overlay so the lines terminate cleanly. */
+.split-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    position: relative;
+    z-index: 4;
+    box-shadow: 0 0 0 1.5px #fff;
+}
+.split-dot--target {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.split-dot--source {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+/* Reserve room on the right of source titles for the dot. */
+.schedule-panel .table tr[data-split] td:last-child {
+    position: relative;
+    padding-right: 22px;
+}
+
+/* Prerequisite note above the proposed schedule. */
+.prereq-note {
+    padding: 8px 12px 9px;
+    margin-bottom: 12px;
+    background: #fbf7ec;
+    border: 1px solid #d8cda8;
+    border-left: 3px solid #b18d03;
+    border-radius: 2px;
+    line-height: 1.3;
+}
+.prereq-note__row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.prereq-note__tag {
+    flex-shrink: 0;
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #002148;
+    background: #b18d03;
+    border-radius: 2px;
+    padding: 3px 7px 2px;
+}
+.prereq-note__code {
+    font-weight: 700;
+    color: #002b5c;
+    font-size: 0.86rem;
+    font-variant-numeric: tabular-nums;
+}
+.prereq-note__title {
+    color: #2d2a22;
+    font-size: 0.8rem;
+}
+
+/* Rows that participate in a split highlight on hover. */
+.schedule-panel .table tr[data-split],
+.schedule-panel .table tr[data-split-to] {
+    cursor: default;
+}
+.schedule-panel .table tr.is-split-active td {
+    background-color: rgba(177, 141, 3, 0.14);
+}
+
+/* Rationale — one block spanning the left three columns; the current
+   and proposed schedules sit side by side in the rightmost two.
+   Plain in-page text with navy heads like the rest of the site
+   (gold reserved for accents, never headings). */
+.rationale-col {
+    line-height: 1.6;
+}
+.rationale-col__head {
+    margin: 0 0 10px;
+    font-size: 1.55rem;
+    font-weight: 600;
+    color: #002b5c;
+}
+.rationale-col p {
+    font-size: 1.35rem;
+    margin-bottom: 0;
+}
+/* When stacked (narrow / no-JS) the blocks flow with spacing; on wide
+   screens the alignment script positions them absolutely instead. */
+.rationale-block + .rationale-block {
+    margin-top: 26px;
+}
+
+/* Two-column "must have / nice to have" topic list inside a rationale block. */
+.rationale-topics {
+    margin-top: 16px;
+}
+.rationale-topics__label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #b18d03;
+    margin-bottom: 8px;
+}
+.topic-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 22px;
+}
+.topic-col__head {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #002b5c;
+    margin-bottom: 5px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #e2dcc8;
+}
+.topic-col ul {
+    margin: 0;
+    padding-left: 1.2em;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+.topic-col li {
+    margin-bottom: 2px;
+}
+
+@media (max-width: 1100px) {
+    .compare-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+    }
+    .rationale-col {
+        grid-column: 1 / 3;
+    }
+    .rationale-col p {
+        max-width: 70ch;
+    }
+    .rationale-block + .rationale-block {
+        border-top: 1px solid #d6d6d6;
+        padding-top: 24px;
+    }
+}
+@media (max-width: 680px) {
+    .compare-grid {
+        grid-template-columns: 1fr;
+    }
+    .rationale-col {
+        grid-column: auto;
+    }
+}
+
+/* ============================================================
+   Schedule panels — old (reference) vs new (recommended)
+   ============================================================ */
+.schedule-panel {
+    border-top: 4px solid #b18d03 !important;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0, 43, 92, 0.06);
+}
+/* The current schedule is reference material — muted rail, not gold. */
+.schedule-panel--reference {
+    border-top-color: #b6ac8c !important;
+}
+.schedule-panel > .panel-heading {
+    position: relative;
+}
+.schedule-panel__meta {
+    display: block;
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+}
+.schedule-panel .table {
+    font-size: 0.78rem;
+    margin-bottom: 0;
+}
+.schedule-panel .table td:first-child,
+.schedule-panel .table th:first-child {
+    white-space: nowrap;
+    width: 1%;
+    text-align: center;
+}
+
+/* Dropped lectures (GOFAI) in the current schedule */
+.schedule-panel .table tr.is-dropped td {
+    background-color: rgba(220, 53, 69, 0.13);
+    color: #9b2c34;
+    text-decoration: line-through;
+}
+.schedule-panel .table tr.is-dropped td.text-muted {
+    color: #c58b91;
+}
+
+/* Small badge in a schedule heading. */
+.schedule-chip {
+    display: inline-block;
+    margin-left: 6px;
+    vertical-align: 2px;
+    background: #b18d03;
+    color: #002148;
+    border: 1px solid #8a6e02;
+    padding: 3px 8px 2px;
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    box-shadow: 0 1px 2px rgba(0, 43, 92, 0.18);
+    font-family: inherit;
+}
+.schedule-chip--muted {
+    background: #ece4cd;
+    color: #6a5d33;
+    border-color: #cdc098;
+    box-shadow: none;
+}
+
+/* ============================================================
+   Intro lead + recommendation callout
+   ============================================================ */
+.proposal-intro {
+    margin-bottom: 22px;
+    line-height: 1.6;
+}
+.proposal-intro > p {
+    max-width: 80ch;
+    margin-bottom: 0;
+}
+
+.proposal-recommendation {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+    padding: 14px 18px;
+    background: #002b5c;
+    border-radius: 2px;
+    box-shadow: 0 4px 14px rgba(0, 43, 92, 0.28);
+}
+.proposal-recommendation__tag {
+    flex-shrink: 0;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: #002148;
+    background: #b18d03;
+    border-radius: 2px;
+    padding: 4px 9px 3px;
+}
+.proposal-recommendation__body {
+    margin: 0;
+    color: #fff;
+    font-size: 15px;
+    line-height: 1.45;
+}
+.proposal-recommendation__body strong {
+    color: #e0b431;
+}
+
+/* ============================================================
+   Legend
+   ============================================================ */
+.schedule-legend {
+    margin-bottom: 18px;
+}
+.schedule-legend .label {
+    margin-right: 4px;
+}
+</style>
+
+{# ============================================================
+   Current CSE 30124 schedule (reference)
+   ============================================================ #}
+{% set currentScheduleBlock %}
+<div class="panel panel-default schedule-panel schedule-panel--reference">
+    <div class="panel-heading">
+        <strong>CSE 30124</strong>
+        <span class="schedule-chip schedule-chip--muted" aria-hidden="true">Current</span>
+        <small class="text-muted schedule-panel__meta">MW 3:30–4:45 · 24 lectures · 0 labs · 2 exams</small>
+    </div>
+    <table class="table table-condensed table-bordered">
+        <tbody>
+            <tr class="active" data-anchor="gofai"><th colspan="2"><small>Unit 01 — GOFAI &amp; Representations</small></th></tr>
+            <tr><td class="text-muted">01</td><td>Syllabus / History of AI</td></tr>
+            <tr class="is-dropped" data-anchor-group="gofai"><td class="text-muted">02</td><td>Search</td></tr>
+            <tr class="is-dropped" data-anchor-group="gofai"><td class="text-muted">03</td><td>A* Search</td></tr>
+            <tr class="is-dropped" data-anchor-group="gofai"><td class="text-muted">04</td><td>Constraint Satisfaction Problems</td></tr>
+            <tr class="is-dropped" data-anchor-group="gofai"><td class="text-muted">05</td><td>Minimax and Alpha/Beta Pruning</td></tr>
+            <tr class="is-dropped" data-anchor-group="gofai"><td class="text-muted">06</td><td>Knowledge Representation and Feature Engineering</td></tr>
+            <tr class="active"><th colspan="2"><small>Unit 02 — Machine Learning</small></th></tr>
+            <tr data-split="dtree"><td class="text-muted">07</td><td>Decision Trees</td></tr>
+            <tr class="is-dropped"><td class="text-muted">08</td><td>Markov Models and Hidden Markov Models</td></tr>
+            <tr><td class="text-muted">09</td><td>Bayesian Reasoning and Naive Bayes</td></tr>
+            <tr data-split="linreg"><td class="text-muted">10</td><td>Linear Regression and Regularization</td></tr>
+            <tr><td class="text-muted">11</td><td>Perceptrons</td></tr>
+            <tr class="warning"><td>R</td><td>Review</td></tr>
+            <tr class="danger"><td>E1</td><td><strong>Exam 01</strong></td></tr>
+            <tr data-split="logreg"><td class="text-muted">12</td><td>Logistic Regression and Gradient Descent</td></tr>
+            <tr><td class="text-muted">13</td><td>SVMs and KNNs</td></tr>
+            <tr data-split="cluster"><td class="text-muted">14</td><td>Clustering</td></tr>
+            <tr><td class="text-muted">–</td><td><em class="text-muted">Spring Break</em></td></tr>
+            <tr><td class="text-muted">15</td><td>Principal Component Analysis</td></tr>
+            <tr data-split="practicum"><td class="text-muted">16</td><td>Practicum (Model Evaluation and Ensemble Methods)</td></tr>
+            <tr class="active"><th colspan="2"><small>Unit 03 — Deep Learning</small></th></tr>
+            <tr><td class="text-muted">17</td><td>Feed-Forward Networks</td></tr>
+            <tr data-split="backprop"><td class="text-muted">18</td><td>Gradient Descent and Backprop</td></tr>
+            <tr><td class="text-muted">19</td><td>Convolutional Neural Networks (CNNs)</td></tr>
+            <tr class="warning"><td>R</td><td>Review</td></tr>
+            <tr class="danger"><td>E2</td><td><strong>Exam 02</strong></td></tr>
+            <tr data-split="rnn"><td class="text-muted">20</td><td>Recurrent Neural Networks</td></tr>
+            <tr data-split="attention"><td class="text-muted">21</td><td>Self-Attention and Transformers</td></tr>
+            <tr><td class="text-muted">22</td><td>Diffusion Models</td></tr>
+            <tr data-split="rl"><td class="text-muted">23</td><td>Reinforcement Learning</td></tr>
+            <tr data-split="llm"><td class="text-muted">24</td><td>LLMs and Agentic LLMs</td></tr>
+            <tr class="warning"><td>R</td><td>Review</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endset %}
+
+{# ============================================================
+   Proposed CSE 20124 schedule (recommended)
+   ============================================================ #}
+{% set proposedScheduleBlock %}
+<div class="panel panel-primary schedule-panel">
+    <div class="panel-heading">
+        <strong>CSE 20124</strong>
+        <span class="schedule-chip" aria-hidden="true">Proposed</span>
+        <small class="text-muted schedule-panel__meta">MWF + weekly lab · 36 lectures · 14 labs · 2 exams</small>
+    </div>
+    <table class="table table-condensed table-bordered">
+        <tbody>
+            <tr class="active"><th colspan="2"><small>Unit 01 — Foundations of ML</small></th></tr>
+            <tr><td class="text-muted">01</td><td>Introduction to Learning</td></tr>
+            <tr><td class="text-muted">02</td><td>High Dimensional Data</td></tr>
+            <tr><td class="text-muted">03</td><td>k-Nearest Neighbors</td></tr>
+            <tr class="info" data-anchor="labs"><td>L01</td><td>Lab 01 — Jupyter / Pandas</td></tr>
+            <tr data-split-to="dtree"><td class="text-muted">04</td><td>Entropy and Variance</td></tr>
+            <tr data-split-to="dtree"><td class="text-muted">05</td><td>Decision Trees</td></tr>
+            <tr><td class="text-muted">06</td><td>Bayesian Methods</td></tr>
+            <tr class="info"><td>L02</td><td>Lab 02 — sklearn</td></tr>
+            <tr data-anchor="math" data-split-to="linreg"><td class="text-muted">07</td><td>Linear Regression</td></tr>
+            <tr data-split-to="linreg"><td class="text-muted">08</td><td>Regularization</td></tr>
+            <tr><td class="text-muted">09</td><td>Perceptrons</td></tr>
+            <tr class="info"><td>L03</td><td>Lab 03 — sklearn</td></tr>
+            <tr data-split-to="logreg"><td class="text-muted">10</td><td>Logistic Regression</td></tr>
+            <tr data-split-to="logreg"><td class="text-muted">11</td><td>Optimization</td></tr>
+            <tr data-split-to="logreg"><td class="text-muted">12</td><td>Gradient Descent</td></tr>
+            <tr class="info"><td>L04</td><td>Lab 04 — sklearn</td></tr>
+            <tr><td class="text-muted">13</td><td>Margin Classifiers</td></tr>
+            <tr><td class="text-muted">14</td><td>Support Vector Machines</td></tr>
+            <tr data-split-to="practicum"><td class="text-muted">15</td><td>Ensemble Methods</td></tr>
+            <tr class="info"><td>L05</td><td>Lab 05 — sklearn</td></tr>
+            <tr data-split-to="practicum"><td class="text-muted">16</td><td>Model Evaluation 01</td></tr>
+            <tr data-split-to="practicum"><td class="text-muted">17</td><td>Model Evaluation 02</td></tr>
+            <tr class="success"><td>–</td><td><em>FLEX</em></td></tr>
+            <tr class="info"><td>L06</td><td>Lab 06 — sklearn</td></tr>
+            <tr class="active"><th colspan="2"><small>Unit 02 — Reinforcement &amp; Unsupervised Learning</small></th></tr>
+            <tr data-split-to="rl"><td class="text-muted">18</td><td>Reinforcement Learning</td></tr>
+            <tr data-split-to="rl"><td class="text-muted">19</td><td>Q-Learning</td></tr>
+            <tr data-split-to="rl"><td class="text-muted">20</td><td>On-Policy RL</td></tr>
+            <tr class="info"><td>L07</td><td>Lab 07 — OpenAI Gym</td></tr>
+            <tr data-split-to="cluster"><td class="text-muted">21</td><td>Unsupervised Learning</td></tr>
+            <tr data-split-to="cluster"><td class="text-muted">22</td><td>Clustering</td></tr>
+            <tr><td class="text-muted">23</td><td>Principal Component Analysis</td></tr>
+            <tr class="info"><td>L08</td><td>Lab 08 — sklearn</td></tr>
+            <tr><td class="text-muted">–</td><td><em class="text-muted">Break</em></td></tr>
+            <tr><td class="text-muted">–</td><td><em class="text-muted">Break</em></td></tr>
+            <tr><td class="text-muted">–</td><td><em class="text-muted">Break</em></td></tr>
+            <tr class="warning"><td>R1</td><td>Review 01</td></tr>
+            <tr class="warning"><td>R2</td><td>Review 02</td></tr>
+            <tr class="danger"><td>E1</td><td><strong>Exam 01</strong></td></tr>
+            <tr class="active"><th colspan="2"><small>Unit 03 — Deep Learning</small></th></tr>
+            <tr class="info"><td>L09</td><td>Lab 09 — flex</td></tr>
+            <tr><td class="text-muted">24</td><td>Feed-Forward Neural Networks</td></tr>
+            <tr data-split-to="backprop"><td class="text-muted">25</td><td>Backpropagation</td></tr>
+            <tr data-split-to="backprop"><td class="text-muted">26</td><td>Training Neural Networks</td></tr>
+            <tr class="info"><td>L10</td><td>Lab 10 — PyTorch</td></tr>
+            <tr><td class="text-muted">27</td><td>Convolutional Neural Networks 01</td></tr>
+            <tr data-split-to="rnn"><td class="text-muted">28</td><td>Text as Data</td></tr>
+            <tr data-split-to="rnn"><td class="text-muted">29</td><td>Recurrent Neural Networks</td></tr>
+            <tr class="info"><td>L11</td><td>Lab 11 — PyTorch</td></tr>
+            <tr data-split-to="attention"><td class="text-muted">30</td><td>Self-Attention</td></tr>
+            <tr data-split-to="attention"><td class="text-muted">31</td><td>Attention Variants</td></tr>
+            <tr data-split-to="attention"><td class="text-muted">32</td><td>Transformers</td></tr>
+            <tr class="info"><td>L12</td><td>Lab 12 — PyTorch</td></tr>
+            <tr data-split-to="llm"><td class="text-muted">33</td><td>Agentic LLMs</td></tr>
+            <tr><td class="text-muted">–</td><td><em class="text-muted">Break</em></td></tr>
+            <tr><td class="text-muted">–</td><td><em class="text-muted">Break</em></td></tr>
+            <tr class="info"><td>L13</td><td>Lab 13 — JAX and Keras</td></tr>
+            <tr><td class="text-muted">34</td><td>Diffusion Models</td></tr>
+            <tr data-split-to="rl"><td class="text-muted">35</td><td>Deep Reinforcement Learning</td></tr>
+            <tr data-split-to="llm"><td class="text-muted">36</td><td>Modern AI</td></tr>
+            <tr class="info"><td>L14</td><td>Lab 14 — flex</td></tr>
+            <tr class="warning"><td>R3</td><td>Review</td></tr>
+            <tr class="danger"><td>E2</td><td><strong>Exam 02</strong></td></tr>
+        </tbody>
+    </table>
+</div>
+{% endset %}
+
+{# ============================================================
+   Page header + lead + recommendation
+   ============================================================ #}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="page-header">
+            <h2 style="margin-top: 0;">
+                Course Change Proposal
+                <small>CSE 20124 — Introduction to Artificial Intelligence</small>
+            </h2>
+            <p class="lead text-muted">Proposed lecture schedule revision — M/W/F format with integrated labs</p>
+        </div>
+
+        <div class="proposal-intro">
+            <p>
+                The reason I've drafted only one schedule for CSE&nbsp;20124 is that I genuinely
+                can't envision what I would do differently between them — the rationale below lays 
+                out why, with the current CSE&nbsp;30124 schedule on the left and the proposed 
+                schedule on the right.
+            </p>
+        </div>
+
+        <div class="proposal-recommendation">
+            <span class="proposal-recommendation__tag">Recommendation</span>
+            <p class="proposal-recommendation__body">
+                Combine into a single, 4-credit <strong>CSE&nbsp;20124 — Introduction to AI for
+                Engineers</strong>.
+            </p>
+        </div>
+
+        <div class="schedule-legend">
+            <span class="label label-default">Lecture</span>
+            <span class="label label-info">Lab</span>
+            <span class="label label-danger">Exam</span>
+            <span class="label label-warning">Review</span>
+            <span class="label label-success">Flex</span>
+            <span class="text-muted"><small>— Break</small></span>
+        </div>
+    </div>
+</div>
+
+{# ============================================================
+   Five-column comparison
+   ============================================================ #}
+<div class="row">
+    <div class="col-sm-12">
+        <div class="compare-grid">
+
+            {# Rationale — spans the left three columns; each block is
+               aligned beside the schedule region it affects by the
+               script at the foot of the page (data-anchor-for ↔ data-anchor). #}
+            <div class="compare-col rationale-col">
+                <div class="rationale-block" data-anchor-for="req-prog">
+                    <h3 class="rationale-col__head">One schedule for everyone</h3>
+                    <p>
+                        The concern is that minor students may be behind — but you can't teach an
+                        intro-to-programming course inside an intro-to-AI course. We actually don't
+                        even require Data Structures outselves, it's just Fund Comp. If students can
+                        get exposure from a revamped EG 10118 to basic python programming techniques and
+                        programmatic thinking: with basic data structures (dicts,
+                        lists) and control flow (loops, functions), they'll be completely fine. Our
+                        majors won't have seen Jupyter, pandas, scikit-learn, or PyTorch either —
+                        and those are the explicit focus of the labs — so while majors may have
+                        slightly more programming experience, I really don't think the gap will make
+                        much of a difference. At the end of the day this isn't really a programming
+                        course, and the labs will help everyone.
+                    </p>
+                    <div class="rationale-topics">
+                        <div class="rationale-topics__label">EG 10118 topics</div>
+                        <div class="topic-cols">
+                            <div class="topic-col">
+                                <div class="topic-col__head">Must have</div>
+                                <ul>
+                                    <li>variables</li>
+                                    <li>lists</li>
+                                    <li>dicts</li>
+                                    <li>conditionals</li>
+                                    <li>loops</li>
+                                    <li>functions</li>
+                                </ul>
+                            </div>
+                            <div class="topic-col">
+                                <div class="topic-col__head">Nice to have</div>
+                                <ul>
+                                    <li>classes</li>
+                                    <li>a slightly harder problem (e.g. BFS / DFS)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rationale-block" data-anchor-for="req-math">
+                    <h3 class="rationale-col__head">Prerequisites &amp; co-requisites</h3>
+                    <p>
+                        I know it's an unpopular opinion, but I'm genuinely not convinced that either
+                        statistics or linear algebra is required to get a conceptual handle on matrix
+                        multiplication or distributions. An ML-focused, retooled prob-stats course
+                        would obviously be useful as a co-requisite — but ultimately I think students
+                        are better served by taking AI <em>earlier</em> than by any enrichment they'd
+                        get from another semester of math beforehand, especially given the current
+                        job and internship market. We don't even require Prob/Stats currently, just Linear.
+                    </p>
+                </div>
+
+                <div class="rationale-block" data-anchor-for="gofai">
+                    <h3 class="rationale-col__head">Dropping GOFAI</h3>
+                    <p>
+                        Broadly, I'm in favor of dropping GOFAI almost entirely. I didn't read your
+                        full notes before drafting the schedule, but we both started with k-Nearest
+                        Neighbors, so that's probably the natural place to begin. The GOFAI material
+                        can be historically interesting and fun trivia, but it's fundamentally
+                        different from modern learning algorithms, and students won't be missing
+                        anything AI-wise without it — from an employability standpoint, if not
+                        necessarily an idealized-education one. I struggle to see any real
+                        application of the ~4 GOFAI lectures to downstream courses.
+                    </p>
+                </div>
+            </div>
+
+            {# Current schedule — paired with proposed in the right two columns #}
+            <div class="compare-col">
+                <div class="prereq-note" data-anchor="req-prog">
+                    <div class="prereq-note__row">
+                        <span class="prereq-note__tag">Pre-Req</span>
+                        <span class="prereq-note__code">CSE 20311</span>
+                    </div>
+                    <div class="prereq-note__title">Fundamentals of Computing</div>
+                </div>
+                <div class="prereq-note" data-anchor="req-math">
+                    <div class="prereq-note__row">
+                        <span class="prereq-note__tag">Pre-Req</span>
+                        <span class="prereq-note__code">MATH 20580</span>
+                    </div>
+                    <div class="prereq-note__title">Intro to Linear Algebra and DiffEq</div>
+                </div>
+                {{ currentScheduleBlock | safe }}
+            </div>
+
+            {# Proposed schedule #}
+            <div class="compare-col">
+                <div class="prereq-note">
+                    <div class="prereq-note__row">
+                        <span class="prereq-note__tag">Pre-Req</span>
+                        <span class="prereq-note__code">EG 10118</span>
+                    </div>
+                    <div class="prereq-note__title">Engineering Computing in Python</div>
+                </div>
+                <div class="prereq-note">
+                    <div class="prereq-note__row">
+                        <span class="prereq-note__tag">Co-Req</span>
+                        <span class="prereq-note__code">ACMS 30440</span>
+                    </div>
+                    <div class="prereq-note__title">Probability and Statistics for Machine Learning</div>
+                </div>
+                {{ proposedScheduleBlock | safe }}
+            </div>
+
+        </div>{# /compare-grid #}
+    </div>{# /col-sm-12 #}
+</div>{# /row #}
+
+{# ============================================================
+   Page behavior:
+   1. Align each rationale block beside the schedule region it
+      affects (wide screens only) via data-anchor-for ↔ data-anchor.
+   2. Draw elbow connector arrows from each combined "current"
+      lecture (data-split) to its "split" lectures in the proposed
+      schedule (data-split-to), color-coded, with hover highlight.
+   Both fall back gracefully on narrow screens / no-JS.
+   ============================================================ #}
+<script>
+(function () {
+    'use strict';
+    var grid = document.querySelector('.compare-grid');
+    if (!grid) return;
+    var col = grid.querySelector('.rationale-col');
+
+    /* ---------- 1. Rationale block alignment ---------- */
+    var blocks = col ? Array.prototype.slice.call(col.querySelectorAll('.rationale-block')) : [];
+    var alignMq = window.matchMedia('(min-width: 1101px)');
+    var BLOCK_GAP = 26;
+
+    function alignBlocks() {
+        if (col) {
+            col.style.position = '';
+            col.style.minHeight = '';
+            blocks.forEach(function (b) {
+                b.style.position = ''; b.style.top = ''; b.style.left = ''; b.style.right = '';
+            });
+        }
+        if (!col || !blocks.length || !alignMq.matches) return;
+        var gridTop = grid.getBoundingClientRect().top;
+        var items = blocks.map(function (b) {
+            var key = b.getAttribute('data-anchor-for');
+            var row = key && grid.querySelector('[data-anchor="' + key + '"]');
+            var top = row ? row.getBoundingClientRect().top - gridTop : 0;
+            return { el: b, top: Math.max(0, top) };
+        }).sort(function (a, b) { return a.top - b.top; });
+        col.style.position = 'relative';
+        var cursor = 0;
+        items.forEach(function (it) {
+            var top = Math.max(it.top, cursor);
+            it.el.style.position = 'absolute';
+            it.el.style.left = '0';
+            it.el.style.right = '0';
+            it.el.style.top = top + 'px';
+            cursor = top + it.el.offsetHeight + BLOCK_GAP;
+        });
+        col.style.minHeight = cursor + 'px';
+    }
+
+    /* ---------- 2. Split connector arrows ---------- */
+    var SVGNS = 'http://www.w3.org/2000/svg';
+    var COLORS = {
+        dtree: '#c0392b', linreg: '#2980b9', logreg: '#27ae60', cluster: '#8e44ad',
+        practicum: '#d35400', backprop: '#16a085', rnn: '#c2185b', attention: '#00838f',
+        rl: '#3949ab', llm: '#6d4c41'
+    };
+    var sources = Array.prototype.slice.call(grid.querySelectorAll('[data-split]'));
+
+    // Colors for the rationale brace ↔ requirement connectors.
+    var BRACE_COLORS = {
+        'req-prog': '#2e7d32',  // green — One schedule for everyone
+        'req-math': '#6a1b9a',  // purple — Prerequisites & co-requisites
+        'gofai': '#c62828'      // red — Dropping GOFAI
+    };
+
+    function makeDot(color, cls) {
+        var d = document.createElement('span');
+        d.className = 'split-dot ' + cls;
+        d.style.backgroundColor = color;
+        return d;
+    }
+    function createDots() {
+        sources.forEach(function (src) {
+            var key = src.getAttribute('data-split');
+            var cell = src.children[src.children.length - 1];
+            if (cell && !cell.querySelector('.split-dot--source')) {
+                cell.appendChild(makeDot(COLORS[key] || '#b18d03', 'split-dot--source'));
+            }
+        });
+        Array.prototype.forEach.call(grid.querySelectorAll('[data-split-to]'), function (tg) {
+            var key = tg.getAttribute('data-split-to');
+            var cell = tg.children[0]; // number cell — dot goes left of the number
+            if (cell && !cell.querySelector('.split-dot--target')) {
+                cell.insertBefore(makeDot(COLORS[key] || '#b18d03', 'split-dot--target'), cell.firstChild);
+            }
+        });
+    }
+    function center(el, gr, axis) {
+        var r = el.getBoundingClientRect();
+        return axis === 'x' ? (r.left + r.width / 2 - gr.left) : (r.top + r.height / 2 - gr.top);
+    }
+
+    function drawArrows() {
+        var old = grid.querySelector('.split-arrows');
+        if (old) old.parentNode.removeChild(old);
+        if (window.innerWidth <= 680 || !sources.length) return;
+
+        var gr = grid.getBoundingClientRect();
+        var svg = document.createElementNS(SVGNS, 'svg');
+        svg.setAttribute('class', 'split-arrows');
+        svg.setAttribute('width', gr.width);
+        svg.setAttribute('height', gr.height);
+
+        var n = sources.length;
+        sources.forEach(function (src, gi) {
+            var key = src.getAttribute('data-split');
+            var color = COLORS[key] || '#b18d03';
+            var sdot = src.querySelector('.split-dot--source');
+            if (!sdot) return;
+            var x0 = center(sdot, gr, 'x');
+            var ys = center(sdot, gr, 'y');
+            var srcRight = src.getBoundingClientRect().right - gr.left;
+            var targets = Array.prototype.slice.call(grid.querySelectorAll('[data-split-to="' + key + '"]'));
+            if (!targets.length) return;
+            var propLeft = targets[0].getBoundingClientRect().left - gr.left;
+            // Each group's vertical trunk gets its own x within the channel.
+            var xt = srcRight + (propLeft - srcRight) * (gi + 1) / (n + 1);
+            targets.forEach(function (tg) {
+                var tdot = tg.querySelector('.split-dot--target');
+                if (!tdot) return;
+                var xend = center(tdot, gr, 'x');
+                var yt = center(tdot, gr, 'y');
+                var path = document.createElementNS(SVGNS, 'path');
+                path.setAttribute('class', 'split-arrow');
+                path.setAttribute('d', 'M ' + x0 + ' ' + ys + ' H ' + xt + ' V ' + yt + ' H ' + xend);
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', '1.4');
+                path.setAttribute('stroke-opacity', '0.6');
+                path.setAttribute('data-group', key);
+                svg.appendChild(path);
+            });
+        });
+
+        // Curly brace around each rationale block, prong pointing toward
+        // the schedule region it applies to. Only when blocks are aligned
+        // beside the schedules (wide layout).
+        if (alignMq.matches && col) {
+            blocks.forEach(function (b) {
+                var key = b.getAttribute('data-anchor-for');
+                var anchor = key && grid.querySelector('[data-anchor="' + key + '"]');
+                if (!anchor) return;
+                var br = b.getBoundingClientRect();
+                var yT = br.top - gr.top;
+                var yB = br.bottom - gr.top;
+                var bx = (br.right - gr.left) + 5;   // arm tips, just past the block
+                var xs = bx + 9;                     // spine
+                var tx = xs + 13;                    // prong tip, toward schedule
+                var r = 7;
+                var ar = anchor.getBoundingClientRect();
+                var aCenter = ar.top - gr.top + ar.height / 2;
+                // Prong points at the anchor block, clamped into the brace's
+                // span so it leans toward the target it refers to.
+                var ty = Math.max(yT + 2 * r, Math.min(yB - 2 * r, aCenter));
+                var d = 'M ' + bx + ' ' + yT +
+                        ' Q ' + xs + ' ' + yT + ' ' + xs + ' ' + (yT + r) +
+                        ' L ' + xs + ' ' + (ty - r) +
+                        ' Q ' + xs + ' ' + ty + ' ' + tx + ' ' + ty +
+                        ' Q ' + xs + ' ' + ty + ' ' + xs + ' ' + (ty + r) +
+                        ' L ' + xs + ' ' + (yB - r) +
+                        ' Q ' + xs + ' ' + yB + ' ' + bx + ' ' + yB;
+                var bcolor = BRACE_COLORS[key] || 'rgba(0, 43, 92, 0.45)';
+                var brace = document.createElementNS(SVGNS, 'path');
+                brace.setAttribute('class', 'rationale-brace');
+                brace.setAttribute('d', d);
+                brace.style.stroke = bcolor;
+                svg.appendChild(brace);
+
+                // Draw a mirrored "{" brace hugging the target and a solid
+                // connector joining the two brace prongs. The target is either
+                // a requirement block, or a marked group of schedule rows
+                // (e.g. the dropped GOFAI lectures).
+                var tgt = null;
+                if (anchor.classList && anchor.classList.contains('prereq-note')) {
+                    tgt = { top: ar.top - gr.top, bottom: ar.bottom - gr.top, left: ar.left - gr.left };
+                } else {
+                    var grp = grid.querySelectorAll('[data-anchor-group="' + key + '"]');
+                    if (grp.length) {
+                        var gT = Infinity, gB = -Infinity, gL = Infinity;
+                        Array.prototype.forEach.call(grp, function (el) {
+                            var er = el.getBoundingClientRect();
+                            gT = Math.min(gT, er.top - gr.top);
+                            gB = Math.max(gB, er.bottom - gr.top);
+                            gL = Math.min(gL, er.left - gr.left);
+                        });
+                        tgt = { top: gT, bottom: gB, left: gL };
+                    }
+                }
+                if (tgt) {
+                    var aLeft = tgt.left;
+                    var aTop = tgt.top;
+                    var aBot = tgt.bottom;
+                    var tyr = (aTop + aBot) / 2;
+                    var bxR = aLeft - 4;   // arms, hugging the target's left side
+                    var xsR = bxR - 9;     // spine
+                    var txR = xsR - 13;    // prong tip, pointing left
+                    var rr = 6;
+                    var dReq = 'M ' + bxR + ' ' + aTop +
+                        ' Q ' + xsR + ' ' + aTop + ' ' + xsR + ' ' + (aTop + rr) +
+                        ' L ' + xsR + ' ' + (tyr - rr) +
+                        ' Q ' + xsR + ' ' + tyr + ' ' + txR + ' ' + tyr +
+                        ' Q ' + xsR + ' ' + tyr + ' ' + xsR + ' ' + (tyr + rr) +
+                        ' L ' + xsR + ' ' + (aBot - rr) +
+                        ' Q ' + xsR + ' ' + aBot + ' ' + bxR + ' ' + aBot;
+                    var reqBrace = document.createElementNS(SVGNS, 'path');
+                    reqBrace.setAttribute('class', 'rationale-brace');
+                    reqBrace.setAttribute('d', dReq);
+                    reqBrace.style.stroke = bcolor;
+                    svg.appendChild(reqBrace);
+
+                    var conn = document.createElementNS(SVGNS, 'path');
+                    conn.setAttribute('class', 'req-connector');
+                    conn.setAttribute('d', 'M ' + tx + ' ' + ty + ' V ' + tyr + ' H ' + txR);
+                    conn.style.stroke = bcolor;
+                    svg.appendChild(conn);
+                }
+            });
+
+            // Thin separators in the gaps between consecutive rationale blocks.
+            var ordered = blocks.map(function (b) {
+                var r2 = b.getBoundingClientRect();
+                return { top: r2.top - gr.top, bottom: r2.bottom - gr.top, left: r2.left - gr.left, right: r2.right - gr.left };
+            }).sort(function (a, b) { return a.top - b.top; });
+            for (var si = 0; si < ordered.length - 1; si++) {
+                var sepY = (ordered[si].bottom + ordered[si + 1].top) / 2;
+                var sep = document.createElementNS(SVGNS, 'line');
+                sep.setAttribute('class', 'rationale-sep');
+                sep.setAttribute('x1', ordered[si].left);
+                sep.setAttribute('y1', sepY);
+                sep.setAttribute('x2', ordered[si].right);
+                sep.setAttribute('y2', sepY);
+                svg.appendChild(sep);
+            }
+        }
+
+        grid.appendChild(svg);
+    }
+
+    /* ---------- hover highlight of a single split group ---------- */
+    function highlight(key, on) {
+        var svg = grid.querySelector('.split-arrows');
+        if (svg) {
+            svg.classList.toggle('is-dimmed', on);
+            Array.prototype.forEach.call(svg.querySelectorAll('[data-group]'), function (el) {
+                el.classList.toggle('is-active', on && el.getAttribute('data-group') === key);
+            });
+        }
+        Array.prototype.forEach.call(
+            grid.querySelectorAll('[data-split="' + key + '"], [data-split-to="' + key + '"]'),
+            function (row) { row.classList.toggle('is-split-active', on); }
+        );
+    }
+    function bindHover() {
+        Array.prototype.forEach.call(grid.querySelectorAll('[data-split], [data-split-to]'), function (row) {
+            var key = row.getAttribute('data-split') || row.getAttribute('data-split-to');
+            row.addEventListener('mouseenter', function () { highlight(key, true); });
+            row.addEventListener('mouseleave', function () { highlight(key, false); });
+        });
+    }
+
+    function render() { alignBlocks(); drawArrows(); }
+    function schedule() { window.requestAnimationFrame(render); }
+
+    createDots();
+    bindHover();
+    window.addEventListener('load', schedule);
+    window.addEventListener('resize', schedule);
+    if (alignMq.addEventListener) { alignMq.addEventListener('change', schedule); }
+    if (document.readyState === 'complete') { schedule(); }
+})();
+</script>
