@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import difflib
 import pathlib
 import re
 import sys
@@ -17,6 +18,8 @@ import requests
 
 SEARCH_URL = "https://openlibrary.org/search.json"
 COVER_FMT = "https://covers.openlibrary.org/b/{key}/{value}-{size}.jpg?default=false"
+GOOGLE_BOOKS_SEARCH_URL = "https://www.googleapis.com/books/v1/volumes"
+GOOGLE_BOOKS_DISABLED = False
 
 ISBN_KEYS = (
     "isbn",
@@ -47,6 +50,7 @@ DEFAULT_TIMEOUT = 20
 ISBN_CLEAN_RE = re.compile(r"[^0-9Xx]")
 OLID_CLEAN_RE = re.compile(r"[^A-Za-z0-9]")
 TOKEN_SPLIT_RE = re.compile(r"[\s,;/|]+")
+TITLE_NORMALIZE_RE = re.compile(r"[^a-z0-9]+")
 
 
 def normalize_key(value: str) -> str:
@@ -197,45 +201,203 @@ def load_resources(path: pathlib.Path) -> Tuple[List[dict[str, str]], dict[str, 
     return rows, header_map
 
 
-def score_doc(doc: dict, want_title: str, want_author: str) -> int:
-    score = 0
-    if "eng" in (doc.get("language") or []):
-        score += 2
-    title = (doc.get("title") or "").lower()
-    author_blob = " ".join((doc.get("author_name") or [])).lower()
-    if want_title and title == want_title.lower():
-        score += 2
-    if want_author and want_author.lower() in author_blob:
-        score += 1
-    return score
+def normalize_match_text(value: str) -> str:
+    return TITLE_NORMALIZE_RE.sub(" ", (value or "").lower()).strip()
+
+
+def title_variants(title: str) -> List[str]:
+    """Return progressively broader catalog-title variants."""
+    without_parenthetical = re.sub(r"\s*\([^)]*\)\s*", " ", title).strip()
+    before_subtitle = without_parenthetical.split(":", 1)[0].strip()
+    return unique(
+        value
+        for value in (title.strip(), without_parenthetical, before_subtitle)
+        if value
+    )
+
+
+def primary_author(author: str) -> str:
+    """Use the first listed author for APIs that treat author as one entity."""
+    return re.split(r"\s*(?:,|&|\band\b)\s*", author, maxsplit=1, flags=re.IGNORECASE)[0].strip()
+
+
+def bibliographic_match_score(
+    got_title: str,
+    got_authors: str,
+    want_title: str,
+    want_author: str,
+) -> float:
+    wanted_titles = [normalize_match_text(value) for value in title_variants(want_title)]
+    got_title = normalize_match_text(got_title)
+    if not got_title or not wanted_titles:
+        return 0.0
+
+    title_score = max(
+        difflib.SequenceMatcher(None, got_title, wanted).ratio()
+        for wanted in wanted_titles
+    )
+    if got_title in wanted_titles:
+        title_score = 1.0
+
+    # Do not confuse two volumes in the same titled series when both have
+    # different subtitles (for example, "An Introduction" vs.
+    # "Advanced Topics").
+    wanted_full = wanted_titles[0]
+    wanted_base = wanted_titles[-1]
+    if (
+        got_title.startswith(wanted_base + " ")
+        and wanted_full.startswith(wanted_base + " ")
+        and got_title != wanted_full
+        and difflib.SequenceMatcher(None, got_title, wanted_full).ratio() < 0.85
+    ):
+        return 0.0
+
+    wanted_author = normalize_match_text(primary_author(want_author))
+    got_authors = normalize_match_text(got_authors)
+    author_score = 0.0
+    if wanted_author:
+        wanted_tokens = set(wanted_author.split())
+        got_tokens = set(got_authors.split())
+        author_score = len(wanted_tokens & got_tokens) / max(1, len(wanted_tokens))
+
+    if wanted_author and (title_score < 0.78 or author_score == 0):
+        return 0.0
+    if not wanted_author and title_score < 0.9:
+        return 0.0
+    return title_score * 0.8 + author_score * 0.2
+
+
+def google_book_match_score(volume: dict, want_title: str, want_author: str) -> float:
+    """Score a Google Books result conservatively to avoid incorrect covers."""
+    info = volume.get("volumeInfo") or {}
+    return bibliographic_match_score(
+        info.get("title") or "",
+        " ".join(info.get("authors") or []),
+        want_title,
+        want_author,
+    )
 
 
 def search_open_library(title: str, author: str, timeout: int) -> List[Tuple[str, str]]:
-    params = {"title": title, "limit": 5}
-    if author:
-        params["author"] = author
-    try:
-        response = requests.get(SEARCH_URL, params=params, timeout=timeout)
-        response.raise_for_status()
-    except requests.RequestException as exc:
-        print(f"[warn] search failed for '{title}': {exc}", file=sys.stderr)
-        return []
+    docs_by_key = {}
+    query_author = primary_author(author)
+    for query_title in title_variants(title):
+        params = {"title": query_title, "limit": 10}
+        if query_author:
+            params["author"] = query_author
+        try:
+            response = requests.get(SEARCH_URL, params=params, timeout=timeout)
+            response.raise_for_status()
+            docs = response.json().get("docs", [])
+        except (requests.RequestException, ValueError) as exc:
+            print(f"[warn] search failed for '{query_title}': {exc}", file=sys.stderr)
+            continue
+        for doc in docs:
+            key = doc.get("key") or f"{doc.get('title')}|{doc.get('cover_i')}"
+            docs_by_key[key] = doc
 
-    docs = response.json().get("docs", [])
-    if not docs:
-        return []
-
-    docs.sort(key=lambda d: score_doc(d, title, author), reverse=True)
-    top = docs[0]
-
+    ranked = sorted(
+        (
+            (
+                bibliographic_match_score(
+                    doc.get("title") or "",
+                    " ".join(doc.get("author_name") or []),
+                    title,
+                    author,
+                ),
+                doc,
+            )
+            for doc in docs_by_key.values()
+        ),
+        key=lambda pair: pair[0],
+        reverse=True,
+    )
     candidates: List[Tuple[str, str]] = []
-    if top.get("cover_i"):
-        candidates.append(("id", str(top["cover_i"])) )
-    for edition in (top.get("edition_key") or [])[:5]:
-        candidates.append(("olid", edition))
-    for isbn in (top.get("isbn") or [])[:5]:
-        candidates.append(("isbn", isbn))
+    for score, doc in ranked:
+        if score <= 0:
+            continue
+        if doc.get("cover_i"):
+            candidates.append(("id", str(doc["cover_i"])))
+        for edition in (doc.get("edition_key") or [])[:3]:
+            candidates.append(("olid", edition))
+        for isbn in (doc.get("isbn") or [])[:3]:
+            candidates.append(("isbn", isbn))
     return candidates
+
+
+def search_google_books(title: str, author: str, timeout: int) -> Tuple[str, bytes] | Tuple[None, None]:
+    """Find and download a conservatively matched Google Books cover."""
+    global GOOGLE_BOOKS_DISABLED
+    if GOOGLE_BOOKS_DISABLED:
+        return (None, None)
+
+    query = f'intitle:"{title}"'
+    if author:
+        query += f' inauthor:"{author}"'
+    params = {
+        "q": query,
+        "maxResults": 10,
+        "printType": "books",
+        "projection": "lite",
+    }
+    try:
+        response = requests.get(GOOGLE_BOOKS_SEARCH_URL, params=params, timeout=timeout)
+        response.raise_for_status()
+        volumes = response.json().get("items") or []
+    except (requests.RequestException, ValueError) as exc:
+        if isinstance(exc, requests.HTTPError) and exc.response is not None and exc.response.status_code == 429:
+            GOOGLE_BOOKS_DISABLED = True
+            print("[warn] Google Books rate limited this run; disabling further queries.", file=sys.stderr)
+            return (None, None)
+        print(f"[warn] Google Books search failed for '{title}': {exc}", file=sys.stderr)
+        return (None, None)
+
+    ranked = sorted(
+        (
+            (google_book_match_score(volume, title, author), volume)
+            for volume in volumes
+        ),
+        key=lambda pair: pair[0],
+        reverse=True,
+    )
+    for score, volume in ranked:
+        if score <= 0:
+            continue
+        image_links = (volume.get("volumeInfo") or {}).get("imageLinks") or {}
+        image_url = next(
+            (
+                image_links.get(size)
+                for size in (
+                    "extraLarge",
+                    "large",
+                    "medium",
+                    "small",
+                    "thumbnail",
+                    "smallThumbnail",
+                )
+                if image_links.get(size)
+            ),
+            None,
+        )
+        if not image_url:
+            continue
+        image_url = image_url.replace("http://", "https://", 1)
+        try:
+            cover_response = requests.get(
+                image_url,
+                headers={"User-Agent": "ai-landing-page-cover-fetcher/1.0"},
+                timeout=timeout,
+            )
+            content_type = cover_response.headers.get("content-type", "")
+            if (
+                cover_response.status_code == 200
+                and content_type.startswith("image/")
+                and len(cover_response.content) > 1024
+            ):
+                return image_url, cover_response.content
+        except requests.RequestException as exc:
+            print(f"[warn] Google Books cover fetch failed for '{title}': {exc}", file=sys.stderr)
+    return (None, None)
 
 
 def download_candidate(key: str, value: str, size: str, timeout: int) -> Tuple[str, bytes] | Tuple[None, None]:
@@ -289,7 +451,9 @@ def fetch_cover_bytes(item: LibraryItem, size: str, timeout: int, pause: float) 
         if pause:
             time.sleep(pause)
 
-    return (None, None)
+    if pause:
+        time.sleep(pause)
+    return search_google_books(item.title, item.author, timeout)
 
 
 def parse_args() -> argparse.Namespace:

@@ -37,8 +37,7 @@ jobs:
         run: |
           echo "Checking required secrets..."
           if [ -z "$TWITTER_BEARER_TOKEN" ]; then
-            echo "::error::TWITTER_BEARER_TOKEN secret is not set"
-            exit 1
+            echo "::warning::TWITTER_BEARER_TOKEN is not set; public oEmbed fallback will be used"
           fi
           if [ -z "$SHEETS_WEBHOOK_URL" ]; then
             echo "::warning::SHEETS_WEBHOOK_URL secret is not set - archiver will skip"

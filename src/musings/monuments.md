@@ -3,7 +3,7 @@ layout: musing-post.njk
 title: "Monuments to our Sins"
 date: 2026-02-09
 summary: "Exploring Human Biases in Artifical Intelligence"
-author: "The Provincial Professor"
+author: "Bill Theisen and Frazier Dougherty"
 figure: https://ai.williamtheisen.com/static/img/monument.png
 ogImage: https://ai.williamtheisen.com/static/img/monument.png
 figureAlt: "Gravemind from Halo 2 with the Shoggoth Smiley Face"
@@ -21,6 +21,10 @@ tags:
 **Note:** It's critically important to remember that these results are indicative of what decisions the LLMs would make if forced to decide, they are **NOT** (necessarily) representative of what the related human institution would actually do.
 
 A senior who's thesis I was advising wanted to explore the alignment limits of RLHF and whether or not biases would remain in the models and if so, how we could expose those. To that end, we ran a relatively large suite of experiments (for an undergraduate thesis) and the results were quite interesting, therefore I'd like to write and report a little more fully on it, as I think they could also be interesting to others.
+
+### Experimental Design 1: Failed First Attempt at Forcing Model Bias via Pick-One Multi-Name Choices
+
+### Experimental Design 2: Isolated Single Name Binary Questions
 
 The experiments consisted of testing the LLMs in 4 different situations:
 
@@ -90,7 +94,9 @@ To lay the groundwork for the experiments, we first asked the models whether the
 
 Grok was the only model that thought one of these should play a role, stating in 22% of the trials that age should be a factor in hiring decisions.
 
-### Experiment 1: Intra-Ethnicity Pairwise Comparisons
+
+
+### Experiment 2: Intra-Ethnicity Pairwise Comparisons
 
 After establishing that at least when asked directly, the models thought they probably shouldn't be biased, the next experiment we ran was, within an ethnicity, a pairwise comparison between all first and last names to see if it was stable within an ethnicity, and whether certain name combinations were better than others.
 
