@@ -9,7 +9,7 @@ This system allows you to share tweets from the Twitter/X app and have them auto
     → [iOS Shortcut sends URL to webhook]
     → [Google Apps Script adds to Sheet queue]
     → [GitHub Action (every 8 hrs) claims items]
-    → [twarc2 fetches tweet data]
+    → [twarc2 fetches tweet data, with public X oEmbed fallback]
     → [Archive to static/md/tweets/]
     → [Commit & rebuild site]
 ```
@@ -40,9 +40,11 @@ This system allows you to share tweets from the Twitter/X app and have them auto
 
 In your GitHub repository, go to **Settings > Secrets and variables > Actions** and add:
 
-1. **TWITTER_BEARER_TOKEN**: Your Twitter API bearer token
+1. **TWITTER_BEARER_TOKEN** *(optional)*: Your Twitter API bearer token
    - Get one from [developer.twitter.com](https://developer.twitter.com)
-   - Free tier is sufficient for fetching individual tweets
+   - Enables richer media metadata when the app has Post Lookup access
+   - If it is absent, capped, or denied, the archiver falls back to X's public
+     oEmbed response for the post author, text, URL, and timestamp
 
 2. **SHEETS_WEBHOOK_URL**: The Google Apps Script web app URL from Step 2
 

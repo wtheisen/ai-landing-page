@@ -9,7 +9,9 @@ This script:
 
 Requires:
     - SHEETS_WEBHOOK_URL environment variable (Google Apps Script web app URL)
-    - TWITTER_BEARER_TOKEN environment variable (for archive_tweet.py)
+
+Optional:
+    - TWITTER_BEARER_TOKEN for richer media metadata from archive_tweet.py
 """
 import json
 import os
@@ -171,10 +173,13 @@ def main():
         print("[info] No SHEETS_WEBHOOK_URL set; exiting.", file=sys.stderr)
         sys.exit(0)
 
-    # Verify Twitter token is set before trying to process
+    # The archiver can fall back to public X oEmbed when no API token is
+    # available. Keep a diagnostic so workflow logs show which path is active.
     if not os.environ.get("TWITTER_BEARER_TOKEN"):
-        print("[error] TWITTER_BEARER_TOKEN not set; exiting.", file=sys.stderr)
-        sys.exit(1)
+        print(
+            "[warn] TWITTER_BEARER_TOKEN not set; using public oEmbed fallback.",
+            file=sys.stderr,
+        )
 
     print(f"[info] Using webhook: {WEBHOOK_URL[:50]}...", file=sys.stderr)
     processed_count = 0

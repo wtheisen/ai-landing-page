@@ -1,16 +1,34 @@
 #!/usr/bin/env python3
 """
-Tweet Archiver - Fetches a single tweet using twarc2 and saves as Markdown.
+Tweet Archiver - Fetches a single tweet and saves it as Markdown.
+
+The authenticated X API/twarc2 path is preferred because it exposes media
+metadata. If that path is unavailable (for example, an API plan returns 403),
+the archiver falls back to X's public oEmbed endpoint.
 
 Usage:
     python scripts/archive_tweet.py <tweet_url>
 
 Requires:
-    - TWITTER_BEARER_TOKEN environment variable
-    - twarc2 installed (pip install twarc)
     - python-slugify installed (pip install python-slugify)
+    - requests installed (pip install requests)
+
+Optional:
+    - TWITTER_BEARER_TOKEN and twarc2 for richer media metadata
 """
-import json, subprocess, tempfile, shutil, pathlib, re, datetime, sys, os, urllib.request
+import datetime
+import html.parser
+import json
+import os
+import pathlib
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import urllib.parse
+import urllib.request
+import requests
 from slugify import slugify
 
 # ====== OUTPUT DIRECTORIES ======
@@ -23,18 +41,25 @@ for d in (MD_DIR, IMG_DIR, VID_DIR):
 
 def get_bearer_token():
     """Get Twitter bearer token from environment."""
-    token = os.environ.get("TWITTER_BEARER_TOKEN", "").strip()
-    if not token:
-        raise RuntimeError("TWITTER_BEARER_TOKEN environment variable not set")
-    return token
+    return os.environ.get("TWITTER_BEARER_TOKEN", "").strip()
+
+
+def redact_command(cmd):
+    """Return a log-safe command with credential values removed."""
+    redacted = list(cmd)
+    for idx, part in enumerate(redacted[:-1]):
+        if part == "--bearer-token":
+            redacted[idx + 1] = "[REDACTED]"
+    return redacted
 
 def run_to_file(cmd, outpath: pathlib.Path):
     """Run a command that writes to stdout; save stdout to a file."""
-    print(f"[debug] Running: {' '.join(cmd)}", file=sys.stderr)
+    safe_cmd = redact_command(cmd)
+    print(f"[debug] Running: {' '.join(safe_cmd)}", file=sys.stderr)
     with open(outpath, "w", encoding="utf-8") as f:
         r = subprocess.run(cmd, text=True, env=os.environ, stdout=f, stderr=subprocess.PIPE)
     if r.returncode != 0:
-        raise RuntimeError(f"Command failed: {' '.join(cmd)}\n{r.stderr}")
+        raise RuntimeError(f"Command failed: {' '.join(safe_cmd)}\n{r.stderr}")
 
 def run_optional(cmd):
     """Run a command that may fail (for optional operations like media download)."""
@@ -52,6 +77,79 @@ def tweet_id_from_url(url: str):
     """Extract tweet ID from a Twitter/X URL."""
     m = re.search(r"/status/(\d+)", url)
     return m.group(1) if m else ""
+
+
+def created_at_from_tweet_id(tweet_id: str) -> str:
+    """Recover an exact UTC creation time from an X/Twitter snowflake ID."""
+    timestamp_ms = (int(tweet_id) >> 22) + 1288834974657
+    created = datetime.datetime.fromtimestamp(
+        timestamp_ms / 1000, tz=datetime.timezone.utc
+    )
+    return created.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+class OEmbedTweetParser(html.parser.HTMLParser):
+    """Extract the visible post text from X's oEmbed blockquote."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.in_paragraph = False
+        self.parts = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "p" and not self.parts:
+            self.in_paragraph = True
+        elif tag == "br" and self.in_paragraph:
+            self.parts.append("\n")
+
+    def handle_endtag(self, tag):
+        if tag == "p" and self.in_paragraph:
+            self.in_paragraph = False
+
+    def handle_data(self, data):
+        if self.in_paragraph:
+            self.parts.append(data)
+
+    def text(self):
+        return re.sub(r"[ \t]+", " ", "".join(self.parts)).strip()
+
+
+def fetch_tweet_oembed(url: str) -> dict:
+    """Fetch public post metadata without requiring an X developer API plan."""
+    tweet_id = tweet_id_from_url(url)
+    if not tweet_id:
+        raise RuntimeError(f"Could not extract numeric tweet ID from URL: {url}")
+
+    query = urllib.parse.urlencode({"url": url, "omit_script": "true"})
+    endpoint = f"https://publish.twitter.com/oembed?{query}"
+    print(f"[info] Falling back to X oEmbed for tweet {tweet_id}...", file=sys.stderr)
+    try:
+        response = requests.get(
+            endpoint,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "ai-landing-page-tweet-archiver/1.0",
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except (requests.RequestException, ValueError) as exc:
+        raise RuntimeError(f"X oEmbed lookup failed: {exc}") from exc
+
+    parser = OEmbedTweetParser()
+    parser.feed(payload.get("html", ""))
+    text = parser.text()
+    username = (payload.get("author_name") or "").strip()
+    if not text or not username:
+        raise RuntimeError("X oEmbed response did not contain post text and author")
+
+    return {
+        "id": tweet_id,
+        "text": text,
+        "created_at": created_at_from_tweet_id(tweet_id),
+        "author": {"username": username.lstrip("@")},
+    }
 
 def find_existing_media(tweet_id: str) -> list[str]:
     """Check if media already exists for this tweet ID."""
@@ -164,6 +262,8 @@ def fetch_tweet(url: str, workdir: pathlib.Path):
     flat_jsonl = workdir / "tweet_flat.jsonl"
 
     bearer_token = get_bearer_token()
+    if not bearer_token:
+        raise RuntimeError("TWITTER_BEARER_TOKEN is not set")
 
     tid = tweet_id_from_url(url) or url.strip()
     if not re.fullmatch(r"\d+", tid):
@@ -344,13 +444,23 @@ def archive(url: str):
 
     with tempfile.TemporaryDirectory() as td:
         workdir = pathlib.Path(td)
-        raw, flat, local_media = fetch_tweet(url, workdir)
-        objs = read_jsonl(flat)
+        objs = []
+        local_media = find_existing_media(tweet_id_from_url(url))
 
-        # If flatten produced nothing, try reading raw output
-        if not objs:
-            print(f"[info] Flatten produced no output, trying raw data...", file=sys.stderr)
-            objs = read_raw_tweet(raw)
+        try:
+            raw, flat, local_media = fetch_tweet(url, workdir)
+            objs = read_jsonl(flat)
+
+            # If flatten produced nothing, try reading raw output
+            if not objs:
+                print("[info] Flatten produced no output, trying raw data...", file=sys.stderr)
+                objs = read_raw_tweet(raw)
+        except Exception as api_error:
+            print(
+                f"[warn] Authenticated X API lookup unavailable: {api_error}",
+                file=sys.stderr,
+            )
+            objs = [fetch_tweet_oembed(url)]
 
         if not objs:
             print(f"[error] No tweet data found for {url}", file=sys.stderr)
@@ -365,7 +475,7 @@ def archive(url: str):
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python scripts/archive_tweet.py <tweet_url>", file=sys.stderr)
-        print("Requires TWITTER_BEARER_TOKEN environment variable.", file=sys.stderr)
+        print("TWITTER_BEARER_TOKEN is optional; public oEmbed is the fallback.", file=sys.stderr)
         sys.exit(1)
 
     try:
