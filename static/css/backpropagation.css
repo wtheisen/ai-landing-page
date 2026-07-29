@@ -1,37 +1,27 @@
 /**
- * Backpropagation Visualizer Styles
- * Visualization-specific styles only. Common styles are in visualizations.css.
+ * Backpropagation Visualizer
+ * Extends the shared visualization system without introducing new component styles.
  */
 
-/* ============================================
-   Backpropagation CSS Custom Properties
-   ============================================ */
 :root {
-    /* Node colors per layer type */
-    --bp-input-node: #377eb8;
-    --bp-hidden-node: #4daf4a;
-    --bp-output-node: #e41a1c;
-
-    /* Edge colors */
-    --bp-edge-positive: rgba(55, 126, 184, 0.7);
-    --bp-edge-negative: rgba(228, 26, 28, 0.7);
-    --bp-edge-neutral: rgba(150, 150, 150, 0.3);
-
-    /* Gradient flow colors (warm = large gradient, cool = small) */
-    --bp-gradient-warm: #ff6b35;
-    --bp-gradient-cool: #4a90d9;
-    --bp-gradient-flow: #ff9800;
-
-    /* Forward / backward pass highlighting */
-    --bp-forward-highlight: rgba(76, 175, 80, 0.5);
-    --bp-backward-highlight: rgba(255, 152, 0, 0.5);
-
-    /* Loss curve */
+    --bp-input-node: var(--viz-class-1, #377eb8);
+    --bp-hidden-node: var(--viz-class-2, #4daf4a);
+    --bp-output-node: var(--viz-class-0, #e41a1c);
+    --bp-edge-positive: rgba(55, 126, 184, 0.78);
+    --bp-edge-negative: rgba(228, 26, 28, 0.78);
+    --bp-edge-neutral: rgba(108, 117, 125, 0.38);
+    --bp-gradient-warm: #d95f02;
+    --bp-gradient-cool: #377eb8;
+    --bp-gradient-flow: #d95f02;
+    --bp-forward-highlight: rgba(0, 123, 255, 0.2);
+    --bp-backward-highlight: rgba(255, 152, 0, 0.24);
+    --bp-layer-bg: rgba(0, 0, 0, 0.025);
+    --bp-layer-border: rgba(0, 0, 0, 0.08);
+    --bp-selected-bg: rgba(0, 123, 255, 0.08);
+    --bp-selected-border: #007bff;
     --bp-loss-line: #e41a1c;
     --bp-loss-fill: rgba(228, 26, 28, 0.1);
     --bp-loss-grid: rgba(0, 0, 0, 0.08);
-
-    /* Node value text */
     --bp-node-text: #ffffff;
 }
 
@@ -39,67 +29,39 @@
     --bp-input-node: var(--gruvbox-blue);
     --bp-hidden-node: var(--gruvbox-green);
     --bp-output-node: var(--gruvbox-red);
-
-    --bp-edge-positive: rgba(131, 165, 152, 0.7);
-    --bp-edge-negative: rgba(251, 73, 52, 0.7);
-    --bp-edge-neutral: rgba(168, 153, 132, 0.3);
-
+    --bp-edge-positive: rgba(131, 165, 152, 0.8);
+    --bp-edge-negative: rgba(251, 73, 52, 0.8);
+    --bp-edge-neutral: rgba(168, 153, 132, 0.4);
     --bp-gradient-warm: var(--gruvbox-orange);
     --bp-gradient-cool: var(--gruvbox-blue);
     --bp-gradient-flow: var(--gruvbox-orange);
-
-    --bp-forward-highlight: rgba(184, 187, 38, 0.5);
-    --bp-backward-highlight: rgba(254, 128, 25, 0.5);
-
+    --bp-forward-highlight: rgba(131, 165, 152, 0.24);
+    --bp-backward-highlight: rgba(254, 128, 25, 0.26);
+    --bp-layer-bg: rgba(235, 219, 178, 0.025);
+    --bp-layer-border: rgba(235, 219, 178, 0.1);
+    --bp-selected-bg: rgba(131, 165, 152, 0.12);
+    --bp-selected-border: var(--gruvbox-blue);
     --bp-loss-line: var(--gruvbox-red);
-    --bp-loss-fill: rgba(251, 73, 52, 0.1);
+    --bp-loss-fill: rgba(251, 73, 52, 0.12);
     --bp-loss-grid: rgba(235, 219, 178, 0.08);
-
-    --bp-node-text: var(--gruvbox-fg);
+    --bp-node-text: var(--gruvbox-bg-darkest);
 }
 
-/* ============================================
-   Canvas Styling
-   ============================================ */
-#network-canvas {
-    border: none;
-    border-radius: 0;
-    display: block;
-    cursor: default;
+/* Main architecture panel */
+.bp-view-toggle .btn {
+    min-width: 7.5em;
 }
 
-#loss-canvas {
-    border: none;
-    border-radius: 0;
-    display: block;
-    cursor: default;
-}
-
-/* ============================================
-   Legend Overrides
-   ============================================ */
-.legend-color.bp-input-node {
-    background-color: var(--bp-input-node);
-}
-
-.legend-color.bp-hidden-node {
-    background-color: var(--bp-hidden-node);
-}
-
-.legend-color.bp-output-node {
-    background-color: var(--bp-output-node);
-}
-
-.legend-line.bp-gradient-flow {
-    background-color: var(--bp-gradient-flow);
-    height: 3px;
-    width: 24px;
+.bp-header-badges {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.4em;
 }
 
 #pass-badge {
-    font-size: 11px;
-    padding: 3px 10px;
-    transition: all 0.3s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 #pass-badge.forward-active {
@@ -120,118 +82,364 @@
     color: var(--viz-success-border);
 }
 
-/* ============================================
-   Controls Layout
-   ============================================ */
-.bp-controls-panel {
-    display: flex;
-    gap: 20px;
-}
+[data-theme="gruvbox-dark"] #pass-badge.forward-active { color: var(--gruvbox-blue); }
+[data-theme="gruvbox-dark"] #pass-badge.backward-active { color: var(--gruvbox-orange); }
+[data-theme="gruvbox-dark"] #pass-badge.complete { color: var(--gruvbox-green); }
 
-.bp-options-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.bp-option-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.bp-options-col .option-row {
+.bp-pass-strip {
     display: flex;
     align-items: center;
-    gap: 8px;
-}
-
-.bp-options-col .option-row > label:first-child {
-    min-width: 65px;
-    font-size: 12px;
-    margin: 0;
-}
-
-.bp-options-col .option-row select {
-    width: auto;
-    min-width: 100px;
-    font-size: 12px;
-}
-
-.bp-options-col .option-row input[type="range"] {
-    flex: 1;
-    min-width: 80px;
-}
-
-.bp-playback-col {
-    width: 200px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
     justify-content: center;
-    border-left: 1px solid var(--viz-border);
-    padding-left: 20px;
+    gap: 0.45em;
+    padding: 0.7em 1em;
+    border-bottom: 1px solid var(--viz-border);
+    background: var(--viz-bg);
+    color: var(--viz-text-muted);
+    font-size: clamp(0.68rem, 1vw, 0.8rem);
 }
 
-.bp-playback-col .btn-toolbar {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
+.bp-pass-stage {
+    padding: 0.25em 0.55em;
+    border: 1px solid var(--viz-border);
+    border-radius: 4px;
+    white-space: nowrap;
 }
 
-.bp-playback-col .btn-toolbar .btn {
-    padding: 4px 10px;
-    font-size: 12px;
+.bp-pass-stage.complete {
+    color: var(--viz-success-border);
+    border-color: var(--viz-success-border);
+    background: var(--viz-success-bg);
 }
 
-.bp-playback-col .playback-status {
-    text-align: center;
-    font-size: 11px;
+.bp-pass-stage.active {
+    color: var(--viz-warning-border);
+    border-color: var(--viz-warning-border);
+    background: var(--viz-warning-bg);
+    font-weight: 600;
+}
+
+.bp-pass-arrow {
+    color: var(--viz-text-muted);
+}
+
+.bp-network-wrapper {
+    position: relative;
+    background: var(--viz-canvas-bg);
+}
+
+#network-canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 14 / 9;
+    background: var(--viz-canvas-bg);
+    cursor: pointer;
+}
+
+.bp-canvas-hint {
+    position: absolute;
+    left: 1em;
+    bottom: 0.65em;
+    color: var(--viz-text-muted);
+    font-size: clamp(0.65rem, 0.9vw, 0.75rem);
+    line-height: 1.2;
+    pointer-events: none;
+}
+
+.bp-canvas-tooltip {
+    position: absolute;
+    display: none;
+    z-index: 5;
+    max-width: 18em;
+    padding: 0.45em 0.6em;
+    border: 1px solid var(--viz-border);
+    border-radius: 4px;
+    background: var(--viz-bg);
+    color: var(--viz-text);
+    font-family: var(--viz-mono-font);
+    font-size: 0.72rem;
+    line-height: 1.35;
+    pointer-events: none;
+}
+
+/* Legend */
+.legend-color.bp-input-node { background: var(--bp-input-node); }
+.legend-color.bp-hidden-node { background: var(--bp-hidden-node); }
+.legend-color.bp-output-node { background: var(--bp-output-node); }
+.legend-line.bp-positive-edge { background: var(--bp-edge-positive); }
+.legend-line.bp-negative-edge { background: var(--bp-edge-negative); }
+.legend-line.bp-gradient-flow {
+    height: 4px;
+    background: var(--bp-gradient-flow);
+}
+
+/* Parameter table */
+.bp-selected-label,
+.bp-history-summary {
     color: var(--viz-text-muted);
     font-family: var(--viz-mono-font);
+    font-size: clamp(0.68rem, 0.9vw, 0.76rem);
 }
 
-/* ============================================
-   Computation Log Overrides
-   ============================================ */
-#computation-log {
-    max-height: 250px;
+.bp-gradient-table-wrap {
+    max-height: 28vh;
     overflow-y: auto;
 }
 
-#computation-log .log-entry.log-forward {
-    background-color: var(--viz-info-bg);
-    color: var(--viz-info-border);
+.bp-gradient-table {
+    margin-bottom: 0;
+    font-size: clamp(0.68rem, 0.9vw, 0.76rem);
 }
 
-#computation-log .log-entry.log-backward {
-    background-color: var(--viz-warning-bg);
-    color: var(--viz-warning-border);
+.bp-gradient-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--viz-bg);
+    border-bottom: 2px solid var(--viz-border);
+    white-space: nowrap;
 }
 
-#computation-log .log-entry.log-update {
-    background-color: var(--viz-success-bg);
+.bp-gradient-table td {
+    vertical-align: middle;
+    font-family: var(--viz-mono-font);
+}
+
+.bp-gradient-table td:first-child {
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.bp-gradient-row {
+    cursor: pointer;
+}
+
+.bp-gradient-row:hover td {
+    background: var(--viz-hover-bg);
+}
+
+.bp-gradient-row.selected td {
+    background: var(--bp-selected-bg);
+    border-top-color: var(--bp-selected-border);
+    border-bottom-color: var(--bp-selected-border);
+}
+
+.bp-gradient-row.selected td:first-child {
+    box-shadow: inset 3px 0 0 var(--bp-selected-border);
+    font-weight: 600;
+}
+
+.bp-gradient-value.large {
+    color: var(--bp-gradient-warm);
+    font-weight: 600;
+}
+
+.bp-gradient-value.small {
+    color: var(--viz-text-muted);
+}
+
+/* Loss history */
+.bp-loss-wrapper {
+    background: var(--viz-canvas-bg);
+}
+
+#loss-canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 5;
+    min-height: 9rem;
+    background: var(--viz-canvas-bg);
+}
+
+/* Right-side tabs */
+.bp-callout {
+    padding: 0.7em 0.85em;
+    border-left: 3px solid var(--viz-warning-border);
+    background: var(--viz-warning-bg);
+    font-size: 0.78rem;
+}
+
+.bp-math-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75em;
+}
+
+.bp-math-header h4 {
+    margin-top: 0;
+}
+
+.bp-chain-equation {
+    margin-bottom: 0.8em;
+    padding: 0.65em 0.8em;
+    border: 1px solid var(--viz-border);
+    border-radius: 4px;
+    background: var(--viz-canvas-bg);
+    color: var(--viz-text);
+    font-family: var(--viz-mono-font);
+    font-size: clamp(0.68rem, 0.9vw, 0.78rem);
+    overflow-x: auto;
+}
+
+.bp-chain-factors {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: wrap;
+    gap: 0.35em;
+    margin-bottom: 1em;
+}
+
+.bp-chain-factor {
+    flex: 1 1 7em;
+    min-width: 0;
+    padding: 0.45em;
+    border: 1px solid var(--viz-border);
+    border-radius: 4px;
+    background: var(--viz-bg);
+    text-align: center;
+}
+
+.bp-factor-symbol,
+.bp-factor-value {
+    display: block;
+}
+
+.bp-factor-symbol {
+    color: var(--viz-text-muted);
+    font-size: 0.67rem;
+}
+
+.bp-factor-value {
+    margin-top: 0.15em;
+    color: var(--viz-text);
+    font-family: var(--viz-mono-font);
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.bp-update-table,
+.bp-check-table {
+    margin-bottom: 1em;
+}
+
+.bp-check-pass {
     color: var(--viz-success-border);
 }
 
-[data-theme="gruvbox-dark"] #computation-log .log-entry.log-forward { color: var(--gruvbox-blue); }
-[data-theme="gruvbox-dark"] #computation-log .log-entry.log-backward { color: var(--gruvbox-orange); }
-[data-theme="gruvbox-dark"] #computation-log .log-entry.log-update { color: var(--gruvbox-green); }
+.bp-check-warning {
+    color: var(--viz-warning-border);
+}
 
-/* ============================================
-   Responsive Tuning
-   ============================================ */
+.bp-controls-panel .option-row {
+    margin-bottom: 0.7em;
+}
+
+.bp-controls-panel .option-row > label:first-child {
+    min-width: 6.5em;
+}
+
+.bp-controls-panel input[type="range"],
+.bp-controls-panel select {
+    flex: 1;
+    min-width: 0;
+}
+
+.bp-control-divider {
+    margin: 0.75em 0;
+    border-top: 1px solid var(--viz-border);
+}
+
+.bp-action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5em;
+}
+
+.bp-action-grid .btn {
+    width: 100%;
+}
+
+.bp-reset-button {
+    grid-column: 1 / -1;
+}
+
+.bp-metrics-table {
+    margin-bottom: 0.8em;
+}
+
+.bp-metrics-table td:nth-child(3) {
+    border-left: 1px solid var(--viz-border);
+}
+
+.bp-computation-log {
+    max-height: 48vh;
+    overflow-y: auto;
+}
+
+.bp-computation-log .log-entry.log-forward {
+    background: var(--viz-info-bg);
+    color: var(--viz-info-border);
+}
+
+.bp-computation-log .log-entry.log-backward {
+    background: var(--viz-warning-bg);
+    color: var(--viz-warning-border);
+}
+
+.bp-computation-log .log-entry.log-update {
+    background: var(--viz-success-bg);
+    color: var(--viz-success-border);
+}
+
+[data-theme="gruvbox-dark"] .bp-computation-log .log-entry.log-forward { color: var(--gruvbox-blue); }
+[data-theme="gruvbox-dark"] .bp-computation-log .log-entry.log-backward { color: var(--gruvbox-orange); }
+[data-theme="gruvbox-dark"] .bp-computation-log .log-entry.log-update { color: var(--gruvbox-green); }
+
 @media (max-width: 991px) {
-    .bp-controls-panel {
-        flex-direction: column;
+    .bp-pass-strip {
+        overflow-x: auto;
+        justify-content: flex-start;
     }
 
-    .bp-playback-col {
-        width: 100%;
-        border-left: none;
-        border-top: 1px solid var(--viz-border);
-        padding-left: 0;
-        padding-top: 15px;
+    #network-canvas {
+        min-height: 22rem;
+    }
+
+    .bp-gradient-table-wrap {
+        max-height: none;
+    }
+}
+
+@media (max-width: 520px) {
+    .bp-header-badges {
+        justify-content: flex-start;
+        margin-top: 0.5em;
+    }
+
+    .bp-pass-arrow {
+        display: none;
+    }
+
+    .bp-pass-strip {
+        flex-wrap: wrap;
+    }
+
+    .bp-gradient-table th:nth-child(4),
+    .bp-gradient-table td:nth-child(4) {
+        display: none;
+    }
+
+    .bp-action-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bp-reset-button {
+        grid-column: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #pass-badge {
+        transition: none;
     }
 }

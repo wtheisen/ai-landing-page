@@ -854,9 +854,10 @@
 	<script src="{{ extraScript }}"></script>
 	<script type="module">
 		// Auto-initialize URL state management for visualizations
-		window.addEventListener('vizlib-ready', function() {
+		window.VizLib.onReady(function() {
 			if (document.getElementById('main-content')) {
 				var urlState = new VizLib.URLStateManager();
+				window.dispatchEvent(new CustomEvent('urlstate-ready', { detail: urlState }));
 				setTimeout(function() {
 					urlState.applyFromURL();
 					urlState.enableAutoSync();

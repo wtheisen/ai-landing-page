@@ -11,7 +11,7 @@ extraScript: "static/js/backpropagation.js"
 tags: visualization
 cardTitle: "Backpropagation"
 cardIcon: fa-retweet
-cardDescription: "Step through the backpropagation algorithm. Watch gradients flow backward through a neural network layer by layer."
+cardDescription: "Trace a prediction forward, follow gradients backward, inspect every chain-rule factor, and watch gradient descent update each weight."
 cardTags:
   - Deep Learning
   - Training
@@ -22,25 +22,57 @@ cardImage: static/img/vis_cards/backpropagation.png
 
 {% from "components/legend.njk" import legend %}
 {% from "components/info-tabs.njk" import infoTabs %}
-{% from "components/metrics-panel.njk" import metricsPanel %}
 
 <link rel="stylesheet" href="static/css/backpropagation.css">
 
 <div class="row" id="main-content">
     {% include "components/share-button.njk" %}
-    <!-- Left Column: Network Diagram + Loss Curve + Controls -->
+
+    <!-- Left Column: Architecture + Parameter Inspector + Training History -->
     <div class="col-md-7">
-        <!-- Network Diagram Panel -->
         <div class="panel panel-default">
             <div class="panel-heading">
                 <div class="panel-heading-content">
-                    <span class="panel-title-text"><i class="fa fa-sitemap"></i> Network Diagram</span>
-                    <span class="viz-badge" id="pass-badge">Ready</span>
+                    <div class="btn-group btn-group-sm bp-view-toggle" role="group" aria-label="Network value view">
+                        <button type="button" class="btn btn-default" id="btn-view-forward">
+                            <i class="fa fa-arrow-right"></i> Activations
+                        </button>
+                        <button type="button" class="btn btn-default active" id="btn-view-gradient">
+                            <i class="fa fa-arrow-left"></i> Gradients
+                        </button>
+                    </div>
+                    <div class="bp-header-badges">
+                        <span class="viz-badge" id="bp-output-badge">ŷ = —</span>
+                        <span class="viz-badge" id="bp-loss-badge">L = —</span>
+                        <span class="viz-badge complete" id="pass-badge">Ready</span>
+                    </div>
                 </div>
             </div>
             <div class="panel-body canvas-panel-body">
-                <div class="canvas-wrapper">
-                    <canvas id="network-canvas" width="560" height="350"></canvas>
+                <div class="bp-pass-strip" aria-label="Backpropagation phases">
+                    <span class="bp-pass-stage complete" id="bp-stage-forward">
+                        <i class="fa fa-arrow-right"></i> 1. Forward
+                    </span>
+                    <span class="bp-pass-arrow">→</span>
+                    <span class="bp-pass-stage complete" id="bp-stage-loss">
+                        <i class="fa fa-bullseye"></i> 2. Loss
+                    </span>
+                    <span class="bp-pass-arrow">→</span>
+                    <span class="bp-pass-stage complete" id="bp-stage-backward">
+                        <i class="fa fa-arrow-left"></i> 3. Backward
+                    </span>
+                    <span class="bp-pass-arrow">→</span>
+                    <span class="bp-pass-stage" id="bp-stage-update">
+                        <i class="fa fa-pencil"></i> 4. Update
+                    </span>
+                </div>
+                <div class="canvas-wrapper bp-network-wrapper">
+                    <canvas id="network-canvas" width="560" height="390"
+                            aria-label="Interactive 2-3-1 neural network. Click a connection to inspect its gradient."></canvas>
+                    <div class="bp-canvas-hint">
+                        <i class="fa fa-mouse-pointer"></i> Click any connection to inspect its chain rule
+                    </div>
+                    <div class="bp-canvas-tooltip" id="bp-canvas-tooltip" role="tooltip"></div>
                 </div>
             </div>
             <div class="panel-footer legend-footer">
@@ -49,34 +81,152 @@ cardImage: static/img/vis_cards/backpropagation.png
                         {class: 'bp-input-node', label: 'Input'},
                         {class: 'bp-hidden-node', label: 'Hidden'},
                         {class: 'bp-output-node', label: 'Output'},
-                        {class: 'bp-gradient-flow', label: 'Gradient Flow', type: 'line'}
+                        {class: 'bp-positive-edge', label: 'Positive Weight', type: 'line'},
+                        {class: 'bp-negative-edge', label: 'Negative Weight', type: 'line'},
+                        {class: 'bp-gradient-flow', label: 'Gradient Magnitude', type: 'line'}
                     ]
                 ) }}
             </div>
         </div>
 
-        <!-- Loss Curve Panel -->
         <div class="panel panel-default">
             <div class="panel-heading">
                 <div class="panel-heading-content">
-                    <span class="panel-title-text"><i class="fa fa-line-chart"></i> Loss Curve</span>
+                    <span class="panel-title-text">
+                        <i class="fa fa-table"></i> Parameter Gradients
+                    </span>
+                    <span class="bp-selected-label" id="bp-selected-label">Selected: h₁ → ŷ</span>
                 </div>
             </div>
-            <div class="panel-body canvas-panel-body">
-                <div class="canvas-wrapper">
-                    <canvas id="loss-canvas" width="560" height="180"></canvas>
+            <div class="panel-body compact-panel">
+                <div class="bp-gradient-table-wrap">
+                    <table class="table table-condensed table-striped bp-gradient-table">
+                        <thead>
+                            <tr>
+                                <th>Connection</th>
+                                <th class="text-right">Weight</th>
+                                <th class="text-right">∂L/∂w</th>
+                                <th class="text-right">−η∂L/∂w</th>
+                                <th class="text-right">After update</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bp-gradient-tbody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Controls Panel -->
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-sliders"></i> Controls</h3>
+                <div class="panel-heading-content">
+                    <span class="panel-title-text"><i class="fa fa-line-chart"></i> Training History</span>
+                    <span class="bp-history-summary" id="bp-history-summary">Initial loss</span>
+                </div>
             </div>
-            <div class="panel-body compact-panel bp-controls-panel">
-                <div class="bp-options-col">
-                    <div class="bp-option-group">
+            <div class="panel-body canvas-panel-body">
+                <div class="canvas-wrapper bp-loss-wrapper">
+                    <canvas id="loss-canvas" width="560" height="175"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: one tabbed information panel -->
+    <div class="col-md-5">
+        {{ infoTabs(
+            tabs=[
+                {id: 'about', icon: 'fa-info-circle', label: 'About', active: true, content: '
+                    <h4><i class="fa fa-retweet"></i> Backpropagation</h4>
+                    <p>
+                        Backpropagation assigns <strong>credit or blame</strong> for the prediction error
+                        to every weight in a neural network. It works backward from the loss, multiplying
+                        local derivatives with the chain rule.
+                    </p>
+                    <h4><i class="fa fa-eye"></i> What This View Shows</h4>
+                    <ul class="interaction-list">
+                        <li><strong>Activations view</strong> traces values from inputs to prediction</li>
+                        <li><strong>Gradients view</strong> reverses the flow and colors connections by |∂L/∂w|</li>
+                        <li><strong>Click a connection</strong> to reveal every factor in its chain rule</li>
+                        <li><strong>Parameter table</strong> compares gradients and proposed weight updates</li>
+                        <li><strong>Gradient check</strong> verifies the analytic derivative numerically</li>
+                    </ul>
+                    <h4><i class="fa fa-lightbulb-o"></i> Try This</h4>
+                    <p class="bp-callout">
+                        Switch the weight preset from <strong>Balanced</strong> to <strong>Saturated</strong>.
+                        With sigmoid or tanh, activation derivatives shrink and gradients nearly disappear.
+                    </p>
+                '},
+                {id: 'algorithm', icon: 'fa-book', label: 'Algorithm', content: '
+                    <h4><i class="fa fa-arrow-right"></i> Forward Pass</h4>
+                    <ol class="algorithm-steps">
+                        <li>Each hidden neuron computes <code>zⱼ = Σᵢ wⱼᵢxᵢ + bⱼ</code></li>
+                        <li>Apply the activation: <code>aⱼ = f(zⱼ)</code></li>
+                        <li>The output neuron combines hidden activations to produce <code>ŷ</code></li>
+                        <li>Measure error with <code>L = ½(t − ŷ)²</code></li>
+                    </ol>
+                    <h4><i class="fa fa-arrow-left"></i> Backward Pass</h4>
+                    <ol class="algorithm-steps">
+                        <li>Start at the loss: <code>∂L/∂ŷ = ŷ − t</code></li>
+                        <li>Multiply by the sigmoid output derivative</li>
+                        <li>Continue backward through each weight and hidden activation</li>
+                        <li>Store one gradient <code>∂L/∂w</code> for every parameter</li>
+                    </ol>
+                    <h4><i class="fa fa-pencil"></i> Gradient Descent</h4>
+                    <div class="math-formula-display">
+                        <code>w<sub>new</sub> = w<sub>old</sub> − η · ∂L/∂w</code>
+                    </div>
+                    <p class="formula-desc">The learning rate η controls how far the weight moves.</p>
+                '},
+                {id: 'math', icon: 'fa-superscript', label: 'Math', content: '
+                    <div class="bp-math-header">
+                        <h4><i class="fa fa-link"></i> Selected Chain Rule</h4>
+                        <span class="viz-badge" id="bp-math-param-badge">h₁ → ŷ</span>
+                    </div>
+                    <div class="bp-chain-equation" id="bp-chain-equation"></div>
+                    <div class="bp-chain-factors" id="bp-chain-factors"></div>
+
+                    <h4><i class="fa fa-calculator"></i> Weight Update</h4>
+                    <table class="table table-condensed metrics-table bp-update-table">
+                        <tbody>
+                            <tr><td>Current weight</td><td class="metric-value text-right" id="bp-math-weight">—</td></tr>
+                            <tr><td>Analytic gradient</td><td class="metric-value text-right" id="bp-math-gradient">—</td></tr>
+                            <tr><td>Update −η∂L/∂w</td><td class="metric-value text-right" id="bp-math-delta">—</td></tr>
+                            <tr><td>Proposed weight</td><td class="metric-value text-right" id="bp-math-proposed">—</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h4><i class="fa fa-check-square-o"></i> Numerical Gradient Check</h4>
+                    <p class="formula-desc">
+                        Perturb the selected weight by ±ε and compare the resulting finite-difference
+                        slope with backpropagation.
+                    </p>
+                    <table class="table table-condensed metrics-table bp-check-table">
+                        <tbody>
+                            <tr><td>Backprop</td><td class="metric-value text-right" id="bp-check-analytic">—</td></tr>
+                            <tr><td>Finite difference</td><td class="metric-value text-right" id="bp-check-numeric">—</td></tr>
+                            <tr><td>Relative error</td><td class="metric-value text-right" id="bp-check-error">—</td></tr>
+                        </tbody>
+                    </table>
+                '},
+                {id: 'controls', icon: 'fa-sliders', label: 'Controls', content: '
+                    <div class="bp-controls-panel">
+                        <div class="option-row">
+                            <label>Preset:</label>
+                            <select id="weight-preset-select" class="form-control input-sm">
+                                <option value="balanced" selected>Balanced gradients</option>
+                                <option value="saturated">Saturated neurons</option>
+                                <option value="small">Tiny weights</option>
+                            </select>
+                        </div>
+                        <div class="option-row">
+                            <label>Hidden activation:</label>
+                            <select id="activation-select" class="form-control input-sm">
+                                <option value="sigmoid" selected>Sigmoid</option>
+                                <option value="relu">ReLU</option>
+                                <option value="tanh">Tanh</option>
+                            </select>
+                        </div>
+                        <div class="bp-control-divider"></div>
                         <div class="option-row">
                             <label>x<sub>1</sub>:</label>
                             <input type="range" id="x1-slider" min="0" max="1" step="0.01" value="0.50">
@@ -87,157 +237,67 @@ cardImage: static/img/vis_cards/backpropagation.png
                             <input type="range" id="x2-slider" min="0" max="1" step="0.01" value="0.80">
                             <span id="x2-value" class="range-value">0.80</span>
                         </div>
-                    </div>
-                    <div class="bp-option-group">
                         <div class="option-row">
                             <label>Target:</label>
                             <input type="range" id="target-slider" min="0" max="1" step="0.01" value="1.00">
                             <span id="target-value" class="range-value">1.00</span>
                         </div>
                         <div class="option-row">
-                            <label>LR:</label>
+                            <label>Learning η:</label>
                             <input type="range" id="lr-slider" min="0.001" max="1.0" step="0.001" value="0.50">
                             <span id="lr-value" class="range-value">0.500</span>
                         </div>
-                    </div>
-                    <div class="bp-option-group">
-                        <div class="option-row">
-                            <label>Activation:</label>
-                            <select id="activation-select" class="form-control input-sm">
-                                <option value="sigmoid" selected>Sigmoid</option>
-                                <option value="relu">ReLU</option>
-                                <option value="tanh">Tanh</option>
-                            </select>
+                        <div class="bp-control-divider"></div>
+                        <div class="bp-action-grid">
+                            <button id="btn-forward" class="btn btn-sm btn-info">
+                                <i class="fa fa-arrow-right"></i> Forward
+                            </button>
+                            <button id="btn-backward" class="btn btn-sm btn-warning">
+                                <i class="fa fa-arrow-left"></i> Backward
+                            </button>
+                            <button id="btn-train-step" class="btn btn-sm btn-success">
+                                <i class="fa fa-step-forward"></i> Train Step
+                            </button>
+                            <button id="btn-train-many" class="btn btn-sm btn-success">
+                                <i class="fa fa-forward"></i> Train ×25
+                            </button>
+                            <button id="btn-reset" class="btn btn-sm btn-danger bp-reset-button">
+                                <i class="fa fa-refresh"></i> Reset
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                <div class="bp-playback-col">
-                    <div class="btn-toolbar" role="toolbar">
-                        <button id="btn-forward" class="btn btn-sm btn-info" title="Forward Pass">
-                            <i class="fa fa-arrow-right"></i> Forward
-                        </button>
-                        <button id="btn-backward" class="btn btn-sm btn-warning" title="Backward Pass">
-                            <i class="fa fa-arrow-left"></i> Backward
-                        </button>
-                    </div>
-                    <div class="btn-toolbar" role="toolbar">
-                        <button id="btn-train-step" class="btn btn-sm btn-success" title="Train Step (Forward + Backward + Update)">
-                            <i class="fa fa-step-forward"></i> Train Step
-                        </button>
-                        <button id="btn-reset" class="btn btn-sm btn-danger" title="Reset">
-                            <i class="fa fa-refresh"></i> Reset
-                        </button>
-                    </div>
-                    <div class="playback-status">
-                        <span id="step-display">Step: 0</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Column: Info + Metrics + Computation Log -->
-    <div class="col-md-5">
-        {{ infoTabs(
-            tabs=[
-                {id: 'about', icon: 'fa-info-circle', label: 'About', active: true, content: '
-                    <h4><i class="fa fa-retweet"></i> Backpropagation</h4>
-                    <p>
-                        Backpropagation is the algorithm used to train neural networks.
-                        It computes how much each weight contributed to the overall error,
-                        then adjusts weights in the direction that reduces the loss.
-                    </p>
-                    <h4><i class="fa fa-mouse-pointer"></i> How to Use</h4>
-                    <ul class="interaction-list">
-                        <li><strong>Forward Pass</strong> computes the output from inputs through the network</li>
-                        <li><strong>Backward Pass</strong> computes gradients flowing from output back to inputs</li>
-                        <li><strong>Train Step</strong> does both passes then updates weights using the gradients</li>
-                        <li><strong>Adjust sliders</strong> to change inputs, target, learning rate</li>
-                        <li><strong>Watch the log</strong> for step-by-step derivative computations</li>
-                        <li><strong>Loss curve</strong> tracks the error over training steps</li>
-                    </ul>
                 '},
-                {id: 'algorithm', icon: 'fa-book', label: 'Algorithm', content: '
-                    <h4><i class="fa fa-arrow-right"></i> Forward Pass</h4>
-                    <ol class="algorithm-steps">
-                        <li>Input values <code>x1, x2</code> enter the network</li>
-                        <li>Each hidden neuron computes <code>z = w1*x1 + w2*x2 + b</code></li>
-                        <li>Apply activation: <code>a = f(z)</code></li>
-                        <li>Output neuron combines hidden activations</li>
-                        <li>Compute loss: <code>L = 0.5*(target - output)^2</code></li>
-                    </ol>
-                    <h4><i class="fa fa-arrow-left"></i> Backward Pass</h4>
-                    <ol class="algorithm-steps">
-                        <li>Compute <code>dL/d(output) = output - target</code></li>
-                        <li>Propagate gradient through output activation</li>
-                        <li>Compute gradients for output-layer weights</li>
-                        <li>Propagate gradient to hidden layer via chain rule</li>
-                        <li>Compute gradients for hidden-layer weights</li>
-                    </ol>
-                    <h4><i class="fa fa-pencil"></i> Weight Update</h4>
-                    <ol class="algorithm-steps">
-                        <li>For each weight: <code>w -= lr * dL/dw</code></li>
-                        <li>For each bias: <code>b -= lr * dL/db</code></li>
-                    </ol>
-                '},
-                {id: 'math', icon: 'fa-superscript', label: 'Math', content: '
-                    <h4><i class="fa fa-link"></i> Chain Rule</h4>
-                    <div class="math-formula-display">
-                        <code>&part;L/&part;w = &part;L/&part;a &middot; &part;a/&part;z &middot; &part;z/&part;w</code>
+                {id: 'log', icon: 'fa-terminal', label: 'Log', content: '
+                    <table class="table table-condensed metrics-table bp-metrics-table">
+                        <tbody>
+                            <tr>
+                                <td><i class="fa fa-repeat"></i> Step</td>
+                                <td class="metric-value text-right" id="metric-step">0</td>
+                                <td><i class="fa fa-line-chart"></i> Loss</td>
+                                <td class="metric-value text-right" id="metric-loss">—</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fa fa-bullseye"></i> Output</td>
+                                <td class="metric-value text-right" id="metric-output">—</td>
+                                <td><i class="fa fa-crosshairs"></i> Target</td>
+                                <td class="metric-value text-right" id="metric-target">1.00</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fa fa-arrows-v"></i> Max |Grad|</td>
+                                <td class="metric-value text-right" id="metric-max-grad">—</td>
+                                <td><i class="fa fa-info-circle"></i> Status</td>
+                                <td class="metric-value text-right" id="metric-status">Ready</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="execution-log bp-computation-log" id="computation-log">
+                        <div class="log-entry log-info">
+                            <span class="log-icon"><i class="fa fa-info-circle"></i></span>
+                            <span class="log-message">Initial forward and backward passes are ready. Click a connection to inspect it.</span>
+                        </div>
                     </div>
-                    <p class="formula-desc">The gradient of the loss with respect to any weight is the product of local gradients along the path from output to that weight.</p>
-
-                    <h4><i class="fa fa-calculator"></i> Loss Function (MSE)</h4>
-                    <div class="math-formula-display">
-                        <code>L = &frac12;(t - y)&sup2;</code>
-                    </div>
-                    <p class="formula-desc">Mean squared error between target t and prediction y.</p>
-                    <div class="math-formula-display">
-                        <code>&part;L/&part;y = y - t</code>
-                    </div>
-
-                    <h4><i class="fa fa-bolt"></i> Activation Derivatives</h4>
-                    <ul class="formula-list">
-                        <li><strong>Sigmoid</strong>: <code>&sigma;\'(z) = &sigma;(z)(1 - &sigma;(z))</code></li>
-                        <li><strong>ReLU</strong>: <code>f\'(z) = 1 if z > 0, else 0</code></li>
-                        <li><strong>Tanh</strong>: <code>tanh\'(z) = 1 - tanh(z)&sup2;</code></li>
-                    </ul>
-
-                    <h4><i class="fa fa-arrows"></i> Weight Gradients</h4>
-                    <div class="math-formula-display">
-                        <code>&part;z/&part;w = input to that weight</code>
-                    </div>
-                    <p class="formula-desc">The gradient of a neuron&apos;s pre-activation with respect to a weight is simply the input that weight multiplies.</p>
                 '}
             ]
         ) }}
-
-        {{ metricsPanel(
-            title='Metrics',
-            metrics=[
-                {icon: 'fa-repeat', label: 'Step', id: 'metric-step', default: '0'},
-                {icon: 'fa-line-chart', label: 'Loss', id: 'metric-loss', default: '-'},
-                {icon: 'fa-bullseye', label: 'Output', id: 'metric-output', default: '-'},
-                {icon: 'fa-crosshairs', label: 'Target', id: 'metric-target', default: '1.00'},
-                {icon: 'fa-arrows-v', label: 'Max |Grad|', id: 'metric-max-grad', default: '-'},
-                {icon: 'fa-info-circle', label: 'Status', id: 'metric-status', default: 'Ready'}
-            ]
-        ) }}
-
-        <!-- Computation Log Panel -->
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-terminal"></i> Computation Log</h3>
-            </div>
-            <div class="panel-body compact-panel">
-                <div class="execution-log" id="computation-log">
-                    <div class="log-entry log-info">
-                        <span class="log-icon"><i class="fa fa-info-circle"></i></span>
-                        <span class="log-message">Press Forward Pass or Train Step to begin.</span>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
