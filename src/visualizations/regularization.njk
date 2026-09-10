@@ -7,7 +7,7 @@ navigation:
     link: "index.html"
     icon: "fa-home"
 permalink: "regularization.html"
-extraScript: "static/js/regularization.js"
+extraScript: "static/js/regularization.js?v=constraint-legend-1"
 tags: visualization
 cardTitle: "L1 & L2 Regularization"
 cardIcon: fa-shield
@@ -22,54 +22,78 @@ cardImage: static/img/vis_cards/regularization.png
 
 {% from "components/info-tabs.njk" import infoTabs %}
 
-<link rel="stylesheet" href="static/css/regularization.css">
+<link rel="stylesheet" href="static/css/regularization.css?v=constraint-legend-1">
+<script src="static/js/regularization-scene.js?v=diamond-budget-corners-1"></script>
+<script src="static/js/regularized-regression.js?v=budget-mode-1"></script>
 
 <div class="row" id="main-content">
     {% include "components/share-button.njk" %}
-    <!-- Left Column -->
-    <div class="col-md-7">
-        <div class="panel panel-default">
-            <div class="panel-heading">
+    <div class="col-md-12"><div class="panel panel-default reg-experiment-controls"><div class="panel-body">
                 <div class="panel-heading-content">
                     <div class="btn-group btn-group-sm reg-type-toggle" role="group">
                         <button type="button" class="btn btn-default" data-reg="none">None</button>
-                        <button type="button" class="btn btn-default active" data-reg="l1">L1</button>
-                        <button type="button" class="btn btn-default" data-reg="l2">L2</button>
+                        <button type="button" class="btn btn-default" data-reg="l1">L1</button>
+                        <button type="button" class="btn btn-default active" data-reg="l2">L2</button>
                         <button type="button" class="btn btn-default" data-reg="elastic">Elastic</button>
                     </div>
                     <div class="btn-group btn-group-sm reg-view-toggle" role="group">
                         <button type="button" class="btn btn-default active" data-view="3d"><i class="fa fa-cube"></i> 3D</button>
-                        <button type="button" class="btn btn-default" data-view="contour"><i class="fa fa-bullseye"></i> 2D</button>
+                        <button type="button" class="btn btn-default" data-view="top">2D Top</button><button type="button" class="btn btn-default" data-view="side">2D Side</button><button type="button" class="btn btn-default" data-view="contour" hidden>Contours (fallback)</button>
                     </div>
                     <span class="reg-lambda-badge" id="reg-lambda-badge">&lambda; = 1.00</span>
                 </div>
-            </div>
-            <div class="panel-body">
-                <div class="reg-surface-toggles" id="reg-surface-toggles">
-                    <label class="reg-surface-toggle active" data-surface="loss">
-                        <span class="reg-surface-swatch" style="background: var(--reg-loss-color)"></span>
-                        Loss
-                    </label>
-                    <label class="reg-surface-toggle active" data-surface="penalty">
-                        <span class="reg-surface-swatch" id="reg-penalty-swatch"></span>
-                        Penalty
-                    </label>
-                    <label class="reg-surface-toggle" data-surface="total">
-                        <span class="reg-surface-swatch reg-swatch-total"></span>
-                        Total
-                    </label>
+                <div class="reg-data-source">
+                    <label for="reg-data-mode">Explore</label>
+                    <select id="reg-data-mode" class="form-control input-sm"><option value="regression">Linear regression + regularization</option><option value="example">Illustrative loss landscape</option></select>
                 </div>
-                <canvas id="reg-3d-canvas"></canvas>
-                <canvas id="reg-contour-canvas" style="display:none;"></canvas>
+
+                <div class="reg-data-source"><label for="reg-formulation">Formulation</label><select id="reg-formulation" class="form-control input-sm"><option value="penalty">Penalty (λ)</option><option value="budget">Weight budget</option></select></div>
+                <div id="reg-budget-control" class="reg-primary-control" hidden><div class="option-row"><label for="reg-budget-slider">Weight budget</label><input id="reg-budget-slider" type="range" min="0" max="10" step="0.05" value="1"><output id="reg-budget-value">1.00</output></div><p>Increase the budget to allow larger weights. Minimize loss inside the red boundary.</p></div>
+                <div id="reg-lambda-control" class="reg-primary-control">
+                    <div class="option-row">
+                            <label for="reg-lambda-slider">Regularization strength &lambda;</label>
+                            <input type="range" id="reg-lambda-slider" min="0" max="3" step="0.05" value="1">
+                            <span id="reg-lambda-value" class="range-value">1.00</span>
+                        </div>
+                    <p>Increase &lambda; to pull the optimum toward zero.</p>
+                </div>
+    </div></div></div>
+    <!-- Left Column -->
+    <div class="col-md-7 reg-weight-column">
+        <div class="panel panel-default">
+            <div class="panel-heading reg-weight-heading"><span class="reg-space-heading">Weight space</span><div id="reg-model-legend" class="reg-model-legend"><span id="reg-model-loss-key"><i></i>Loss <b>L(w)</b></span><span id="reg-model-penalty-key"><i></i>Penalty <b>λR(w)</b></span><span id="reg-model-total-key" hidden><i></i>Combined Objective <b>L(w) + λR(w)</b></span></div></div>
+            <div class="panel-body">
+                <div class="reg-scene"><canvas id="reg-3d-canvas" tabindex="0" aria-label="3D loss and penalty surfaces. Drag or use arrow keys to orbit, scroll to zoom, shift-drag to pan."></canvas><div id="reg-scene-labels" aria-hidden="true"></div></div>
+                <canvas id="reg-contour-canvas" aria-label="Weight space. Drag to choose intercept and slope." style="display:none;"></canvas>
+                <div class="reg-surface-toggles" id="reg-surface-toggles" role="group" aria-label="Surface to display">
+                    <label class="reg-layer-option"><input type="checkbox" data-layer="showConstraint" aria-describedby="reg-budget-explanation"> Show equivalent weight budget</label>
+                    <label class="reg-layer-option"><input type="checkbox" data-layer="showTotal"> Combined objective</label>
+                    <label class="reg-layer-option"><input type="checkbox" data-layer="showLoss" checked> Loss</label>
+                    <label class="reg-layer-option"><input type="checkbox" data-layer="showPenalty" checked> Penalty</label>
+                </div>
+                <p id="reg-budget-explanation" class="reg-plot-note" hidden>Optional constraint interpretation: the weight budget is calculated from the optimum for your chosen λ. You do not set it separately; λ adds a penalty, not a hard cutoff.</p>
+                <p id="reg-pan-controls" class="reg-plot-note"><span id="reg-pan-help">Trackpad: click-drag to pan · Two-finger swipe to rotate · Pinch to zoom.</span></p>
+                <div id="reg-weight-controls" class="reg-height-controls"><button id="reg-move-weights" class="btn btn-default btn-sm" aria-pressed="false">Move weights</button><button id="reg-optimal-fit" class="btn btn-default btn-sm">Use optimal fit</button><span>Drag the blue bowl minimum to shift the data. Drag the weight marker to move the line. ★ always marks the optimum; amber marks your selected weights. In Move weights mode, arrow keys adjust weights.</span></div>
+
+                <p class="reg-plot-note" id="reg-scale-note">Linear height preserves the curve shape. Use vertical stretch to emphasize the sides.</p>
             </div>
         </div>
     </div>
 
     <!-- Right Column -->
-    <div class="col-md-5">
+    <div class="col-md-5 reg-data-column">
         {{ infoTabs(
             tabs=[
-                {id: 'about', icon: 'fa-info-circle', label: 'About', active: true, content: '
+                {id: 'data', icon: 'fa-chart-line', label: 'Data space', active: true, content: '                <section id="reg-data-panel">
+
+                    <canvas id="reg-data-canvas" aria-label="Regression data and fitted lines. Click to add a point; shift-click to remove a point."></canvas>
+                    <div class="reg-data-source"><label for="reg-dataset">Data</label><select id="reg-dataset" class="form-control input-sm"><option value="linear">Linear + noise</option><option value="outlier">With an outlier</option><option value="flat">Weak relationship</option></select><button id="reg-data-reset" class="btn btn-default btn-sm">Reset data</button></div>
+                    <p class="reg-plot-note">Drag the line to shift it · Shift-drag to rotate it · Click to add a point · Shift-click to remove · Both lines refit immediately; axes stay fixed. Soft blue dashed: unregularized fit · Light violet: optimal fit · Soft amber: selected line</p>
+                    <div class="reg-readout" id="reg-live-readout" aria-live="polite"></div>
+                    <label class="reg-bias-option"><input id="reg-penalize-intercept" type="checkbox" checked> Also penalize the intercept</label>
+                    <p id="reg-fit-explanation" class="reg-plot-note">Model: y = b + mx. The landscape uses these points’ mean squared error. By default, both intercept b and slope m are penalized, producing a bowl or pyramid. Uncheck the intercept option to penalize only the slope, producing a trough.</p>
+                </section>'},
+                {id: 'about', icon: 'fa-info-circle', label: 'About', active: false, content: '
                     <h4><i class="fa fa-shield"></i> What is Regularization?</h4>
                     <p>
                         <strong>Regularization</strong> adds a penalty term to the loss function that discourages
@@ -86,6 +110,7 @@ cardImage: static/img/vis_cards/regularization.png
                         <strong>circle</strong>. Loss contours hit the circle at a smooth tangent point, shrinking weights
                         toward zero but rarely reaching it.
                     </p>
+                    <p><strong>What identifies the optimum?</strong> In the constraint view, find the lowest point on the red part of the loss surface above the allowed weights. The budget shown is equivalent to the current &lambda;. In the combined view, minimize the <em>sum</em> of loss and penalty. In 2D, the highlighted loss contour touches the equivalent constraint boundary at the optimum.</p>
                     <h4><i class="fa fa-mouse-pointer"></i> How to Use</h4>
                     <ul class="norm-interaction-list">
                         <li><strong>Drag the 3D surface</strong> to rotate and see the loss landscape from any angle</li>
@@ -93,7 +118,7 @@ cardImage: static/img/vis_cards/regularization.png
                         <li><strong>Adjust &lambda;</strong> to control regularization strength</li>
                         <li><strong>Watch the contour view</strong> to see the classic textbook diagram update live</li>
                         <li><strong>Change loss eccentricity</strong> to see how elongated loss contours interact with constraint shapes</li>
-                        <li><strong>Click anywhere on the surface</strong> to drop a ball and watch gradient descent converge</li>
+                        <li><strong>Click the combined surface</strong> to drop a ball and watch gradient descent converge</li>
                     </ul>
                 '},
                 {id: 'algorithm', icon: 'fa-book', label: 'Algorithm', content: '
@@ -123,18 +148,41 @@ cardImage: static/img/vis_cards/regularization.png
                     </p>
                 '},
                 {id: 'math', icon: 'fa-superscript', label: 'Math', content: '
-                    <h4><i class="fa fa-calculator"></i> Current Optimum</h4>
+                    <h4><i class="fa fa-calculator"></i> Live math</h4>
                     <div id="reg-math-panel" class="reg-calc-panel">
                         <span class="formula-note">Adjust parameters to see the computation.</span>
                     </div>
                 '},
                 {id: 'controls', icon: 'fa-sliders', label: 'Controls', content: '
                     <div class="reg-controls-panel">
-                        <div class="option-row">
-                            <label>&lambda; (penalty):</label>
-                            <input type="range" id="reg-lambda-slider" min="0" max="3" step="0.05" value="1">
-                            <span id="reg-lambda-value" class="range-value">1.00</span>
-                        </div>
+                        <h4>View settings</h4>
+                        <div class="reg-height-controls"><label for="reg-input-device">Input device</label><select id="reg-input-device" class="form-control input-sm"><option value="trackpad" selected>Trackpad</option><option value="mouse">Mouse</option></select></div>
+                <div id="reg-camera-controls" class="reg-camera-controls" role="group" aria-label="Camera zoom">
+                    <button type="button" id="reg-zoom-out" class="btn btn-default btn-sm" aria-label="Zoom out">−</button>
+                    <output id="reg-zoom-value">100% · weights ±3.0</output>
+                    <button type="button" id="reg-zoom-in" class="btn btn-default btn-sm" aria-label="Zoom in">+</button>
+                    <button type="button" id="reg-camera-reset" class="reg-camera-reset" title="Reset camera">Reset view</button>
+                </div>
+                <div id="reg-height-controls" class="reg-height-controls">
+                    <label for="reg-height-mode">Height</label>
+                    <select id="reg-height-mode" class="form-control input-sm"><option value="linear">Linear (true shape)</option><option value="log">Log (compressed)</option></select>
+                    <label for="reg-stretch">Vertical stretch</label>
+                    <input id="reg-stretch" type="range" min="0.5" max="2.5" step="0.1" value="1.3">
+                    <output id="reg-stretch-value">1.3×</output>
+                </div>
+                <div id="reg-rim-controls" class="reg-height-controls">
+                    <label><input id="reg-auto-height" type="checkbox" checked> Fit height to optimum + selected weights</label>
+                    <label for="reg-rim-height">Manual rim height above minimum</label>
+                    <input id="reg-rim-height" type="range" min="0.1" max="18" step="0.1" value="6">
+                    <output id="reg-rim-value">6</output>
+                </div>
+                <div id="reg-component-controls" class="reg-component-controls">
+                    <label><input id="reg-components" type="checkbox"> Compare loss + penalty wireframes</label>
+                    <span class="reg-component-legend"><span>Loss</span> &middot; <span>Penalty</span> &middot; reference overlays</span>
+                </div>
+
+                <p id="reg-scene-help" class="reg-plot-note">Drag to orbit 360° · Scroll to zoom · Shift-drag or right-drag to pan · Touch: pinch and two-finger pan</p>
+                        <h4>Loss settings</h4>
                         <div class="option-row">
                             <label>Eccentricity:</label>
                             <input type="range" id="reg-ecc-slider" min="1" max="8" step="0.5" value="4">

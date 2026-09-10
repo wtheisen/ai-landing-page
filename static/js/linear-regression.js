@@ -1360,6 +1360,10 @@
     }
 
     function init() {
+        document.getElementById('lr-open-regularization').addEventListener('click',function(){
+            if(points.length<2) {document.getElementById('lr-regularization-status').textContent=' Add at least two points first.';return;}
+            window.location.href='regularization.html?regression-data='+encodeURIComponent(JSON.stringify(points));
+        });
         // Main canvas
         canvas = document.getElementById('regression-canvas');
         const setup = window.VizLib.CanvasUtils.setupHiDPICanvas(canvas);
