@@ -308,6 +308,11 @@
                         cylinderEdge(foot,[foot[0],budgetProfile.height,foot[2]]);
                     }
                 } else {
+                    // Show depth around the cylinder as well as its silhouette.
+                    for(var depthEdge=0;depthEdge<budgetProfile.boundary.length-1;depthEdge+=16) {
+                        var base=budgetProfile.boundary[depthEdge];
+                        if(base!==left&&base!==rightEdge)cylinderEdge(base,[base[0],budgetProfile.height,base[2]]);
+                    }
                     cylinderEdge(left,topLeft);cylinderEdge(rightEdge,topRight);
                 }
             }
