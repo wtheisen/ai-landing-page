@@ -21,23 +21,29 @@
             }
             return [b,m];
         }
-        function fitBudget(type,budget,alpha,penalizeIntercept) {
+        function lambdaForBudget(type,budget,alpha,penalizeIntercept) {
             function cost(w) {
                 var b=penalizeIntercept?w[0]:0,m=w[1];
                 var l1=Math.abs(b)+Math.abs(m),l2=b*b+m*m;
                 return type==='l1'?l1:type==='l2'?l2:type==='elastic'?alpha*l1+(1-alpha)*l2:0;
             }
-            if(type==='none'||cost(ordinary)<=budget)return ordinary.slice();
-            if(budget<=0)return [penalizeIntercept?0:my,0];
+            if(type==='none'||cost(ordinary)<=budget)return 0;
+            // A zero L2 budget corresponds to infinite lambda; a tiny target
+            // gives the same displayed optimum with a finite control value.
+            budget=Math.max(1e-20,budget);
             var lo=0,hi=1,result=fit(type,hi,alpha,penalizeIntercept);
             while(cost(result)>budget&&hi<1e16){hi*=2;result=fit(type,hi,alpha,penalizeIntercept);}
             for(var i=0;i<70;i++) {
                 var mid=(lo+hi)/2,w=fit(type,mid,alpha,penalizeIntercept);
                 if(cost(w)>budget)lo=mid;else {hi=mid;result=w;}
             }
-            return result;
+            return hi;
         }
-        return {ordinary:ordinary,loss:loss,gradient:gradient,fit:fit,fitBudget:fitBudget};
+        function fitBudget(type,budget,alpha,penalizeIntercept) {
+            if(type!=='none'&&budget<=0)return [penalizeIntercept?0:my,0];
+            return fit(type,lambdaForBudget(type,budget,alpha,penalizeIntercept),alpha,penalizeIntercept);
+        }
+        return {ordinary:ordinary,loss:loss,gradient:gradient,fit:fit,fitBudget:fitBudget,lambdaForBudget:lambdaForBudget};
     }
     window.RegularizedRegression={model:model};
 }());

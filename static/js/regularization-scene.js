@@ -71,7 +71,15 @@
             if(s.regType!=='none'&&(s.showBoth||s.showPenalty||s.showComponents&&s.showTotal))add('penalty',s.penaltyMarkerValue===undefined?displayedPenalty(s,weights.w1,weights.w2,penalty):s.penaltyMarkerValue,'Penalty');
             if(s.showTotal)add('total',lossValue+penaltyValue,'Total');
         };
+        var viewportGeometryKey=null;
+        function viewportKey(s) {return JSON.stringify([s.yaw,s.pitch,s.zoom,s.cameraPreset,canvas.clientWidth,canvas.clientHeight]);}
+        this.refreshViewport=function(s,colors,loss,penalty,total) {
+            var key=viewportKey(s)+JSON.stringify(this.pan);
+            if(key!==viewportGeometryKey)this.update(s,colors,loss,penalty,total);
+        };
         this.update=function(s, colors, loss, penalty, total) {
+            if(framingReady)this.render(s,true);
+            viewportGeometryKey=viewportKey(s)+JSON.stringify(this.pan);
             this.lossMinimum=null;
             contourSpec=(s.showLoss||s.showBoth)?{cx:s.cx,cy:s.cy,color:colors.modelLoss}:null;
             budgetProfile=null; budgetFloor=[]; lossProfile=null; penaltyProfile=null; totalProfile=null; triangles=[]; lines=[]; spokes=[]; budgetWalls=[]; penaltyEdges=[]; lossRims=[]; rims=[]; points=[]; samples=[];
@@ -82,7 +90,7 @@
             var weighted=function(x,z) {return displayedPenalty(s,x,z,penalty);};
             var specs=[];
             if(s.showLoss||s.showBoth) specs.push({fn:loss,c:[s.cx,s.cy],color:colors.modelLoss});
-            if((s.showPenalty||s.showBoth)&&s.regType!=='none') specs.push({fn:weighted,c:[0,0],color:colors.modelPenalty});
+            if((s.showPenalty||s.showBoth)&&s.regType!=='none') specs.push({fn:weighted,c:[0,0],color:colors.modelPenalty,wire:s.budgetEmphasis});
             if(s.showTotal) specs.push({fn:total,c:[s.optimum.w1,s.optimum.w2],color:colors.modelTotal});
             if(s.showTotal&&s.showComponents) {
                 if(!s.showLoss&&!s.showBoth) specs.push({fn:loss,c:[s.cx,s.cy],color:colors.modelLoss,wire:true});
@@ -95,6 +103,37 @@
                 var opacity=spec.fn===weighted&&s.penaltyOpacity!==undefined?s.penaltyOpacity:1;
                 function surfaceColor(alpha){return rgb(spec.color,alpha*opacity);}
                 var n=96, rings=32, grid=[], radii=[], base=spec.fn(spec.c[0],spec.c[1]);
+                cap*=s.bowlReveal||1;
+                // Keep the optimum and selected surface points within the reveal.
+                var selected=s.displayWeights||s.optimum;
+                cap=Math.max(cap,spec.fn(s.optimum.w1,s.optimum.w2)-base+.01,spec.fn(selected.w1,selected.w2)-base+.01);
+                if(matrix&&s.cameraPreset!=='top') {
+                    var viewer=this,margin=24;
+                    var radialLimit=s.regression&&!s.penalizeIntercept?Math.max(3,Math.abs(s.cx)+2):16;
+                    function rimFits(rise) {
+                        for(var sample=0;sample<48;sample++) {
+                            var angle=sample/48*Math.PI*2,dx=Math.cos(angle),dz=Math.sin(angle),low=0,high=radialLimit;
+                            for(var search=0;search<22;search++) {
+                                var r=(low+high)/2;
+                                if(spec.fn(spec.c[0]+r*dx,spec.c[1]+r*dz)<base+rise)low=r;else high=r;
+                            }
+                            var x=spec.c[0]+high*dx,z=spec.c[1]+high*dz;
+                            var projected=viewer.project([x,height(spec.fn(x,z)),z]);
+                            if(projected.depth<=0||projected.y<margin)return false;
+                        }
+                        return true;
+                    }
+                    // Cut the bowl at a true level set, rather than rescaling it
+                    // or clipping triangles against a screen-space rectangle.
+                    if(!rimFits(cap)) {
+                        var lowCap=0,highCap=cap;
+                        for(var search=0;search<18;search++) {
+                            var candidate=(lowCap+highCap)/2;
+                            if(rimFits(candidate))lowCap=candidate;else highCap=candidate;
+                        }
+                        cap=Math.max(.00001,lowCap);
+                    }
+                }
                 for(var j=0;j<=rings;j++) {
                     var row=[];
                     for(var i=0;i<=n;i++) {
@@ -144,7 +183,8 @@
                 points.push.apply(points,v([spec.c[0],height(base),spec.c[1]],[0,1,0],surfaceColor(1)));
             },this);
             if(constrained) {
-                var boundary=[], sliceHeight=height(s.formulation==='budget'?loss(s.cx,s.cy)+cap:s.lambda*budget), ringColor=rgb(colors.constraint,1);
+                // The budget wall ends at the optimal loss, independent of bowl clipping or selected weights.
+                var boundary=[], sliceHeight=height(loss(s.optimum.w1,s.optimum.w2)), ringColor=rgb(colors.constraint,1);
                 function overlayLine(a,b) { rims.push.apply(rims,v(a,[0,1,0],ringColor).concat(v(b,[0,1,0],ringColor))); }
 
                 for(var b=0;b<=128;b++) {
@@ -153,13 +193,23 @@
                     boundary.push([low*Math.cos(theta),-.06,low*Math.sin(theta)]);
                 }
                 for(var e=0;e<128;e++) {
-                    tri(v([0,-.06,0],[0,1,0],rgb(colors.constraint,.3)),v(boundary[e],[0,1,0],rgb(colors.constraint,.3)),v(boundary[e+1],[0,1,0],rgb(colors.constraint,.3)));
+                    if(s.budgetEmphasis)tri(v([0,-.06,0],[0,1,0],rgb(colors.constraint,.3)),v(boundary[e],[0,1,0],rgb(colors.constraint,.3)),v(boundary[e+1],[0,1,0],rgb(colors.constraint,.3)));
                     if(s.formulation==='budget')budgetFloor.push.apply(budgetFloor,v(boundary[e],[0,1,0],ringColor).concat(v(boundary[e+1],[0,1,0],ringColor)));
                     else overlayLine(boundary[e],boundary[e+1]);
+                    var floorA=boundary[e],floorB=boundary[e+1],topA=[floorA[0],sliceHeight,floorA[2]],topB=[floorB[0],sliceHeight,floorB[2]];
+                    if(s.budgetEmphasis) {
+                        var wall=rgb(colors.constraint,.24),capColor=rgb(colors.constraint,.18);
+                        var dx=floorB[0]-floorA[0],dz=floorB[2]-floorA[2],length=Math.hypot(dx,dz)||1,normal=[dz/length,0,-dx/length];
+                        // Shade the same constraint in either formulation; only
+                        // actual boundary edges form walls in an unbounded band.
+                        var boundedEdge=Math.abs(penalty(floorA[0],floorA[2])-budget)<1e-5&&Math.abs(penalty(floorB[0],floorB[2])-budget)<1e-5;
+                        if(boundedEdge) {
+                            tri(v(floorA,normal,wall),v(topA,normal,wall),v(topB,normal,wall));
+                            tri(v(floorA,normal,wall),v(topB,normal,wall),v(floorB,normal,wall));
+                        }
+                        tri(v([0,sliceHeight,0],[0,1,0],capColor),v(topA,[0,1,0],capColor),v(topB,[0,1,0],capColor));
+                    }
                     if(s.formulation==='budget') {
-                        var floorA=boundary[e],floorB=boundary[e+1],topA=[floorA[0],sliceHeight,floorA[2]],topB=[floorB[0],sliceHeight,floorB[2]],wall=rgb(colors.modelPenalty,.12);
-                        tri(v(floorA,[0,1,0],wall),v(topA,[0,1,0],wall),v(topB,[0,1,0],wall));
-                        tri(v(floorA,[0,1,0],wall),v(topB,[0,1,0],wall),v(floorB,[0,1,0],wall));
                         budgetWalls.push.apply(budgetWalls,v(topA,[0,1,0],ringColor).concat(v(topB,[0,1,0],ringColor)));
                         if(e%16===0)budgetWalls.push.apply(budgetWalls,v(floorA,[0,1,0],ringColor).concat(v(topA,[0,1,0],ringColor)));
                         for(var axis=0;axis<3;axis++){min[axis]=Math.min(min[axis],floorA[axis]);max[axis]=Math.max(max[axis],topA[axis]);}
@@ -186,7 +236,7 @@
                     detail:s.showConstraint ? 'Lowest allowed loss: '+opt.loss.toFixed(2) : 'L + λR = '+opt.loss.toFixed(2)+' + '+(s.lambda*opt.penalty).toFixed(2)+' = '+opt.total.toFixed(2),
                     note:s.showBoth ? '★ marks the weights on the floor' : '★ marks the minimum on the surface'};
             }
-            this.updateContributions(s,opt,loss,penalty);
+            this.updateContributions(s,s.displayWeights||opt,loss,penalty);
 
             if(s.showTotal) for(var g=1;g<s.gdPath.length;g++) {
                 var prev=s.gdPath[g-1],next=s.gdPath[g];
@@ -199,6 +249,7 @@
                 center=min.map(function(value,index){return (value+max[index])/2;});
                 radius=Math.max(3,Math.hypot(max[0]-min[0],max[1]-min[1],max[2]-min[2])/2);
                 framingReady=true;
+                viewportGeometryKey=null;
             }
             this.gridColor=rgb(colors.gridLine,.14);
             this.axisColor=rgb(colors.axis,.85);

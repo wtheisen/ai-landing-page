@@ -23,14 +23,15 @@
         showTotal: false,
         showComponents: false,
         showBoth: true,
-        showConstraint: false,
+        showConstraint: true,
         // 3D camera
         yaw: -0.6,
-        pitch: Math.PI/4,
+        pitch: Math.PI/18,
         zoom: 1,
         heightMode: 'linear',
         stretch: 1.3,
         rimHeight: 6,
+        bowlReveal: 1,
         autoHeight: true,
         dragging: false,
         lastMouse: null,
@@ -43,17 +44,18 @@
         optimum: null     // {w1, w2}
     };
 
-    var regressionModel, regressionPoints=[], dataBounds;
-    var selectedWeights=null, moveWeights=false, trackpadInput=true, weightSnapAnimation=0, weightRelease=null;
+    var regressionModel, regressionPoints=[], dataBounds, linkedControlSource=null;
+    var selectedWeights=null, trackpadInput=true, weightSnapAnimation=0, weightRelease=null;
     var canvas3d;
     var canvasContour, ctxContour;
 
     // ========== Color Helpers ==========
+    function budgetEmphasized() {return (linkedControlSource||state.formulation)==='budget';}
     function getCS() {
         var s = getComputedStyle(document.documentElement);
         return {
             modelLoss: s.getPropertyValue('--reg-model-loss').trim(),
-            modelPenalty: s.getPropertyValue('--reg-model-penalty').trim(),
+            modelPenalty: s.getPropertyValue(budgetEmphasized()?'--reg-reference-color':'--reg-model-penalty').trim(),
             l1: s.getPropertyValue('--reg-l1-color').trim(),
             l2: s.getPropertyValue('--reg-l2-color').trim(),
             elastic: s.getPropertyValue('--reg-elastic-color').trim(),
@@ -62,7 +64,7 @@
             optimal: s.getPropertyValue('--reg-optimal-color').trim(),
             path: s.getPropertyValue('--reg-path-color').trim(),
             contour: s.getPropertyValue('--reg-contour-color').trim(),
-            constraint: s.getPropertyValue('--reg-constraint-color').trim(),
+            constraint: s.getPropertyValue(budgetEmphasized()?'--reg-model-penalty':'--reg-reference-color').trim(),
             constraintFill: s.getPropertyValue('--reg-constraint-fill').trim(),
             warm: s.getPropertyValue('--reg-surface-warm').trim(),
             cool: s.getPropertyValue('--reg-surface-cool').trim(),
@@ -266,6 +268,7 @@
 
     function displayState() {
         var visible=state.formulation==='budget'?Object.assign({},state,{showBoth:false,showLoss:true,showPenalty:false,showTotal:false,showComponents:false,showConstraint:true}):state;
+        visible=Object.assign({},visible,{displayWeights:currentWeights(),budgetEmphasis:budgetEmphasized()});
         if(penaltyBlend===null)return visible;
         var extra={regType:'elastic',alpha:penaltyBlend,penaltyOpacity:penaltyStrength};
         if(optimumMotion) {
@@ -293,14 +296,18 @@
     var scene, cameraAnimation=0, fitAnimation=0, initialCameraSet=false;
     function draw3d() {
         if (!scene) return;
-        if(!initialCameraSet){state.yaw=defaultSideYaw();state.pitch=Math.PI/4;initialCameraSet=true;}
+        if(!initialCameraSet){state.yaw=defaultSideYaw();state.pitch=Math.PI/18;initialCameraSet=true;}
         var budgetLegend=state.formulation==='budget';
         document.getElementById('reg-model-legend').hidden = !budgetLegend && !(state.showBoth || state.showLoss || state.showPenalty || state.showTotal);
         document.getElementById('reg-model-total-key').hidden = !displayState().showTotal;
         document.getElementById('reg-model-loss-key').hidden = !(budgetLegend || state.showLoss || state.showBoth);
         document.getElementById('reg-model-penalty-key').hidden = (state.regType==='none'&&penaltyBlend===null) || !(budgetLegend || state.showPenalty || state.showBoth);
-        document.getElementById('reg-model-penalty-key').innerHTML=budgetLegend?'<i></i>Constraint <b>R(w) ≤ B</b>':'<i></i>Penalty <b>λR(w)</b>';
+        document.getElementById('reg-model-penalty-key').innerHTML=budgetLegend?'<i></i>Constraint <b>R(w) ≤ t</b>':'<i></i>Penalty <b>λR(w)</b>';
         document.getElementById('reg-model-penalty-key').classList.toggle('reg-legend-diamond',state.regType==='l1');
+        var budgetKey=document.getElementById('reg-model-budget-key'),colors=getCS();
+        budgetKey.hidden=budgetLegend||!state.showConstraint||(state.regType==='none'&&penaltyBlend===null);
+        budgetKey.classList.toggle('reg-legend-diamond',state.regType==='l1');
+        [[document.querySelector('#reg-model-penalty-key i'),budgetLegend?colors.constraint:colors.modelPenalty],[budgetKey.querySelector('i'),colors.constraint]].forEach(function(entry){entry[0].style.borderColor=entry[1];entry[0].style.background='transparent';});
         scene.update(displayState(), getCS(), lossAt, penaltyAt, totalAt);
         renderCamera();
     }
@@ -431,6 +438,8 @@
         drawRegression();
     }
     function renderCamera() {
+        // Apply the same orbit limit to mouse, trackpad, and keyboard input.
+        if(state.cameraPreset==='3d')state.pitch=Math.max(Math.PI/180,Math.min(Math.PI/2,state.pitch));
         if(fitAnimation)cancelAnimationFrame(fitAnimation);
         fitAnimation=0;
         scene.updateContributions(displayState(),state.regression?currentWeights():state.optimum,lossAt,penaltyAt);
@@ -439,6 +448,7 @@
             document.getElementById('reg-zoom-out').disabled=state.zoom<=.01;
             document.getElementById('reg-zoom-in').disabled=state.zoom>=3;
         }
+        scene.refreshViewport(displayState(),getCS(),lossAt,penaltyAt,totalAt);
         scene.render(state);
         if(!optimumMotion&&scene.fitAnimating)fitAnimation=requestAnimationFrame(function(){fitAnimation=0;if(state.viewMode==='3d')renderCamera();});
         var labels = document.getElementById('reg-scene-labels');
@@ -880,8 +890,8 @@
             }
             html+=step('3 · '+name+' penalty','reg-readout-penalty','R(w) = '+formula+' · '+(state.penalizeIntercept?'v = [b, m]ᵀ':'v = [m] (intercept unpenalized)'),'<div class="reg-matrix-equation">'+substitution+'<span class="reg-matrix-annotated">= <strong>'+n(cost)+'</strong><small class="reg-matrix-dim">&lt;1, 1&gt; · scalar</small></span></div>');
             if(budget){
-                html+=step('4 · Budget check','reg-readout-penalty',p.type==='none'?'No constraint':'R(b, m) ≤ B',p.type==='none'?'All weights are allowed':n(cost)+' ≤ '+n(state.budget)+' · '+(cost<=state.budget+1e-8?'Within budget':'Outside budget'));
-                html+=step('Minimize the loss','reg-readout-loss','min L(b, m) subject to the budget','Current loss = <strong>'+n(loss)+'</strong>');
+                html+=step('4 · Budget check','reg-readout-penalty',p.type==='none'?'No constraint':'R(b, m) ≤ t',p.type==='none'?'All weights are allowed':n(cost)+' ≤ '+n(state.budget)+' · '+(cost<=state.budget+1e-8?'Within budget':'Outside budget'));
+                html+=step('Minimize the loss','reg-readout-loss','min L(b, m) subject to R(w) ≤ t','Current loss = <strong>'+n(loss)+'</strong>');
             }else{
                 html+=step('4 · Combined objective','reg-readout-total','J(w) = (1/n) rᵀr + λ('+formula+')','<div class="reg-matrix-equation"><span class="reg-matrix-term reg-readout-loss">'+lossProduct+'</span><span> + '+n(state.lambda)+' × (</span><span class="reg-matrix-term reg-readout-penalty">'+substitution+'</span><span>)</span></div><span class="reg-readout-loss">'+n(loss)+'</span> + <span class="reg-readout-penalty">'+n(state.lambda)+' × '+n(cost)+'</span> = <strong>'+n(loss+weighted)+'</strong>');
             }
@@ -959,20 +969,29 @@
 
     function redraw() {
         cancelWeightSnap();
+        if(state.regression&&regressionModel&&state.regType!=='none'&&penaltyBlend===null&&!optimumMotion) {
+            // Preserve the control the user is adjusting, including loose budgets
+            // and L1 strengths beyond the point where the weights reach zero.
+            if((linkedControlSource||state.formulation)==='budget') {
+                state.lambda=regressionModel.lambdaForBudget(state.regType,state.budget,state.alpha,state.penalizeIntercept);
+            } else {
+                var linkedFit=regressionModel.fit(state.regType,state.lambda,state.alpha,state.penalizeIntercept);
+                state.budget=penaltyAt(linkedFit[0],linkedFit[1]);
+            }
+        }
         findOptimum();
         if(selectedWeights)selectedWeights=constrainWeights(selectedWeights.w1,selectedWeights.w2);
         updateAutoHeight();
         document.getElementById('reg-auto-height').checked=state.autoHeight;
         document.getElementById('reg-rim-height').disabled=state.autoHeight;
         var budgetMode=state.formulation==='budget';
-        document.getElementById('reg-lambda-control').hidden=budgetMode;
-        document.getElementById('reg-budget-control').hidden=!budgetMode;
+        document.getElementById('reg-lambda-control').hidden=false;
+        document.getElementById('reg-budget-control').hidden=false;
         document.getElementById('reg-budget-value').textContent=state.budget.toFixed(2);
 
         document.getElementById('reg-data-panel').hidden=!state.regression;
         document.getElementById('reg-weight-controls').hidden=!state.regression;
         document.getElementById('reg-pan-controls').hidden=state.viewMode!=='3d';
-        document.querySelector('.info-panel-tabs [data-tab="data"]').style.display=state.regression?'':'none';
         document.querySelector('#reg-lambda-control p').textContent=state.regression&&!state.penalizeIntercept?'Increase λ to shrink the slope toward zero.':'Increase λ to pull the optimum toward zero.';
         ['reg-ecc-slider','reg-cx-slider','reg-cy-slider','reg-rot-slider'].forEach(function(id){document.getElementById(id).disabled=state.regression;});
         document.getElementById('reg-fit-explanation').textContent=budgetMode?'Model: y = b + mx. Choose the line with the lowest mean squared error whose weight cost fits the budget. With both coefficients constrained, L2 gives a cylinder and L1 a diamond prism; excluding the intercept gives an unbounded band.':'Model: y = b + mx. The landscape uses these points’ mean squared error. Penalizing both coefficients produces a bowl or pyramid; penalizing only the slope produces a trough.';
@@ -1006,9 +1025,8 @@
         document.getElementById('reg-component-controls').hidden = state.viewMode !== '3d' || !state.showTotal;
         document.getElementById('reg-scale-note').hidden = state.viewMode !== '3d';
         var scaleDescription = state.heightMode === 'linear' ? 'Linear height preserves each bowl’s shape. All surfaces share one height scale.' : 'Log height compresses steep regions. All surfaces share one height scale.';
-        document.getElementById('reg-scale-note').textContent = (state.showConstraint ? 'The red boundary shows the equivalent weight budget at the optimum. Dashed guides lie on the weight plane. ' : '') + scaleDescription + ' Surfaces are clipped at the displayed height; the mathematical bowls continue upward.';
+        document.getElementById('reg-scale-note').textContent = (state.showConstraint ? 'The boundary shows the equivalent weight budget at the optimum. Red highlights the last slider adjusted; grey shows the reference shape. Dashed guides lie on the weight plane. ' : '') + scaleDescription + ' Surfaces are clipped at the displayed height; the mathematical bowls continue upward.';
         updateMathPanel();
-        updateLambdaBadge();
         document.querySelector('.reg-component-legend span:nth-child(2)').style.color = getCS().modelPenalty;
         updateWeightReadout();
         var opt=state.optimum;
@@ -1018,8 +1036,7 @@
             document.getElementById('reg-model-penalty-key').hidden=state.regType==='none'&&penaltyBlend===null;
             document.getElementById('reg-budget-explanation').hidden=true;
             document.getElementById('reg-component-controls').hidden=true;
-            document.getElementById('reg-lambda-badge').textContent='Budget = '+state.budget.toFixed(2);
-            document.getElementById('reg-scale-note').textContent='Red walls extend the allowed weight region vertically. Find the lowest point of the blue loss surface inside. Height does not affect feasibility. The displayed walls continue vertically; a budget of zero collapses the region.';
+            document.getElementById('reg-scale-note').textContent='The red walls end at the optimal loss height, meeting the blue bowl at the best allowed weights. The floor boundary determines feasibility; a budget of zero collapses the region.';
         }
 
         var none=state.regType==='none'&&penaltyBlend===null;
@@ -1028,20 +1045,19 @@
         var budgetSlider=document.getElementById('reg-budget-slider');
         var budgetEnd=optimumMotion?Math.max(state.budget,optimumMotion.unrestrictedBudget):Number(budgetSlider.max);
         var budgetValue=state.budget+(budgetEnd-state.budget)*travel;
+        document.getElementById('reg-lambda-slider').max=Math.max(10,state.lambda);
         document.getElementById('reg-lambda-slider').value=lambdaValue;
         document.getElementById('reg-lambda-value').textContent=lambdaValue.toFixed(2);
-        budgetSlider.max=Math.max(10,budgetEnd);budgetSlider.value=none?budgetSlider.max:budgetValue;
+        budgetSlider.max=Math.max(10,budgetEnd,state.budget);budgetSlider.value=none?budgetSlider.max:budgetValue;
         document.getElementById('reg-budget-value').textContent=none?'Unlimited':budgetValue.toFixed(2);
-        document.getElementById('reg-lambda-badge').textContent=budgetMode?'Budget = '+(none?'Unlimited':budgetValue.toFixed(2)):'λ = '+lambdaValue.toFixed(2);
+        document.getElementById('reg-budget-badge').classList.toggle('is-active',!none&&budgetEmphasized());
+        document.getElementById('reg-strength-badge').classList.toggle('is-active',!none&&!budgetEmphasized());
         ['reg-lambda-slider','reg-budget-slider','reg-alpha-slider','reg-penalize-intercept'].forEach(function(id){
             var control=document.getElementById(id);if(control)control.disabled=state.regType==='none'||!!optimumMotion;
         });
 
     }
 
-    function updateLambdaBadge() {
-        document.getElementById('reg-lambda-badge').innerHTML = '&lambda; = ' + state.lambda.toFixed(2);
-    }
 
     function refreshRegression() {
         selectedWeights=null;
@@ -1071,14 +1087,6 @@
                 }
             } catch(error) { /* Ignore invalid optional dataset links. */ }
         }
-        document.getElementById('reg-data-mode').addEventListener('change',function(e){
-            state.regression=e.target.value==='regression';
-            state.cx=parseFloat(document.getElementById('reg-cx-slider').value);
-            state.cy=parseFloat(document.getElementById('reg-cy-slider').value);
-            state.gdPath=[];state.gdAnimating=false;
-            document.querySelector('.info-panel-tabs [data-tab="'+(state.regression?'data':'about')+'"]').click();
-            redraw();
-        });
         document.getElementById('reg-dataset').addEventListener('change',function(){seedRegression();redraw();});
         document.getElementById('reg-data-reset').addEventListener('click',function(){seedRegression();redraw();});
         document.getElementById('reg-penalize-intercept').addEventListener('change',function(e){state.penalizeIntercept=e.target.checked;state.gdPath=[];state.gdAnimating=false;redraw();});
@@ -1179,8 +1187,12 @@
     // ========== Event Wiring ==========
     function init() {
         setupRegression();
-        document.getElementById('reg-formulation').addEventListener('change',function(){state.formulation=this.value;selectedWeights=null;state.gdAnimating=false;if(state.gdAnimFrame)cancelAnimationFrame(state.gdAnimFrame);state.gdPath=[];redraw();});
-        document.getElementById('reg-budget-slider').addEventListener('input',function(){state.budget=parseFloat(this.value);redraw();});
+        document.getElementById('reg-budget-slider').addEventListener('input',function(){
+            linkedControlSource='budget';
+            state.budget=parseFloat(this.value);
+            state.lambda=regressionModel.lambdaForBudget(state.regType,state.budget,state.alpha,state.penalizeIntercept);
+            redraw();
+        });
         canvas3d = document.getElementById('reg-3d-canvas');
         canvasContour = document.getElementById('reg-contour-canvas');
         try { scene = new window.RegularizationScene(canvas3d); } catch (error) {
@@ -1270,7 +1282,7 @@
             redraw();
             if(view==='contour')return;
             var startYaw=state.yaw,startPitch=state.pitch,startOpacity=state.surfaceOpacity,targetOpacity=view==='3d'?1:0,startWallOpacity=state.budgetWallOpacity,targetWallOpacity=view==='top'?0:1;
-            var targetYaw=view==='top'?startYaw:defaultSideYaw(),targetPitch=view==='top'?Math.PI/2:view==='side'?Math.PI/36:Math.PI/4;
+            var targetYaw=view==='top'?startYaw:defaultSideYaw(),targetPitch=view==='top'?Math.PI/2:view==='side'?Math.PI/36:Math.PI/18;
             var focus=state.regression?currentWeights():state.optimum,focusPoint=[focus.w1,0,focus.w2],startPan=scene.pan.slice();
             // Pick the shortest angular path even after several complete orbits.
             var dy=Math.atan2(Math.sin(targetYaw-startYaw),Math.cos(targetYaw-startYaw));
@@ -1299,10 +1311,12 @@
         }
         document.getElementById('reg-input-device').addEventListener('change',function(){trackpadInput=this.value==='trackpad';updateInputHelp();});
         updateInputHelp();
-        document.getElementById('reg-move-weights').addEventListener('click',function(){
-            moveWeights=!moveWeights;this.classList.toggle('active',moveWeights);this.setAttribute('aria-pressed',String(moveWeights));
+
+        document.getElementById('reg-optimal-fit').addEventListener('click',function(){
+            cancelWeightSnap();selectedWeights=null;
+            state.gdAnimating=false;if(state.gdAnimFrame)cancelAnimationFrame(state.gdAnimFrame);
+            resetCameraView();
         });
-        document.getElementById('reg-optimal-fit').addEventListener('click',function(){selectedWeights=null;redraw();});
         // Pointer capture keeps orbit/pan working outside the canvas; two fingers pan and pinch.
         var pointers = new Map(), dragDist = 0, previousGesture = null, weightDrag = false, bowlDrag = null, weightDragMapping = null;
         function gesture() {
@@ -1378,7 +1392,7 @@
                 return;
             }
             if(pointers.size===2) {
-                var next=gesture(); if(previousGesture) {scene.panBy(next.x-previousGesture.x,next.y-previousGesture.y,state); state.zoom=Math.max(.01,Math.min(3,state.zoom*next.d/Math.max(1,previousGesture.d)));} previousGesture=next;
+                var next=gesture(); if(previousGesture) {scene.panBy(next.x-previousGesture.x,next.y-previousGesture.y,state); setUserZoom(state.zoom*next.d/Math.max(1,previousGesture.d));} previousGesture=next;
             } else if(state.cameraPreset==='top' || trackpadInput || e.shiftKey || e.buttons===2) scene.panBy(dx,dy,state);
             else {state.yaw-=dx*.008;if(state.cameraPreset!=='side')state.pitch+=dy*.008;}
             document.getElementById('reg-zoom-value').textContent=Math.round(state.zoom*100)+'%';
@@ -1399,13 +1413,15 @@
         canvas3d.addEventListener('keydown',function(e) {
             var arrows={ArrowLeft:[-.1,0],ArrowRight:[.1,0],ArrowUp:[0,.1],ArrowDown:[0,-.1]};
             if((e.shiftKey||state.cameraPreset==='top')&&arrows[e.key]){e.preventDefault();scene.panBy(arrows[e.key][0]*200,-arrows[e.key][1]*200,state);renderCamera();return;}
-            if(state.regression&&moveWeights&&arrows[e.key]){e.preventDefault();var w=currentWeights();selectWeights(w.w1+arrows[e.key][0],w.w2+arrows[e.key][1]);return;}
             if(arrows[e.key]) {e.preventDefault();state.yaw+=arrows[e.key][0];if(state.cameraPreset!=='side')state.pitch+=arrows[e.key][1];renderCamera();}
         });
-        document.getElementById('reg-camera-reset').addEventListener('click', function() {
+        function resetCameraView() {
+            if(!scene){redraw();return;}
             if(cameraAnimation)cancelAnimationFrame(cameraAnimation);cameraAnimation=0;state.surfaceOpacity=state.cameraPreset==='3d'?1:0;state.budgetWallOpacity=state.cameraPreset==='top'?0:1;
-            scene.resetFraming(); scene.pan=[0,0]; state.yaw=state.cameraPreset==='top'?0:defaultSideYaw(); state.pitch=state.cameraPreset==='top'?Math.PI/2:state.cameraPreset==='side'?Math.PI/36:Math.PI/4; state.zoom=1; state.stretch=1.3; document.getElementById('reg-stretch').value=1.3; redraw();
-        });
+            scene.resetFraming(); scene.pan=[0,0]; state.yaw=state.cameraPreset==='top'?0:defaultSideYaw(); state.pitch=state.cameraPreset==='top'?Math.PI/2:state.cameraPreset==='side'?Math.PI/36:Math.PI/18; state.zoom=1; state.bowlReveal=1; state.stretch=1.3; document.getElementById('reg-stretch').value=1.3; redraw();
+            scene.pan=scene.panForPoint([state.optimum.w1,0,state.optimum.w2],state);renderCamera();
+        }
+        document.getElementById('reg-camera-reset').addEventListener('click',resetCameraView);
 
         document.getElementById('reg-height-mode').addEventListener('change',function(e) {
             state.heightMode=e.target.value; redraw();
@@ -1413,8 +1429,16 @@
         document.getElementById('reg-stretch').addEventListener('input',function(e) {
             state.stretch=parseFloat(e.target.value); redraw();
         });
+        function setUserZoom(zoom) {
+            var previous=state.zoom;
+            state.zoom=Math.max(.01,Math.min(3,zoom));
+            // Only direct zoom gestures change the cutoff. Automatic framing must
+            // not feed back into surface size and trigger more automatic zoom.
+            state.bowlReveal=Math.max(.25,Math.min(100,state.bowlReveal*Math.pow(previous/state.zoom,1.4)));
+            scene.update(displayState(),getCS(),lossAt,penaltyAt,totalAt);
+        }
         function changeZoom(delta) {
-            state.zoom = Math.max(0.01,Math.min(3,Math.round((state.zoom+delta)*100)/100));
+            setUserZoom(state.zoom+delta);
             document.getElementById('reg-zoom-value').textContent=Math.round(state.zoom*100)+'%';
             document.getElementById('reg-zoom-out').disabled=state.zoom<=.01;
             document.getElementById('reg-zoom-in').disabled=state.zoom>=3;
@@ -1472,7 +1496,13 @@
 
         document.getElementById('reg-auto-height').addEventListener('change',function(){state.autoHeight=this.checked;if(!state.autoHeight)state.rimHeight=parseFloat(document.getElementById('reg-rim-height').value);redraw();});
         wireSlider('reg-rim-height', 'rimHeight', 'reg-rim-value', function(v) { return v.toFixed(0); });
-        wireSlider('reg-lambda-slider', 'lambda', 'reg-lambda-value');
+        document.getElementById('reg-lambda-slider').addEventListener('input',function(){
+            linkedControlSource='penalty';
+            state.lambda=parseFloat(this.value);
+            var fit=regressionModel.fit(state.regType,state.lambda,state.alpha,state.penalizeIntercept);
+            state.budget=penaltyAt(fit[0],fit[1]);
+            redraw();
+        });
         wireSlider('reg-ecc-slider', 'eccentricity', 'reg-ecc-value', function(v) { return v.toFixed(1); });
         wireSlider('reg-cx-slider', 'cx', 'reg-cx-value');
         wireSlider('reg-cy-slider', 'cy', 'reg-cy-value');
@@ -1512,13 +1542,13 @@
             document.getElementById('reg-rot-value').innerHTML = '30&deg;';
 
             if(cameraAnimation)cancelAnimationFrame(cameraAnimation);cameraAnimation=0;state.cameraPreset='3d';state.surfaceOpacity=1;state.budgetWallOpacity=1;
-            state.formulation='penalty';state.budget=1;selectedWeights=null;
-            document.getElementById('reg-formulation').value='penalty';document.getElementById('reg-budget-slider').value=1;
+            state.formulation='penalty';linkedControlSource=null;state.budget=1;selectedWeights=null;
+            document.getElementById('reg-budget-slider').value=1;
             state.viewMode = scene ? '3d' : 'contour';
             state.showLoss = true;
             state.showPenalty = true;
             state.showTotal = false;
-            state.showConstraint = false;
+            state.showConstraint = true;
             state.showBoth = true;
             state.showComponents = false;
             document.getElementById('reg-components').checked = false;
@@ -1554,6 +1584,23 @@
             resizeTimer = setTimeout(redraw, 100);
         });
 
+        // Reveal the linked data only on actual plot/control interaction, not
+        // hover, page scrolling, URL restoration, or automatic animations.
+        var weightPanel=document.querySelector('.reg-weight-column');
+        function revealLiveMath(event) {
+            if(!event.isTrusted)return;
+            var target=event.target;
+            if(event.type==='wheel'||event.type==='gesturestart') {
+                if(target!==canvas3d&&target!==canvasContour)return;
+            } else if(!target.closest('canvas,button,input,select,label'))return;
+            if(event.type==='keydown'&&!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Enter',' '].includes(event.key))return;
+            var dataTab=document.querySelector('.info-panel-tabs [data-tab="math"]');
+            if(dataTab&&!dataTab.classList.contains('active'))dataTab.click();
+        }
+        ['pointerdown','click','input','change','keydown','wheel','gesturestart'].forEach(function(type){
+            weightPanel.addEventListener(type,revealLiveMath,{passive:true});
+        });
+
         // Info tab switching
         document.querySelectorAll('.info-panel-tabs .btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
@@ -1564,7 +1611,7 @@
                 panel.querySelectorAll('.info-tab-content').forEach(function(t) { t.classList.remove('active'); });
                 var target = panel.querySelector('#tab-' + tabId);
                 if (target) target.classList.add('active');
-                if(tabId==='data' && state.regression) drawRegression();
+                if(tabId==='math' && state.regression) drawRegression();
             });
         });
     }

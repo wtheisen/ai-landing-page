@@ -97,16 +97,7 @@
 /* ============================================
    Lambda Badge
    ============================================ */
-.reg-lambda-badge {
-    font-family: var(--viz-mono-font);
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: var(--viz-hover-bg);
-    border: 1px solid var(--viz-border);
-    color: var(--viz-text-muted);
-}
+
 
 /* ============================================
    Surface Toggles
@@ -430,9 +421,9 @@
 #reg-scene-labels .reg-selected-caption { color: var(--reg-selected-color); opacity: 1; font-weight: 600; }
 
 .reg-experiment-controls .panel-body { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 2rem; }
-.reg-experiment-controls .panel-heading-content { display: flex; align-items: center; gap: 1rem; }
+.reg-experiment-controls .panel-heading-content { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
 .reg-experiment-controls .reg-data-source { margin: 0; flex: 1 1 22rem; }
-.reg-experiment-controls .reg-primary-control { flex: 1 1 28rem; margin: 0; padding: 0; border: 0; }
+.reg-experiment-controls .reg-primary-control { flex: 0 0 100%; min-width: 0; margin: 0; padding: 0; border: 0; }
 .reg-experiment-controls .reg-primary-control p { margin-bottom: 0; }
 .reg-space-heading { display: inline-block; padding: 5px 10px; font-size: 12px; line-height: 1.5; border: 1px solid transparent; font-weight: 600; }
 .reg-weight-column > .panel > .panel-heading, .reg-data-column > .panel > .panel-heading { display: flex; align-items: center; min-height: 5.2rem; }
@@ -506,3 +497,32 @@
 
 .reg-matrix-annotated { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
 .reg-matrix-dim { color: var(--viz-text-muted); font-family: inherit; font-size: 10px; font-weight: 400; white-space: nowrap; line-height: 1.4; }
+
+.reg-experiment-controls .reg-primary-control .option-row { display: grid; grid-template-columns: 15rem 9rem minmax(0, 1fr); gap: .8rem; align-items: center; }
+.reg-experiment-controls .reg-primary-control input[type="range"] { width: 100%; min-width: 0; margin: 0; }
+.reg-experiment-controls .reg-primary-control .range-value { display: block; padding: 0; margin: 0; text-align: right; font-variant-numeric: tabular-nums; color: var(--viz-text-muted); }
+@media (max-width: 600px) {
+    .reg-experiment-controls .reg-primary-control .option-row { grid-template-columns: 9rem minmax(0, 1fr); }
+    .reg-experiment-controls .reg-primary-control label { grid-column: 1 / -1; }
+}
+
+:root { --reg-reference-color: #b5bbc2; }
+[data-theme="gruvbox-dark"] { --reg-reference-color: #91979f; }
+#reg-model-budget-key i { width: 14px; height: 14px; margin: 0 2.5px; border-radius: 50%; background: transparent; }
+#reg-model-budget-key.reg-legend-diamond i { width: 12px; height: 12px; margin: 0 3.5px; border-radius: 0; transform: rotate(45deg); }
+
+.reg-slider-value-box { display: block; padding: 5px 9px; border: 1px solid var(--reg-reference-color); border-radius: 4px; background: var(--viz-hover-bg); color: var(--viz-text-muted); font: 600 12px var(--viz-mono-font); font-variant-numeric: tabular-nums; text-align: center; white-space: nowrap; transition: color .15s, border-color .15s, background .15s; }
+.reg-slider-value-box.is-active { color: var(--reg-model-penalty); border-color: var(--reg-model-penalty); background: color-mix(in srgb, var(--reg-model-penalty) 12%, var(--viz-canvas-bg)); }
+
+.reg-view-options { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px; margin-top: 10px; }
+.reg-view-options .reg-surface-toggles { margin: 0; }
+.reg-view-options .reg-view-toggle { flex-shrink: 0; }
+
+.reg-viewport-toolbar { position: absolute; z-index: 3; top: 10px; left: 10px; right: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; pointer-events: none; }
+.reg-viewport-toolbar > * { pointer-events: auto; }
+.reg-viewport-toolbar .btn { background: var(--viz-canvas-bg); }
+.reg-viewport-toolbar .btn.active, .reg-viewport-toolbar .btn.active:hover, .reg-viewport-toolbar .btn.active:focus { background: var(--reg-l2-color); color: #fff; text-shadow: none; border-color: var(--reg-l2-color); }
+
+.reg-inline-controls { margin-top: 14px; }
+.reg-inline-controls > .panel-body { padding: 0; }
+.reg-view-options .reg-type-toggle { flex-shrink: 0; }
