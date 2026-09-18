@@ -1,0 +1,801 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="3680" height="6800" viewBox="0 0 3680 6800">
+<title>Intellectual influences and arguments across time</title>
+<desc>Source-backed arrows connect earlier thinkers or proposals to later recipients or critics. Cards show representative readings and publication periods. Green means credited influence; blue dotted means explicit engagement; red dashed means criticism by the receiving author. Every numbered arrow has a linked source and a scope note.</desc>
+<defs>
+<marker id="arrow-influence" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#28776F"/></marker>
+<marker id="arrow-engagement" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#456F9D"/></marker>
+<marker id="arrow-critique" markerWidth="11" markerHeight="11" refX="9" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#B44E48"/></marker>
+</defs>
+<rect x="0" y="0" width="3680" height="6800" rx="0" fill="white" stroke="none" stroke-width="1.5"/>
+<rect x="60" y="55" width="8" height="100" rx="3" fill="#DCB439" stroke="none" stroke-width="1.5"/>
+<text x="90" y="87" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" font-style="normal" fill="#947318" text-anchor="start">AI CULTURAL MOVEMENTS / AN INTELLECTUAL HISTORY</text>
+<text x="90" y="145" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Influences, developments, and disagreements</text>
+<text x="90" y="192" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Follow arrows from an earlier thinker or proposal to the later recipient or critic. Cards give representative readings.</text>
+<path d="M 90 238 H 160" fill="none" stroke="#28776F" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="180" y="246" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" font-style="normal" fill="#28776F" text-anchor="start">Credited influence / mentorship</text>
+<path d="M 770 238 H 840" fill="none" stroke="#456F9D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="5 7"/>
+<text x="860" y="246" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" font-style="normal" fill="#456F9D" text-anchor="start">Explicit discussion / development</text>
+<path d="M 1480 238 H 1550" fill="none" stroke="#B44E48" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="13 7"/>
+<text x="1570" y="246" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="400" font-style="normal" fill="#B44E48" text-anchor="start">Criticism by the receiving author</text>
+<text x="90" y="286" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Shared era bands; non-linear spacing. Arrows concern authors unless the key names a specific text. A citation alone is not classified as formative influence.</text>
+<text x="480" y="332" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="middle">LOGIC &amp; COMPUTATION</text>
+<text x="1180" y="332" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#38897F" text-anchor="middle">EVIDENCE &amp; RATIONALITY</text>
+<text x="1880" y="332" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="middle">ETHICS &amp; EFFECTIVE ALTRUISM</text>
+<text x="2580" y="332" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#8666A8" text-anchor="middle">FUTURE GENERATIONS &amp; RISK</text>
+<text x="3280" y="332" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#7B7985" text-anchor="middle">FUTURISM &amp; CRITICISM</text>
+<rect x="195" y="350" width="3390" height="250" rx="16" fill="#F6F8FA" stroke="none" stroke-width="1.5"/>
+<path d="M 195 350 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="390" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">ANTIQUITY</text>
+<text x="20" y="427" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">4th century</text>
+<text x="20" y="450" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">BCE</text>
+<path d="M 180 365 V 590" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="650" width="3390" height="260" rx="16" fill="#FFFFFF" stroke="none" stroke-width="1.5"/>
+<path d="M 195 650 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="690" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">1600s</text>
+<text x="20" y="727" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Scientific</text>
+<text x="20" y="750" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">method</text>
+<path d="M 180 665 V 900" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="960" width="3390" height="490" rx="16" fill="#F6F8FA" stroke="none" stroke-width="1.5"/>
+<path d="M 195 960 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="1000" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">1700s</text>
+<text x="20" y="1037" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Evidence &amp;</text>
+<text x="20" y="1060" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">utility</text>
+<path d="M 180 975 V 1440" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="1500" width="3390" height="490" rx="16" fill="#FFFFFF" stroke="none" stroke-width="1.5"/>
+<path d="M 195 1500 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="1540" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">1800s</text>
+<text x="20" y="1577" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Logic &amp; ethics</text>
+<path d="M 180 1515 V 1980" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="2040" width="3390" height="490" rx="16" fill="#F6F8FA" stroke="none" stroke-width="1.5"/>
+<path d="M 195 2040 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="2080" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">1900–1969</text>
+<text x="20" y="2117" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Machine</text>
+<text x="20" y="2140" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">intelligence</text>
+<path d="M 180 2055 V 2520" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="2580" width="3390" height="490" rx="16" fill="#FFFFFF" stroke="none" stroke-width="1.5"/>
+<path d="M 195 2580 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="2620" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">1970s</text>
+<text x="20" y="2657" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Minds &amp; moral</text>
+<text x="20" y="2680" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">duties</text>
+<path d="M 180 2595 V 3060" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="3120" width="3390" height="490" rx="16" fill="#F6F8FA" stroke="none" stroke-width="1.5"/>
+<path d="M 195 3120 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="3160" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">1980s</text>
+<text x="20" y="3197" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Biases &amp; future</text>
+<text x="20" y="3220" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">people</text>
+<path d="M 180 3135 V 3600" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="3660" width="3390" height="260" rx="16" fill="#FFFFFF" stroke="none" stroke-width="1.5"/>
+<path d="M 195 3660 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="3700" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">1990s</text>
+<text x="20" y="3737" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Obligations to</text>
+<text x="20" y="3760" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">help</text>
+<path d="M 180 3675 V 3910" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="3970" width="3390" height="490" rx="16" fill="#F6F8FA" stroke="none" stroke-width="1.5"/>
+<path d="M 195 3970 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="4010" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">2000s</text>
+<text x="20" y="4047" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Bayesianism &amp;</text>
+<text x="20" y="4070" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">giving</text>
+<path d="M 180 3985 V 4450" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="4510" width="3390" height="700" rx="16" fill="#FFFFFF" stroke="none" stroke-width="1.5"/>
+<path d="M 195 4510 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="4550" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">2010s</text>
+<text x="20" y="4587" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Movements</text>
+<text x="20" y="4610" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">converge</text>
+<path d="M 180 4525 V 5200" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="195" y="5260" width="3390" height="420" rx="16" fill="#F6F8FA" stroke="none" stroke-width="1.5"/>
+<path d="M 195 5260 H 3585" fill="none" stroke="#D8DFE7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="20" y="5300" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">2020s</text>
+<text x="20" y="5337" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Contemporary</text>
+<text x="20" y="5360" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">debates</text>
+<path d="M 180 5275 V 5670" fill="none" stroke="#D0D9E3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 173 618 l 14 8 l -14 8 l 14 8" fill="none" stroke="#8C9BAC" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+<a xlink:href="https://plato.stanford.edu/archives/sum2024/entries/aristotle/" target="_blank"><title>1. Plato → Aristotle: teacher and interlocutor. Author-level relationship; Meno and Nicomachean Ethics are representative readings, not a claim that one directly produced the other.</title>
+<path d="M 1440 438 L 1534 438 L 1534 438 L 1620 438" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 1440 438 L 1534 438 L 1534 438 L 1620 438" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://www.earlymoderntexts.com/assets/pdfs/bacon1620.pdf" target="_blank"><title>2. Aristotle → Bacon: replaces the old Organon. Novum Organum explicitly challenges the inherited syllogistic method; see Book I and the editorial introduction.</title>
+<path d="M 740 438 L 765 438 L 765 748 L 920 748" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 740 438 L 765 438 L 765 748 L 920 748" fill="none" stroke="#B44E48" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-critique)" stroke-dasharray="13 7"/>
+</a>
+<a xlink:href="https://www.gutenberg.org/ebooks/15114" target="_blank"><title>3. Aristotle → Boole: algebraizes syllogisms. Boole treats Aristotelian syllogistic in Laws of Thought, chapter XV. This is explicit formal reworking, not a claim of personal inspiration.</title>
+<path d="M 740 460 L 834 460 L 834 1598 L 740 1598" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 740 460 L 834 460 L 834 1598 L 740 1598" fill="none" stroke="#456F9D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-engagement)" stroke-dasharray="5 7"/>
+</a>
+<a xlink:href="https://www.earlymoderntexts.com/assets/pdfs/hume1748.pdf" target="_blank"><title>4. Descartes → Hume: limits of radical doubt. Enquiry section XII explicitly discusses and criticizes Cartesian antecedent skepticism.</title>
+<path d="M 740 763 L 765 763 L 765 1058 L 920 1058" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 740 763 L 765 763 L 765 1058 L 920 1058" fill="none" stroke="#B44E48" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-critique)" stroke-dasharray="13 7"/>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/bentham/" target="_blank"><title>5. Bacon → Bentham: empirical method. Author-level influence explicitly identified in the scholarly account of Bentham’s intellectual development.</title>
+<path d="M 1440 748 L 1534 748 L 1534 1298 L 1620 1298" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 1440 748 L 1534 748 L 1534 1298 L 1620 1298" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/bentham/" target="_blank"><title>6. Hume → Bentham: utility. Bentham credits Hume’s Treatise, rather than the Enquiry displayed here, with his turn toward utility. This is an author-level edge.</title>
+<path d="M 1440 1058 L 1465 1058 L 1465 1320 L 1620 1320" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 1440 1058 L 1465 1058 L 1465 1320 L 1620 1320" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/bentham/" target="_blank"><title>7. Bentham → Mill: formative utilitarianism. Mill’s autobiographical account credits Bentham’s ideas; Mill later revised the doctrine.</title>
+<path d="M 2140 1298 L 2234 1298 L 2234 1618 L 2140 1618" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2140 1298 L 2234 1298 L 2234 1618 L 2140 1618" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/utilitarianism-history/" target="_blank"><title>8. Mill → Sidgwick: develops and revises. The Methods develops classical utilitarianism in response to Bentham and Mill.</title>
+<path d="M 2140 1618 L 2165 1618 L 2165 1838 L 2140 1838" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2140 1618 L 2165 1618 L 2165 1838 L 2140 1838" fill="none" stroke="#456F9D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-engagement)" stroke-dasharray="5 7"/>
+</a>
+<a xlink:href="https://plato.sydney.edu.au/entries/sidgwick/" target="_blank"><title>9. Sidgwick → Singer: acknowledged influence. Author-level influence on Singer’s ethical thought, not a claim that the 1972 essay is a direct adaptation of The Methods.</title>
+<path d="M 2140 1838 L 2234 1838 L 2234 2678 L 2140 2678" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2140 1838 L 2234 1838 L 2234 2678 L 2140 2678" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://plato.sydney.edu.au/entries/sidgwick/" target="_blank"><title>10. Sidgwick → Parfit: acknowledged influence. Parfit acknowledges The Methods as a source; population ethics develops questions raised by Sidgwick.</title>
+<path d="M 2140 1860 L 2165 1860 L 2165 3428 L 2320 3428" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2140 1860 L 2165 1860 L 2165 3428 L 2320 3428" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://www.newyorker.com/magazine/2022/08/15/the-reluctant-prophet-of-effective-altruism" target="_blank"><title>11. Singer → MacAskill: formative encounter. MacAskill credits an undergraduate encounter with Singer’s argument with reshaping his life; the target is the author represented by Doing Good Better.</title>
+<path d="M 2140 2678 L 2234 2678 L 2234 4838 L 2140 4838" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2140 2678 L 2234 2678 L 2234 4838 L 2140 4838" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://time.com/6204627/effective-altruism-longtermism-william-macaskill-interview/" target="_blank"><title>12. Singer → Ord: ethical inspiration. Author-level influence on Ord’s altruism, not a claim that The Precipice directly derives from this essay.</title>
+<path d="M 2140 2700 L 2165 2700 L 2165 5348 L 2320 5348" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2140 2700 L 2165 2700 L 2165 5348 L 2320 5348" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://www.nybooks.com/articles/2021/02/25/power-catastrophic-thinking-toby-ord-precipice/" target="_blank"><title>13. Parfit → Ord: mentor. Ord studied under Parfit and describes him as a mentor.</title>
+<path d="M 2840 3428 L 2934 3428 L 2934 5370 L 2840 5370" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2840 3428 L 2934 3428 L 2934 5370 L 2840 5370" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://www.williammacaskill.com/s/Moral-Uncertainty.pdf" target="_blank"><title>14. Parfit → MacAskill: mentor. MacAskill’s coauthored Moral Uncertainty is dedicated to Parfit as mentor and friend; this is an author-level relationship, not an assertion about a specific borrowed passage.</title>
+<path d="M 2840 3450 L 2865 3450 L 2865 5538 L 2840 5538" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2840 3450 L 2865 3450 L 2865 5538 L 2840 5538" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://studylib.net/doc/28347453/jaynes---probability-theory.-the-logic-of-science" target="_blank"><title>15. Bayes → Jaynes: explicitly discusses. Probability Theory §4.6.1 discusses Bayes’s 1763 result and distinguishes it from Laplace’s broader contribution. This is textual reception, not a complete Bayesian genealogy.</title>
+<path d="M 1440 1278 L 1534 1278 L 1534 4068 L 1440 4068" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 1440 1278 L 1534 1278 L 1534 4068 L 1440 4068" fill="none" stroke="#456F9D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-engagement)" stroke-dasharray="5 7"/>
+</a>
+<a xlink:href="https://www.lesswrong.com/s/SXurf2mWFw8LX2mkG/p/Ti3Z7eZtud32LhGZT" target="_blank"><title>16. Jaynes → Yudkowsky: credited turning point. In My Bayesian Enlightenment, Yudkowsky explicitly credits Probability Theory with changing his approach.</title>
+<path d="M 1440 4068 L 1465 4068 L 1465 4288 L 1440 4288" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 1440 4068 L 1465 4068 L 1465 4288 L 1440 4288" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://www.lesswrong.com/posts/3Jpchgy53D2gB5qdk/my-childhood-role-model" target="_blank"><title>17. Hofstadter → Yudkowsky: formative model. Yudkowsky identifies Hofstadter as a childhood hero; his account also records disagreement about intelligence. The arrow is not an endorsement of Yudkowsky by Hofstadter.</title>
+<path d="M 740 2908 L 834 2908 L 834 4310 L 920 4310" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 740 2908 L 834 2908 L 834 4310 L 920 4310" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://www.lesswrong.com/rationality/biases-an-introduction?revision=1.0.0" target="_blank"><title>18. Kahneman / Tversky → Yudkowsky: applies. The collection’s introduction explicitly builds its account of biases around Tversky and Kahneman’s findings; individual essays also cite this research.</title>
+<path d="M 1440 3238 L 1465 3238 L 1465 4332 L 1440 4332" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 1440 3238 L 1465 3238 L 1465 4332 L 1440 4332" fill="none" stroke="#456F9D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-engagement)" stroke-dasharray="5 7"/>
+</a>
+<a xlink:href="https://www.nobelprize.org/uploads/2018/06/kahnemann-lecture.pdf" target="_blank"><title>19. Simon → Kahneman: bounded rationality. Kahneman explicitly discusses Simon’s bounded-rationality framework in his 2002 Nobel lecture. Author-level reception evidenced in 2002, not proof that the displayed 1982 anthology derives from Simon’s 1969 book.</title>
+<path d="M 740 2358 L 834 2358 L 834 3238 L 920 3238" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 740 2358 L 834 2358 L 834 3238 L 920 3238" fill="none" stroke="#456F9D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-engagement)" stroke-dasharray="5 7"/>
+</a>
+<a xlink:href="https://www.nybooks.com/articles/1974/06/27/an-exchange-on-artificial-intelligence/" target="_blank"><title>20. Simon → Dreyfus: symbolic-AI critique. Dreyfus’s own 1974 exchange, defending What Computers Can’t Do, explicitly challenges Simon’s claims about AI progress.</title>
+<path d="M 740 2380 L 765 2380 L 765 2597 L 2903 2597 L 2903 2678 L 3020 2678" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 740 2380 L 765 2380 L 765 2597 L 2903 2597 L 2903 2678 L 3020 2678" fill="none" stroke="#B44E48" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-critique)" stroke-dasharray="13 7"/>
+</a>
+<a xlink:href="https://zoo.cs.yale.edu/classes/cs458/lectures/minds-brains-and-programs.pdf" target="_blank"><title>21. Turing test → Searle: understanding objection. Minds, Brains, and Programs argues that passing a Turing test is insufficient for understanding. Its immediate target is strong-AI claims, not every claim in Turing’s paper.</title>
+<path d="M 740 2138 L 834 2138 L 834 3065 L 2995 3065 L 2995 3218 L 3020 3218" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 740 2138 L 834 2138 L 834 3065 L 2995 3065 L 2995 3218 L 3020 3218" fill="none" stroke="#B44E48" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-critique)" stroke-dasharray="13 7"/>
+</a>
+<a xlink:href="https://nickbostrom.com/papers/future" target="_blank"><title>22. I. J. Good → Bostrom: intelligence explosion. Bostrom explicitly quotes and develops Good’s 1965 argument in his work on humanity’s future; author-level reception predating the displayed 2014 book.</title>
+<path d="M 2840 2358 L 2865 2358 L 2865 4608 L 2840 4608" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2840 2358 L 2865 2358 L 2865 4608 L 2840 4608" fill="none" stroke="#456F9D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-engagement)" stroke-dasharray="5 7"/>
+</a>
+<a xlink:href="https://nickbostrom.com/ethics/artificial-intelligence.pdf" target="_blank"><title>23. I. J. Good → Yudkowsky: intelligence explosion. Bostrom and Yudkowsky’s coauthored The Ethics of Artificial Intelligence explicitly presents Good’s classic hypothesis. Evidence is the later coauthored paper, not the displayed Sequences collection itself.</title>
+<path d="M 2320 2380 L 2226 2380 L 2226 3917 L 1557 3917 L 1557 4354 L 1440 4354" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2320 2380 L 2226 2380 L 2226 3917 L 1557 3917 L 1557 4354 L 1440 4354" fill="none" stroke="#456F9D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-engagement)" stroke-dasharray="5 7"/>
+</a>
+<a xlink:href="https://nickbostrom.com/superintelligence" target="_blank"><title>24. Moravec → Bostrom: computational estimates. Bostrom’s How Long Before Superintelligence? explicitly discusses Moravec’s estimates. Author-level engagement, not agreement with every claim in Mind Children.</title>
+<path d="M 3020 3468 L 2865 3468 L 2865 4630 L 2840 4630" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 3020 3468 L 2865 3468 L 2865 4630 L 2840 4630" fill="none" stroke="#456F9D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-engagement)" stroke-dasharray="5 7"/>
+</a>
+<a xlink:href="https://humancompatible.ai/news/2020/10/10/alignment-problem-published/" target="_blank"><title>25. Russell → Christian: research chronicled. CHAI reports that The Alignment Problem showcases Stuart Russell’s research; the link is to the research, not a claim that Human Compatible caused Christian’s book.</title>
+<path d="M 740 5048 L 834 5048 L 834 5358 L 740 5358" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 740 5048 L 834 5048 L 834 5358 L 740 5358" fill="none" stroke="#456F9D" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-engagement)" stroke-dasharray="5 7"/>
+</a>
+<a xlink:href="https://a16z.com/the-techno-optimist-manifesto/" target="_blank"><title>26. Kurzweil → Andreessen: named inspiration. Andreessen explicitly includes Kurzweil in the manifesto’s list of intellectual inspirations. Author-level acknowledgment; it does not identify a specific Kurzweil book.</title>
+<path d="M 3020 4158 L 2995 4158 L 2995 5558 L 3020 5558" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 3020 4158 L 2995 4158 L 2995 5558 L 3020 5558" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://a16z.com/the-techno-optimist-manifesto/" target="_blank"><title>27. Deutsch → Andreessen: quoted and credited. The manifesto quotes Deutsch and lists him among its intellectual inspirations; The Beginning of Infinity is a representative reading.</title>
+<path d="M 3020 4608 L 2926 4608 L 2926 5580 L 3020 5580" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 3020 4608 L 2926 4608 L 2926 5580 L 3020 5580" fill="none" stroke="#28776F" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-influence)"/>
+</a>
+<a xlink:href="https://www.lrb.co.uk/the-paper/v37/n18/amia-srinivasan/stop-the-robot-apocalypse" target="_blank"><title>28. MacAskill → Srinivasan: direct critical review. Stop the Robot Apocalypse directly reviews Doing Good Better and questions EA’s treatment of politics and systemic change.</title>
+<path d="M 2140 4838 L 2165 4838 L 2165 4529 L 2949 4529 L 2949 4838 L 3020 4838" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M 2140 4838 L 2165 4838 L 2165 4529 L 2949 4529 L 2949 4838 L 3020 4838" fill="none" stroke="#B44E48" stroke-width="3" stroke-linejoin="round" marker-end="url(#arrow-critique)" stroke-dasharray="13 7"/>
+</a>
+<g id="aristotle_logic"><title>Aristotle — Organon · selections (4th c. BCE)</title>
+<rect x="220" y="380" width="520" height="198" rx="14" fill="white" stroke="#386EA5" stroke-width="1.5"/>
+<rect x="220" y="397" width="5" height="164" rx="2" fill="#386EA5" stroke="none" stroke-width="1.5"/>
+<text x="242" y="409" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="start">4th c. BCE</text>
+<text x="720" y="409" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">TREATISES</text>
+<text x="242" y="441" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Aristotle</text>
+<text x="242" y="471" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Organon · selections</text>
+<text x="242" y="500" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">What makes an argument valid?</text>
+</g>
+<g id="plato"><title>Plato — Meno (4th c. BCE)</title>
+<rect x="920" y="380" width="520" height="198" rx="14" fill="white" stroke="#38897F" stroke-width="1.5"/>
+<rect x="920" y="397" width="5" height="164" rx="2" fill="#38897F" stroke="none" stroke-width="1.5"/>
+<text x="942" y="409" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#38897F" text-anchor="start">4th c. BCE</text>
+<text x="1420" y="409" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">DIALOGUE</text>
+<text x="942" y="441" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Plato</text>
+<text x="942" y="471" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Meno</text>
+<text x="942" y="500" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">How can we inquire into what we do not yet</text>
+<text x="942" y="523" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">know?</text>
+</g>
+<g id="aristotle_ethics"><title>Aristotle — Nicomachean Ethics (4th c. BCE)</title>
+<rect x="1620" y="380" width="520" height="198" rx="14" fill="white" stroke="#A77B21" stroke-width="1.5"/>
+<rect x="1620" y="397" width="5" height="164" rx="2" fill="#A77B21" stroke="none" stroke-width="1.5"/>
+<text x="1642" y="409" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="start">4th c. BCE</text>
+<text x="2120" y="409" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="1642" y="441" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Aristotle</text>
+<text x="1642" y="471" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Nicomachean Ethics</text>
+<text x="1642" y="500" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">What is a good life, and how should we act?</text>
+</g>
+<g id="descartes"><title>René Descartes — Discourse on Method (1637)</title>
+<rect x="220" y="705" width="520" height="198" rx="14" fill="white" stroke="#386EA5" stroke-width="1.5"/>
+<rect x="220" y="722" width="5" height="164" rx="2" fill="#386EA5" stroke="none" stroke-width="1.5"/>
+<text x="242" y="734" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="start">1637</text>
+<text x="720" y="734" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="242" y="766" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">René Descartes</text>
+<text x="242" y="796" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Discourse on Method</text>
+<text x="242" y="825" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Systematic doubt and disciplined reasoning.</text>
+</g>
+<g id="boole"><title>George Boole — An Investigation of the Laws of Thought (1854)</title>
+<rect x="220" y="1540" width="520" height="198" rx="14" fill="white" stroke="#386EA5" stroke-width="1.5"/>
+<rect x="220" y="1557" width="5" height="164" rx="2" fill="#386EA5" stroke="none" stroke-width="1.5"/>
+<text x="242" y="1569" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="start">1854</text>
+<text x="720" y="1569" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="242" y="1601" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">George Boole</text>
+<text x="242" y="1631" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">An Investigation of the Laws of Thought</text>
+<text x="242" y="1660" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Represent logical reasoning with algebra.</text>
+</g>
+<g id="turing"><title>Alan Turing — Computing Machinery and Intelligence (1950)</title>
+<rect x="220" y="2080" width="520" height="198" rx="14" fill="white" stroke="#386EA5" stroke-width="1.5"/>
+<rect x="220" y="2097" width="5" height="164" rx="2" fill="#386EA5" stroke="none" stroke-width="1.5"/>
+<text x="242" y="2109" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="start">1950</text>
+<text x="720" y="2109" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">PAPER</text>
+<text x="242" y="2141" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Alan Turing</text>
+<text x="242" y="2171" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Computing Machinery and Intelligence</text>
+<text x="242" y="2200" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Turn “Can machines think?” into a testable</text>
+<text x="242" y="2223" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">question.</text>
+</g>
+<g id="simon"><title>Herbert A. Simon — The Sciences of the Artificial (1969)</title>
+<rect x="220" y="2300" width="520" height="198" rx="14" fill="white" stroke="#386EA5" stroke-width="1.5"/>
+<rect x="220" y="2317" width="5" height="164" rx="2" fill="#386EA5" stroke="none" stroke-width="1.5"/>
+<text x="242" y="2329" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="start">1969</text>
+<text x="720" y="2329" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="242" y="2361" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Herbert A. Simon</text>
+<text x="242" y="2391" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Sciences of the Artificial</text>
+<text x="242" y="2420" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Goal-directed systems and the limits of</text>
+<text x="242" y="2443" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">rationality.</text>
+</g>
+<g id="hofstadter"><title>Douglas Hofstadter — Gödel, Escher, Bach (1979)</title>
+<rect x="220" y="2850" width="520" height="198" rx="14" fill="white" stroke="#386EA5" stroke-width="1.5"/>
+<rect x="220" y="2867" width="5" height="164" rx="2" fill="#386EA5" stroke="none" stroke-width="1.5"/>
+<text x="242" y="2879" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="start">1979</text>
+<text x="720" y="2879" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="242" y="2911" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Douglas Hofstadter</text>
+<text x="242" y="2941" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Gödel, Escher, Bach</text>
+<text x="242" y="2970" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Symbols, self-reference, and the emergence of</text>
+<text x="242" y="2993" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">minds.</text>
+</g>
+<g id="axelrod"><title>Robert Axelrod — The Evolution of Cooperation (1984)</title>
+<rect x="220" y="3390" width="520" height="198" rx="14" fill="white" stroke="#386EA5" stroke-width="1.5"/>
+<rect x="220" y="3407" width="5" height="164" rx="2" fill="#386EA5" stroke="none" stroke-width="1.5"/>
+<text x="242" y="3419" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="start">1984</text>
+<text x="720" y="3419" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="242" y="3451" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Robert Axelrod</text>
+<text x="242" y="3481" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Evolution of Cooperation</text>
+<text x="242" y="3510" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Computer tournaments, reciprocity, and</text>
+<text x="242" y="3533" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">cooperation.</text>
+</g>
+<g id="russell"><title>Stuart Russell — Human Compatible (2019)</title>
+<rect x="220" y="4990" width="520" height="198" rx="14" fill="white" stroke="#386EA5" stroke-width="1.5"/>
+<rect x="220" y="5007" width="5" height="164" rx="2" fill="#386EA5" stroke="none" stroke-width="1.5"/>
+<text x="242" y="5019" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="start">2019</text>
+<text x="720" y="5019" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="242" y="5051" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Stuart Russell</text>
+<text x="242" y="5081" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Human Compatible</text>
+<text x="242" y="5110" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Build AI around uncertainty about human</text>
+<text x="242" y="5133" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">preferences.</text>
+</g>
+<g id="christian"><title>Brian Christian — The Alignment Problem (2020)</title>
+<rect x="220" y="5300" width="520" height="198" rx="14" fill="white" stroke="#386EA5" stroke-width="1.5"/>
+<rect x="220" y="5317" width="5" height="164" rx="2" fill="#386EA5" stroke="none" stroke-width="1.5"/>
+<text x="242" y="5329" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#386EA5" text-anchor="start">2020</text>
+<text x="720" y="5329" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="242" y="5361" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Brian Christian</text>
+<text x="242" y="5391" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Alignment Problem</text>
+<text x="242" y="5420" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Connect machine learning to human values and</text>
+<text x="242" y="5443" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">behavior.</text>
+</g>
+<g id="bacon"><title>Francis Bacon — Novum Organum (1620)</title>
+<rect x="920" y="690" width="520" height="198" rx="14" fill="white" stroke="#38897F" stroke-width="1.5"/>
+<rect x="920" y="707" width="5" height="164" rx="2" fill="#38897F" stroke="none" stroke-width="1.5"/>
+<text x="942" y="719" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#38897F" text-anchor="start">1620</text>
+<text x="1420" y="719" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="942" y="751" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Francis Bacon</text>
+<text x="942" y="781" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Novum Organum</text>
+<text x="942" y="810" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Investigate nature; confront recurring errors of</text>
+<text x="942" y="833" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">thought.</text>
+</g>
+<g id="hume"><title>David Hume — An Enquiry Concerning Human Understanding (1748)</title>
+<rect x="920" y="1000" width="520" height="198" rx="14" fill="white" stroke="#38897F" stroke-width="1.5"/>
+<rect x="920" y="1017" width="5" height="164" rx="2" fill="#38897F" stroke="none" stroke-width="1.5"/>
+<text x="942" y="1029" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#38897F" text-anchor="start">1748</text>
+<text x="1420" y="1029" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="942" y="1061" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">David Hume</text>
+<text x="942" y="1091" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">An Enquiry Concerning Human</text>
+<text x="942" y="1117" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Understanding</text>
+<text x="942" y="1146" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Evidence, causation, and the problem of</text>
+<text x="942" y="1169" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">induction.</text>
+</g>
+<g id="bayes"><title>Thomas Bayes / Richard Price — An Essay towards Solving a Problem in the Doctrine of Chances (1763)</title>
+<rect x="920" y="1220" width="520" height="198" rx="14" fill="white" stroke="#38897F" stroke-width="1.5"/>
+<rect x="920" y="1237" width="5" height="164" rx="2" fill="#38897F" stroke="none" stroke-width="1.5"/>
+<text x="942" y="1249" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#38897F" text-anchor="start">1763</text>
+<text x="1420" y="1249" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">PAPER</text>
+<text x="942" y="1281" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Thomas Bayes / Richard Price</text>
+<text x="942" y="1311" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">An Essay towards Solving a Problem in</text>
+<text x="942" y="1337" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">the Doctrine of Chances</text>
+<text x="942" y="1366" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Infer unknown chances from observed outcomes.</text>
+</g>
+<g id="biases"><title>Kahneman, Slovic &amp; Tversky, eds. — Judgment under Uncertainty (1982)</title>
+<rect x="920" y="3180" width="520" height="198" rx="14" fill="white" stroke="#38897F" stroke-width="1.5"/>
+<rect x="920" y="3197" width="5" height="164" rx="2" fill="#38897F" stroke="none" stroke-width="1.5"/>
+<text x="942" y="3209" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#38897F" text-anchor="start">1982</text>
+<text x="1420" y="3209" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="942" y="3241" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Kahneman, Slovic &amp; Tversky, eds.</text>
+<text x="942" y="3271" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Judgment under Uncertainty</text>
+<text x="942" y="3300" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Heuristics and biases: predictable errors in</text>
+<text x="942" y="3323" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">judgment.</text>
+</g>
+<g id="jaynes"><title>E. T. Jaynes — Probability Theory: The Logic of Science (2003)</title>
+<rect x="920" y="4010" width="520" height="198" rx="14" fill="white" stroke="#38897F" stroke-width="1.5"/>
+<rect x="920" y="4027" width="5" height="164" rx="2" fill="#38897F" stroke="none" stroke-width="1.5"/>
+<text x="942" y="4039" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#38897F" text-anchor="start">2003</text>
+<text x="1420" y="4039" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="942" y="4071" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">E. T. Jaynes</text>
+<text x="942" y="4101" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Probability Theory: The Logic of Science</text>
+<text x="942" y="4130" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Probability as a logic of plausible reasoning.</text>
+</g>
+<g id="sequences"><title>Eliezer Yudkowsky — The Sequences / Rationality: From AI to Zombies (2006–2009)</title>
+<rect x="920" y="4230" width="520" height="198" rx="14" fill="white" stroke="#38897F" stroke-width="1.5"/>
+<rect x="920" y="4247" width="5" height="164" rx="2" fill="#38897F" stroke="none" stroke-width="1.5"/>
+<text x="942" y="4259" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#38897F" text-anchor="start">2006–2009</text>
+<text x="1420" y="4259" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">COLLECTED 2015</text>
+<text x="942" y="4291" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Eliezer Yudkowsky</text>
+<text x="942" y="4321" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Sequences / Rationality: From AI to</text>
+<text x="942" y="4347" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Zombies</text>
+<text x="942" y="4376" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Belief updating, debiasing, and effective action.</text>
+</g>
+<g id="galef"><title>Julia Galef — The Scout Mindset (2021)</title>
+<rect x="920" y="5330" width="520" height="198" rx="14" fill="white" stroke="#38897F" stroke-width="1.5"/>
+<rect x="920" y="5347" width="5" height="164" rx="2" fill="#38897F" stroke="none" stroke-width="1.5"/>
+<text x="942" y="5359" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#38897F" text-anchor="start">2021</text>
+<text x="1420" y="5359" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="942" y="5391" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Julia Galef</text>
+<text x="942" y="5421" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Scout Mindset</text>
+<text x="942" y="5450" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Seek accurate beliefs rather than defend your</text>
+<text x="942" y="5473" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">position.</text>
+</g>
+<g id="bentham"><title>Jeremy Bentham — An Introduction to the Principles of Morals and Legislation (1789)</title>
+<rect x="1620" y="1240" width="520" height="198" rx="14" fill="white" stroke="#A77B21" stroke-width="1.5"/>
+<rect x="1620" y="1257" width="5" height="164" rx="2" fill="#A77B21" stroke="none" stroke-width="1.5"/>
+<text x="1642" y="1269" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="start">1789</text>
+<text x="2120" y="1269" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="1642" y="1301" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Jeremy Bentham</text>
+<text x="1642" y="1331" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">An Introduction to the Principles of Morals</text>
+<text x="1642" y="1357" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">and Legislation</text>
+<text x="1642" y="1386" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Evaluate actions through pleasure, pain, and</text>
+<text x="1642" y="1409" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">welfare.</text>
+</g>
+<g id="mill"><title>John Stuart Mill — Utilitarianism (1863)</title>
+<rect x="1620" y="1560" width="520" height="198" rx="14" fill="white" stroke="#A77B21" stroke-width="1.5"/>
+<rect x="1620" y="1577" width="5" height="164" rx="2" fill="#A77B21" stroke="none" stroke-width="1.5"/>
+<text x="1642" y="1589" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="start">1863</text>
+<text x="2120" y="1589" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">1861 SERIAL</text>
+<text x="1642" y="1621" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">John Stuart Mill</text>
+<text x="1642" y="1651" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Utilitarianism</text>
+<text x="1642" y="1680" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Develop and defend the greatest-happiness</text>
+<text x="1642" y="1703" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">principle.</text>
+</g>
+<g id="sidgwick"><title>Henry Sidgwick — The Methods of Ethics (1874)</title>
+<rect x="1620" y="1780" width="520" height="198" rx="14" fill="white" stroke="#A77B21" stroke-width="1.5"/>
+<rect x="1620" y="1797" width="5" height="164" rx="2" fill="#A77B21" stroke="none" stroke-width="1.5"/>
+<text x="1642" y="1809" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="start">1874</text>
+<text x="2120" y="1809" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="1642" y="1841" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Henry Sidgwick</text>
+<text x="1642" y="1871" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Methods of Ethics</text>
+<text x="1642" y="1900" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Compare moral methods and reason impartially.</text>
+</g>
+<g id="famine"><title>Peter Singer — Famine, Affluence, and Morality (1972)</title>
+<rect x="1620" y="2620" width="520" height="198" rx="14" fill="white" stroke="#A77B21" stroke-width="1.5"/>
+<rect x="1620" y="2637" width="5" height="164" rx="2" fill="#A77B21" stroke="none" stroke-width="1.5"/>
+<text x="1642" y="2649" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="start">1972</text>
+<text x="2120" y="2649" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">ESSAY</text>
+<text x="1642" y="2681" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Peter Singer</text>
+<text x="1642" y="2711" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Famine, Affluence, and Morality</text>
+<text x="1642" y="2740" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">What do we owe strangers we can help at little</text>
+<text x="1642" y="2763" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">cost?</text>
+</g>
+<g id="animals"><title>Peter Singer — Animal Liberation (1975)</title>
+<rect x="1620" y="2840" width="520" height="198" rx="14" fill="white" stroke="#A77B21" stroke-width="1.5"/>
+<rect x="1620" y="2857" width="5" height="164" rx="2" fill="#A77B21" stroke="none" stroke-width="1.5"/>
+<text x="1642" y="2869" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="start">1975</text>
+<text x="2120" y="2869" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="1642" y="2901" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Peter Singer</text>
+<text x="1642" y="2931" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Animal Liberation</text>
+<text x="1642" y="2960" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Extend moral concern to nonhuman suffering.</text>
+</g>
+<g id="unger"><title>Peter Unger — Living High and Letting Die (1996)</title>
+<rect x="1620" y="3700" width="520" height="198" rx="14" fill="white" stroke="#A77B21" stroke-width="1.5"/>
+<rect x="1620" y="3717" width="5" height="164" rx="2" fill="#A77B21" stroke="none" stroke-width="1.5"/>
+<text x="1642" y="3729" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="start">1996</text>
+<text x="2120" y="3729" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="1642" y="3761" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Peter Unger</text>
+<text x="1642" y="3791" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Living High and Letting Die</text>
+<text x="1642" y="3820" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Challenge comfortable intuitions about duties to</text>
+<text x="1642" y="3843" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">help.</text>
+</g>
+<g id="save"><title>Peter Singer — The Life You Can Save (2009)</title>
+<rect x="1620" y="4230" width="520" height="198" rx="14" fill="white" stroke="#A77B21" stroke-width="1.5"/>
+<rect x="1620" y="4247" width="5" height="164" rx="2" fill="#A77B21" stroke="none" stroke-width="1.5"/>
+<text x="1642" y="4259" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="start">2009</text>
+<text x="2120" y="4259" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="1642" y="4291" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Peter Singer</text>
+<text x="1642" y="4321" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Life You Can Save</text>
+<text x="1642" y="4350" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Bring the ethics of global poverty into practical</text>
+<text x="1642" y="4373" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">giving.</text>
+</g>
+<g id="good"><title>William MacAskill — Doing Good Better (2015)</title>
+<rect x="1620" y="4780" width="520" height="198" rx="14" fill="white" stroke="#A77B21" stroke-width="1.5"/>
+<rect x="1620" y="4797" width="5" height="164" rx="2" fill="#A77B21" stroke="none" stroke-width="1.5"/>
+<text x="1642" y="4809" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#A77B21" text-anchor="start">2015</text>
+<text x="2120" y="4809" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="1642" y="4841" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">William MacAskill</text>
+<text x="1642" y="4871" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Doing Good Better</text>
+<text x="1642" y="4900" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Compare evidence and impact to use resources</text>
+<text x="1642" y="4923" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">well.</text>
+</g>
+<g id="circle"><title>Peter Singer — The Expanding Circle (1981)</title>
+<rect x="2320" y="3160" width="520" height="198" rx="14" fill="white" stroke="#8666A8" stroke-width="1.5"/>
+<rect x="2320" y="3177" width="5" height="164" rx="2" fill="#8666A8" stroke="none" stroke-width="1.5"/>
+<text x="2342" y="3189" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#8666A8" text-anchor="start">1981</text>
+<text x="2820" y="3189" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="2342" y="3221" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Peter Singer</text>
+<text x="2342" y="3251" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Expanding Circle</text>
+<text x="2342" y="3280" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Ask how reason can widen the scope of moral</text>
+<text x="2342" y="3303" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">concern.</text>
+</g>
+<g id="parfit"><title>Derek Parfit — Reasons and Persons (1984)</title>
+<rect x="2320" y="3370" width="520" height="198" rx="14" fill="white" stroke="#8666A8" stroke-width="1.5"/>
+<rect x="2320" y="3387" width="5" height="164" rx="2" fill="#8666A8" stroke="none" stroke-width="1.5"/>
+<text x="2342" y="3399" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#8666A8" text-anchor="start">1984</text>
+<text x="2820" y="3399" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="2342" y="3431" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Derek Parfit</text>
+<text x="2342" y="3461" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Reasons and Persons</text>
+<text x="2342" y="3490" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Identity, future people, and population ethics.</text>
+</g>
+<g id="bostrom"><title>Nick Bostrom — Superintelligence (2014)</title>
+<rect x="2320" y="4550" width="520" height="198" rx="14" fill="white" stroke="#8666A8" stroke-width="1.5"/>
+<rect x="2320" y="4567" width="5" height="164" rx="2" fill="#8666A8" stroke="none" stroke-width="1.5"/>
+<text x="2342" y="4579" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#8666A8" text-anchor="start">2014</text>
+<text x="2820" y="4579" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="2342" y="4611" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Nick Bostrom</text>
+<text x="2342" y="4641" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Superintelligence</text>
+<text x="2342" y="4670" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explore advanced AI, control, and existential</text>
+<text x="2342" y="4693" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">stakes.</text>
+</g>
+<g id="ord"><title>Toby Ord — The Precipice (2020)</title>
+<rect x="2320" y="5290" width="520" height="178" rx="14" fill="white" stroke="#8666A8" stroke-width="1.5"/>
+<rect x="2320" y="5307" width="5" height="144" rx="2" fill="#8666A8" stroke="none" stroke-width="1.5"/>
+<text x="2342" y="5319" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#8666A8" text-anchor="start">2020</text>
+<text x="2820" y="5319" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="2342" y="5351" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Toby Ord</text>
+<text x="2342" y="5381" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Precipice</text>
+<text x="2342" y="5410" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Assess existential risks to humanity’s future.</text>
+</g>
+<g id="future"><title>William MacAskill — What We Owe the Future (2022)</title>
+<rect x="2320" y="5480" width="520" height="178" rx="14" fill="white" stroke="#8666A8" stroke-width="1.5"/>
+<rect x="2320" y="5497" width="5" height="144" rx="2" fill="#8666A8" stroke="none" stroke-width="1.5"/>
+<text x="2342" y="5509" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#8666A8" text-anchor="start">2022</text>
+<text x="2820" y="5509" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="2342" y="5541" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">William MacAskill</text>
+<text x="2342" y="5571" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">What We Owe the Future</text>
+<text x="2342" y="5600" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Make the ethical case for protecting future</text>
+<text x="2342" y="5623" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">generations.</text>
+</g>
+<g id="moravec"><title>Hans Moravec — Mind Children (1988)</title>
+<rect x="3020" y="3410" width="520" height="198" rx="14" fill="white" stroke="#7B7985" stroke-width="1.5"/>
+<rect x="3020" y="3427" width="5" height="164" rx="2" fill="#7B7985" stroke="none" stroke-width="1.5"/>
+<text x="3042" y="3439" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#7B7985" text-anchor="start">1988</text>
+<text x="3520" y="3439" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="3042" y="3471" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Hans Moravec</text>
+<text x="3042" y="3501" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Mind Children</text>
+<text x="3042" y="3530" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Computational minds and posthuman futures.</text>
+</g>
+<g id="kurzweil"><title>Ray Kurzweil — The Singularity Is Near (2005)</title>
+<rect x="3020" y="4100" width="520" height="198" rx="14" fill="white" stroke="#7B7985" stroke-width="1.5"/>
+<rect x="3020" y="4117" width="5" height="164" rx="2" fill="#7B7985" stroke="none" stroke-width="1.5"/>
+<text x="3042" y="4129" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#7B7985" text-anchor="start">2005</text>
+<text x="3520" y="4129" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="3042" y="4161" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Ray Kurzweil</text>
+<text x="3042" y="4191" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Singularity Is Near</text>
+<text x="3042" y="4220" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Accelerating technology and human</text>
+<text x="3042" y="4243" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">transformation.</text>
+</g>
+<g id="crawford"><title>Kate Crawford — Atlas of AI (2021)</title>
+<rect x="3020" y="5300" width="520" height="178" rx="14" fill="white" stroke="#7B7985" stroke-width="1.5"/>
+<rect x="3020" y="5317" width="5" height="144" rx="2" fill="#7B7985" stroke="none" stroke-width="1.5"/>
+<text x="3042" y="5329" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#7B7985" text-anchor="start">2021</text>
+<text x="3520" y="5329" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="3042" y="5361" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Kate Crawford</text>
+<text x="3042" y="5391" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Atlas of AI</text>
+<text x="3042" y="5420" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Labor, resources, and power behind AI systems.</text>
+</g>
+<g id="andreessen"><title>Marc Andreessen — The Techno-Optimist Manifesto (2023)</title>
+<rect x="3020" y="5500" width="520" height="178" rx="14" fill="white" stroke="#7B7985" stroke-width="1.5"/>
+<rect x="3020" y="5517" width="5" height="144" rx="2" fill="#7B7985" stroke="none" stroke-width="1.5"/>
+<text x="3042" y="5529" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#7B7985" text-anchor="start">2023</text>
+<text x="3520" y="5529" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">ESSAY</text>
+<text x="3042" y="5561" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Marc Andreessen</text>
+<text x="3042" y="5591" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Techno-Optimist Manifesto</text>
+<text x="3042" y="5620" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">A statement of technological optimism.</text>
+</g>
+<g id="tetlock"><title>Philip Tetlock &amp; Dan Gardner — Superforecasting (2015)</title>
+<rect x="920" y="4780" width="520" height="198" rx="14" fill="white" stroke="#38897F" stroke-width="1.5"/>
+<rect x="920" y="4797" width="5" height="164" rx="2" fill="#38897F" stroke="none" stroke-width="1.5"/>
+<text x="942" y="4809" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#38897F" text-anchor="start">2015</text>
+<text x="1420" y="4809" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="942" y="4841" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Philip Tetlock &amp; Dan Gardner</text>
+<text x="942" y="4871" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Superforecasting</text>
+<text x="942" y="4900" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Practice calibrated predictions and revise them.</text>
+</g>
+<g id="good1965"><title>I. J. Good — Speculations Concerning the First Ultraintelligent Machine (1965)</title>
+<rect x="2320" y="2300" width="520" height="198" rx="14" fill="white" stroke="#8666A8" stroke-width="1.5"/>
+<rect x="2320" y="2317" width="5" height="164" rx="2" fill="#8666A8" stroke="none" stroke-width="1.5"/>
+<text x="2342" y="2329" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#8666A8" text-anchor="start">1965</text>
+<text x="2820" y="2329" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">PAPER</text>
+<text x="2342" y="2361" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">I. J. Good</text>
+<text x="2342" y="2391" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Speculations Concerning the First</text>
+<text x="2342" y="2417" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Ultraintelligent Machine</text>
+<text x="2342" y="2446" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">The intelligence-explosion argument.</text>
+</g>
+<g id="dreyfus"><title>Hubert Dreyfus — What Computers Can’t Do (1972)</title>
+<rect x="3020" y="2620" width="520" height="198" rx="14" fill="white" stroke="#7B7985" stroke-width="1.5"/>
+<rect x="3020" y="2637" width="5" height="164" rx="2" fill="#7B7985" stroke="none" stroke-width="1.5"/>
+<text x="3042" y="2649" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#7B7985" text-anchor="start">1972</text>
+<text x="3520" y="2649" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="3042" y="2681" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Hubert Dreyfus</text>
+<text x="3042" y="2711" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">What Computers Can’t Do</text>
+<text x="3042" y="2740" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Challenges assumptions of symbolic AI.</text>
+</g>
+<g id="searle"><title>John Searle — Minds, Brains, and Programs (1980)</title>
+<rect x="3020" y="3160" width="520" height="198" rx="14" fill="white" stroke="#7B7985" stroke-width="1.5"/>
+<rect x="3020" y="3177" width="5" height="164" rx="2" fill="#7B7985" stroke="none" stroke-width="1.5"/>
+<text x="3042" y="3189" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#7B7985" text-anchor="start">1980</text>
+<text x="3520" y="3189" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">PAPER</text>
+<text x="3042" y="3221" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">John Searle</text>
+<text x="3042" y="3251" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Minds, Brains, and Programs</text>
+<text x="3042" y="3280" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">The Chinese Room: computation versus</text>
+<text x="3042" y="3303" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">understanding.</text>
+</g>
+<g id="deutsch"><title>David Deutsch — The Beginning of Infinity (2011)</title>
+<rect x="3020" y="4550" width="520" height="198" rx="14" fill="white" stroke="#7B7985" stroke-width="1.5"/>
+<rect x="3020" y="4567" width="5" height="164" rx="2" fill="#7B7985" stroke="none" stroke-width="1.5"/>
+<text x="3042" y="4579" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#7B7985" text-anchor="start">2011</text>
+<text x="3520" y="4579" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">BOOK</text>
+<text x="3042" y="4611" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">David Deutsch</text>
+<text x="3042" y="4641" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">The Beginning of Infinity</text>
+<text x="3042" y="4670" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explanations, knowledge, and open-ended</text>
+<text x="3042" y="4693" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">progress.</text>
+</g>
+<g id="srinivasan"><title>Amia Srinivasan — Stop the Robot Apocalypse (2015)</title>
+<rect x="3020" y="4780" width="520" height="198" rx="14" fill="white" stroke="#7B7985" stroke-width="1.5"/>
+<rect x="3020" y="4797" width="5" height="164" rx="2" fill="#7B7985" stroke="none" stroke-width="1.5"/>
+<text x="3042" y="4809" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="700" font-style="normal" fill="#7B7985" text-anchor="start">2015</text>
+<text x="3520" y="4809" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="400" font-style="normal" fill="#536477" text-anchor="end">REVIEW</text>
+<text x="3042" y="4841" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">Amia Srinivasan</text>
+<text x="3042" y="4871" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="400" font-style="italic" fill="#002B5B" text-anchor="start">Stop the Robot Apocalypse</text>
+<text x="3042" y="4900" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">A critical review of Doing Good Better.</text>
+</g>
+<a xlink:href="https://plato.stanford.edu/archives/sum2024/entries/aristotle/" target="_blank"><title>Plato → Aristotle: teacher and interlocutor</title><circle cx="1534" cy="438.0" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="1534" y="444.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">1</text>
+</a>
+<a xlink:href="https://www.earlymoderntexts.com/assets/pdfs/bacon1620.pdf" target="_blank"><title>Aristotle → Bacon: replaces the old Organon</title><circle cx="765" cy="474" r="18" fill="white" stroke="#B44E48" stroke-width="2"/>
+<text x="765" y="480" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="middle">2</text>
+</a>
+<a xlink:href="https://www.gutenberg.org/ebooks/15114" target="_blank"><title>Aristotle → Boole: algebraizes syllogisms</title><circle cx="834" cy="1029.0" r="18" fill="white" stroke="#456F9D" stroke-width="2"/>
+<text x="834" y="1035.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="middle">3</text>
+</a>
+<a xlink:href="https://www.earlymoderntexts.com/assets/pdfs/hume1748.pdf" target="_blank"><title>Descartes → Hume: limits of radical doubt</title><circle cx="765" cy="799" r="18" fill="white" stroke="#B44E48" stroke-width="2"/>
+<text x="765" y="805" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="middle">4</text>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/bentham/" target="_blank"><title>Bacon → Bentham: empirical method</title><circle cx="1534" cy="784" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="1534" y="790" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">5</text>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/bentham/" target="_blank"><title>Hume → Bentham: utility</title><circle cx="1465" cy="1094" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="1465" y="1100" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">6</text>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/bentham/" target="_blank"><title>Bentham → Mill: formative utilitarianism</title><circle cx="2234" cy="1458.0" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="2234" y="1464.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">7</text>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/utilitarianism-history/" target="_blank"><title>Mill → Sidgwick: develops and revises</title><circle cx="2165" cy="1728.0" r="18" fill="white" stroke="#456F9D" stroke-width="2"/>
+<text x="2165" y="1734.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="middle">8</text>
+</a>
+<a xlink:href="https://plato.sydney.edu.au/entries/sidgwick/" target="_blank"><title>Sidgwick → Singer: acknowledged influence</title><circle cx="2234" cy="2258.0" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="2234" y="2264.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">9</text>
+</a>
+<a xlink:href="https://plato.sydney.edu.au/entries/sidgwick/" target="_blank"><title>Sidgwick → Parfit: acknowledged influence</title><circle cx="2165" cy="1896" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="2165" y="1902" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">10</text>
+</a>
+<a xlink:href="https://www.newyorker.com/magazine/2022/08/15/the-reluctant-prophet-of-effective-altruism" target="_blank"><title>Singer → MacAskill: formative encounter</title><circle cx="2234" cy="3758.0" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="2234" y="3764.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">11</text>
+</a>
+<a xlink:href="https://time.com/6204627/effective-altruism-longtermism-william-macaskill-interview/" target="_blank"><title>Singer → Ord: ethical inspiration</title><circle cx="2165" cy="2736" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="2165" y="2742" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">12</text>
+</a>
+<a xlink:href="https://www.nybooks.com/articles/2021/02/25/power-catastrophic-thinking-toby-ord-precipice/" target="_blank"><title>Parfit → Ord: mentor</title><circle cx="2934" cy="4399.0" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="2934" y="4405.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">13</text>
+</a>
+<a xlink:href="https://www.williammacaskill.com/s/Moral-Uncertainty.pdf" target="_blank"><title>Parfit → MacAskill: mentor</title><circle cx="2865" cy="4494.0" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="2865" y="4500.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">14</text>
+</a>
+<a xlink:href="https://studylib.net/doc/28347453/jaynes---probability-theory.-the-logic-of-science" target="_blank"><title>Bayes → Jaynes: explicitly discusses</title><circle cx="1534" cy="2673.0" r="18" fill="white" stroke="#456F9D" stroke-width="2"/>
+<text x="1534" y="2679.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="middle">15</text>
+</a>
+<a xlink:href="https://www.lesswrong.com/s/SXurf2mWFw8LX2mkG/p/Ti3Z7eZtud32LhGZT" target="_blank"><title>Jaynes → Yudkowsky: credited turning point</title><circle cx="1465" cy="4178.0" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="1465" y="4184.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">16</text>
+</a>
+<a xlink:href="https://www.lesswrong.com/posts/3Jpchgy53D2gB5qdk/my-childhood-role-model" target="_blank"><title>Hofstadter → Yudkowsky: formative model</title><circle cx="834" cy="2944" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="834" y="2950" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">17</text>
+</a>
+<a xlink:href="https://www.lesswrong.com/rationality/biases-an-introduction?revision=1.0.0" target="_blank"><title>Kahneman / Tversky → Yudkowsky: applies</title><circle cx="1465" cy="3785.0" r="18" fill="white" stroke="#456F9D" stroke-width="2"/>
+<text x="1465" y="3791.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="middle">18</text>
+</a>
+<a xlink:href="https://www.nobelprize.org/uploads/2018/06/kahnemann-lecture.pdf" target="_blank"><title>Simon → Kahneman: bounded rationality</title><circle cx="834" cy="2394" r="18" fill="white" stroke="#456F9D" stroke-width="2"/>
+<text x="834" y="2400" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="middle">19</text>
+</a>
+<a xlink:href="https://www.nybooks.com/articles/1974/06/27/an-exchange-on-artificial-intelligence/" target="_blank"><title>Simon → Dreyfus: symbolic-AI critique</title><circle cx="1834.0" cy="2597" r="18" fill="white" stroke="#B44E48" stroke-width="2"/>
+<text x="1834.0" y="2603" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="middle">20</text>
+</a>
+<a xlink:href="https://zoo.cs.yale.edu/classes/cs458/lectures/minds-brains-and-programs.pdf" target="_blank"><title>Turing test → Searle: understanding objection</title><circle cx="1914.5" cy="3065" r="18" fill="white" stroke="#B44E48" stroke-width="2"/>
+<text x="1914.5" y="3071" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="middle">21</text>
+</a>
+<a xlink:href="https://nickbostrom.com/papers/future" target="_blank"><title>I. J. Good → Bostrom: intelligence explosion</title><circle cx="2865" cy="3483.0" r="18" fill="white" stroke="#456F9D" stroke-width="2"/>
+<text x="2865" y="3489.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="middle">22</text>
+</a>
+<a xlink:href="https://nickbostrom.com/ethics/artificial-intelligence.pdf" target="_blank"><title>I. J. Good → Yudkowsky: intelligence explosion</title><circle cx="1891.5" cy="3917" r="18" fill="white" stroke="#456F9D" stroke-width="2"/>
+<text x="1891.5" y="3923" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="middle">23</text>
+</a>
+<a xlink:href="https://nickbostrom.com/superintelligence" target="_blank"><title>Moravec → Bostrom: computational estimates</title><circle cx="2865" cy="3504" r="18" fill="white" stroke="#456F9D" stroke-width="2"/>
+<text x="2865" y="3510" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="middle">24</text>
+</a>
+<a xlink:href="https://humancompatible.ai/news/2020/10/10/alignment-problem-published/" target="_blank"><title>Russell → Christian: research chronicled</title><circle cx="834" cy="5203.0" r="18" fill="white" stroke="#456F9D" stroke-width="2"/>
+<text x="834" y="5209.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="middle">25</text>
+</a>
+<a xlink:href="https://a16z.com/the-techno-optimist-manifesto/" target="_blank"><title>Kurzweil → Andreessen: named inspiration</title><circle cx="2995" cy="4858.0" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="2995" y="4864.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">26</text>
+</a>
+<a xlink:href="https://a16z.com/the-techno-optimist-manifesto/" target="_blank"><title>Deutsch → Andreessen: quoted and credited</title><circle cx="2926" cy="5094.0" r="18" fill="white" stroke="#28776F" stroke-width="2"/>
+<text x="2926" y="5100.0" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#28776F" text-anchor="middle">27</text>
+</a>
+<a xlink:href="https://www.lrb.co.uk/the-paper/v37/n18/amia-srinivasan/stop-the-robot-apocalypse" target="_blank"><title>MacAskill → Srinivasan: direct critical review</title><circle cx="2557.0" cy="4529" r="18" fill="white" stroke="#B44E48" stroke-width="2"/>
+<text x="2557.0" y="4535" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="middle">28</text>
+</a>
+<text x="60" y="5740" font-family="Arial, Helvetica, sans-serif" font-size="27" font-weight="700" font-style="normal" fill="#002B5B" text-anchor="start">EVIDENCE KEY — each numbered arrow links to its source</text>
+<text x="60" y="5780" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">No line means no relationship is asserted here. Unconnected cards remain useful background readings; this is a selective, sourced network.</text>
+<a xlink:href="https://plato.stanford.edu/archives/sum2024/entries/aristotle/" target="_blank">
+<text x="60" y="5830" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">01 Plato → Aristotle: teacher and interlocutor</text>
+<text x="60" y="5894" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://www.earlymoderntexts.com/assets/pdfs/bacon1620.pdf" target="_blank">
+<text x="965" y="5830" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="start">02 Aristotle → Bacon: replaces the old Organon</text>
+<text x="965" y="5894" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Earlier position → later critical response</text>
+</a>
+<a xlink:href="https://www.gutenberg.org/ebooks/15114" target="_blank">
+<text x="1870" y="5830" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="start">03 Aristotle → Boole: algebraizes syllogisms</text>
+<text x="1870" y="5894" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explicit textual engagement; see source scope</text>
+</a>
+<a xlink:href="https://www.earlymoderntexts.com/assets/pdfs/hume1748.pdf" target="_blank">
+<text x="2775" y="5830" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="start">04 Descartes → Hume: limits of radical doubt</text>
+<text x="2775" y="5894" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Earlier position → later critical response</text>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/bentham/" target="_blank">
+<text x="60" y="5945" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">05 Bacon → Bentham: empirical method</text>
+<text x="60" y="6009" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/bentham/" target="_blank">
+<text x="965" y="5945" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">06 Hume → Bentham: utility</text>
+<text x="965" y="6009" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/bentham/" target="_blank">
+<text x="1870" y="5945" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">07 Bentham → Mill: formative utilitarianism</text>
+<text x="1870" y="6009" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://plato.stanford.edu/entries/utilitarianism-history/" target="_blank">
+<text x="2775" y="5945" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="start">08 Mill → Sidgwick: develops and revises</text>
+<text x="2775" y="6009" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explicit textual engagement; see source scope</text>
+</a>
+<a xlink:href="https://plato.sydney.edu.au/entries/sidgwick/" target="_blank">
+<text x="60" y="6060" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">09 Sidgwick → Singer: acknowledged influence</text>
+<text x="60" y="6124" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://plato.sydney.edu.au/entries/sidgwick/" target="_blank">
+<text x="965" y="6060" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">10 Sidgwick → Parfit: acknowledged influence</text>
+<text x="965" y="6124" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://www.newyorker.com/magazine/2022/08/15/the-reluctant-prophet-of-effective-altruism" target="_blank">
+<text x="1870" y="6060" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">11 Singer → MacAskill: formative encounter</text>
+<text x="1870" y="6124" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://time.com/6204627/effective-altruism-longtermism-william-macaskill-interview/" target="_blank">
+<text x="2775" y="6060" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">12 Singer → Ord: ethical inspiration</text>
+<text x="2775" y="6124" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://www.nybooks.com/articles/2021/02/25/power-catastrophic-thinking-toby-ord-precipice/" target="_blank">
+<text x="60" y="6175" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">13 Parfit → Ord: mentor</text>
+<text x="60" y="6239" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://www.williammacaskill.com/s/Moral-Uncertainty.pdf" target="_blank">
+<text x="965" y="6175" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">14 Parfit → MacAskill: mentor</text>
+<text x="965" y="6239" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://studylib.net/doc/28347453/jaynes---probability-theory.-the-logic-of-science" target="_blank">
+<text x="1870" y="6175" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="start">15 Bayes → Jaynes: explicitly discusses</text>
+<text x="1870" y="6239" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explicit textual engagement; see source scope</text>
+</a>
+<a xlink:href="https://www.lesswrong.com/s/SXurf2mWFw8LX2mkG/p/Ti3Z7eZtud32LhGZT" target="_blank">
+<text x="2775" y="6175" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">16 Jaynes → Yudkowsky: credited turning point</text>
+<text x="2775" y="6239" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://www.lesswrong.com/posts/3Jpchgy53D2gB5qdk/my-childhood-role-model" target="_blank">
+<text x="60" y="6290" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">17 Hofstadter → Yudkowsky: formative model</text>
+<text x="60" y="6354" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://www.lesswrong.com/rationality/biases-an-introduction?revision=1.0.0" target="_blank">
+<text x="965" y="6290" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="start">18 Kahneman / Tversky → Yudkowsky: applies</text>
+<text x="965" y="6354" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explicit textual engagement; see source scope</text>
+</a>
+<a xlink:href="https://www.nobelprize.org/uploads/2018/06/kahnemann-lecture.pdf" target="_blank">
+<text x="1870" y="6290" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="start">19 Simon → Kahneman: bounded rationality</text>
+<text x="1870" y="6354" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explicit textual engagement; see source scope</text>
+</a>
+<a xlink:href="https://www.nybooks.com/articles/1974/06/27/an-exchange-on-artificial-intelligence/" target="_blank">
+<text x="2775" y="6290" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="start">20 Simon → Dreyfus: symbolic-AI critique</text>
+<text x="2775" y="6354" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Earlier position → later critical response</text>
+</a>
+<a xlink:href="https://zoo.cs.yale.edu/classes/cs458/lectures/minds-brains-and-programs.pdf" target="_blank">
+<text x="60" y="6405" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="start">21 Turing test → Searle: understanding objection</text>
+<text x="60" y="6469" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Earlier position → later critical response</text>
+</a>
+<a xlink:href="https://nickbostrom.com/papers/future" target="_blank">
+<text x="965" y="6405" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="start">22 I. J. Good → Bostrom: intelligence explosion</text>
+<text x="965" y="6469" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explicit textual engagement; see source scope</text>
+</a>
+<a xlink:href="https://nickbostrom.com/ethics/artificial-intelligence.pdf" target="_blank">
+<text x="1870" y="6405" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="start">23 I. J. Good → Yudkowsky: intelligence explosion</text>
+<text x="1870" y="6469" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explicit textual engagement; see source scope</text>
+</a>
+<a xlink:href="https://nickbostrom.com/superintelligence" target="_blank">
+<text x="2775" y="6405" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="start">24 Moravec → Bostrom: computational estimates</text>
+<text x="2775" y="6469" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explicit textual engagement; see source scope</text>
+</a>
+<a xlink:href="https://humancompatible.ai/news/2020/10/10/alignment-problem-published/" target="_blank">
+<text x="60" y="6520" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#456F9D" text-anchor="start">25 Russell → Christian: research chronicled</text>
+<text x="60" y="6584" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Explicit textual engagement; see source scope</text>
+</a>
+<a xlink:href="https://a16z.com/the-techno-optimist-manifesto/" target="_blank">
+<text x="965" y="6520" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">26 Kurzweil → Andreessen: named inspiration</text>
+<text x="965" y="6584" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://a16z.com/the-techno-optimist-manifesto/" target="_blank">
+<text x="1870" y="6520" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#28776F" text-anchor="start">27 Deutsch → Andreessen: quoted and credited</text>
+<text x="1870" y="6584" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Credited intellectual influence or mentorship</text>
+</a>
+<a xlink:href="https://www.lrb.co.uk/the-paper/v37/n18/amia-srinivasan/stop-the-robot-apocalypse" target="_blank">
+<text x="2775" y="6520" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="700" font-style="normal" fill="#B44E48" text-anchor="start">28 MacAskill → Srinivasan: direct critical review</text>
+<text x="2775" y="6584" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Earlier position → later critical response</text>
+</a>
+<text x="60" y="6710" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">Reading dates locate the displayed works. Some author-level evidence comes from other works or later recollections; full scope notes are in the source ledger.</text>
+<text x="60" y="6750" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="400" font-style="normal" fill="#536477" text-anchor="start">The former thematic bridges and automatic reading-order chains have been removed. Source links are embedded in arrows, number badges, and the evidence key.</text>
+</svg>
