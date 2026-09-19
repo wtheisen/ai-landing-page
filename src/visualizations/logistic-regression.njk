@@ -37,7 +37,8 @@ cardImage: static/img/vis_cards/logistic-regression.png
                     <span class="panel-title-text"><i class="fa fa-percent"></i> Classification Space</span>
                     <div class="edit-toolbar active" id="edit-toolbar">
                         <div class="btn-group edit-mode-buttons" role="group">
-                            <button type="button" class="btn btn-sm btn-default active" data-mode="add" title="Add points">
+                            <button type="button" class="btn btn-sm btn-default active" data-mode="inspect" title="Inspect points">Inspect</button>
+                            <button type="button" class="btn btn-sm btn-default" data-mode="add" title="Add points">
                                 <i class="fa fa-plus"></i> Add
                             </button>
                             <button type="button" class="btn btn-sm btn-default" data-mode="delete" title="Delete points">
@@ -58,20 +59,31 @@ cardImage: static/img/vis_cards/logistic-regression.png
                     </div>
                 </div>
             </div>
+            <div class="logreg-geometry-toolbar">
+                <select id="geometry-view" class="form-control input-sm" aria-label="Geometry view"><option value="2d">2D boundary</option><option value="score">3D score</option><option value="probability" selected>3D probability</option></select>
+                <div class="btn-group btn-group-sm" role="group" aria-label="Camera view"><button class="btn btn-default active" data-camera="orbit" aria-pressed="true">Orbit</button><button class="btn btn-default" data-camera="side" aria-pressed="false">Side</button><button class="btn btn-default" data-camera="top" aria-pressed="false">Top-down</button></div>
+                <button id="fit-geometry" class="btn btn-default btn-sm">Fit view</button>
+                <button id="reset-camera" class="btn btn-default btn-sm">Reset view</button>
+            </div>
             <div class="panel-body canvas-panel-body">
-                <div class="canvas-wrapper">
-                    <canvas id="logistic-canvas" width="560" height="400"></canvas>
-                    <div id="click-overlay" class="click-overlay">
-                        <span>Click to add data points</span>
-                    </div>
+                <div class="canvas-wrapper"><canvas id="logistic-canvas" width="560" height="400" tabindex="0" aria-label="Interactive classifier geometry. Use the point selector for keyboard inspection."></canvas></div>
+            </div>
+            <div class="logreg-geometry-caption">
+                <div class="logreg-weight-controls">
+                    <div><label for="geometry-w1">w₁</label><input id="geometry-w1" type="number" min="-100" max="100" step="0.1" class="form-control input-sm"><input id="geometry-w1-slider" type="range" min="-20" max="20" step="0.1" aria-label="w₁ slider" data-url-ignore></div>
+                    <div><label for="geometry-w2">w₂</label><input id="geometry-w2" type="number" min="-100" max="100" step="0.1" class="form-control input-sm"><input id="geometry-w2-slider" type="range" min="-20" max="20" step="0.1" aria-label="w₂ slider" data-url-ignore></div>
+                    <div><label for="geometry-bias">w₀ (bias)</label><input id="geometry-bias" type="number" min="-100" max="100" step="0.1" class="form-control input-sm"><input id="geometry-bias-slider" type="range" min="-20" max="20" step="0.1" aria-label="w₀ (bias) slider" data-url-ignore></div>
                 </div>
+                <label class="checkbox-label"><input id="show-construction" type="checkbox" checked> Show selected point construction</label>
+                <p id="geometry-hint" class="note"></p>
+                <div class="logreg-point-row"><label for="selected-point">Inspect point</label><select id="selected-point" class="form-control input-sm"></select><span id="geometry-readout" role="status"></span></div>
             </div>
             <div class="panel-footer legend-footer">
                 {{ legend(
                     items=[
                         {class: 'class-0', label: 'Class 0'},
                         {class: 'class-1', label: 'Class 1'},
-                        {class: 'boundary-line', label: 'Boundary', type: 'line'},
+                        {class: 'boundary-line', label: 'p = 0.5', type: 'line'},
                         {class: 'prob-gradient', label: 'P(y=1)', type: 'color'}
                     ]
                 ) }}
@@ -81,28 +93,30 @@ cardImage: static/img/vis_cards/logistic-regression.png
         <!-- Sigmoid Panel -->
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-line-chart"></i> Sigmoid Function</h3>
+                <h3 class="panel-title"><i class="fa fa-line-chart"></i> Score → probability</h3>
             </div>
             <div class="panel-body canvas-panel-body">
                 <div class="canvas-wrapper">
-                    <canvas id="sigmoid-canvas" width="560" height="160"></canvas>
+                    <canvas id="sigmoid-canvas" width="560" height="160" aria-label="Sigmoid curve with the selected point score and probability"></canvas>
                 </div>
             </div>
         </div>
 
+        <p class="logreg-chart-note">The orange marker is the selected point: its score z becomes its probability p. The curve stays the same as the weights change; the point moves along it.</p>
         <!-- Controls -->
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-sliders"></i> Controls</h3>
+                <h3 class="panel-title"><i class="fa fa-sliders"></i> Train the classifier</h3>
             </div>
             <div class="panel-body compact-panel logreg-controls-panel">
                 <div class="logreg-options-col">
+                    <p class="note">Step updates all points once. Reset restores your starting weights and keeps the dataset. Editing weights starts a new run.</p>
                     <div class="logreg-option-group">
                         <div class="option-row">
-                            <label>Dataset:</label>
+                            <label for="dataset-select">Dataset</label>
                             <select id="dataset-select" class="form-control input-sm">
-                                <option value="custom" selected>Custom (click to add)</option>
-                                <option value="linear">Linearly Separable</option>
+                                <option value="custom">Custom (click to add)</option>
+                                <option value="linear" selected>Linearly Separable</option>
                                 <option value="overlap">Overlapping</option>
                                 <option value="moons">Moons</option>
                                 <option value="xor">XOR</option>
@@ -111,27 +125,28 @@ cardImage: static/img/vis_cards/logistic-regression.png
                     </div>
                     <div class="logreg-option-group">
                         <div class="option-row">
-                            <label>LR:</label>
+                            <label for="lr-slider">Learning rate</label>
                             <input type="range" id="lr-slider" min="0.01" max="2" step="0.01" value="0.5">
                             <span id="lr-value" class="range-value">0.50</span>
                         </div>
                         <div class="option-row">
-                            <label>Iterations:</label>
+                            <label for="iter-value">Iteration limit</label>
                             {{ stepperControl(id='iter', value='200', title='', inputWidth='48px') }}
                         </div>
                     </div>
                     <div class="logreg-option-group">
-                        <label class="checkbox-label"><input type="checkbox" id="show-probability" checked> Show probability gradient</label>
+                        <label class="checkbox-label"><input type="checkbox" id="show-probability" checked> Show probability shading / surface</label>
                         <label class="checkbox-label"><input type="checkbox" id="show-boundary" checked> Show boundary</label>
                     </div>
                 </div>
                 <div class="logreg-playback-col">
                     <div class="btn-toolbar" role="toolbar">
                         <button id="btn-train" class="btn btn-sm btn-success" title="Train"><i class="fa fa-play"></i> Train</button>
-                        <button id="btn-step" class="btn btn-sm btn-info" title="Step"><i class="fa fa-step-forward"></i></button>
-                        <button id="btn-reset" class="btn btn-sm btn-danger" title="Reset"><i class="fa fa-refresh"></i></button>
+                        <button id="btn-step" class="btn btn-sm btn-info" title="Step"><i class="fa fa-step-forward"></i> Step</button>
+                        <button id="btn-reset" class="btn btn-sm btn-danger" title="Reset"><i class="fa fa-refresh"></i> Reset</button>
                     </div>
                     {{ speedControl(value='7') }}
+                    <p class="note">Speed changes playback timing, not the learning rate.</p>
                     <div class="playback-status"><span id="playback-step">Ready</span></div>
                 </div>
             </div>
@@ -141,47 +156,41 @@ cardImage: static/img/vis_cards/logistic-regression.png
     <div class="col-md-5">
         {{ infoTabs(
             tabs=[
-                {id: 'about', icon: 'fa-info-circle', label: 'About', active: true, content: '
-                    <h4><i class="fa fa-percent"></i> Logistic Regression</h4>
-                    <p>
-                        Logistic regression models the probability of a binary outcome using the sigmoid
-                        function. Unlike linear regression, the output is bounded between 0 and 1.
-                    </p>
-                    <h4><i class="fa fa-mouse-pointer"></i> How to Use</h4>
-                    <ul class="interaction-list">
-                        <li><strong>Click canvas</strong> to add points (select class)</li>
-                        <li><strong>Press Train</strong> to animate gradient descent</li>
-                        <li><strong>Watch the boundary</strong> evolve during training</li>
-                        <li><strong>Probability gradient</strong> shows classification confidence</li>
-                    </ul>
+                {id: 'math', icon: 'fa-superscript', label: 'Math', active: true, content: '
+                    <div class="logreg-teaching">
+                        <h4>Follow one prediction</h4>
+                        <p class="note">Select any point in the scene. These calculations follow its inputs and the current weights.</p>
+                        <div id="logreg-live-math"></div>
+                        <details><summary>Symbols and decision boundary</summary>
+                            <p>x₁ and x₂ are inputs; y is the true class, either 0 or 1. w₁ and w₂ are weights; w₀ is the bias. p is the predicted probability of class 1.</p>
+                            <div class="logreg-equation">z = w₀ + w₁x₁ + w₂x₂<br>p = σ(z) = 1 / (1 + e<sup>−z</sup>)</div>
+                            <p>The decision boundary is z = 0, where p = 0.5. Predict class 1 when p ≥ 0.5; otherwise predict class 0.</p>
+                        </details>
+                    </div>
                 '},
-                {id: 'algorithm', icon: 'fa-book', label: 'Algorithm', content: '
-                    <h4><i class="fa fa-cogs"></i> Training</h4>
+                {id: 'algorithm', icon: 'fa-book', label: 'Training', content: '
+                    <div class="logreg-teaching"><h4>One step uses every point</h4>
                     <ol class="algorithm-list">
-                        <li>Compute linear combination <code>z = w·x + b</code></li>
-                        <li>Apply sigmoid <code>σ(z) = 1/(1+e<sup>−z</sup>)</code></li>
-                        <li>Compute log-loss <code>L = −[y·log(p) + (1−y)·log(1−p)]</code></li>
-                        <li>Compute gradients <code>∂L/∂w, ∂L/∂b</code></li>
-                        <li>Update parameters via gradient descent</li>
-                        <li>Repeat until convergence</li>
+                        <li>Compute each probability pᵢ using the current weights.</li>
+                        <li>Compare it with the true class: error = pᵢ − yᵢ.</li>
+                        <li>Average the contributions across all n points.</li>
+                        <li>Subtract learning rate × gradient from each parameter.</li>
                     </ol>
+                    <div class="logreg-equation">∂L/∂wⱼ = (1/n) Σᵢ (pᵢ − yᵢ)xᵢⱼ<br>∂L/∂w₀ = (1/n) Σᵢ (pᵢ − yᵢ)<br>wⱼ ← wⱼ − η ∂L/∂wⱼ</div>
+                    <p>η is the learning rate; j is input 1 or 2. All gradients use the same weights before the update.</p>
+                    <h4>What training minimizes</h4>
+                    <div class="logreg-equation">L = (1/n) Σᵢ ℓᵢ<br>ℓᵢ = −yᵢ ln(pᵢ) − (1 − yᵢ) ln(1 − pᵢ)</div>
+                    <p>Loss measures probability quality. Accuracy only counts which side of 0.5 each prediction falls on. Loss can improve while accuracy stays unchanged.</p>
+                    <p>Train runs batch updates until the iteration limit. Pause stops the run; Step performs one batch update.</p></div>
                 '},
-                {id: 'math', icon: 'fa-superscript', label: 'Math', content: '
-                    <h4><i class="fa fa-superscript"></i> Sigmoid Function</h4>
-                    <code>σ(z) = 1 / (1 + e<sup>−z</sup>)</code>
-                    <p class="formula-desc">Maps any real value to (0, 1) — interpretable as probability.</p>
-
-                    <h4>Binary Cross-Entropy Loss</h4>
-                    <code>L = −(1/n) Σ [yᵢ log(pᵢ) + (1−yᵢ) log(1−pᵢ)]</code>
-                    <p class="formula-desc">Penalizes confident wrong predictions heavily.</p>
-
-                    <h4>Gradient</h4>
-                    <code>∂L/∂w = (1/n) Σ (pᵢ − yᵢ)xᵢ</code>
-                    <p class="formula-desc">Same form as linear regression gradient, but p is sigmoid output.</p>
-
-                    <h4>Decision Boundary</h4>
-                    <code>w·x + b = 0</code>
-                    <p class="formula-desc">The line where P(y=1) = 0.5.</p>
+                {id: 'about', icon: 'fa-info-circle', label: 'Explore', content: '
+                    <div class="logreg-teaching"><h4>Three experiments</h4>
+                    <ol class="logreg-experiments">
+                        <li><strong>Confidence without a new boundary.</strong><p>Double both weights and the bias. The boundary stays in place, but probabilities move closer to 0 and 1. Inspect a point near the boundary.</p></li>
+                        <li><strong>When classes overlap.</strong><p>Choose Overlapping and train. Compare loss with accuracy: a confidently wrong prediction costs more than an uncertain one.</p></li>
+                        <li><strong>A limit of a linear classifier.</strong><p>Choose XOR or Moons. Training can move and rotate a straight boundary, but cannot bend it. A curved probability surface does not create a curved decision boundary.</p></li>
+                    </ol>
+                    <details><summary>Using the scene</summary><p>Select a point to connect the geometry, sigmoid chart, and Math tab. Switch to 2D to add or delete points. Hollow points are misclassified.</p><p>Drag to rotate, Shift-drag to pan, and scroll to zoom. Side and Top-down keep their elevation fixed. Edit weights directly to explore a different starting classifier.</p></details></div>
                 '}
             ]
         ) }}
@@ -200,10 +209,11 @@ cardImage: static/img/vis_cards/logistic-regression.png
             ]
         ) }}
 
+        <div class="logreg-training-summary"><h4>Latest batch update</h4><div id="logreg-last-update">Press Step to see how the weights change.</div><p class="note">Accuracy counts correct classes at p = 0.5. Log-loss measures the quality of the probabilities; lower is better.</p></div>
         <!-- Loss Curve -->
         <div class="panel panel-default" id="loss-curve-panel" style="display:none;">
             <div class="panel-heading">
-                <h3 class="panel-title"><i class="fa fa-line-chart"></i> Loss Curve</h3>
+                <h3 class="panel-title"><i class="fa fa-line-chart"></i> Average loss over training</h3>
             </div>
             <div class="panel-body canvas-panel-body">
                 <div class="canvas-wrapper">
