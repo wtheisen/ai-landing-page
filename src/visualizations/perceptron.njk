@@ -41,43 +41,64 @@ cardImage: static/img/vis_cards/perceptron.png
                             <option value="blobs">Blobs</option>
                         </select>
                     </div>
-                    <div class="header-right">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <button id="btn-play" class="btn btn-success" title="Play">
-                                <i class="fa fa-play"></i>
-                            </button>
-                            <button id="btn-pause" class="btn btn-warning" title="Pause" disabled>
-                                <i class="fa fa-pause"></i>
-                            </button>
-                            <button id="btn-step-back" class="btn btn-info" title="Step back" disabled>
-                                <i class="fa fa-step-backward"></i>
-                            </button>
-                            <button id="btn-step-forward" class="btn btn-info" title="Step forward" disabled>
-                                <i class="fa fa-step-forward"></i>
-                            </button>
-                            <button id="btn-reset" class="btn btn-danger" title="Reset">
-                                <i class="fa fa-refresh"></i>
-                            </button>
-                        </div>
-                        {{ speedControl(value='6') }}
-                        <span id="playback-step" class="viz-badge">Epoch 0</span>
+                    <select id="pc-dimension" class="form-control input-sm" aria-label="Plot dimensions" style="width:auto"><option value="2d">2D view</option><option value="projection">2D projection</option><option value="3d">3D score</option><option value="weights">3D weights</option><option value="construction">3D construction</option><option value="shared-box">3D shared box</option><option value="shared-score">3D shared box · score</option></select>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Camera view">
+                        <button type="button" class="btn btn-default active" data-camera-view="orbit" aria-pressed="true">Orbit</button>
+                        <button type="button" class="btn btn-default" data-camera-view="side" aria-pressed="false">Side</button>
+                        <button type="button" class="btn btn-default" data-camera-view="top" aria-pressed="false">Top-down</button>
                     </div>
+                    <span id="playback-step" class="viz-badge">Epoch 0</span>
                 </div>
             </div>
             <div class="panel-body canvas-panel-body">
                 <div class="canvas-wrapper">
-                    <canvas id="perceptron-canvas"></canvas>
+                    <canvas id="perceptron-canvas" tabindex="0" aria-label="Classifier. Select points to inspect them. Use the Controls tab to edit weights or add points."></canvas>
                     <div id="click-overlay" class="click-overlay" style="display: none;">
                         <span>Press Play to train</span>
                     </div>
                 </div>
             </div>
+            <div class="panel-body perceptron-teaching-controls">
+                                    <div class="header-right">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button id="btn-play" class="btn btn-primary" title="Play">
+                                Play
+                            </button>
+                            <button id="btn-pause" hidden class="btn btn-default" title="Pause" disabled>
+                                Pause
+                            </button>
+                            <button id="btn-step-back" class="btn btn-default" title="Step back" disabled>
+                                Back
+                            </button>
+                            <button id="btn-step-forward" hidden class="btn btn-default" title="Step forward" disabled>
+                                Phase
+                            </button>
+                            <button id="btn-reset" class="btn btn-default" title="Reset">
+                                Reset
+                            </button>
+                        </div>
+                        <label for="speed-slider" class="pc-speed-label">Speed</label>{{ speedControl(value='6') }}
+
+                    </div>
+                <div class="perceptron-actions">
+                    <label for="teaching-step">Step by</label>
+                    <select id="teaching-step" class="form-control input-sm"><option value="mistake">Mistake</option><option value="sample">Sample</option><option value="epoch">Epoch</option><option value="phase" selected>Calculation</option></select>
+                    <button id="teaching-next" class="btn btn-default btn-sm">Next →</button>
+                </div>
+                <div hidden><button id="next-sample">Next sample</button><button id="next-mistake">Next mistake</button><button id="next-epoch">Run one epoch</button></div>
+                <p id="perceptron-live-status" role="status"></p>
+                <p class="note">Select a point · Drag the round handle to shift the boundary · Drag the square handle to rotate</p>
+            </div>
+        <div class="perceptron-convergence">
+            <h5>Training mistakes per epoch</h5>
+            <div><svg id="perceptron-history" viewBox="0 0 560 150" role="img" aria-label="Mistakes during each completed epoch"></svg><p id="perceptron-history-caption" class="note">Complete an epoch to see its mistake count.</p></div>
+        </div>
             <div class="panel-footer legend-footer">
                 {{ legend(
                     items=[
                         {class: 'class-0', label: 'Class 0'},
                         {class: 'class-1', label: 'Class 1'},
-                        {class: 'misclassified', label: 'Misclassified'},
+                        {class: 'misclassified', label: 'Hollow = misclassified'},
                         {class: 'boundary-line', label: 'Boundary', type: 'line'},
                         {class: 'weight-vector', label: 'Weight Vector', type: 'line'},
                         {class: 'margin-line', label: 'Margin', type: 'line'}
@@ -85,13 +106,14 @@ cardImage: static/img/vis_cards/perceptron.png
                 ) }}
             </div>
         </div>
+
     </div>
 
     <!-- Right Column: Info + Metrics -->
     <div class="col-md-5">
         {{ infoTabs(
             tabs=[
-                {id: 'about', icon: 'fa-info-circle', label: 'About', active: true, content: '
+                {id: 'about', icon: 'fa-info-circle', label: 'About', content: '
                     <h4><i class="fa fa-bullseye"></i> Perceptron</h4>
                     <p>
                         The perceptron is a linear classifier that learns a separating line by adjusting
@@ -103,7 +125,10 @@ cardImage: static/img/vis_cards/perceptron.png
                         <li><strong>Press Play</strong> to train step-by-step</li>
                         <li><strong>Adjust learning rate</strong> to change update size</li>
                         <li><strong>Switch datasets</strong> to see convergence vs. failure</li>
-                        <li><strong>Toggle margin/vector</strong> for geometric intuition</li>
+                        <li><strong>Click a point</strong> to inspect its live prediction and update math</li>
+                        <li><strong>Drag the boundary</strong> to shift it; Shift-drag to rotate it</li>
+                        <li><strong>Step by Mistake</strong> pauses before an update; Sample shows its result</li>
+                        <li><strong>Controls</strong> lets you add/relabel data and edit weights</li>
                     </ul>
                 '},
                 {id: 'algorithm', icon: 'fa-book', label: 'Algorithm', content: '
@@ -112,7 +137,7 @@ cardImage: static/img/vis_cards/perceptron.png
                         <li>Compute activation <code>a = w·x + b</code></li>
                         <li>Predict <code>ŷ = sign(a)</code></li>
                         <li>If wrong, update <code>w ← w + η(y - ŷ)x</code></li>
-                        <li>Redraw the boundary</li>
+                        <li>Update bias <code>b ← b + η(y - ŷ)</code> and redraw</li>
                     </ol>
                     <p class="note">
                         On non-separable data, mistakes never reach zero.
@@ -129,6 +154,13 @@ cardImage: static/img/vis_cards/perceptron.png
                 '},
                 {id: 'controls', icon: 'fa-sliders', label: 'Controls', content: '
                     <div class="perceptron-tab-controls">
+                        <div class="option-row"><label for="edit-mode">Canvas:</label><select id="edit-mode" class="form-control input-sm"><option value="inspect">Inspect / drag boundary</option><option value="rotate">Rotate boundary</option><option value="add0">Add class 0</option><option value="add1">Add class 1</option><option value="relabel">Relabel point</option></select></div>
+                        <div class="option-row"><label for="weight-x">Weight x₁:</label><input id="weight-x" class="form-control input-sm" type="number" min="-100" max="100" step="0.05" value="0"></div>
+                        <div class="option-row"><label for="weight-y">Weight x₂:</label><input id="weight-y" class="form-control input-sm" type="number" min="-100" max="100" step="0.05" value="0"></div>
+                        <div class="option-row"><label for="weight-bias">Bias:</label><input id="weight-bias" class="form-control input-sm" type="number" min="-100" max="100" step="0.05" value="0"></div>
+                        <button id="new-data" class="btn btn-default btn-sm">Generate new dataset</button>
+                        <p class="note">Training settings and Reset keep these data points and the starting weights. Editing the classifier starts a new run from your weights.</p>
+                        <hr class="controls-divider">
                         <div class="option-row">
                             <label>Init:</label>
                             <select id="init-select" class="form-control input-sm">
@@ -157,25 +189,46 @@ cardImage: static/img/vis_cards/perceptron.png
                             <label class="checkbox-label"><input type="checkbox" id="show-boundary" checked> Show boundary</label>
                         </div>
                         <div class="option-row checkbox-row">
-                            <label class="checkbox-label"><input type="checkbox" id="show-vector" checked> Show weight vector</label>
+                            <label class="checkbox-label"><input type="checkbox" id="show-vector"> Show weight vector</label>
+                            <label class="checkbox-label"><input type="checkbox" id="show-components"> Show point component arrows</label>
+                            <label class="checkbox-label"><input type="checkbox" id="show-projection"> Show direct point projection</label>
                         </div>
                         <div class="option-row checkbox-row">
                             <label class="checkbox-label"><input type="checkbox" id="show-margin"> Show margin</label>
                         </div>
                     </div>
                 '},
-                {id: 'math', icon: 'fa-superscript', label: 'Math', content: '
-                    <h4><i class="fa fa-superscript"></i> Decision Boundary</h4>
+                {id: 'math', icon: 'fa-superscript', label: 'Math', active: true, content: '
+                    <ol class="pc-teaching-sections">
+                    <li><div class="pc-select-heading"><h4><button type="button" class="pc-section-toggle" aria-expanded="true" aria-controls="perceptron-sample-values"><span aria-hidden="true" class="pc-section-chevron">▾</span> 1.) Select point</button></h4><span id="pc-point-counter"></span></div><div id="perceptron-sample-values"></div></li>
+                    <li><div class="pc-select-heading"><h4><button type="button" class="pc-section-toggle" aria-expanded="true" aria-controls="pc-prediction-content"><span aria-hidden="true" class="pc-section-chevron">▾</span> 2.) Calculate prediction</button></h4>
+                        <select id="pc-view-select" class="form-control input-sm" aria-label="Prediction view">
+                            <option value="diagram">Picture</option>
+                            <option value="code">Pseudocode</option>
+                            <option value="matrix">Mat mul</option>
+                        </select>
+                    </div>
+                    <div class="pc-walkthrough" id="pc-prediction-content">
+                        <div id="pc-diagram-view"></div>
+                        <div id="pc-code-view" hidden></div>
+                        <div id="pc-matrix-view" hidden></div>
+                        <p id="pc-walkthrough-caption" hidden></p>
+                    </div>
+                    </li>
+                    <li class="pc-weight-update"><div class="pc-select-heading pc-update-heading"><h4><button type="button" class="pc-section-toggle" aria-expanded="true" aria-controls="pc-weight-equations"><span aria-hidden="true" class="pc-section-chevron">▾</span> 3.) Update weights</button></h4><math class="pc-update-rule" display="block"><msubsup><mi>w</mi><mi>i</mi><mo>′</mo></msubsup><mo>=</mo><msub><mi>w</mi><mi>i</mi></msub><mo>+</mo><mi>η</mi><mo>(</mo><mi>y</mi><mo>−</mo><mover><mi>y</mi><mo>^</mo></mover><mo>)</mo><msub><mi>x</mi><mi>i</mi></msub></math></div><div id="pc-weight-equations" class="pc-weight-equations"></div></li>
+                    </ol>
+                    <div id="perceptron-live-math"></div>
+                    <details class="pc-theory"><summary>Geometry reference</summary>
                     <p>
                         The boundary is the line where <code>w·x + b = 0</code>. The weight vector <code>w</code>
-                        is normal to the line. The margin is proportional to <code>1 / ||w||</code>.
-                    </p>
+                        is normal to the line. The dashed score contours are <code>w·x + b = ±1</code>, each <code>1 / ||w||</code> from the boundary. These are not a learned maximum margin.
+                    </p></details>
                 '},
                 {id: 'metrics', icon: 'fa-bar-chart', label: 'Metrics', content: '
                     <table class="table table-condensed metrics-table">
                         <tbody>
                             <tr><td><i class="fa fa-repeat"></i> Epoch</td><td id="metric-epoch" class="text-right metric-value">0</td></tr>
-                            <tr><td><i class="fa fa-step-forward"></i> Step</td><td id="metric-step" class="text-right metric-value">0</td></tr>
+                            <tr><td>Phase Step</td><td id="metric-step" class="text-right metric-value">0</td></tr>
                             <tr><td><i class="fa fa-exclamation-triangle"></i> Mistakes</td><td id="metric-mistakes" class="text-right metric-value">0</td></tr>
                             <tr><td><i class="fa fa-check-circle"></i> Accuracy</td><td id="metric-accuracy" class="text-right metric-value">0%</td></tr>
                             <tr><td><i class="fa fa-sliders"></i> Weights</td><td id="metric-weights" class="text-right metric-value">[-, -]</td></tr>
