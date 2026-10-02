@@ -69,6 +69,36 @@
 	</script>
 	{% endif %}
 
+	<!-- Embed mode: ?embed=1 drops the site header and footer so a page can sit in a frame (the AI2AI book does this);
+	     ?embed=viz also drops the right-hand info column. The page reports its height to the parent so the frame can fit it. -->
+	<script>
+	(function() {
+	    var m = /[?&]embed=([^&#]*)/.exec(location.search);
+	    if (!m) return;
+	    document.documentElement.setAttribute('data-embed', m[1] === 'viz' ? 'viz' : '1');
+	    function report() {
+	        var c = document.querySelector('.container');
+	        var h = Math.ceil((c ? c.getBoundingClientRect().height : document.body.scrollHeight) + 12);
+	        if (window.parent !== window) window.parent.postMessage({ type: 'eai-embed-height', height: h, page: location.pathname.split('/').pop() }, '*');
+	    }
+	    window.addEventListener('load', function() {
+	        report();
+	        if (window.ResizeObserver) new ResizeObserver(report).observe(document.querySelector('.container') || document.body);
+	        setTimeout(report, 800);
+	    });
+	})();
+	</script>
+	<style>
+	[data-embed] body { padding: 4px 2px 0; }
+	[data-embed] .container { width: 100%; max-width: none; padding-left: 6px; padding-right: 6px; }
+	[data-embed] .container > .row > .page-header,
+	[data-embed] .container > .row > hr,
+	[data-embed] .container > .row > footer,
+	[data-embed] #share-btn { display: none !important; }
+	[data-embed="viz"] .row > .col-md-5 { display: none !important; }
+	[data-embed="viz"] .row > .col-md-7 { width: 100% !important; }
+	</style>
+
 	<!-- Theme CSS (toggleable) -->
 	<link id="theme-style" href="{{ prefix | default('') }}static/css/bluegold.css" rel="stylesheet">
 	{% if extraScript %}
@@ -913,7 +943,8 @@
 	            return null;
 	        }
     })();
-        var currentTheme = applyTheme(savedTheme);
+        var embedded = document.documentElement.hasAttribute('data-embed');
+        var currentTheme = applyTheme(embedded ? 'bluegold' : savedTheme);
         document.addEventListener('themechange', function(event) {
             updateNotebookFrames(event.detail || currentTheme);
         });
