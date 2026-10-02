@@ -18,18 +18,18 @@
     --shidoku-hover-bg: var(--viz-hover-bg);
 
     /* Shidoku-specific: box borders, cell states */
-    --shidoku-box-border: #000000;
-    --shidoku-fixed-bg: #e9ecef;
-    --shidoku-fixed-text: #495057;
-    --shidoku-assigned-bg: #d4edda;
-    --shidoku-assigned-border: #28a745;
-    --shidoku-examining-bg: #fff3cd;
-    --shidoku-examining-border: #ffc107;
-    --shidoku-trying-bg: #cce5ff;
-    --shidoku-trying-border: #007bff;
-    --shidoku-conflict-bg: #f8d7da;
-    --shidoku-conflict-border: #dc3545;
-    --shidoku-pruned-color: #dc3545;
+    --shidoku-box-border: var(--book-ink);
+    --shidoku-fixed-bg: var(--book-sunken);
+    --shidoku-fixed-text: var(--book-muted);
+    --shidoku-assigned-bg: var(--book-green-fill);
+    --shidoku-assigned-border: var(--book-green);
+    --shidoku-examining-bg: var(--book-gold-fill);
+    --shidoku-examining-border: var(--book-gold);
+    --shidoku-trying-bg: var(--book-blue-fill);
+    --shidoku-trying-border: var(--book-blue);
+    --shidoku-conflict-bg: var(--book-red-fill);
+    --shidoku-conflict-border: var(--book-red);
+    --shidoku-pruned-color: var(--book-red);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -77,7 +77,7 @@
 }
 
 .arc-line {
-    stroke: var(--shidoku-arc-line, #ff6b35);
+    stroke: var(--shidoku-arc-line, var(--book-gold-strong));
     stroke-width: 3;
     stroke-linecap: round;
     fill: none;
@@ -85,7 +85,7 @@
 }
 
 .arc-line-glow {
-    stroke: var(--shidoku-arc-glow, #ff6b35);
+    stroke: var(--shidoku-arc-glow, var(--book-gold-strong));
     stroke-width: 8;
     stroke-linecap: round;
     fill: none;
@@ -94,7 +94,7 @@
 }
 
 .arc-arrow {
-    fill: var(--shidoku-arc-line, #ff6b35);
+    fill: var(--shidoku-arc-line, var(--book-gold-strong));
     opacity: 0.9;
 }
 
@@ -230,16 +230,16 @@
 
 /* Arc source cell (Xi in arc check) */
 .shidoku-cell.arc-source {
-    background-color: var(--shidoku-arc-check-bg, rgba(255, 107, 53, 0.2));
-    border: 3px solid var(--shidoku-arc-line, #ff6b35);
-    box-shadow: 0 0 12px var(--shidoku-arc-line, #ff6b35);
+    background-color: var(--shidoku-arc-check-bg, rgba(var(--book-gold-strong-rgb), 0.2));
+    border: 3px solid var(--shidoku-arc-line, var(--book-gold-strong));
+    box-shadow: 0 0 12px var(--shidoku-arc-line, var(--book-gold-strong));
 }
 
 /* Arc target cell (Xj in arc check) */
 .shidoku-cell.arc-target {
-    background-color: var(--shidoku-support-bg, rgba(40, 167, 69, 0.2));
-    border: 3px solid var(--shidoku-support-border, #28a745);
-    box-shadow: 0 0 12px var(--shidoku-support-border, #28a745);
+    background-color: var(--shidoku-support-bg, rgba(var(--book-green-rgb), 0.2));
+    border: 3px solid var(--shidoku-support-border, var(--book-green));
+    box-shadow: 0 0 12px var(--shidoku-support-border, var(--book-green));
 }
 
 .shidoku-cell.solving {
@@ -363,9 +363,9 @@
 
 /* Value being checked in arc consistency */
 .domain-value.checking {
-    background-color: var(--shidoku-arc-check-bg, rgba(255, 107, 53, 0.3));
-    border: 2px solid var(--shidoku-arc-line, #ff6b35);
-    color: var(--shidoku-arc-line, #ff6b35);
+    background-color: var(--shidoku-arc-check-bg, rgba(var(--book-gold-strong-rgb), 0.3));
+    border: 2px solid var(--shidoku-arc-line, var(--book-gold-strong));
+    color: var(--shidoku-arc-line, var(--book-gold-strong));
     font-weight: bold;
     animation: value-pulse 0.6s ease-in-out infinite;
     border-radius: 4px;
@@ -374,9 +374,9 @@
 
 /* Value providing support in peer cell */
 .domain-value.support {
-    background-color: var(--shidoku-support-bg, rgba(40, 167, 69, 0.3));
-    border: 2px solid var(--shidoku-support-border, #28a745);
-    color: var(--shidoku-support-border, #28a745);
+    background-color: var(--shidoku-support-bg, rgba(var(--book-green-rgb), 0.3));
+    border: 2px solid var(--shidoku-support-border, var(--book-green));
+    color: var(--shidoku-support-border, var(--book-green));
     font-weight: bold;
     border-radius: 4px;
     margin: 1px;
@@ -395,11 +395,11 @@
 @keyframes value-pulse {
     0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 0 0 var(--shidoku-arc-line, #ff6b35);
+        box-shadow: 0 0 0 0 var(--shidoku-arc-line, var(--book-gold-strong));
     }
     50% {
         transform: scale(1.1);
-        box-shadow: 0 0 8px 2px var(--shidoku-arc-line, #ff6b35);
+        box-shadow: 0 0 8px 2px var(--shidoku-arc-line, var(--book-gold-strong));
     }
 }
 
@@ -458,13 +458,13 @@
 }
 
 .legend-arc-source {
-    background-color: var(--shidoku-arc-check-bg, rgba(255, 107, 53, 0.3));
-    border: 2px solid var(--shidoku-arc-line, #ff6b35);
+    background-color: var(--shidoku-arc-check-bg, rgba(var(--book-gold-strong-rgb), 0.3));
+    border: 2px solid var(--shidoku-arc-line, var(--book-gold-strong));
 }
 
 .legend-arc-target {
-    background-color: var(--shidoku-support-bg, rgba(40, 167, 69, 0.3));
-    border: 2px solid var(--shidoku-support-border, #28a745);
+    background-color: var(--shidoku-support-bg, rgba(var(--book-green-rgb), 0.3));
+    border: 2px solid var(--shidoku-support-border, var(--book-green));
 }
 
 /* Speed Control */
@@ -672,38 +672,38 @@
 
 .log-entry.log-info {
     background-color: rgba(131, 165, 152, 0.15);
-    color: #83a598;
+    color: var(--book-blue);
 }
 
 .log-entry.log-ac3 {
-    background-color: rgba(250, 189, 47, 0.15);
-    color: #d79921;
+    background-color: rgba(var(--book-gold-rgb), 0.15);
+    color: var(--book-gold-text);
 }
 
 .log-entry.log-assign {
-    background-color: rgba(184, 187, 38, 0.15);
-    color: #98971a;
+    background-color: rgba(var(--book-gold-rgb), 0.15);
+    color: var(--book-green-mid);
 }
 
 .log-entry.log-backtrack {
-    background-color: rgba(251, 73, 52, 0.15);
-    color: #cc241d;
+    background-color: rgba(var(--book-red-mid-rgb), 0.15);
+    color: var(--book-red-mid);
 }
 
 .log-entry.log-prune {
-    background-color: rgba(214, 93, 14, 0.15);
-    color: #d65d0e;
+    background-color: rgba(var(--book-gold-strong-rgb), 0.15);
+    color: var(--book-gold-strong);
 }
 
 .log-entry.log-success {
-    background-color: rgba(184, 187, 38, 0.25);
-    color: #98971a;
+    background-color: rgba(var(--book-gold-rgb), 0.25);
+    color: var(--book-green-mid);
     font-weight: bold;
 }
 
 .log-entry.log-failure {
-    background-color: rgba(251, 73, 52, 0.25);
-    color: #cc241d;
+    background-color: rgba(var(--book-red-mid-rgb), 0.25);
+    color: var(--book-red-mid);
     font-weight: bold;
 }
 
@@ -737,7 +737,7 @@
 
 /* Cell Input Mode */
 .shidoku-cell.input-mode {
-    outline: 3px solid #007bff;
+    outline: 3px solid var(--book-blue);
     outline-offset: -3px;
 }
 

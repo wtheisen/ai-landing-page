@@ -28,14 +28,14 @@
         }
         // Fallback
         return {
-            maxNode: '#1976d2',
-            minNode: '#d32f2f',
-            optimalNode: '#388e3c',
-            beyondDepth: '#cccccc',
-            selectedNode: '#ff9800',
-            edge: '#999999',
-            optimalEdge: '#388e3c',
-            beyondEdge: '#cccccc'
+            maxNode: EAIColor('blue'),
+            minNode: EAIColor('red'),
+            optimalNode: EAIColor('green'),
+            beyondDepth: EAIColor('grid'),
+            selectedNode: EAIColor('gold-strong'),
+            edge: EAIColor('axis'),
+            optimalEdge: EAIColor('green'),
+            beyondEdge: EAIColor('grid')
         };
     };
     // For backwards compatibility, also expose as COLORS
@@ -52,12 +52,12 @@
         const ctx = canvas.getContext('2d');
 
         // White background with slight rounded corners effect
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = EAIColor('surface');
         ctx.fillRect(0, 0, size, size);
 
         // Draw grid lines
         const cellSize = size / 3;
-        ctx.strokeStyle = '#333333';
+        ctx.strokeStyle = EAIColor('ink-soft');
         ctx.lineWidth = Math.max(1, size / 32);
 
         // Vertical lines
@@ -762,11 +762,11 @@
                 const cellSize = size / 3;
 
                 // Draw white background
-                context.fillStyle = '#ffffff';
+                context.fillStyle = EAIColor('surface');
                 context.fillRect(x, y, size, size);
 
                 // Draw grid lines
-                context.strokeStyle = '#333333';
+                context.strokeStyle = EAIColor('ink-soft');
                 context.lineWidth = Math.max(0.5, size / 32);
                 context.beginPath();
                 // Vertical lines
@@ -817,7 +817,7 @@
 
                 // Draw label below
                 if (data.label) {
-                    context.fillStyle = '#000000';
+                    context.fillStyle = EAIColor('ink');
                     context.font = `bold ${Math.max(10, size / 4)}px Arial`;
                     context.textAlign = 'center';
                     context.textBaseline = 'top';

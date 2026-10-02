@@ -294,7 +294,7 @@
 
                 // Bar border (highlight if hovered/dragging)
                 const isActive = i === this.hoveredBar || i === this.draggingBar;
-                ctx.strokeStyle = isActive ? '#ffd700' : 'rgba(0,0,0,0.3)';
+                ctx.strokeStyle = isActive ? EAIColor('gold') : 'rgba(0,0,0,0.3)';
                 ctx.lineWidth = isActive ? 3 : 1;
                 ctx.strokeRect(x, y, barWidth, barHeight);
 
@@ -348,11 +348,11 @@
                 const activeBar = this.draggingBar >= 0 ? this.draggingBar : this.hoveredBar;
                 const bounds = this.barBounds[activeBar];
                 if (bounds) {
-                    ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+                    ctx.fillStyle = EAIColor('gold', 0.8);
                     ctx.beginPath();
                     ctx.arc(bounds.x + bounds.width / 2, BAR_CHART_BOTTOM - state.probabilities[activeBar] * BAR_CHART_HEIGHT, 6, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.strokeStyle = '#b8860b';
+                    ctx.strokeStyle = EAIColor('gold');
                     ctx.lineWidth = 2;
                     ctx.stroke();
                 }
@@ -390,12 +390,12 @@
 
         _getTextColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#ebdbb2' : '#333333';
+                ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light');
         }
 
         _getGridColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? 'rgba(168, 153, 132, 0.3)' : 'rgba(0, 0, 0, 0.1)';
+                ? EAIColor('muted', 0.3, 'dark') : 'rgba(0, 0, 0, 0.1)';
         }
 
         _drawContribution(centerX, y, p) {
@@ -429,7 +429,7 @@
 
         _getMutedColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#a89984' : '#888';
+                ? EAIColor('muted', 'dark') : EAIColor('axis', 'light');
         }
 
         _drawHuffmanBits(centerX, y, code) {
@@ -445,21 +445,21 @@
 
                 // Background
                 ctx.fillStyle = bit === '1'
-                    ? (isDark ? 'rgba(184, 187, 38, 0.3)' : 'rgba(66, 133, 244, 0.15)')
-                    : (isDark ? 'rgba(60, 56, 54, 0.8)' : 'rgba(0, 0, 0, 0.05)');
+                    ? (isDark ? EAIColor('green', 0.3, 'dark') : EAIColor('blue-mid', 0.15))
+                    : (isDark ? EAIColor('sunken', 0.8, 'dark') : 'rgba(0, 0, 0, 0.05)');
                 ctx.fillRect(bx, y, bitSize, bitSize);
 
                 // Border
                 ctx.strokeStyle = bit === '1'
-                    ? (isDark ? 'rgba(184, 187, 38, 0.5)' : 'rgba(66, 133, 244, 0.4)')
-                    : (isDark ? 'rgba(168, 153, 132, 0.3)' : 'rgba(0, 0, 0, 0.15)');
+                    ? (isDark ? EAIColor('green', 0.5, 'dark') : EAIColor('blue-mid', 0.4))
+                    : (isDark ? EAIColor('muted', 0.3, 'dark') : 'rgba(0, 0, 0, 0.15)');
                 ctx.lineWidth = 1;
                 ctx.strokeRect(bx, y, bitSize, bitSize);
 
                 // Bit text
                 ctx.fillStyle = bit === '1'
-                    ? (isDark ? '#b8bb26' : '#1a73e8')
-                    : (isDark ? '#a89984' : '#888');
+                    ? (isDark ? EAIColor('green', 'dark') : EAIColor('blue', 'light'))
+                    : (isDark ? EAIColor('muted', 'dark') : EAIColor('axis', 'light'));
                 ctx.font = 'bold 9px monospace';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -595,10 +595,10 @@
             const bagHeight = this.bagBottom - this.bagTop;
 
             const isDark = document.documentElement.getAttribute('data-theme') === 'gruvbox-dark';
-            const textColor = isDark ? '#ebdbb2' : '#333333';
-            const mutedColor = isDark ? '#a89984' : '#888';
-            const bagBg = isDark ? '#3c3836' : '#f0ece3';
-            const bagBorder = isDark ? '#665c54' : '#c4b9a4';
+            const textColor = isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light');
+            const mutedColor = isDark ? EAIColor('muted', 'dark') : EAIColor('axis', 'light');
+            const bagBg = isDark ? EAIColor('sunken', 'dark') : EAIColor('gold-fill', 'light');
+            const bagBorder = isDark ? EAIColor('axis', 'dark') : EAIColor('gold-mid', 'light');
 
             // --- Draw bag container ---
             ctx.fillStyle = bagBg;
@@ -705,7 +705,7 @@
 
                 // Selection indicator
                 if (ci === this.selectedColor) {
-                    ctx.strokeStyle = isDark ? '#ebdbb2' : '#333';
+                    ctx.strokeStyle = isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light');
                     ctx.lineWidth = 2;
                     ctx.strokeRect(sx - 3, paletteY - 3, swatchSize + 6, swatchSize + 6);
                 }
@@ -792,8 +792,8 @@
         _drawContribution(centerX, y, p) {
             const ctx = this.ctx;
             const isDark = document.documentElement.getAttribute('data-theme') === 'gruvbox-dark';
-            const mutedColor = isDark ? '#a89984' : '#888';
-            const textColor = isDark ? '#ebdbb2' : '#333333';
+            const mutedColor = isDark ? EAIColor('muted', 'dark') : EAIColor('axis', 'light');
+            const textColor = isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light');
 
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
@@ -828,19 +828,19 @@
             for (let b = 0; b < code.length; b++) {
                 const bit = code[b];
                 ctx.fillStyle = bit === '1'
-                    ? (isDark ? 'rgba(184, 187, 38, 0.3)' : 'rgba(66, 133, 244, 0.15)')
-                    : (isDark ? 'rgba(60, 56, 54, 0.8)' : 'rgba(0, 0, 0, 0.05)');
+                    ? (isDark ? EAIColor('green', 0.3, 'dark') : EAIColor('blue-mid', 0.15))
+                    : (isDark ? EAIColor('sunken', 0.8, 'dark') : 'rgba(0, 0, 0, 0.05)');
                 ctx.fillRect(bx, y, bitSize, bitSize);
 
                 ctx.strokeStyle = bit === '1'
-                    ? (isDark ? 'rgba(184, 187, 38, 0.5)' : 'rgba(66, 133, 244, 0.4)')
-                    : (isDark ? 'rgba(168, 153, 132, 0.3)' : 'rgba(0, 0, 0, 0.15)');
+                    ? (isDark ? EAIColor('green', 0.5, 'dark') : EAIColor('blue-mid', 0.4))
+                    : (isDark ? EAIColor('muted', 0.3, 'dark') : 'rgba(0, 0, 0, 0.15)');
                 ctx.lineWidth = 1;
                 ctx.strokeRect(bx, y, bitSize, bitSize);
 
                 ctx.fillStyle = bit === '1'
-                    ? (isDark ? '#b8bb26' : '#1a73e8')
-                    : (isDark ? '#a89984' : '#888');
+                    ? (isDark ? EAIColor('green', 'dark') : EAIColor('blue', 'light'))
+                    : (isDark ? EAIColor('muted', 'dark') : EAIColor('axis', 'light'));
                 ctx.font = 'bold 9px monospace';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -936,32 +936,32 @@
 
         _getTextColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#ebdbb2' : '#333333';
+                ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light');
         }
 
         _getMutedColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#a89984' : '#6c757d';
+                ? EAIColor('muted', 'dark') : EAIColor('muted', 'light');
         }
 
         _getBackgroundColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#3c3836' : '#e9ecef';
+                ? EAIColor('sunken', 'dark') : EAIColor('sunken', 'light');
         }
 
         _getLowColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#b8bb26' : '#4CAF50';
+                ? EAIColor('green', 'dark') : EAIColor('green', 'light');
         }
 
         _getMidColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#fabd2f' : '#FFC107';
+                ? EAIColor('gold', 'dark') : EAIColor('gold', 'light');
         }
 
         _getHighColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#fb4934' : '#F44336';
+                ? EAIColor('red', 'dark') : EAIColor('red-mid', 'light');
         }
     }
 
@@ -1856,7 +1856,7 @@
             // Reset transform and clear canvas
             VizLib.resetCanvasTransform(ctx, dpr);
             const bgColor = document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#1d2021' : '#fafafa';
+                ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light');
             VizLib.clearCanvas(ctx, CANVAS_WIDTH, CANVAS_HEIGHT, bgColor);
 
             // Update encoding before drawing (codes appear on bars/balls)

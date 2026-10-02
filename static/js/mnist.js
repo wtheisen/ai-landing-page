@@ -31,11 +31,11 @@
         }
         // Fallback if VizLib not loaded yet
         return isDark ? [
-            '#fb4934', '#83a598', '#b8bb26', '#d3869b', '#fe8019',
-            '#fabd2f', '#d65d0e', '#d3869b', '#928374', '#8ec07c'
+            EAIColor('class-0', 'dark'), EAIColor('class-1', 'dark'), EAIColor('class-2', 'dark'), EAIColor('class-3', 'dark'), EAIColor('class-4', 'dark'),
+            EAIColor('class-5', 'dark'), EAIColor('class-6', 'dark'), EAIColor('class-7', 'dark'), EAIColor('class-8', 'dark'), EAIColor('class-9', 'dark')
         ] : [
-            '#e41a1c', '#377eb8', '#4daf4a', '#984ea3', '#ff7f00',
-            '#c4a000', '#a65628', '#f781bf', '#999999', '#17becf'
+            EAIColor('class-0', 'light'), EAIColor('class-1', 'light'), EAIColor('class-2', 'light'), EAIColor('class-3', 'light'), EAIColor('class-4', 'light'),
+            EAIColor('class-5', 'light'), EAIColor('class-6', 'light'), EAIColor('class-7', 'light'), EAIColor('class-8', 'light'), EAIColor('class-9', 'light')
         ];
     };
 
@@ -382,7 +382,7 @@
             ctx.clearRect(0, 0, width, height);
 
             // Background
-            const bgColor = this.isDarkTheme ? '#1d2021' : '#fafafa';
+            const bgColor = this.isDarkTheme ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light');
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
 
@@ -506,8 +506,8 @@
         }
 
         drawAxes(ctx, xMin, xMax, yMin, yMax, scaleX, scaleY) {
-            const axisColor = this.isDarkTheme ? '#504945' : '#cccccc';
-            const textColor = this.isDarkTheme ? '#a89984' : '#6c757d';
+            const axisColor = this.isDarkTheme ? EAIColor('grid', 'dark') : EAIColor('grid', 'light');
+            const textColor = this.isDarkTheme ? EAIColor('muted', 'dark') : EAIColor('muted', 'light');
             const width = this.logicalWidth;
             const height = this.logicalHeight;
 
@@ -535,7 +535,7 @@
         }
 
         drawNoDataMessage(ctx, width, height) {
-            const textColor = this.isDarkTheme ? '#a89984' : '#6c757d';
+            const textColor = this.isDarkTheme ? EAIColor('muted', 'dark') : EAIColor('muted', 'light');
             ctx.fillStyle = textColor;
             ctx.font = '14px sans-serif';
             ctx.textAlign = 'center';
@@ -1221,7 +1221,7 @@
 
             if (!imageData && !this.data.hasImages()) {
                 // Images not loaded yet - trigger lazy load and show placeholder
-                this.tooltipCanvas.getContext('2d').fillStyle = '#ccc';
+                this.tooltipCanvas.getContext('2d').fillStyle = EAIColor('grid');
                 this.tooltipCanvas.getContext('2d').fillRect(0, 0, this.tooltipCanvas.width, this.tooltipCanvas.height);
 
                 // Load images in background

@@ -1126,7 +1126,7 @@
                 const colors = window.VizLib.ThemeManager.getColors('categorical');
                 this.classColors = colors.slice(0, 3);
             } else {
-                this.classColors = ['#e41a1c', '#377eb8', '#4daf4a'];
+                this.classColors = [EAIColor('class-0'), EAIColor('class-1'), EAIColor('class-2')];
             }
 
             const style = getComputedStyle(document.documentElement);
@@ -1223,16 +1223,16 @@
         _getSplitColor(nodeId) {
             // Colorful palette for splits - easily distinguishable colors
             const splitPalette = [
-                '#8B5CF6', // violet
-                '#F59E0B', // amber
-                '#10B981', // emerald
-                '#3B82F6', // blue
-                '#EF4444', // red
-                '#EC4899', // pink
-                '#06B6D4', // cyan
-                '#84CC16', // lime
-                '#F97316', // orange
-                '#6366F1', // indigo
+                EAIColor('class-3'), // violet
+                EAIColor('class-4'), // amber
+                EAIColor('class-9'), // emerald
+                EAIColor('class-1'), // blue
+                EAIColor('class-0'), // red
+                EAIColor('class-7'), // pink
+                EAIColor('class-2'), // cyan
+                EAIColor('class-5'), // lime
+                EAIColor('class-6'), // orange
+                EAIColor('class-8'), // indigo
             ];
             return splitPalette[nodeId % splitPalette.length];
         }
@@ -1255,14 +1255,14 @@
                 ctx.arc(pos.x, pos.y, POINT_RADIUS, 0, 2 * Math.PI);
                 ctx.fillStyle = color;
                 ctx.fill();
-                ctx.strokeStyle = '#fff';
+                ctx.strokeStyle = EAIColor('surface');
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
 
                 // Draw X marker for misclassified points
                 if (isMisclassified) {
                     // Draw a larger contrasting outline
-                    ctx.strokeStyle = '#fff';
+                    ctx.strokeStyle = EAIColor('surface');
                     ctx.lineWidth = 4;
                     const size = POINT_RADIUS + 2;
                     ctx.beginPath();
@@ -1273,7 +1273,7 @@
                     ctx.stroke();
 
                     // Draw the X
-                    ctx.strokeStyle = '#000';
+                    ctx.strokeStyle = EAIColor('ink');
                     ctx.lineWidth = 2;
                     ctx.beginPath();
                     ctx.moveTo(pos.x - size, pos.y - size);
@@ -1305,7 +1305,7 @@
             ctx.arc(pos.x, pos.y, QUERY_RADIUS, 0, 2 * Math.PI);
             ctx.fillStyle = fillColor;
             ctx.fill();
-            ctx.strokeStyle = '#fff';
+            ctx.strokeStyle = EAIColor('surface');
             ctx.lineWidth = 2;
             ctx.stroke();
 
@@ -1343,7 +1343,7 @@
             ctx.roundRect(finalX, finalY, popupWidth, popupHeight, 4);
             ctx.fill();
 
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = EAIColor('surface');
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(text, finalX + popupWidth / 2, finalY + popupHeight / 2);
@@ -1523,7 +1523,7 @@
                     line.setAttribute('y2', -childPos.y + offsetY);
 
                     const isHighlighted = highlightNodeIds.has(node.id) && highlightNodeIds.has(child.id);
-                    line.setAttribute('stroke', isHighlighted ? '#ffd700' : '#999');
+                    line.setAttribute('stroke', isHighlighted ? EAIColor('gold') : EAIColor('axis'));
                     line.setAttribute('stroke-width', isHighlighted ? '3' : '2');
 
                     this.treeSvg.appendChild(line);
@@ -1536,7 +1536,7 @@
                     label.setAttribute('y', midY);
                     label.setAttribute('text-anchor', 'middle');
                     label.setAttribute('font-size', '10');
-                    label.setAttribute('fill', '#666');
+                    label.setAttribute('fill', EAIColor('muted'));
                     label.textContent = child === node.left ? '≤' : '>';
                     this.treeSvg.appendChild(label);
 
@@ -1577,9 +1577,9 @@
                 }
 
                 // Stroke color: yellow for highlight/selection, otherwise use split color or default
-                let strokeColor = '#333';
+                let strokeColor = EAIColor('ink-soft');
                 if (isSelected || isHighlighted) {
-                    strokeColor = '#ffd700';
+                    strokeColor = EAIColor('gold');
                 } else if (splitColor && !node.isLeaf) {
                     strokeColor = splitColor;
                 }
@@ -1596,7 +1596,7 @@
                 text.setAttribute('font-size', '10');
                 text.setAttribute('font-weight', 'bold');
                 // White text on colored backgrounds
-                text.setAttribute('fill', (node.isLeaf || splitColor) ? '#fff' : '#333');
+                text.setAttribute('fill', (node.isLeaf || splitColor) ? EAIColor('surface') : EAIColor('ink-soft'));
 
                 if (node.isLeaf) {
                     text.textContent = `C${node.prediction + 1}`;
@@ -1625,7 +1625,7 @@
                 sampleText.setAttribute('y', cy - NODE_RADIUS - 5);
                 sampleText.setAttribute('text-anchor', 'middle');
                 sampleText.setAttribute('font-size', '8');
-                sampleText.setAttribute('fill', '#999');
+                sampleText.setAttribute('fill', EAIColor('axis'));
                 sampleText.textContent = `n=${node.samples}`;
                 group.appendChild(sampleText);
 
@@ -1646,7 +1646,7 @@
 
         _clearTree() {
             if (this.treeSvg) {
-                this.treeSvg.innerHTML = '<text x="280" y="100" text-anchor="middle" fill="#999">No tree built</text>';
+                this.treeSvg.innerHTML = '<text x="280" y="100" text-anchor="middle" style="fill:var(--book-axis)">No tree built</text>';
             }
         }
 
@@ -2555,7 +2555,7 @@
             // Get the majority class for each child to determine background color
             const leftMajority = node.left?.prediction ?? 0;
             const rightMajority = node.right?.prediction ?? 0;
-            const colors = this.ui.classColors || ['#e41a1c', '#377eb8', '#4daf4a'];
+            const colors = this.ui.classColors || [EAIColor('class-0'), EAIColor('class-1'), EAIColor('class-2')];
 
             // Left child
             document.getElementById('math-left-label').textContent = leftLabel;
@@ -2679,7 +2679,7 @@
         _formatClassCounts(counts) {
             const parts = [];
             const sortedKeys = Object.keys(counts).sort((a, b) => parseInt(a) - parseInt(b));
-            const colors = this.ui.classColors || ['#e41a1c', '#377eb8', '#4daf4a'];
+            const colors = this.ui.classColors || [EAIColor('class-0'), EAIColor('class-1'), EAIColor('class-2')];
             for (const key of sortedKeys) {
                 const classIdx = parseInt(key);
                 const color = colors[classIdx] || colors[0];
@@ -2692,7 +2692,7 @@
         _formatClassSum(counts, boxClass) {
             const parts = [];
             const sortedKeys = Object.keys(counts).sort((a, b) => parseInt(a) - parseInt(b));
-            const colors = this.ui.classColors || ['#e41a1c', '#377eb8', '#4daf4a'];
+            const colors = this.ui.classColors || [EAIColor('class-0'), EAIColor('class-1'), EAIColor('class-2')];
             for (const key of sortedKeys) {
                 const classIdx = parseInt(key);
                 const color = colors[classIdx] || colors[0];
@@ -2705,7 +2705,7 @@
             if (total === 0) return '';
 
             const sortedKeys = Object.keys(counts).sort((a, b) => parseInt(a) - parseInt(b));
-            const colors = this.ui.classColors || ['#e41a1c', '#377eb8', '#4daf4a'];
+            const colors = this.ui.classColors || [EAIColor('class-0'), EAIColor('class-1'), EAIColor('class-2')];
             const terms = [];
             const symbol = criterion === 'entropy' ? 'H' : 'G';
 

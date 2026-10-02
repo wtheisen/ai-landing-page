@@ -331,8 +331,8 @@
     // ============================================
     // Head color palettes
     // ============================================
-    const HEAD_COLORS_LIGHT = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f','#bcbd22','#17becf','#aec7e8','#ffbb78'];
-    const HEAD_COLORS_DARK  = ['#83a598','#fe8019','#b8bb26','#fb4934','#d3869b','#8ec07c','#fabd2f','#a89984','#d79921','#689d6a','#458588','#cc241d'];
+    const HEAD_COLORS_LIGHT = [EAIColor('class-1', 'light'),EAIColor('class-4', 'light'),EAIColor('class-2', 'light'),EAIColor('class-0', 'light'),EAIColor('class-3', 'light'),EAIColor('class-6', 'light'),EAIColor('class-7', 'light'),EAIColor('class-8', 'light'),EAIColor('class-5', 'light'),EAIColor('class-9', 'light'),EAIColor('class-1', 'light'),EAIColor('class-4', 'light')];
+    const HEAD_COLORS_DARK  = [EAIColor('class-1', 'dark'),EAIColor('class-4', 'dark'),EAIColor('class-2', 'dark'),EAIColor('class-0', 'dark'),EAIColor('class-3', 'dark'),EAIColor('class-9', 'dark'),EAIColor('class-5', 'dark'),EAIColor('class-6', 'dark'),EAIColor('class-7', 'dark'),EAIColor('class-8', 'dark'),EAIColor('class-9', 'dark'),EAIColor('class-0', 'dark')];
 
     function getHeadColors() {
         const theme = document.documentElement.getAttribute('data-theme');
@@ -1147,7 +1147,7 @@
                             const v = data[i][j];
                             // Diverging scale: blue(negative) -> white(zero) -> red(positive)
                             const t = (v / absMax + 1) / 2;  // 0..1
-                            const fillColor = interpolateHeatColor(t, '#4575b4', '#f7f7f7', '#d73027');
+                            const fillColor = interpolateHeatColor(t, EAIColor('blue'), EAIColor('sunken'), EAIColor('red'));
                             parent.append('rect')
                                 .attr('x', cx).attr('y', cy)
                                 .attr('width', matCellW).attr('height', matCellH)
@@ -1742,7 +1742,7 @@
                                 const cy = my + matPad + i * cellSz;
                                 const v = data[i][j];
                                 const t = (v / absMax + 1) / 2;
-                                const fillColor = interpolateHeatColor(t, '#4575b4', '#f7f7f7', '#d73027');
+                                const fillColor = interpolateHeatColor(t, EAIColor('blue'), EAIColor('sunken'), EAIColor('red'));
                                 parent.append('rect')
                                     .attr('x', cx).attr('y', cy)
                                     .attr('width', cellSz).attr('height', cellSz)
@@ -1804,7 +1804,7 @@
                                     .attr('fill', C.textMuted).attr('opacity', 0.4)
                                     .text('\u2013');
                             } else if (heatCellSize > 20) {
-                                const textColor = w > 0.7 ? '#fff' : C.canvasText;
+                                const textColor = w > 0.7 ? EAIColor('surface') : C.canvasText;
                                 const displayVal = w < 0.01 ? '' : w.toFixed(2);
                                 smBoxChipG_h.append('text')
                                     .attr('x', cx + (heatCellSize - 3) / 2).attr('y', cy + (heatCellSize - 3) / 2)
@@ -3042,7 +3042,7 @@
                             .attr('x', x + (cellSize - 1) / 2).attr('y', y + (cellSize - 1) / 2)
                             .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
                             .attr('font-family', MONO).attr('font-size', 8)
-                            .attr('fill', w > 0.5 ? '#fff' : C.cellText)
+                            .attr('fill', w > 0.5 ? EAIColor('surface') : C.cellText)
                             .attr('pointer-events', 'none')
                             .text(w.toFixed(2));
                     }

@@ -7,23 +7,23 @@
    CSS Custom Properties
    ============================================ */
 :root {
-    --cnn-cell-border: #bbb;
-    --cnn-cell-bg: #fff;
-    --cnn-highlight: rgba(255, 165, 0, 0.45);
-    --cnn-highlight-border: #ff8c00;
-    --cnn-output-positive: #1565c0;
-    --cnn-output-zero: #ffffff;
-    --cnn-output-negative: #c62828;
-    --cnn-input-low: #000000;
-    --cnn-input-high: #ffffff;
-    --cnn-kernel-bg: #fff;
-    --cnn-kernel-border: #ccc;
-    --cnn-kernel-focus: #ff8c00;
-    --cnn-computation-bg: #f8f9fa;
-    --cnn-computation-border: #dee2e6;
-    --cnn-current-dot: #ff8c00;
-    --cnn-pooling-max: #1976d2;
-    --cnn-pooling-avg: #388e3c;
+    --cnn-cell-border: var(--book-axis);
+    --cnn-cell-bg: var(--book-surface);
+    --cnn-highlight: rgba(var(--book-gold-rgb), 0.45);
+    --cnn-highlight-border: var(--book-gold-strong);
+    --cnn-output-positive: var(--book-blue);
+    --cnn-output-zero: var(--book-surface);
+    --cnn-output-negative: var(--book-red);
+    --cnn-input-low: var(--book-ink);
+    --cnn-input-high: var(--book-surface);
+    --cnn-kernel-bg: var(--book-surface);
+    --cnn-kernel-border: var(--book-grid);
+    --cnn-kernel-focus: var(--book-gold-strong);
+    --cnn-computation-bg: var(--book-surface);
+    --cnn-computation-border: var(--book-grid);
+    --cnn-current-dot: var(--book-gold-strong);
+    --cnn-pooling-max: var(--book-blue);
+    --cnn-pooling-avg: var(--book-green);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -120,7 +120,7 @@
 .cnn-kernel-input:focus {
     outline: none;
     border-color: var(--cnn-kernel-focus);
-    box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.25);
+    box-shadow: 0 0 0 2px rgba(var(--book-gold-strong-rgb), 0.25);
 }
 
 .cnn-preset-buttons {
@@ -232,7 +232,7 @@
    Legend Overrides
    ============================================ */
 .legend-color.cnn-input-cell {
-    background: linear-gradient(135deg, #000 0%, #fff 100%);
+    background: linear-gradient(135deg, var(--book-ink) 0%, var(--book-surface) 100%);
     border: 1px solid var(--cnn-cell-border);
 }
 

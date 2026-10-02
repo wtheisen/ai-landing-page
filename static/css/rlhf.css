@@ -8,63 +8,63 @@
    ============================================ */
 :root {
     /* Pipeline stages */
-    --rlhf-sft-color: #43a047;
-    --rlhf-sft-bg: rgba(67, 160, 71, 0.12);
-    --rlhf-sft-glow: rgba(67, 160, 71, 0.4);
-    --rlhf-rm-color: #1976d2;
-    --rlhf-rm-bg: rgba(25, 118, 210, 0.12);
-    --rlhf-rm-glow: rgba(25, 118, 210, 0.4);
-    --rlhf-ppo-color: #7b1fa2;
-    --rlhf-ppo-bg: rgba(123, 31, 162, 0.12);
-    --rlhf-ppo-glow: rgba(123, 31, 162, 0.4);
-    --rlhf-inactive-color: #9e9e9e;
+    --rlhf-sft-color: var(--book-green);
+    --rlhf-sft-bg: rgba(var(--book-green-rgb), 0.12);
+    --rlhf-sft-glow: rgba(var(--book-green-rgb), 0.4);
+    --rlhf-rm-color: var(--book-blue);
+    --rlhf-rm-bg: rgba(var(--book-blue-rgb), 0.12);
+    --rlhf-rm-glow: rgba(var(--book-blue-rgb), 0.4);
+    --rlhf-ppo-color: var(--book-purple);
+    --rlhf-ppo-bg: rgba(var(--book-purple-rgb), 0.12);
+    --rlhf-ppo-glow: rgba(var(--book-purple-rgb), 0.4);
+    --rlhf-inactive-color: var(--book-axis);
     --rlhf-inactive-bg: rgba(158, 158, 158, 0.08);
-    --rlhf-complete-color: #43a047;
+    --rlhf-complete-color: var(--book-green);
 
     /* Response cards */
-    --rlhf-preferred-border: #43a047;
-    --rlhf-preferred-bg: rgba(67, 160, 71, 0.08);
-    --rlhf-rejected-border: #e53935;
-    --rlhf-rejected-bg: rgba(229, 57, 53, 0.08);
-    --rlhf-card-bg: rgba(25, 118, 210, 0.06);
-    --rlhf-card-border: #90caf9;
-    --rlhf-card-text: #333;
+    --rlhf-preferred-border: var(--book-green);
+    --rlhf-preferred-bg: rgba(var(--book-green-rgb), 0.08);
+    --rlhf-rejected-border: var(--book-red);
+    --rlhf-rejected-bg: rgba(var(--book-red-rgb), 0.08);
+    --rlhf-card-bg: rgba(var(--book-blue-rgb), 0.06);
+    --rlhf-card-border: var(--book-blue-mid);
+    --rlhf-card-text: var(--book-ink-soft);
 
     /* Reward bars */
-    --rlhf-reward-low: #e53935;
-    --rlhf-reward-mid: #ff8f00;
-    --rlhf-reward-high: #43a047;
-    --rlhf-reward-bar-bg: #e0e0e0;
+    --rlhf-reward-low: var(--book-red);
+    --rlhf-reward-mid: var(--book-gold-strong);
+    --rlhf-reward-high: var(--book-green);
+    --rlhf-reward-bar-bg: var(--book-grid);
 
     /* Advantage */
-    --rlhf-advantage-pos: #43a047;
-    --rlhf-advantage-neg: #e53935;
+    --rlhf-advantage-pos: var(--book-green);
+    --rlhf-advantage-neg: var(--book-red);
 
     /* Training curves */
-    --rlhf-reward-line: #43a047;
-    --rlhf-reward-fill: rgba(67, 160, 71, 0.1);
-    --rlhf-kl-line: #ff8f00;
-    --rlhf-kl-fill: rgba(255, 143, 0, 0.1);
-    --rlhf-threshold-line: #e53935;
+    --rlhf-reward-line: var(--book-green);
+    --rlhf-reward-fill: rgba(var(--book-green-rgb), 0.1);
+    --rlhf-kl-line: var(--book-gold-strong);
+    --rlhf-kl-fill: rgba(var(--book-gold-strong-rgb), 0.1);
+    --rlhf-threshold-line: var(--book-red);
     --rlhf-grid-color: rgba(0, 0, 0, 0.08);
 
     /* Policy bars */
-    --rlhf-ref-policy: #1976d2;
-    --rlhf-cur-policy: #43a047;
+    --rlhf-ref-policy: var(--book-blue);
+    --rlhf-cur-policy: var(--book-green);
     --rlhf-policy-bar-bg: rgba(0, 0, 0, 0.06);
 
     /* KL indicator */
-    --rlhf-kl-low: #43a047;
-    --rlhf-kl-mid: #ff8f00;
-    --rlhf-kl-high: #e53935;
+    --rlhf-kl-low: var(--book-green);
+    --rlhf-kl-mid: var(--book-gold-strong);
+    --rlhf-kl-high: var(--book-red);
 
     /* General */
-    --rlhf-section-title: #666;
-    --rlhf-label-color: #555;
-    --rlhf-canvas-text: #333;
-    --rlhf-arrow-color: #757575;
+    --rlhf-section-title: var(--book-muted);
+    --rlhf-label-color: var(--book-muted);
+    --rlhf-canvas-text: var(--book-ink-soft);
+    --rlhf-arrow-color: var(--book-muted);
     --rlhf-prompt-bg: rgba(0, 0, 0, 0.04);
-    --rlhf-prompt-border: #bdbdbd;
+    --rlhf-prompt-border: var(--book-grid);
 }
 
 [data-theme="gruvbox-dark"] {

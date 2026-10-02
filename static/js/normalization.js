@@ -332,7 +332,7 @@
 
             // Value text
             tensorCtx.font = '600 ' + Math.max(8, layout.cellSize * 0.32) + 'px ' + getComputedStyle(document.documentElement).getPropertyValue('--viz-mono-font').trim();
-            tensorCtx.fillStyle = (Math.abs(val) < 1) ? colors.text : '#ffffff';
+            tensorCtx.fillStyle = (Math.abs(val) < 1) ? colors.text : EAIColor('surface');
             tensorCtx.textAlign = 'center';
             tensorCtx.textBaseline = 'middle';
             tensorCtx.fillText(val.toFixed(1), cell.x + cell.w / 2, cell.y + cell.h / 2);

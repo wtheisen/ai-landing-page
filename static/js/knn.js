@@ -387,7 +387,7 @@
                 this.classColors = colors.slice(0, 3);
             } else {
                 // Fallback colors
-                this.classColors = ['#e41a1c', '#377eb8', '#4daf4a'];
+                this.classColors = [EAIColor('class-0'), EAIColor('class-1'), EAIColor('class-2')];
             }
 
             // Get CSS custom properties for query point
@@ -475,7 +475,7 @@
                 ctx.arc(pos.x, pos.y, POINT_RADIUS, 0, 2 * Math.PI);
                 ctx.fillStyle = color;
                 ctx.fill();
-                ctx.strokeStyle = '#fff';
+                ctx.strokeStyle = EAIColor('surface');
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
             });
@@ -502,7 +502,7 @@
             ctx.arc(pos.x, pos.y, QUERY_RADIUS, 0, 2 * Math.PI);
             ctx.fillStyle = fillColor;
             ctx.fill();
-            ctx.strokeStyle = '#fff';
+            ctx.strokeStyle = EAIColor('surface');
             ctx.lineWidth = 2;
             ctx.stroke();
         }
@@ -581,7 +581,7 @@
             ctx.fill();
 
             // Draw text
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = EAIColor('surface');
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
             ctx.font = 'bold 11px sans-serif';
@@ -662,12 +662,12 @@
                 ctx.arc(midX, midY, circleRadius, 0, 2 * Math.PI);
                 ctx.fillStyle = blendedCircleColor;
                 ctx.fill();
-                ctx.strokeStyle = '#fff';
+                ctx.strokeStyle = EAIColor('surface');
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
 
                 // Draw rank number
-                ctx.fillStyle = '#fff';
+                ctx.fillStyle = EAIColor('surface');
                 ctx.font = 'bold 10px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';

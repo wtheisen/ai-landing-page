@@ -213,21 +213,21 @@
     function getColors() {
         const isDark = VizLib.ThemeManager.isDarkTheme();
         return {
-            bg:        isDark ? '#1d2021' : '#fafafa',
-            gridOrig:  isDark ? 'rgba(168,153,132,0.15)' : 'rgba(0,0,0,0.08)',
-            gridTrans: isDark ? 'rgba(131,165,152,0.35)' : 'rgba(30,80,160,0.25)',
-            axisOrig:  isDark ? 'rgba(168,153,132,0.3)'  : 'rgba(0,0,0,0.15)',
-            axisTrans: isDark ? 'rgba(131,165,152,0.6)'  : 'rgba(30,80,160,0.45)',
-            e1:        isDark ? '#fb4934' : '#e41a1c',
-            e2:        isDark ? '#83a598' : '#377eb8',
-            circle:    isDark ? '#fabd2f' : '#ff7f00',
-            circleRef: isDark ? 'rgba(250,189,47,0.2)' : 'rgba(255,127,0,0.15)',
-            eigen:     isDark ? '#d3869b' : '#984ea3',
-            data:      isDark ? '#b8bb26' : '#4daf4a',
-            dataGhost: isDark ? 'rgba(184,187,38,0.3)' : 'rgba(77,175,74,0.25)',
-            dataLine:  isDark ? 'rgba(184,187,38,0.4)' : 'rgba(77,175,74,0.3)',
-            origin:    isDark ? '#ebdbb2' : '#333333',
-            text:      isDark ? '#ebdbb2' : '#333333'
+            bg:        isDark ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light'),
+            gridOrig:  isDark ? EAIColor('muted', 0.15, 'dark') : 'rgba(0,0,0,0.08)',
+            gridTrans: isDark ? EAIColor('blue', 0.35, 'dark') : EAIColor('blue', 0.25),
+            axisOrig:  isDark ? EAIColor('muted', 0.3, 'dark')  : 'rgba(0,0,0,0.15)',
+            axisTrans: isDark ? EAIColor('blue', 0.6, 'dark')  : EAIColor('blue', 0.45),
+            e1:        isDark ? EAIColor('red', 'dark') : EAIColor('red', 'light'),
+            e2:        isDark ? EAIColor('blue', 'dark') : EAIColor('blue', 'light'),
+            circle:    isDark ? EAIColor('gold', 'dark') : EAIColor('gold-strong', 'light'),
+            circleRef: isDark ? EAIColor('gold', 0.2, 'dark') : EAIColor('gold-strong', 0.15),
+            eigen:     isDark ? EAIColor('purple', 'dark') : EAIColor('purple', 'light'),
+            data:      isDark ? EAIColor('green', 'dark') : EAIColor('green', 'light'),
+            dataGhost: isDark ? EAIColor('green', 0.3, 'dark') : EAIColor('green', 0.25),
+            dataLine:  isDark ? EAIColor('green', 0.4, 'dark') : EAIColor('green', 0.3),
+            origin:    isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light'),
+            text:      isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light')
         };
     }
 

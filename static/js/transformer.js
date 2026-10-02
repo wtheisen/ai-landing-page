@@ -237,8 +237,8 @@
     }
 
     // Head color palettes
-    var HEAD_COLORS_LIGHT = ['#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2','#7f7f7f'];
-    var HEAD_COLORS_DARK  = ['#83a598','#fe8019','#b8bb26','#fb4934','#d3869b','#8ec07c','#fabd2f','#a89984'];
+    var HEAD_COLORS_LIGHT = [EAIColor('class-1', 'light'),EAIColor('class-4', 'light'),EAIColor('class-2', 'light'),EAIColor('class-0', 'light'),EAIColor('class-3', 'light'),EAIColor('class-6', 'light'),EAIColor('class-7', 'light'),EAIColor('class-8', 'light')];
+    var HEAD_COLORS_DARK  = [EAIColor('class-1', 'dark'),EAIColor('class-4', 'dark'),EAIColor('class-2', 'dark'),EAIColor('class-0', 'dark'),EAIColor('class-3', 'dark'),EAIColor('class-9', 'dark'),EAIColor('class-5', 'dark'),EAIColor('class-6', 'dark')];
 
     function getHeadColors() {
         var theme = document.documentElement.getAttribute('data-theme');
@@ -1035,7 +1035,7 @@
                             .attr('dominant-baseline', 'central')
                             .attr('font-family', MONO)
                             .attr('font-size', Math.min(8, cellSize * 0.33))
-                            .attr('fill', w > 0.5 ? '#fff' : C.text)
+                            .attr('fill', w > 0.5 ? EAIColor('surface') : C.text)
                             .text(w.toFixed(2));
                     }
                     cellG.append('title').text('"' + rowWord + '" \u2192 "' + colWord + '": ' + w.toFixed(4));
@@ -1603,7 +1603,7 @@
                     .attr('y', sqY + concatDotSize / 2)
                     .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
                     .attr('font-family', MONO).attr('font-size', 7).attr('font-weight', 700)
-                    .attr('fill', '#fff')
+                    .attr('fill', EAIColor('surface'))
                     .text(h);
             }
 
@@ -2230,7 +2230,7 @@
             .attr('x', vbW / 2).attr('y', vbH / 2)
             .attr('text-anchor', 'middle').attr('dominant-baseline', 'central')
             .attr('font-family', MONO).attr('font-size', 14).attr('font-weight', 700)
-            .attr('fill', '#ffffff')
+            .attr('fill', EAIColor('surface'))
             .text('Loading real data\u2026');
 
         var url = 'static/data/attention/' + filename;

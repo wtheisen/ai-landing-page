@@ -4,25 +4,25 @@
  */
 
 :root {
-    --bp-input-node: var(--viz-class-1, #377eb8);
-    --bp-hidden-node: var(--viz-class-2, #4daf4a);
-    --bp-output-node: var(--viz-class-0, #e41a1c);
-    --bp-edge-positive: rgba(55, 126, 184, 0.78);
-    --bp-edge-negative: rgba(228, 26, 28, 0.78);
+    --bp-input-node: var(--viz-class-1, var(--book-blue));
+    --bp-hidden-node: var(--viz-class-2, var(--book-green));
+    --bp-output-node: var(--viz-class-0, var(--book-red));
+    --bp-edge-positive: rgba(var(--book-blue-rgb), 0.78);
+    --bp-edge-negative: rgba(var(--book-red-rgb), 0.78);
     --bp-edge-neutral: rgba(108, 117, 125, 0.38);
-    --bp-gradient-warm: #d95f02;
-    --bp-gradient-cool: #377eb8;
-    --bp-gradient-flow: #d95f02;
-    --bp-forward-highlight: rgba(0, 123, 255, 0.2);
-    --bp-backward-highlight: rgba(255, 152, 0, 0.24);
+    --bp-gradient-warm: var(--book-gold-strong);
+    --bp-gradient-cool: var(--book-blue);
+    --bp-gradient-flow: var(--book-gold-strong);
+    --bp-forward-highlight: rgba(var(--book-blue-rgb), 0.2);
+    --bp-backward-highlight: rgba(var(--book-gold-strong-rgb), 0.24);
     --bp-layer-bg: rgba(0, 0, 0, 0.025);
     --bp-layer-border: rgba(0, 0, 0, 0.08);
-    --bp-selected-bg: rgba(0, 123, 255, 0.08);
-    --bp-selected-border: #007bff;
-    --bp-loss-line: #e41a1c;
-    --bp-loss-fill: rgba(228, 26, 28, 0.1);
+    --bp-selected-bg: rgba(var(--book-blue-rgb), 0.08);
+    --bp-selected-border: var(--book-blue);
+    --bp-loss-line: var(--book-red);
+    --bp-loss-fill: rgba(var(--book-red-rgb), 0.1);
     --bp-loss-grid: rgba(0, 0, 0, 0.08);
-    --bp-node-text: #ffffff;
+    --bp-node-text: var(--book-surface);
 }
 
 [data-theme="gruvbox-dark"] {

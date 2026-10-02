@@ -249,18 +249,18 @@
             // Clear
             if (window.VizLib) {
                 VizLib.resetCanvasTransform(ctx, dpr);
-                const bg = isDark ? '#1d2021' : '#fafafa';
+                const bg = isDark ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light');
                 VizLib.clearCanvas(ctx, CANVAS_WIDTH, CANVAS_HEIGHT, bg);
             } else {
                 ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
             }
 
-            const textColor = isDark ? '#ebdbb2' : '#333333';
-            const mutedColor = isDark ? '#a89984' : '#6c757d';
-            const spamColor = isDark ? '#fb4934' : '#dc3545';
-            const hamColor = isDark ? '#b8bb26' : '#28a745';
-            const trackColor = isDark ? '#3c3836' : '#e9ecef';
-            const arrowColor = isDark ? '#a89984' : '#999';
+            const textColor = isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light');
+            const mutedColor = isDark ? EAIColor('muted', 'dark') : EAIColor('muted', 'light');
+            const spamColor = isDark ? EAIColor('red', 'dark') : EAIColor('red', 'light');
+            const hamColor = isDark ? EAIColor('green', 'dark') : EAIColor('green', 'light');
+            const trackColor = isDark ? EAIColor('sunken', 'dark') : EAIColor('sunken', 'light');
+            const arrowColor = isDark ? EAIColor('muted', 'dark') : EAIColor('axis', 'light');
 
             const barHeight = 18;
             const sectionWidth = (CANVAS_WIDTH - 80) / 2; // space for arrow
@@ -1239,19 +1239,19 @@
     function getGnbColors() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'gruvbox-dark';
         const classColors = isDark
-            ? ['#83a598', '#fb4934', '#b8bb26', '#fe8019', '#8ec07c']
-            : ['#3b82f6', '#ef4444', '#22c55e', '#f59e0b', '#06b6d4'];
+            ? [EAIColor('class-1', 'dark'), EAIColor('class-0', 'dark'), EAIColor('class-2', 'dark'), EAIColor('class-4', 'dark'), EAIColor('class-9', 'dark')]
+            : [EAIColor('class-1', 'light'), EAIColor('class-0', 'light'), EAIColor('class-2', 'light'), EAIColor('class-4', 'light'), EAIColor('class-9', 'light')];
         return {
             isDark,
-            bg: isDark ? '#1d2021' : '#fafafa',
-            text: isDark ? '#ebdbb2' : '#333333',
-            muted: isDark ? '#a89984' : '#999999',
-            grid: isDark ? '#3c3836' : '#e9ecef',
+            bg: isDark ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light'),
+            text: isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light'),
+            muted: isDark ? EAIColor('muted', 'dark') : EAIColor('axis', 'light'),
+            grid: isDark ? EAIColor('sunken', 'dark') : EAIColor('sunken', 'light'),
             class0: classColors[0],
             class1: classColors[1],
-            testPt: isDark ? '#d3869b' : '#a855f7',
-            class0Light: isDark ? 'rgba(131,165,152,0.3)' : 'rgba(59,130,246,0.3)',
-            class1Light: isDark ? 'rgba(251,73,52,0.3)' : 'rgba(239,68,68,0.3)',
+            testPt: isDark ? EAIColor('purple', 'dark') : EAIColor('purple-mid', 'light'),
+            class0Light: isDark ? EAIColor('blue', 0.3, 'dark') : EAIColor('blue-mid', 0.3),
+            class1Light: isDark ? EAIColor('red', 0.3, 'dark') : EAIColor('red-mid', 0.3),
             classColors,
         };
     }
@@ -1752,7 +1752,7 @@
     function drawTestPointMarker(ctx, cx, cy, color) {
         // Circle background — solid light purple
         const isDark = document.documentElement.getAttribute('data-theme') === 'gruvbox-dark';
-        ctx.fillStyle = isDark ? '#4a3050' : '#e9d5ff';
+        ctx.fillStyle = isDark ? EAIColor('purple') : EAIColor('purple-fill');
         ctx.beginPath();
         ctx.arc(cx, cy, 8, 0, Math.PI * 2);
         ctx.fill();
@@ -1773,7 +1773,7 @@
     /** Draw a small purple question mark on distribution curves */
     function drawSmallTestMarker(ctx, cx, cy, color) {
         const isDark = document.documentElement.getAttribute('data-theme') === 'gruvbox-dark';
-        ctx.fillStyle = isDark ? '#4a3050' : '#e9d5ff';
+        ctx.fillStyle = isDark ? EAIColor('purple') : EAIColor('purple-fill');
         ctx.beginPath();
         ctx.arc(cx, cy, 5, 0, Math.PI * 2);
         ctx.fill();

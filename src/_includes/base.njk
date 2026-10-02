@@ -69,6 +69,41 @@
 	</script>
 	{% endif %}
 
+	<!-- Shared colours for canvas code. EAIColor('blue') gives the shared palette's colour (static/css/visualizations.css,
+	     --book-* and --viz-class-N as 'class-N') for the current theme; EAIColor('blue', 0.3) gives it as rgba with that
+	     opacity; a third argument 'light' or 'dark' fixes the theme regardless of the toggle. -->
+	<script>
+	(function() {
+	    var cache = {}, probes = {};
+	    function probe(theme) {
+	        if (!probes[theme]) {
+	            var el = document.createElement('i');
+	            el.setAttribute('data-theme', theme === 'dark' ? 'gruvbox-dark' : 'bluegold');
+	            el.hidden = true; document.documentElement.appendChild(el); probes[theme] = el;
+	        }
+	        return probes[theme];
+	    }
+	    function rgb(v) {
+	        var m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(v);
+	        if (m) { var h = m[1]; if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]; return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; }
+	        m = /rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)/.exec(v);
+	        return m ? [+m[1], +m[2], +m[3]] : [128, 128, 128];
+	    }
+	    window.EAIColor = function(name, alpha, theme) {
+	        if (typeof alpha === 'string') { theme = alpha; alpha = undefined; }
+	        var t = theme || (document.documentElement.getAttribute('data-theme') === 'gruvbox-dark' ? 'dark' : 'light');
+	        var key = t + ':' + name, v = cache[key];
+	        if (v === undefined) {
+	            var prop = /^class-\d+$/.test(name) ? '--viz-' + name : '--book-' + name;
+	            v = getComputedStyle(probe(t)).getPropertyValue(prop).trim();
+	            if (v) cache[key] = v; else v = '#808080';
+	        }
+	        if (alpha === undefined || alpha === null) return v;
+	        var c = rgb(v); return 'rgba(' + c[0] + ', ' + c[1] + ', ' + c[2] + ', ' + alpha + ')';
+	    };
+	})();
+	</script>
+
 	<!-- Embed mode: ?embed=1 drops the site header and footer so a page can sit in a frame (the AI2AI book does this);
 	     ?embed=viz also drops the right-hand info column; ?embed=fig leaves only the main canvas, as a figure.
 	     The page reports its height to the parent so the frame can fit it.

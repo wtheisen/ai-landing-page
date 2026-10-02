@@ -399,7 +399,7 @@
             this.canvas = document.getElementById('perceptron-canvas');
             this.ctx = this.canvas?.getContext('2d');
             this.displayScale = 1;
-            this.classColors = ['#e41a1c', '#377eb8'];
+            this.classColors = [EAIColor('red'), EAIColor('blue')];
             this._updateColors();
             this._setupHiDPI();
         }
@@ -601,7 +601,7 @@
                     {x:nx*t,y:ny*t},
                     {x:nx*(t+state.bias/magnitude),y:ny*(t+state.bias/magnitude)}
                 ];
-                const colors=['#c45145','#397fba','#9563c6'];
+                const colors=[EAIColor('class-0'),EAIColor('class-1'),EAIColor('class-3')];
                 stops.slice(0,3).forEach((point,i)=>{
                     const a=project(point.x,point.y),b=project(stops[i+1].x,stops[i+1].y);
                     line(a,b,colors[i],3);
@@ -689,7 +689,7 @@
                 clipped.forEach((a,i)=>{const p=project(...a);if(i)ctx.lineTo(p.x,p.y);else ctx.moveTo(p.x,p.y);});
                 ctx.closePath();ctx.fill();ctx.restore();for(let i=0;i<corners.length;i++){
                     const a=corners[i],b=corners[(i+1)%corners.length];
-                    if(this.cameraPreset!=='top'&&this.cameraPreset!=='side'&&(i===0||i===3))line([...a,score(...a)],[...b,score(...b)],'#b9c0c9',1);
+                    if(this.cameraPreset!=='top'&&this.cameraPreset!=='side'&&(i===0||i===3))line([...a,score(...a)],[...b,score(...b)],EAIColor('grid'),1);
                 }
             const normalLength=Math.hypot(wx,wy);
             if(normalLength>1e-8){
@@ -697,7 +697,7 @@
                 const offset=score(5,5)/normalLength;
                 const cx=5-nx*offset,cy=5-ny*offset;
                 line([cx-ny*radius*2,cy+nx*radius*2,0],
-                     [cx+ny*radius*2,cy-nx*radius*2,0],'#98a3ae',1.5);
+                     [cx+ny*radius*2,cy-nx*radius*2,0],EAIColor('axis'),1.5);
             }}
 
             // The feature-weight vector lies in z=0, normal to the decision line.
@@ -716,7 +716,7 @@
                     c=[anchor[0]+v[0],anchor[1]+v[1],0];
                 line(a,b,this.vectorColor,1.2);line(b,c,this.vectorColor,1.2);
             }
-            for(const [a,b,name] of [[[lo,0,0],[hi+1,0,0],'x₁'],[[0,lo,0],[0,hi+1,0],'x₂'],[[0,0,-extent/Math.min(1,camera.zoom)],[0,0,extent*1.1/Math.min(1,camera.zoom)],'z']]){if(name==='z'&&this.cameraPreset==='top')continue;line(a,b,'#65717e',1.6,[],true);if(name==='x₁')label([11,0,0],name);if(name==='x₂')label([0,11,0],name);if(name==='z')label(b,'z');}
+            for(const [a,b,name] of [[[lo,0,0],[hi+1,0,0],'x₁'],[[0,lo,0],[0,hi+1,0],'x₂'],[[0,0,-extent/Math.min(1,camera.zoom)],[0,0,extent*1.1/Math.min(1,camera.zoom)],'z']]){if(name==='z'&&this.cameraPreset==='top')continue;line(a,b,EAIColor('muted'),1.6,[],true);if(name==='x₁')label([11,0,0],name);if(name==='x₂')label([0,11,0],name);if(name==='z')label(b,'z');}
             // Edge heights encode each slope; the intercept translates the plane.
             const positions=[[handleInset,0,score(handleInset,0)],[0,handleInset,score(0,handleInset)],[0,0,bias]];
             this.weightHandles=positions.map((a,i)=>{
@@ -732,7 +732,7 @@
                 }
                 return {i,p,dx:q.x-p.x,dy:q.y-p.y,extent};
             });
-            if(this.cameraPreset!=='top')line([0,0,0],[0,0,bias],'#65717e',1.6);
+            if(this.cameraPreset!=='top')line([0,0,0],[0,0,bias],EAIColor('muted'),1.6);
             state.points.forEach(p=>{
                 const selected=p===state.currentPoint,q=project(p.x,p.y,0);
                 if(q.depth<2)return;
@@ -743,13 +743,13 @@
                 ctx.stroke();
             });
             // The z-axis is also the one-dimensional score ruler.
-            if(this.cameraPreset!=='top')line([0,0,-extent],[0,0,extent],'#65717e',1.6);
+            if(this.cameraPreset!=='top')line([0,0,-extent],[0,0,extent],EAIColor('muted'),1.6);
 
             // Walk from the input to the score axis, accumulating each contribution.
             if(state.currentPoint){
                 const p=state.currentPoint,base=[p.x,p.y,0],first=[0,p.y,wx*p.x],second=[0,0,wx*p.x+wy*p.y],last=[0,0,score(p.x,p.y)];
                 const color1=this.classColors[0],color2=this.classColors[1];
-                if(this.showPointProjection){ctx.save();ctx.globalAlpha=.3;line(base,last,'#9563c6',2,[],true);ctx.restore();}
+                if(this.showPointProjection){ctx.save();ctx.globalAlpha=.3;line(base,last,EAIColor('purple-mid'),2,[],true);ctx.restore();}
                 if(this.showPointComponents){line(base,first,color1,2.5,[],true);
                 line(first,second,color2,2.5,[],true);
                 line(second,last,this.vectorColor,2.5,[],true);}
@@ -782,14 +782,14 @@
                 const zero=project(0,0,0),top=0,bottom=CANVAS_HEIGHT;
                 ctx.save();ctx.beginPath();ctx.rect(0,top,CANVAS_WIDTH,bottom-top);ctx.clip();
                 ctx.globalAlpha=sideBlend*.65;ctx.fillStyle=getComputedStyle(this.canvas).backgroundColor;
-                if(ctx.fillStyle==='rgba(0, 0, 0, 0)')ctx.fillStyle='#fff';
+                if(ctx.fillStyle==='rgba(0, 0, 0, 0)')ctx.fillStyle=EAIColor('surface');
                 ctx.fillRect(0,top,CANVAS_WIDTH,bottom-top);
                 ctx.globalAlpha=sideBlend*.09;
                 ctx.fillStyle=this.classColors[1];ctx.fillRect(zero.x,top,CANVAS_WIDTH-zero.x,bottom-top);
                 ctx.fillStyle=this.classColors[0];ctx.fillRect(0,top,zero.x,bottom-top);
                 ctx.globalAlpha=sideBlend;
-                line([0,0,-extent*2],[0,0,extent*2],'#65717e',1.6);
-                ctx.strokeStyle='#65717e';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(zero.x,top);ctx.lineTo(zero.x,bottom);ctx.stroke();
+                line([0,0,-extent*2],[0,0,extent*2],EAIColor('muted'),1.6);
+                ctx.strokeStyle=EAIColor('muted');ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(zero.x,top);ctx.lineTo(zero.x,bottom);ctx.stroke();
                 ctx.fillStyle=this.textColor;ctx.font='12px sans-serif';ctx.fillText('z',CANVAS_WIDTH-25,zero.y-10);ctx.fillText('0',zero.x+8,zero.y+18);
                 ctx.restore();
                 if(this.cameraPreset==='side'){this.project3d=(x,y)=>project(0,0,score(x,y));}
@@ -831,24 +831,24 @@
             for(let i=0;i<8;i++)for(let j=i+1;j<8;j++){const a=vertices[i],b=vertices[j];if(a.filter((v,k)=>v!==b[k]).length!==1)continue;const sa=score(a),sb=score(b);if(Math.abs(sa)<1e-9)hits.push(a);if(Math.abs(sb)<1e-9)hits.push(b);if(sa*sb<0){const t=sa/(sa-sb);hits.push(a.map((v,k)=>v+t*(b[k]-v)))}}
             const plane=hits.filter((p,i)=>hits.findIndex(q=>Math.hypot(...p.map((v,k)=>v-q[k]))<1e-7)===i);
             if(state.showBoundary&&mag>1e-8&&plane.length>=3){const center=plane.reduce((a,p)=>a.map((v,k)=>v+p[k]/plane.length),[0,0,0]),u=plane[0].map((v,k)=>v-center[k]),v=[w[1]*u[2]-w[2]*u[1],w[2]*u[0]-w[0]*u[2],w[0]*u[1]-w[1]*u[0]],ul=Math.hypot(...u),vl=Math.hypot(...v);const theta=p=>Math.atan2(p.reduce((s,a,k)=>s+(a-center[k])*v[k]/vl,0),p.reduce((s,a,k)=>s+(a-center[k])*u[k]/ul,0));plane.sort((a,b)=>theta(a)-theta(b));polygon(plane,this.vectorColor,.075);}
-            polygon([[0,0,1],[10,0,1],[10,10,1],[0,10,1]],'#9260bb',.05);
+            polygon([[0,0,1],[10,0,1],[10,10,1],[0,10,1]],EAIColor('purple-mid'),.05);
             for(let i=0;i<=10;i+=2){line([i,0,1],[i,10,1],this.gridColor);line([0,i,1],[10,i,1],this.gridColor)}
             for(const [a,b] of [[[0,0,5],[10,0,5]],[[0,0,5],[0,10,5]],[[10,0,5],[10,10,5]],[[0,10,5],[10,10,5]],[[10,0,0],[10,0,5]],[[0,10,0],[0,10,5]]])line(a,b,this.gridColor,1,[3,3]);
             const crossings=[];for(const [a,b] of [[[0,0],[10,0]],[[10,0],[10,10]],[[10,10],[0,10]],[[0,10],[0,0]]]){const sa=score([...a,1]),sb=score([...b,1]);if(Math.abs(sa)<1e-9)crossings.push([...a,1]);if(sa*sb<0){const t=sa/(sa-sb);crossings.push([a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1]),1])}}
             if(state.showBoundary&&crossings.length>=2)line(crossings[0],crossings[1],this.boundaryColor,2);
-            state.points.forEach(p=>{const pos=[p.x,p.y,1],selected=p===state.currentPoint;dot(pos,this.classColors[p.classLabel],selected?6:4);if((score(pos)>=0?1:0)!==p.classLabel){const q=project(...pos);ctx.beginPath();ctx.arc(q.x,q.y,selected?9:6,0,Math.PI*2);ctx.strokeStyle='#d24b47';ctx.lineWidth=1;ctx.stroke();}});
-            for(const [end,name] of [[[11,0,0],'x₁'],[[0,11,0],'x₂'],[[0,0,5.7],'x₀']]){line([0,0,0],end,'#3977c2',1.25,[],true);label(end,name,'#3977c2')}
+            state.points.forEach(p=>{const pos=[p.x,p.y,1],selected=p===state.currentPoint;dot(pos,this.classColors[p.classLabel],selected?6:4);if((score(pos)>=0?1:0)!==p.classLabel){const q=project(...pos);ctx.beginPath();ctx.arc(q.x,q.y,selected?9:6,0,Math.PI*2);ctx.strokeStyle=EAIColor('red');ctx.lineWidth=1;ctx.stroke();}});
+            for(const [end,name] of [[[11,0,0],'x₁'],[[0,11,0],'x₂'],[[0,0,5.7],'x₀']]){line([0,0,0],end,EAIColor('blue'),1.25,[],true);label(end,name,EAIColor('blue'))}
             const weightOrigin=[10.8,10.8,0],weightScale=this.weightDragScale??4/Math.max(4,...w.map(Math.abs));
             const onAxis=(i,value)=>weightOrigin.map((v,k)=>v+(i===k?value*weightScale:0));
             const axisNames=['w₁','w₂','w₀'],weightMarkers=[];this.weightHandles=[];
             for(let i=0;i<3;i++){
                 const reach=Math.max(4/weightScale,Math.abs(w[i])+1/weightScale);
                 const a=onAxis(i,-reach),b=onAxis(i,reach);
-                line(a,b,'#3977c2',1.25,[],true);
+                line(a,b,EAIColor('blue'),1.25,[],true);
                 const point=onAxis(i,w[i]);dot(point,this.vectorColor,3);weightMarkers.push({point,i});const hp=project(...point),hq=project(...onAxis(i,w[i]+1));this.weightHandles.push({i,p:hp,dx:hq.x-hp.x,dy:hq.y-hp.y,scale:weightScale});
             }
-            dot(weightOrigin,'#3977c2',2);label(weightOrigin,'0',this.textColor,6,14);
-            dot([0,0,1],'#9260bb',3);label([0,0,1],'1','#9260bb',-14,3);
+            dot(weightOrigin,EAIColor('blue'),2);label(weightOrigin,'0',this.textColor,6,14);
+            dot([0,0,1],EAIColor('purple-mid'),3);label([0,0,1],'1',EAIColor('purple-mid'),-14,3);
             if(state.showVector&&mag>1e-8){const normal=w.map(a=>a/mag*2.5),tip=w.map((a,i)=>weightOrigin[i]+a*weightScale);line(weightOrigin,tip,this.vectorColor,1.5,[],true);}
             ctx.restore();
             // Keep value labels in a stable rail, away from the crowded weight origin.

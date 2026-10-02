@@ -12,14 +12,14 @@
 
     // Group color palette
     var groupColors = {
-        'Foundations':    { light: '#4e73df', dark: '#83a598' },
-        'Neural Networks':{ light: '#e74a3b', dark: '#fb4934' },
-        'NLP':           { light: '#1cc88a', dark: '#b8bb26' },
-        'Vision':        { light: '#f6c23e', dark: '#fabd2f' },
-        'Generative AI': { light: '#6f42c1', dark: '#d3869b' },
-        'Applied':       { light: '#36b9cc', dark: '#8ec07c' }
+        'Foundations':    { light: EAIColor('blue-mid'), dark: EAIColor('blue', 'dark') },
+        'Neural Networks':{ light: EAIColor('red'), dark: EAIColor('red', 'dark') },
+        'NLP':           { light: EAIColor('green'), dark: EAIColor('green', 'dark') },
+        'Vision':        { light: EAIColor('gold-mid'), dark: EAIColor('gold', 'dark') },
+        'Generative AI': { light: EAIColor('purple'), dark: EAIColor('purple', 'dark') },
+        'Applied':       { light: EAIColor('blue-mid'), dark: EAIColor('green-mid', 'dark') }
     };
-    var defaultColor = { light: '#858796', dark: '#a89984' };
+    var defaultColor = { light: EAIColor('axis'), dark: EAIColor('muted', 'dark') };
 
     function getColor(group) {
         var colors = groupColors[group] || defaultColor;
@@ -87,7 +87,7 @@
     nodeEls.append('circle')
         .attr('r', function(d) { return nodeRadius(d); })
         .attr('fill', function(d) { return getColor(d.group); })
-        .attr('stroke', '#fff')
+        .attr('stroke', EAIColor('surface'))
         .attr('stroke-width', 1.5);
 
     nodeEls.append('text')

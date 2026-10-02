@@ -6,24 +6,24 @@
    Custom Properties
    ============================================ */
 :root {
-    --reg-l1-color: #e41a1c;
+    --reg-l1-color: var(--book-red);
     --reg-constraint-color: var(--reg-l1-color);
-    --reg-l2-color: #377eb8;
-    --reg-elastic-color: #984ea3;
-    --reg-none-color: #6c757d;
-    --reg-loss-color: #4daf4a;
-    --reg-optimal-color: #aa8bc9;
-    --reg-path-color: rgba(255, 127, 0, 0.7);
-    --reg-contour-color: rgba(77, 175, 74, 0.35);
-    --reg-constraint-fill: rgba(55, 126, 184, 0.08);
-    --reg-surface-warm: #b2182b;
-    --reg-surface-cool: #2166ac;
-    --reg-surface-mid: #f7f7f7;
-    --reg-surface-high: #e8eff5;
+    --reg-l2-color: var(--book-blue);
+    --reg-elastic-color: var(--book-purple);
+    --reg-none-color: var(--book-muted);
+    --reg-loss-color: var(--book-green);
+    --reg-optimal-color: var(--book-purple-mid);
+    --reg-path-color: rgba(var(--book-gold-strong-rgb), 0.7);
+    --reg-contour-color: rgba(var(--book-green-rgb), 0.35);
+    --reg-constraint-fill: rgba(var(--book-blue-rgb), 0.08);
+    --reg-surface-warm: var(--book-red);
+    --reg-surface-cool: var(--book-blue);
+    --reg-surface-mid: var(--book-sunken);
+    --reg-surface-high: var(--book-blue-fill);
     --reg-grid-line: rgba(0, 0, 0, 0.08);
-    --reg-axis-color: #333333;
+    --reg-axis-color: var(--book-ink-soft);
     --reg-zero-marker: rgba(0, 0, 0, 0.15);
-    --reg-gd-color: #1a6dd4;
+    --reg-gd-color: var(--book-blue);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -58,25 +58,25 @@
 .reg-type-toggle .btn.active[data-reg="none"] {
     background: var(--reg-none-color);
     border-color: var(--reg-none-color);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 .reg-type-toggle .btn.active[data-reg="l1"] {
     background: var(--reg-l1-color);
     border-color: var(--reg-l1-color);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 .reg-type-toggle .btn.active[data-reg="l2"] {
     background: var(--reg-l2-color);
     border-color: var(--reg-l2-color);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 .reg-type-toggle .btn.active[data-reg="elastic"] {
     background: var(--reg-elastic-color);
     border-color: var(--reg-elastic-color);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 /* ============================================
@@ -91,7 +91,7 @@
 .reg-view-toggle .btn.active {
     background: var(--viz-text-muted);
     border-color: var(--viz-text-muted);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 /* ============================================
@@ -375,7 +375,7 @@
 #reg-3d-canvas:focus-visible { outline: 2px solid var(--reg-l2-color); outline-offset: -2px; }
 
 /* Surface identity remains stable when the penalty formula changes. */
-:root { --reg-model-loss: #709fc5; --reg-model-penalty: #d87979; }
+:root { --reg-model-loss: var(--book-blue-mid); --reg-model-penalty: var(--book-red-mid); }
 [data-theme="gruvbox-dark"] { --reg-model-loss: #9bbddd; --reg-model-penalty: #efa09a; }
 .reg-scene { border: 1px solid var(--viz-border); border-radius: 8px; margin-top: .8rem; }
 .reg-weight-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; }
@@ -411,7 +411,7 @@
 #reg-data-canvas { touch-action: none; display: block; width: 100%; cursor: crosshair; border: 1px solid var(--viz-border); border-radius: 6px; }
 .reg-bias-option { font-size: 12px; font-weight: normal; margin: 8px 0 0; }
 
-:root { --reg-selected-color: #cf9e50; }
+:root { --reg-selected-color: var(--book-gold-strong); }
 [data-theme="gruvbox-dark"] { --reg-selected-color: #e6bb74; }
 #reg-weight-controls[hidden] { display: none; }
 #reg-weight-controls span { font-size: .85em; }
@@ -506,7 +506,7 @@
     .reg-experiment-controls .reg-primary-control label { grid-column: 1 / -1; }
 }
 
-:root { --reg-reference-color: #b5bbc2; }
+:root { --reg-reference-color: var(--book-axis); }
 [data-theme="gruvbox-dark"] { --reg-reference-color: #91979f; }
 #reg-model-budget-key i { width: 14px; height: 14px; margin: 0 2.5px; border-radius: 50%; background: transparent; }
 #reg-model-budget-key.reg-legend-diamond i { width: 12px; height: 12px; margin: 0 3.5px; border-radius: 0; transform: rotate(45deg); }
@@ -521,7 +521,7 @@
 .reg-viewport-toolbar { position: absolute; z-index: 3; top: 10px; left: 10px; right: 10px; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; pointer-events: none; }
 .reg-viewport-toolbar > * { pointer-events: auto; }
 .reg-viewport-toolbar .btn { background: var(--viz-canvas-bg); }
-.reg-viewport-toolbar .btn.active, .reg-viewport-toolbar .btn.active:hover, .reg-viewport-toolbar .btn.active:focus { background: var(--reg-l2-color); color: #fff; text-shadow: none; border-color: var(--reg-l2-color); }
+.reg-viewport-toolbar .btn.active, .reg-viewport-toolbar .btn.active:hover, .reg-viewport-toolbar .btn.active:focus { background: var(--reg-l2-color); color: var(--book-surface); text-shadow: none; border-color: var(--reg-l2-color); }
 
 .reg-inline-controls { margin-top: 14px; }
 .reg-inline-controls > .panel-body { padding: 0; }

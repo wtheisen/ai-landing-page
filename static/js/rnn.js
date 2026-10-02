@@ -1094,9 +1094,9 @@
         // Marker definitions for arrowheads
         var defs = document.createElementNS(svgNS, 'defs');
         var colors = {
-            green: { cls: 'rnn-arrow-green', varName: '--rnn-embed-color', fallback: '#28a745' },
-            red: { cls: 'rnn-arrow-red', varName: '--rnn-output-color', fallback: '#dc3545' },
-            yellow: { cls: 'rnn-arrow-yellow', varName: '--rnn-embed-vector-border', fallback: '#e6a817' }
+            green: { cls: 'rnn-arrow-green', varName: '--rnn-embed-color', fallback: EAIColor('green') },
+            red: { cls: 'rnn-arrow-red', varName: '--rnn-output-color', fallback: EAIColor('red') },
+            yellow: { cls: 'rnn-arrow-yellow', varName: '--rnn-embed-vector-border', fallback: EAIColor('gold') }
         };
 
         // Resolve CSS custom property colors

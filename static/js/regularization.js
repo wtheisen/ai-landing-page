@@ -627,7 +627,7 @@
         ctxContour.arc(toScreenX(state.cx), toScreenY(state.cy), 4, 0, Math.PI * 2);
         ctxContour.fillStyle = colors.loss;
         ctxContour.fill();
-        ctxContour.strokeStyle = '#fff';
+        ctxContour.strokeStyle = EAIColor('surface');
         ctxContour.lineWidth = 1.5;
         ctxContour.stroke();
 
@@ -647,7 +647,7 @@
             ctxContour.closePath();
             ctxContour.fillStyle = colors.optimal;
             ctxContour.fill();
-            ctxContour.strokeStyle = '#fff';
+            ctxContour.strokeStyle = EAIColor('surface');
             ctxContour.lineWidth = 1.5;
             ctxContour.stroke();
 
@@ -694,7 +694,7 @@
             ctxContour.arc(toScreenX(gcur.w1), toScreenY(gcur.w2), 5, 0, Math.PI * 2);
             ctxContour.fillStyle = colors.gd;
             ctxContour.fill();
-            ctxContour.strokeStyle = '#fff';
+            ctxContour.strokeStyle = EAIColor('surface');
             ctxContour.lineWidth = 1.5;
             ctxContour.stroke();
         }

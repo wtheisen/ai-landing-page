@@ -3,11 +3,11 @@
  */
 
 :root {
-    --logreg-boundary-color: #333;
-    --logreg-prob-low: rgba(228, 26, 28, 0.25);
-    --logreg-prob-high: rgba(55, 126, 184, 0.25);
-    --logreg-sigmoid-color: #e41a1c;
-    --logreg-sigmoid-marker: #ff9800;
+    --logreg-boundary-color: var(--book-ink-soft);
+    --logreg-prob-low: rgba(var(--book-red-rgb), 0.25);
+    --logreg-prob-high: rgba(var(--book-blue-rgb), 0.25);
+    --logreg-sigmoid-color: var(--book-red);
+    --logreg-sigmoid-marker: var(--book-gold-strong);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -89,8 +89,8 @@
 @media(max-width:600px) { .logreg-geometry-toolbar { gap:6px; } .logreg-geometry-toolbar .btn { padding:5px 8px; } }
 #edit-toolbar .class-selector .btn { min-width:30px; height:30px; padding:6px 9px; }
 #edit-toolbar .class-dot { display:inline-block; width:10px; height:10px; border-radius:50%; vertical-align:middle; }
-#edit-toolbar .class-dot.class-0 { background:var(--viz-class-0,#e41a1c); }
-#edit-toolbar .class-dot.class-1 { background:var(--viz-class-1,#377eb8); }
+#edit-toolbar .class-dot.class-0 { background:var(--viz-class-0,var(--book-red)); }
+#edit-toolbar .class-dot.class-1 { background:var(--viz-class-1,var(--book-blue)); }
 .logreg-geometry-caption .logreg-weight-controls { margin:0 0 10px; }
 .logreg-weight-controls > div { flex:1; min-width:0; }
 .logreg-weight-controls > div > label { display:block; margin:0; }

@@ -7,18 +7,18 @@
    CSS Custom Properties
    ============================================ */
 :root {
-    --rl-agent-color: #2196F3;
-    --rl-goal-color: #4CAF50;
-    --rl-wall-color: #424242;
-    --rl-pit-color: #F44336;
-    --rl-path-color: rgba(33, 150, 243, 0.3);
-    --rl-arrow-color: #333;
-    --rl-q-positive: #4CAF50;
-    --rl-q-negative: #F44336;
-    --rl-grid-border: #ccc;
-    --rl-cell-bg: #ffffff;
-    --rl-input-bg: #fff;
-    --rl-input-border: #ccc;
+    --rl-agent-color: var(--book-blue);
+    --rl-goal-color: var(--book-green);
+    --rl-wall-color: var(--book-ink-soft);
+    --rl-pit-color: var(--book-red-mid);
+    --rl-path-color: rgba(var(--book-blue-rgb), 0.3);
+    --rl-arrow-color: var(--book-ink-soft);
+    --rl-q-positive: var(--book-green);
+    --rl-q-negative: var(--book-red-mid);
+    --rl-grid-border: var(--book-grid);
+    --rl-cell-bg: var(--book-surface);
+    --rl-input-bg: var(--book-surface);
+    --rl-input-border: var(--book-grid);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -210,12 +210,12 @@
 }
 
 .qtable-cell.goal-cell {
-    background-color: rgba(76, 175, 80, 0.2);
+    background-color: rgba(var(--book-green-rgb), 0.2);
     border: 1px solid var(--rl-goal-color);
 }
 
 .qtable-cell.pit-cell {
-    background-color: rgba(244, 67, 54, 0.2);
+    background-color: rgba(var(--book-red-mid-rgb), 0.2);
     border: 1px solid var(--rl-pit-color);
 }
 

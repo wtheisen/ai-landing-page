@@ -11,33 +11,33 @@
     /* Grid colors - map to shared */
     --astar-bg: var(--viz-bg);
     --astar-border: var(--viz-border);
-    --astar-cell-bg: #ffffff;
+    --astar-cell-bg: var(--book-surface);
     --astar-text: var(--viz-text);
     --astar-domain-text: var(--viz-text-muted);
     --astar-hover-bg: var(--viz-hover-bg);
 
     /* Cell state colors */
-    --astar-start-bg: #28a745;
-    --astar-start-border: #1e7e34;
-    --astar-goal-bg: #dc3545;
-    --astar-goal-border: #bd2130;
-    --astar-wall-bg: #343a40;
-    --astar-wall-border: #1d2124;
+    --astar-start-bg: var(--book-green);
+    --astar-start-border: var(--book-green);
+    --astar-goal-bg: var(--book-red);
+    --astar-goal-border: var(--book-red);
+    --astar-wall-bg: var(--book-ink-soft);
+    --astar-wall-border: var(--book-ink-soft);
     --astar-open-bg: var(--viz-warning-bg);
     --astar-open-border: var(--viz-warning-border);
-    --astar-closed-bg: #e2e3e5;
-    --astar-closed-border: #6c757d;
+    --astar-closed-bg: var(--book-grid);
+    --astar-closed-border: var(--book-muted);
     --astar-current-bg: var(--viz-active-bg);
     --astar-current-border: var(--viz-active-border);
     --astar-path-bg: var(--viz-success-bg);
     --astar-path-border: var(--viz-success-border);
     --astar-neighbor-bg: var(--viz-danger-bg);
-    --astar-neighbor-border: #f5c6cb;
+    --astar-neighbor-border: var(--book-red-fill);
 
     /* Value display colors */
-    --astar-f-color: #6c757d;
-    --astar-g-color: #007bff;
-    --astar-h-color: #28a745;
+    --astar-f-color: var(--book-muted);
+    --astar-g-color: var(--book-blue);
+    --astar-h-color: var(--book-green);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -383,9 +383,9 @@
 }
 
 .grid-cell.hover-highlight {
-    background-color: #cce5ff !important;
-    border: 2px solid #007bff !important;
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+    background-color: var(--book-blue-fill) !important;
+    border: 2px solid var(--book-blue) !important;
+    box-shadow: 0 0 8px rgba(var(--book-blue-rgb), 0.5);
 }
 
 [data-theme="gruvbox-dark"] .grid-cell.hover-highlight {
@@ -443,7 +443,7 @@
 
 /* Main heuristic line */
 .heuristic-line {
-    stroke: var(--astar-heuristic-color, #007bff);
+    stroke: var(--astar-heuristic-color, var(--book-blue));
     stroke-width: 2.5;
     stroke-dasharray: 6 4;
     stroke-linecap: round;
@@ -453,7 +453,7 @@
 }
 
 .heuristic-line-glow {
-    stroke: var(--astar-heuristic-color, #007bff);
+    stroke: var(--astar-heuristic-color, var(--book-blue));
     stroke-width: 10;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -463,13 +463,13 @@
 }
 
 .heuristic-arrow {
-    fill: var(--astar-heuristic-color, #9c27b0);
+    fill: var(--astar-heuristic-color, var(--book-purple));
     opacity: 0.8;
 }
 
 /* G-cost line from start to current */
 .g-cost-line {
-    stroke: var(--astar-g-color, #007bff);
+    stroke: var(--astar-g-color, var(--book-blue));
     stroke-width: 2;
     stroke-dasharray: 4 2;
     stroke-linecap: round;
@@ -479,7 +479,7 @@
 
 /* Path line */
 .path-line {
-    stroke: #28a745;
+    stroke: var(--book-green);
     stroke-width: 3;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -488,7 +488,7 @@
 }
 
 .path-line-glow {
-    stroke: #28a745;
+    stroke: var(--book-green);
     stroke-width: 12;
     stroke-linecap: round;
     stroke-linejoin: round;
@@ -506,7 +506,7 @@
 .heuristic-label {
     font-family: var(--viz-mono-font);
     font-size: 10px;
-    fill: var(--astar-heuristic-color, #9c27b0);
+    fill: var(--astar-heuristic-color, var(--book-purple));
     font-weight: bold;
 }
 
@@ -528,7 +528,7 @@
 .heuristic-chebyshev .heuristic-line-glow,
 .heuristic-chebyshev .heuristic-arrow,
 .heuristic-chebyshev .heuristic-label {
-    --astar-heuristic-color: #007bff;
+    --astar-heuristic-color: var(--book-blue);
 }
 
 .heuristic-dijkstra .heuristic-line,
@@ -596,8 +596,8 @@
 .legend-heuristic {
     background: repeating-linear-gradient(
         90deg,
-        #007bff,
-        #007bff 4px,
+        var(--book-blue),
+        var(--book-blue) 4px,
         transparent 4px,
         transparent 7px
     );
@@ -731,23 +731,23 @@
    A*-specific Log Entry Types
    ============================================ */
 .log-entry.log-expand {
-    background-color: rgba(250, 189, 47, 0.15);
-    color: #d79921;
+    background-color: rgba(var(--book-gold-rgb), 0.15);
+    color: var(--book-gold-text);
 }
 
 .log-entry.log-neighbor {
-    background-color: rgba(214, 93, 14, 0.15);
-    color: #d65d0e;
+    background-color: rgba(var(--book-gold-strong-rgb), 0.15);
+    color: var(--book-gold-strong);
 }
 
 .log-entry.log-add {
-    background-color: rgba(184, 187, 38, 0.15);
-    color: #98971a;
+    background-color: rgba(var(--book-gold-rgb), 0.15);
+    color: var(--book-green-mid);
 }
 
 .log-entry.log-update {
     background-color: rgba(131, 165, 152, 0.15);
-    color: #458588;
+    color: var(--book-blue-mid);
 }
 
 [data-theme="gruvbox-dark"] .log-entry.log-expand { color: var(--gruvbox-yellow); }
@@ -878,7 +878,7 @@
 }
 
 .graph-edge.path-edge {
-    stroke: #28a745 !important;
+    stroke: var(--book-green) !important;
     stroke-width: 4 !important;
 }
 
@@ -918,13 +918,13 @@
 }
 
 .graph-node.open {
-    fill: #fff3cd !important;
-    stroke: #ffc107 !important;
+    fill: var(--book-gold-fill) !important;
+    stroke: var(--book-gold) !important;
 }
 
 .graph-node.closed {
-    fill: #e2e3e5 !important;
-    stroke: #6c757d !important;
+    fill: var(--book-grid) !important;
+    stroke: var(--book-muted) !important;
 }
 
 .graph-node.current {
@@ -934,12 +934,12 @@
 }
 
 .graph-node.path {
-    fill: #90EE90 !important;
-    stroke: #28a745 !important;
+    fill: var(--book-green-mid) !important;
+    stroke: var(--book-green) !important;
 }
 
 .graph-node.edge-source {
-    stroke: #f39c12;
+    stroke: var(--book-gold-strong);
     stroke-width: 4;
     stroke-dasharray: 4 2;
 }
@@ -1027,30 +1027,30 @@
 
 .heuristic-item.start {
     border-color: var(--astar-start-border);
-    background: rgba(40, 167, 69, 0.1);
+    background: rgba(var(--book-green-rgb), 0.1);
 }
 
 .heuristic-item.goal {
     border-color: var(--astar-goal-border);
-    background: rgba(220, 53, 69, 0.1);
+    background: rgba(var(--book-red-rgb), 0.1);
 }
 
 .heuristic-item.inadmissible {
-    border-color: #dc3545;
-    background: rgba(220, 53, 69, 0.2);
+    border-color: var(--book-red);
+    background: rgba(var(--book-red-rgb), 0.2);
 }
 
 .heuristic-item.inadmissible label {
-    color: #dc3545;
+    color: var(--book-red);
 }
 
 .heuristic-item.inconsistent {
-    border-color: #ffc107;
-    background: rgba(255, 193, 7, 0.2);
+    border-color: var(--book-gold);
+    background: rgba(var(--book-gold-rgb), 0.2);
 }
 
 .heuristic-item.inconsistent label {
-    color: #856404;
+    color: var(--book-gold-text);
 }
 
 .heuristic-item label {
@@ -1073,7 +1073,7 @@
 
 .heuristic-item input:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: var(--book-blue);
 }
 
 .heuristic-item input:disabled {

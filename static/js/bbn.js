@@ -468,21 +468,21 @@
                     borderColor = this.colors.evidenceTrueBorder;
                     textColor = this.colors.evidenceTrueText;
                     headerBg = this.colors.evidenceTrueBorder;
-                    headerTextColor = '#ffffff';
+                    headerTextColor = EAIColor('surface');
                 } else if (isFalse) {
                     // Red for False
                     bgColor = this.colors.evidenceFalseBg;
                     borderColor = this.colors.evidenceFalseBorder;
                     textColor = this.colors.evidenceFalseText;
                     headerBg = this.colors.evidenceFalseBorder;
-                    headerTextColor = '#ffffff';
+                    headerTextColor = EAIColor('surface');
                 } else {
                     // Other values - use selected blue color
                     bgColor = this.colors.selectedBg;
                     borderColor = this.colors.selectedBorder;
                     textColor = this.colors.selectedText;
                     headerBg = this.colors.selectedBorder;
-                    headerTextColor = '#ffffff';
+                    headerTextColor = EAIColor('surface');
                 }
             } else if (isSelected) {
                 // Light blue for selected
@@ -490,7 +490,7 @@
                 borderColor = this.colors.selectedBorder;
                 textColor = this.colors.selectedText;
                 headerBg = this.colors.selectedBorder;
-                headerTextColor = '#ffffff';
+                headerTextColor = EAIColor('surface');
             } else {
                 bgColor = this.colors.nodeBg;
                 borderColor = this.colors.nodeBorder;
@@ -602,7 +602,7 @@
                 if (isEvidenceValue || isHoveredRow || isPreviewValue) {
                     let bgColor;
                     if (isPreviewValue && !isEvidenceValue) {
-                        bgColor = 'rgba(255, 193, 7, 0.3)'; // Amber/yellow highlight for preview
+                        bgColor = EAIColor('gold', 0.3); // Amber/yellow highlight for preview
                     } else if (isEvidenceValue) {
                         bgColor = value.toLowerCase() === 'true' ? this.colors.evidenceTrueBg :
                                   value.toLowerCase() === 'false' ? this.colors.evidenceFalseBg : this.colors.selectedBg;
@@ -614,7 +614,7 @@
 
                     // Draw preview border for emphasis on non-evidence values
                     if (isPreviewValue && !isEvidenceValue) {
-                        ctx.strokeStyle = '#ffc107'; // Amber border
+                        ctx.strokeStyle = EAIColor('gold'); // Amber border
                         ctx.lineWidth = 2;
                         ctx.strokeRect(x + 4, rowY, this.nodeWidth - 8, rowHeight);
                     }
@@ -622,7 +622,7 @@
                     // Draw small amber corner indicator for evidence values that are part of preview
                     if (isPreviewValue && isEvidenceValue) {
                         const cornerSize = 8;
-                        ctx.fillStyle = '#ffc107';
+                        ctx.fillStyle = EAIColor('gold');
                         ctx.beginPath();
                         ctx.moveTo(x + 4, rowY);
                         ctx.lineTo(x + 4 + cornerSize, rowY);
@@ -638,7 +638,7 @@
                     ctx.font = '10px FontAwesome';
                     ctx.textAlign = 'left';
                     ctx.textBaseline = 'middle';
-                    ctx.fillStyle = '#888888';
+                    ctx.fillStyle = EAIColor('axis');
                     ctx.fillText('\uf06e', x + rowPadding, rowY + rowHeight / 2); // fa-eye unicode
                     labelStartX = x + rowPadding + 14; // Shift label right to make room for icon
                 }
@@ -673,7 +673,7 @@
                 ctx.fillRect(trackX, trackY, trackWidth * prob, trackHeight);
 
                 // Track border
-                ctx.strokeStyle = isEvidenceValue ? rowColor : '#cccccc';
+                ctx.strokeStyle = isEvidenceValue ? rowColor : EAIColor('grid');
                 ctx.lineWidth = 1;
                 ctx.strokeRect(trackX, trackY, trackWidth, trackHeight);
 
@@ -685,7 +685,7 @@
 
                 // Highlight percentage area if hovered or selected
                 if (isHoveredQuery || isSelectedQuery) {
-                    ctx.fillStyle = isSelectedQuery ? this.colors.selectedBg : 'rgba(33, 150, 243, 0.1)';
+                    ctx.fillStyle = isSelectedQuery ? this.colors.selectedBg : EAIColor('blue', 0.1);
                     ctx.fillRect(percentX, rowY, percentageAreaWidth + rowPadding, rowHeight);
                     if (isSelectedQuery) {
                         ctx.strokeStyle = this.colors.selectedBorder;

@@ -15,43 +15,43 @@
     --bbn-text: var(--viz-text);
 
     /* Node colors */
-    --bbn-node-bg: #ffffff;
-    --bbn-node-border: #dee2e6;
-    --bbn-node-header: #f5f5f5;
-    --bbn-node-header-text: #2c3e50;
-    --bbn-node-text: #333333;
+    --bbn-node-bg: var(--book-surface);
+    --bbn-node-border: var(--book-grid);
+    --bbn-node-header: var(--book-sunken);
+    --bbn-node-header-text: var(--book-navy);
+    --bbn-node-text: var(--book-ink-soft);
 
     /* Evidence True - green */
-    --bbn-evidence-true-bg: #e8f5e9;
-    --bbn-evidence-true-border: #4caf50;
-    --bbn-evidence-true-text: #2e7d32;
+    --bbn-evidence-true-bg: var(--book-green-fill);
+    --bbn-evidence-true-border: var(--book-green);
+    --bbn-evidence-true-text: var(--book-green);
 
     /* Evidence False - red */
-    --bbn-evidence-false-bg: #ffebee;
-    --bbn-evidence-false-border: #f44336;
-    --bbn-evidence-false-text: #c62828;
+    --bbn-evidence-false-bg: var(--book-red-fill);
+    --bbn-evidence-false-border: var(--book-red-mid);
+    --bbn-evidence-false-text: var(--book-red);
 
     /* Selected node - light blue */
     --bbn-selected-bg: var(--viz-info-bg);
     --bbn-selected-border: var(--viz-info-border);
-    --bbn-selected-text: #1565c0;
+    --bbn-selected-text: var(--book-blue);
 
     /* Edge colors */
-    --bbn-edge-color: #90a4ae;
-    --bbn-edge-arrow: #607d8b;
+    --bbn-edge-color: var(--book-axis);
+    --bbn-edge-arrow: var(--book-blue-mid);
 
     /* Probability bars */
-    --bbn-prob-bar-bg: #e0e0e0;
-    --bbn-prob-bar-fill: #4caf50;
-    --bbn-prob-bar-low: #ff9800;
-    --bbn-prob-bar-high: #2196f3;
+    --bbn-prob-bar-bg: var(--book-grid);
+    --bbn-prob-bar-fill: var(--book-green);
+    --bbn-prob-bar-low: var(--book-gold-strong);
+    --bbn-prob-bar-high: var(--book-blue);
 
     /* CPT table */
-    --bbn-cpt-header-bg: #f5f5f5;
-    --bbn-cpt-cell-bg: #ffffff;
-    --bbn-cpt-hover-bg: #e3f2fd;
-    --bbn-cpt-input-bg: #ffffff;
-    --bbn-cpt-input-border: #ced4da;
+    --bbn-cpt-header-bg: var(--book-sunken);
+    --bbn-cpt-cell-bg: var(--book-surface);
+    --bbn-cpt-hover-bg: var(--book-blue-fill);
+    --bbn-cpt-input-bg: var(--book-surface);
+    --bbn-cpt-input-border: var(--book-grid);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -270,7 +270,7 @@
 
 .evidence-remove-inline:hover {
     opacity: 1;
-    color: #dc3545;
+    color: var(--book-red);
 }
 
 /* ============================================
@@ -340,12 +340,12 @@
 .cpt-input:focus {
     outline: none;
     border-color: var(--bbn-node-border);
-    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    box-shadow: 0 0 0 2px rgba(var(--book-blue-rgb), 0.2);
 }
 
 .cpt-input.invalid {
-    border-color: #dc3545;
-    background-color: rgba(220, 53, 69, 0.1);
+    border-color: var(--book-red);
+    background-color: rgba(var(--book-red-rgb), 0.1);
 }
 
 .cpt-controls {
@@ -391,7 +391,7 @@
 
 .evidence-tag-remove:hover {
     opacity: 1;
-    color: #dc3545;
+    color: var(--book-red);
 }
 
 /* ============================================
@@ -633,7 +633,7 @@
     align-items: center;
     gap: 20px;
     padding: 15px;
-    background: linear-gradient(135deg, var(--bbn-selected-bg) 0%, rgba(33, 150, 243, 0.05) 100%);
+    background: linear-gradient(135deg, var(--bbn-selected-bg) 0%, rgba(var(--book-blue-rgb), 0.05) 100%);
     border-radius: 8px;
     border-left: 4px solid var(--bbn-selected-border);
 }
@@ -720,7 +720,7 @@
 
 .calc-factor:hover {
     border-color: var(--bbn-selected-border);
-    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
+    box-shadow: 0 2px 8px rgba(var(--book-blue-rgb), 0.2);
 }
 
 .calc-factor-label {
@@ -748,11 +748,11 @@
 }
 
 .calc-factor.from-cpt {
-    border-color: #9c27b0;
+    border-color: var(--book-purple);
 }
 
 .calc-factor.from-cpt .calc-factor-label {
-    color: #9c27b0;
+    color: var(--book-purple);
 }
 
 .calc-factor.from-evidence {
@@ -788,7 +788,7 @@
     flex-direction: column;
     align-items: center;
     padding: 10px 20px;
-    background: linear-gradient(135deg, var(--bbn-selected-bg) 0%, rgba(33, 150, 243, 0.15) 100%);
+    background: linear-gradient(135deg, var(--bbn-selected-bg) 0%, rgba(var(--book-blue-rgb), 0.15) 100%);
     border: 2px solid var(--bbn-selected-border);
     border-radius: 6px;
 }
@@ -837,11 +837,11 @@
 
 .calc-hidden-var {
     padding: 2px 8px;
-    background-color: rgba(156, 39, 176, 0.1);
-    border: 1px solid #9c27b0;
+    background-color: rgba(var(--book-purple-rgb), 0.1);
+    border: 1px solid var(--book-purple);
     border-radius: 4px;
     font-size: 0.8em;
-    color: #9c27b0;
+    color: var(--book-purple);
 }
 
 .calc-sum-terms {
@@ -863,26 +863,26 @@
 }
 
 .calc-sum-term[data-assignment]:hover {
-    border-left-color: #ffc107;
-    background-color: rgba(255, 193, 7, 0.1);
+    border-left-color: var(--book-gold);
+    background-color: rgba(var(--book-gold-rgb), 0.1);
     transform: translateX(4px);
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
+    box-shadow: 0 2px 8px rgba(var(--book-gold-rgb), 0.2);
 }
 
 .calc-sum-term[data-assignment]:hover .calc-sum-term-assignment {
-    color: #f57c00;
+    color: var(--book-gold-strong);
     font-weight: 600;
 }
 
 .calc-sum-term[data-assignment].selected {
-    border-left-color: #ff9800;
-    background-color: rgba(255, 152, 0, 0.2);
+    border-left-color: var(--book-gold-strong);
+    background-color: rgba(var(--book-gold-strong-rgb), 0.2);
     transform: translateX(4px);
-    box-shadow: 0 2px 12px rgba(255, 152, 0, 0.3);
+    box-shadow: 0 2px 12px rgba(var(--book-gold-strong-rgb), 0.3);
 }
 
 .calc-sum-term[data-assignment].selected .calc-sum-term-assignment {
-    color: #e65100;
+    color: var(--book-gold-strong);
     font-weight: 700;
 }
 
@@ -890,7 +890,7 @@
     content: '\f00c';
     font-family: 'FontAwesome';
     margin-left: auto;
-    color: #ff9800;
+    color: var(--book-gold-strong);
     font-size: 12px;
 }
 
@@ -991,7 +991,7 @@
     font-weight: bold;
     color: var(--bbn-selected-text);
     padding: 8px 16px;
-    background: linear-gradient(135deg, var(--bbn-selected-bg) 0%, rgba(33, 150, 243, 0.15) 100%);
+    background: linear-gradient(135deg, var(--bbn-selected-bg) 0%, rgba(var(--book-blue-rgb), 0.15) 100%);
     border: 2px solid var(--bbn-selected-border);
     border-radius: 8px;
 }
@@ -1022,8 +1022,8 @@
 }
 
 .calc-legend-color.cpt {
-    background-color: rgba(156, 39, 176, 0.2);
-    border-color: #9c27b0;
+    background-color: rgba(var(--book-purple-rgb), 0.2);
+    border-color: var(--book-purple);
 }
 
 .calc-legend-color.evidence {
@@ -1185,7 +1185,7 @@
    General Formula Display
    ============================================ */
 .calc-general-formula {
-    background: linear-gradient(135deg, var(--bbn-cpt-header-bg) 0%, rgba(33, 150, 243, 0.05) 100%);
+    background: linear-gradient(135deg, var(--bbn-cpt-header-bg) 0%, rgba(var(--book-blue-rgb), 0.05) 100%);
     border: 1px solid var(--bbn-border);
     border-left: 3px solid var(--bbn-selected-border);
     border-radius: 6px;
@@ -1203,9 +1203,9 @@
 
 /* Bayes formula display */
 .calc-bayes-formula {
-    background: linear-gradient(135deg, var(--bbn-cpt-header-bg) 0%, rgba(156, 39, 176, 0.05) 100%);
+    background: linear-gradient(135deg, var(--bbn-cpt-header-bg) 0%, rgba(var(--book-purple-rgb), 0.05) 100%);
     border: 1px solid var(--bbn-border);
-    border-left: 3px solid #9c27b0;
+    border-left: 3px solid var(--book-purple);
     border-radius: 6px;
     padding: 16px 20px;
     margin-bottom: 16px;
@@ -1585,7 +1585,7 @@
 }
 
 .calc-term-expandable.highlight:hover {
-    background: #c8e6f8;
+    background: var(--book-blue-fill);
 }
 
 .calc-term-expandable sub {
@@ -1605,7 +1605,7 @@
 
 .calc-term-expandable.mode-numeric.highlight,
 .calc-term-expandable.mode-symbolic.highlight {
-    background: #bbdefb;
+    background: var(--book-blue-fill);
     border-color: var(--bbn-selected-border);
 }
 

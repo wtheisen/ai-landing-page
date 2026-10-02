@@ -186,17 +186,17 @@
     function getColors() {
         const isDark = VizLib.ThemeManager.isDarkTheme();
         return {
-            bg:              isDark ? '#1d2021' : '#fafafa',
-            cellBorder:      isDark ? '#504945' : '#bbb',
-            text:            isDark ? '#ebdbb2' : '#333',
-            textMuted:       isDark ? '#a89984' : '#888',
-            highlight:       isDark ? 'rgba(254,128,25,0.45)' : 'rgba(255,165,0,0.45)',
-            highlightBorder: isDark ? '#fe8019' : '#ff8c00',
-            positiveMax:     isDark ? '#83a598' : '#1565c0',
-            negativeMax:     isDark ? '#fb4934' : '#c62828',
-            zeroColor:       isDark ? '#282828' : '#ffffff',
-            poolMax:         isDark ? '#83a598' : '#1976d2',
-            poolAvg:         isDark ? '#b8bb26' : '#388e3c'
+            bg:              isDark ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light'),
+            cellBorder:      isDark ? EAIColor('grid', 'dark') : EAIColor('axis', 'light'),
+            text:            isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light'),
+            textMuted:       isDark ? EAIColor('muted', 'dark') : EAIColor('axis', 'light'),
+            highlight:       isDark ? EAIColor('gold-strong', 0.45, 'dark') : EAIColor('gold', 0.45),
+            highlightBorder: isDark ? EAIColor('gold-strong', 'dark') : EAIColor('gold-strong', 'light'),
+            positiveMax:     isDark ? EAIColor('blue', 'dark') : EAIColor('blue', 'light'),
+            negativeMax:     isDark ? EAIColor('red', 'dark') : EAIColor('red', 'light'),
+            zeroColor:       isDark ? EAIColor('surface', 'dark') : EAIColor('surface', 'light'),
+            poolMax:         isDark ? EAIColor('blue', 'dark') : EAIColor('blue', 'light'),
+            poolAvg:         isDark ? EAIColor('green', 'dark') : EAIColor('green', 'light')
         };
     }
 
@@ -279,7 +279,7 @@
                 const displayVal = Number.isInteger(val) ? val.toString() : val.toFixed(1);
                 ctx.fillStyle = (val > 128 && !VizLib.ThemeManager.isDarkTheme()) ||
                                 (val < 128 && VizLib.ThemeManager.isDarkTheme())
-                                ? '#333' : '#eee';
+                                ? EAIColor('ink-soft') : EAIColor('sunken');
                 ctx.font = `${Math.max(9, Math.min(13, cellW * 0.35))}px ${getComputedStyle(document.documentElement).getPropertyValue('--viz-mono-font').trim() || 'monospace'}`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -335,7 +335,7 @@
                 // Determine text brightness from cell luminance
                 const absMax = Math.max(Math.abs(minVal), Math.abs(maxVal), 1);
                 const intensity = Math.abs(val / absMax);
-                ctx.fillStyle = intensity > 0.45 ? '#fff' : colors.text;
+                ctx.fillStyle = intensity > 0.45 ? EAIColor('surface') : colors.text;
                 ctx.font = `${Math.max(9, Math.min(13, cellW * 0.35))}px ${getComputedStyle(document.documentElement).getPropertyValue('--viz-mono-font').trim() || 'monospace'}`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -394,7 +394,7 @@
                 const displayVal = val.toFixed(0);
                 const absMax = Math.max(Math.abs(minVal), Math.abs(maxVal), 1);
                 const intensity = Math.abs(val / absMax);
-                ctx.fillStyle = intensity > 0.45 ? '#fff' : colors.text;
+                ctx.fillStyle = intensity > 0.45 ? EAIColor('surface') : colors.text;
                 ctx.font = `${Math.max(8, Math.min(12, cellW * 0.35))}px ${getComputedStyle(document.documentElement).getPropertyValue('--viz-mono-font').trim() || 'monospace'}`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
@@ -854,7 +854,7 @@
                 if (this.partialFeatureMap) {
                     const cellW = this.featureW / outSize;
                     const cellH = this.featureH / outSize;
-                    this.featureCtx.fillStyle = isDark ? 'rgba(29,32,33,0.6)' : 'rgba(200,200,200,0.5)';
+                    this.featureCtx.fillStyle = isDark ? EAIColor('canvas', 0.6, 'dark') : 'rgba(200,200,200,0.5)';
                     for (let r = 0; r < outSize; r++) {
                         for (let c = 0; c < outSize; c++) {
                             if (this.partialFeatureMap[r][c] === null) {

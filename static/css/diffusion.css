@@ -8,22 +8,22 @@
    ============================================ */
 :root {
     /* Point colors */
-    --diff-original: #377eb8;
-    --diff-noisy: #e41a1c;
-    --diff-noise-low: #4daf4a;
-    --diff-noise-high: #ff7f00;
+    --diff-original: var(--book-blue);
+    --diff-noisy: var(--book-red);
+    --diff-noise-low: var(--book-green);
+    --diff-noise-high: var(--book-gold-strong);
 
     /* Schedule chart */
-    --diff-schedule-line: #377eb8;
-    --diff-schedule-fill: rgba(55, 126, 184, 0.15);
-    --diff-schedule-marker: #e41a1c;
+    --diff-schedule-line: var(--book-blue);
+    --diff-schedule-fill: rgba(var(--book-blue-rgb), 0.15);
+    --diff-schedule-marker: var(--book-red);
     --diff-schedule-grid: rgba(0, 0, 0, 0.08);
     --diff-schedule-axis: rgba(0, 0, 0, 0.2);
-    --diff-schedule-text: #666666;
+    --diff-schedule-text: var(--book-muted);
 
     /* Input styling */
-    --diff-input-bg: #fff;
-    --diff-input-border: #ccc;
+    --diff-input-bg: var(--book-surface);
+    --diff-input-border: var(--book-grid);
 }
 
 [data-theme="gruvbox-dark"] {

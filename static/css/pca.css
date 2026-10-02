@@ -3,13 +3,13 @@
  */
 
 :root {
-    --pca-point-color: #377eb8;
-    --pca-point-projected: #e41a1c;
-    --pca-pc1-color: #e41a1c;
-    --pca-pc2-color: #4daf4a;
+    --pca-point-color: var(--book-blue);
+    --pca-point-projected: var(--book-red);
+    --pca-pc1-color: var(--book-red);
+    --pca-pc2-color: var(--book-green);
     --pca-projection-color: rgba(100, 100, 100, 0.3);
-    --pca-mean-color: #ff9800;
-    --pca-bar-color: #377eb8;
+    --pca-mean-color: var(--book-gold-strong);
+    --pca-bar-color: var(--book-blue);
 }
 
 [data-theme="gruvbox-dark"] {

@@ -294,19 +294,30 @@ Sometimes you may start in Figma instead of code:
 --viz-class-9: #8ec07c;
 ```
 
-### Per-Visualization Colors
-Define in `static/css/{name}.css`. Pattern (see `naive-bayes.css`):
-```css
-:root {
-    --nb-spam-color: #dc3545;
-    --nb-spam-bg: rgba(220, 53, 69, 0.15);
-}
-[data-theme="gruvbox-dark"] {
-    --nb-spam-color: var(--gruvbox-red);
-    --nb-spam-bg: rgba(251, 73, 52, 0.2);
-}
-```
-**Rules:** Never hardcode colors. New tokens need both theme variants.
+### Shared Palette (use this, not new hex values)
+All visualizers take their colours from one palette, the AI2AI textbook's figure style, defined in
+`static/css/visualizations.css` with dark-theme counterparts. Five families plus neutrals:
+
+| Family | strong | mid | fill |
+|---|---|---|---|
+| blue | `--book-blue` | `--book-blue-mid` | `--book-blue-fill` |
+| purple | `--book-purple` | `--book-purple-mid` | `--book-purple-fill` |
+| green | `--book-green` | `--book-green-mid` | `--book-green-fill` |
+| red | `--book-red` | `--book-red-mid` | `--book-red-fill` |
+| gold | `--book-gold` (`--book-gold-text`, `--book-gold-strong`) | `--book-gold-mid` | `--book-gold-fill` |
+
+Neutrals: `--book-navy`, `--book-ink`, `--book-ink-soft`, `--book-muted`, `--book-axis`, `--book-grid`,
+`--book-sunken`, `--book-surface`, `--book-canvas`. Categorical classes: `--viz-class-0` … `--viz-class-9`.
+
+- **CSS:** `color: var(--book-blue)`; translucent: `rgba(var(--book-blue-rgb), 0.15)` (not `color-mix`: scripts parse these values).
+- **Canvas / JS:** `EAIColor('blue')` (current theme), `EAIColor('blue', 0.3)` (rgba), `EAIColor('class-2')`,
+  and `EAIColor('blue', 'dark')` / `'light'` to fix the theme. `VizLib.FigureStyle.get()` gives the same colours
+  plus `font(px, bold)` and arrow / point helpers.
+- A per-visualization token is an alias of a shared one: `--nb-spam-color: var(--book-red);`. With shared
+  tokens a separate dark-theme value is rarely needed.
+
+**Rules:** Never hardcode colours (hex or rgb) in CSS or JS. If a visualizer needs a colour the palette lacks,
+add it to the shared palette in both themes.
 
 ---
 

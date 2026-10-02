@@ -268,14 +268,14 @@
         if (showMean && computed && pcaResult) {
             const mc = d2c(pcaResult.mean.x, pcaResult.mean.y);
             ctx.fillStyle = c.mean;
-            ctx.strokeStyle = '#fff';
+            ctx.strokeStyle = EAIColor('surface');
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.arc(mc.x, mc.y, 7, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
             // Cross marker
-            ctx.strokeStyle = '#fff';
+            ctx.strokeStyle = EAIColor('surface');
             ctx.lineWidth = 2;
             ctx.beginPath();
             ctx.moveTo(mc.x - 4, mc.y); ctx.lineTo(mc.x + 4, mc.y);

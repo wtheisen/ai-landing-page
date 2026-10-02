@@ -10,8 +10,8 @@
    ============================================ */
 :root {
     /* Centroid styling */
-    --cluster-centroid-stroke: #333333;
-    --cluster-centroid-fill: #ffffff;
+    --cluster-centroid-stroke: var(--book-ink-soft);
+    --cluster-centroid-fill: var(--book-surface);
 
     /* Voronoi region opacity */
     --cluster-voronoi-opacity: 0.12;

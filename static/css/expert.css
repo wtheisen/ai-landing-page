@@ -9,41 +9,41 @@
    ============================================ */
 :root {
     /* Rule card colors */
-    --expert-rule-bg: #ffffff;
-    --expert-rule-border: #dee2e6;
-    --expert-rule-text: #333333;
-    --expert-rule-header-bg: #f8f9fa;
+    --expert-rule-bg: var(--book-surface);
+    --expert-rule-border: var(--book-grid);
+    --expert-rule-text: var(--book-ink-soft);
+    --expert-rule-header-bg: var(--book-surface);
 
     /* Rule states */
-    --expert-rule-evaluating-bg: #fff3cd;
-    --expert-rule-evaluating-border: #ffc107;
-    --expert-rule-fired-bg: #d4edda;
-    --expert-rule-fired-border: #28a745;
-    --expert-rule-failed-bg: #f8d7da;
-    --expert-rule-failed-border: #dc3545;
+    --expert-rule-evaluating-bg: var(--book-gold-fill);
+    --expert-rule-evaluating-border: var(--book-gold);
+    --expert-rule-fired-bg: var(--book-green-fill);
+    --expert-rule-fired-border: var(--book-green);
+    --expert-rule-failed-bg: var(--book-red-fill);
+    --expert-rule-failed-border: var(--book-red);
 
     /* Fact badge colors */
-    --expert-fact-bg: #e3f2fd;
-    --expert-fact-border: #2196f3;
-    --expert-fact-true-bg: #d4edda;
-    --expert-fact-true-border: #28a745;
-    --expert-fact-false-bg: #f8d7da;
-    --expert-fact-false-border: #dc3545;
-    --expert-fact-derived-bg: #e8f5e9;
-    --expert-fact-derived-border: #4caf50;
-    --expert-fact-unknown-bg: #fff3e0;
-    --expert-fact-unknown-border: #ff9800;
+    --expert-fact-bg: var(--book-blue-fill);
+    --expert-fact-border: var(--book-blue);
+    --expert-fact-true-bg: var(--book-green-fill);
+    --expert-fact-true-border: var(--book-green);
+    --expert-fact-false-bg: var(--book-red-fill);
+    --expert-fact-false-border: var(--book-red);
+    --expert-fact-derived-bg: var(--book-green-fill);
+    --expert-fact-derived-border: var(--book-green);
+    --expert-fact-unknown-bg: var(--book-gold-fill);
+    --expert-fact-unknown-border: var(--book-gold-strong);
 
     /* Inference chain edges */
-    --expert-edge-color: #6c757d;
-    --expert-edge-active: #ffc107;
-    --expert-edge-fired: #28a745;
+    --expert-edge-color: var(--book-muted);
+    --expert-edge-active: var(--book-gold);
+    --expert-edge-fired: var(--book-green);
 
     /* Goal tree (backward chaining) */
-    --expert-goal-bg: #fff9c4;
-    --expert-goal-border: #fbc02d;
-    --expert-subgoal-bg: #e3f2fd;
-    --expert-subgoal-border: #1976d2;
+    --expert-goal-bg: var(--book-gold-fill);
+    --expert-goal-border: var(--book-gold);
+    --expert-subgoal-bg: var(--book-blue-fill);
+    --expert-subgoal-border: var(--book-blue);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -256,10 +256,10 @@
 
 @keyframes pulse-unknown {
     0%, 100% {
-        box-shadow: 0 0 0 0 rgba(255, 152, 0, 0.4);
+        box-shadow: 0 0 0 0 rgba(var(--book-gold-strong-rgb), 0.4);
     }
     50% {
-        box-shadow: 0 0 0 6px rgba(255, 152, 0, 0);
+        box-shadow: 0 0 0 6px rgba(var(--book-gold-strong-rgb), 0);
     }
 }
 
@@ -396,7 +396,7 @@
 }
 
 .rule-keyword {
-    color: #d73a49;
+    color: var(--book-red);
     font-weight: bold;
 }
 
@@ -405,7 +405,7 @@
 }
 
 .rule-fact {
-    color: #6f42c1;
+    color: var(--book-purple);
 }
 
 [data-theme="gruvbox-dark"] .rule-fact {
@@ -413,7 +413,7 @@
 }
 
 .rule-value {
-    color: #22863a;
+    color: var(--book-green);
     font-weight: bold;
 }
 
@@ -478,7 +478,7 @@
     transform: translateX(-50%);
     padding: 8px 16px;
     background-color: rgba(0, 0, 0, 0.7);
-    color: #fff;
+    color: var(--book-surface);
     border-radius: 4px;
     font-size: 12px;
     font-family: var(--viz-mono-font);
@@ -498,10 +498,10 @@
    ============================================ */
 @keyframes pulse-evaluate {
     0%, 100% {
-        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+        box-shadow: 0 0 0 0 rgba(var(--book-gold-rgb), 0.4);
     }
     50% {
-        box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+        box-shadow: 0 0 0 8px rgba(var(--book-gold-rgb), 0);
     }
 }
 

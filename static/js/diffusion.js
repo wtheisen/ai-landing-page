@@ -206,25 +206,25 @@
     function getColors() {
         const isDark = VizLib.ThemeManager.isDarkTheme();
         return {
-            bg:           isDark ? '#1d2021' : '#fafafa',
-            original:     isDark ? '#83a598' : '#377eb8',
-            originalGhost: isDark ? 'rgba(131,165,152,0.2)' : 'rgba(55,126,184,0.15)',
-            noiseLow:     isDark ? '#b8bb26' : '#4daf4a',
-            noiseHigh:    isDark ? '#fe8019' : '#ff7f00',
-            noiseMid:     isDark ? '#fabd2f' : '#e6ab02',
-            grid:         isDark ? 'rgba(168,153,132,0.1)' : 'rgba(0,0,0,0.06)',
-            axis:         isDark ? 'rgba(168,153,132,0.25)' : 'rgba(0,0,0,0.12)',
-            text:         isDark ? '#ebdbb2' : '#333333',
-            textMuted:    isDark ? '#a89984' : '#666666',
+            bg:           isDark ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light'),
+            original:     isDark ? EAIColor('blue', 'dark') : EAIColor('blue', 'light'),
+            originalGhost: isDark ? EAIColor('blue', 0.2, 'dark') : EAIColor('blue', 0.15),
+            noiseLow:     isDark ? EAIColor('green', 'dark') : EAIColor('green', 'light'),
+            noiseHigh:    isDark ? EAIColor('gold-strong', 'dark') : EAIColor('gold-strong', 'light'),
+            noiseMid:     isDark ? EAIColor('gold', 'dark') : EAIColor('gold', 'light'),
+            grid:         isDark ? EAIColor('muted', 0.1, 'dark') : 'rgba(0,0,0,0.06)',
+            axis:         isDark ? EAIColor('muted', 0.25, 'dark') : 'rgba(0,0,0,0.12)',
+            text:         isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light'),
+            textMuted:    isDark ? EAIColor('muted', 'dark') : EAIColor('muted', 'light'),
 
             // Schedule canvas
-            schedBg:      isDark ? '#1d2021' : '#fafafa',
-            schedLine:    isDark ? '#83a598' : '#377eb8',
-            schedFill:    isDark ? 'rgba(131,165,152,0.2)' : 'rgba(55,126,184,0.15)',
-            schedMarker:  isDark ? '#fb4934' : '#e41a1c',
-            schedGrid:    isDark ? 'rgba(168,153,132,0.15)' : 'rgba(0,0,0,0.08)',
-            schedAxis:    isDark ? 'rgba(168,153,132,0.3)' : 'rgba(0,0,0,0.2)',
-            schedText:    isDark ? '#a89984' : '#666666'
+            schedBg:      isDark ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light'),
+            schedLine:    isDark ? EAIColor('blue', 'dark') : EAIColor('blue', 'light'),
+            schedFill:    isDark ? EAIColor('blue', 0.2, 'dark') : EAIColor('blue', 0.15),
+            schedMarker:  isDark ? EAIColor('red', 'dark') : EAIColor('red', 'light'),
+            schedGrid:    isDark ? EAIColor('muted', 0.15, 'dark') : 'rgba(0,0,0,0.08)',
+            schedAxis:    isDark ? EAIColor('muted', 0.3, 'dark') : 'rgba(0,0,0,0.2)',
+            schedText:    isDark ? EAIColor('muted', 'dark') : EAIColor('muted', 'light')
         };
     }
 

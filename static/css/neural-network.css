@@ -8,21 +8,21 @@
    ============================================ */
 :root {
     /* Node colors per layer type */
-    --nn-input-node: #377eb8;
-    --nn-hidden-node: #4daf4a;
-    --nn-output-node: #e41a1c;
+    --nn-input-node: var(--book-blue);
+    --nn-hidden-node: var(--book-green);
+    --nn-output-node: var(--book-red);
 
     /* Edge colors */
-    --nn-edge-positive: rgba(55, 126, 184, 0.6);
-    --nn-edge-negative: rgba(228, 26, 28, 0.6);
+    --nn-edge-positive: rgba(var(--book-blue-rgb), 0.6);
+    --nn-edge-negative: rgba(var(--book-red-rgb), 0.6);
     --nn-edge-neutral: rgba(150, 150, 150, 0.3);
 
     /* Activation highlight */
-    --nn-activation-glow: rgba(255, 193, 7, 0.6);
+    --nn-activation-glow: rgba(var(--book-gold-rgb), 0.6);
 
     /* Decision boundary gradient */
-    --nn-boundary-class0: rgba(228, 26, 28, 0.35);
-    --nn-boundary-class1: rgba(55, 126, 184, 0.35);
+    --nn-boundary-class0: rgba(var(--book-red-rgb), 0.35);
+    --nn-boundary-class1: rgba(var(--book-blue-rgb), 0.35);
     --nn-boundary-line: rgba(0, 0, 0, 0.15);
 }
 

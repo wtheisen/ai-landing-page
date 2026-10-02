@@ -420,7 +420,7 @@
             factFalse: get('--expert-fact-false-border') || '#dc3545',
             factDerived: get('--expert-fact-derived-border') || '#4caf50',
             factNeeded: get('--expert-fact-unknown-border') || '#ff9800',
-            factBg: '#ffffff',
+            factBg: EAIColor('surface'),
             // Rule node colors
             ruleBg: get('--expert-rule-bg') || '#f8f9fa',
             ruleBorder: get('--expert-rule-border') || '#dee2e6',
@@ -434,7 +434,7 @@
             // Text
             text: get('--viz-text') || '#333333',
             textMuted: get('--viz-text-muted') || '#6c757d',
-            textLight: '#ffffff'
+            textLight: EAIColor('surface')
         };
     }
 
@@ -1768,7 +1768,7 @@
                 ctx.fill();
 
                 // White question mark
-                ctx.fillStyle = '#ffffff';
+                ctx.fillStyle = EAIColor('surface');
                 ctx.font = 'bold 10px system-ui, sans-serif';
                 ctx.fillText('?', qX, qY);
             }
@@ -1880,7 +1880,7 @@
             this.roundRect(ctx, boxX, boxY, boxWidth, boxHeight, 4);
             ctx.fill();
 
-            ctx.fillStyle = '#ffffff';
+            ctx.fillStyle = EAIColor('surface');
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 

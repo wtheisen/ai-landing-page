@@ -7,12 +7,12 @@
    Perceptron CSS Custom Properties
    ============================================ */
 :root {
-    --perceptron-boundary: #111827;
-    --perceptron-vector: #0f766e;
-    --perceptron-margin: rgba(17, 24, 39, 0.25);
+    --perceptron-boundary: var(--book-navy);
+    --perceptron-vector: var(--book-blue-mid);
+    --perceptron-margin: rgba(var(--book-navy-rgb), 0.25);
 
-    --perceptron-misclassified: #f59e0b;
-    --perceptron-highlight: #facc15;
+    --perceptron-misclassified: var(--book-gold-strong);
+    --perceptron-highlight: var(--book-gold);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -54,7 +54,7 @@
 }
 
 .click-overlay span {
-    color: #fff;
+    color: var(--book-surface);
     font-size: 1rem;
     font-weight: 500;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
@@ -296,7 +296,7 @@
 .pc-pseudocode li { padding:.55em .4em; color:var(--viz-text-muted); border-left:3px solid transparent; }
 .pc-pseudocode code { white-space:pre-wrap; color:var(--viz-text); background:transparent; padding:0; }
 .pc-pseudocode li.active { border-left-color:var(--perceptron-vector); background:var(--viz-active-bg); }
-.pc-flying-value { position:fixed; z-index:10000; pointer-events:none; padding:.3em .55em; border:1px solid var(--perceptron-vector); border-radius:.35em; background:var(--viz-canvas-bg,#fff); color:var(--perceptron-vector); font-family:var(--viz-mono-font); font-size:1.2rem; font-weight:600; white-space:nowrap; }
+.pc-flying-value { position:fixed; z-index:10000; pointer-events:none; padding:.3em .55em; border:1px solid var(--perceptron-vector); border-radius:.35em; background:var(--viz-canvas-bg,var(--book-surface)); color:var(--perceptron-vector); font-family:var(--viz-mono-font); font-size:1.2rem; font-weight:600; white-space:nowrap; }
 @media(prefers-reduced-motion:reduce) { .pc-flying-value { display:none; } }
 
 

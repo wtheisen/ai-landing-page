@@ -88,39 +88,39 @@
 
         if (isDark) {
             return {
-                bg: '#1d2021',
-                text: '#ebdbb2',
-                textMuted: '#a89984',
-                stateColors: ['#83a598', '#fe8019', '#d3869b', '#b8bb26'],
-                emissionColors: ['#8ec07c', '#fb4934', '#b8bb26', '#fabd2f'],
-                currentHighlight: 'rgba(250, 189, 47, 0.35)',
-                currentBorder: '#fabd2f',
-                visitedBg: 'rgba(131, 165, 152, 0.15)',
-                arrowColor: '#665c54',
-                arrowActive: '#fabd2f',
-                probText: '#ebdbb2',
-                nodeBg: '#3c3836',
-                nodeBorder: '#504945',
-                selfLoopColor: '#665c54',
-                gridLine: '#504945'
+                bg: EAIColor('canvas', 'dark'),
+                text: EAIColor('ink-soft', 'dark'),
+                textMuted: EAIColor('muted', 'dark'),
+                stateColors: [EAIColor('class-1', 'dark'), EAIColor('class-4', 'dark'), EAIColor('class-3', 'dark'), EAIColor('class-2', 'dark')],
+                emissionColors: [EAIColor('class-9', 'dark'), EAIColor('class-0', 'dark'), EAIColor('class-2', 'dark'), EAIColor('class-5', 'dark')],
+                currentHighlight: EAIColor('gold', 0.35, 'dark'),
+                currentBorder: EAIColor('gold', 'dark'),
+                visitedBg: EAIColor('blue', 0.15, 'dark'),
+                arrowColor: EAIColor('axis', 'dark'),
+                arrowActive: EAIColor('gold', 'dark'),
+                probText: EAIColor('ink-soft', 'dark'),
+                nodeBg: EAIColor('sunken', 'dark'),
+                nodeBorder: EAIColor('grid', 'dark'),
+                selfLoopColor: EAIColor('axis', 'dark'),
+                gridLine: EAIColor('grid', 'dark')
             };
         }
         return {
-            bg: '#fafafa',
-            text: '#333333',
-            textMuted: '#6c757d',
-            stateColors: ['#2196F3', '#FF9800', '#9C27B0', '#4CAF50'],
-            emissionColors: ['#26C6DA', '#EF5350', '#66BB6A', '#FFA726'],
-            currentHighlight: 'rgba(251, 192, 45, 0.3)',
-            currentBorder: '#FBC02D',
-            visitedBg: 'rgba(33, 150, 243, 0.12)',
-            arrowColor: '#90a4ae',
-            arrowActive: '#FBC02D',
-            probText: '#333333',
-            nodeBg: '#ffffff',
-            nodeBorder: '#dee2e6',
-            selfLoopColor: '#b0bec5',
-            gridLine: '#e0e0e0'
+            bg: EAIColor('surface'),
+            text: EAIColor('ink-soft'),
+            textMuted: EAIColor('muted'),
+            stateColors: [EAIColor('class-1', 'light'), EAIColor('class-4', 'light'), EAIColor('class-3', 'light'), EAIColor('class-2', 'light')],
+            emissionColors: [EAIColor('class-9', 'light'), EAIColor('class-0', 'light'), EAIColor('class-2', 'light'), EAIColor('class-4', 'light')],
+            currentHighlight: EAIColor('gold', 0.3),
+            currentBorder: EAIColor('gold'),
+            visitedBg: EAIColor('blue', 0.12),
+            arrowColor: EAIColor('axis'),
+            arrowActive: EAIColor('gold'),
+            probText: EAIColor('ink-soft'),
+            nodeBg: EAIColor('surface'),
+            nodeBorder: EAIColor('grid'),
+            selfLoopColor: EAIColor('axis'),
+            gridLine: EAIColor('grid')
         };
     }
 

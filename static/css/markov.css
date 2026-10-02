@@ -9,38 +9,38 @@
    ============================================ */
 :root {
     /* State colors */
-    --markov-state-0: #2196F3;
-    --markov-state-1: #FF9800;
-    --markov-state-2: #9C27B0;
-    --markov-state-3: #4CAF50;
+    --markov-state-0: var(--book-blue);
+    --markov-state-1: var(--book-gold-strong);
+    --markov-state-2: var(--book-purple);
+    --markov-state-3: var(--book-green);
 
     /* Current / visited highlights */
-    --markov-current-bg: #FFF9C4;
-    --markov-current-border: #FBC02D;
-    --markov-visited-bg: rgba(33, 150, 243, 0.15);
+    --markov-current-bg: var(--book-gold-fill);
+    --markov-current-border: var(--book-gold);
+    --markov-visited-bg: rgba(var(--book-blue-rgb), 0.15);
 
     /* Transition arrows */
-    --markov-arrow-color: #607d8b;
-    --markov-arrow-active: #FBC02D;
-    --markov-prob-text: #333;
+    --markov-arrow-color: var(--book-blue-mid);
+    --markov-arrow-active: var(--book-gold);
+    --markov-prob-text: var(--book-ink-soft);
 
     /* Matrix */
-    --markov-matrix-bg: #ffffff;
-    --markov-matrix-header: #f5f5f5;
-    --markov-matrix-border: #dee2e6;
-    --markov-matrix-hover: #e3f2fd;
-    --markov-matrix-input-bg: #ffffff;
-    --markov-matrix-input-border: #ced4da;
+    --markov-matrix-bg: var(--book-surface);
+    --markov-matrix-header: var(--book-sunken);
+    --markov-matrix-border: var(--book-grid);
+    --markov-matrix-hover: var(--book-blue-fill);
+    --markov-matrix-input-bg: var(--book-surface);
+    --markov-matrix-input-border: var(--book-grid);
 
     /* Sequence strip */
-    --markov-seq-bg: #f8f9fa;
-    --markov-seq-border: #dee2e6;
+    --markov-seq-bg: var(--book-surface);
+    --markov-seq-border: var(--book-grid);
 
     /* Emission */
-    --markov-emission-0: #26C6DA;
-    --markov-emission-1: #EF5350;
-    --markov-emission-2: #66BB6A;
-    --markov-emission-3: #FFA726;
+    --markov-emission-0: var(--book-blue-mid);
+    --markov-emission-1: var(--book-red-mid);
+    --markov-emission-2: var(--book-green-mid);
+    --markov-emission-3: var(--book-gold-strong);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -205,7 +205,7 @@
 
 .inline-editor-input:focus {
     border-color: var(--markov-current-border);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(251, 192, 45, 0.3);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3), 0 0 0 2px rgba(var(--book-gold-rgb), 0.3);
 }
 
 /* Legend hint */
@@ -287,7 +287,7 @@
     border-radius: 4px;
     font-size: 0.8em;
     font-weight: 600;
-    color: #fff;
+    color: var(--book-surface);
     min-width: 28px;
     text-align: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -307,10 +307,10 @@
 .seq-token.state-2 { background-color: var(--markov-state-2); }
 .seq-token.state-3 { background-color: var(--markov-state-3); }
 
-.seq-token.emission-0 { background-color: var(--markov-emission-0); color: #333; }
+.seq-token.emission-0 { background-color: var(--markov-emission-0); color: var(--book-ink-soft); }
 .seq-token.emission-1 { background-color: var(--markov-emission-1); }
-.seq-token.emission-2 { background-color: var(--markov-emission-2); color: #333; }
-.seq-token.emission-3 { background-color: var(--markov-emission-3); color: #333; }
+.seq-token.emission-2 { background-color: var(--markov-emission-2); color: var(--book-ink-soft); }
+.seq-token.emission-3 { background-color: var(--markov-emission-3); color: var(--book-ink-soft); }
 
 .seq-arrow {
     color: var(--viz-text-muted);
@@ -355,11 +355,11 @@
 
 /* Viterbi path highlight */
 .seq-token.viterbi-match {
-    box-shadow: 0 0 0 2px #4CAF50, 0 2px 4px rgba(76, 175, 80, 0.3);
+    box-shadow: 0 0 0 2px var(--book-green), 0 2px 4px rgba(var(--book-green-rgb), 0.3);
 }
 
 .seq-token.viterbi-mismatch {
-    box-shadow: 0 0 0 2px #F44336, 0 2px 4px rgba(244, 67, 54, 0.3);
+    box-shadow: 0 0 0 2px var(--book-red-mid), 0 2px 4px rgba(var(--book-red-mid-rgb), 0.3);
 }
 
 /* ============================================

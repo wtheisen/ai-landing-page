@@ -2110,13 +2110,13 @@
             const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
             defs.innerHTML = `
                 <marker id="arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
-                    <polygon points="0 0, 6 2, 0 4" fill="#999" />
+                    <polygon points="0 0, 6 2, 0 4" style="fill:var(--book-axis)" />
                 </marker>
                 <marker id="arrowhead-path" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
-                    <polygon points="0 0, 6 2, 0 4" fill="#28a745" />
+                    <polygon points="0 0, 6 2, 0 4" style="fill:var(--book-green)" />
                 </marker>
                 <marker id="arrowhead-frontier" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
-                    <polygon points="0 0, 6 2, 0 4" fill="#ffc107" />
+                    <polygon points="0 0, 6 2, 0 4" style="fill:var(--book-gold)" />
                 </marker>
             `;
             svg.insertBefore(defs, svg.firstChild);

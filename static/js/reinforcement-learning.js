@@ -106,20 +106,20 @@
     function getColors() {
         const isDark = VizLib.ThemeManager.isDarkTheme();
         return {
-            bg:        isDark ? '#1d2021' : '#fafafa',
-            cellBg:    isDark ? '#3c3836' : '#ffffff',
-            gridLine:  isDark ? '#504945' : '#cccccc',
-            text:      isDark ? '#ebdbb2' : '#333333',
-            textMuted: isDark ? '#a89984' : '#999999',
-            agent:     isDark ? '#83a598' : '#2196F3',
-            goal:      isDark ? '#b8bb26' : '#4CAF50',
-            wall:      isDark ? '#1d2021' : '#424242',
-            pit:       isDark ? '#fb4934' : '#F44336',
-            path:      isDark ? 'rgba(131,165,152,0.3)' : 'rgba(33,150,243,0.3)',
-            arrow:     isDark ? '#ebdbb2' : '#333333',
-            qPositive: isDark ? '#b8bb26' : '#4CAF50',
-            qNegative: isDark ? '#fb4934' : '#F44336',
-            start:     isDark ? '#fabd2f' : '#FF9800'
+            bg:        isDark ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light'),
+            cellBg:    isDark ? EAIColor('sunken', 'dark') : EAIColor('surface', 'light'),
+            gridLine:  isDark ? EAIColor('grid', 'dark') : EAIColor('grid', 'light'),
+            text:      isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light'),
+            textMuted: isDark ? EAIColor('muted', 'dark') : EAIColor('axis', 'light'),
+            agent:     isDark ? EAIColor('blue', 'dark') : EAIColor('blue', 'light'),
+            goal:      isDark ? EAIColor('green', 'dark') : EAIColor('green', 'light'),
+            wall:      isDark ? EAIColor('canvas', 'dark') : EAIColor('ink-soft', 'light'),
+            pit:       isDark ? EAIColor('red', 'dark') : EAIColor('red-mid', 'light'),
+            path:      isDark ? EAIColor('blue', 0.3, 'dark') : EAIColor('blue', 0.3),
+            arrow:     isDark ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light'),
+            qPositive: isDark ? EAIColor('green', 'dark') : EAIColor('green', 'light'),
+            qNegative: isDark ? EAIColor('red', 'dark') : EAIColor('red-mid', 'light'),
+            start:     isDark ? EAIColor('gold', 'dark') : EAIColor('gold-strong', 'light')
         };
     }
 
@@ -364,15 +364,15 @@
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 if (cell === GOAL) {
-                    ctx.fillStyle = '#fff';
+                    ctx.fillStyle = EAIColor('surface');
                     ctx.font = 'bold 14px sans-serif';
                     ctx.fillText('G', x + cellSize / 2, y + cellSize / 2);
                 } else if (cell === PIT) {
-                    ctx.fillStyle = '#fff';
+                    ctx.fillStyle = EAIColor('surface');
                     ctx.font = 'bold 14px sans-serif';
                     ctx.fillText('X', x + cellSize / 2, y + cellSize / 2);
                 } else if (cell === START) {
-                    ctx.fillStyle = '#fff';
+                    ctx.fillStyle = EAIColor('surface');
                     ctx.font = 'bold 12px sans-serif';
                     ctx.fillText('S', x + cellSize / 2, y + cellSize / 2);
                 }
@@ -477,7 +477,7 @@
             CU.drawCircle(ctx, ax, ay, agentRadius, { fill: true });
 
             // Agent label
-            ctx.fillStyle = '#fff';
+            ctx.fillStyle = EAIColor('surface');
             ctx.font = 'bold 12px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';

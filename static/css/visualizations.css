@@ -9,7 +9,7 @@
 /* ============================================
    Shared CSS Custom Properties
    ============================================ */
-:root {
+:root, [data-theme="bluegold"] {
     /* Common UI colors */
     --viz-bg: #ffffff;
     --viz-border: #dee2e6;
@@ -18,21 +18,64 @@
     --viz-hover-bg: #f8f9fa;
     --viz-canvas-bg: #ffffff;
 
-    /* Book style: the AI2AI textbook's figure palette (Theisen AI Style), so a visualizer's canvas
-       and a figure in the book read as one system. Five colour families plus neutral structure.
-       Canvas code reads these through VizLib.FigureStyle. */
+    /* Shared palette: the AI2AI textbook's figure colours (Theisen AI Style). Every visualizer takes its
+       colours from here, in CSS as var(--book-*) and in canvas code as EAIColor('blue'), so the site and the
+       book read as one system. Five families (strong / -mid / -fill) plus neutral structure. */
     --book-navy: #002b5b;
-    --book-gold: #dcb439;
-    --book-gold-text: #8a6d10;
-    --book-blue: #1155cc;
-    --book-purple: #674ea7;
-    --book-purple-light: #8e7cc3;
-    --book-green: #38761d;
-    --book-red: #cc0000;
     --book-ink: #000000;
+    --book-ink-soft: #333333;
     --book-muted: #666666;
     --book-axis: #9aa5b1;
     --book-grid: #dddddd;
+    --book-sunken: #f5f5f5;
+    --book-surface: #ffffff;
+    --book-canvas: #ffffff;
+    --book-blue: #1155cc;
+    --book-blue-mid: #6d9eeb;
+    --book-blue-fill: #c9daf8;
+    --book-purple: #674ea7;
+    --book-purple-mid: #8e7cc3;
+    --book-purple-light: #8e7cc3;
+    --book-purple-fill: #d9d2e9;
+    --book-green: #38761d;
+    --book-green-mid: #6aa84f;
+    --book-green-fill: #d9ead3;
+    --book-red: #cc0000;
+    --book-red-mid: #e06666;
+    --book-red-fill: #f4cccc;
+    --book-gold: #dcb439;
+    --book-gold-text: #8a6d10;
+    --book-gold-strong: #b18d03;
+    --book-gold-mid: #ffd966;
+    --book-gold-fill: #fff2cc;
+    /* the same colours as r, g, b for rgba(var(--book-blue-rgb), 0.3) */
+    --book-navy-rgb: 0, 43, 91;
+    --book-ink-rgb: 0, 0, 0;
+    --book-ink-soft-rgb: 51, 51, 51;
+    --book-muted-rgb: 102, 102, 102;
+    --book-axis-rgb: 154, 165, 177;
+    --book-grid-rgb: 221, 221, 221;
+    --book-sunken-rgb: 245, 245, 245;
+    --book-surface-rgb: 255, 255, 255;
+    --book-canvas-rgb: 255, 255, 255;
+    --book-blue-rgb: 17, 85, 204;
+    --book-blue-mid-rgb: 109, 158, 235;
+    --book-blue-fill-rgb: 201, 218, 248;
+    --book-purple-rgb: 103, 78, 167;
+    --book-purple-mid-rgb: 142, 124, 195;
+    --book-purple-light-rgb: 142, 124, 195;
+    --book-purple-fill-rgb: 217, 210, 233;
+    --book-green-rgb: 56, 118, 29;
+    --book-green-mid-rgb: 106, 168, 79;
+    --book-green-fill-rgb: 217, 234, 211;
+    --book-red-rgb: 204, 0, 0;
+    --book-red-mid-rgb: 224, 102, 102;
+    --book-red-fill-rgb: 244, 204, 204;
+    --book-gold-rgb: 220, 180, 57;
+    --book-gold-text-rgb: 138, 109, 16;
+    --book-gold-strong-rgb: 177, 141, 3;
+    --book-gold-mid-rgb: 255, 217, 102;
+    --book-gold-fill-rgb: 255, 242, 204;
     --book-font: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", sans-serif;
     --book-mono: Consolas, "SF Mono", Menlo, Monaco, "Liberation Mono", "Courier New", monospace;
 
@@ -80,31 +123,61 @@
     --viz-hover-bg: var(--gruvbox-bg1);
     --viz-canvas-bg: var(--gruvbox-bg-darkest);
 
-    /* Book style, dark counterparts */
-    --book-navy: var(--gruvbox-fg);
-    --book-gold: var(--gruvbox-yellow);
-    --book-gold-text: var(--gruvbox-yellow);
-    --book-blue: var(--gruvbox-blue);
-    --book-purple: var(--gruvbox-purple);
+    /* Shared palette, dark counterparts */
+    --book-navy: #ebdbb2;
+    --book-ink: #fbf1c7;
+    --book-ink-soft: #ebdbb2;
+    --book-muted: #a89984;
+    --book-axis: #7c6f64;
+    --book-grid: #504945;
+    --book-sunken: #3c3836;
+    --book-surface: #282828;
+    --book-canvas: #1d2021;
+    --book-blue: #83a598;
+    --book-blue-mid: #458588;
+    --book-blue-fill: #2b3b3c;
+    --book-purple: #d3869b;
+    --book-purple-mid: #b16286;
     --book-purple-light: #b16286;
-    --book-green: var(--gruvbox-green);
-    --book-red: var(--gruvbox-red);
-    --book-ink: var(--gruvbox-fg);
-    --book-muted: var(--gruvbox-gray);
-    --book-axis: var(--gruvbox-gray);
-    --book-grid: var(--gruvbox-bg2);
-
-    --viz-active-bg: rgba(184, 187, 38, 0.3);
-    --viz-active-border: var(--gruvbox-green);
-
-    --viz-success-bg: rgba(184, 187, 38, 0.3);
-    --viz-success-border: var(--gruvbox-green);
-    --viz-warning-bg: rgba(250, 189, 47, 0.3);
-    --viz-warning-border: var(--gruvbox-yellow);
-    --viz-danger-bg: rgba(251, 73, 52, 0.3);
-    --viz-danger-border: var(--gruvbox-red);
-    --viz-info-bg: rgba(131, 165, 152, 0.3);
-    --viz-info-border: var(--gruvbox-blue);
+    --book-purple-fill: #45303a;
+    --book-green: #b8bb26;
+    --book-green-mid: #98971a;
+    --book-green-fill: #3a3d1f;
+    --book-red: #fb4934;
+    --book-red-mid: #cc241d;
+    --book-red-fill: #4a2420;
+    --book-gold: #fabd2f;
+    --book-gold-text: #d79921;
+    --book-gold-strong: #fe8019;
+    --book-gold-mid: #d79921;
+    --book-gold-fill: #4a3c16;
+    --book-navy-rgb: 235, 219, 178;
+    --book-ink-rgb: 251, 241, 199;
+    --book-ink-soft-rgb: 235, 219, 178;
+    --book-muted-rgb: 168, 153, 132;
+    --book-axis-rgb: 124, 111, 100;
+    --book-grid-rgb: 80, 73, 69;
+    --book-sunken-rgb: 60, 56, 54;
+    --book-surface-rgb: 40, 40, 40;
+    --book-canvas-rgb: 29, 32, 33;
+    --book-blue-rgb: 131, 165, 152;
+    --book-blue-mid-rgb: 69, 133, 136;
+    --book-blue-fill-rgb: 43, 59, 60;
+    --book-purple-rgb: 211, 134, 155;
+    --book-purple-mid-rgb: 177, 98, 134;
+    --book-purple-light-rgb: 177, 98, 134;
+    --book-purple-fill-rgb: 69, 48, 58;
+    --book-green-rgb: 184, 187, 38;
+    --book-green-mid-rgb: 152, 151, 26;
+    --book-green-fill-rgb: 58, 61, 31;
+    --book-red-rgb: 251, 73, 52;
+    --book-red-mid-rgb: 204, 36, 29;
+    --book-red-fill-rgb: 74, 36, 32;
+    --book-gold-rgb: 250, 189, 47;
+    --book-gold-text-rgb: 215, 153, 33;
+    --book-gold-strong-rgb: 254, 128, 25;
+    --book-gold-mid-rgb: 215, 153, 33;
+    --book-gold-fill-rgb: 74, 60, 22;
 }
 
 /* ============================================
@@ -773,7 +846,7 @@ code {
 /* ============================================
    Class Colors (for classification visualizations)
    ============================================ */
-:root {
+:root, [data-theme="bluegold"] {
     /* Categorical colors - from ThemeManager */
     --viz-class-0: #cc0000;
     --viz-class-1: #1155cc;

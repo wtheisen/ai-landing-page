@@ -3,9 +3,9 @@
 /* --- Container --- */
 .topics-graph-container {
     width: 100%;
-    border: 1px solid #ddd;
+    border: 1px solid var(--book-grid);
     border-radius: 6px;
-    background: #fafbfc;
+    background: var(--book-surface);
     overflow: hidden;
 }
 
@@ -29,7 +29,7 @@
 
 /* --- Links --- */
 .topics-link {
-    stroke: #ccc;
+    stroke: var(--book-grid);
     stroke-width: 1.2;
     stroke-opacity: 0.6;
     transition: stroke-opacity 0.3s ease;
@@ -55,7 +55,7 @@
 
 .topics-node-label {
     font-size: 11px;
-    fill: #333;
+    fill: var(--book-ink-soft);
     pointer-events: none;
     font-family: inherit;
 }
@@ -66,8 +66,8 @@
 
 /* --- Expand panel --- */
 .topics-expand-panel {
-    background: #fff;
-    border: 1px solid #ddd;
+    background: var(--book-surface);
+    border: 1px solid var(--book-grid);
     border-radius: 6px;
     padding: 12px;
     font-size: 12px;
@@ -85,7 +85,7 @@
 
 .topics-expand-panel p {
     margin: 0 0 8px 0;
-    color: #555;
+    color: var(--book-muted);
 }
 
 .topics-expand-links {
@@ -96,7 +96,7 @@
 }
 
 .topics-expand-links a {
-    color: #4e73df;
+    color: var(--book-blue-mid);
     text-decoration: none;
     font-size: 11px;
 }
@@ -108,8 +108,8 @@
 .topics-viz-link {
     display: inline-block;
     padding: 4px 12px;
-    background: #4e73df;
-    color: #fff !important;
+    background: var(--book-blue-mid);
+    color: var(--book-surface) !important;
     border-radius: 4px;
     text-decoration: none !important;
     font-size: 11px;
@@ -118,7 +118,7 @@
 }
 
 .topics-viz-link:hover {
-    background: #2e59d9;
+    background: var(--book-blue);
 }
 
 /* --- Search bar --- */
@@ -133,7 +133,7 @@
     gap: 12px;
     margin-bottom: 16px;
     font-size: 13px;
-    color: #555;
+    color: var(--book-muted);
 }
 
 .topics-legend-item {

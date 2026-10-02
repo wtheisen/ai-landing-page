@@ -12,8 +12,8 @@
     /* Digit colors use shared --viz-class-* variables directly */
 
     /* Tooltip */
-    --mnist-tooltip-bg: #ffffff;
-    --mnist-tooltip-border: #333333;
+    --mnist-tooltip-bg: var(--book-surface);
+    --mnist-tooltip-border: var(--book-ink-soft);
     --mnist-tooltip-shadow: rgba(0, 0, 0, 0.15);
 }
 
@@ -132,7 +132,7 @@
     image-rendering: pixelated;
     image-rendering: crisp-edges;
     border: 1px solid var(--viz-border);
-    background-color: #000;
+    background-color: var(--book-ink);
 }
 
 .tooltip-label {
@@ -197,7 +197,7 @@
 
 .digit-toggle {
     font-weight: bold;
-    color: #fff !important;
+    color: var(--book-surface) !important;
     border: 2px solid transparent;
     transition: all 0.15s ease;
     padding: 4px 0;

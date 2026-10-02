@@ -222,7 +222,7 @@
             text: style.getPropertyValue('--viz-text').trim() || '#333',
             muted: style.getPropertyValue('--viz-text-muted').trim() || '#6c757d',
             border: style.getPropertyValue('--viz-border').trim() || '#dee2e6',
-            bg: '#ffffff',
+            bg: EAIColor('surface'),
         };
     }
 
@@ -472,7 +472,7 @@
 
         const optX = pad.l + ((optM - mMin) / (mMax - mMin)) * pw;
         const optY = pad.t + ph - ((optB - bMin) / (bMax - bMin)) * ph;
-        lossCtx.fillStyle = '#fff';
+        lossCtx.fillStyle = EAIColor('surface');
         lossCtx.strokeStyle = c.fitLine;
         lossCtx.lineWidth = 2;
         lossCtx.beginPath();
@@ -1176,9 +1176,9 @@
             ctx.lineTo(h.cx, h.cy + r);     // bottom
             ctx.lineTo(h.cx - r, h.cy);     // left
             ctx.closePath();
-            ctx.fillStyle = (isActive || isHovered) ? '#F59E0B' : '#FBBC04';
+            ctx.fillStyle = (isActive || isHovered) ? EAIColor('gold-strong') : EAIColor('gold');
             ctx.fill();
-            ctx.strokeStyle = '#D97706';
+            ctx.strokeStyle = EAIColor('gold-strong');
             ctx.lineWidth = 1.5;
             ctx.stroke();
         }

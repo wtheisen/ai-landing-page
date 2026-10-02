@@ -75,17 +75,17 @@
 
 .legend-expected .legend-box {
     background: transparent;
-    border: 2px dashed #4CAF50;
+    border: 2px dashed var(--book-green);
 }
 
 .legend-correct .legend-box {
-    background: rgba(76, 175, 80, 0.7);
-    border: 2px solid #388E3C;
+    background: rgba(var(--book-green-rgb), 0.7);
+    border: 2px solid var(--book-green);
 }
 
 .legend-incorrect .legend-box {
-    background: rgba(244, 67, 54, 0.7);
-    border: 2px solid #d32f2f;
+    background: rgba(var(--book-red-mid-rgb), 0.7);
+    border: 2px solid var(--book-red);
 }
 
 .legend-predicted-label {
@@ -141,7 +141,7 @@
 .gallery-item.selected {
     border-color: var(--viz-active-border);
     background: var(--viz-active-bg);
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 8px rgba(var(--book-blue-rgb), 0.3);
 }
 
 .gallery-image {

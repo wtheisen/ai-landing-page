@@ -698,7 +698,7 @@
                         const levels=[0,bias,bias+weights[0]*p.x,scoreAt(p.x,p.y)];
                         const names=[`w₀ = ${number(bias)}`,`w₁x₁ = ${number(weights[0]*p.x)}`,`w₂x₂ = ${number(weights[1]*p.y)}`];
                         levels.slice(1).forEach((z,j)=>{
-                            const a=project(p.x,p.y,levels[j]),b=project(p.x,p.y,z),color=['#0f766e',c.class0,c.class1][j];
+                            const a=project(p.x,p.y,levels[j]),b=project(p.x,p.y,z),color=[EAIColor('blue-mid'),c.class0,c.class1][j];
                             const offset=12*j,aa={x:a.x+offset,y:a.y},bb={x:b.x+offset,y:b.y};
                             geometryLine(a,aa,color,1,[2,3]);geometryLine(aa,bb,color,3);geometryLine(bb,b,color,1,[2,3]);
                             geometryLabel(names[j],{x:bb.x+8,y:(a.y+b.y)/2},color);
@@ -713,7 +713,7 @@
             const positions=[[.8,0,scoreAt(.8,0)],[0,.8,scoreAt(0,.8)],[0,0,bias]];
             positions.forEach((a,i)=>{
                 const p=project(...a),q=project(a[0],a[1],a[2]+(i===2?1:.8));
-                const color=[c.class0,c.class1,'#0f766e'][i];
+                const color=[c.class0,c.class1,EAIColor('blue-mid')][i];
                 geometryLine(project(0,0,i===2?0:bias),p,color,2.5);
                 ctx.beginPath();ctx.arc(p.x,p.y,6,0,Math.PI*2);ctx.fillStyle=c.bg;ctx.fill();ctx.strokeStyle=color;ctx.lineWidth=2.5;ctx.stroke();
                 geometryLabel(['w₁','w₂','w₀'][i],p,color);

@@ -7,14 +7,14 @@
    CSS Custom Properties
    ============================================ */
 :root {
-    --lt-e1: #e41a1c;
-    --lt-e2: #377eb8;
-    --lt-circle: #ff7f00;
-    --lt-eigen: #984ea3;
-    --lt-data: #4daf4a;
-    --lt-bracket: #555;
-    --lt-input-bg: #fff;
-    --lt-input-border: #ccc;
+    --lt-e1: var(--book-red);
+    --lt-e2: var(--book-blue);
+    --lt-circle: var(--book-gold-strong);
+    --lt-eigen: var(--book-purple);
+    --lt-data: var(--book-green);
+    --lt-bracket: var(--book-muted);
+    --lt-input-bg: var(--book-surface);
+    --lt-input-border: var(--book-grid);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -137,7 +137,7 @@
 .matrix-input:focus {
     outline: none;
     border-color: var(--viz-active-border);
-    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+    box-shadow: 0 0 0 2px rgba(var(--book-green-rgb), 0.2);
 }
 
 /* ============================================
@@ -245,7 +245,7 @@
 
 .chain-chip-active {
     border-color: var(--lt-e1);
-    box-shadow: 0 0 0 2px rgba(228, 26, 28, 0.25);
+    box-shadow: 0 0 0 2px rgba(var(--book-red-rgb), 0.25);
 }
 
 [data-theme="gruvbox-dark"] .chain-chip-active {

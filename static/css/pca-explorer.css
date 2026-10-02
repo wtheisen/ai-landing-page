@@ -3,16 +3,16 @@
 :root {
     /* book families: data blue, directions purple, new coordinates gold, variance red */
     --pce-axis1: var(--book-purple);
-    --pce-axis1-bg: rgba(103, 78, 167, 0.12);
+    --pce-axis1-bg: rgba(var(--book-purple-rgb), 0.12);
     --pce-axis2: var(--book-purple-light);
-    --pce-axis2-bg: rgba(142, 124, 195, 0.14);
+    --pce-axis2-bg: rgba(var(--book-purple-mid-rgb), 0.14);
     --pce-proj: var(--book-gold);
-    --pce-ellipse: rgba(204, 0, 0, 0.35);
+    --pce-ellipse: rgba(var(--book-red-rgb), 0.35);
     --pce-optimal: rgba(102, 102, 102, 0.3);
     --pce-mean: var(--book-gold-text);
     --pce-point: var(--book-blue);
-    --pce-point-stroke: #ffffff;
-    --pce-handle-stroke: #ffffff;
+    --pce-point-stroke: var(--book-surface);
+    --pce-handle-stroke: var(--book-surface);
     --pce-pc1: var(--book-purple);
     --pce-pc2: var(--book-purple-light);
     --pce-total-bar: var(--book-navy);

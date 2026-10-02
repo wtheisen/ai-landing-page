@@ -6,11 +6,11 @@
    Custom Properties
    ============================================ */
 :root {
-    --entropy-gauge-low: #4CAF50;
-    --entropy-gauge-mid: #FFC107;
-    --entropy-gauge-high: #F44336;
-    --entropy-bar-highlight: #ffd700;
-    --entropy-bar-drag: #ff9800;
+    --entropy-gauge-low: var(--book-green);
+    --entropy-gauge-mid: var(--book-gold);
+    --entropy-gauge-high: var(--book-red-mid);
+    --entropy-bar-highlight: var(--book-gold);
+    --entropy-bar-drag: var(--book-gold-strong);
 }
 
 [data-theme="gruvbox-dark"] {

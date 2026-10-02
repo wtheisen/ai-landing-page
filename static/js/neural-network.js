@@ -410,9 +410,9 @@
             this.dpr = 1;
             this.logicalW = BOUNDARY_W;
             this.logicalH = BOUNDARY_H;
-            this.classColors = ['#e41a1c', '#377eb8'];
-            this.gridColor = '#dee2e6';
-            this.textColor = '#333333';
+            this.classColors = [EAIColor('red'), EAIColor('blue')];
+            this.gridColor = EAIColor('grid');
+            this.textColor = EAIColor('ink-soft');
             this._setup();
         }
 
@@ -759,7 +759,7 @@
                     // Draw activation value inside node
                     if (activations && activations[l]) {
                         const val = activations[l][i];
-                        ctx.fillStyle = '#ffffff';
+                        ctx.fillStyle = EAIColor('surface');
                         ctx.font = `bold ${Math.max(8, nodeRadius * 0.8)}px sans-serif`;
                         ctx.textAlign = 'center';
                         ctx.textBaseline = 'middle';

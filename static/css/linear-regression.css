@@ -8,13 +8,13 @@
    LR-Specific CSS Custom Properties
    ============================================ */
 :root {
-    --lr-point-color: #377eb8;
-    --lr-point-stroke: #2a5f8f;
-    --lr-fit-color: #e41a1c;
-    --lr-residual-color: rgba(76, 175, 80, 0.5);
-    --lr-gd-color: #ff9800;
-    --lr-loss-gradient-start: #2196F3;
-    --lr-loss-gradient-end: #F44336;
+    --lr-point-color: var(--book-blue);
+    --lr-point-stroke: var(--book-blue);
+    --lr-fit-color: var(--book-red);
+    --lr-residual-color: rgba(var(--book-green-rgb), 0.5);
+    --lr-gd-color: var(--book-gold-strong);
+    --lr-loss-gradient-start: var(--book-blue);
+    --lr-loss-gradient-end: var(--book-red-mid);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -36,7 +36,7 @@
     z-index: 2;
     width: 100%;
     aspect-ratio: 5 / 3;
-    background: #fff;
+    background: var(--book-surface);
 }
 
 [data-theme="gruvbox-dark"] #regression-canvas {
@@ -177,7 +177,7 @@
 .lr-eq-b {
     font-family: var(--viz-mono-font);
     font-size: 0.85em;
-    color: #6366f1;
+    color: var(--book-blue-mid);
     font-weight: 600;
 }
 
@@ -188,7 +188,7 @@
 .lr-eq-coeff {
     font-family: var(--viz-mono-font);
     font-size: 0.85em;
-    color: #8b5cf6;
+    color: var(--book-purple-mid);
     font-weight: 600;
 }
 
@@ -431,38 +431,38 @@
 /* LR-specific value badge colors */
 .gnb-val-slope {
     color: var(--lr-fit-color);
-    background: rgba(228, 26, 28, 0.12);
-    border: 1px solid rgba(228, 26, 28, 0.3);
+    background: rgba(var(--book-red-rgb), 0.12);
+    border: 1px solid rgba(var(--book-red-rgb), 0.3);
 }
 
 .gnb-val-intercept {
-    color: #6366f1;
-    background: rgba(99, 102, 241, 0.12);
-    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: var(--book-blue-mid);
+    background: rgba(var(--book-blue-mid-rgb), 0.12);
+    border: 1px solid rgba(var(--book-blue-mid-rgb), 0.3);
 }
 
 .gnb-val-data {
     color: var(--lr-point-color);
-    background: rgba(55, 126, 184, 0.12);
-    border: 1px solid rgba(55, 126, 184, 0.3);
+    background: rgba(var(--book-blue-rgb), 0.12);
+    border: 1px solid rgba(var(--book-blue-rgb), 0.3);
 }
 
 .gnb-val-mse {
-    color: #f59e0b;
-    background: rgba(245, 158, 11, 0.12);
-    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: var(--book-gold-strong);
+    background: rgba(var(--book-gold-strong-rgb), 0.12);
+    border: 1px solid rgba(var(--book-gold-strong-rgb), 0.3);
 }
 
 .gnb-val-r2 {
-    color: #22c55e;
-    background: rgba(34, 197, 94, 0.12);
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: var(--book-green);
+    background: rgba(var(--book-green-rgb), 0.12);
+    border: 1px solid rgba(var(--book-green-rgb), 0.3);
 }
 
 .gnb-val-gd {
     color: var(--lr-gd-color);
-    background: rgba(255, 152, 0, 0.12);
-    border: 1px solid rgba(255, 152, 0, 0.3);
+    background: rgba(var(--book-gold-strong-rgb), 0.12);
+    border: 1px solid rgba(var(--book-gold-strong-rgb), 0.3);
 }
 
 [data-theme="gruvbox-dark"] .gnb-val-slope {

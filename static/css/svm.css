@@ -8,12 +8,12 @@
    SVM-Specific CSS Custom Properties
    ============================================ */
 :root {
-    --svm-boundary-color: #333;
+    --svm-boundary-color: var(--book-ink-soft);
     --svm-margin-color: rgba(100, 100, 100, 0.4);
-    --svm-sv-stroke: #8b5cf6;
+    --svm-sv-stroke: var(--book-purple-mid);
     --svm-sv-stroke-width: 3px;
-    --svm-boundary-region-0: rgba(228, 26, 28, 0.08);
-    --svm-boundary-region-1: rgba(55, 126, 184, 0.08);
+    --svm-boundary-region-0: rgba(var(--book-red-rgb), 0.08);
+    --svm-boundary-region-1: rgba(var(--book-blue-rgb), 0.08);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -55,7 +55,7 @@
 }
 
 .click-overlay span {
-    color: #fff;
+    color: var(--book-surface);
     font-size: 1rem;
     font-weight: 500;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
@@ -287,15 +287,15 @@
 }
 
 .svm-val-positive {
-    color: #16a34a;
-    background: rgba(22, 163, 74, 0.1);
-    border: 1px solid rgba(22, 163, 74, 0.25);
+    color: var(--book-green);
+    background: rgba(var(--book-green-rgb), 0.1);
+    border: 1px solid rgba(var(--book-green-rgb), 0.25);
 }
 
 .svm-val-negative {
-    color: #dc2626;
-    background: rgba(220, 38, 38, 0.1);
-    border: 1px solid rgba(220, 38, 38, 0.25);
+    color: var(--book-red);
+    background: rgba(var(--book-red-rgb), 0.1);
+    border: 1px solid rgba(var(--book-red-rgb), 0.25);
 }
 
 .svm-val-neutral {
@@ -306,8 +306,8 @@
 
 .svm-val-sv {
     color: var(--svm-sv-stroke);
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.25);
+    background: rgba(var(--book-purple-mid-rgb), 0.1);
+    border: 1px solid rgba(var(--book-purple-mid-rgb), 0.25);
 }
 
 .svm-param-grid {

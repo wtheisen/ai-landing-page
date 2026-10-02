@@ -337,7 +337,7 @@
             ctx.beginPath();
             ctx.arc(x, y, 6, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = '#fff';
+            ctx.strokeStyle = EAIColor('surface');
             ctx.lineWidth = 2;
             ctx.stroke();
         }
@@ -556,7 +556,7 @@
 
         _getMutedTextColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#928374' : '#888888';
+                ? EAIColor('muted', 'dark') : EAIColor('axis', 'light');
         }
 
         getBarAtPosition(x, y) {
@@ -578,52 +578,52 @@
 
         _getTextColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#ebdbb2' : '#333333';
+                ? EAIColor('ink-soft', 'dark') : EAIColor('ink-soft', 'light');
         }
 
         _getGridColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? 'rgba(168, 153, 132, 0.3)' : 'rgba(0, 0, 0, 0.1)';
+                ? EAIColor('muted', 0.3, 'dark') : 'rgba(0, 0, 0, 0.1)';
         }
 
         _getExpectedColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#b8bb26' : '#4CAF50';
+                ? EAIColor('green', 'dark') : EAIColor('green', 'light');
         }
 
         _getPredictedColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#83a598' : '#2196F3';
+                ? EAIColor('blue', 'dark') : EAIColor('blue', 'light');
         }
 
         _getHighlightColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#fabd2f' : '#FFC107';
+                ? EAIColor('gold', 'dark') : EAIColor('gold', 'light');
         }
 
         _getHighlightBorderColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#d79921' : '#FF9800';
+                ? EAIColor('gold-text', 'dark') : EAIColor('gold-strong', 'light');
         }
 
         _getCorrectColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#98971a' : '#4CAF50';
+                ? EAIColor('green-mid', 'dark') : EAIColor('green', 'light');
         }
 
         _getCorrectBorderColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#b8bb26' : '#388E3C';
+                ? EAIColor('green', 'dark') : EAIColor('green', 'light');
         }
 
         _getIncorrectColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#cc241d' : '#f44336';
+                ? EAIColor('red-mid', 'dark') : EAIColor('red-mid', 'light');
         }
 
         _getIncorrectBorderColor() {
             return document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#fb4934' : '#d32f2f';
+                ? EAIColor('red', 'dark') : EAIColor('red', 'light');
         }
     }
 
@@ -1293,7 +1293,7 @@
 
             VizLib.resetCanvasTransform(ctx, dpr);
             const bgColor = document.documentElement.getAttribute('data-theme') === 'gruvbox-dark'
-                ? '#1d2021' : '#fafafa';
+                ? EAIColor('canvas', 'dark') : EAIColor('surface', 'light');
             VizLib.clearCanvas(ctx, this.canvasWidth, this.canvasHeight, bgColor);
 
             const labels = this.dataManager.getMetadata()?.classLabels ||

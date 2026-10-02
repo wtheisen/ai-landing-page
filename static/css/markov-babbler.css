@@ -9,33 +9,33 @@
    ============================================ */
 :root {
     /* Context graph canvas */
-    --babbler-context-bg: #2196F3;
-    --babbler-context-text: #ffffff;
-    --babbler-candidate-bg: #ffffff;
-    --babbler-candidate-border: #dee2e6;
-    --babbler-selected-bg: #FFF9C4;
-    --babbler-selected-border: #FBC02D;
-    --babbler-connection: #90a4ae;
-    --babbler-connection-active: #FBC02D;
+    --babbler-context-bg: var(--book-blue);
+    --babbler-context-text: var(--book-surface);
+    --babbler-candidate-bg: var(--book-surface);
+    --babbler-candidate-border: var(--book-grid);
+    --babbler-selected-bg: var(--book-gold-fill);
+    --babbler-selected-border: var(--book-gold);
+    --babbler-connection: var(--book-axis);
+    --babbler-connection-active: var(--book-gold);
 
     /* Generated text */
-    --babbler-text-bg: #f8f9fa;
-    --babbler-text-border: #dee2e6;
-    --babbler-word-highlight: #FFF9C4;
-    --babbler-word-active-border: #FBC02D;
-    --babbler-backoff-bg: #fff3cd;
-    --babbler-backoff-border: #ffc107;
+    --babbler-text-bg: var(--book-surface);
+    --babbler-text-border: var(--book-grid);
+    --babbler-word-highlight: var(--book-gold-fill);
+    --babbler-word-active-border: var(--book-gold);
+    --babbler-backoff-bg: var(--book-gold-fill);
+    --babbler-backoff-border: var(--book-gold);
 
     /* N-gram table */
-    --babbler-table-bg: #ffffff;
-    --babbler-table-header: #f5f5f5;
-    --babbler-table-border: #dee2e6;
-    --babbler-table-hover: #e3f2fd;
-    --babbler-prob-bar: #2196F3;
+    --babbler-table-bg: var(--book-surface);
+    --babbler-table-header: var(--book-sunken);
+    --babbler-table-border: var(--book-grid);
+    --babbler-table-hover: var(--book-blue-fill);
+    --babbler-prob-bar: var(--book-blue);
 
     /* Custom corpus */
-    --babbler-textarea-bg: #ffffff;
-    --babbler-textarea-border: #ced4da;
+    --babbler-textarea-bg: var(--book-surface);
+    --babbler-textarea-border: var(--book-grid);
 }
 
 [data-theme="gruvbox-dark"] {

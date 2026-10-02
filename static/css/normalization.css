@@ -9,30 +9,30 @@
    ============================================ */
 :root {
     /* Norm type accent colors */
-    --norm-bn-color: #e41a1c;
-    --norm-ln-color: #377eb8;
-    --norm-in-color: #4daf4a;
-    --norm-gn-color: #984ea3;
-    --norm-rms-color: #ff7f00;
+    --norm-bn-color: var(--book-red);
+    --norm-ln-color: var(--book-blue);
+    --norm-in-color: var(--book-green);
+    --norm-gn-color: var(--book-purple);
+    --norm-rms-color: var(--book-gold-strong);
 
     /* Diverging colormap (blue-white-red) */
-    --norm-neg-color: #2166ac;
-    --norm-zero-color: #f7f7f7;
-    --norm-pos-color: #b2182b;
+    --norm-neg-color: var(--book-blue);
+    --norm-zero-color: var(--book-sunken);
+    --norm-pos-color: var(--book-red);
 
     /* Group highlight */
-    --norm-highlight-color: rgba(255, 215, 0, 0.6);
-    --norm-highlight-border: #ffd700;
-    --norm-locked-border: #ff8c00;
+    --norm-highlight-color: rgba(var(--book-gold-rgb), 0.6);
+    --norm-highlight-border: var(--book-gold);
+    --norm-locked-border: var(--book-gold-strong);
 
     /* Axis label colors */
-    --norm-batch-color: #e41a1c;
-    --norm-channel-color: #377eb8;
-    --norm-spatial-color: #4daf4a;
+    --norm-batch-color: var(--book-red);
+    --norm-channel-color: var(--book-blue);
+    --norm-spatial-color: var(--book-green);
 
     /* Distribution bars */
     --norm-raw-bar: rgba(100, 100, 100, 0.5);
-    --norm-normed-bar: rgba(59, 130, 246, 0.6);
+    --norm-normed-bar: rgba(var(--book-blue-mid-rgb), 0.6);
 }
 
 [data-theme="gruvbox-dark"] {
@@ -70,31 +70,31 @@
 .norm-type-toggle .btn.active[data-norm="batch"] {
     background: var(--norm-bn-color);
     border-color: var(--norm-bn-color);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 .norm-type-toggle .btn.active[data-norm="layer"] {
     background: var(--norm-ln-color);
     border-color: var(--norm-ln-color);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 .norm-type-toggle .btn.active[data-norm="instance"] {
     background: var(--norm-in-color);
     border-color: var(--norm-in-color);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 .norm-type-toggle .btn.active[data-norm="group"] {
     background: var(--norm-gn-color);
     border-color: var(--norm-gn-color);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 .norm-type-toggle .btn.active[data-norm="rms"] {
     background: var(--norm-rms-color);
     border-color: var(--norm-rms-color);
-    color: #fff;
+    color: var(--book-surface);
 }
 
 /* ============================================

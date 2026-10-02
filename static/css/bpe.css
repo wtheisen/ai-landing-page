@@ -7,35 +7,35 @@
    CSS Custom Properties
    ============================================ */
 :root {
-    --bpe-char-bg: #e3f2fd;
-    --bpe-char-border: #1976d2;
-    --bpe-char-text: #1565c0;
-    --bpe-merged-bg: #e8f5e9;
-    --bpe-merged-border: #43a047;
-    --bpe-merged-text: #2e7d32;
-    --bpe-active-bg: #fff3e0;
-    --bpe-active-border: #ff8c00;
-    --bpe-active-text: #e65100;
-    --bpe-active-glow: rgba(255, 140, 0, 0.4);
-    --bpe-eow-bg: #f5f5f5;
-    --bpe-eow-border: #bdbdbd;
-    --bpe-eow-text: #9e9e9e;
-    --bpe-bar-fill: #42a5f5;
-    --bpe-bar-highlight: #ff8c00;
-    --bpe-bar-bg: #e0e0e0;
-    --bpe-arrow-color: #ff8c00;
-    --bpe-arrow-glow: rgba(255, 140, 0, 0.3);
-    --bpe-vocab-pill-bg: #e8f5e9;
-    --bpe-vocab-pill-border: #66bb6a;
-    --bpe-vocab-pill-text: #2e7d32;
-    --bpe-vocab-new-bg: #fff3e0;
-    --bpe-vocab-new-border: #ff8c00;
-    --bpe-vocab-new-text: #e65100;
-    --bpe-rule-text: #555;
-    --bpe-rule-highlight: #ff8c00;
-    --bpe-section-title: #666;
-    --bpe-label-color: #555;
-    --bpe-canvas-text: #333;
+    --bpe-char-bg: var(--book-blue-fill);
+    --bpe-char-border: var(--book-blue);
+    --bpe-char-text: var(--book-blue);
+    --bpe-merged-bg: var(--book-green-fill);
+    --bpe-merged-border: var(--book-green);
+    --bpe-merged-text: var(--book-green);
+    --bpe-active-bg: var(--book-gold-fill);
+    --bpe-active-border: var(--book-gold-strong);
+    --bpe-active-text: var(--book-gold-strong);
+    --bpe-active-glow: rgba(var(--book-gold-strong-rgb), 0.4);
+    --bpe-eow-bg: var(--book-sunken);
+    --bpe-eow-border: var(--book-grid);
+    --bpe-eow-text: var(--book-axis);
+    --bpe-bar-fill: var(--book-blue-mid);
+    --bpe-bar-highlight: var(--book-gold-strong);
+    --bpe-bar-bg: var(--book-grid);
+    --bpe-arrow-color: var(--book-gold-strong);
+    --bpe-arrow-glow: rgba(var(--book-gold-strong-rgb), 0.3);
+    --bpe-vocab-pill-bg: var(--book-green-fill);
+    --bpe-vocab-pill-border: var(--book-green-mid);
+    --bpe-vocab-pill-text: var(--book-green);
+    --bpe-vocab-new-bg: var(--book-gold-fill);
+    --bpe-vocab-new-border: var(--book-gold-strong);
+    --bpe-vocab-new-text: var(--book-gold-strong);
+    --bpe-rule-text: var(--book-muted);
+    --bpe-rule-highlight: var(--book-gold-strong);
+    --bpe-section-title: var(--book-muted);
+    --bpe-label-color: var(--book-muted);
+    --bpe-canvas-text: var(--book-ink-soft);
 }
 
 [data-theme="gruvbox-dark"] {
