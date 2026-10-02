@@ -70,21 +70,62 @@
 	{% endif %}
 
 	<!-- Embed mode: ?embed=1 drops the site header and footer so a page can sit in a frame (the AI2AI book does this);
-	     ?embed=viz also drops the right-hand info column. The page reports its height to the parent so the frame can fit it. -->
+	     ?embed=viz also drops the right-hand info column; ?embed=fig leaves only the main canvas, as a figure.
+	     The page reports its height to the parent so the frame can fit it.
+	     Figure protocol: a visualizer may call EAIFigure.register(getState, setState) to make its whole state
+	     (not only its form controls) restorable from ?state=<base64 JSON>. A parent frame can ask for
+	     {type:'eai-get-state'} -> {type:'eai-state', url} and {type:'eai-snapshot'} -> {type:'eai-snapshot', png, width, height}.
+	     ?dpr=N renders canvases at N device pixels per CSS pixel (for print-quality snapshots). -->
 	<script>
 	(function() {
-	    var m = /[?&]embed=([^&#]*)/.exec(location.search);
-	    if (!m) return;
-	    document.documentElement.setAttribute('data-embed', m[1] === 'viz' ? 'viz' : '1');
+	    var q = location.search;
+	    var m = /[?&]embed=([^&#]*)/.exec(q), d = /[?&]dpr=([\d.]+)/.exec(q), st = /[?&]state=([^&#]*)/.exec(q);
+	    var mode = m ? (m[1] === 'viz' || m[1] === 'fig' ? m[1] : '1') : null;
+	    if (mode) document.documentElement.setAttribute('data-embed', mode);
+	    if (d && +d[1] >= 1 && +d[1] <= 4) { var n = +d[1]; try { Object.defineProperty(window, 'devicePixelRatio', { get: function() { return n; } }); } catch (e) {} }
+	    function enc(o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+	    function dec(t) { try { return JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(t).replace(/-/g, '+').replace(/_/g, '/'))))); } catch (e) { return null; } }
+	    var pending = st ? dec(st[1]) : null, controlsDone = false;
+	    var F = window.EAIFigure = {
+	        mode: mode, get: null, set: null,
+	        register: function(get, set) { F.get = get; F.set = set; apply(); },
+	        canvas: function() { return document.querySelector('[data-fig-canvas]') || document.querySelector('#main-content .col-md-7 canvas') || document.querySelector('#main-content canvas'); },
+	        url: function() {
+	            var u = window._urlState ? window._urlState.getShareableURL() : location.origin + location.pathname;
+	            var s = F.get ? F.get() : null;
+	            return s ? u + (u.indexOf('?') < 0 ? '?' : '&') + 'state=' + enc(s) : u;
+	        }
+	    };
+	    // the page's own state goes on after the form controls have been restored from the address, so it has the last word
+	    function apply() {
+	        if (!controlsDone || !F.set) return;
+	        if (pending) { try { F.set(pending); } catch (e) {} pending = null; }
+	        if (mode) setTimeout(function() { post({ type: 'eai-ready' }); report(); }, 60);
+	    }
+	    function post(msg) { if (window.parent !== window) { msg.page = location.pathname.split('/').pop(); window.parent.postMessage(msg, '*'); } }
 	    function report() {
+	        if (!mode) return;
 	        var c = document.querySelector('.container');
-	        var h = Math.ceil((c ? c.getBoundingClientRect().height : document.body.scrollHeight) + 12);
-	        if (window.parent !== window) window.parent.postMessage({ type: 'eai-embed-height', height: h, page: location.pathname.split('/').pop() }, '*');
+	        post({ type: 'eai-embed-height', height: Math.ceil((c ? c.getBoundingClientRect().height : document.body.scrollHeight) + (mode === 'fig' ? 0 : 12)) });
 	    }
 	    window.addEventListener('load', function() {
+	        // the shared script restores form controls 100 ms after the library is ready
+	        setTimeout(function() { controlsDone = true; if (F.set) apply(); else if (mode) post({ type: 'eai-ready' }); }, 400);
+	        if (!mode) return;
 	        report();
 	        if (window.ResizeObserver) new ResizeObserver(report).observe(document.querySelector('.container') || document.body);
 	        setTimeout(report, 800);
+	    });
+	    window.addEventListener('message', function(e) {
+	        var t = e.data && e.data.type;
+	        if (t === 'eai-get-state') post({ type: 'eai-state', url: F.url(), full: !!F.get });
+	        else if (t === 'eai-set-state' && F.set && e.data.state) F.set(e.data.state);
+	        else if (t === 'eai-snapshot') {
+	            var c = F.canvas(), png = null;
+	            try { png = c ? c.toDataURL('image/png') : null; } catch (err) {}
+	            var r = c ? c.getBoundingClientRect() : { width: 0, height: 0 };
+	            post({ type: 'eai-snapshot', png: png, width: r.width, height: r.height });
+	        }
 	    });
 	})();
 	</script>
@@ -95,8 +136,20 @@
 	[data-embed] .container > .row > hr,
 	[data-embed] .container > .row > footer,
 	[data-embed] #share-btn { display: none !important; }
-	[data-embed="viz"] .row > .col-md-5 { display: none !important; }
-	[data-embed="viz"] .row > .col-md-7 { width: 100% !important; }
+	[data-embed="viz"] .row > .col-md-5,
+	[data-embed="fig"] .row > .col-md-5 { display: none !important; }
+	[data-embed="viz"] .row > .col-md-7,
+	[data-embed="fig"] .row > .col-md-7 { width: 100% !important; }
+	/* figure mode: the first panel's canvas and nothing else */
+	[data-embed="fig"] body { padding: 0; overflow: hidden; }
+	[data-embed="fig"] .container,
+	[data-embed="fig"] .row > .col-md-7 { padding: 0; }
+	[data-embed="fig"] .row { margin: 0; }
+	[data-embed="fig"] .col-md-7 > .panel ~ *,
+	[data-embed="fig"] .col-md-7 > .panel > .panel-heading,
+	[data-embed="fig"] .col-md-7 > .panel > .panel-footer { display: none !important; }
+	[data-embed="fig"] .col-md-7 > .panel { border: 0; margin: 0; box-shadow: none; border-radius: 0; }
+	[data-embed="fig"] .col-md-7 > .panel > .panel-body { padding: 0; }
 	</style>
 
 	<!-- Theme CSS (toggleable) -->

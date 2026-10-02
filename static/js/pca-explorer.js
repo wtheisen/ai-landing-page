@@ -344,7 +344,11 @@
         ctx.fillStyle = color;
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText(lbl, tipX + 14, tipY - 8);
+        // keep the label inside the canvas when the arrow tip is near an edge
+        var lw = ctx.measureText(lbl).width;
+        var lx = Math.max(4, Math.min(tipX + 14, W - lw - 4));
+        var ly = Math.max(12, Math.min(tipY - 8, H - 6));
+        ctx.fillText(lbl, lx, lx < tipX + 14 ? ly - 8 : ly);
         ctx.restore();
     }
 
@@ -1110,6 +1114,34 @@
                 initDistCanvas();
                 render();
             }, 100);
+        });
+
+        // whole-figure state, so a link (or the book's figure) can restore exactly this picture
+        if (window.EAIFigure) window.EAIFigure.register(function () {
+            var r = function (v) { return Math.round(v * 1e4) / 1e4; };
+            return {
+                pts: points.map(function (p) { return [r(p.x), r(p.y)]; }),
+                t1: r(theta1), t2: r(theta2), lock: lockOrtho ? 1 : 0,
+                proj: showProjection ? projectionPCs : 0, p1: showProj1 ? 1 : 0, p2: showProj2 ? 1 : 0
+            };
+        }, function (s) {
+            if (Array.isArray(s.pts)) {
+                points = s.pts.map(function (p) { return { x: +p[0], y: +p[1] }; });
+                basePoints = []; currentDataset = 'custom';
+                document.getElementById('pce-dataset').value = 'custom';
+            }
+            computeCovariance();   // this turns the axes onto the eigenvectors; the saved angles go on after it
+            if (typeof s.t1 === 'number') theta1 = s.t1;
+            if (typeof s.t2 === 'number') theta2 = s.t2;
+            if ('lock' in s) { lockOrtho = !!s.lock; document.getElementById('pce-lock-ortho').checked = lockOrtho; }
+            if ('proj' in s) {
+                projectionPCs = s.proj || 2; showProjection = s.proj > 0;
+                document.querySelectorAll('[data-proj]').forEach(function (b) { b.classList.toggle('active', +b.dataset.proj === +s.proj); });
+            }
+            if ('p1' in s) { showProj1 = !!s.p1; document.getElementById('pce-toggle-proj1').checked = showProj1; }
+            if ('p2' in s) { showProj2 = !!s.p2; document.getElementById('pce-toggle-proj2').checked = showProj2; }
+            if ('p1' in s || 'p2' in s) showProjection = showProjection && (showProj1 || showProj2);
+            render();
         });
 
         // load whatever dataset the select defaults to
