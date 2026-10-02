@@ -169,7 +169,9 @@
             pc2:       g('--pce-pc2') || '#27ae60',
             bg:        g('--viz-canvas-bg') || '#fafafa',
             muted:     g('--viz-text-muted') || '#6c757d',
-            border:    g('--viz-border') || '#dee2e6',
+            border:    g('--book-axis') || '#9aa5b1',
+            z:         g('--pce-proj') || '#dcb439',
+            fs:        window.VizLib.FigureStyle.get(),
         };
     }
 
@@ -291,7 +293,7 @@
         // label
         if (label) {
             ctx.fillStyle = color;
-            ctx.font = 'bold 11px sans-serif';
+            ctx.font = window.VizLib.FigureStyle.get().font(12, true);
             ctx.textAlign = 'left';
             ctx.fillText(label, endX + 14, endY - 8);
         }
@@ -342,7 +344,7 @@
         var vx = Math.cos(angle), vy = Math.sin(angle);
         var lbl = 'PC' + (idx + 1) + ' (' + vx.toFixed(2) + ', ' + vy.toFixed(2) + ')';
         ctx.fillStyle = color;
-        ctx.font = 'bold 10px sans-serif';
+        ctx.font = window.VizLib.FigureStyle.get().font(11, true);
         ctx.textAlign = 'left';
         // keep the label inside the canvas when the arrow tip is near an edge
         var lw = ctx.measureText(lbl).width;
@@ -373,9 +375,9 @@
 
             // Arrow 1: PC1 effect (horizontal movement in PC space)
             if (showProj1) {
-                drawMiniArrow(ptCanvas.x, ptCanvas.y, midCanvas.x, midCanvas.y, c.pc1);
-                ctx.fillStyle = c.pc1;
-                ctx.globalAlpha = 0.5;
+                drawMiniArrow(ptCanvas.x, ptCanvas.y, midCanvas.x, midCanvas.y, c.z);
+                ctx.fillStyle = c.z;
+                ctx.globalAlpha = 1;
                 ctx.beginPath();
                 ctx.arc(midCanvas.x, midCanvas.y, 2.5, 0, Math.PI * 2);
                 ctx.fill();
@@ -384,9 +386,9 @@
             // Arrow 2: PC2 effect (vertical movement in PC space)
             if (showProj2) {
                 var fromCanvas = showProj1 ? midCanvas : ptCanvas;
-                drawMiniArrow(fromCanvas.x, fromCanvas.y, finalCanvas.x, finalCanvas.y, c.pc2);
-                ctx.fillStyle = c.pc2;
-                ctx.globalAlpha = 0.5;
+                drawMiniArrow(fromCanvas.x, fromCanvas.y, finalCanvas.x, finalCanvas.y, c.z);
+                ctx.fillStyle = c.z;
+                ctx.globalAlpha = 1;
                 ctx.beginPath();
                 ctx.arc(finalCanvas.x, finalCanvas.y, 2.5, 0, Math.PI * 2);
                 ctx.fill();
@@ -403,7 +405,7 @@
         if (dist < 2) return;
 
         ctx.strokeStyle = color;
-        ctx.globalAlpha = 0.35;
+        ctx.globalAlpha = 0.8;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
@@ -414,7 +416,7 @@
         if (dist > 6) {
             var aAngle = Math.atan2(y1 - y2, x1 - x2);
             ctx.fillStyle = color;
-            ctx.globalAlpha = 0.4;
+            ctx.globalAlpha = 0.9;
             ctx.beginPath();
             ctx.moveTo(x2, y2);
             ctx.lineTo(x2 + 4 * Math.cos(aAngle - Math.PI / 8),
@@ -481,7 +483,7 @@
 
         // axis labels
         ctx.fillStyle = c.muted;
-        ctx.font = 'bold 11px sans-serif';
+        ctx.font = window.VizLib.FigureStyle.get().font(12, true);
         ctx.textAlign = 'left';
         ctx.fillText('x\u2081', right.x - 14, right.y - 8);
         ctx.textAlign = 'center';
@@ -575,7 +577,7 @@
 
             // Label
             distCtx.fillStyle = ax.color;
-            distCtx.font = 'bold 10px sans-serif';
+            distCtx.font = window.VizLib.FigureStyle.get().font(10, true);
             distCtx.textAlign = 'right';
             distCtx.textBaseline = 'middle';
             distCtx.fillText(ax.label, labelW - 4, yMid);
@@ -654,7 +656,7 @@
             // σ label (right of plot area)
             distCtx.fillStyle = ax.color;
             distCtx.globalAlpha = 0.6;
-            distCtx.font = '9px sans-serif';
+            distCtx.font = window.VizLib.FigureStyle.get().font(9);
             distCtx.textAlign = 'left';
             distCtx.fillText('\u03C3=' + st.sd.toFixed(3), labelW + plotW + 4, yMid + 3);
             distCtx.globalAlpha = 1;

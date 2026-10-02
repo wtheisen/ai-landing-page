@@ -27,12 +27,12 @@ export class ThemeManager {
          */
         categorical: {
             light: [
-                '#e41a1c',  // 0 - red
-                '#377eb8',  // 1 - blue
-                '#4daf4a',  // 2 - green
-                '#984ea3',  // 3 - purple
+                '#cc0000',  // 0 - red (book)
+                '#1155cc',  // 1 - blue (book)
+                '#38761d',  // 2 - green (book)
+                '#674ea7',  // 3 - purple (book)
                 '#ff7f00',  // 4 - orange
-                '#c4a000',  // 5 - gold/yellow
+                '#dcb439',  // 5 - gold (book)
                 '#a65628',  // 6 - brown
                 '#f781bf',  // 7 - pink
                 '#999999',  // 8 - gray

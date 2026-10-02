@@ -16,7 +16,25 @@
     --viz-text: #333333;
     --viz-text-muted: #6c757d;
     --viz-hover-bg: #f8f9fa;
-    --viz-canvas-bg: #fafafa;
+    --viz-canvas-bg: #ffffff;
+
+    /* Book style: the AI2AI textbook's figure palette (Theisen AI Style), so a visualizer's canvas
+       and a figure in the book read as one system. Five colour families plus neutral structure.
+       Canvas code reads these through VizLib.FigureStyle. */
+    --book-navy: #002b5b;
+    --book-gold: #dcb439;
+    --book-gold-text: #8a6d10;
+    --book-blue: #1155cc;
+    --book-purple: #674ea7;
+    --book-purple-light: #8e7cc3;
+    --book-green: #38761d;
+    --book-red: #cc0000;
+    --book-ink: #000000;
+    --book-muted: #666666;
+    --book-axis: #9aa5b1;
+    --book-grid: #dddddd;
+    --book-font: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", sans-serif;
+    --book-mono: Consolas, "SF Mono", Menlo, Monaco, "Liberation Mono", "Courier New", monospace;
 
     /* Active/highlight states */
     --viz-active-bg: #d4edda;
@@ -61,6 +79,20 @@
     --viz-text-muted: var(--gruvbox-gray);
     --viz-hover-bg: var(--gruvbox-bg1);
     --viz-canvas-bg: var(--gruvbox-bg-darkest);
+
+    /* Book style, dark counterparts */
+    --book-navy: var(--gruvbox-fg);
+    --book-gold: var(--gruvbox-yellow);
+    --book-gold-text: var(--gruvbox-yellow);
+    --book-blue: var(--gruvbox-blue);
+    --book-purple: var(--gruvbox-purple);
+    --book-purple-light: #b16286;
+    --book-green: var(--gruvbox-green);
+    --book-red: var(--gruvbox-red);
+    --book-ink: var(--gruvbox-fg);
+    --book-muted: var(--gruvbox-gray);
+    --book-axis: var(--gruvbox-gray);
+    --book-grid: var(--gruvbox-bg2);
 
     --viz-active-bg: rgba(184, 187, 38, 0.3);
     --viz-active-border: var(--gruvbox-green);
@@ -743,12 +775,12 @@ code {
    ============================================ */
 :root {
     /* Categorical colors - from ThemeManager */
-    --viz-class-0: #e41a1c;
-    --viz-class-1: #377eb8;
-    --viz-class-2: #4daf4a;
-    --viz-class-3: #984ea3;
+    --viz-class-0: #cc0000;
+    --viz-class-1: #1155cc;
+    --viz-class-2: #38761d;
+    --viz-class-3: #674ea7;
     --viz-class-4: #ff7f00;
-    --viz-class-5: #c4a000;
+    --viz-class-5: #dcb439;
     --viz-class-6: #a65628;
     --viz-class-7: #f781bf;
     --viz-class-8: #999999;
