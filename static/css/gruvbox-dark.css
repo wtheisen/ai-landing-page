@@ -112,19 +112,49 @@ textarea {
   color: #bdae93 !important;
 }
 
-.btn,
-.btn-default,
-.btn-link {
-  border-color: #665c54 !important;
-  color: #83a598 !important;
-  background-color: transparent !important;
+/* Bootstrap's light gradients remain visible over a background-color override.
+   Use opaque, flat surfaces and explicit text colors for every button state. */
+.btn {
+  background-image: none !important;
+  background-color: #32302f !important;
+  border-color: #928374 !important;
+  color: #ebdbb2 !important;
+  text-shadow: none !important;
+}
+
+.btn.btn-primary,
+.btn.btn-info {
+  background-color: #83a598 !important;
+  color: #1d2021 !important;
+}
+
+.btn.btn-success {
+  background-color: #b8bb26 !important;
+  color: #1d2021 !important;
+}
+
+.btn.btn-warning {
+  background-color: #fabd2f !important;
+  color: #1d2021 !important;
+}
+
+.btn.btn-danger {
+  background-color: #fb4934 !important;
+  color: #1d2021 !important;
 }
 
 .btn:hover,
 .btn:focus,
-.btn-link:hover {
-  color: #d65d0e !important;
-  border-color: #d65d0e !important;
+.btn.active,
+.btn:active {
+  background-color: #504945 !important;
+  border-color: #fabd2f !important;
+  color: #fbf1c7 !important;
+}
+
+.btn:focus-visible {
+  outline: 2px solid #fabd2f;
+  outline-offset: 2px;
 }
 
 .label-success {
