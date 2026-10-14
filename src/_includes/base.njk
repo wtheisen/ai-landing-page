@@ -197,7 +197,6 @@
         var dark = saved === 'gruvbox-dark' ||
             (saved !== 'bluegold' && saved !== 'gruvbox-light' &&
              window.matchMedia('(prefers-color-scheme: dark)').matches);
-        if (document.documentElement.hasAttribute('data-embed')) dark = false;
         document.documentElement.setAttribute('data-theme', dark ? 'gruvbox-dark' : 'bluegold');
         document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
         document.getElementById('theme-style').href = '{{ prefix | default("") }}static/css/' +
@@ -1057,7 +1056,6 @@
         savedTheme = savedTheme === 'bluegold' || savedTheme === 'gruvbox-light'
             ? 'bluegold' : savedTheme === 'gruvbox-dark' ? savedTheme : null;
         function preferredTheme() {
-            if (document.documentElement.hasAttribute('data-embed')) return 'bluegold';
             return savedTheme || (systemTheme.matches ? 'gruvbox-dark' : 'bluegold');
         }
         function refreshTheme() {
@@ -1065,6 +1063,13 @@
             document.dispatchEvent(new CustomEvent('themechange', { detail: currentTheme }));
         }
         var currentTheme = applyTheme(preferredTheme());
+        // Keep open embeds and tabs in sync with manual choices on this origin.
+        window.addEventListener('storage', function(event) {
+            if (event.storageArea !== localStorage || (event.key !== STORAGE_KEY && event.key !== null)) return;
+            savedTheme = event.newValue === 'bluegold' || event.newValue === 'gruvbox-light'
+                ? 'bluegold' : event.newValue === 'gruvbox-dark' ? event.newValue : null;
+            refreshTheme();
+        });
         systemTheme.addEventListener('change', function() {
             if (!savedTheme) refreshTheme();
         });
