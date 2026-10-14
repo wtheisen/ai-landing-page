@@ -1,0 +1,24 @@
+.google-document-preview {
+    color-scheme: light;
+    background: #fff;
+}
+[data-theme="gruvbox-dark"] .google-document-preview:not(.preview-original-colors) {
+    filter: invert(0.9) hue-rotate(180deg);
+}
+.preview-theme-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0.75rem 0;
+}
+.preview-theme-controls[hidden] {
+    display: none;
+}
+.preview-theme-controls [aria-pressed="true"] {
+    border-style: double;
+    border-width: 3px;
+}
+.preview-theme-note {
+    font-size: 0.9em;
+}
