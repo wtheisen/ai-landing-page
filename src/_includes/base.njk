@@ -189,6 +189,21 @@
 
 	<!-- Theme CSS (toggleable) -->
 	<link id="theme-style" href="{{ prefix | default('') }}static/css/bluegold.css" rel="stylesheet">
+    <script>
+    // Resolve the preference before the page is painted.
+    (function() {
+        var saved;
+        try { saved = localStorage.getItem('ai-landing-theme'); } catch (err) {}
+        var dark = saved === 'gruvbox-dark' ||
+            (saved !== 'bluegold' && saved !== 'gruvbox-light' &&
+             window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (document.documentElement.hasAttribute('data-embed')) dark = false;
+        document.documentElement.setAttribute('data-theme', dark ? 'gruvbox-dark' : 'bluegold');
+        document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
+        document.getElementById('theme-style').href = '{{ prefix | default("") }}static/css/' +
+            (dark ? 'gruvbox-dark' : 'bluegold') + '.css';
+    })();
+    </script>
 	{% if extraScript %}
 	<!-- Shared visualization styles -->
 	<link rel="stylesheet" href="{{ prefix | default('') }}static/css/visualizations.css">
@@ -888,6 +903,7 @@
 			<span class="theme-icon theme-icon--moon"><i class="fa-solid fa-moon"></i></span>
 			<span class="theme-toggle-handle"></span>
 		    </button>
+            <button type="button" id="theme-system" class="btn btn-link pull-right">Use system theme</button>
 		    <ul class="nav nav-pills pull-right">
 			{% for item in siteInfo.navigation %}
 			{% if not (tags and tags.indexOf("visualization") > -1 and item.link != "/") %}
@@ -998,6 +1014,8 @@
 	    };
 	    var linkEl = document.getElementById('theme-style');
 	    var toggleBtn = document.getElementById('theme-toggle');
+        var systemBtn = document.getElementById('theme-system');
+        var systemTheme = window.matchMedia('(prefers-color-scheme: dark)');
 	    if (!linkEl || !toggleBtn) {
 	        return;
 	    }
@@ -1022,6 +1040,8 @@
             var name = themes[theme] ? theme : 'bluegold';
             linkEl.setAttribute('href', themes[name]);
             document.documentElement.setAttribute('data-theme', name);
+            document.documentElement.style.colorScheme = name === 'gruvbox-dark' ? 'dark' : 'light';
+            systemBtn.hidden = !savedTheme;
             updateButton(name);
             updateNotebookFrames(name);
             return name;
@@ -1033,13 +1053,32 @@
 	            return null;
 	        }
     })();
-        var embedded = document.documentElement.hasAttribute('data-embed');
-        var currentTheme = applyTheme(embedded ? 'bluegold' : savedTheme);
+        // Both light names have been used by these sites on the same origin.
+        savedTheme = savedTheme === 'bluegold' || savedTheme === 'gruvbox-light'
+            ? 'bluegold' : savedTheme === 'gruvbox-dark' ? savedTheme : null;
+        function preferredTheme() {
+            if (document.documentElement.hasAttribute('data-embed')) return 'bluegold';
+            return savedTheme || (systemTheme.matches ? 'gruvbox-dark' : 'bluegold');
+        }
+        function refreshTheme() {
+            currentTheme = applyTheme(preferredTheme());
+            document.dispatchEvent(new CustomEvent('themechange', { detail: currentTheme }));
+        }
+        var currentTheme = applyTheme(preferredTheme());
+        systemTheme.addEventListener('change', function() {
+            if (!savedTheme) refreshTheme();
+        });
+        systemBtn.addEventListener('click', function() {
+            savedTheme = null;
+            try { localStorage.removeItem(STORAGE_KEY); } catch (err) {}
+            refreshTheme();
+        });
         document.addEventListener('themechange', function(event) {
             updateNotebookFrames(event.detail || currentTheme);
         });
         toggleBtn.addEventListener('click', function() {
             var nextTheme = currentTheme === 'gruvbox-dark' ? 'bluegold' : 'gruvbox-dark';
+            savedTheme = nextTheme;
             currentTheme = applyTheme(nextTheme);
             document.dispatchEvent(new CustomEvent('themechange', { detail: currentTheme }));
             try {
