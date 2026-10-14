@@ -157,6 +157,26 @@ textarea {
   outline-offset: 2px;
 }
 
+.nav-tabs > li > a {
+  background-color: #32302f !important;
+  border-color: #928374 !important;
+  color: #ebdbb2 !important;
+  text-shadow: none !important;
+}
+
+.nav-tabs > li > a:hover,
+.nav-tabs > li > a:focus,
+.nav-tabs > li.active > a {
+  background-color: #504945 !important;
+  border-color: #fabd2f !important;
+  color: #fbf1c7 !important;
+}
+
+.nav-tabs > li > a:focus-visible {
+  outline: 2px solid #fabd2f;
+  outline-offset: 2px;
+}
+
 .label-success {
   background-color: #b8bb26 !important;
   color: #1d2021 !important;

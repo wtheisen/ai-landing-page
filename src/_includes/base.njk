@@ -200,7 +200,7 @@
         document.documentElement.setAttribute('data-theme', dark ? 'gruvbox-dark' : 'bluegold');
         document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
         document.getElementById('theme-style').href = '{{ prefix | default("") }}static/css/' +
-            (dark ? 'gruvbox-dark.css?v=20261014-contrast' : 'bluegold.css');
+            (dark ? 'gruvbox-dark.css?v=20261014-contrast2' : 'bluegold.css');
     })();
     </script>
 	{% if extraScript %}
@@ -1008,7 +1008,7 @@
 	    var STORAGE_KEY = 'ai-landing-theme';
 	    var prefix = '{{ prefix | default("") }}';
 	    var themes = {
-	        'gruvbox-dark': prefix + 'static/css/gruvbox-dark.css?v=20261014-contrast',
+	        'gruvbox-dark': prefix + 'static/css/gruvbox-dark.css?v=20261014-contrast2',
 	        'bluegold': prefix + 'static/css/bluegold.css'
 	    };
 	    var linkEl = document.getElementById('theme-style');
