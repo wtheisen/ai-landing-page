@@ -110,7 +110,8 @@
 	     Figure protocol: a visualizer may call EAIFigure.register(getState, setState) to make its whole state
 	     (not only its form controls) restorable from ?state=<base64 JSON>. A parent frame can ask for
 	     {type:'eai-get-state'} -> {type:'eai-state', url} and {type:'eai-snapshot'} -> {type:'eai-snapshot', png, width, height}.
-	     ?dpr=N renders canvases at N device pixels per CSS pixel (for print-quality snapshots). -->
+	     ?dpr=N renders canvases at N device pixels per CSS pixel (for print-quality snapshots).
+	     ?theme=light|dark fixes the theme for that load (see the theme resolver in the head). -->
 	<script>
 	(function() {
 	    var q = location.search;
@@ -243,8 +244,11 @@
     <script>
     // Resolve the preference before the page is painted.
     (function() {
+        // ?theme=light or ?theme=dark fixes the theme for this load (book figures are always light); it is not saved.
+        var forced = (/[?&]theme=(light|dark)(?:&|#|$)/.exec(location.search) || [])[1];
         var saved;
         try { saved = localStorage.getItem('ai-landing-theme'); } catch (err) {}
+        if (forced) saved = forced === 'dark' ? 'gruvbox-dark' : 'bluegold';
         var dark = saved === 'gruvbox-dark' ||
             (saved !== 'bluegold' && saved !== 'gruvbox-light' &&
              window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -1108,8 +1112,10 @@
         // Both light names have been used by these sites on the same origin.
         savedTheme = savedTheme === 'bluegold' || savedTheme === 'gruvbox-light'
             ? 'bluegold' : savedTheme === 'gruvbox-dark' ? savedTheme : null;
+        var forcedTheme = (/[?&]theme=(light|dark)(?:&|#|$)/.exec(location.search) || [])[1];
+        forcedTheme = forcedTheme ? (forcedTheme === 'dark' ? 'gruvbox-dark' : 'bluegold') : null;
         function preferredTheme() {
-            return savedTheme || (systemTheme.matches ? 'gruvbox-dark' : 'bluegold');
+            return forcedTheme || savedTheme || (systemTheme.matches ? 'gruvbox-dark' : 'bluegold');
         }
         function refreshTheme() {
             currentTheme = applyTheme(preferredTheme());
@@ -1135,6 +1141,7 @@
             updateNotebookFrames(event.detail || currentTheme);
         });
         toggleBtn.addEventListener('click', function() {
+            forcedTheme = null;
             var nextTheme = currentTheme === 'gruvbox-dark' ? 'bluegold' : 'gruvbox-dark';
             savedTheme = nextTheme;
             currentTheme = applyTheme(nextTheme);
