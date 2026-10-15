@@ -1506,6 +1506,39 @@
         updateMetrics();
     }
 
+    // ============================================
+    // Figure protocol (AI2AI book): the points, the degree and the method, so a figure can be rebuilt exactly
+    // ============================================
+    function figureState() {
+        const r = v => Math.round(v * 1e4) / 1e4;
+        return { v: 1, points: points.map(p => ({ x: r(p.x), y: r(p.y) })), degree: polyDegree, method,
+                 dataset: document.getElementById('dataset-select').value };
+    }
+    function setFigureState(f) {
+        if (!f || typeof f !== 'object') return;
+        stopGD(); cancelAnimation();
+        if (Array.isArray(f.points) && f.points.every(p => p && Number.isFinite(p.x) && Number.isFinite(p.y))) {
+            points = f.points.map(p => ({ x: p.x, y: p.y }));
+        }
+        if (Number.isInteger(f.degree)) polyDegree = Math.max(1, Math.min(MAX_DEGREE, f.degree));
+        if (f.method === 'normal' || f.method === 'gradient') {
+            method = f.method;
+            document.getElementById('method-select').value = method;
+            document.getElementById('gd-options').style.display = method === 'gradient' ? '' : 'none';
+        }
+        if (typeof f.dataset === 'string' && document.querySelector('#dataset-select option[value="' + f.dataset + '"]')) {
+            document.getElementById('dataset-select').value = f.dataset;
+        }
+        fitCoeffs = null;          // snap straight to the fit instead of easing into it
+        updateDegreeButtons();
+        doReset();
+        fitCoeffs = targetCoeffs ? [...targetCoeffs] : fitCoeffs;
+        render();
+    }
+
     // Wait for VizLib
-    window.addEventListener('vizlib-ready', init);
+    window.addEventListener('vizlib-ready', function () {
+        init();
+        if (window.EAIFigure) window.EAIFigure.register(figureState, setFigureState);
+    });
 })();

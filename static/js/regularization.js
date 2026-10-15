@@ -1616,10 +1616,62 @@
         });
     }
 
+    // ========== Figure protocol (AI2AI book) ==========
+    // Everything a book figure needs to look the same again: penalty, formulation, camera, layers, data and the chosen weights.
+    function figureState() {
+        var r=function(v){return Math.round(v*1e4)/1e4;};
+        return {v:1, reg:state.regType, alpha:r(state.alpha), lambda:r(state.lambda), budget:r(state.budget),
+            drive:linkedControlSource||state.formulation, view:state.cameraPreset,
+            yaw:r(state.yaw), pitch:r(state.pitch), zoom:r(state.zoom), pan:scene?scene.pan.map(r):[0,0],
+            layers:{showLoss:state.showLoss, showPenalty:state.showPenalty, showTotal:state.showTotal, showConstraint:state.showConstraint},
+            components:state.showComponents, intercept:state.penalizeIntercept,
+            points:regressionPoints.map(function(p){return {x:r(p.x), y:r(p.y)};}),
+            weights:selectedWeights?{w1:r(selectedWeights.w1), w2:r(selectedWeights.w2)}:null};
+    }
+    function setFigureState(f) {
+        if(!f||typeof f!=='object')return;
+        var num=function(v){return typeof v==='number'&&isFinite(v);};
+        if(cameraAnimation)cancelAnimationFrame(cameraAnimation); cameraAnimation=0;
+        if(penaltyAnimation)cancelAnimationFrame(penaltyAnimation); penaltyAnimation=0;
+        if(weightSnapAnimation)cancelAnimationFrame(weightSnapAnimation); weightSnapAnimation=0; weightRelease=null;
+        penaltyBlend=null; penaltyStrength=1; optimumMotion=null;
+        if(Array.isArray(f.points)&&f.points.length>=2&&f.points.every(function(p){return p&&num(p.x)&&num(p.y);})) {
+            regressionPoints=f.points.map(function(p){return {x:p.x, y:p.y};}); dataBounds=null; refreshRegression();
+        }
+        if(['none','l1','l2','elastic'].indexOf(f.reg)>=0) {
+            state.regType=f.reg;
+            document.querySelectorAll('.reg-type-toggle .btn').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-reg')===f.reg);});
+        }
+        if(num(f.alpha))state.alpha=f.alpha;
+        if(typeof f.intercept==='boolean'){state.penalizeIntercept=f.intercept; document.getElementById('reg-penalize-intercept').checked=f.intercept;}
+        if(num(f.lambda))state.lambda=f.lambda;
+        if(num(f.budget))state.budget=f.budget;
+        if(f.drive==='budget'||f.drive==='penalty')linkedControlSource=f.drive;
+        if(f.layers)['showLoss','showPenalty','showTotal','showConstraint'].forEach(function(k){if(typeof f.layers[k]==='boolean')state[k]=f.layers[k];});
+        state.showBoth=state.showLoss&&state.showPenalty;
+        if(typeof f.components==='boolean'){state.showComponents=f.components; document.getElementById('reg-components').checked=f.components;}
+        if(['3d','top','side','contour'].indexOf(f.view)>=0) {
+            state.cameraPreset=f.view; state.viewMode=f.view==='contour'?'contour':'3d';
+            state.surfaceOpacity=f.view==='3d'?1:0; state.budgetWallOpacity=f.view==='top'?0:1;
+            document.querySelectorAll('.reg-view-toggle .btn').forEach(function(b){b.classList.toggle('active',b.dataset.view===f.view);b.setAttribute('aria-pressed',String(b.dataset.view===f.view));});
+        }
+        initialCameraSet=true;
+        if(num(f.yaw))state.yaw=f.yaw;
+        if(num(f.pitch))state.pitch=f.pitch;
+        if(num(f.zoom))state.zoom=f.zoom;
+        if(scene&&Array.isArray(f.pan)&&f.pan.length===2&&num(f.pan[0])&&num(f.pan[1])){scene.resetFraming(); scene.pan=[f.pan[0], f.pan[1]];}
+        selectedWeights=f.weights&&num(f.weights.w1)&&num(f.weights.w2)?{w1:f.weights.w1, w2:f.weights.w2}:null;
+        redraw();
+    }
+
     // ========== Entry Point ==========
-    if (window.VizLib && window.VizLib._ready) {
+    function start() {
         init();
+        if (window.EAIFigure) window.EAIFigure.register(figureState, setFigureState);
+    }
+    if (window.VizLib && window.VizLib._ready) {
+        start();
     } else {
-        window.addEventListener('vizlib-ready', init);
+        window.addEventListener('vizlib-ready', start);
     }
 })();

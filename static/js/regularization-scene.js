@@ -2,7 +2,7 @@
 (function () {
     'use strict';
     function Scene(canvas) {
-        var gl = canvas.getContext('webgl', {antialias: true, alpha: false, stencil: true});
+        var gl = canvas.getContext('webgl', {antialias: true, alpha: false, stencil: true, preserveDrawingBuffer: true});
         if (!gl) throw new Error('WebGL is unavailable. Use the 2D contour view.');
         var vertex = 'attribute vec3 position, normal; attribute vec4 color; uniform mat4 camera; uniform bool labelPass; varying vec4 shade; varying vec2 uv; varying float gridLine; void main(){gridLine=normal.z < -2.5 ? 2. : (normal.z < -1.5 ? 1. : 0.);if(labelPass){gl_Position=vec4(position,1.);uv=normal.xy;shade=color;return;}float light=.78+.22*abs(dot(normalize(gridLine>1.5?vec3(0.,1.,0.):normal),normalize(vec3(-.4,1.,.6)))); shade=vec4(color.rgb*light,color.a);gl_Position=camera*vec4(position,1.);gl_PointSize=10.;}';
         var fragment = 'precision mediump float; varying vec4 shade; uniform bool dotMarker, labelPass; uniform sampler2D labelTexture; uniform vec2 gridFadeRange; varying float gridLine; varying vec2 uv; void main(){if(labelPass){gl_FragColor=texture2D(labelTexture,uv);gl_FragColor.a*=shade.a;if(gl_FragColor.a<.01)discard;return;}if(dotMarker && distance(gl_PointCoord,vec2(.5))>.5) discard; gl_FragColor=shade;if(gridLine>.5){float extension=gridLine>1.5?1.15:1.;float fade=1.-smoothstep(gridFadeRange.x*extension,gridFadeRange.y*extension,1./gl_FragCoord.w);gl_FragColor.a*=fade;if(gl_FragColor.a<.001)discard;}}';

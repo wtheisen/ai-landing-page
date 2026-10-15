@@ -36,7 +36,7 @@ cardImage: static/img/vis_cards/regularization.png
                 <div class="reg-scene"><div class="reg-viewport-toolbar">                    <div class="btn-group btn-group-sm reg-view-toggle" role="group">
                         <button type="button" class="btn btn-default active" data-view="3d"><i class="fa fa-cube"></i> 3D</button>
                         <button type="button" class="btn btn-default" data-view="top">2D Top</button><button type="button" class="btn btn-default" data-view="side">2D Side</button><button type="button" class="btn btn-default" data-view="contour" hidden>Contours (fallback)</button>
-                    </div><button type="button" id="reg-optimal-fit" class="btn btn-default btn-sm" title="Reset fit and camera view">Reset</button></div><canvas id="reg-3d-canvas" tabindex="0" aria-label="3D loss and penalty surfaces. Drag or use arrow keys to orbit, scroll to zoom, shift-drag to pan."></canvas><div id="reg-scene-labels" aria-hidden="true"></div></div>
+                    </div><button type="button" id="reg-optimal-fit" class="btn btn-default btn-sm" title="Reset fit and camera view">Reset</button></div><canvas id="reg-3d-canvas" tabindex="0" aria-label="3D loss and penalty surfaces. Drag or use arrow keys to orbit, scroll to zoom, shift-drag to pan."></canvas><div id="reg-scene-labels" aria-hidden="true" data-fig-overlay></div></div>
                 <canvas id="reg-contour-canvas" aria-label="Weight space. Drag to choose intercept and slope." style="display:none;"></canvas>
                 <div class="reg-view-options">
                     <div class="btn-group btn-group-sm reg-type-toggle" role="group">

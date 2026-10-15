@@ -151,15 +151,66 @@
 	        if (window.ResizeObserver) new ResizeObserver(report).observe(document.querySelector('.container') || document.body);
 	        setTimeout(report, 800);
 	    });
+	    // A snapshot is the figure canvas plus any layer drawn over it in HTML or SVG (labels, markers, guide lines).
+	    // A page marks such a layer with data-fig-overlay; boxes, text and inline SVG inside it are painted onto the picture.
+	    function snapshot(c) {
+	        if (!c) return Promise.resolve(null);
+	        var layers = [].slice.call(document.querySelectorAll('[data-fig-overlay]'));
+	        try { if (!layers.length) return Promise.resolve(c.toDataURL('image/png')); } catch (err) { return Promise.resolve(null); }
+	        var out = document.createElement('canvas'); out.width = c.width; out.height = c.height;
+	        var ctx = out.getContext('2d'), box = c.getBoundingClientRect(), k = c.width / (box.width || 1);
+	        try { ctx.drawImage(c, 0, 0); } catch (err) { return Promise.resolve(null); }
+	        var jobs = [];
+	        function alpha(el, stop) { var a = 1; for (var e = el; e && e !== stop.parentNode; e = e.parentElement) a *= +getComputedStyle(e).opacity; return a; }
+	        function shown(el) { var s = getComputedStyle(el); return s.display !== 'none' && s.visibility !== 'hidden' && +s.opacity > 0; }
+	        function rounded(x, y, w, h, rad) { ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, w, h, rad); else ctx.rect(x, y, w, h); }
+	        function paintSvg(svg, layer) {
+	            var b = svg.getBoundingClientRect(); if (!b.width || !b.height) return;
+	            var copy = svg.cloneNode(true), src = svg.querySelectorAll('*'), dst = copy.querySelectorAll('*');
+	            for (var i = 0; i < src.length; i++) {
+	                var cs = getComputedStyle(src[i]);
+	                ['stroke', 'stroke-width', 'stroke-dasharray', 'stroke-linecap', 'fill', 'opacity', 'font', 'font-size', 'font-family', 'font-weight'].forEach(function(n) { dst[i].style.setProperty(n, cs.getPropertyValue(n)); });
+	            }
+	            copy.setAttribute('xmlns', 'http://www.w3.org/2000/svg'); copy.setAttribute('width', b.width); copy.setAttribute('height', b.height);
+	            var img = new Image(), a = alpha(svg, layer);
+	            jobs.push(new Promise(function(done) {
+	                img.onload = function() { ctx.save(); ctx.globalAlpha = a; ctx.drawImage(img, (b.left - box.left) * k, (b.top - box.top) * k, b.width * k, b.height * k); ctx.restore(); done(); };
+	                img.onerror = function() { done(); };
+	                img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(copy));
+	            }));
+	        }
+	        function paint(el, layer) {
+	            if (!shown(el)) return;
+	            if (el.namespaceURI === 'http://www.w3.org/2000/svg') return paintSvg(el, layer);
+	            var s = getComputedStyle(el), b = el.getBoundingClientRect(), a = alpha(el, layer);
+	            var x = (b.left - box.left) * k, y = (b.top - box.top) * k, w = b.width * k, h = b.height * k, rad = (parseFloat(s.borderTopLeftRadius) || 0) * k;
+	            if (el !== layer && w > 0 && h > 0) {
+	                ctx.save(); ctx.globalAlpha = a;
+	                if (s.backgroundColor && !/rgba\(.*,\s*0\)$|transparent/.test(s.backgroundColor)) { rounded(x, y, w, h, rad); ctx.fillStyle = s.backgroundColor; ctx.fill(); }
+	                var bw = parseFloat(s.borderTopWidth) || 0;
+	                if (bw > 0 && s.borderTopStyle !== 'none') { rounded(x + bw * k / 2, y + bw * k / 2, w - bw * k, h - bw * k, Math.max(0, rad - bw * k / 2)); ctx.lineWidth = bw * k; ctx.strokeStyle = s.borderTopColor; ctx.stroke(); }
+	                ctx.restore();
+	            }
+	            for (var n = el.firstChild; n; n = n.nextSibling) {
+	                if (n.nodeType === 3 && n.textContent.trim()) {
+	                    var range = document.createRange(); range.selectNodeContents(n); var tb = range.getBoundingClientRect();
+	                    ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = s.color; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+	                    ctx.font = s.fontStyle + ' ' + s.fontWeight + ' ' + (parseFloat(s.fontSize) * k) + 'px ' + s.fontFamily;
+	                    ctx.fillText(n.textContent.trim(), (tb.left - box.left) * k, (tb.top + tb.height / 2 - box.top) * k);
+	                    ctx.restore();
+	                } else if (n.nodeType === 1) paint(n, layer);
+	            }
+	        }
+	        layers.forEach(function(layer) { paint(layer, layer); });
+	        return Promise.all(jobs).then(function() { try { return out.toDataURL('image/png'); } catch (err) { return null; } });
+	    }
 	    window.addEventListener('message', function(e) {
 	        var t = e.data && e.data.type;
 	        if (t === 'eai-get-state') post({ type: 'eai-state', url: F.url(), full: !!F.get });
 	        else if (t === 'eai-set-state' && F.set && e.data.state) F.set(e.data.state);
 	        else if (t === 'eai-snapshot') {
-	            var c = F.canvas(), png = null;
-	            try { png = c ? c.toDataURL('image/png') : null; } catch (err) {}
-	            var r = c ? c.getBoundingClientRect() : { width: 0, height: 0 };
-	            post({ type: 'eai-snapshot', png: png, width: r.width, height: r.height });
+	            var c = F.canvas(), r = c ? c.getBoundingClientRect() : { width: 0, height: 0 };
+	            snapshot(c).then(function(png) { post({ type: 'eai-snapshot', png: png, width: r.width, height: r.height }); });
 	        }
 	    });
 	})();
