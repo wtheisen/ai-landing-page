@@ -20,6 +20,24 @@
 
     // State — coefficients are arrays [c0, c1, c2, ...] for y = c0 + c1*x + c2*x² + ...
     let points = [];
+    // Real-unit axes for real datasets. The fit always runs on the scaled 0-10 values (x/sx, y/sy), the way
+    // you would rescale features in practice; labels, the equation and the MSE are reported in real units.
+    let axes = null;
+    const FOOTBALL_AXES = { x: { name: 'ND total yards', max: 800, step: 100 }, y: { name: 'ND points', max: 70, step: 10 } };
+    const REAL_DATASETS = {
+        // Notre Dame football, every game 2012-2022 (ESPN box scores): [total yards, points scored]
+        'nd-football': { axes: FOOTBALL_AXES, rows: [[490,50],[376,20],[300,20],[239,13],[587,41],[334,20],[389,17],[403,30],[522,29],[393,21],[584,38],[439,22],[302,14],[543,28],[410,30],[400,31],[220,17],[324,21],[424,37],[300,14],[466,45],[506,38],[456,21],[470,23],[263,20],[494,29],[576,48],[280,31],[398,30],[523,31],[370,17],[516,50],[470,27],[533,49],[487,31],[498,40],[335,28],[349,14],[449,31],[527,38],[460,34],[457,30],[681,62],[432,22],[459,41],[476,41],[467,24],[437,42],[282,28],[447,19],[533,36],[405,28],[444,47],[444,39],[401,28],[534,35],[654,50],[113,3],[307,10],[411,30],[370,27],[476,44],[449,31],[408,27],[606,49],[265,19],[611,49],[355,38],[503,52],[487,33],[497,49],[422,35],[710,48],[261,8],[327,24],[415,20],[368,21],[302,24],[414,24],[380,22],[566,56],[550,38],[438,45],[344,19],[584,44],[464,31],[495,42],[463,36],[473,24],[248,3],[423,35],[591,66],[321,17],[322,35],[573,52],[473,30],[180,14],[442,21],[469,38],[410,52],[501,40],[445,45],[455,33],[441,27],[430,52],[554,42],[338,12],[434,45],[426,31],[518,47],[557,45],[478,31],[568,45],[263,10],[375,14],[431,41],[449,32],[343,27],[242,41],[341,13],[401,32],[383,31],[523,44],[430,34],[423,28],[514,55],[509,45],[551,35],[253,10],[351,21],[297,24],[576,45],[496,28],[301,14],[428,44],[362,41],[348,35],[335,35],[437,44],[408,27],[556,45]] },
+        // The first five games of 2018: Michigan, Ball State, Vanderbilt, Wake Forest, Stanford
+        'nd-2018': { axes: FOOTBALL_AXES, rows: [[302,24],[414,24],[380,22],[566,56],[550,38]] }
+    };
+    const sx = () => axes ? axes.x.max / (DATA_MAX - DATA_MIN) : 1;
+    const sy = () => axes ? axes.y.max / (DATA_MAX - DATA_MIN) : 1;
+    // Coefficients of the fit in real units: y = sy * sum c_i (x / sx)^i
+    function realCoeffs(c) { return c.map((v, i) => sy() * v / Math.pow(sx(), i)); }
+    function num(v) {
+        const a = Math.abs(v);
+        return a === 0 ? '0.00' : a >= 1 ? a.toFixed(2) : a.toPrecision(2);
+    }
     let polyDegree = 1;
     let fitCoeffs = null;       // animated, what gets drawn
     let targetCoeffs = null;    // computed target fitCoeffs lerps toward
@@ -68,6 +86,13 @@
     // ============================================
     function generateDataset(type) {
         points = [];
+        axes = null;
+        if (REAL_DATASETS[type]) {
+            const ds = REAL_DATASETS[type];
+            axes = ds.axes;
+            points = ds.rows.map(r => ({ x: r[0] / sx(), y: r[1] / sy() }));
+            return;
+        }
         const n = 30;
         switch (type) {
             case 'linear':
@@ -282,14 +307,15 @@
     }
 
     function buildEquationString(coeffs) {
+        coeffs = realCoeffs(coeffs);
         let parts = [];
         for (let i = coeffs.length - 1; i >= 0; i--) {
             const v = coeffs[i];
             const av = Math.abs(v);
             let term = '';
-            if (i === 0) term = av.toFixed(2);
-            else if (i === 1) term = av.toFixed(2) + 'x';
-            else term = av.toFixed(2) + 'x' + superscript(i);
+            if (i === 0) term = num(v);
+            else if (i === 1) term = num(v) + 'x';
+            else term = num(v) + 'x' + superscript(i);
             if (parts.length === 0) {
                 parts.push((v < 0 ? '−' : '') + term);
             } else {
@@ -324,27 +350,45 @@
         ctx.fillStyle = c.muted;
         ctx.font = '10px sans-serif';
         ctx.textAlign = 'center';
-        for (let v = 0; v <= 10; v += 2) {
-            const pos = dataToCanvas(v, 0);
-            ctx.fillText(v, pos.x, PLOT_T + PLOT_H + 16);
-        }
+        tickValues('x').forEach(t => ctx.fillText(t.label, dataToCanvas(t.v, 0).x, PLOT_T + PLOT_H + 16));
         ctx.textAlign = 'right';
-        for (let v = 0; v <= 10; v += 2) {
-            const pos = dataToCanvas(0, v);
-            ctx.fillText(v, PLOT_L - 6, pos.y + 4);
+        tickValues('y').forEach(t => ctx.fillText(t.label, PLOT_L - 6, dataToCanvas(0, t.v).y + 4));
+        if (axes) {
+            ctx.fillStyle = c.text;
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(axes.x.name, PLOT_L + PLOT_W / 2, PLOT_T + PLOT_H + 32);
+            ctx.save();
+            ctx.translate(10, PLOT_T + PLOT_H / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(axes.y.name, 0, 0);
+            ctx.restore();
         }
+    }
+
+    // Tick positions in plot units with their labels: every 2 units, or every axis step in real units
+    function tickValues(which) {
+        const out = [];
+        if (!axes) { for (let v = 0; v <= 10; v += 2) out.push({ v, label: v }); return out; }
+        const a = axes[which], k = which === 'x' ? sx() : sy();
+        for (let r = 0; r <= a.max + 1e-9; r += a.step) out.push({ v: r / k, label: r });
+        return out;
     }
 
     function drawGridLines(c) {
         ctx.strokeStyle = c.border;
         ctx.lineWidth = 0.3;
         ctx.setLineDash([2, 4]);
-        for (let v = 2; v <= 10; v += 2) {
-            const h = dataToCanvas(0, v);
+        tickValues('y').forEach(t => {
+            if (t.v <= 0) return;
+            const h = dataToCanvas(0, t.v);
             ctx.beginPath(); ctx.moveTo(PLOT_L, h.y); ctx.lineTo(PLOT_L + PLOT_W, h.y); ctx.stroke();
-            const vv = dataToCanvas(v, 0);
+        });
+        tickValues('x').forEach(t => {
+            if (t.v <= 0) return;
+            const vv = dataToCanvas(t.v, 0);
             ctx.beginPath(); ctx.moveTo(vv.x, PLOT_T); ctx.lineTo(vv.x, PLOT_T + PLOT_H); ctx.stroke();
-        }
+        });
         ctx.setLineDash([]);
     }
 
@@ -538,7 +582,7 @@
         if (coeffs) {
             const mse = computeMSE(points, coeffs);
             const r2 = computeR2(points, coeffs);
-            if (hMse) hMse.textContent = mse.toFixed(3);
+            if (hMse) hMse.textContent = (mse * sy() * sy()).toFixed(axes ? 1 : 3);
             if (hR2) hR2.textContent = r2.toFixed(3);
         } else {
             if (hMse) hMse.textContent = '-';
@@ -552,8 +596,9 @@
     function renderEquationPanel() {
         const el = document.getElementById('lr-equation-display');
         if (!el) return;
-        const coeffs = gdCoeffs || fitCoeffs;
-        if (!coeffs) return;
+        const raw = gdCoeffs || fitCoeffs;
+        if (!raw) return;
+        const coeffs = realCoeffs(raw);
 
         let html = '<span class="lr-eq-y">y</span><span class="lr-eq-op">=</span>';
         let first = true;
@@ -566,7 +611,7 @@
                 html += '<span class="lr-eq-op">−</span>';
             }
             const cls = i === 0 ? 'lr-eq-b' : (i === 1 ? 'lr-eq-m' : 'lr-eq-coeff');
-            html += `<span class="${cls}">${av.toFixed(2)}</span>`;
+            html += `<span class="${cls}">${num(v)}</span>`;
             if (i === 1) html += '<span class="lr-eq-x">x</span>';
             else if (i > 1) html += `<span class="lr-eq-x">x<sup>${i}</sup></span>`;
             first = false;
@@ -632,6 +677,7 @@
 
         const n = points.length;
         let html = '';
+        if (axes) html += `<div class="formula-note">Computed on rescaled values: x = ${axes.x.name.toLowerCase()} / ${+(axes.x.max / 10).toFixed(2)}, y = ${axes.y.name.toLowerCase()} / ${+(axes.y.max / 10).toFixed(2)}. The equation above is converted back to real units.</div>`;
 
         if (polyDegree === 1 && (method === 'normal' || (method === 'gradient' && fitCoeffs && !gdCoeffs))) {
             // Degree 1: detailed normal equation step-by-step
@@ -1431,6 +1477,10 @@
             if (this.value !== 'custom') {
                 generateDataset(this.value);
                 doReset();
+            } else if (axes) {
+                axes = null;
+                render();
+                updateMetrics();
             }
         });
 
@@ -1511,12 +1561,22 @@
     // ============================================
     function figureState() {
         const r = v => Math.round(v * 1e4) / 1e4;
-        return { v: 1, points: points.map(p => ({ x: r(p.x), y: r(p.y) })), degree: polyDegree, method,
-                 dataset: document.getElementById('dataset-select').value };
+        const dataset = document.getElementById('dataset-select').value;
+        const f = { v: 1, degree: polyDegree, method, dataset };
+        // A real dataset rebuilds its own points; only custom or edited data travels in the state
+        const ds = REAL_DATASETS[dataset];
+        const same = ds && ds.rows.length === points.length &&
+            ds.rows.every((row, i) => Math.abs(row[0] / sx() - points[i].x) < 1e-6 && Math.abs(row[1] / sy() - points[i].y) < 1e-6);
+        if (!same) f.points = points.map(p => ({ x: r(p.x), y: r(p.y) }));
+        if (axes) f.axes = axes;
+        return f;
     }
     function setFigureState(f) {
         if (!f || typeof f !== 'object') return;
         stopGD(); cancelAnimation();
+        axes = null;
+        if (typeof f.dataset === 'string' && REAL_DATASETS[f.dataset]) generateDataset(f.dataset);
+        if (f.axes && f.axes.x && f.axes.y && f.axes.x.max > 0 && f.axes.y.max > 0) axes = f.axes;
         if (Array.isArray(f.points) && f.points.every(p => p && Number.isFinite(p.x) && Number.isFinite(p.y))) {
             points = f.points.map(p => ({ x: p.x, y: p.y }));
         }
