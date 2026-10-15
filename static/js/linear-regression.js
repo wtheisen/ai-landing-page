@@ -23,12 +23,14 @@
     // Real-unit axes for real datasets. The fit always runs on the scaled 0-10 values (x/sx, y/sy), the way
     // you would rescale features in practice; labels, the equation and the MSE are reported in real units.
     let axes = null;
+    let showFit = true;         // figures can hide the line and residuals (points on empty axes)
     const FOOTBALL_AXES = { x: { name: 'ND total yards', max: 800, step: 100 }, y: { name: 'ND points', max: 70, step: 10 } };
     const REAL_DATASETS = {
         // Notre Dame football, every game 2012-2022 (ESPN box scores): [total yards, points scored]
         'nd-football': { axes: FOOTBALL_AXES, rows: [[490,50],[376,20],[300,20],[239,13],[587,41],[334,20],[389,17],[403,30],[522,29],[393,21],[584,38],[439,22],[302,14],[543,28],[410,30],[400,31],[220,17],[324,21],[424,37],[300,14],[466,45],[506,38],[456,21],[470,23],[263,20],[494,29],[576,48],[280,31],[398,30],[523,31],[370,17],[516,50],[470,27],[533,49],[487,31],[498,40],[335,28],[349,14],[449,31],[527,38],[460,34],[457,30],[681,62],[432,22],[459,41],[476,41],[467,24],[437,42],[282,28],[447,19],[533,36],[405,28],[444,47],[444,39],[401,28],[534,35],[654,50],[113,3],[307,10],[411,30],[370,27],[476,44],[449,31],[408,27],[606,49],[265,19],[611,49],[355,38],[503,52],[487,33],[497,49],[422,35],[710,48],[261,8],[327,24],[415,20],[368,21],[302,24],[414,24],[380,22],[566,56],[550,38],[438,45],[344,19],[584,44],[464,31],[495,42],[463,36],[473,24],[248,3],[423,35],[591,66],[321,17],[322,35],[573,52],[473,30],[180,14],[442,21],[469,38],[410,52],[501,40],[445,45],[455,33],[441,27],[430,52],[554,42],[338,12],[434,45],[426,31],[518,47],[557,45],[478,31],[568,45],[263,10],[375,14],[431,41],[449,32],[343,27],[242,41],[341,13],[401,32],[383,31],[523,44],[430,34],[423,28],[514,55],[509,45],[551,35],[253,10],[351,21],[297,24],[576,45],[496,28],[301,14],[428,44],[362,41],[348,35],[335,35],[437,44],[408,27],[556,45]] },
-        // The first five games of 2018: Michigan, Ball State, Vanderbilt, Wake Forest, Stanford
-        'nd-2018': { axes: FOOTBALL_AXES, rows: [[302,24],[414,24],[380,22],[566,56],[550,38]] }
+        // The chapter's worked OLS example, yards rounded to the nearest hundred: 2019 Michigan (180),
+        // 2012 Michigan State (300), 2013 Purdue (400), 2019 Boston College (501), 2017 Temple (606)
+        'nd-five': { axes: FOOTBALL_AXES, rows: [[200,14],[300,20],[400,31],[500,40],[600,49]] }
     };
     const sx = () => axes ? axes.x.max / (DATA_MAX - DATA_MIN) : 1;
     const sy = () => axes ? axes.y.max / (DATA_MAX - DATA_MIN) : 1;
@@ -262,7 +264,7 @@
 
         // Residuals
         const active = gdCoeffs || fitCoeffs;
-        if (active && points.length > 0) {
+        if (showFit && active && points.length > 0) {
             ctx.setLineDash([4, 4]);
             ctx.strokeStyle = c.residual;
             ctx.lineWidth = 1.5;
@@ -279,7 +281,7 @@
         }
 
         // Fit curve
-        if (fitCoeffs) {
+        if (showFit && fitCoeffs) {
             drawCurve(fitCoeffs, c.fitLine, 2.5, false);
         }
 
@@ -301,7 +303,7 @@
         }
 
         // Handles on the fit curve
-        if (fitCoeffs && !gdCoeffs && gdTimer === null) {
+        if (showFit && fitCoeffs && !gdCoeffs && gdTimer === null) {
             drawHandles(c);
         }
     }
@@ -1474,6 +1476,7 @@
 
         // Dataset select
         document.getElementById('dataset-select').addEventListener('change', function() {
+            showFit = true;
             if (this.value !== 'custom') {
                 generateDataset(this.value);
                 doReset();
@@ -1569,6 +1572,10 @@
             ds.rows.every((row, i) => Math.abs(row[0] / sx() - points[i].x) < 1e-6 && Math.abs(row[1] / sy() - points[i].y) < 1e-6);
         if (!same) f.points = points.map(p => ({ x: r(p.x), y: r(p.y) }));
         if (axes) f.axes = axes;
+        if (!showFit) f.fit = false;
+        // A line dragged away from the least-squares fit travels too, in real units
+        const best = polyFit(points, polyDegree);
+        if (fitCoeffs && best && fitCoeffs.some((v, i) => Math.abs(v - best[i]) > 1e-4)) f.line = realCoeffs(fitCoeffs).map(v => +v.toPrecision(6));
         return f;
     }
     function setFigureState(f) {
@@ -1593,7 +1600,13 @@
         updateDegreeButtons();
         doReset();
         fitCoeffs = targetCoeffs ? [...targetCoeffs] : fitCoeffs;
+        if (Array.isArray(f.line) && f.line.length === polyDegree + 1 && f.line.every(Number.isFinite)) {
+            fitCoeffs = f.line.map((v, i) => v * Math.pow(sx(), i) / sy());   // real units back to plot units
+            targetCoeffs = [...fitCoeffs];
+        }
+        showFit = f.fit !== false;
         render();
+        updateMetrics();
     }
 
     // Wait for VizLib
