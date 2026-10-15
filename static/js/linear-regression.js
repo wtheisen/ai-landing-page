@@ -265,6 +265,8 @@
         // Residuals
         const active = gdCoeffs || fitCoeffs;
         if (showFit && active && points.length > 0) {
+            ctx.save();
+            ctx.beginPath(); ctx.rect(PLOT_L, PLOT_T, PLOT_W, PLOT_H); ctx.clip();
             ctx.setLineDash([4, 4]);
             ctx.strokeStyle = c.residual;
             ctx.lineWidth = 1.5;
@@ -278,6 +280,7 @@
                 ctx.stroke();
             }
             ctx.setLineDash([]);
+            ctx.restore();
         }
 
         // Fit curve
@@ -290,20 +293,23 @@
             drawCurve(gdCoeffs, c.gdLine, 2, true);
         }
 
-        // Points
+        // Points (smaller when there are many, so a season's worth of games stays readable)
+        const pr = points.length > 60 ? POINT_R * 0.6 : POINT_R;
         for (const p of points) {
             const cp = dataToCanvas(p.x, p.y);
             ctx.fillStyle = c.point;
             ctx.strokeStyle = c.pointStroke;
             ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.arc(cp.x, cp.y, POINT_R, 0, Math.PI * 2);
+            ctx.arc(cp.x, cp.y, pr, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
         }
 
         // Handles on the fit curve
-        if (showFit && fitCoeffs && !gdCoeffs && gdTimer === null) {
+        // Drag handles are controls, not part of a book figure
+        const figure = document.documentElement.getAttribute('data-embed') === 'fig';
+        if (showFit && !figure && fitCoeffs && !gdCoeffs && gdTimer === null) {
             drawHandles(c);
         }
     }
