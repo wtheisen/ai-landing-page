@@ -2438,8 +2438,10 @@ eaiRunCode();
 //   Reading      the page looks for ink/index.json next to itself: {"layers":[{"id":"2026-10-20","title":"Oct 20"}]}.
 //                The navbar gets a "Lecture notes" picker for the instructor's published notes (newest shown by
 //                default) and a ✎ Pen button.
-//   Students     the pen writes into "My notes": kept in this browser only (never uploaded), shared by the Reading,
-//                Lecture and Workbook views of the chapter, shown on top of the instructor's notes, printable.
+//   Students     the pen writes into "My notes": kept in this browser only (never uploaded), one set per view, shown on
+//                top of the instructor's notes, printable.
+//   Views        ink is in page coordinates and each view lays pages out differently, so a set of notes belongs to the
+//                view it was drawn in (index entries carry "view"); picking one from another view switches to that view.
 //   Instructor   open the page once with #teach and give the GitHub token; on that device the pen then writes into
 //                today's lecture notes and the toolbar gets Publish. Publish commits ink/<id>.json and ink/index.json to
 //                the site's repository (fine-grained token: contents read and write, that repository only; kept on this
@@ -2459,8 +2461,13 @@ function eaiInk(opts) {
   var book = document.querySelector('main.book, #book'); if (!book) return;
   var PEN = [['#002B5B', 'navy'], ['#1155CC', 'blue'], ['#CC0000', 'red'], ['#38761D', 'green'], ['#674EA7', 'purple']];
   var HL = '#F1C232';
-  var DIR = location.pathname.replace(/[^/]*$/, '');              // the chapter's folder: all three views share notes
-  var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR, KEY_DRAFT = 'eai-ink-draft:' + DIR + ':';
+  // Ink sits in page coordinates and the three views lay pages out differently (the Lecture view has bigger type), so a
+  // set of notes belongs to the view it was drawn in. Other views list it in the picker and switch to that view.
+  var VIEW = book.getAttribute('data-view') || 'reading', FILES = { reading: 'index.html', slides: 'index-slides.html', workbook: 'index-workbook.html' };
+  var VIEWNAME = { reading: 'Reading', slides: 'Lecture', workbook: 'Workbook' };
+  var DIR = location.pathname.replace(/[^/]*$/, '');
+  var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR + VIEW, KEY_DRAFT = 'eai-ink-draft:' + DIR + VIEW + ':';
+  var viewOf = function (l) { return l.view || 'slides'; };
   var pub = null, layers = [], mine = null, target = null, editing = false, tool = 'pen', color = PEN[0][0], width = 2.2, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
@@ -2531,9 +2538,14 @@ function eaiInk(opts) {
     var at = nav.querySelector('.viewbar') || null;
     if (layers.length) {
       var sel = document.createElement('select'); sel.id = 'ink-pick'; sel.title = 'Notes from lecture';
-      sel.innerHTML = '<option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '">Lecture notes: ' + (l.title || l.id) + '</option>'; }).join('');
+      sel.innerHTML = '<option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '">Lecture notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ' view)') + '</option>'; }).join('');
       sel.value = pub ? pub.id : ''; sel.disabled = editing && target !== mine;
-      sel.onchange = function () { if (!sel.value) { pub = null; return render(); } load(sel.value).then(function (l) { pub = l; render(); }); };
+      sel.onchange = function () {
+        if (!sel.value) { pub = null; return render(); }
+        var l = layers.filter(function (x) { return x.id === sel.value; })[0];
+        if (l && viewOf(l) !== VIEW) { location.href = FILES[viewOf(l)] + '#notes=' + l.id; return; }
+        load(sel.value).then(function (l) { pub = l; render(); });
+      };
       nav.insertBefore(sel, at);
     }
     var pen = document.createElement('button'); pen.id = 'ink-pen'; pen.type = 'button';
@@ -2546,7 +2558,8 @@ function eaiInk(opts) {
     .then(function (ix) {
       layers = (ix.layers || []).slice().sort(function (a, b) { return a.id < b.id ? 1 : -1; });
       var drafting = editing && target !== mine;
-      var want = (location.hash.match(/notes=([\w-]+)/) || [])[1] || (layers[0] && layers[0].id);
+      var here = layers.filter(function (l) { return viewOf(l) === VIEW; });
+      var want = (location.hash.match(/notes=([\w-]+)/) || [])[1] || (here[0] && here[0].id);
       return (want && !drafting ? load(want) : Promise.resolve(pub)).then(function (l) { if (!(editing && target !== mine)) pub = l; render(); navbar(); });
     });
   render(); navbar();
@@ -2558,8 +2571,8 @@ function eaiInk(opts) {
   function start() {
     if (editing) return; editing = true; undo = [];
     if (teacher()) {   // the instructor writes into today's lecture notes (a draft on this device until published)
-      var id = today(), title = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      target = store(KEY_DRAFT + id) || { id: id, title: title, pages: [], strokes: [] };
+      var id = today() + (VIEW === 'slides' ? '' : '-' + VIEW), title = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      target = store(KEY_DRAFT + id) || { id: id, title: title, view: VIEW, pages: [], strokes: [] };
       pub = target;
     } else target = mine;
     render();
@@ -2666,7 +2679,7 @@ function eaiInk(opts) {
     var token = store(KEY_TOKEN); if (!token) return msg('This device is not set up to publish (open the page with #teach).');
     var t = prompt('Title for these notes', target.title || target.id); if (t === null) return; target.title = t || target.id; save();
     msg('Publishing…');
-    var ix = layers.filter(function (l) { return l.id !== target.id; }).concat([{ id: target.id, title: target.title }]).sort(function (a, b) { return a.id < b.id ? -1 : 1; });
+    var ix = layers.filter(function (l) { return l.id !== target.id; }).concat([{ id: target.id, title: target.title, view: VIEW }]).sort(function (a, b) { return a.id < b.id ? -1 : 1; });
     gh(dir + '/ink/' + target.id + '.json', token, JSON.stringify(target))
       .then(function () { return gh(dir + '/ink/index.json', token, JSON.stringify({ layers: ix }, null, 1)); })
       .then(function () { layers = ix.slice().reverse(); msg('Published. Students see it in a minute or two.'); },
