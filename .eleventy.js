@@ -220,7 +220,8 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "static": "static" });
   eleventyConfig.addPassthroughCopy({ "static/ico/favicon.ico": "favicon.ico" });
   eleventyConfig.addPassthroughCopy({ "CNAME": "CNAME" });
-  // unlisted previews of the AI2AI book chapters (exported by the Book Editor)
+  // AI2AI textbook: landing page + chapters (exported by the Book Editor); book/ only holds redirects to it
+  eleventyConfig.addPassthroughCopy({ "ai2ai": "ai2ai" });
   eleventyConfig.addPassthroughCopy({ "book": "book" });
 
   // ===== WATCH TARGETS =====

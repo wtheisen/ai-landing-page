@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exploring Artificial Intelligence</title>
+<meta name="description" content="Exploring Artificial Intelligence: readings, lecture slides and workbooks for CSE 30124 · Introduction to Artificial Intelligence.">
+<style>
+:root { --navy: #002B5B; --gold: #DCB439; --gold-text: #9a7a00; --ink: #1a1a1a; --muted: #6b6b6b; --line: #dcdcdc; --bg: #f2f2f0; --card: #fff; --hover: #f6f4ec; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; color: var(--ink); background: var(--bg); -webkit-text-size-adjust: 100%; }
+a { color: inherit; }
+.top { background: var(--navy); color: #fff; }
+.top .in { max-width: 52rem; margin: 0 auto; padding: .6rem 1rem; display: flex; align-items: center; gap: 1rem; font-size: 13px; }
+.top .brand { font-weight: 700; font-size: 15px; text-decoration: none; }
+.top .sp { flex: 1; }
+.top a.home { opacity: .8; text-decoration: none; } .top a.home:hover { opacity: 1; text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 4px; }
+.hero { background: var(--navy); color: #fff; border-bottom: 4px solid var(--gold); }
+.hero .in { max-width: 52rem; margin: 0 auto; padding: 1.6rem 1rem 1.8rem; }
+.hero .kick { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+.hero h1 { margin: .45rem 0 .3rem; font-size: clamp(1.7rem, 4.5vw, 2.5rem); line-height: 1.1; }
+.hero .by { font-size: 14px; opacity: .8; }
+.hero p { max-width: 36rem; font-size: 15px; line-height: 1.5; opacity: .92; margin: .9rem 0 0; }
+main { max-width: 52rem; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+.views { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin: 0 0 1.6rem; }
+.views div { background: var(--card); border: 1px solid var(--line); border-radius: 6px; padding: .7rem .8rem; font-size: 13px; line-height: 1.4; color: var(--muted); }
+.views b { display: block; color: var(--navy); font-size: 14px; margin-bottom: .15rem; }
+.unit { margin-bottom: 1.6rem; }
+.unit h2 { display: flex; align-items: baseline; gap: .6rem; margin: 0 0 .5rem; font-size: 18px; color: var(--navy); }
+.unit h2 .un { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-text); }
+.unit h2 .count { margin-left: auto; font-size: 12px; font-weight: 400; color: var(--muted); }
+ol { list-style: none; margin: 0; padding: 0; background: var(--card); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+li.ch { display: flex; align-items: center; gap: .8rem; padding: .55rem .9rem; border-top: 1px solid var(--line); min-height: 2.8rem; }
+li.ch:first-child { border-top: 0; }
+li.ch:not(.soon):hover { background: var(--hover); }
+.n { flex: 0 0 2.4rem; font: 700 13px/1 "SF Mono", Menlo, Consolas, monospace; color: var(--gold-text); }
+.t { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 700; color: var(--navy); text-decoration: none; }
+a.t:hover { text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.v { display: inline-flex; gap: .25rem; flex-wrap: wrap; justify-content: flex-end; }
+.v a { font-size: 13px; text-decoration: none; padding: .3rem .55rem; border-radius: 5px; color: var(--navy); border: 1px solid var(--line); background: var(--card); white-space: nowrap; }
+.v a:hover { border-color: var(--navy); }
+.v a.pdf { color: var(--muted); }
+.soon .t { color: var(--muted); font-weight: 400; }
+.soon .n { color: #b9b9b9; }
+.soon .v { font-size: 12px; color: #a0a0a0; }
+.notes:empty { display: none; }
+.notes a { font-size: 12px; color: var(--gold-text); text-decoration: none; white-space: nowrap; border: 1px solid rgba(220,180,57,.6); background: #fdf8e6; padding: .2rem .45rem; border-radius: 999px; }
+.notes a:hover { border-color: var(--gold-text); }
+footer { max-width: 52rem; margin: 0 auto; padding: 0 1rem 2rem; font-size: 12px; color: var(--muted); }
+@media (max-width: 640px) {
+  .views { grid-template-columns: 1fr; gap: .4rem; }
+  li.ch { flex-wrap: wrap; gap: .35rem .7rem; padding: .65rem .8rem; }
+  li.ch:not(.soon) .v { flex-basis: 100%; justify-content: flex-start; padding-left: 3.1rem; }
+  .n { flex-basis: 2.4rem; }
+}
+</style>
+</head>
+<body>
+<nav class="top"><div class="in"><a class="brand" href="./">Exploring Artificial Intelligence</a><span class="sp"></span><a class="home" href="/">Visualizations</a></div></nav>
+<header class="hero"><div class="in">
+<div class="kick">CSE 30124 · Introduction to Artificial Intelligence · University of Notre Dame</div>
+<h1>Exploring Artificial Intelligence</h1>
+<div class="by">William Theisen</div>
+<p>Each chapter comes in three views of the same material. The figures are live visualizations and the code runs in the browser.</p>
+</div></header>
+<main>
+<div class="views">
+<div><b>Reading</b>The full chapter, to read before or after class.</div>
+<div><b>Lecture</b>The slides we go through in class, with the notes written on them.</div>
+<div><b>Workbook</b>The chapter with blanks to fill in as we go.</div>
+</div>
+<section class="unit"><h2><span class="un">Unit 1</span>Search and Reasoning<span class="count">1 of 10 ready</span></h2><ol><li class="ch soon"><span class="n">1.0</span><span class="t">Artificial Intelligence</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">1.1</span><span class="t">Origins</span><span class="v">In progress</span></li><li class="ch" data-slug="search"><span class="n">1.2</span><a class="t" href="search/index.html">Uninformed Search</a><span class="notes"></span><span class="v"><a href="search/index.html">Reading</a><a href="search/index-slides.html">Lecture</a><a href="search/index-workbook.html">Workbook</a><a class="pdf" href="search/uninformed-search-chapter.pdf" download title="Download the reading as a PDF">PDF</a></span></li><li class="ch soon"><span class="n">1.3</span><span class="t">Informed Search</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">1.4</span><span class="t">Constraint Satisfaction</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">1.5</span><span class="t">Adversarial Search</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">1.6</span><span class="t">Markov Models</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">1.7</span><span class="t">Reinforcement Learning</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">1.8</span><span class="t">Belief Networks</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">1.9</span><span class="t">Knowledge Representation</span><span class="v">In progress</span></li></ol></section>
+<section class="unit"><h2><span class="un">Unit 2</span>Machine Learning<span class="count">3 of 11 ready</span></h2><ol><li class="ch soon"><span class="n">2.0</span><span class="t">Introduction to Machine Learning</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">2.1</span><span class="t">Perceptrons</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">2.2</span><span class="t">Logistic Regression</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">2.3</span><span class="t">Gradient Descent</span><span class="v">In progress</span></li><li class="ch" data-slug="svm"><span class="n">2.4</span><a class="t" href="svm/index.html">Support Vector Machines</a><span class="notes"></span><span class="v"><a href="svm/index.html">Reading</a><a href="svm/index-slides.html">Lecture</a><a href="svm/index-workbook.html">Workbook</a><a class="pdf" href="svm/svm-chapter.pdf" download title="Download the reading as a PDF">PDF</a></span></li><li class="ch soon"><span class="n">2.5</span><span class="t">Clustering</span><span class="v">In progress</span></li><li class="ch" data-slug="pca"><span class="n">2.6</span><a class="t" href="pca/index.html">Principal Component Analysis</a><span class="notes"></span><span class="v"><a href="pca/index.html">Reading</a><a href="pca/index-slides.html">Lecture</a><a href="pca/index-workbook.html">Workbook</a><a class="pdf" href="pca/pca-chapter.pdf" download title="Download the reading as a PDF">PDF</a></span></li><li class="ch soon"><span class="n">2.7</span><span class="t">Model Evaluation</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">2.8</span><span class="t">Ensemble Methods</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">2.11</span><span class="t">Decision Trees</span><span class="v">In progress</span></li><li class="ch" data-slug="linreg"><span class="n">2.12</span><a class="t" href="linreg/index.html">Linear Regression</a><span class="notes"></span><span class="v"><a href="linreg/index.html">Reading</a><a href="linreg/index-slides.html">Lecture</a><a href="linreg/index-workbook.html">Workbook</a><a class="pdf" href="linreg/linreg-chapter.pdf" download title="Download the reading as a PDF">PDF</a></span></li></ol></section>
+<section class="unit"><h2><span class="un">Unit 3</span>Deep Learning<span class="count">0 of 10 ready</span></h2><ol><li class="ch soon"><span class="n">3.0</span><span class="t">Deep Learning</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">3.1</span><span class="t">Neural Networks</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">3.2</span><span class="t">Backpropagation</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">3.3</span><span class="t">Convolutional Neural Networks</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">3.4</span><span class="t">Recurrent Neural Networks</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">3.5</span><span class="t">Transformers</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">3.6</span><span class="t">Diffusion Models</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">3.7</span><span class="t">Deep Reinforcement Learning</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">3.8</span><span class="t">Large Language Models</span><span class="v">In progress</span></li><li class="ch soon"><span class="n">3.9</span><span class="t">Agentic LLMs</span><span class="v">In progress</span></li></ol></section>
+<section class="unit"><h2><span class="un">Appendix</span><span class="count">0 of 1 ready</span></h2><ol><li class="ch soon"><span class="n">A.1</span><span class="t">PyTorch</span><span class="v">In progress</span></li></ol></section>
+</main>
+<script>
+// show the latest published lecture notes for each chapter
+[].forEach.call(document.querySelectorAll('li[data-slug]'), function (li) {
+  var s = li.getAttribute('data-slug');
+  fetch(s + '/ink/index.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    var ls = (j && j.layers) || []; if (!ls.length) return;
+    var l = ls.slice().sort(function (a, b) { return a.id < b.id ? 1 : -1; })[0], v = l.view || 'slides';
+    var f = { reading: 'index.html', slides: 'index-slides.html', workbook: 'index-workbook.html' }[v] || 'index-slides.html';
+    li.querySelector('.notes').innerHTML = '<a href="' + s + '/' + f + '#notes=' + encodeURIComponent(l.id) + '" title="Notes from lecture">\u270e ' + (l.title || l.id) + (ls.length > 1 ? ' +' + (ls.length - 1) : '') + '</a>';
+  }).catch(function () {});
+});
+</script>
+</body>
+</html>
