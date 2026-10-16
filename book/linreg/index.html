@@ -267,10 +267,11 @@ b-code[hidden] { display: none; }
 
 /* lecture ink (app/ink.js) */
 svg.ink { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; overflow: visible; }
-svg.ink path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+svg.ink path { stroke-linecap: round; stroke-linejoin: round; }
 #ink-pick { font: inherit; font-size: 12px; padding: 2px 6px; border-radius: 4px; border: 0; }
 .ink-blank-label { color: var(--ink-muted); font-size: 9pt; letter-spacing: 1px; text-transform: uppercase; }
-html.ink-lecture section.page { touch-action: none; -webkit-user-select: none; user-select: none; }
+html.ink-lecture section.page { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+html.ink-lecture body { overscroll-behavior: none; }
 html.ink-lecture:not(.ink-hand) section.page iframe { pointer-events: none; }
 html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select: auto; user-select: auto; }
 .ink-bar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 100; display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: 0 4px 18px rgba(0,0,0,.18); font: 13px Arial, sans-serif; }
@@ -2895,6 +2896,23 @@ function eaiInk(opts) {
   var layer = null, layers = [], editing = false, tool = 'pen', color = PEN[0][0], width = 2.2, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
+  // perfect-freehand (MIT, by Steve Ruiz; the pen behind tldraw) turns [x, y, pressure] points into a variable-width outline.
+  // Until it loads, or if it can't, strokes are drawn as plain smoothed lines.
+  var PF = null;
+  import('https://cdn.jsdelivr.net/npm/perfect-freehand@1.2.2/+esm').then(function (m) { PF = m.getStroke || (m.default && m.default.getStroke) || m.default; if (layer) show(layer); }).catch(function () {});
+  function outline(s) {   // filled SVG path for a stroke, or null to fall back to a line
+    if (!PF || s.pts.length < 2) return null;
+    var o = PF(s.pts, { size: s.w * (s.o ? 1 : 2.2), thinning: s.o ? 0 : 0.6, smoothing: 0.5, streamline: 0.45, simulatePressure: !!s.sp, last: true });
+    if (!o.length) return null;
+    var d = 'M' + r1(o[0][0]) + ' ' + r1(o[0][1]);
+    for (var i = 1; i < o.length; i++) { var a = o[i], b = o[(i + 1) % o.length]; d += ' Q' + r1(a[0]) + ' ' + r1(a[1]) + ' ' + r1((a[0] + b[0]) / 2) + ' ' + r1((a[1] + b[1]) / 2); }
+    return d + ' Z';
+  }
+  function paint(el, s) {
+    var d = outline(s);
+    if (d) { el.setAttribute('d', d); el.setAttribute('fill', s.c); el.setAttribute('stroke', 'none'); }
+    else { el.setAttribute('d', pathD(s.pts)); el.setAttribute('fill', 'none'); el.setAttribute('stroke', s.c); el.setAttribute('stroke-width', s.w); }
+  }
 
   // ---------------------------------------------------------------- pages and overlays
   function pages() { return [].slice.call(book.querySelectorAll('section.page')); }
@@ -2905,7 +2923,7 @@ function eaiInk(opts) {
     svg.setAttribute('viewBox', '0 0 432 ' + r1(r.height * k));
     return svg;
   }
-  function toPt(pg, e) { var r = pg.getBoundingClientRect(), k = 432 / r.width; return [r1((e.clientX - r.left) * k), r1((e.clientY - r.top) * k)]; }
+  function toPt(pg, e) { var r = pg.getBoundingClientRect(), k = 432 / r.width; return [r1((e.clientX - r.left) * k), r1((e.clientY - r.top) * k), Math.round((e.pointerType === 'pen' && e.pressure > 0 ? e.pressure : 0.5) * 100) / 100]; }
   function pathD(p) {   // a smooth line through the points (midpoint quadratic curves)
     if (!p.length) return '';
     if (p.length < 3) return 'M' + p[0][0] + ' ' + p[0][1] + ' L' + p[p.length - 1][0] + ' ' + (p[p.length - 1][1] + .01);
@@ -2916,8 +2934,8 @@ function eaiInk(opts) {
   function drawStroke(s) {
     var pg = document.getElementById(s.p); if (!pg) return null;
     var el = document.createElementNS(NS, 'path');
-    el.setAttribute('d', pathD(s.pts)); el.setAttribute('stroke', s.c); el.setAttribute('stroke-width', s.w);
-    if (s.o && s.o < 1) el.setAttribute('stroke-opacity', s.o);
+    paint(el, s);
+    if (s.o && s.o < 1) el.setAttribute('opacity', s.o);
     el._s = s; overlay(pg).appendChild(el); return el;
   }
   function blankPage(b) {
@@ -3011,7 +3029,7 @@ function eaiInk(opts) {
     var svg = overlay(pg), cur = null, el = null, erased = [];
     if (tool === 'laser') { laser = laser || document.createElement('div'); laser.className = 'ink-laser'; document.body.appendChild(laser); }
     else if (tool !== 'erase') {
-      cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [toPt(pg, e)] }; if (tool === 'hl') cur.o = 0.35;
+      cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [toPt(pg, e)] }; if (tool === 'hl') cur.o = 0.35; if (e.pointerType !== 'pen') cur.sp = 1;
       el = drawStroke(cur);
     }
     function move(ev) {
@@ -3026,7 +3044,7 @@ function eaiInk(opts) {
           });
         } else { var l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - pt[0]) + Math.abs(l[1] - pt[1]) >= 0.6) cur.pts.push(pt); }
       });
-      if (el) el.setAttribute('d', pathD(cur.pts));
+      if (el) paint(el, cur);
     }
     function up() {
       pg.removeEventListener('pointermove', move); pg.removeEventListener('pointerup', up); pg.removeEventListener('pointercancel', up);
