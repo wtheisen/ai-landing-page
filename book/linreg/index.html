@@ -284,29 +284,52 @@ html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select
 .ink-laser { position: fixed; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #ff2a2a; box-shadow: 0 0 12px 4px rgba(255,42,42,.6); pointer-events: none; z-index: 101; }
 @media print { .ink-bar, #ink-pick { display: none !important; } }
 
-/* published chapter: view switcher and PDF menu in the navbar */
-.navbar .viewbar { display: inline-flex; border: 1px solid rgba(255,255,255,.45); border-radius: 5px; overflow: hidden; }
-.navbar .viewbar a { padding: 3px 10px; } .navbar .viewbar a + a { border-left: 1px solid rgba(255,255,255,.45); }
-.navbar .viewbar a.on { background: #fff; color: var(--navy); font-weight: 700; } .navbar .viewbar a:hover { text-decoration: none; background: rgba(255,255,255,.15); } .navbar .viewbar a.on:hover { background: #fff; }
-.navbar .pdfmenu { position: relative; } .navbar .pdfmenu summary { cursor: pointer; list-style: none; padding: 3px 10px; border: 1px solid rgba(255,255,255,.45); border-radius: 5px; }
-.navbar .pdfmenu summary::-webkit-details-marker { display: none; } .navbar .pdfmenu summary::after { content: ' \25BE'; }
-.navbar .pdfmenu .menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 50; min-width: 220px; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.18); padding: 4px; }
-.navbar .pdfmenu .menu a, .navbar .pdfmenu .menu button { color: var(--ink); padding: 6px 10px; border-radius: 4px; text-align: left; font: inherit; background: none; border: 0; cursor: pointer; }
-.navbar .pdfmenu .menu a:hover, .navbar .pdfmenu .menu button:hover { background: var(--surface-sunken); text-decoration: none; }
-.navbar .pdfmenu .menu button { border-top: 1px solid var(--border); margin-top: 2px; border-radius: 0 0 4px 4px; }
-.navbar #ink-pen { font: inherit; color: #fff; background: none; border: 1px solid rgba(255,255,255,.45); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
-.navbar #ink-pen:hover { background: rgba(255,255,255,.15); }
-html.ink-lecture .navbar #ink-pen { background: #fff; color: var(--navy); font-weight: 700; }
+/* published chapter navbar: one row. brand > chapter, Sections menu | view switch | Pen, PDF, GitHub */
+.navbar.chap { position: sticky; top: 0; z-index: 60; flex-wrap: nowrap; gap: .6rem; padding: .45rem 1rem; font-size: 13px; line-height: 1; }
+.navbar.chap .brand { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; opacity: .85; font-weight: 600; }
+.navbar.chap .brand:hover { opacity: 1; text-decoration: none; }
+.navbar.chap .crumb { font-size: 15px; font-weight: 700; white-space: nowrap; }
+.navbar.chap .crumb::before { content: '\203A'; margin: 0 .5rem 0 -.1rem; opacity: .5; font-weight: 400; }
+.navbar.chap .spacer { flex: 1 1 0; min-width: .5rem; }
+.navbar.chap .tools { display: inline-flex; align-items: center; gap: .35rem; }
+/* every control is the same 28px pill */
+.navbar.chap .nb, .navbar.chap .viewbar a { box-sizing: border-box; height: 28px; display: inline-flex; align-items: center; gap: .35rem; padding: 0 .65rem; font: inherit; font-size: 13px; color: #fff; white-space: nowrap; }
+.navbar.chap .nb { background: transparent; border: 1px solid rgba(255,255,255,.28); border-radius: 6px; cursor: pointer; list-style: none; }
+.navbar.chap .nb:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.5); text-decoration: none; }
+.navbar.chap .nb.on { background: var(--gold, #DCB439); border-color: var(--gold, #DCB439); color: var(--navy); font-weight: 700; }
+.navbar.chap .nb.icon { padding: 0; width: 28px; justify-content: center; }
+.navbar.chap summary::-webkit-details-marker { display: none; }
+.navbar.chap .viewbar { display: inline-flex; padding: 2px; gap: 2px; background: rgba(255,255,255,.1); border-radius: 8px; }
+.navbar.chap .viewbar a { height: 24px; border-radius: 6px; color: rgba(255,255,255,.8); }
+.navbar.chap .viewbar a:hover { color: #fff; background: rgba(255,255,255,.12); text-decoration: none; }
+.navbar.chap .viewbar a.on { background: #fff; color: var(--navy); font-weight: 700; }
+.navbar.chap select.nb { appearance: none; -webkit-appearance: none; max-width: 11rem; text-overflow: ellipsis; }
+.navbar.chap select.nb option { color: var(--ink); }
+/* dropdown menus */
+.navbar.chap .navmenu { position: relative; }
+.navbar.chap .navmenu[open] > summary { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.5); }
+.navbar.chap .navmenu .menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 70; min-width: 13rem; display: flex; flex-direction: column; gap: 1px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.2); padding: 4px; font-size: 13px; line-height: 1.3; }
+.navbar.chap .toc .menu { left: 0; right: auto; }
+.navbar.chap .navmenu .menu .hd, .navbar.chap .navmenu .menu .who { color: var(--ink-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; padding: 6px 8px 4px; }
+.navbar.chap .navmenu .menu .who { text-transform: none; letter-spacing: 0; font-size: 12px; }
+.navbar.chap .navmenu .menu a, .navbar.chap .navmenu .menu button, .navbar.chap .navmenu .menu label { display: block; color: var(--ink); padding: 7px 8px; border-radius: 5px; text-align: left; font: inherit; background: none; border: 0; cursor: pointer; text-decoration: none; }
+.navbar.chap .navmenu .menu a:hover, .navbar.chap .navmenu .menu button:hover, .navbar.chap .navmenu .menu label:hover { background: var(--surface-sunken); text-decoration: none; }
+.navbar.chap .pdfmenu .menu button { border-top: 1px solid var(--border); border-radius: 0 0 5px 5px; margin-top: 3px; color: var(--ink-muted); }
+.navbar.chap #ink-gh .menu { min-width: 15rem; }
+.navbar.chap #ink-gh summary { opacity: .7; } .navbar.chap #ink-gh summary:hover, .navbar.chap #ink-gh[open] summary { opacity: 1; }
+.navbar.chap #ink-gh.on summary { opacity: 1; color: var(--gold, #DCB439); border-color: rgba(220,180,57,.6); }
+html.ink-lecture .navbar.chap #ink-pen { background: var(--gold, #DCB439); border-color: var(--gold, #DCB439); color: var(--navy); font-weight: 700; }
+/* narrower screens: drop the book name, then the button labels */
+@media (max-width: 900px) { .navbar.chap .brand { display: none; } .navbar.chap .crumb::before { display: none; } }
+@media (max-width: 640px) {
+  .navbar.chap { padding: .4rem .6rem; gap: .4rem; }
+  .navbar.chap .nb > span { display: none; } .navbar.chap .nb { padding: 0; width: 28px; justify-content: center; }
+  .navbar.chap .crumb { display: none; }
+  .navbar.chap .viewbar a { padding: 0 .45rem; font-size: 12px; }
+  .navbar.chap select.nb { width: 28px; }
+}
 .ink-bar button.quiet { border: 0; color: var(--ink-muted); font-size: 11px; padding: 0 4px; }
 
-/* instructor's GitHub menu and faint answers to trace (app/ink.js) */
-.navbar #ink-gh { position: relative; } .navbar #ink-gh summary { list-style: none; cursor: pointer; display: flex; align-items: center; opacity: .6; }
-.navbar #ink-gh summary::-webkit-details-marker { display: none; } .navbar #ink-gh.on summary, .navbar #ink-gh summary:hover { opacity: 1; }
-.navbar #ink-gh.on summary { color: var(--gold, #DCB439); }
-.navbar #ink-gh .menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 50; min-width: 250px; display: flex; flex-direction: column; gap: 2px; background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.18); padding: 6px; font-size: 13px; }
-.navbar #ink-gh .menu .who { color: var(--ink-muted); font-size: 12px; padding: 4px 6px; }
-.navbar #ink-gh .menu label, .navbar #ink-gh .menu button { padding: 6px; border-radius: 4px; text-align: left; font: inherit; background: none; border: 0; color: inherit; cursor: pointer; }
-.navbar #ink-gh .menu label:hover, .navbar #ink-gh .menu button:hover { background: var(--surface-sunken); }
 .ghost-only { display: none; }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
@@ -316,7 +339,7 @@ html.ink-lecture .navbar #ink-pen { background: #fff; color: var(--navy); font-w
 </style>
 </head>
 <body>
-<nav class="navbar web-only" aria-label="Chapter"><a class="brand" href="https://ai.williamtheisen.com/">Exploring Artificial Intelligence</a><span class="spacer"></span><a href="#tasks">Regression</a><a href="#fitting">Fitting the line</a><a href="#mle">Overfitting</a><a href="#regularization">Regularization</a><a href="#review">Review</a><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="on">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><details class="pdfmenu"><summary>Export PDF</summary><div class="menu"><a href="linreg-chapter.pdf" download>Reading</a><a href="linreg-chapter-slides.pdf" download>Lecture</a><a href="linreg-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.print()">This page as shown (with lecture notes)</button></div></details></nav>
+<nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="https://ai.williamtheisen.com/" title="Exploring Artificial Intelligence">Exploring Artificial Intelligence</a><span class="crumb">Linear Regression</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#tasks">Regression</a><a href="#fitting">Fitting the line</a><a href="#mle">Overfitting</a><a href="#regularization">Regularization</a><a href="#review">Review</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="on">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="linreg-chapter.pdf" download>Reading</a><a href="linreg-chapter-slides.pdf" download>Lecture</a><a href="linreg-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="reading">
 <section class="page cover" id="cover">
   
@@ -2715,7 +2738,7 @@ nd_plays               0.00</pre></b-out>
 <div class="foot" data-rt=""><span>Linear Regression · Review</span><span>40</span></div></section>
 
 </main>
-<script>(function(){function z(){var W=Math.min(window.innerWidth,document.documentElement.clientWidth||1e9,screen.width||1e9);var w=Math.min(1,(W-32)/576);document.documentElement.style.setProperty('--zoom',w)}z();window.addEventListener('resize',z)})();addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='eai-embed-height'||!(d.height>100))return;[].forEach.call(document.querySelectorAll('b-embed iframe'),function(f){if(f.contentWindow===e.source)f.style.height=Math.min(d.height,2400)+'px'})});(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-frame]'));if(!fs.length)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.src=e.target.getAttribute('data-frame');io.unobserve(e.target)}})},{rootMargin:'600px'});fs.forEach(function(f){io.observe(f)})})();function eaiLiveFig(fig){var u=fig.getAttribute('viz');if(fig._viz||!u||!/^https?:\/\//.test(u))return;fig._viz=1;fig.classList.add('viz');var io=new IntersectionObserver(function(es){if(!es.some(function(e){return e.isIntersecting}))return;io.disconnect();var f=document.createElement('iframe');f.className='vizf';f.title=fig.getAttribute('alt')||'Interactive figure';f.setAttribute('scrolling','no');f.src=u+(u.indexOf('?')<0?'?':'&')+'embed=fig&theme=light';var a=document.createElement('a');a.className='vizl';a.href=u;a.target='_blank';a.rel='noopener';a.textContent='Live · open the full tool ↗';addEventListener('message',function on(e){if(e.source!==f.contentWindow||!e.data||e.data.type!=='eai-ready')return;removeEventListener('message',on);fig.classList.add('viz-on')});fig.appendChild(f);fig.appendChild(a)},{rootMargin:'300px'});io.observe(fig)};[].forEach.call(document.querySelectorAll('b-fig[viz]'),eaiLiveFig);
+<script>(function(){function z(){var W=Math.min(window.innerWidth,document.documentElement.clientWidth||1e9,screen.width||1e9);var w=Math.min(1,(W-32)/576);document.documentElement.style.setProperty('--zoom',w)}z();window.addEventListener('resize',z)})();document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){if(!d.contains(e.target))d.open=false})});document.addEventListener('keydown',function(e){if(e.key==='Escape')[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){d.open=false})});[].forEach.call(document.querySelectorAll('.navbar .toc a'),function(a){a.addEventListener('click',function(){a.closest('details').open=false})});addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='eai-embed-height'||!(d.height>100))return;[].forEach.call(document.querySelectorAll('b-embed iframe'),function(f){if(f.contentWindow===e.source)f.style.height=Math.min(d.height,2400)+'px'})});(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-frame]'));if(!fs.length)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.src=e.target.getAttribute('data-frame');io.unobserve(e.target)}})},{rootMargin:'600px'});fs.forEach(function(f){io.observe(f)})})();function eaiLiveFig(fig){var u=fig.getAttribute('viz');if(fig._viz||!u||!/^https?:\/\//.test(u))return;fig._viz=1;fig.classList.add('viz');var io=new IntersectionObserver(function(es){if(!es.some(function(e){return e.isIntersecting}))return;io.disconnect();var f=document.createElement('iframe');f.className='vizf';f.title=fig.getAttribute('alt')||'Interactive figure';f.setAttribute('scrolling','no');f.src=u+(u.indexOf('?')<0?'?':'&')+'embed=fig&theme=light';var a=document.createElement('a');a.className='vizl';a.href=u;a.target='_blank';a.rel='noopener';a.textContent='Live · open the full tool ↗';addEventListener('message',function on(e){if(e.source!==f.contentWindow||!e.data||e.data.type!=='eai-ready')return;removeEventListener('message',on);fig.classList.add('viz-on')});fig.appendChild(f);fig.appendChild(a)},{rootMargin:'300px'});io.observe(fig)};[].forEach.call(document.querySelectorAll('b-fig[viz]'),eaiLiveFig);
 // "Try it: drag the points" — a linear soft-margin SVM (SMO) re-solved while you drag.
 // Same data, colours and marks as the street figure: +1 blue circles, -1 gold triangles,
 // boundary and street purple, support vectors (alpha > 0) ringed red.
@@ -3004,9 +3027,9 @@ function eaiInk(opts) {
   function navbar() {
     if (!nav) return;
     ['ink-pick', 'ink-pen'].forEach(function (id) { var o = document.getElementById(id); if (o) o.remove(); });
-    var at = nav.querySelector('.viewbar') || null;
+    var box = nav.querySelector('.tools') || nav, at = box.firstChild;
     if (layers.length) {
-      var sel = document.createElement('select'); sel.id = 'ink-pick'; sel.title = 'Notes from lecture';
+      var sel = document.createElement('select'); sel.id = 'ink-pick'; sel.className = 'nb'; sel.title = 'Notes from lecture';
       sel.innerHTML = '<option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '">Lecture notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ' view)') + '</option>'; }).join('');
       sel.value = pub ? pub.id : ''; sel.disabled = editing && target !== mine;
       sel.onchange = function () {
@@ -3015,11 +3038,11 @@ function eaiInk(opts) {
         if (l && viewOf(l) !== VIEW) { location.href = FILES[viewOf(l)] + '#notes=' + l.id; return; }
         load(sel.value).then(function (l) { pub = l; render(); });
       };
-      nav.insertBefore(sel, at);
+      box.insertBefore(sel, at);
     }
     var gh = document.getElementById('ink-gh'); if (gh) gh.remove();
-    gh = document.createElement('details'); gh.id = 'ink-gh'; gh.className = teacher() ? 'on' : '';
-    gh.innerHTML = '<summary title="' + (teacher() ? 'Instructor (signed in on this device)' : 'Instructor sign-in') + '"><svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></summary><div class="menu">'
+    gh = document.createElement('details'); gh.id = 'ink-gh'; gh.className = 'navmenu' + (teacher() ? ' on' : '');
+    gh.innerHTML = '<summary class="nb icon" title="' + (teacher() ? 'Instructor (signed in on this device)' : 'Instructor sign-in') + '"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></summary><div class="menu">'
       + (teacher() ? '<span class="who">Instructor: this device can publish lecture notes</span><label><input type="checkbox" data-g="ghost"' + (store('eai-ink-ghost') === false ? '' : ' checked') + '> Faint answers to trace (Lecture view)</label><button type="button" data-g="out">Sign out on this device</button>'
                    : '<button type="button" data-g="in">Instructor sign-in…</button>') + '</div>';
     gh.addEventListener('click', function (e) {
@@ -3028,11 +3051,12 @@ function eaiInk(opts) {
       if (g === 'out' && confirm('Sign out? This device will no longer be able to publish lecture notes.')) { store(KEY_TOKEN, ''); stop(); ghost(); navbar(); }
     });
     gh.addEventListener('change', function (e) { if (e.target.getAttribute('data-g') === 'ghost') { store('eai-ink-ghost', e.target.checked); ghost(); } });
-    nav.appendChild(gh);
+    box.appendChild(gh);
     var pen = document.createElement('button'); pen.id = 'ink-pen'; pen.type = 'button';
-    pen.textContent = editing ? '✎ Done' : '✎ Pen'; pen.title = editing ? 'stop writing (L)' : 'write on the pages (L)';
+    pen.className = 'nb' + (editing ? ' on' : '');
+    pen.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M10.8 2.7l2.5 2.5-7.6 7.6-3.2.7.7-3.2z"/></svg><span>' + (editing ? 'Done' : 'Pen') + '</span>'; pen.title = editing ? 'stop writing (L)' : 'write on the pages (L)';
     pen.onclick = function () { editing ? stop() : start(); };
-    nav.insertBefore(pen, at);
+    box.insertBefore(pen, box.querySelector('#ink-pick') || at);
   }
   function load(id) { return fetch('ink/' + id + '.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
   fetch('ink/index.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : { layers: [] }; }).catch(function () { return { layers: [] }; })
