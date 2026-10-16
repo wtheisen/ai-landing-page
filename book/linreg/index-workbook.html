@@ -268,24 +268,16 @@ b-code[hidden] { display: none; }
 /* lecture ink (app/ink.js) */
 svg.ink { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; overflow: visible; }
 svg.ink path { stroke-linecap: round; stroke-linejoin: round; }
-#ink-pick { font: inherit; font-size: 12px; padding: 2px 6px; border-radius: 4px; border: 0; }
 .ink-blank-label { color: var(--ink-muted); font-size: 9pt; letter-spacing: 1px; text-transform: uppercase; }
 html.ink-lecture section.page { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 html.ink-lecture body { overscroll-behavior: none; }
 html.ink-lecture:not(.ink-hand) section.page iframe { pointer-events: none; }
 html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select: auto; user-select: auto; }
-.ink-bar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 100; display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: 0 4px 18px rgba(0,0,0,.18); font: 13px Arial, sans-serif; }
-.ink-bar button { min-width: 30px; height: 30px; border-radius: 15px; border: 1px solid var(--border); background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; padding: 0 8px; }
-.ink-bar button[data-c] { background: var(--c); border-color: var(--c); padding: 0; }
-.ink-bar button.on { outline: 2px solid var(--gold, #DCB439); outline-offset: 2px; }
-.ink-bar button.hl { color: #F1C232; }
-.ink-bar .sep { width: 1px; height: 22px; background: var(--border); }
-.ink-bar .ink-msg { color: var(--ink-muted); font-size: 12px; max-width: 220px; }
 .ink-laser { position: fixed; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #ff2a2a; box-shadow: 0 0 12px 4px rgba(255,42,42,.6); pointer-events: none; z-index: 101; }
-@media print { .ink-bar, #ink-pick { display: none !important; } }
+@media print { .chap-head, .ink-sub, #ink-pick { display: none !important; } }
 
 /* published chapter navbar: one row. brand > chapter, Sections menu | view switch | Pen, PDF, GitHub */
-.navbar.chap { position: sticky; top: 0; z-index: 60; flex-wrap: nowrap; gap: .6rem; padding: .45rem 1rem; font-size: 13px; line-height: 1; }
+.navbar.chap { flex-wrap: nowrap; gap: .6rem; padding: .45rem 1rem; font-size: 13px; line-height: 1; }
 .navbar.chap .brand { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 0 1 auto; opacity: .85; font-weight: 600; }
 .navbar.chap .brand:hover { opacity: 1; text-decoration: none; }
 .navbar.chap .crumb { font-size: 15px; font-weight: 700; white-space: nowrap; }
@@ -318,7 +310,6 @@ html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select
 .navbar.chap #ink-gh .menu { min-width: 15rem; }
 .navbar.chap #ink-gh summary { opacity: .7; } .navbar.chap #ink-gh summary:hover, .navbar.chap #ink-gh[open] summary { opacity: 1; }
 .navbar.chap #ink-gh.on summary { opacity: 1; color: var(--gold, #DCB439); border-color: rgba(220,180,57,.6); }
-html.ink-lecture .navbar.chap #ink-pen { background: var(--gold, #DCB439); border-color: var(--gold, #DCB439); color: var(--navy); font-weight: 700; }
 /* narrower screens: drop the book name, then the button labels */
 @media (max-width: 900px) { .navbar.chap .brand { display: none; } .navbar.chap .crumb::before { display: none; } }
 @media (max-width: 640px) {
@@ -328,8 +319,29 @@ html.ink-lecture .navbar.chap #ink-pen { background: var(--gold, #DCB439); borde
   .navbar.chap .viewbar a { padding: 0 .45rem; font-size: 12px; }
   .navbar.chap select.nb { width: 28px; }
 }
-.ink-bar button.quiet { border: 0; color: var(--ink-muted); font-size: 11px; padding: 0 4px; }
 
+/* pen bar: second row under the chapter navbar (app/ink.js) */
+.chap-head { position: sticky; top: 0; z-index: 60; }
+.ink-sub { display: flex; align-items: center; gap: .5rem; padding: .3rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,.06); font: 13px Arial, sans-serif; color: var(--ink); overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.ink-sub::-webkit-scrollbar { display: none; }
+.ink-sub .grp { display: inline-flex; align-items: center; gap: 2px; padding-right: .5rem; border-right: 1px solid var(--border); }
+.ink-sub .grp:nth-last-child(4) { border-right: 0; }
+.ink-sub .spacer { flex: 1 1 0; min-width: .5rem; }
+.ink-sub button { box-sizing: border-box; height: 30px; min-width: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--ink); font: inherit; cursor: pointer; }
+.ink-sub button:hover { background: var(--surface-sunken); }
+.ink-sub button.on { background: var(--surface-sunken); border-color: var(--navy); }
+.ink-sub button.sw i { width: 16px; height: 16px; border-radius: 50%; background: var(--c); }
+.ink-sub button.sw.on { border-color: var(--c); }
+.ink-sub button.sw.on i { box-shadow: 0 0 0 2px var(--surface), 0 0 0 3.5px var(--c); }
+.ink-sub button.wd i { width: var(--d); height: var(--d); border-radius: 50%; background: var(--ink); }
+.ink-sub .ink-msg { color: var(--ink-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+.ink-sub .right { display: inline-flex; align-items: center; gap: .4rem; }
+.ink-sub #ink-pick { height: 28px; max-width: 13rem; font: inherit; font-size: 12px; padding: 0 .4rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--ink); }
+.ink-sub button.act { background: var(--navy); color: #fff; font-weight: 700; padding: 0 .8rem; }
+.ink-sub button.act:hover { background: var(--navy); opacity: .9; }
+.ink-sub button.quiet { color: var(--ink-muted); font-size: 12px; }
+html.ink-lecture .ink-sub { box-shadow: inset 0 -2px 0 var(--gold, #DCB439); }
+@media (max-width: 640px) { .ink-sub { padding: .3rem .5rem; gap: .3rem; } .ink-sub .ink-msg { display: none; } }
 .ghost-only { display: none; }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
@@ -2475,17 +2487,17 @@ eaiRunCode();
 // Ink for the AI2AI web edition. Everyone can write on the pages; only the instructor can publish.
 //
 //   Reading      the page looks for ink/index.json next to itself: {"layers":[{"id":"2026-10-20","title":"Oct 20"}]}.
-//                The navbar gets a "Lecture notes" picker for the instructor's published notes (newest shown by
-//                default) and a ✎ Pen button.
+//                A pen bar sits under the navbar: arrow (use the page), pens, highlighter, eraser, laser, widths,
+//                undo, + page, and a "Lecture notes" picker for the instructor's published notes (newest by default).
 //   Students     the pen writes into "My notes": kept in this browser only (never uploaded), one set per view, shown on
 //                top of the instructor's notes, printable.
 //   Views        ink is in page coordinates and each view lays pages out differently, so a set of notes belongs to the
 //                view it was drawn in (index entries carry "view"); picking one from another view switches to that view.
-//   Instructor   register a device once with Instructor sign-in (in the pen toolbar): the GitHub token is checked and kept
+//   Instructor   register a device once with Instructor sign-in (GitHub icon in the navbar): the GitHub token is checked and kept
 //                for the whole site. On that device the pen then writes into today's lecture notes and the toolbar has
 //                Publish, on every chapter and view. Publish commits ink/<id>.json and ink/index.json to
 //                the site's repository (fine-grained token: contents read and write, that repository only; kept on this
-//                device only). Press L (or the Pen button) to start and stop writing.
+//                device only). Picking a pen starts writing; the arrow (or L) stops.
 //   Tools        pens in the book's colours (even width, smoothed), highlighter, eraser, undo, laser pointer (not saved),
 //                ✋ to use the page (figures, Run buttons) instead of writing, + page for blank working space.
 //   Input        Pencil and mouse write; fingers scroll.
@@ -2508,7 +2520,7 @@ function eaiInk(opts) {
   var DIR = location.pathname.replace(/[^/]*$/, '');
   var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR + VIEW, KEY_DRAFT = 'eai-ink-draft:' + DIR + VIEW + ':';
   var viewOf = function (l) { return l.view || 'slides'; };
-  var pub = null, layers = [], mine = null, target = null, editing = false, tool = 'pen', color = PEN[0][0], width = 2.2, undo = [];
+  var pub = null, layers = [], mine = null, target = null, editing = false, tool = 'hand', color = PEN[0][0], width = 2.2, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
   var teacher = function () { return !!store(KEY_TOKEN); };
@@ -2572,39 +2584,23 @@ function eaiInk(opts) {
 
   // ---------------------------------------------------------------- navbar: Notes picker and Pen button
   var nav = document.querySelector('.navbar');
+  var GHSVG = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>';
   function navbar() {
     if (!nav) return;
-    ['ink-pick', 'ink-pen'].forEach(function (id) { var o = document.getElementById(id); if (o) o.remove(); });
-    var box = nav.querySelector('.tools') || nav, at = box.firstChild;
-    if (layers.length) {
-      var sel = document.createElement('select'); sel.id = 'ink-pick'; sel.className = 'nb'; sel.title = 'Notes from lecture';
-      sel.innerHTML = '<option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '">Lecture notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ' view)') + '</option>'; }).join('');
-      sel.value = pub ? pub.id : ''; sel.disabled = editing && target !== mine;
-      sel.onchange = function () {
-        if (!sel.value) { pub = null; return render(); }
-        var l = layers.filter(function (x) { return x.id === sel.value; })[0];
-        if (l && viewOf(l) !== VIEW) { location.href = FILES[viewOf(l)] + '#notes=' + l.id; return; }
-        load(sel.value).then(function (l) { pub = l; render(); });
-      };
-      box.insertBefore(sel, at);
-    }
+    var box = nav.querySelector('.tools') || nav;
     var gh = document.getElementById('ink-gh'); if (gh) gh.remove();
     gh = document.createElement('details'); gh.id = 'ink-gh'; gh.className = 'navmenu' + (teacher() ? ' on' : '');
-    gh.innerHTML = '<summary class="nb icon" title="' + (teacher() ? 'Instructor (signed in on this device)' : 'Instructor sign-in') + '"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></summary><div class="menu">'
+    gh.innerHTML = '<summary class="nb icon" title="' + (teacher() ? 'Instructor (signed in on this device)' : 'Instructor sign-in') + '">' + GHSVG + '</summary><div class="menu">'
       + (teacher() ? '<span class="who">Instructor: this device can publish lecture notes</span><label><input type="checkbox" data-g="ghost"' + (store('eai-ink-ghost') === false ? '' : ' checked') + '> Faint answers to trace (Lecture view)</label><button type="button" data-g="out">Sign out on this device</button>'
                    : '<button type="button" data-g="in">Instructor sign-in…</button>') + '</div>';
     gh.addEventListener('click', function (e) {
       var g = e.target.getAttribute && e.target.getAttribute('data-g'); if (!g) return;
       if (g === 'in') { gh.open = false; signIn(); }
-      if (g === 'out' && confirm('Sign out? This device will no longer be able to publish lecture notes.')) { store(KEY_TOKEN, ''); stop(); ghost(); navbar(); }
+      if (g === 'out' && confirm('Sign out? This device will no longer be able to publish lecture notes.')) { store(KEY_TOKEN, ''); stop(); target = null; ghost(); navbar(); }
     });
     gh.addEventListener('change', function (e) { if (e.target.getAttribute('data-g') === 'ghost') { store('eai-ink-ghost', e.target.checked); ghost(); } });
     box.appendChild(gh);
-    var pen = document.createElement('button'); pen.id = 'ink-pen'; pen.type = 'button';
-    pen.className = 'nb' + (editing ? ' on' : '');
-    pen.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M10.8 2.7l2.5 2.5-7.6 7.6-3.2.7.7-3.2z"/></svg><span>' + (editing ? 'Done' : 'Pen') + '</span>'; pen.title = editing ? 'stop writing (L)' : 'write on the pages (L)';
-    pen.onclick = function () { editing ? stop() : start(); };
-    box.insertBefore(pen, box.querySelector('#ink-pick') || at);
+    barState();
   }
   function load(id) { return fetch('ink/' + id + '.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
   fetch('ink/index.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : { layers: [] }; }).catch(function () { return { layers: [] }; })
@@ -2618,46 +2614,82 @@ function eaiInk(opts) {
   // the instructor's crib: in the Lecture view every blank, worked equation and quick-check answer shows in faint ink
   // to trace over (screen only; never for students, never printed)
   function ghost() { document.documentElement.classList.toggle('ink-ghost', teacher() && VIEW === 'slides' && store('eai-ink-ghost') !== false); }
-  ghost(); render(); navbar();
 
   // ---------------------------------------------------------------- writing
-  var bar = null, laser = null;
+  var bar = null, laser = null, last = { t: 'pen', c: PEN[0][0] };
+  var SVG = function (d, extra) { return '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"' + (extra || '') + '>' + d + '</svg>'; };
+  var I = {
+    hand: SVG('<path fill="currentColor" d="M3.5 1.8l9 5.2-4 1 2.3 4.3-1.7.9L6.8 8.9 3.9 11.6z"/>'),
+    hl: SVG('<path fill="#F1C232" d="M5 10.5l5.6-7.6 2.6 1.9-5.6 7.6H5z"/><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" d="M5 10.5l5.6-7.6 2.6 1.9-5.6 7.6H5zM3 14.5h6"/>'),
+    erase: SVG('<path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M2.5 10.2l6.7-6.7 4.3 4.3-5.2 5.2H5.8zM6 6.7l4.3 4.3M8.3 13h5.2"/>'),
+    laser: SVG('<circle cx="8" cy="8" r="3" fill="#ff2a2a"/><circle cx="8" cy="8" r="5.6" fill="none" stroke="#ff2a2a" stroke-opacity=".35" stroke-width="1.5"/>'),
+    undo: SVG('<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.5 3.5l-3 3 3 3M2.5 6.5H10a3.5 3.5 0 010 7H7"/>'),
+    page: SVG('<path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M3.5 1.5h6l3 3v10h-9z"/><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 7v5M5.5 9.5h5"/>') };
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function save() { if (target === mine) store(KEY_MINE, mine); else if (target) store(KEY_DRAFT + target.id, target); }
-  function start() {
-    if (editing) return; editing = true; undo = [];
-    if (teacher()) {   // the instructor writes into today's lecture notes (a draft on this device until published)
+  // where the pen writes: the instructor into today's lecture notes (a draft on this device until published), anyone else into My notes
+  function ensureTarget() {
+    if (target && (target === mine) === !teacher()) return;
+    if (teacher()) {
       var id = today() + (VIEW === 'slides' ? '' : '-' + VIEW), title = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       target = store(KEY_DRAFT + id) || { id: id, title: title, view: VIEW, pages: [], strokes: [] };
-      pub = target;
+      pub = target; render();
     } else target = mine;
-    render();
-    document.documentElement.classList.add('ink-lecture');
-    bar = document.createElement('div'); bar.className = 'ink-bar';
-    bar.innerHTML = PEN.map(function (p, i) { return '<button data-t="pen" data-c="' + p[0] + '" title="' + p[1] + ' pen" style="--c:' + p[0] + '"' + (i ? '' : ' class="on"') + '></button>'; }).join('')
-      + '<button data-t="hl" title="highlighter" class="hl">▬</button><button data-t="erase" title="eraser">⌫</button><button data-t="laser" title="laser pointer (not saved)">◉</button>'
-      + '<button data-t="hand" title="use the page (figures, Run buttons) instead of writing">✋</button>'
-      + '<span class="sep"></span><button data-w="1.4" title="thin">·</button><button data-w="2.2" class="on" title="medium">•</button><button data-w="3.6" title="thick">●</button>'
-      + '<span class="sep"></span><button data-a="undo" title="undo">↶</button><button data-a="blank" title="add a blank page after this one">+ page</button>'
-      + (target === mine ? '<button data-a="clear" title="erase all of my notes in this chapter">Clear mine</button>'
-                         : '<button data-a="publish" title="publish these notes for students">Publish</button>')
-      + '<button data-a="exit" title="stop writing">✕</button><span class="ink-msg">' + (target === mine ? 'My notes (only on this device)' : 'Lecture notes: ' + target.title) + '</span>';
-    document.body.appendChild(bar);
+  }
+  // the pen bar: a second row under the navbar, always there. The arrow uses the page normally; any pen starts writing.
+  function buildBar() {
+    if (!nav || bar) return;
+    var head = document.createElement('header'); head.className = 'chap-head web-only';
+    nav.parentNode.insertBefore(head, nav); head.appendChild(nav);
+    bar = document.createElement('div'); bar.className = 'ink-sub'; bar.setAttribute('role', 'toolbar'); bar.setAttribute('aria-label', 'Pen');
+    bar.innerHTML = '<span class="grp"><button data-t="hand" title="use the page: scroll, click figures and Run buttons (L toggles)">' + I.hand + '</button></span>'
+      + '<span class="grp">' + PEN.map(function (p) { return '<button data-t="pen" data-c="' + p[0] + '" title="' + p[1] + ' pen" class="sw" style="--c:' + p[0] + '"><i></i></button>'; }).join('')
+      + '<button data-t="hl" title="highlighter">' + I.hl + '</button><button data-t="erase" title="eraser (your own ink)">' + I.erase + '</button><button data-t="laser" title="laser pointer (not saved)">' + I.laser + '</button></span>'
+      + '<span class="grp">' + [1.4, 2.2, 3.6].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
+      + '<span class="grp"><button data-a="undo" title="undo (⌘Z)">' + I.undo + '</button><button data-a="blank" title="add a blank page after this one">' + I.page + '</button></span>'
+      + '<span class="spacer"></span><span class="ink-msg"></span><span class="right"></span>';
+    head.appendChild(bar);
     bar.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      if (b.dataset.t) { tool = b.dataset.t; if (b.dataset.c) color = b.dataset.c; document.documentElement.classList.toggle('ink-hand', tool === 'hand'); [].forEach.call(bar.querySelectorAll('[data-t]'), function (x) { x.classList.toggle('on', x === b); }); }
-      if (b.dataset.w) { width = +b.dataset.w; [].forEach.call(bar.querySelectorAll('[data-w]'), function (x) { x.classList.toggle('on', x === b); }); }
-      if (b.dataset.a === 'undo') doUndo();
-      if (b.dataset.a === 'blank') addBlank();
-      if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter?')) { mine.strokes = []; mine.pages = []; undo = []; save(); render(); }
-      if (b.dataset.a === 'publish') publish();
-      if (b.dataset.a === 'exit') stop();
+      if (b.dataset.t === 'hand') stop();
+      else if (b.dataset.t) { tool = b.dataset.t; if (b.dataset.c) color = b.dataset.c; if (tool !== 'laser') last = { t: tool, c: color }; start(); }
+      if (b.dataset.w) width = +b.dataset.w;
+      if (b.dataset.a === 'undo') { ensureTarget(); doUndo(); }
+      if (b.dataset.a === 'blank') { ensureTarget(); addBlank(); }
+      if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter (this view)?')) { mine.strokes = []; mine.pages = []; undo = []; store(KEY_MINE, mine); render(); }
+      if (b.dataset.a === 'publish') { ensureTarget(); publish(); }
+      barState();
     });
-    book.addEventListener('pointerdown', down, { passive: false });
-    navbar();
+    bar.addEventListener('change', function (e) {
+      var sel = e.target; if (sel.id !== 'ink-pick') return;
+      if (!sel.value) { pub = null; return render(); }
+      var l = layers.filter(function (x) { return x.id === sel.value; })[0];
+      if (l && viewOf(l) !== VIEW) { location.href = FILES[viewOf(l)] + '#notes=' + l.id; return; }
+      load(sel.value).then(function (l) { pub = l; render(); });
+    });
   }
-  function stop() { if (!editing) return; editing = false; save(); document.documentElement.classList.remove('ink-lecture', 'ink-hand'); if (bar) bar.remove(); bar = null; book.removeEventListener('pointerdown', down); tool = 'pen'; navbar(); }
-  function msg(t) { var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; else if (!/…$/.test(t)) alert(t); }
+  function barState() {
+    if (!bar) return;
+    var cur = editing ? tool : 'hand';
+    [].forEach.call(bar.querySelectorAll('[data-t]'), function (x) { x.classList.toggle('on', x.dataset.t === cur && (!x.dataset.c || x.dataset.c === color)); });
+    [].forEach.call(bar.querySelectorAll('[data-w]'), function (x) { x.classList.toggle('on', +x.dataset.w === width); });
+    var right = bar.querySelector('.right'), h = '';
+    if (layers.length) h += '<select id="ink-pick" title="Lecture notes"' + (editing && target !== mine ? ' disabled' : '') + '><option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '"' + (pub && pub.id === l.id ? ' selected' : '') + '>Notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ')') + '</option>'; }).join('') + '</select>';
+    h += teacher() ? '<button data-a="publish" class="act" title="publish today\'s notes for students">Publish</button>'
+                   : '<button data-a="clear" class="quiet" title="erase all of my notes on this view">Clear mine</button>';
+    right.innerHTML = h;
+    msg(editing ? (target === mine ? 'My notes · this device only' : 'Lecture notes · ' + target.title + ' (draft)') : '');
+  }
+  function start() {
+    if (editing) return barState(); editing = true; undo = [];
+    if (tool === 'hand') { tool = last.t; color = last.c; }
+    ensureTarget(); render();
+    document.documentElement.classList.add('ink-lecture');
+    book.addEventListener('pointerdown', down, { passive: false });
+    barState();
+  }
+  function stop() { if (!editing) return barState(); editing = false; save(); document.documentElement.classList.remove('ink-lecture', 'ink-hand'); book.removeEventListener('pointerdown', down); tool = 'hand'; barState(); }
+  function msg(t) { var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; else if (t && !/…$/.test(t)) alert(t); }
   function currentPage() { var best = null, bd = 1e9; pages().forEach(function (p) { var r = p.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = p; } }); return best; }
   function addBlank() {
     var pg = currentPage(); if (!pg) return;
@@ -2723,7 +2755,7 @@ function eaiInk(opts) {
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
         if (!j || !j.permissions || !j.permissions.push) { msg('That token can\'t publish to this site.'); return false; }
-        store(KEY_TOKEN, t); var was = editing; stop(); ghost(); navbar(); if (was) start(); msg('Signed in. On this device the pen now writes lecture notes you can publish, on every chapter.'); return true;
+        store(KEY_TOKEN, t); var was = editing; stop(); target = null; ghost(); navbar(); if (was) start(); msg('Signed in. On this device the pen now writes lecture notes you can publish, on every chapter.'); return true;
       }, function () { msg('Could not reach GitHub.'); return false; });
   }
   function setupTeacher() { return teacher() ? Promise.resolve(true) : signIn(); }
@@ -2741,7 +2773,7 @@ function eaiInk(opts) {
   function publish() {
     if (!target || target === mine) return;
     var dir = SITE_DIR; if (!dir) return msg('This page does not know where it is published.');
-    var token = store(KEY_TOKEN); if (!token) return msg('This device is not set up to publish (open the page with #teach).');
+    var token = store(KEY_TOKEN); if (!token) return msg('Sign in with the GitHub icon to publish.');
     var t = prompt('Title for these notes', target.title || target.id); if (t === null) return; target.title = t || target.id; save();
     msg('Publishing…');
     var ix = layers.filter(function (l) { return l.id !== target.id; }).concat([{ id: target.id, title: target.title, view: VIEW }]).sort(function (a, b) { return a.id < b.id ? -1 : 1; });
@@ -2751,6 +2783,7 @@ function eaiInk(opts) {
             function (err) { if (err.status === 401) store(KEY_TOKEN, ''); msg('Not published: ' + err.message); });
   }
 
+  ghost(); render(); buildBar(); navbar();
   if (/(^|[#&])teach\b/.test(location.hash)) { start(); setupTeacher(); }
   else if (/(^|[#&])(lecture|pen)\b/.test(location.hash)) start();
   addEventListener('keydown', function (e) {
