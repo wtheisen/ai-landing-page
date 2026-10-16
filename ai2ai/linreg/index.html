@@ -2984,29 +2984,20 @@ function eaiInk(opts) {
   var IOS = navigator.maxTouchPoints > 1 && /iPad|iPhone|Macintosh/.test(navigator.userAgent);
   mine = store(KEY_MINE) || { id: 'mine', title: 'My notes', pages: [], strokes: [] };
 
-  // perfect-freehand (MIT, by Steve Ruiz; the pen behind tldraw) turns the points into a smoothed outline (even width:
-  // pressure is ignored). Until it loads, or if it can't, strokes are drawn as plain smoothed lines.
-  var PF = null;
-  import('https://cdn.jsdelivr.net/npm/perfect-freehand@1.2.2/+esm').then(function (m) { PF = m.getStroke || (m.default && m.default.getStroke) || m.default; render(); }).catch(function () {});
-  function outline(s) {
-    if (!PF || s.pts.length < 2) return null;
-    var o = PF(s.pts, { size: s.w * (s.o ? 1 : 1.6), thinning: 0, smoothing: 0.7, streamline: 0.62, simulatePressure: false, last: true });
-    if (!o.length) return null;
-    var d = 'M' + r1(o[0][0]) + ' ' + r1(o[0][1]);
-    for (var i = 1; i < o.length; i++) { var a = o[i], b = o[(i + 1) % o.length]; d += ' Q' + r1(a[0]) + ' ' + r1(a[1]) + ' ' + r1((a[0] + b[0]) / 2) + ' ' + r1((a[1] + b[1]) / 2); }
-    return d + ' Z';
-  }
+  // Even-width ink (pressure is ignored), so a stroke is a plain round-capped SVG line: crisp at any zoom and cheap to
+  // redraw while writing. Points are smoothed as they come in (see smooth() in down()) and joined with quadratic
+  // curves through their midpoints.
   function pathD(p) {
     if (!p.length) return '';
-    if (p.length < 3) return 'M' + p[0][0] + ' ' + p[0][1] + ' L' + p[p.length - 1][0] + ' ' + (p[p.length - 1][1] + .01);
     var d = 'M' + p[0][0] + ' ' + p[0][1];
+    if (p.length === 1) return d + ' l0.01 0';
+    if (p.length === 2) return d + ' L' + p[1][0] + ' ' + p[1][1];
     for (var i = 1; i < p.length - 1; i++) d += ' Q' + p[i][0] + ' ' + p[i][1] + ' ' + r1((p[i][0] + p[i + 1][0]) / 2) + ' ' + r1((p[i][1] + p[i + 1][1]) / 2);
     return d + ' L' + p[p.length - 1][0] + ' ' + p[p.length - 1][1];
   }
-  function paint(el, s) {
-    var d = outline(s);
-    if (d) { el.setAttribute('d', d); el.setAttribute('fill', s.c); el.setAttribute('stroke', 'none'); }
-    else { el.setAttribute('d', pathD(s.pts)); el.setAttribute('fill', 'none'); el.setAttribute('stroke', s.c); el.setAttribute('stroke-width', s.w); }
+  function paint(el, s, tail) {
+    el.setAttribute('d', pathD(tail ? s.pts.concat([tail]) : s.pts));
+    el.setAttribute('fill', 'none'); el.setAttribute('stroke', s.c); el.setAttribute('stroke-width', s.o ? s.w : r1(s.w * 1.6));
   }
 
   // ---------------------------------------------------------------- pages and overlays
@@ -3167,10 +3158,17 @@ function eaiInk(opts) {
     var pg = e.target.closest('section.page'); if (!pg) return;
     if (e.pointerType === 'touch') return IOS ? undefined : fingerScroll(e);
     e.preventDefault(); try { pg.setPointerCapture(e.pointerId); } catch (x) {}
-    var svg = overlay(pg), cur = null, el = null, erased = [];
+    var svg = overlay(pg), cur = null, el = null, erased = [], sm = null, raw = null, tail = null, queued = false;
+    // speed-aware smoothing: slow, wobbly movement is averaged out, fast movement passes straight through (no trailing)
+    function smooth(pt) {
+      raw = pt; if (!sm) { sm = pt.slice(); return pt; }
+      var dx = pt[0] - sm[0], dy = pt[1] - sm[1], a = Math.min(1, 0.2 + Math.sqrt(dx * dx + dy * dy) / 6);
+      sm[0] += a * dx; sm[1] += a * dy; return [r1(sm[0]), r1(sm[1]), pt[2]];
+    }
+    function frame() { queued = false; if (el) paint(el, cur, tail); }
     if (tool === 'laser') { laser = laser || document.createElement('div'); laser.className = 'ink-laser'; document.body.appendChild(laser); laser.style.left = e.clientX + 'px'; laser.style.top = e.clientY + 'px'; }
     else if (tool !== 'erase') {
-      cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [toPt(pg, e)] }; if (tool === 'hl') cur.o = 0.35;
+      cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [smooth(toPt(pg, e))] }; if (tool === 'hl') cur.o = 0.35;
       el = drawStroke(cur);
     }
     function move(ev) {
@@ -3183,14 +3181,17 @@ function eaiInk(opts) {
             target.strokes.splice(target.strokes.indexOf(s), 1); erased.push(s);
             [].forEach.call(svg.querySelectorAll('path'), function (pp) { if (pp._s === s) pp.remove(); });
           });
-        } else { var l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - pt[0]) + Math.abs(l[1] - pt[1]) >= 1) cur.pts.push(pt); }
+        } else { var f = smooth(pt), l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - f[0]) + Math.abs(l[1] - f[1]) >= 0.8) cur.pts.push(f); }
       });
-      if (el) paint(el, cur);
+      if (!cur) return;
+      // draw ahead to where the pen is (or is about to be) so the line keeps up with the tip
+      var pr = ev.getPredictedEvents ? ev.getPredictedEvents() : []; tail = toPt(pg, pr.length ? pr[pr.length - 1] : ev);
+      if (!queued) { queued = true; requestAnimationFrame(frame); }
     }
     function up() {
       pg.removeEventListener('pointermove', move); pg.removeEventListener('pointerup', up); pg.removeEventListener('pointercancel', up);
       if (tool === 'laser') { if (laser) laser.remove(); laser = null; return; }
-      if (cur && cur.pts.length) { target.strokes.push(cur); undo.push({ stroke: cur, el: el }); }
+      if (cur && cur.pts.length) { var l = cur.pts[cur.pts.length - 1]; if (raw && cur.pts.length > 1 && (raw[0] !== l[0] || raw[1] !== l[1])) cur.pts.push(raw); tail = null; paint(el, cur); target.strokes.push(cur); undo.push({ stroke: cur, el: el }); }
       if (erased.length) undo.push({ erased: erased });
       save();
     }
