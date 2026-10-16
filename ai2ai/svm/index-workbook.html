@@ -269,10 +269,13 @@ b-code[hidden] { display: none; }
 svg.ink { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; overflow: visible; }
 svg.ink path { stroke-linecap: round; stroke-linejoin: round; }
 .ink-blank-label { color: var(--ink-muted); font-size: 9pt; letter-spacing: 1px; text-transform: uppercase; }
-html.ink-lecture section.page { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-html.ink-lecture body { overscroll-behavior: none; }
+html.ink-lecture section.page { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+html.ink-lock section.page { touch-action: none; }
+html.ink-lock body { overscroll-behavior: none; }
+/* the bars never take a text selection or a long-press callout, and keep no tap highlight */
+.chap-head, .chap-head * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.chap-head button:focus:not(:focus-visible), .chap-head summary:focus:not(:focus-visible) { outline: none; }
 html.ink-lecture:not(.ink-hand) section.page iframe { pointer-events: none; }
-html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select: auto; user-select: auto; }
 .ink-laser { position: fixed; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #ff2a2a; box-shadow: 0 0 12px 4px rgba(255,42,42,.6); pointer-events: none; z-index: 101; }
 @media print { .chap-head, .ink-sub, #ink-pick { display: none !important; } }
 
@@ -287,13 +290,13 @@ html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select
 /* every control is the same 28px pill */
 .navbar.chap .nb, .navbar.chap .viewbar a { box-sizing: border-box; height: 28px; display: inline-flex; align-items: center; gap: .35rem; padding: 0 .65rem; font: inherit; font-size: 13px; color: #fff; white-space: nowrap; }
 .navbar.chap .nb { background: transparent; border: 1px solid rgba(255,255,255,.28); border-radius: 6px; cursor: pointer; list-style: none; }
-.navbar.chap .nb:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.5); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { .navbar.chap .nb:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.5); text-decoration: none; } }
 .navbar.chap .nb.on { background: var(--gold, #DCB439); border-color: var(--gold, #DCB439); color: var(--navy); font-weight: 700; }
 .navbar.chap .nb.icon { padding: 0; width: 28px; justify-content: center; }
 .navbar.chap summary::-webkit-details-marker { display: none; }
 .navbar.chap .viewbar { display: inline-flex; padding: 2px; gap: 2px; background: rgba(255,255,255,.1); border-radius: 8px; }
 .navbar.chap .viewbar a { height: 24px; border-radius: 6px; color: rgba(255,255,255,.8); }
-.navbar.chap .viewbar a:hover { color: #fff; background: rgba(255,255,255,.12); text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { .navbar.chap .viewbar a:hover { color: #fff; background: rgba(255,255,255,.12); text-decoration: none; } }
 .navbar.chap .viewbar a.on { background: #fff; color: var(--navy); font-weight: 700; }
 .navbar.chap select.nb { appearance: none; -webkit-appearance: none; max-width: 11rem; text-overflow: ellipsis; }
 .navbar.chap select.nb option { color: var(--ink); }
@@ -328,7 +331,7 @@ html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select
 .ink-sub .grp:nth-last-child(4) { border-right: 0; }
 .ink-sub .spacer { flex: 1 1 0; min-width: .5rem; }
 .ink-sub button { box-sizing: border-box; height: 30px; min-width: 30px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; border: 1px solid transparent; border-radius: 6px; background: none; color: var(--ink); font: inherit; cursor: pointer; }
-.ink-sub button:hover { background: var(--surface-sunken); }
+@media (hover: hover) and (pointer: fine) { .ink-sub button:hover { background: var(--surface-sunken); } }
 .ink-sub button.on { background: var(--surface-sunken); border-color: var(--navy); }
 .ink-sub button.sw i { width: 16px; height: 16px; border-radius: 50%; background: var(--c); }
 .ink-sub button.sw.on { border-color: var(--c); }
@@ -44063,6 +44066,9 @@ function eaiInk(opts) {
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
   var teacher = function () { return !!store(KEY_TOKEN); };
+  // iPadOS tells Pencil touches apart (touchType 'stylus'), so fingers keep Safari's own scrolling (with momentum) and
+  // only the Pencil is stopped from scrolling. Elsewhere the pages lock touch while writing and fingers scroll by hand.
+  var IOS = navigator.maxTouchPoints > 1 && /iPad|iPhone|Macintosh/.test(navigator.userAgent);
   mine = store(KEY_MINE) || { id: 'mine', title: 'My notes', pages: [], strokes: [] };
 
   // perfect-freehand (MIT, by Steve Ruiz; the pen behind tldraw) turns the points into a smoothed outline (even width:
@@ -44071,7 +44077,7 @@ function eaiInk(opts) {
   import('https://cdn.jsdelivr.net/npm/perfect-freehand@1.2.2/+esm').then(function (m) { PF = m.getStroke || (m.default && m.default.getStroke) || m.default; render(); }).catch(function () {});
   function outline(s) {
     if (!PF || s.pts.length < 2) return null;
-    var o = PF(s.pts, { size: s.w * (s.o ? 1 : 1.6), thinning: 0, smoothing: 0.5, streamline: 0.45, simulatePressure: false, last: true });
+    var o = PF(s.pts, { size: s.w * (s.o ? 1 : 1.6), thinning: 0, smoothing: 0.7, streamline: 0.62, simulatePressure: false, last: true });
     if (!o.length) return null;
     var d = 'M' + r1(o[0][0]) + ' ' + r1(o[0][1]);
     for (var i = 1; i < o.length; i++) { var a = o[i], b = o[(i + 1) % o.length]; d += ' Q' + r1(a[0]) + ' ' + r1(a[1]) + ' ' + r1((a[0] + b[0]) / 2) + ' ' + r1((a[1] + b[1]) / 2); }
@@ -44223,11 +44229,11 @@ function eaiInk(opts) {
     if (editing) return barState(); editing = true; undo = [];
     if (tool === 'hand') { tool = last.t; color = last.c; }
     ensureTarget(); render();
-    document.documentElement.classList.add('ink-lecture');
+    document.documentElement.classList.add('ink-lecture'); if (!IOS) document.documentElement.classList.add('ink-lock');
     book.addEventListener('pointerdown', down, { passive: false });
     barState();
   }
-  function stop() { if (!editing) return barState(); editing = false; save(); document.documentElement.classList.remove('ink-lecture', 'ink-hand'); book.removeEventListener('pointerdown', down); tool = 'hand'; barState(); }
+  function stop() { if (!editing) return barState(); editing = false; save(); document.documentElement.classList.remove('ink-lecture', 'ink-lock', 'ink-hand'); book.removeEventListener('pointerdown', down); tool = 'hand'; barState(); }
   function msg(t) { var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; else if (t && !/…$/.test(t)) alert(t); }
   function currentPage() { var best = null, bd = 1e9; pages().forEach(function (p) { var r = p.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = p; } }); return best; }
   function addBlank() {
@@ -44246,7 +44252,7 @@ function eaiInk(opts) {
   function down(e) {
     if (!editing || tool === 'hand' || e.button > 0 || e.target.closest('button, a, select, textarea, input, iframe, .ink-bar')) return;
     var pg = e.target.closest('section.page'); if (!pg) return;
-    if (e.pointerType === 'touch') return fingerScroll(e);
+    if (e.pointerType === 'touch') return IOS ? undefined : fingerScroll(e);
     e.preventDefault(); try { pg.setPointerCapture(e.pointerId); } catch (x) {}
     var svg = overlay(pg), cur = null, el = null, erased = [];
     if (tool === 'laser') { laser = laser || document.createElement('div'); laser.className = 'ink-laser'; document.body.appendChild(laser); laser.style.left = e.clientX + 'px'; laser.style.top = e.clientY + 'px'; }
@@ -44264,7 +44270,7 @@ function eaiInk(opts) {
             target.strokes.splice(target.strokes.indexOf(s), 1); erased.push(s);
             [].forEach.call(svg.querySelectorAll('path'), function (pp) { if (pp._s === s) pp.remove(); });
           });
-        } else { var l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - pt[0]) + Math.abs(l[1] - pt[1]) >= 0.6) cur.pts.push(pt); }
+        } else { var l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - pt[0]) + Math.abs(l[1] - pt[1]) >= 1) cur.pts.push(pt); }
       });
       if (el) paint(el, cur);
     }
@@ -44277,6 +44283,14 @@ function eaiInk(opts) {
     }
     pg.addEventListener('pointermove', move); pg.addEventListener('pointerup', up); pg.addEventListener('pointercancel', up);
   }
+  function stylusGuard(e) {
+    if (!editing || tool === 'hand') return;
+    var t = e.target, ts = e.changedTouches || [];
+    if (!t.closest || !t.closest('section.page') || t.closest('button, a, select, textarea, input, iframe')) return;
+    for (var i = 0; i < ts.length; i++) if (ts[i].touchType === 'stylus') { e.preventDefault(); return; }
+  }
+  document.addEventListener('touchstart', stylusGuard, { passive: false });
+  document.addEventListener('touchmove', stylusGuard, { passive: false });
   function fingerScroll(e) {   // pages have touch-action: none while writing, so a finger drag scrolls the window by hand
     var y = e.clientY, x = e.clientX;
     function move(ev) { if (ev.pointerId !== e.pointerId) return; scrollBy(x - ev.clientX, y - ev.clientY); x = ev.clientX; y = ev.clientY; }
