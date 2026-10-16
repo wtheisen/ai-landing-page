@@ -2555,7 +2555,7 @@ function eaiInk(opts) {
     if (!editing || tool === 'hand' || e.button > 0 || e.target.closest('button, a, select, textarea, input, iframe, .ink-bar')) return;
     var pg = e.target.closest('section.page'); if (!pg) return;
     if (e.pointerType === 'touch') return fingerScroll(e);
-    e.preventDefault(); pg.setPointerCapture && pg.setPointerCapture(e.pointerId);
+    e.preventDefault(); try { pg.setPointerCapture(e.pointerId); } catch (x) {}
     var svg = overlay(pg), cur = null, el = null, erased = [];
     if (tool === 'laser') { laser = laser || document.createElement('div'); laser.className = 'ink-laser'; document.body.appendChild(laser); }
     else if (tool !== 'erase') {
