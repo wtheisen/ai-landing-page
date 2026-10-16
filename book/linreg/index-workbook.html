@@ -283,10 +283,21 @@ html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select
 .ink-bar .ink-msg { color: var(--ink-muted); font-size: 12px; max-width: 220px; }
 .ink-laser { position: fixed; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: #ff2a2a; box-shadow: 0 0 12px 4px rgba(255,42,42,.6); pointer-events: none; z-index: 101; }
 @media print { .ink-bar, #ink-pick { display: none !important; } }
+
+/* published chapter: view switcher and PDF menu in the navbar */
+.navbar .viewbar { display: inline-flex; border: 1px solid rgba(255,255,255,.45); border-radius: 5px; overflow: hidden; }
+.navbar .viewbar a { padding: 3px 10px; } .navbar .viewbar a + a { border-left: 1px solid rgba(255,255,255,.45); }
+.navbar .viewbar a.on { background: #fff; color: var(--navy); font-weight: 700; } .navbar .viewbar a:hover { text-decoration: none; background: rgba(255,255,255,.15); } .navbar .viewbar a.on:hover { background: #fff; }
+.navbar .pdfmenu { position: relative; } .navbar .pdfmenu summary { cursor: pointer; list-style: none; padding: 3px 10px; border: 1px solid rgba(255,255,255,.45); border-radius: 5px; }
+.navbar .pdfmenu summary::-webkit-details-marker { display: none; } .navbar .pdfmenu summary::after { content: ' \25BE'; }
+.navbar .pdfmenu .menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 50; min-width: 220px; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.18); padding: 4px; }
+.navbar .pdfmenu .menu a, .navbar .pdfmenu .menu button { color: var(--ink); padding: 6px 10px; border-radius: 4px; text-align: left; font: inherit; background: none; border: 0; cursor: pointer; }
+.navbar .pdfmenu .menu a:hover, .navbar .pdfmenu .menu button:hover { background: var(--surface-sunken); text-decoration: none; }
+.navbar .pdfmenu .menu button { border-top: 1px solid var(--border); margin-top: 2px; border-radius: 0 0 4px 4px; }
 </style>
 </head>
 <body>
-<nav class="navbar web-only" aria-label="Chapter"><a class="brand" href="https://ai.williamtheisen.com/">Exploring Artificial Intelligence</a><span class="spacer"></span><a href="#tasks">Regression</a><a href="#fitting">Fitting the line</a><a href="#mle">Overfitting</a><a href="#regularization">Regularization</a><a href="#review">Review</a><a href="linreg-chapter.pdf">PDF</a></nav>
+<nav class="navbar web-only" aria-label="Chapter"><a class="brand" href="https://ai.williamtheisen.com/">Exploring Artificial Intelligence</a><span class="spacer"></span><a href="#tasks">Regression</a><a href="#fitting">Fitting the line</a><a href="#mle">Overfitting</a><a href="#regularization">Regularization</a><a href="#review">Review</a><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="on">Workbook</a></span><details class="pdfmenu"><summary>Export PDF</summary><div class="menu"><a href="linreg-chapter.pdf" download>Reading</a><a href="linreg-chapter-slides.pdf" download>Lecture</a><a href="linreg-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.print()">This page as shown (with lecture notes)</button></div></details></nav>
 <main class="book view" data-view="workbook">
 <section class="page cover" id="cover">
   
