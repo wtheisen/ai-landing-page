@@ -271,7 +271,29 @@ b-code[dual] { border-left: 3pt solid var(--gold, #DCB439); }
 b-code[dual]::after { content: 'code version of the equation above'; display: block; font: 9pt Arial, sans-serif; color: var(--ink-muted); padding: 2pt 6pt; }
 .dual { position: relative; display: flex; flex-direction: column; gap: 6pt; }
 .dual > b-code[dual] { border-left: 0; } .dual > b-code[dual]::after { content: none; }
-.dual:not(.show-code) > b-code, .dual:not(.show-code) > b-out, .dual.show-code > b-eq { display: none; }
+.dual:not([data-face="math"]) > [data-f="math"], .dual:not([data-face="code"]) > [data-f="code"], .dual:not([data-face="mat"]) > [data-f="mat"] { display: none; }
+/* Matrices (eaiMatmul in book.js): a step-by-step walk through the matrix arithmetic behind an equation */
+b-matmul { display: block; border: 1px solid var(--border); border-radius: 4px; background: #fff; padding: 6pt 8pt; font-family: var(--font-mono); font-size: 0.62em; line-height: 1.25; }
+b-matmul[dual]:not([data-f]) { border-left: 3pt solid var(--gold, #DCB439); }
+b-matmul[dual]:not([data-f])::after { content: 'matrix walk-through of the equation above'; display: block; font: 9pt Arial, sans-serif; color: var(--ink-muted); padding-top: 4pt; }
+.mm-bar { display: flex; align-items: center; gap: 6pt; font-family: var(--font-sans, Arial), sans-serif; font-size: 1.15em; color: var(--ink-muted); margin-bottom: 6pt; }
+.mm-bar span { flex: 1; text-align: center; }
+.mm-bar button { border: 1px solid var(--border); background: var(--surface); border-radius: 4px; padding: 1pt 7pt; cursor: pointer; font: inherit; color: var(--navy); }
+.mm-bar button:disabled { opacity: .3; cursor: default; }
+.mm-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4pt 8pt; }
+.mm-m { display: flex; flex-direction: column; align-items: center; gap: 2pt; }
+.mm-grid { display: grid; gap: 1pt 6pt; padding: 2pt 5pt; border-left: 1.5pt solid var(--c); border-right: 1.5pt solid var(--c); border-radius: 3pt; }
+.mm-c { text-align: right; padding: 1pt 3pt; border-radius: 3pt; min-width: 2.2em; }
+[data-role="c"] .mm-c { cursor: pointer; }
+.mm-c.src { background: rgba(220, 180, 57, .28); }
+.mm-c.on { background: var(--gold, #DCB439); color: #fff; font-weight: 700; }
+.mm-lab { font-family: var(--font-math, var(--font-mono)); font-weight: 700; font-size: 1.2em; }
+.mm-lab small { font-weight: 400; color: var(--ink-muted); font-size: .7em; }
+.mm-op { font-size: 1.5em; color: var(--ink-muted); }
+.mm-say { margin-top: 7pt; padding-top: 5pt; border-top: 1px dashed var(--border); font-size: 1.1em; white-space: normal; }
+.mm-say b { color: var(--navy); }
+.mm-note { margin-top: 4pt; font-family: var(--font-sans, Arial), sans-serif; font-size: 1.1em; color: var(--ink-muted); }
+.mm-err { font: 10pt Arial, sans-serif; color: #CC0000; }
 .dual.measure { min-height: 0 !important; }
 .dual.linked b-code .ln[data-lk] { cursor: help; border-radius: 3px; }
 .dual.linked b-code .ln[data-lk]:hover, .dual b-code .ln.lk-on { background: rgba(220, 180, 57, .22); }
@@ -281,11 +303,11 @@ b-code[dual]::after { content: 'code version of the equation above'; display: bl
 .lk-card img { display: block; max-width: 100%; position: relative; }
 .lk-card.code { font-family: var(--font-mono); font-size: 0.75em; white-space: pre; overflow: hidden; }
 .lk-card.code .ln { padding: 1pt 4pt; }
-.measure-print b-code[dual], .measure-print b-code[dual] + b-out { display: none !important; }
+.measure-print b-code[dual], .measure-print b-code[dual] + b-out, .measure-print b-matmul { display: none !important; }
 .dual-tabs { align-self: flex-end; display: inline-flex; gap: 2px; padding: 2px; background: var(--surface-sunken); border-radius: 6px; font: 11px Arial, sans-serif; margin-bottom: -2pt; }
 .dual-tabs button { border: 0; background: none; color: var(--ink-muted); padding: 3px 9px; border-radius: 4px; cursor: pointer; font: inherit; }
 .dual-tabs button.on { background: var(--surface); color: var(--navy); font-weight: 700; box-shadow: 0 0 0 1px var(--border); }
-@media print { b-code[dual], b-code[dual] + b-out, .dual-tabs { display: none !important; } .dual > b-eq { display: block !important; } .dual { min-height: 0 !important; } }
+@media print { b-code[dual], b-code[dual] + b-out, b-matmul, .dual-tabs { display: none !important; } .dual > b-eq[data-f] { display: block !important; } .dual { min-height: 0 !important; } }
 .run-figs { padding: 4pt 7pt; border-top: 1px solid var(--border); } .run-figs img { display: block; max-width: 100%; margin: 0 auto 4pt; }
 .run-figs + pre, b-out pre:empty { display: none; }
 
@@ -888,6 +910,7 @@ L 311.963142 20.019231
   <h2>Matrix notation</h2>
   <p><span class="key">We can represent basically everything as <b class="name">matrices</b> and <b class="name">matrix operations</b>.</span></p>
   <div class="fillbox" style="height: 53.8pt;"></div>
+  
   
   
   
@@ -1516,6 +1539,7 @@ z
   <h2>Ordinary least squares</h2>
   <p><span class="key">We can <b class="take">solve for the gradient equaling 0</b>:</span></p>
   <div class="fillbox" style="height: 232.5pt;"></div>
+  
   
   
   <p><span class="key">This is called <b class="name">Ordinary Least Squares (OLS)</b>.</span></p>
@@ -2525,30 +2549,109 @@ function eaiRunCode() {
   });
 }
 eaiRunCode();
+function eaiMatmul() {
+  var HEX = { blue: '#1155CC', gold: '#B8920F', purple: '#674EA7', green: '#38761D', red: '#CC0000', navy: '#002B5B' };
+  function fmt(v) { if (Math.abs(v - Math.round(v)) < 1e-9) v = Math.round(v); else v = +v.toFixed(3); return (v < 0 ? '−' : '') + Math.abs(v); }
+  function paren(v) { return v < 0 ? '(' + fmt(v) + ')' : fmt(v); }
+  function T(m) { return m[0].map(function (_, j) { return m.map(function (r) { return r[j]; }); }); }
+  function mul(a, b) { return a.map(function (r) { return b[0].map(function (_, j) { return r.reduce(function (s, x, k) { return s + x * b[k][j]; }, 0); }); }); }
+  function add(a, b) { return a.map(function (r, i) { return r.map(function (x, j) { return x + b[i][j]; }); }); }
+  function inv(m) { var d = m[0][0] * m[1][1] - m[0][1] * m[1][0]; return [[m[1][1] / d, -m[0][1] / d], [-m[1][0] / d, m[0][0] / d]]; }
+  function one(el) {
+    var spec; try { spec = JSON.parse(el.getAttribute('spec') || '{}'); } catch (e) { el.innerHTML = '<div class="mm-err">Matrices: the spec isn\'t valid JSON (' + e.message + ')</div>'; return; }
+    var V = {}, steps = spec.steps || [], colors = spec.colors || {}, err = '';
+    Object.keys(spec.vars || {}).forEach(function (k) { V[k] = spec.vars[k]; });
+    steps.forEach(function (st) {
+      try {
+        if (st.op === 'T') V[st.out] = T(V[st.a]);
+        else if (st.op === 'mul') { if (V[st.a][0].length !== V[st.b].length) throw new Error(st.a + ' is ' + V[st.a].length + '×' + V[st.a][0].length + ' and ' + st.b + ' is ' + V[st.b].length + '×' + V[st.b][0].length); V[st.out] = mul(V[st.a], V[st.b]); }
+        else if (st.op === 'add') V[st.out] = add(V[st.a], V[st.b]);
+        else if (st.op === 'inv') V[st.out] = inv(V[st.a]);
+      } catch (e) { err = err || ('step "' + (st.out || '?') + '": ' + (e.message || 'unknown matrix')); }
+    });
+    if (err) { el.innerHTML = '<div class="mm-err">Matrices: ' + err + '</div>'; return; }
+    var col = function (name) { var c = colors[name] || colors[String(name).replace(/[ᵀ⁻¹()\s]/g, '')] || colors[String(name)[0]]; return HEX[c] || HEX.navy; };
+    function mat(name, role) {
+      var m = V[name], h = '<div class="mm-m" data-role="' + role + '"><div class="mm-grid" style="--c:' + col(name) + ';grid-template-columns:repeat(' + m[0].length + ',auto)">';
+      m.forEach(function (r, i) { r.forEach(function (x, j) { h += '<span class="mm-c" data-i="' + i + '" data-j="' + j + '">' + fmt(x) + '</span>'; }); });
+      return h + '</div><div class="mm-lab" style="color:' + col(name) + '">' + name + ' <small>' + m.length + '×' + m[0].length + '</small></div></div>';
+    }
+    var at = 0;
+    function draw() {
+      var st = steps[at], h = '<div class="mm-bar"><button type="button" data-g="-1"' + (at ? '' : ' disabled') + '>◀</button><span>Step ' + (at + 1) + ' of ' + steps.length + (st.title ? ': ' + st.title : '') + '</span><button type="button" data-g="1"' + (at < steps.length - 1 ? '' : ' disabled') + '>▶</button></div><div class="mm-row">';
+      if (st.op === 'T') h += mat(st.a, 'a') + '<span class="mm-op">→</span>' + mat(st.out, 'c');
+      else if (st.op === 'mul') h += mat(st.a, 'a') + '<span class="mm-op">·</span>' + mat(st.b, 'b') + '<span class="mm-op">=</span>' + mat(st.out, 'c');
+      else if (st.op === 'add') h += mat(st.a, 'a') + '<span class="mm-op">+</span>' + mat(st.b, 'b') + '<span class="mm-op">=</span>' + mat(st.out, 'c');
+      else if (st.op === 'inv') h += mat(st.a, 'a') + '<span class="mm-op">→</span>' + mat(st.out, 'c');
+      h += '</div><div class="mm-say"></div>' + (st.note ? '<div class="mm-note">' + st.note + '</div>' : '');
+      el.innerHTML = h; pick(0, 0);
+    }
+    function pick(i, j) {
+      var st = steps[at], A = V[st.a], B = V[st.b], C = V[st.out], say = el.querySelector('.mm-say');
+      [].forEach.call(el.querySelectorAll('.mm-c'), function (c) { c.classList.remove('on', 'src'); });
+      var cell = function (role, r, c) { return el.querySelector('[data-role="' + role + '"] .mm-c[data-i="' + r + '"][data-j="' + c + '"]'); };
+      var mark = function (role, r, c) { var x = cell(role, r, c); if (x) x.classList.add('src'); };
+      var on = cell('c', i, j); if (on) on.classList.add('on');
+      var row = ' row ' + (i + 1) + ', column ' + (j + 1);
+      if (st.op === 'mul') {
+        var terms = [], k;
+        for (k = 0; k < A[0].length; k++) { mark('a', i, k); mark('b', k, j); terms.push(paren(A[i][k]) + '·' + paren(B[k][j])); }
+        say.innerHTML = '<b>' + st.out + '</b>' + row + ' = row ' + (i + 1) + ' of <b>' + st.a + '</b> · column ' + (j + 1) + ' of <b>' + st.b + '</b> = ' + terms.join(' + ') + ' = <b>' + fmt(C[i][j]) + '</b>';
+      } else if (st.op === 'add') { mark('a', i, j); mark('b', i, j); say.innerHTML = '<b>' + st.out + '</b>' + row + ' = ' + paren(A[i][j]) + ' + ' + paren(B[i][j]) + ' = <b>' + fmt(C[i][j]) + '</b>'; }
+      else if (st.op === 'T') { mark('a', j, i); say.innerHTML = '<b>' + st.out + '</b>' + row + ' is <b>' + st.a + '</b> row ' + (j + 1) + ', column ' + (i + 1) + ': rows become columns'; }
+      else if (st.op === 'inv') {
+        var a = A[0][0], b = A[0][1], c = A[1][0], d = A[1][1], det = a * d - b * c;
+        [[0, 0], [0, 1], [1, 0], [1, 1]].forEach(function (p) { mark('a', p[0], p[1]); });
+        say.innerHTML = 'For a 2×2, swap the diagonal, negate the other two and divide by the determinant: ' + paren(a) + '·' + paren(d) + ' − ' + paren(b) + '·' + paren(c) + ' = <b>' + fmt(det) + '</b>. So <b>' + st.out + '</b> = 1/' + fmt(det) + ' · [' + fmt(d) + ', ' + fmt(-b) + '; ' + fmt(-c) + ', ' + fmt(a) + ']' + row.replace(' row', ', and its row') + ' is <b>' + fmt(C[i][j]) + '</b>';
+      }
+    }
+    el.onclick = function (e) {
+      var g = e.target.getAttribute && e.target.getAttribute('data-g'); if (g) { at = Math.max(0, Math.min(steps.length - 1, at + +g)); draw(); return; }
+      var c = e.target.closest && e.target.closest('[data-role="c"] .mm-c'); if (c) pick(+c.getAttribute('data-i'), +c.getAttribute('data-j'));
+    };
+    el.onpointerover = function (e) { var c = e.target.closest && e.target.closest('[data-role="c"] .mm-c'); if (c && e.pointerType === 'mouse') pick(+c.getAttribute('data-i'), +c.getAttribute('data-j')); };
+    el._tallest = function () { var keep = at, h = 0; el.style.minHeight = ''; for (at = 0; at < steps.length; at++) { draw(); h = Math.max(h, el.offsetHeight); } at = keep; draw(); return h; };
+    if (steps.length) draw(); else el.innerHTML = '<div class="mm-err">Matrices: no steps yet</div>';
+  }
+  window.eaiMatmulOne = one;
+  [].forEach.call(document.querySelectorAll('b-matmul'), function (el) { if (!el._mm) { el._mm = 1; one(el); } });
+}
 function eaiDual() {
   var KEY = 'eai-dual', pairs = [];
+  if (typeof eaiMatmul === 'function') eaiMatmul();
   var get = function () { try { return localStorage.getItem(KEY) || 'math'; } catch (e) { return 'math'; } };
   var put = function (v) { try { localStorage.setItem(KEY, v); } catch (e) {} };
-  [].forEach.call(document.querySelectorAll('b-code[dual]'), function (code) {
-    var eq = code.previousElementSibling; if (!eq || eq.tagName !== 'B-EQ') return;
-    var box = document.createElement('div'); box.className = 'dual';
+  // an equation and the faces after it: a code version (b-code[dual], plus its output) and/or a matrix walk-through
+  [].forEach.call(document.querySelectorAll('b-eq'), function (eq) {
+    var faces = [['math', [eq]]], n = eq.nextElementSibling, code = null, mat = null;
+    while (n) {
+      if (n.tagName === 'B-CODE' && n.hasAttribute('dual') && !code) { code = [n]; if (n.nextElementSibling && n.nextElementSibling.tagName === 'B-OUT') { n = n.nextElementSibling; code.push(n); } }
+      else if (n.tagName === 'B-MATMUL' && n.hasAttribute('dual') && !mat) mat = [n];
+      else break;
+      n = n.nextElementSibling;
+    }
+    if (mat) faces.push(['mat', mat]); if (code) faces.push(['code', code]);
+    if (faces.length < 2) return;
+    var box = document.createElement('div'); box.className = 'dual'; box._faces = faces.map(function (f) { return f[0]; });
     var tabs = document.createElement('div'); tabs.className = 'dual-tabs'; tabs.setAttribute('role', 'tablist');
-    tabs.innerHTML = '<button type="button" data-m="math" role="tab">Math</button><button type="button" data-m="code" role="tab">Code</button>';
-    eq.before(box); box.appendChild(tabs); box.appendChild(eq); box.appendChild(code);
-    var out = box.nextElementSibling; if (out && out.tagName === 'B-OUT') box.appendChild(out);
+    tabs.innerHTML = faces.map(function (f) { return '<button type="button" data-m="' + f[0] + '" role="tab">' + { math: 'Math', mat: 'Matrices', code: 'Code' }[f[0]] + '</button>'; }).join('');
+    eq.before(box); box.appendChild(tabs);
+    faces.forEach(function (f) { f[1].forEach(function (el) { el.setAttribute('data-f', f[0]); box.appendChild(el); }); });
     tabs.addEventListener('click', function (e) { var m = e.target.getAttribute && e.target.getAttribute('data-m'); if (m) show(box, m); });
     pairs.push(box);
   });
   if (!pairs.length) return;
   function show(box, m) {
-    box.classList.toggle('show-code', m === 'code');
+    if (box._faces.indexOf(m) < 0) m = 'math';
+    box.setAttribute('data-face', m); box.classList.toggle('show-code', m === 'code');
     [].forEach.call(box.querySelectorAll('.dual-tabs button'), function (b) { var on = b.getAttribute('data-m') === m; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
   }
-  function fit() {   // reserve the taller of the two faces
+  function fit() {   // reserve the tallest face (and the tallest step of a matrix walk-through)
     pairs.forEach(function (box) {
-      var code = box.classList.contains('show-code'); box.style.minHeight = '';
-      box.classList.add('measure'); show(box, 'math'); var a = box.offsetHeight; show(box, 'code'); var b = box.offsetHeight;
-      box.classList.remove('measure'); show(box, code ? 'code' : 'math'); box.style.minHeight = Math.max(a, b) + 'px';
+      var cur = box.getAttribute('data-face') || 'math', h = 0; box.style.minHeight = '';
+      box.classList.add('measure');
+      box._faces.forEach(function (f) { show(box, f); var mm = f === 'mat' && box.querySelector('b-matmul'); if (mm && mm._tallest) mm.style.minHeight = mm._tallest() + 'px'; h = Math.max(h, box.offsetHeight); });
+      box.classList.remove('measure'); show(box, cur); box.style.minHeight = h + 'px';
     });
   }
   function all(m) { pairs.forEach(function (b) { show(b, m); }); put(m); btn.classList.toggle('on', m === 'code'); btn.querySelector('span').textContent = m === 'code' ? 'Code' : 'Math'; }
