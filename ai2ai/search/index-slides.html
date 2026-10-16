@@ -216,6 +216,10 @@ b-fig .crop { display: block; }
 .book[data-view="workbook"] [data-view]:not([data-view~="workbook"]) { display: none !important; }
 .book:is([data-view="slides"], [data-view="workbook"]) .aside:not([data-view]), .book:is([data-view="slides"], [data-view="workbook"]) .qc .ans, .book:is([data-view="slides"], [data-view="workbook"]) .qc details, .book:is([data-view="slides"], [data-view="workbook"]) b-answers:not([data-view]) { display: none !important; }
 .page { --fs: 16pt; } .book[data-view="slides"] .page { font-size: 18pt; line-height: 1.25; --fs: 18pt; }
+/* Lecture-only fitting aids for pages that run long at the bigger type: smaller figures, slightly tighter text */
+.book[data-view="slides"] b-fig.s-sm { width: 72% !important; align-self: center; }
+.book[data-view="slides"] b-fig.s-xs { width: 58% !important; align-self: center; }
+.book[data-view="slides"] .page.s-tight { font-size: 16.5pt; --fs: 16.5pt; }
 u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { color: transparent; border-bottom: 1pt solid var(--ink); }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill * { color: transparent !important; }
@@ -1120,7 +1124,7 @@ function eaiRunCode() {
     return boot;
   }
   function source(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return l.textContent.replace(/ /g, ' '); }).join('\n'); }
-  [].forEach.call(document.querySelectorAll('b-code[lang="python"]'), function (block) {
+  [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
     if (block._run) return; block._run = true;
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
