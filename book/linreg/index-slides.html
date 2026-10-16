@@ -297,6 +297,7 @@ html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select
 .navbar #ink-pen { font: inherit; color: #fff; background: none; border: 1px solid rgba(255,255,255,.45); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
 .navbar #ink-pen:hover { background: rgba(255,255,255,.15); }
 html.ink-lecture .navbar #ink-pen { background: #fff; color: var(--navy); font-weight: 700; }
+.ink-bar button.quiet { border: 0; color: var(--ink-muted); font-size: 11px; padding: 0 4px; }
 </style>
 </head>
 <body>
@@ -2467,8 +2468,9 @@ eaiRunCode();
 //                top of the instructor's notes, printable.
 //   Views        ink is in page coordinates and each view lays pages out differently, so a set of notes belongs to the
 //                view it was drawn in (index entries carry "view"); picking one from another view switches to that view.
-//   Instructor   open the page once with #teach and give the GitHub token; on that device the pen then writes into
-//                today's lecture notes and the toolbar gets Publish. Publish commits ink/<id>.json and ink/index.json to
+//   Instructor   register a device once with Instructor sign-in (in the pen toolbar): the GitHub token is checked and kept
+//                for the whole site. On that device the pen then writes into today's lecture notes and the toolbar has
+//                Publish, on every chapter and view. Publish commits ink/<id>.json and ink/index.json to
 //                the site's repository (fine-grained token: contents read and write, that repository only; kept on this
 //                device only). Press L (or the Pen button) to start and stop writing.
 //   Tools        pens in the book's colours (even width, smoothed), highlighter, eraser, undo, laser pointer (not saved),
@@ -2608,7 +2610,8 @@ function eaiInk(opts) {
       + '<button data-t="hand" title="use the page (figures, Run buttons) instead of writing">✋</button>'
       + '<span class="sep"></span><button data-w="1.4" title="thin">·</button><button data-w="2.2" class="on" title="medium">•</button><button data-w="3.6" title="thick">●</button>'
       + '<span class="sep"></span><button data-a="undo" title="undo">↶</button><button data-a="blank" title="add a blank page after this one">+ page</button>'
-      + (target === mine ? '<button data-a="clear" title="erase all of my notes in this chapter">Clear mine</button>' : '<button data-a="publish" title="publish these notes for students">Publish</button>')
+      + (target === mine ? '<button data-a="clear" title="erase all of my notes in this chapter">Clear mine</button><button data-a="signin" class="quiet" title="instructor: register this device to publish lecture notes">Instructor sign-in</button>'
+                         : '<button data-a="publish" title="publish these notes for students">Publish</button>')
       + '<button data-a="exit" title="stop writing">✕</button><span class="ink-msg">' + (target === mine ? 'My notes (only on this device)' : 'Lecture notes: ' + target.title) + '</span>';
     document.body.appendChild(bar);
     bar.addEventListener('click', function (e) {
@@ -2619,6 +2622,7 @@ function eaiInk(opts) {
       if (b.dataset.a === 'blank') addBlank();
       if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter?')) { mine.strokes = []; mine.pages = []; undo = []; save(); render(); }
       if (b.dataset.a === 'publish') publish();
+      if (b.dataset.a === 'signin') signIn();
       if (b.dataset.a === 'exit') stop();
     });
     book.addEventListener('pointerdown', down, { passive: false });
@@ -2682,11 +2686,19 @@ function eaiInk(opts) {
   }
 
   // ---------------------------------------------------------------- instructor: set up this device, publish
-  function setupTeacher() {
-    if (teacher()) return true;
-    var t = prompt('Instructor setup: GitHub token for ' + REPO + ' (fine-grained, contents read and write). It stays on this device.');
-    if (!t) return false; store(KEY_TOKEN, t.trim()); return true;
+  // Instructor sign-in, once per device: the token is checked with GitHub (it must be able to push to the site's
+  // repository) and kept in this browser for the whole site, so every chapter's pen can publish from then on.
+  function signIn() {
+    var t = prompt('Instructor sign-in: GitHub token for ' + REPO + ' (fine-grained, contents read and write). It stays on this device.');
+    if (!t) return Promise.resolve(false); t = t.trim(); msg('Checking…');
+    return fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + t, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j || !j.permissions || !j.permissions.push) { msg('That token can\'t publish to this site.'); return false; }
+        store(KEY_TOKEN, t); stop(); start(); msg('Signed in. The pen now writes lecture notes you can publish, on every chapter.'); return true;
+      }, function () { msg('Could not reach GitHub.'); return false; });
   }
+  function setupTeacher() { return teacher() ? Promise.resolve(true) : signIn(); }
   function b64(s) { return btoa(unescape(encodeURIComponent(s))); }
   function gh(path, token, body) {
     var url = 'https://api.github.com/repos/' + REPO + '/contents/' + path;
@@ -2711,14 +2723,14 @@ function eaiInk(opts) {
             function (err) { if (err.status === 401) store(KEY_TOKEN, ''); msg('Not published: ' + err.message); });
   }
 
-  if (/(^|[#&])teach\b/.test(location.hash)) { if (setupTeacher()) start(); }
+  if (/(^|[#&])teach\b/.test(location.hash)) { start(); setupTeacher(); }
   else if (/(^|[#&])(lecture|pen)\b/.test(location.hash)) start();
   addEventListener('keydown', function (e) {
     if (e.target.closest && e.target.closest('textarea, input, select')) return;
     if ((e.key === 'l' || e.key === 'L') && !e.metaKey && !e.ctrlKey && !e.altKey) { editing ? stop() : start(); }
     if (editing && (e.metaKey || e.ctrlKey) && e.key === 'z') { e.preventDefault(); doUndo(); }
   });
-  addEventListener('hashchange', function () { if (/(^|[#&])teach\b/.test(location.hash) && setupTeacher()) { stop(); start(); } });
+  addEventListener('hashchange', function () { if (/(^|[#&])teach\b/.test(location.hash)) { start(); setupTeacher(); } });
 }
 
 eaiInk({"dir":"book/linreg"});</script>
