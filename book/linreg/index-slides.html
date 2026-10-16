@@ -294,6 +294,9 @@ html.ink-lecture.ink-hand section.page { touch-action: auto; -webkit-user-select
 .navbar .pdfmenu .menu a, .navbar .pdfmenu .menu button { color: var(--ink); padding: 6px 10px; border-radius: 4px; text-align: left; font: inherit; background: none; border: 0; cursor: pointer; }
 .navbar .pdfmenu .menu a:hover, .navbar .pdfmenu .menu button:hover { background: var(--surface-sunken); text-decoration: none; }
 .navbar .pdfmenu .menu button { border-top: 1px solid var(--border); margin-top: 2px; border-radius: 0 0 4px 4px; }
+.navbar #ink-pen { font: inherit; color: #fff; background: none; border: 1px solid rgba(255,255,255,.45); border-radius: 5px; padding: 3px 10px; cursor: pointer; }
+.navbar #ink-pen:hover { background: rgba(255,255,255,.15); }
+html.ink-lecture .navbar #ink-pen { background: #fff; color: var(--navy); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -2455,19 +2458,23 @@ function eaiRunCode() {
   });
 }
 eaiRunCode();
-// Lecture ink for the AI2AI web edition: draw on the pages with an Apple Pencil (or a mouse) during class, then publish
-// that lecture's ink so students see it over the same pages.
+// Ink for the AI2AI web edition. Everyone can write on the pages; only the instructor can publish.
 //
-//   Reading   the page looks for ink/index.json next to itself: {"layers":[{"id":"2026-10-20","title":"Oct 20"}]}.
-//             If there are layers, the navbar gets a "Notes" picker; the newest layer is shown by default.
-//   Lecture   open the page with #lecture (or press L). A toolbar appears: pens in the book's colours, highlighter,
-//             eraser, undo, laser pointer (not saved), a blank page for working space, and Publish.
-//             Pencil and mouse draw; fingers scroll. Every stroke is saved on this device as you go.
-//   Publish   commits ink/<id>.json and ink/index.json to the site's GitHub repository with a fine-grained token
-//             (contents: read and write, that repository only) that is asked for once and kept on this device only.
+//   Reading      the page looks for ink/index.json next to itself: {"layers":[{"id":"2026-10-20","title":"Oct 20"}]}.
+//                The navbar gets a "Lecture notes" picker for the instructor's published notes (newest shown by
+//                default) and a ✎ Pen button.
+//   Students     the pen writes into "My notes": kept in this browser only (never uploaded), shared by the Reading,
+//                Lecture and Workbook views of the chapter, shown on top of the instructor's notes, printable.
+//   Instructor   open the page once with #teach and give the GitHub token; on that device the pen then writes into
+//                today's lecture notes and the toolbar gets Publish. Publish commits ink/<id>.json and ink/index.json to
+//                the site's repository (fine-grained token: contents read and write, that repository only; kept on this
+//                device only). Press L (or the Pen button) to start and stop writing.
+//   Tools        pens in the book's colours (even width, smoothed), highlighter, eraser, undo, laser pointer (not saved),
+//                ✋ to use the page (figures, Run buttons) instead of writing, + page for blank working space.
+//   Input        Pencil and mouse write; fingers scroll.
 //
-// A layer file: {"id","title","pages":[{"after":"page-id","id":"wb-…"}],"strokes":[{"p":"page-id","c":"#hex","w":2.2,
-// "o":1,"pts":[[x,y],…]}]} with coordinates in points from the page's top-left (a page is 432 pt wide).
+// A layer: {"id","title","pages":[{"after":"page-id","id":"wb-…"}],"strokes":[{"p":"page-id","c":"#hex","w":2.2,
+// "o":0.35?,"pts":[[x,y,pressure],…]}]}, coordinates in points from the page's top-left (a page is 432 pt wide).
 // Self-contained on purpose: the published page gets this file's source verbatim.
 function eaiInk(opts) {
   'use strict';
@@ -2477,20 +2484,32 @@ function eaiInk(opts) {
   var book = document.querySelector('main.book, #book'); if (!book) return;
   var PEN = [['#002B5B', 'navy'], ['#1155CC', 'blue'], ['#CC0000', 'red'], ['#38761D', 'green'], ['#674EA7', 'purple']];
   var HL = '#F1C232';
-  var layer = null, layers = [], editing = false, tool = 'pen', color = PEN[0][0], width = 2.2, undo = [];
+  var DIR = location.pathname.replace(/[^/]*$/, '');              // the chapter's folder: all three views share notes
+  var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR, KEY_DRAFT = 'eai-ink-draft:' + DIR + ':';
+  var pub = null, layers = [], mine = null, target = null, editing = false, tool = 'pen', color = PEN[0][0], width = 2.2, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
-  // perfect-freehand (MIT, by Steve Ruiz; the pen behind tldraw) turns the points into a smoothed outline (even width: pressure is ignored).
-  // Until it loads, or if it can't, strokes are drawn as plain smoothed lines.
+  var teacher = function () { return !!store(KEY_TOKEN); };
+  mine = store(KEY_MINE) || { id: 'mine', title: 'My notes', pages: [], strokes: [] };
+
+  // perfect-freehand (MIT, by Steve Ruiz; the pen behind tldraw) turns the points into a smoothed outline (even width:
+  // pressure is ignored). Until it loads, or if it can't, strokes are drawn as plain smoothed lines.
   var PF = null;
-  import('https://cdn.jsdelivr.net/npm/perfect-freehand@1.2.2/+esm').then(function (m) { PF = m.getStroke || (m.default && m.default.getStroke) || m.default; if (layer) show(layer); }).catch(function () {});
-  function outline(s) {   // filled SVG path for a stroke, or null to fall back to a line
+  import('https://cdn.jsdelivr.net/npm/perfect-freehand@1.2.2/+esm').then(function (m) { PF = m.getStroke || (m.default && m.default.getStroke) || m.default; render(); }).catch(function () {});
+  function outline(s) {
     if (!PF || s.pts.length < 2) return null;
-    var o = PF(s.pts, { size: s.w * (s.o ? 1 : 1.6), thinning: 0, smoothing: 0.5, streamline: 0.45, simulatePressure: false, last: true });   // even width, like Notability's default pen
+    var o = PF(s.pts, { size: s.w * (s.o ? 1 : 1.6), thinning: 0, smoothing: 0.5, streamline: 0.45, simulatePressure: false, last: true });
     if (!o.length) return null;
     var d = 'M' + r1(o[0][0]) + ' ' + r1(o[0][1]);
     for (var i = 1; i < o.length; i++) { var a = o[i], b = o[(i + 1) % o.length]; d += ' Q' + r1(a[0]) + ' ' + r1(a[1]) + ' ' + r1((a[0] + b[0]) / 2) + ' ' + r1((a[1] + b[1]) / 2); }
     return d + ' Z';
+  }
+  function pathD(p) {
+    if (!p.length) return '';
+    if (p.length < 3) return 'M' + p[0][0] + ' ' + p[0][1] + ' L' + p[p.length - 1][0] + ' ' + (p[p.length - 1][1] + .01);
+    var d = 'M' + p[0][0] + ' ' + p[0][1];
+    for (var i = 1; i < p.length - 1; i++) d += ' Q' + p[i][0] + ' ' + p[i][1] + ' ' + r1((p[i][0] + p[i + 1][0]) / 2) + ' ' + r1((p[i][1] + p[i + 1][1]) / 2);
+    return d + ' L' + p[p.length - 1][0] + ' ' + p[p.length - 1][1];
   }
   function paint(el, s) {
     var d = outline(s);
@@ -2507,18 +2526,10 @@ function eaiInk(opts) {
     svg.setAttribute('viewBox', '0 0 432 ' + r1(r.height * k));
     return svg;
   }
-  function toPt(pg, e) { var r = pg.getBoundingClientRect(), k = 432 / r.width; return [r1((e.clientX - r.left) * k), r1((e.clientY - r.top) * k), Math.round((e.pointerType === 'pen' && e.pressure > 0 ? e.pressure : 0.5) * 100) / 100]; }
-  function pathD(p) {   // a smooth line through the points (midpoint quadratic curves)
-    if (!p.length) return '';
-    if (p.length < 3) return 'M' + p[0][0] + ' ' + p[0][1] + ' L' + p[p.length - 1][0] + ' ' + (p[p.length - 1][1] + .01);
-    var d = 'M' + p[0][0] + ' ' + p[0][1];
-    for (var i = 1; i < p.length - 1; i++) d += ' Q' + p[i][0] + ' ' + p[i][1] + ' ' + r1((p[i][0] + p[i + 1][0]) / 2) + ' ' + r1((p[i][1] + p[i + 1][1]) / 2);
-    return d + ' L' + p[p.length - 1][0] + ' ' + p[p.length - 1][1];
-  }
+  function toPt(pg, e) { var r = pg.getBoundingClientRect(), k = 432 / r.width; return [r1((e.clientX - r.left) * k), r1((e.clientY - r.top) * k), Math.round((e.pressure > 0 ? e.pressure : 0.5) * 100) / 100]; }
   function drawStroke(s) {
     var pg = document.getElementById(s.p); if (!pg) return null;
-    var el = document.createElementNS(NS, 'path');
-    paint(el, s);
+    var el = document.createElementNS(NS, 'path'); paint(el, s);
     if (s.o && s.o < 1) el.setAttribute('opacity', s.o);
     el._s = s; overlay(pg).appendChild(el); return el;
   }
@@ -2528,80 +2539,91 @@ function eaiInk(opts) {
     var pg = document.createElement('section'); pg.className = 'page ink-blank'; pg.id = b.id;
     pg.innerHTML = '<p class="ink-blank-label">Working space</p>'; after.after(pg);
   }
-  function clear() {
+  function render() {   // the instructor's notes (if any are picked), then this reader's own notes on top
     [].forEach.call(book.querySelectorAll('svg.ink'), function (s) { s.remove(); });
     [].forEach.call(book.querySelectorAll('section.ink-blank'), function (s) { s.remove(); });
-  }
-  function show(l) {
-    clear(); layer = l; if (!l) return;
-    (l.pages || []).forEach(blankPage); (l.strokes || []).forEach(drawStroke);
+    [pub, mine].forEach(function (l) { if (l) (l.pages || []).forEach(blankPage); });
+    [pub, mine].forEach(function (l) { if (l) (l.strokes || []).forEach(drawStroke); });
     pages().forEach(overlay);
   }
   addEventListener('resize', function () { pages().forEach(function (p) { if (p.querySelector(':scope > svg.ink')) overlay(p); }); });
 
-  // ---------------------------------------------------------------- reading: the Notes picker
+  // ---------------------------------------------------------------- navbar: Notes picker and Pen button
   var nav = document.querySelector('.navbar');
-  function picker() {
-    var old = document.getElementById('ink-pick'); if (old) old.remove();
-    if (!nav || (!layers.length && !editing)) return;
-    var sel = document.createElement('select'); sel.id = 'ink-pick'; sel.title = 'Notes drawn in lecture';
-    sel.innerHTML = '<option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '">Notes: ' + (l.title || l.id) + '</option>'; }).join('');
-    sel.value = layer ? layer.id : '';
-    sel.onchange = function () { if (editing) return; if (!sel.value) return show(null); load(sel.value).then(show); };
-    nav.insertBefore(sel, nav.querySelector('.spacer') ? nav.querySelector('.spacer').nextSibling : null);
+  function navbar() {
+    if (!nav) return;
+    ['ink-pick', 'ink-pen'].forEach(function (id) { var o = document.getElementById(id); if (o) o.remove(); });
+    var at = nav.querySelector('.viewbar') || null;
+    if (layers.length) {
+      var sel = document.createElement('select'); sel.id = 'ink-pick'; sel.title = 'Notes from lecture';
+      sel.innerHTML = '<option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '">Lecture notes: ' + (l.title || l.id) + '</option>'; }).join('');
+      sel.value = pub ? pub.id : ''; sel.disabled = editing && target !== mine;
+      sel.onchange = function () { if (!sel.value) { pub = null; return render(); } load(sel.value).then(function (l) { pub = l; render(); }); };
+      nav.insertBefore(sel, at);
+    }
+    var pen = document.createElement('button'); pen.id = 'ink-pen'; pen.type = 'button';
+    pen.textContent = editing ? '✎ Done' : '✎ Pen'; pen.title = editing ? 'stop writing (L)' : 'write on the pages (L)';
+    pen.onclick = function () { editing ? stop() : start(); };
+    nav.insertBefore(pen, at);
   }
   function load(id) { return fetch('ink/' + id + '.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }); }
   fetch('ink/index.json', { cache: 'no-cache' }).then(function (r) { return r.ok ? r.json() : { layers: [] }; }).catch(function () { return { layers: [] }; })
     .then(function (ix) {
       layers = (ix.layers || []).slice().sort(function (a, b) { return a.id < b.id ? 1 : -1; });
-      if (editing) return picker();
+      var drafting = editing && target !== mine;
       var want = (location.hash.match(/notes=([\w-]+)/) || [])[1] || (layers[0] && layers[0].id);
-      (want ? load(want) : Promise.resolve(null)).then(function (l) { if (!editing) show(l); picker(); });
+      return (want && !drafting ? load(want) : Promise.resolve(pub)).then(function (l) { if (!(editing && target !== mine)) pub = l; render(); navbar(); });
     });
+  render(); navbar();
 
-  // ---------------------------------------------------------------- lecture mode
+  // ---------------------------------------------------------------- writing
   var bar = null, laser = null;
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
-  function key() { return 'eai-ink:' + location.pathname + ':' + layer.id; }
-  function save() { if (layer) store(key(), layer); }
-  function startLecture() {
-    if (editing) return; editing = true;
-    var id = today(), saved = store('eai-ink:' + location.pathname + ':' + id);
-    var title = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    show(saved || { id: id, title: title, pages: [], strokes: [] });
+  function save() { if (target === mine) store(KEY_MINE, mine); else if (target) store(KEY_DRAFT + target.id, target); }
+  function start() {
+    if (editing) return; editing = true; undo = [];
+    if (teacher()) {   // the instructor writes into today's lecture notes (a draft on this device until published)
+      var id = today(), title = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      target = store(KEY_DRAFT + id) || { id: id, title: title, pages: [], strokes: [] };
+      pub = target;
+    } else target = mine;
+    render();
     document.documentElement.classList.add('ink-lecture');
     bar = document.createElement('div'); bar.className = 'ink-bar';
     bar.innerHTML = PEN.map(function (p, i) { return '<button data-t="pen" data-c="' + p[0] + '" title="' + p[1] + ' pen" style="--c:' + p[0] + '"' + (i ? '' : ' class="on"') + '></button>'; }).join('')
-      + '<button data-t="hand" title="use the page (figures, Run buttons) instead of drawing">✋</button><button data-t="hl" title="highlighter" class="hl">▬</button><button data-t="erase" title="eraser">⌫</button><button data-t="laser" title="laser pointer (not saved)">◉</button>'
+      + '<button data-t="hl" title="highlighter" class="hl">▬</button><button data-t="erase" title="eraser">⌫</button><button data-t="laser" title="laser pointer (not saved)">◉</button>'
+      + '<button data-t="hand" title="use the page (figures, Run buttons) instead of writing">✋</button>'
       + '<span class="sep"></span><button data-w="1.4" title="thin">·</button><button data-w="2.2" class="on" title="medium">•</button><button data-w="3.6" title="thick">●</button>'
       + '<span class="sep"></span><button data-a="undo" title="undo">↶</button><button data-a="blank" title="add a blank page after this one">+ page</button>'
-      + '<button data-a="publish" title="publish these notes to the site">Publish</button><button data-a="exit" title="leave lecture mode">✕</button><span class="ink-msg"></span>';
+      + (target === mine ? '<button data-a="clear" title="erase all of my notes in this chapter">Clear mine</button>' : '<button data-a="publish" title="publish these notes for students">Publish</button>')
+      + '<button data-a="exit" title="stop writing">✕</button><span class="ink-msg">' + (target === mine ? 'My notes (only on this device)' : 'Lecture notes: ' + target.title) + '</span>';
     document.body.appendChild(bar);
     bar.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
-      if (b.dataset.t) { tool = b.dataset.t; document.documentElement.classList.toggle('ink-hand', tool === 'hand'); if (b.dataset.c) color = b.dataset.c; [].forEach.call(bar.querySelectorAll('[data-t]'), function (x) { x.classList.toggle('on', x === b); }); }
+      if (b.dataset.t) { tool = b.dataset.t; if (b.dataset.c) color = b.dataset.c; document.documentElement.classList.toggle('ink-hand', tool === 'hand'); [].forEach.call(bar.querySelectorAll('[data-t]'), function (x) { x.classList.toggle('on', x === b); }); }
       if (b.dataset.w) { width = +b.dataset.w; [].forEach.call(bar.querySelectorAll('[data-w]'), function (x) { x.classList.toggle('on', x === b); }); }
       if (b.dataset.a === 'undo') doUndo();
       if (b.dataset.a === 'blank') addBlank();
+      if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter?')) { mine.strokes = []; mine.pages = []; undo = []; save(); render(); }
       if (b.dataset.a === 'publish') publish();
-      if (b.dataset.a === 'exit') stopLecture();
+      if (b.dataset.a === 'exit') stop();
     });
     book.addEventListener('pointerdown', down, { passive: false });
-    picker();
+    navbar();
   }
-  function stopLecture() { editing = false; save(); document.documentElement.classList.remove('ink-lecture', 'ink-hand'); if (bar) bar.remove(); book.removeEventListener('pointerdown', down); picker(); }
+  function stop() { if (!editing) return; editing = false; save(); document.documentElement.classList.remove('ink-lecture', 'ink-hand'); if (bar) bar.remove(); bar = null; book.removeEventListener('pointerdown', down); tool = 'pen'; navbar(); }
   function msg(t) { var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; }
   function currentPage() { var best = null, bd = 1e9; pages().forEach(function (p) { var r = p.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = p; } }); return best; }
   function addBlank() {
     var pg = currentPage(); if (!pg) return;
-    var b = { after: pg.id, id: 'wb-' + Date.now().toString(36) }; layer.pages.push(b); blankPage(b); undo.push({ blank: b }); save();
+    var b = { after: pg.id, id: (target === mine ? 'my-' : 'wb-') + Date.now().toString(36) }; target.pages.push(b); blankPage(b); undo.push({ blank: b }); save();
     document.getElementById(b.id).scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function doUndo() {
     var u = undo.pop(); if (!u) return;
-    if (u.stroke) { layer.strokes.splice(layer.strokes.indexOf(u.stroke), 1); if (u.el) u.el.remove(); }
-    if (u.erased) u.erased.forEach(function (s) { layer.strokes.push(s); drawStroke(s); });
-    if (u.blank) { layer.pages.splice(layer.pages.indexOf(u.blank), 1); var p = document.getElementById(u.blank.id); if (p) p.remove(); }
+    if (u.stroke) { target.strokes.splice(target.strokes.indexOf(u.stroke), 1); if (u.el) u.el.remove(); }
+    if (u.erased) u.erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+    if (u.blank) { target.pages.splice(target.pages.indexOf(u.blank), 1); var p = document.getElementById(u.blank.id); if (p) p.remove(); }
     save();
   }
   function near(s, x, y, r) { for (var i = 0; i < s.pts.length; i++) { var dx = s.pts[i][0] - x, dy = s.pts[i][1] - y; if (dx * dx + dy * dy < r * r) return true; } return false; }
@@ -2611,9 +2633,9 @@ function eaiInk(opts) {
     if (e.pointerType === 'touch') return fingerScroll(e);
     e.preventDefault(); try { pg.setPointerCapture(e.pointerId); } catch (x) {}
     var svg = overlay(pg), cur = null, el = null, erased = [];
-    if (tool === 'laser') { laser = laser || document.createElement('div'); laser.className = 'ink-laser'; document.body.appendChild(laser); }
+    if (tool === 'laser') { laser = laser || document.createElement('div'); laser.className = 'ink-laser'; document.body.appendChild(laser); laser.style.left = e.clientX + 'px'; laser.style.top = e.clientY + 'px'; }
     else if (tool !== 'erase') {
-      cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [toPt(pg, e)] }; if (tool === 'hl') cur.o = 0.35; if (e.pointerType !== 'pen') cur.sp = 1;
+      cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [toPt(pg, e)] }; if (tool === 'hl') cur.o = 0.35;
       el = drawStroke(cur);
     }
     function move(ev) {
@@ -2621,9 +2643,9 @@ function eaiInk(opts) {
       if (tool === 'laser') { laser.style.left = ev.clientX + 'px'; laser.style.top = ev.clientY + 'px'; return; }
       es.forEach(function (q) {
         var pt = toPt(pg, q);
-        if (tool === 'erase') {
-          layer.strokes.filter(function (s) { return s.p === pg.id && near(s, pt[0], pt[1], 6); }).forEach(function (s) {
-            layer.strokes.splice(layer.strokes.indexOf(s), 1); erased.push(s);
+        if (tool === 'erase') {   // only your own strokes can be erased
+          target.strokes.filter(function (s) { return s.p === pg.id && near(s, pt[0], pt[1], 6); }).forEach(function (s) {
+            target.strokes.splice(target.strokes.indexOf(s), 1); erased.push(s);
             [].forEach.call(svg.querySelectorAll('path'), function (pp) { if (pp._s === s) pp.remove(); });
           });
         } else { var l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - pt[0]) + Math.abs(l[1] - pt[1]) >= 0.6) cur.pts.push(pt); }
@@ -2633,48 +2655,57 @@ function eaiInk(opts) {
     function up() {
       pg.removeEventListener('pointermove', move); pg.removeEventListener('pointerup', up); pg.removeEventListener('pointercancel', up);
       if (tool === 'laser') { if (laser) laser.remove(); laser = null; return; }
-      if (cur && cur.pts.length) { layer.strokes.push(cur); undo.push({ stroke: cur, el: el }); }
+      if (cur && cur.pts.length) { target.strokes.push(cur); undo.push({ stroke: cur, el: el }); }
       if (erased.length) undo.push({ erased: erased });
       save();
     }
     pg.addEventListener('pointermove', move); pg.addEventListener('pointerup', up); pg.addEventListener('pointercancel', up);
   }
-  function fingerScroll(e) {   // with touch-action: none on the pages, a finger drag scrolls the window by hand
+  function fingerScroll(e) {   // pages have touch-action: none while writing, so a finger drag scrolls the window by hand
     var y = e.clientY, x = e.clientX;
     function move(ev) { if (ev.pointerId !== e.pointerId) return; scrollBy(x - ev.clientX, y - ev.clientY); x = ev.clientX; y = ev.clientY; }
     function up(ev) { if (ev.pointerId !== e.pointerId) return; removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); }
     addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
   }
 
-  // ---------------------------------------------------------------- publish to the site's repository
+  // ---------------------------------------------------------------- instructor: set up this device, publish
+  function setupTeacher() {
+    if (teacher()) return true;
+    var t = prompt('Instructor setup: GitHub token for ' + REPO + ' (fine-grained, contents read and write). It stays on this device.');
+    if (!t) return false; store(KEY_TOKEN, t.trim()); return true;
+  }
   function b64(s) { return btoa(unescape(encodeURIComponent(s))); }
   function gh(path, token, body) {
     var url = 'https://api.github.com/repos/' + REPO + '/contents/' + path;
-    return fetch(url + '?ref=' + BRANCH, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } })
+    return fetch(url + '?ref=' + BRANCH, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (cur) {
         var data = { message: 'Lecture notes: ' + path, content: b64(body), branch: BRANCH }; if (cur && cur.sha) data.sha = cur.sha;
         return fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
       })
-      .then(function (r) { if (!r.ok) return r.json().then(function (j) { throw new Error(j.message || ('GitHub said ' + r.status)); }); return r.json(); });
+      .then(function (r) { if (!r.ok) return r.json().then(function (j) { var e = new Error(j.message || ('GitHub said ' + r.status)); e.status = r.status; throw e; }); return r.json(); });
   }
   function publish() {
-    var dir = SITE_DIR || (document.querySelector('meta[name="eai-ink-dir"]') || {}).content;
-    if (!dir) return msg('This page does not know where it is published.');
-    var token = store('eai-ink-token');
-    if (!token) { token = prompt('GitHub token for ' + REPO + ' (fine-grained, contents read and write). It stays on this device.'); if (!token) return; store('eai-ink-token', token.trim()); token = token.trim(); }
-    var t = prompt('Title for these notes', layer.title || layer.id); if (t === null) return; layer.title = t || layer.id; save();
+    if (!target || target === mine) return;
+    var dir = SITE_DIR; if (!dir) return msg('This page does not know where it is published.');
+    var token = store(KEY_TOKEN); if (!token) return msg('This device is not set up to publish (open the page with #teach).');
+    var t = prompt('Title for these notes', target.title || target.id); if (t === null) return; target.title = t || target.id; save();
     msg('Publishing…');
-    var ix = layers.filter(function (l) { return l.id !== layer.id; }).concat([{ id: layer.id, title: layer.title }]).sort(function (a, b) { return a.id < b.id ? -1 : 1; });
-    gh(dir + '/ink/' + layer.id + '.json', token, JSON.stringify(layer))
+    var ix = layers.filter(function (l) { return l.id !== target.id; }).concat([{ id: target.id, title: target.title }]).sort(function (a, b) { return a.id < b.id ? -1 : 1; });
+    gh(dir + '/ink/' + target.id + '.json', token, JSON.stringify(target))
       .then(function () { return gh(dir + '/ink/index.json', token, JSON.stringify({ layers: ix }, null, 1)); })
-      .then(function () { layers = ix.slice().reverse(); msg('Published. The site updates in a minute or two.'); },
-            function (err) { if (/credentials|401|403/i.test(err.message)) store('eai-ink-token', ''); msg('Not published: ' + err.message); });
+      .then(function () { layers = ix.slice().reverse(); msg('Published. Students see it in a minute or two.'); },
+            function (err) { if (err.status === 401) store(KEY_TOKEN, ''); msg('Not published: ' + err.message); });
   }
 
-  if (/(^|[#&])lecture\b/.test(location.hash)) startLecture();
-  addEventListener('keydown', function (e) { if ((e.key === 'l' || e.key === 'L') && !e.target.closest('textarea, input') && !e.metaKey && !e.ctrlKey) { editing ? stopLecture() : startLecture(); } if (editing && (e.metaKey || e.ctrlKey) && e.key === 'z') { e.preventDefault(); doUndo(); } });
-  addEventListener('hashchange', function () { if (/(^|[#&])lecture\b/.test(location.hash)) startLecture(); });
+  if (/(^|[#&])teach\b/.test(location.hash)) { if (setupTeacher()) start(); }
+  else if (/(^|[#&])(lecture|pen)\b/.test(location.hash)) start();
+  addEventListener('keydown', function (e) {
+    if (e.target.closest && e.target.closest('textarea, input, select')) return;
+    if ((e.key === 'l' || e.key === 'L') && !e.metaKey && !e.ctrlKey && !e.altKey) { editing ? stop() : start(); }
+    if (editing && (e.metaKey || e.ctrlKey) && e.key === 'z') { e.preventDefault(); doUndo(); }
+  });
+  addEventListener('hashchange', function () { if (/(^|[#&])teach\b/.test(location.hash) && setupTeacher()) { stop(); start(); } });
 }
 
 eaiInk({"dir":"book/linreg"});</script>
