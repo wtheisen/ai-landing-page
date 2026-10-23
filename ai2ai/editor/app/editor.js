@@ -13,6 +13,8 @@ const glabels = document.createElement('div'); glabels.id = 'glabels'; gsizer.be
 const esc = Book.esc;
 const h = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
 const NOEDIT = /^(B-EQ|B-FIG|B-CODE|B-OUT|B-ANSWERS|B-TOC|B-EMBED|FIGURE|IMG|HR|SVG)$/i;
+var phone = matchMedia('(max-width: 760px)').matches;   // phone layout: one page column at print size, tools tucked away (see the end of this file)
+if (phone) document.body.classList.add('phone');
 
 Book.mode = 'edit'; Book.chapter = ch; Book.base = '../c/' + ch + '/';
 const info = await (await fetch('../api/info')).json();
@@ -39,7 +41,7 @@ if (info.offline && navigator.serviceWorker) {   // the offline edition: the ser
   const ask = () => { if (navigator.serviceWorker.controller && navigator.onLine && !document.hidden) navigator.serviceWorker.controller.postMessage({ type: 'sync' }); };
   ask(); setInterval(ask, 60000); addEventListener('online', ask); document.addEventListener('visibilitychange', ask);   // pick up other devices' edits
 }
-if (info.offline) { const home = document.createElement('a'); home.href = '../'; home.className = 'btnlink'; home.textContent = '⌂'; home.title = 'All chapters'; home.style.cssText = 'color:#fff;background:transparent;border-color:rgba(255,255,255,.35)'; $('#bar').prepend(home); }   // the offline edition (service worker) saves to this device; GitHub sync is separate
+if (info.offline) { const home = document.createElement('a'); home.href = '../'; home.id = 'home'; home.className = 'btnlink'; home.textContent = '⌂'; home.title = 'All chapters'; home.style.cssText = 'color:#fff;background:transparent;border-color:rgba(255,255,255,.35)'; $('#bar').prepend(home); }   // the offline edition (service worker) saves to this device; GitHub sync is separate
 
 function prep() {   // make text blocks editable; equations, figures and code are edited from the side panel
   for (const pg of Book.pages()) for (const el of Book.blocks(pg)) {
@@ -57,6 +59,7 @@ function setStatus() {
   const dirty = cur !== saved;
   status.textContent = conflict ? (savedLocal ? 'Changed elsewhere' : 'Changed on disk') : saving ? 'Saving…' : dirty ? 'Unsaved' : savedLocal ? (syncing ? 'Syncing…' : '✓ Saved on device') : info.offline ? '✓ Synced' : '✓ Saved';
   status.className = conflict ? 'bad' : saving || dirty ? 'dirty' : 'ok';
+  if (phone) status.textContent = status.textContent.replace('Saved on device', 'On device').replace('Changed elsewhere', 'Changed');   // short, so the chapter title keeps its room
   status.title = conflict ? 'chapter.html changed on disk while you had unsaved edits: choose in the banner' : dirty ? 'Click (or Cmd+S) to save now. Edits also save by themselves about a second after you stop.' : savedLocal ? 'Saved on this device. It goes up to GitHub a few seconds after you stop typing, whenever there is a connection' + (syncErr ? ' (last try: ' + syncErr + ')' : '') : info.offline ? 'Saved on this device and on GitHub' : 'Everything is saved to chapter.html';
   $('#undo').disabled = !undo.length; $('#redo').disabled = !redo.length;
 }
@@ -270,7 +273,9 @@ function place() {
   const bar = $('#blockbar'), rsz = $('#rsz');
   if (!sel || !sel.isConnected) { bar.hidden = rsz.hidden = true; $('#rszb').hidden = true; placeCrop(); placeMarkers(); placeRulers(); return; }
   const r = sel.getBoundingClientRect(), [x, y] = deskXY(r);
-  bar.hidden = false; bar.style.left = Math.max(2, x - 34) + 'px'; bar.style.top = y + 'px';
+  bar.hidden = false;
+  if (phone) { const bw = bar.offsetWidth || 300, bh = bar.offsetHeight || 40; bar.style.left = Math.max(desk.scrollLeft + 4, Math.min(x, desk.scrollLeft + desk.clientWidth - bw - 4)) + 'px'; bar.style.top = Math.max(desk.scrollTop + 4, y - bh - 6) + 'px'; }
+  else { bar.style.left = Math.max(2, x - 34) + 'px'; bar.style.top = y + 'px'; }
   bar.querySelector('[data-act=pin]').classList.toggle('on', Book.isPinned(sel));
   bar.querySelector('[data-act=code]').hidden = sel.tagName !== 'B-FIG' || !!extra.length;
   bar.querySelector('[data-act=center]').classList.toggle('on', sel.getAttribute('data-align') === 'center');
@@ -472,10 +477,11 @@ function startDrag(e, el) {
     if (group.length > 1) selectMany(group); else select(el);
     commit(true); Book.refresh(); place();
   };
-  window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true);
+  const cancel = () => { window.removeEventListener('pointercancel', cancel, true); if (!moved) { window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true); clearInterval(auto); } else up(); };
+  window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true); window.addEventListener('pointercancel', cancel, true);
 }
 $('#grip').addEventListener('pointerdown', e => { if (sel) { e.preventDefault(); startDrag(e, sel); } });
-book.addEventListener('pointerdown', e => { const b = blockOf(e.target); if (e.target.closest && e.target.closest('.ed-code, .ed-coderun')) return; if (b && NOEDIT.test(b.tagName) && e.button === 0 && !(e.shiftKey || e.metaKey || e.ctrlKey)) { if (!(extra.length && allSel().includes(b))) select(b); startDrag(e, b); } });
+book.addEventListener('pointerdown', e => { const b = blockOf(e.target); if (e.target.closest && e.target.closest('.ed-code, .ed-coderun')) return; if (b && NOEDIT.test(b.tagName) && e.button === 0 && !(e.shiftKey || e.metaKey || e.ctrlKey)) { if (!(extra.length && allSel().includes(b))) select(b); if (e.pointerType !== 'touch') startDrag(e, b); } });
 $('#rsz').addEventListener('pointerdown', e => {
   if (!sel) return; e.preventDefault(); commit(true);
   const el = sel, pg = el.parentElement, pinned = Book.isPinned(el);
@@ -1456,7 +1462,8 @@ $('#pg-del').onclick = () => { if (!curPage) return toast('Click a page first');
 $('#undo').onclick = doUndo; $('#redo').onclick = doRedo;
 function applyZoom(v) {
   let z = +v;
-  if (v === 'fit' || v === 'two') { const w = desk.clientWidth - 48 - (v === 'two' ? 24 : 0); z = Math.max(0.3, Math.min(2, +(w / (v === 'two' ? 2 : 1) / 578).toFixed(3))); if (v === 'fit') z = Math.min(z, +((desk.clientHeight - 60) / 866).toFixed(3)); }
+  if (v === 'width') z = Math.max(0.3, +((desk.clientWidth - 12) / 578).toFixed(3));
+  else if (v === 'fit' || v === 'two') { const w = desk.clientWidth - 48 - (v === 'two' ? 24 : 0); z = Math.max(0.3, Math.min(2, +(w / (v === 'two' ? 2 : 1) / 578).toFixed(3))); if (v === 'fit') z = Math.min(z, +((desk.clientHeight - 60) / 866).toFixed(3)); }
   if (gridOn && typeof gworld !== 'undefined') {   // canvas: the menu sets the magnification, the pages stay laid out at 100%
     const W = gworld.offsetWidth || 3 * 624, one = 624;
     const cz = v === 'three' ? (desk.clientWidth - 24) / W : v === 'two' ? (desk.clientWidth - 24) / (2 * one) : v === 'fit' ? (desk.clientHeight - 40) / 900 : +v;
@@ -1466,8 +1473,8 @@ function applyZoom(v) {
   book.style.setProperty('--zoom', z); gridLayout(); setTimeout(() => { Book.refresh(); place(); }, 50);
 }
 $('#zoom').onchange = e => { try { localStorage.setItem('book-zoom', e.target.value); } catch (x) {} applyZoom(e.target.value); };
-try { const z = localStorage.getItem('book-zoom'); if (z) { const zs = $('#zoom'); if (![...zs.options].some(o => o.value === z)) { const o = document.createElement('option'); o.value = z; o.textContent = Math.round(+z * 100) + '%'; zs.prepend(o); } zs.value = z; applyZoom(z); } } catch (x) {}
-window.addEventListener('resize', () => { if (/fit|two|three/.test($('#zoom').value)) applyZoom($('#zoom').value); else gridLayout(); if (typeof canvasSize === 'function' && gridOn) canvasSize(); });
+try { const z = phone ? null : localStorage.getItem('book-zoom'); if (z) { const zs = $('#zoom'); if (![...zs.options].some(o => o.value === z)) { const o = document.createElement('option'); o.value = z; o.textContent = Math.round(+z * 100) + '%'; zs.prepend(o); } zs.value = z; applyZoom(z); } } catch (x) {}
+window.addEventListener('resize', () => { if (/fit|two|three|width/.test($('#zoom').value)) applyZoom($('#zoom').value); else gridLayout(); if (typeof canvasSize === 'function' && gridOn) canvasSize(); });
 $('#x-margins').onclick = () => { const on = book.classList.toggle('ed-margins'); $('#x-margins').classList.toggle('on', on); try { localStorage.setItem('book-margins', on ? '1' : '0'); } catch (x) {} };
 try { if (localStorage.getItem('book-margins') === '1') $('#x-margins').click(); } catch (x) {}
 // pages that run over: a counter in the bar that jumps to the next one
@@ -1813,6 +1820,7 @@ document.documentElement.dataset.ready = '1';
 var GLABEL = { reading: 'Reading', slides: 'Lecture', workbook: 'Workbook' };
 var gcols = {}, gridOn = true, gridT = 0, gridRaf = 0, gridReload = 0, gridHeights = {};   // var: zoom and mode code earlier in the file call gridLayout() before this runs
 try { gridOn = localStorage.getItem('book-grid') !== '0'; } catch (x) {}
+if (phone) gridOn = false;   // the canvas needs a wide screen
 Book.views.forEach((v, k) => {
   const col = h(`<div class="gcol" data-view="${v}" style="order:${k}"><div class="glab"><span>${GLABEL[v]}</span></div><iframe title="${GLABEL[v]} preview" scrolling="no"></iframe></div>`);
   gworld.append(col); gcols[v] = col;
@@ -2359,4 +2367,26 @@ $('#x-nums').onclick = () => {
   commit(true); const k = formatNumbers(book); commit(true); Book.refresh(); place();
   toast(k ? `Formatted ${k} number${k === 1 ? '' : 's'} (Cmd+Z undoes it)` : 'Every number is already formatted', k ? 'Undo' : null, k ? doUndo : null);
 };
+
+// ---------------------------------------------------------------- phone layout
+// The pages stay exactly as they print, fitted to the screen's width (pinch to look closer). Row one of the bar keeps
+// home, chapter, save state and Review; "Aa" shows the rest. While typing, the text styles sit just above the keyboard.
+// The page list and the settings panel slide in over the page. Blocks move by dragging the ⠿ grip.
+if (phone) {
+  document.body.classList.add('no-side', 'no-insp'); panelsChanged();
+  const zs = $('#zoom'); if (!zs.querySelector('option[value="width"]')) { const o = document.createElement('option'); o.value = 'width'; o.textContent = 'Fit width'; zs.prepend(o); }
+  zs.value = 'width'; applyZoom('width');
+  const tools = document.createElement('button'); tools.id = 'ph-tools'; tools.textContent = 'Aa'; tools.title = 'All the tools';
+  tools.onclick = () => { const on = document.body.classList.toggle('ph-open'); tools.classList.toggle('on', on); setTimeout(place, 0); };
+  $('#status').after(tools);
+  const typing = () => { const a = document.activeElement; document.body.classList.toggle('ph-typing', !!(a && a.isContentEditable && book.contains(a))); };
+  document.addEventListener('focusin', typing); document.addEventListener('focusout', () => setTimeout(typing, 0));
+  const vv = window.visualViewport;   // keep the style bar on top of the on-screen keyboard
+  const kb = () => document.documentElement.style.setProperty('--kb', Math.max(0, innerHeight - vv.height - vv.offsetTop) + 'px');
+  if (vv) { vv.addEventListener('resize', kb); vv.addEventListener('scroll', kb); }
+  $('#styles').addEventListener('pointerdown', e => e.preventDefault());   // tapping a style keeps the text selection
+  desk.addEventListener('pointerdown', () => { if (!document.body.classList.contains('no-side') || !document.body.classList.contains('no-insp')) { document.body.classList.add('no-side', 'no-insp'); panelsChanged(); } }, true);
+  $('#pages').addEventListener('click', e => { if (e.target.closest('li')) { document.body.classList.add('no-side'); panelsChanged(); } });
+  addEventListener('orientationchange', () => setTimeout(() => applyZoom($('#zoom').value), 300));
+}
 })();

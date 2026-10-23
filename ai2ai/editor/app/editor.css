@@ -391,3 +391,49 @@ textarea.ed-code::selection { background: rgba(17, 85, 204, .25); color: transpa
 .ed-coderun { position: absolute; top: -26px; right: 0; display: flex; gap: 8px; align-items: center; font: 11px system-ui, sans-serif; color: var(--ink-muted, #666); }
 .ed-coderun button { font: 600 11px system-ui, sans-serif; padding: 3px 9px; border-radius: 4px; border: 1px solid var(--blue-text, #1155cc); background: #fff; color: var(--blue-text, #1155cc); cursor: pointer; }
 .ed-coderun button:disabled { opacity: .5; cursor: default; }
+
+/* ---------------------------------------------------------------- phone (body.phone, set by editor.js under 760px) */
+body.phone { font-size: 15px; }
+.phone #bar { flex-wrap: wrap; padding: calc(4px + env(safe-area-inset-top)) 6px 4px; gap: 4px; row-gap: 6px; }
+.phone #bar > * { display: none; }
+.phone #bar > #home, .phone #bar > #title-btn, .phone #bar > #status, .phone #bar > #ph-tools, .phone #bar > #x-review { display: inline-flex; align-items: center; }
+.phone #bar > [hidden] { display: none !important; }
+.phone #bar > #title-btn { flex: 1; min-width: 0; overflow: hidden; }
+.phone #bar > #title-btn #title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+.phone #bar button, .phone #bar .btnlink, .phone #bar summary { min-height: 34px; padding: 4px 10px; font-size: 14px; }
+.phone #bar #home { min-width: 34px; justify-content: center; }
+.phone #status { order: 2; min-width: 0; font-size: 12px; }
+.phone #ph-tools { order: 3; font-weight: 700; }
+.phone #ph-tools.on { background: var(--gold); color: #000; border-color: var(--gold); }
+.phone #x-review { order: 2; }
+.phone #x-review:not(.has) { display: none !important; }
+/* "Aa": everything else, in rows under the first */
+.phone.ph-open #bar > :not([hidden]) { display: inline-flex; align-items: center; }
+.phone.ph-open #bar > .spacer { display: none; }
+.phone.ph-open #bar > #styles { order: 10; flex-basis: 100%; flex-wrap: wrap; border: 0; padding: 0; gap: 4px; }
+.phone.ph-open #bar > :not(#home):not(#title-btn):not(#status):not(#ph-tools):not(#x-review):not(#styles) { order: 11; }
+.phone #bar select { font-size: 16px; min-height: 34px; }   /* 16px: iOS zooms the page into smaller inputs */
+.phone #bar .ddp { position: fixed; left: 6px; right: 6px; max-height: 60vh; overflow-y: auto; }
+.phone #x-grid, .phone #glabels { display: none !important; }
+/* while typing: the text styles ride just above the keyboard */
+.phone.ph-typing:not(.ph-open) #bar > #styles { display: flex; position: fixed; left: 0; right: 0; bottom: var(--kb, 0px); z-index: 60;
+  background: var(--navy); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); gap: 6px; overflow-x: auto; flex-wrap: nowrap; border: 0; box-shadow: 0 -2px 8px rgba(0,0,0,.2); }
+.phone #styles button { min-height: 36px; min-width: 36px; flex: none; }
+.phone #styles .dot { width: 30px; height: 30px; min-width: 30px; padding: 0; }
+/* side panels slide in over the page */
+.phone #side, .phone #insp { position: fixed; top: 0; bottom: 0; z-index: 70; width: min(86vw, 340px); box-shadow: 0 0 24px rgba(0,0,0,.3); padding-top: env(safe-area-inset-top); }
+.phone #side { left: 0; } .phone #insp { right: 0; }
+.phone.no-side #side, .phone.no-insp #insp { display: none; }
+.phone .edgetab { width: 26px; height: 54px; font-size: 18px; z-index: 65; opacity: .85; }
+.phone #insp input, .phone #insp select, .phone #insp textarea { font-size: 16px; }
+/* the block bar: a row above the block, finger-sized; its grip drags without scrolling the page */
+.phone #blockbar { flex-direction: row; gap: 2px; padding: 3px; border-radius: 8px; }
+.phone #blockbar button { width: 34px; height: 34px; font-size: 16px; touch-action: none; }
+.phone #blockbar button svg { width: 17px; height: 17px; }
+.phone #grip { background: var(--yellow-fill); font-size: 20px; }
+.phone #rsz, .phone #croph { touch-action: none; }
+.phone #desk { -webkit-overflow-scrolling: touch; }
+.phone .ed-dragging { opacity: .6; }
+/* dialogs fit the screen */
+.phone #modal .box { width: auto !important; max-width: calc(100vw - 16px); max-height: calc(100vh - 32px); overflow-y: auto; }
+.phone #toast { left: 8px; right: 8px; transform: none; bottom: calc(12px + var(--kb, 0px)); }
