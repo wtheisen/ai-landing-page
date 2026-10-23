@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter</title>
+<style>
+@font-face { font-family: 'Inconsolata LGC'; src: url(../kit/fonts/Inconsolata-LGC.ttf) format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Inconsolata LGC'; src: url(../kit/fonts/Inconsolata-LGC-Bold.ttf) format('truetype'); font-weight: 700; }
+</style>
+<link rel="stylesheet" href="../app/book.css">
+</head>
+<body>
+<nav class="navbar web-only" aria-label="Chapter"><a class="brand" id="brand" href="#"></a><span class="spacer"></span><span id="nav"></span><a id="edit" href="#">Edit</a></nav>
+<main class="book view" id="book"></main>
+<script src="../app/live.js"></script>
+<script src="../app/book.js"></script>
+<script src="../app/ink.js"></script>
+<script>
+(async function () {
+  const ch = location.pathname.split('/').filter(Boolean).pop(), q = new URLSearchParams(location.search), exporting = q.has('export');
+  const grid = q.has('grid');   // grid: one edition's pages, placed level with the editor's rows (the editor's canvas)
+  const zoom = () => { if (!grid) document.documentElement.style.setProperty('--zoom', Math.min(1, (window.innerWidth - 32) / 576)); };   // in the grid the editor sets the zoom
+  zoom(); window.addEventListener('resize', zoom);
+  if (grid) { const st = document.createElement('style'); st.textContent = '.gslot section.page{height:var(--page-h)!important;min-height:0!important;padding-bottom:0!important;overflow:hidden!important} .gslot b-code[dual],.gslot b-code[dual]+b-out,.gslot b-matmul{display:none!important} .gslot .page[data-ed-stale]::before{content:\'Slides changed: \' attr(data-ed-stale);position:absolute;top:6px;right:6px;z-index:3;font:600 10.5px/1.4 system-ui,sans-serif;color:#7a5c00;background:#fff3cd;border:1px solid #e6cf7a;border-radius:3px;padding:1px 6px} .gslot.gmatch section.page{box-shadow:0 0 0 3px #dcb439}'; document.head.append(st); document.querySelector('.navbar').style.display = 'none'; document.documentElement.style.cssText = 'overflow:hidden;background:transparent'; document.body.style.cssText = 'margin:0;background:transparent;overflow:hidden'; }
+  Book.chapter = ch; Book.base = '../c/' + ch + '/'; Book.web = !grid; Book.exporting = exporting; if (exporting) document.documentElement.dataset.exporting = '1';
+  const wanted = new URLSearchParams(location.search).get('view'); if (Book.views.includes(wanted)) Book.view = wanted;
+  Book.kit = (await (await fetch('../api/info')).json()).kit;
+  const version = new URLSearchParams(location.search).get('version');
+  const d = await (await fetch(version ? '../api/history/' + ch + '?name=' + encodeURIComponent(version) : '../api/chapter/' + ch)).json();
+  Book.load(document.getElementById('book'), d.content);
+  document.title = Book.meta.title || ch;
+  document.getElementById('brand').textContent = Book.meta.book || Book.meta.title || ch;
+  document.getElementById('edit').href = '../edit/' + ch;
+  if (version) { document.getElementById('edit').textContent = 'Old version: ' + version.replace(/^chapter-|\.html$/g, ''); document.getElementById('edit').removeAttribute('href'); }
+  document.getElementById('nav').outerHTML = Book.pages().filter(p => p.dataset.part && Book.inView(p)).map(p => `<a href="#${p.id}">${Book.esc(p.dataset.part)}</a>`).join('')
+    + (exporting ? '' : '<span style="opacity:.5">|</span>' + Book.views.map(v => `<a href="?view=${v}" style="${v === Book.view ? 'font-weight:700;text-decoration:underline' : ''}">${v[0].toUpperCase() + v.slice(1)}</a>`).join(''));
+  await Book.ready(); Book.refresh(); await Book.ready(); Book.refresh();
+  if (grid) Book.markStale();
+  if (grid) {   // lay the pages out where the editor says each row is; a page this edition leaves out becomes a labelled gap
+    const root = document.getElementById('book'), NAMES = { reading: 'Reading', slides: 'Lecture', workbook: 'Workbook' };
+    let last = null, focus = null;
+    const topicsOf = p => ((p && p.getAttribute('data-topic')) || '').split(/\s+/).filter(Boolean);
+    const applyFocus = () => root.querySelectorAll('.gslot').forEach(s => {   // split chapters match by topic (the other document's pages have their own ids)
+      s.style.transition = 'opacity .15s';
+      if (focus && typeof focus === 'object') { const t = topicsOf(s.querySelector('section.page')), hit = s.dataset.id === focus.id || t.some(x => (focus.topics || []).includes(x)); s.style.opacity = focus.dim ? '.22' : '';   /* focus mode: every preview fades, matching pages included; only the page being edited stays bright */ s.classList.toggle('gmatch', hit && !!s.querySelector('section.page')); }
+      else { s.classList.remove('gmatch'); s.style.opacity = focus && s.dataset.id !== focus ? '.22' : ''; }
+    });
+    const reportMatch = () => {   // split: tell the editor where this edition's first page on the focused topics is, so it can line it up
+      if (!Book.split || !focus || typeof focus !== 'object') return;
+      const m = root.querySelector('.gslot.gmatch');
+      parent.postMessage({ gridMatch: { view: Book.view, top: m ? parseFloat(m.style.top) : null } }, '*');
+    };
+    const place = L => {
+      last = L; document.documentElement.style.setProperty('--zoom', L.zoom);
+      const pages = Object.fromEntries([...root.querySelectorAll('section.page')].map(p => [p.id, p]));
+      root.querySelectorAll('.gslot').forEach(s => { const p = s.querySelector('section.page'); if (p) root.append(p); s.remove(); });
+      root.style.cssText = `position:relative;display:block;padding:0;height:${L.height}px`;
+      let tops = L.tops;
+      if (Book.split) {   // this edition's pages in their own order, spaced like the editor's rows
+        const step = L.tops.length > 1 ? L.tops[1].top - L.tops[0].top : 0, own = Object.values(pages).filter(p => Book.inView(p)), y0 = L.tops.length ? L.tops[0].top : 0;
+        tops = own.map((p, k) => ({ id: p.id, top: y0 + k * step }));
+        const hgt = tops.length ? tops[tops.length - 1].top + step : 0; root.style.height = hgt + 'px';
+        parent.postMessage({ gridHeight: hgt, view: Book.view }, '*');
+      }
+      tops.forEach(t => {
+        const slot = document.createElement('div'); slot.className = 'gslot'; slot.dataset.id = t.id; slot.style.cssText = `position:absolute;left:0;right:0;top:${t.top}px;display:flex;justify-content:center`;
+        const p = pages[t.id];
+        if (p && Book.inView(p)) { p.style.display = ''; slot.append(p); slot.style.cursor = 'pointer'; slot.title = 'Click to edit this page in ' + NAMES[Book.view]; slot.onclick = () => parent.postMessage({ gridPick: t.id, view: Book.view }, '*'); }
+        else {
+          const ins = p ? Book.views.filter(v => Book.inView(p, v)).map(v => NAMES[v]) : [];
+          slot.innerHTML = `<div style="width:calc(var(--page-w) * ${L.zoom});height:calc(var(--page-h) * ${L.zoom});border:1px dashed #c3c3c3;border-radius:2px;display:flex;align-items:center;justify-content:center;font:12px system-ui,sans-serif;color:#999">${ins.length ? ins.join(' and ') + ' only' : 'not in this edition'}</div>`;
+        }
+        root.append(slot);
+      });
+      Object.values(pages).forEach(p => { if (!p.parentElement.classList.contains('gslot')) p.style.display = 'none'; });
+      applyFocus();
+    };
+    window.addEventListener('message', async e => {
+      const d = e.data || {};
+      if (d.gridLayout) place(d.gridLayout);
+      if ('gridFocus' in d) { focus = d.gridFocus; applyFocus(); reportMatch(); }
+      if (d.gridReload) {
+        const c = await (await fetch('../api/chapter/' + ch)).json();
+        Book.load(root, c.content); await Book.ready(); Book.refresh(); Book.markStale();
+        if (last) place(last);
+      }
+    });
+    window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); parent.postMessage({ gridWheel: { dy: e.deltaY, x: e.clientX, y: e.clientY } }, '*'); }, { passive: false });   // a pinch here zooms the editor's canvas
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => window.addEventListener(t, e => e.preventDefault(), { passive: false }));
+    document.documentElement.dataset.ready = '1'; parent.postMessage({ gridReady: Book.view }, '*'); return;
+  }
+  const report = Book.report, pages = Book.pages().length;
+  Book.webExtras();
+  if (exporting) {
+    const html = await Book.snapshot();
+    await fetch('../api/snapshot/' + ch, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ html, report, pages, eqs: [...document.querySelectorAll('b-eq')].map(e => e._key).filter(Boolean) }) });
+  }
+  if (!exporting) eaiInk({ dir: Book.meta.web || ('ai2ai/' + ch) });
+  document.documentElement.dataset.ready = '1';
+})();
+</script>
+</body>
+</html>

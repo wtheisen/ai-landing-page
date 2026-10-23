@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book Editor</title>
+<style>
+@font-face { font-family: 'Inconsolata LGC'; src: url(../kit/fonts/Inconsolata-LGC.ttf) format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Inconsolata LGC'; src: url(../kit/fonts/Inconsolata-LGC-Bold.ttf) format('truetype'); font-weight: 700; }
+</style>
+<link rel="stylesheet" href="../app/book.css">
+<link rel="stylesheet" href="../app/editor.css">
+</head>
+<body class="ed">
+<header id="bar">
+  <button class="title" id="title-btn" title="Switch chapter (Cmd+O)"><span id="title">Book Editor</span> <span class="car">▾</span></button>
+  <details class="dd" id="dd-insert"><summary title="Add a block after the selected one (or type / in an empty paragraph)">Insert <span class="car">▾</span></summary>
+  <div class="ddp grid2" id="insert" aria-label="Insert">
+    <button data-ins="p" title="Paragraph">Text</button>
+    <button data-ins="h3" title="Subheading">Heading</button>
+    <button data-ins="eq" title="Display equation (LaTeX)">Equation</button>
+    <button data-ins="fig" title="Figure from a file (svg, png, jpg)">Figure</button>
+    <button data-ins="table">Table</button>
+    <button data-ins="ul" title="Bulleted list">List</button>
+    <button data-ins="code" title="Code with output">Code</button>
+    <button data-ins="aside" title="Small grey note">Note</button>
+    <button data-ins="qc" title="Quick check with answer">Quick check</button>
+    <button data-ins="embed" title="An interactive page from the web, shown in a frame in the web edition (a visualizer from ai.williamtheisen.com, say)">Interactive</button>
+    <button data-ins="viz" title="A figure that is a snapshot of one of your visualizers: a picture in the PDF, interactive in the web edition">Live figure</button>
+    <button data-ins="draw" title="An empty drawing canvas in the text flow (for diagrams)">Drawing</button>
+  </div></details>
+  <details class="dd" id="dd-draw"><summary title="Drawing tools: click a tool for one shape, double-click it to keep drawing (Esc to stop)">Draw <span class="car">▾</span></summary>
+  <div class="ddp row" id="tools" aria-label="Draw">
+    <button data-tool="select" class="on" title="Select and move (Esc)"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M3 2l9 6-4 1 2.5 4.5-1.5.8L6.500 9.800 3.500 12.500z" fill="currentColor"/></svg></button>
+    <button data-tool="rect" title="Rectangle: drag on a page"><svg viewBox="0 0 16 16" width="13" height="13"><rect x="2" y="3.500" width="12" height="9" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+    <button data-tool="ellipse" title="Ellipse (hold Shift for a circle)"><svg viewBox="0 0 16 16" width="13" height="13"><ellipse cx="8" cy="8" rx="6" ry="4.500" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+    <button data-tool="tri" title="Triangle"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M8 2.500l6 11H2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
+    <button data-tool="poly" title="Polygon: click each corner, double-click (or Enter) to finish"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M3 6l6-3.500 4.500 4-2 6.500H4.500z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
+    <button data-tool="line" title="Line (hold Shift for 45° steps)"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M2.500 13.500l11-11" stroke="currentColor" stroke-width="1.5"/></svg></button>
+    <button data-tool="arrow" title="Arrow"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M2.500 13.500l10-10M7.500 3h5.500v5.500" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+    <button data-tool="curve" title="Curved arrow: drag, then pull the middle handle to bend it"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M2.500 13c1-7 5-10 11-10M9.500 2.500l4 .500-1.500 3.500" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button>
+    <button data-tool="pline" title="Bent line: click each corner, double-click (or Enter) to finish. Arrowheads are in the side panel."><svg viewBox="0 0 16 16" width="13" height="13"><path d="M2 13l4-8 4 5 4-7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button>
+    <button data-tool="pen" title="Pen: draw freehand"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M2 12c2-6 4-7 5-4s3 3 4-1 2-3 3-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+    <button data-tool="text" title="Label: click where it goes">T</button>
+  </div></details>
+  <span class="grp" id="styles" aria-label="Text styles">
+    <button data-style="def" class="dot" style="--c: var(--yellow-text)" title="Gold, bold (Option+1)" aria-label="Gold"></button>
+    <button data-style="name" class="dot" style="--c: var(--navy)" title="Navy, bold (Option+2)" aria-label="Navy"></button>
+    <button data-style="take" class="dot" style="--c: var(--green-text)" title="Green, bold (Option+3)" aria-label="Green"></button>
+    <button data-style="warn" class="dot" style="--c: var(--red-text)" title="Red, bold (Option+4)" aria-label="Red"></button>
+    <button data-style="ex" class="dot" style="--c: var(--teal-text)" title="Teal, bold (Option+5)" aria-label="Teal"></button>
+    <button data-style="gray" class="dot" style="--c: var(--gray-text)" title="Dark grey, bold (Option+6)" aria-label="Dark grey"></button>
+    <button data-style="b" title="Plain bold (Cmd+B)"><b>B</b></button>
+    <button data-style="i" title="Italic (Cmd+I)"><i>I</i></button>
+    <button data-style="code" title="Inline code" class="mono">code</button>
+    <button data-style="mono" title="Consolas, for numbers and technical bits (Option+M). Select it and press again to switch back to Arial." class="cons">Consolas</button>
+    <button data-style="num" title="Number: bold Consolas in dark grey (Option+N). Select it and press again to undo. More ▸ Format every number does the whole chapter." class="cons numb">123</button>
+    <button data-style="math" title="Inline math (Cmd+E, or type $x_i$)" class="mono">x²</button>
+    <button data-style="link" title="Link (Cmd+K): select the words first">Link</button>
+    <button data-style="ref" title="Reference to a page or equation">Ref</button>
+    <button data-style="key" title="Key sentence: Slides and Workbook show only the marked part of a paragraph (and leave out paragraphs with nothing marked)">Key</button>
+    <button data-style="fill" title="Fill-in: the selected words are plain text when reading, and an underline to write on in Slides and Workbook">Fill</button>
+    <button data-style="clear" title="Remove emphasis (Option+0)">Clear</button>
+  </span>
+  <span class="spacer"></span>
+  <span id="status">Loading…</span>
+  <span class="grp2"><button id="undo" class="ico" title="Undo (Cmd+Z)">↶</button><button id="redo" class="ico" title="Redo (Shift+Cmd+Z)">↷</button></span>
+  <span class="grp2"><select id="x-mode" title="Which edition you are looking at. Blocks can be limited to some of them (side panel: Shown in)."><option value="reading">Reading</option><option value="slides">Slides</option><option value="workbook">Workbook</option></select><select id="zoom" title="Zoom"><option value="0.6">60%</option><option value="0.75">75%</option><option value="0.9">90%</option><option value="1" selected>100%</option><option value="1.25">125%</option><option value="1.5">150%</option><option value="fit">Fit one page</option><option value="two">Fit two pages</option><option value="three">Fit three columns</option></select><button id="x-focus" title="Focus: fade every page except the one you are working on">Focus</button><button id="x-grid" title="Canvas: every page in Reading, Lecture and Workbook side by side. Pinch to zoom, two-finger scroll to move around. Click a page in any column to edit that edition.">Grid</button></span>
+  <button id="x-over" hidden title="Pages whose content runs past the footer: click to go to the next one"></button>
+  <button id="x-cmts" title="Review comments in this chapter">Comments</button>
+  <details class="dd right" id="dd-more"><summary title="Margins, rulers, chapter settings, history, shortcuts">More <span class="car">▾</span></summary>
+  <div class="ddp col" aria-label="More">
+    <button id="x-margins" title="Show the text column and the footer line on every page">Margins</button>
+    <button id="x-rulers" title="Rulers on the current page. Drag from a ruler onto the page to make a guide; pinned blocks and shapes snap to guides.">Rulers</button>
+    <button id="settings" title="Chapter title and symbol colours">Chapter settings</button>
+    <button id="x-insync" hidden title="Clear the &quot;Slides changed&quot; marks: the Reading now matches what the Lecture says">Reading is in step with the Lecture</button>
+    <button id="x-nums" title="Put every number in the running text in bold Consolas, dark grey (skips math, code, equations, tables, headings, comments, fill-ins and anything already bold or coloured)">Format every number</button>
+    <button id="x-history" title="Earlier versions of this chapter">Earlier versions</button>
+    <button id="x-help" title="Keyboard shortcuts (?)">Keyboard shortcuts</button>
+    <a id="view" class="btnlink" target="_blank" title="Open the reading view">Open the reading page</a>
+  </div></details>
+  <button id="export" class="primary" title="Build the web pages and 6x9 PDFs for all three editions (Reading, Lecture, Workbook)">Export</button>
+</header>
+<div id="banner" hidden></div>
+<div id="x-find" hidden>
+  <input type="text" id="f-find" placeholder="Find" spellcheck="false"><span id="f-count"></span>
+  <button data-a="prev" title="Previous (Shift+Enter)">↑</button><button data-a="next" title="Next (Enter)">↓</button>
+  <input type="text" id="f-rep" placeholder="Replace with" spellcheck="false">
+  <button data-a="rep">Replace</button><button data-a="all">Replace all</button>
+  <label><input type="checkbox" id="f-case"> Match case</label>
+  <span class="spacer"></span><button data-a="close" title="Close (Esc)">✕</button>
+</div>
+<div id="main">
+  <button id="tg-side" class="edgetab" title="Hide the page list (Cmd+\ hides both side panels)">‹</button>
+  <button id="tg-insp" class="edgetab" title="Hide the settings panel (Cmd+\ hides both side panels)">›</button>
+  <aside id="side">
+    <ol id="pages"></ol>
+    <div class="sidebtn"><button id="pg-thumbs" title="Show small pages in this list">Thumbnails</button><button id="pg-add" title="New page after the current one: pick a layout">+ Page</button><button id="pg-dup">Duplicate</button><button id="pg-del">Delete</button></div>
+  </aside>
+  <div id="desk">
+    <main class="book" id="book"></main>
+    <div id="overlay">
+      <div id="blockbar" hidden>
+        <button id="grip" title="Drag to move (also onto another page)">⠿</button><button data-act="up" title="Move up (Option+↑)">↑</button><button data-act="down" title="Move down (Option+↓)">↓</button><button data-act="dup" title="Duplicate (Cmd+D)"><svg viewBox="0 0 16 16" width="13" height="13"><rect x="5" y="5" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M11 3V2.5A.5.5 0 0 0 10.5 2h-8a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5H3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><button data-act="code" title="Flip: show the code that draws this figure (Cmd+Shift+F)" class="figonly"><svg viewBox="0 0 16 16" width="13" height="13"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5 4L1.5 8 5 12M11 4l3.5 4-3.5 4"/></svg></button><button data-act="center" title="Centre this block (Cmd+Shift+E); click again to put it back on the left"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M2 3.5h12M4.5 6.5h7M2 9.5h12M4.5 12.5h7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button><button data-act="cmt" title="Comment on this block"><svg viewBox="0 0 16 16" width="13" height="13"><path d="M2.5 3h11v7.5h-6l-3 2.500v-2.500h-2z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></button><button data-act="pin" title="Pin: place freely on the page. Click again to put it back in the text flow."><svg viewBox="0 0 16 16" width="13" height="13"><path d="M6 2h4l-.5 4.5L12 9H4l2.5-2.5zM8 9v5.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg></button><button data-act="split" title="Split page here: move this block and everything after it to a new page (Shift+Cmd+Enter)">⤓</button><button data-act="del" title="Delete (Backspace when the block is selected)">✕</button>
+      </div>
+      <div id="rsz" hidden title="Drag to resize"></div>
+      <div id="rszb" hidden title="Drag to change the canvas height"></div>
+      <div id="croph"></div>
+      <div id="rulers"></div>
+      <div id="cmtm"></div>
+      <div id="drop" hidden></div>
+      <div id="gx" class="guide" hidden></div><div id="gy" class="guide" hidden></div>
+      <div id="drawh"></div>
+      <div id="pop" hidden></div>
+    </div>
+  </div>
+  <aside id="insp"></aside>
+</div>
+<div id="toast" hidden></div>
+<div id="modal" hidden></div>
+<input type="file" id="file" accept=".svg,.png,.jpg,.jpeg,.gif" hidden>
+<script src="../app/live.js"></script>
+<script src="../app/book.js"></script>
+<script src="../app/editor.js"></script>
+<script src="../app/draw.js"></script>
+</body>
+</html>

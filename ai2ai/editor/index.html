@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI2AI Book Editor</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#002B5B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AI2AI">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root { --navy: #002B5B; --gold: #DCB439; --green: #38761D; --red: #B3261E; --ink: #1d2433; --muted: #5f6672; --line: #dde1e7; --bg: #f5f6f8; --card: #fff; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; font: 15px/1.4 Arial, Helvetica, sans-serif; color: var(--ink); background: var(--bg); }
+header { background: var(--navy); color: #fff; padding: calc(14px + env(safe-area-inset-top)) 16px 14px; }
+header h1 { margin: 0; font-size: 19px; letter-spacing: .2px; }
+header .sub { font-size: 12.5px; opacity: .75; margin-top: 2px; }
+main { max-width: 760px; margin: 0 auto; padding: 14px 16px calc(28px + env(safe-area-inset-bottom)); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.chip { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 10px; background: #e7eaef; color: var(--ink); }
+.chip.ok { background: #2e7d32; color: #fff; } .chip.warn { background: #f2b51b; } .chip.bad { background: var(--red); color: #fff; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+.card h2 { font-size: 15px; margin: 0 0 8px; color: var(--navy); }
+label { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin: 8px 0 3px; }
+input { width: 100%; font: inherit; padding: 9px 10px; border: 1px solid #c3c8d0; border-radius: 6px; background: #fff; }
+button, .btn { font: inherit; font-weight: 700; border: 1px solid #c3c8d0; background: #fff; color: var(--ink); border-radius: 6px; padding: 8px 12px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; min-height: 38px; }
+button.primary { background: var(--gold); border-color: var(--gold); color: #000; }
+button:disabled { opacity: .45; cursor: default; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.note { font-size: 13px; color: var(--muted); }
+.note a { color: var(--navy); }
+.unit { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 16px 2px 6px; }
+ul.ch { list-style: none; margin: 0; padding: 0; background: var(--card); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+ul.ch li { display: grid; grid-template-columns: 2.6em 1fr auto; align-items: center; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--line); }
+ul.ch li:first-child { border-top: 0; }
+ul.ch .n { font: 700 13px Consolas, 'Inconsolata LGC', monospace; color: var(--muted); }
+ul.ch .t { font-weight: 700; color: var(--navy); text-decoration: none; overflow-wrap: anywhere; }
+ul.ch small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 1px; }
+ul.ch .acts { display: flex; gap: 6px; }
+ul.ch .acts .btn { min-height: 34px; padding: 6px 10px; font-size: 13.5px; }
+.off { font-size: 12px; color: var(--muted); }
+.off.full { color: var(--green); font-weight: 700; }
+.edited { color: #8a6a00; font-weight: 700; }
+progress { width: 100%; height: 6px; }
+#msg { white-space: pre-wrap; }
+@media (max-width: 520px) { ul.ch li { grid-template-columns: 2.2em 1fr; } ul.ch .acts { grid-column: 2; } }
+</style>
+</head>
+<body>
+<header><h1>AI2AI Book Editor</h1><div class="sub">Exploring Artificial Intelligence · works offline on this device</div></header>
+<main>
+  <div class="chips" id="chips"></div>
+
+  <section class="card" id="signin" hidden>
+    <h2>Sign in to GitHub</h2>
+    <p class="note">The chapters live in a private GitHub repository. Paste a <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained token</a> with <b>Contents: Read and write</b> on that repository. It stays on this device.</p>
+    <label for="repo">Repository</label><input id="repo" value="wtheisen/ai2ai-book" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <label for="token">Token</label><input id="token" type="password" placeholder="github_pat_…" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <div class="row" style="margin-top:10px"><button class="primary" id="go">Sign in</button></div>
+    <p class="note" id="smsg"></p>
+  </section>
+
+  <section class="card" id="sync" hidden>
+    <div class="row" style="justify-content:space-between">
+      <div><b id="where"></b><div class="note" id="when"></div></div>
+      <div class="row"><button id="pull" class="primary">Get latest</button><button id="all">Make all available offline</button></div>
+    </div>
+    <progress id="prog" hidden></progress>
+    <div class="note" id="msg"></div>
+  </section>
+
+  <div id="list"></div>
+
+  <section class="card" id="install" hidden>
+    <h2>Keep it on this device</h2>
+    <p class="note" id="install-text"></p>
+  </section>
+
+  <p class="note" id="foot"></p>
+</main>
+<script src="store.js"></script>
+<script src="home.js"></script>
+</body>
+</html>
