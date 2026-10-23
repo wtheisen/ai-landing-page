@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = 'e6e74700c2', KIT = 'b29cd3f1', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/ink.js", "app/live.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = '595c3eb6fd', KIT = 'b29cd3f1', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/ink.js", "app/live.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/

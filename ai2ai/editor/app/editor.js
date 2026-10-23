@@ -67,6 +67,7 @@ function setStatus() {
   status.textContent = conflict ? (savedLocal ? 'Changed elsewhere' : 'Changed on disk') : saving ? 'Saving…' : dirty ? 'Unsaved' : savedLocal ? (syncing ? 'Syncing…' : '✓ Saved on device') : info.offline ? '✓ Synced' : '✓ Saved';
   status.className = conflict ? 'bad' : saving || dirty ? 'dirty' : 'ok';
   if (phone) status.textContent = status.textContent.replace('Saved on device', 'On device').replace('Changed elsewhere', 'Changed');   // short, so the chapter title keeps its room
+  if (phone && innerWidth < 400) status.textContent = conflict ? '!' : saving || syncing ? '…' : dirty ? '•' : savedLocal ? '↑' : '✓';   // small phones: a symbol (the colour says the rest; tap for details)
   status.title = conflict ? 'chapter.html changed on disk while you had unsaved edits: choose in the banner' : dirty ? 'Click (or Cmd+S) to save now. Edits also save by themselves about a second after you stop.' : savedLocal ? 'Saved on this device. It goes up to GitHub a few seconds after you stop typing, whenever there is a connection' + (syncErr ? ' (last try: ' + syncErr + ')' : '') : info.offline ? 'Saved on this device and on GitHub' : 'Everything is saved to chapter.html';
   $('#undo').disabled = !undo.length; $('#redo').disabled = !redo.length;
 }
@@ -2082,7 +2083,7 @@ function needsYou(c) {   // open, and the last word in the thread isn't yours
   const t = [c, ...cmtReplies(c)]; return (t[t.length - 1].dataset.by || '') !== me;
 }
 function revQueue() { return cmtRoots().filter(c => revAll || needsYou(c)); }
-function revCount() { const n = cmtRoots().filter(needsYou).length, b = $('#x-review'); if (b) { b.textContent = n ? `Review (${n})` : 'Review'; b.classList.toggle('has', n > 0); b.classList.toggle('on', revOn); } return n; }
+function revCount() { const n = cmtRoots().filter(needsYou).length, b = $('#x-review'); if (b) { if (phone) { b.innerHTML = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M2.5 3h11v7.5h-6l-3 2.5v-2.5h-2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>' + (n ? '&nbsp;' + n : ''); b.setAttribute('aria-label', n ? 'Review, ' + n + ' comments' : 'Review'); } else b.textContent = n ? `Review (${n})` : 'Review'; b.classList.toggle('has', n > 0); b.classList.toggle('on', revOn); } return n; }
 function quoteRange(el, q) {   // the range of the words q inside el (whitespace-insensitive), or null
   if (!el || !q) return null;
   const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest('[data-rt], .cmt, .foot, svg, b-m') ? 2 : 1 });
