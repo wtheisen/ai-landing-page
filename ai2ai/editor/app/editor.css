@@ -8,8 +8,9 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 .ed button.primary { background: var(--gold); color: #000; border-color: var(--gold); font-weight: 700; }
 .ed button.on { background: var(--yellow-fill); border-color: var(--gold); }
 
-/* sticky + opaque + full width at the top edge: that is what makes iOS 26 skip its blur over an installed app's top edge */
-#bar { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 4px; background: var(--navy); color: #fff; padding: calc(5px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 5px calc(10px + env(safe-area-inset-left)); }
+/* fixed + opaque + full width at the top edge: what makes iOS 26 skip its blur over an installed app's top edge (sticky
+   isn't enough here, because the page itself never scrolls). #bar-space keeps its place in the layout. */
+#bar { position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 4px; background: var(--navy); color: #fff; padding: calc(5px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 5px calc(10px + env(safe-area-inset-left)); }
 #bar .title { font-weight: 700; font-size: 15px; margin-right: 8px; }
 #bar .grp { display: flex; align-items: center; gap: 3px; padding: 0 8px; border-left: 1px solid rgba(255,255,255,.25); }
 #bar .lbl { font-size: 11px; opacity: .75; margin-right: 2px; }
@@ -23,6 +24,7 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 #status.ok { background: #2e7d32; color: #fff; }
 #status.dirty { background: #f2b51b; color: #1d2433; }
 #status.bad { background: #c62828; color: #fff; }
+#bar-space { flex: none; }
 #banner { background: var(--yellow-fill); border-bottom: 1px solid var(--gold); padding: 6px 12px; display: flex; gap: 8px; align-items: center; }
 #banner[hidden] { display: none; }
 
