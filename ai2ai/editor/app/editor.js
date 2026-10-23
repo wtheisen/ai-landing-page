@@ -40,6 +40,13 @@ if (info.offline && navigator.serviceWorker) {   // the offline edition: the ser
   });
   const ask = () => { if (navigator.serviceWorker.controller && navigator.onLine && !document.hidden) navigator.serviceWorker.controller.postMessage({ type: 'sync' }); };
   ask(); setInterval(ask, 60000); addEventListener('online', ask); document.addEventListener('visibilitychange', ask);   // pick up other devices' edits
+  // a new version of the editor: offer a reload (after saving) instead of needing the app closed and reopened
+  navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
+  let hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController) { hadController = true; return; }
+    toast('New version of the editor', 'Reload', async () => { commit(true); await save(); location.reload(); });
+  });
 }
 if (info.offline) { const home = document.createElement('a'); home.href = '../'; home.id = 'home'; home.className = 'btnlink'; home.textContent = '⌂'; home.title = 'All chapters'; home.style.cssText = 'color:#fff;background:transparent;border-color:rgba(255,255,255,.35)'; $('#bar').prepend(home); }   // the offline edition (service worker) saves to this device; GitHub sync is separate
 

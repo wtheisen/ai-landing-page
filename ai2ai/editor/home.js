@@ -137,6 +137,12 @@ function installHint() {
 }
 
 show(); installHint(); await chips(); await when(); await list();
+if ('serviceWorker' in navigator) {   // a new version: reload this page to use it; and say which version is running
+  let had = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (had) location.reload(); had = true; });
+  navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
+  fetch('api/info').then(r => r.json()).then(d => { if (d.version) $('#ver').textContent = 'Editor version ' + d.version; }).catch(() => {});
+}
 if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', async e => { const d = e.data || {}; if (d.type === 'sync' && !d.reply && d.state !== 'syncing') { await when(); await list(); await chips(); } });
 $('#foot').innerHTML = cfg ? `<a href="#" id="out">Sign out</a> · removes the token, keeps chapters and edits on this device` : '';
 if ($('#out')) $('#out').onclick = async e => { e.preventDefault(); if (!confirm('Sign out of GitHub on this device?')) return; await Store.del('kv', 'remote'); cfg = null; show(); $('#foot').textContent = ''; };
