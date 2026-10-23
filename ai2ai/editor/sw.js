@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = '511123e339', KIT = 'b29cd3f1', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/ink.js", "app/live.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = 'aa51e1fb52', KIT = 'b29cd3f1', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/ink.js", "app/live.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/
@@ -82,8 +82,8 @@ async function api(req, u, parts) {
   if (!cf) return json(404, { error: 'no such chapter on this device' });
 
   if (!post) {
-    if (kind === 'chapter') return json(200, { content: cf.data, mtime: stamp(cf) });
-    if (kind === 'stat') return json(200, { mtime: stamp(cf) });
+    if (kind === 'chapter') return json(200, { content: cf.data, mtime: stamp(cf), local: !!cf.dirty });
+    if (kind === 'stat') return json(200, { mtime: stamp(cf), local: !!cf.dirty, sync: syncState });
     if (kind === 'history') {
       const name = q.get('name');
       if (name) { const v = await Store.get('hist', name); return v ? json(200, { content: v.content, mtime: stamp(cf) }) : json(404, { error: 'no such version' }); }
@@ -109,6 +109,7 @@ async function api(req, u, parts) {
     if (!d.force && d.base !== stamp(cf) && cf.data !== d.content) return json(409, { error: 'changed on this device', mtime: stamp(cf) });
     await snapshot(ch, cf, false);
     const rec = await Files.put(chapterPath(ch), d.content);
+    soon();
     return json(200, { mtime: stamp(rec), local: true });
   }
   if (kind === 'history') {
@@ -125,13 +126,13 @@ async function api(req, u, parts) {
       if (!old || q.get('replace') || await same(old.data, data)) break;
       name = stem + '-' + k + ext;
     }
-    await Files.put('chapters/' + ch + '/fig/' + name, data);
+    await Files.put('chapters/' + ch + '/fig/' + name, data); soon();
     return json(200, { src: 'fig/' + name });
   }
   if (kind === 'figsrc') {
     const d = await req.json().catch(() => ({})), hit = await figScript(ch, q.get('fig') || '');
     if (!hit) return json(404, { error: 'no script draws ' + q.get('fig') });
-    if (typeof d.code === 'string' && d.code !== hit.file.data) await Files.put(hit.file.path, d.code);
+    if (typeof d.code === 'string' && d.code !== hit.file.data) { await Files.put(hit.file.path, d.code); soon(); }
     return json(200, { ok: false, out: '', err: 'Saved. Running figure scripts on this device is not built yet: the figure redraws the next time the script runs on the Mac.', home: hit.home });
   }
   if (kind === 'eq') return json(422, { error: 'New equations can\'t be drawn on this device yet (coming soon). It will draw when the chapter is next opened on the Mac.' });
@@ -173,3 +174,33 @@ async function figScript(ch, fig) {
   }
   return null;
 }
+
+// ---------------------------------------------------------------- syncing with GitHub
+// A few seconds after the last save (and whenever a page asks), send this device's edits up and bring GitHub's down.
+// Offline, or if it fails, the edits simply wait here; the next save, page load or "Sync now" tries again.
+let syncT = 0, syncState = { state: 'idle' };
+function device() {
+  const ua = self.navigator.userAgent;
+  return /iPad/.test(ua) ? 'iPad' : /iPhone/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Mac OS X/.test(ua) ? 'Mac' : 'the AI2AI editor';
+}
+function soon(ms) { clearTimeout(syncT); syncT = setTimeout(runSync, ms || 4000); }
+async function tell(msg) { for (const c of await self.clients.matchAll({ includeUncontrolled: true })) c.postMessage(Object.assign({ type: 'sync' }, msg)); }
+async function runSync() {
+  const cfg = await Store.kv('remote');
+  if (!cfg || cfg.kind === 'dev') return syncState;
+  syncState = { state: 'syncing', at: Date.now() }; tell(syncState);
+  try {
+    const r = await Sync.sync(null, device());
+    const dirty = (await Files.dirty()).length;
+    syncState = { state: dirty ? 'pending' : 'synced', at: Date.now(), result: r, dirty };
+  } catch (e) {
+    syncState = { state: 'error', at: Date.now(), error: String(e.message || e), offline: e instanceof TypeError };
+  }
+  tell(syncState);
+  return syncState;
+}
+self.addEventListener('message', e => {
+  const d = e.data || {};
+  if (d.type === 'sync') e.waitUntil(runSync().then(s => e.source && e.source.postMessage(Object.assign({ type: 'sync', reply: true }, s))));
+  if (d.type === 'sync-state' && e.source) e.source.postMessage(Object.assign({ type: 'sync', reply: true }, syncState));
+});

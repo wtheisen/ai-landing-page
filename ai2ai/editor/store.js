@@ -67,29 +67,55 @@ async function blobSha(data) {
 }
 
 // ---------------------------------------------------------------- remotes
-// A remote lists the repo (path -> {sha, size}) and hands back one file's bytes.
-// GitHub: the REST API with Eric's fine-grained token. Dev: a plain folder (a checkout plus tree.json), for testing.
+// A remote lists the repo (path -> {sha, size}), hands back one file's bytes by its blob id and, for GitHub,
+// writes a commit. GitHub: the REST API with Eric's fine-grained token (cfg.api overrides the host, for tests).
+// Dev: a plain folder (a checkout plus tree.json), read-only, for testing.
 function remote(cfg) {
   if (!cfg) return null;
   if (cfg.kind === 'dev') return {
     async tree() { const r = await fetch(cfg.base + 'tree.json', { cache: 'no-store' }); if (!r.ok) throw new Error('tree.json: ' + r.status); return r.json(); },
     async file(path) { const r = await fetch(cfg.base + path.split('/').map(encodeURIComponent).join('/'), { cache: 'no-store' }); if (!r.ok) throw new Error(path + ': ' + r.status); return r; },
   };
-  const api = 'https://api.github.com/repos/' + cfg.repo, H = { Authorization: 'Bearer ' + cfg.token, 'X-GitHub-Api-Version': '2022-11-28' };
-  const gh = async (url, accept) => {
-    const r = await fetch(url, { headers: Object.assign({ Accept: accept || 'application/vnd.github+json' }, H), cache: 'no-store' });
-    if (!r.ok) { const e = new Error('GitHub ' + r.status + ': ' + ((await r.json().catch(() => ({}))).message || url)); e.status = r.status; throw e; }
+  const api = (cfg.api || 'https://api.github.com') + '/repos/' + cfg.repo, H = { Authorization: 'Bearer ' + cfg.token, 'X-GitHub-Api-Version': '2022-11-28' };
+  const gh = async (url, opt) => {
+    opt = opt || {};
+    const r = await fetch(url, { method: opt.method || 'GET', body: opt.body ? JSON.stringify(opt.body) : undefined, cache: 'no-store',
+      headers: Object.assign({ Accept: opt.accept || 'application/vnd.github+json' }, opt.body ? { 'Content-Type': 'application/json' } : {}, H) });
+    if (!r.ok) {
+      const m = (await r.json().catch(() => ({}))).message || url;
+      const e = new Error(r.status === 401 ? 'GitHub no longer accepts the token (it may have expired): sign in again.' : r.status === 403 && /Resource not accessible/i.test(m) ? 'The token can read but not write: give it Contents: Read and write.' : 'GitHub ' + r.status + ': ' + m);
+      e.status = r.status; throw e;
+    }
     return r;
   };
+  const branch = encodeURIComponent(cfg.branch || 'main');
   return {
+    write: true,
     async tree() {
-      const br = await (await gh(api + '/branches/' + encodeURIComponent(cfg.branch || 'main'))).json();
-      const t = await (await gh(api + '/git/trees/' + br.commit.commit.tree.sha + '?recursive=1')).json();
+      const br = await (await gh(api + '/branches/' + branch)).json();
+      const treeSha = br.commit.commit.tree.sha, t = await (await gh(api + '/git/trees/' + treeSha + '?recursive=1')).json();
       const files = {}; for (const e of t.tree) if (e.type === 'blob') files[e.path] = { sha: e.sha, size: e.size };
-      return { head: br.commit.sha, files, truncated: !!t.truncated };
+      return { head: br.commit.sha, treeSha, files, truncated: !!t.truncated };
     },
-    file: (path, sha) => gh(api + '/git/blobs/' + sha, 'application/vnd.github.raw+json'),
+    file: (path, sha) => gh(api + '/git/blobs/' + sha, { accept: 'application/vnd.github.raw+json' }),
+    async blob(data) {
+      const body = typeof data === 'string' ? { content: data, encoding: 'utf-8' } : { content: await b64(data), encoding: 'base64' };
+      return (await (await gh(api + '/git/blobs', { method: 'POST', body })).json()).sha;
+    },
+    // one commit on top of head holding these files (sha null = delete); false if someone else moved the branch first
+    async commit(head, baseTree, entries, message) {
+      const tree = (await (await gh(api + '/git/trees', { method: 'POST', body: { base_tree: baseTree, tree: entries.map(e => ({ path: e.path, mode: '100644', type: 'blob', sha: e.sha })) } })).json()).sha;
+      const commit = (await (await gh(api + '/git/commits', { method: 'POST', body: { message, tree, parents: [head] } })).json()).sha;
+      try { await gh(api + '/git/refs/heads/' + branch, { method: 'PATCH', body: { sha: commit, force: false } }); }
+      catch (e) { if (e.status === 422 || e.status === 409) return null; throw e; }
+      return { commit, tree };
+    },
   };
+}
+async function b64(blob) {
+  const bytes = new Uint8Array(await blob.arrayBuffer()); let s = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(s);
 }
 async function config() { return Store.kv('remote'); }
 
@@ -102,6 +128,7 @@ async function fetchFile(R, path, sha) {
   const rec = { path, data, sha, dirty: false, rev: (old ? old.rev : 0) + 1, t: Date.now() };
   await Store.put('files', rec); return rec;
 }
+async function fetchData(R, path, sha) { const r = await R.file(path, sha); return isText(path) ? r.text() : r.blob(); }
 
 async function pool(items, n, fn) {   // run fn over items, n at a time
   let k = 0; const errs = [];
@@ -109,28 +136,141 @@ async function pool(items, n, fn) {   // run fn over items, n at a time
   return errs;
 }
 
+// ---------------------------------------------------------------- merging
+// chapter.html merges page by page. base = the GitHub version this device's edit started from, mine = this device's,
+// theirs = GitHub's now. A page changed on one side takes that side; changed on both (differently), this device's page
+// stays and GitHub's goes right after it as a separate page marked as a clash, so nothing is lost. book-meta merges key
+// by key. Returns { text, clashes: [page ids] }.
+const SPLIT = /\n\n(?=<section[ >])/;
+function chunks(s) {
+  const parts = s.replace(/\n+$/, '').split(SPLIT), head = parts.shift(), map = new Map(), order = [];
+  parts.forEach((c, k) => { const id = (/^<section[^>]*\bid="([^"]*)"/.exec(c) || [])[1] || '#' + k; let key = id; while (map.has(key)) key += '+'; map.set(key, c); order.push(key); });
+  return { head, map, order };
+}
+function mergeMeta(b, m, t, clashes) {
+  if (m === b || m === t) return t; if (t === b) return m;
+  const re = /(<script type="application\/json" id="book-meta">\n?)([\s\S]*?)(\n?<\/script>)/;
+  const J = s => { try { return JSON.parse((re.exec(s) || [])[2]); } catch (e) { return null; } };
+  const jb = J(b), jm = J(m), jt = J(t);
+  if (!jb || !jm || !jt) { clashes.push('book-meta'); return m; }
+  const out = {}, keys = [...new Set([...Object.keys(jm), ...Object.keys(jt), ...Object.keys(jb)])], S = JSON.stringify;
+  for (const k of keys) {
+    const vb = S(jb[k]), vm = S(jm[k]), vt = S(jt[k]);
+    const v = vm === vb ? jt[k] : vt === vb || vt === vm ? jm[k] : (clashes.push('book-meta.' + k), jm[k]);
+    if (v !== undefined) out[k] = v;
+  }
+  return m.replace(re, (all, a, body, c) => a + JSON.stringify(out, null, 1) + c);
+}
+function clashCopy(page, when) {
+  return page.replace(/^<section([^>]*?)\bid="([^"]*)"([^>]*)>/, (all, a, id, c) =>
+    `<section${a}id="${id}-github"${c} data-clash="github">\n  <div class="cmt" data-by="Sync" data-when="${when}" data-kind="structure">This page was changed on two devices. This copy is the version on GitHub; the page before it is this device's. Keep one and delete the other.</div>`);
+}
+function mergeChapter(base, mine, theirs, when) {
+  const B = chunks(base), M = chunks(mine), T = chunks(theirs), clashes = [];
+  const head = mergeMeta(B.head, M.head, T.head, clashes);
+  const pick = id => {
+    const b = B.map.get(id), m = M.map.get(id), t = T.map.get(id);
+    if (m === t) return m === undefined ? [] : [m];
+    if (m === b) return t === undefined ? [] : [t];          // only GitHub changed it (or deleted it)
+    if (t === b) return m === undefined ? [] : [m];          // only this device changed it (or deleted it)
+    if (m === undefined) return [t];                          // deleted here, edited there: keep the edit
+    if (t === undefined) return [m];                          // edited here, deleted there: keep the edit
+    clashes.push(id); return [m, clashCopy(t, when)];
+  };
+  // this device's order, with pages that are new on GitHub slotted in after the page they follow there
+  const order = M.order.filter(id => !(B.map.has(id) && !T.map.has(id) && M.map.get(id) === B.map.get(id)));
+  T.order.forEach((id, k) => {
+    if (order.includes(id)) return;
+    const fresh = !M.map.has(id) && !B.map.has(id), revived = B.map.has(id) && !M.map.has(id) && T.map.get(id) !== B.map.get(id);
+    if (!fresh && !revived) return;
+    let at = -1; for (let j = k - 1; j >= 0 && at < 0; j--) at = order.indexOf(T.order[j]);
+    order.splice(at + 1, 0, id);
+  });
+  const pages = order.flatMap(id => M.map.has(id) || B.map.has(id) ? pick(id) : [T.map.get(id)]);
+  return { text: [head, ...pages].join('\n\n') + ((/\n+$/.exec(mine) || ['\n'])[0]), clashes };
+}
+// any other file: one side's change wins; both changed: this device's copy wins (reported)
+function mergeOther(base, mine, theirs) {
+  const eq = (a, b) => typeof a === 'string' && typeof b === 'string' ? a === b : false;
+  if (eq(mine, base)) return { data: theirs, clash: false };
+  if (eq(theirs, base) || eq(mine, theirs)) return { data: mine, clash: false };
+  return { data: mine, clash: true };
+}
+
+// ---------------------------------------------------------------- sync
 const OFFLINE_SKIP = /(^|\/)(markup|dist|\.history)\/|\.pdf$/;   // never needed to edit a chapter
+const CORE = p => /^chapters\/[^/]+\/chapter\.html$/.test(p) || p === 'chapters/toc.json';
+let running = null;
+const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
 const Sync = {
   remote: async () => remote(await config()),
-  // Get the remote's listing, then the newest copy of every chapter.html and of every other file this device
-  // already holds. Files edited here are never overwritten; one whose GitHub copy also moved is flagged for merging.
-  async pull(progress) {
+  // Bring this device and GitHub level: get GitHub's newest files, merge them into anything edited here, then send
+  // every edit up as one commit. If someone else pushes in between, start over (GitHub refuses the stale commit).
+  sync(progress, device) {
+    if (running) return running;
+    running = (async () => {
+      try {
+        for (let attempt = 0; ; attempt++) {
+          const r = await Sync.once(progress, device);
+          if (r.pushed !== null || attempt >= 3) return r;
+        }
+      } finally { running = null; }
+    })();
+    return running;
+  },
+  async once(progress, device) {
     const R = await Sync.remote(); if (!R) throw new Error('not signed in');
     const t = await R.tree();
-    await Store.kv('tree', { head: t.head, files: t.files, at: Date.now() });
     const local = Object.fromEntries((await Store.all('files')).map(f => [f.path, f]));
-    const want = [], flagged = [];
+    const fetchList = [], mergeList = [], out = { fetched: 0, merged: [], clashes: [], pushed: 0, failed: 0, head: t.head };
     for (const [path, e] of Object.entries(t.files)) {
       const l = local[path];
-      const core = /^chapters\/[^/]+\/chapter\.html$/.test(path) || path === 'chapters/toc.json';
-      if (l && l.dirty) { if (l.sha !== e.sha) { flagged.push(path); if (l.remoteSha !== e.sha) await Store.put('files', Object.assign(l, { remoteSha: e.sha })); } continue; }
-      if ((l && l.sha !== e.sha) || (!l && core)) want.push([path, e.sha]);
+      if (!l) { if (CORE(path)) fetchList.push([path, e.sha]); continue; }
+      if (l.sha === e.sha) continue;
+      if (l.dirty) mergeList.push([l, e.sha]); else fetchList.push([path, e.sha]);
     }
-    for (const path in local) if (!t.files[path] && !local[path].dirty && local[path].sha) await Store.del('files', path);   // removed on GitHub
-    let done = 0;
-    const errs = await pool(want, 6, async ([p, sha]) => { await fetchFile(R, p, sha); done++; progress && progress(done, want.length); });
-    return { fetched: done, failed: errs.length, flagged, head: t.head };
+    for (const path in local) {
+      const l = local[path];
+      if (t.files[path] || !l.sha) continue;
+      if (!l.dirty) await Store.del('files', path);                       // removed on GitHub
+      else await Store.put('files', Object.assign(l, { sha: null }));     // removed there, edited here: it goes back up
+    }
+    let n = 0; const total = fetchList.length + mergeList.length, tick = () => progress && progress(++n, total);
+    out.failed += (await pool(fetchList, 6, async ([p, sha]) => { await fetchFile(R, p, sha); out.fetched++; tick(); })).length;
+    for (const [l, sha] of mergeList) {
+      const [base, theirs] = await Promise.all([l.sha ? fetchData(R, l.path, l.sha) : '', fetchData(R, l.path, sha)]);
+      const cur = await Store.get('files', l.path);
+      let data, clash;
+      if (/chapter\.html$/.test(l.path) && typeof cur.data === 'string') { const m = mergeChapter(base, cur.data, theirs, stamp()); data = m.text; clash = m.clashes.length ? m.clashes : null; }
+      else { const m = mergeOther(base, cur.data, theirs); data = m.data; clash = m.clash ? ['whole file'] : null; }
+      const still = typeof data === 'string' && typeof theirs === 'string' ? data !== theirs : true;
+      await Store.put('files', Object.assign(cur, { data, sha, dirty: still, rev: cur.rev + 1, t: Date.now() }));
+      out.merged.push(l.path); if (clash) out.clashes.push({ path: l.path, where: clash });
+      tick();
+    }
+    await Store.kv('tree', { head: t.head, treeSha: t.treeSha, files: t.files, at: Date.now() });
+    // send the edits up
+    const dirty = (await Store.all('files')).filter(f => f.dirty);
+    if (!dirty.length || !R.write) { out.pushed = 0; return out; }
+    const entries = [];
+    for (const f of dirty) entries.push({ path: f.path, sha: await R.blob(f.data), rev: f.rev, data: f.data });
+    const names = [...new Set(entries.map(e => (/^chapters\/([^/]+)\//.exec(e.path) || [])[1] || e.path))];
+    const msg = `Edits from ${device || 'the AI2AI editor'}: ${names.join(', ')}\n\n` + entries.map(e => '- ' + e.path).join('\n');
+    const done = await R.commit(t.head, t.treeSha, entries, msg);
+    if (!done) { out.pushed = null; return out; }
+    const files = Object.assign({}, t.files);
+    for (const e of entries) {
+      const cur = await Store.get('files', e.path);
+      files[e.path] = { sha: e.sha, size: typeof e.data === 'string' ? new TextEncoder().encode(e.data).length : e.data.size };
+      // an edit made while this was uploading stays marked, now based on what was just sent
+      await Store.put('files', Object.assign(cur, { sha: e.sha, dirty: cur.rev !== e.rev }));
+    }
+    await Store.kv('tree', { head: done.commit, treeSha: done.tree, files, at: Date.now() });
+    await Store.kv('lastPush', { at: Date.now(), commit: done.commit, files: entries.map(e => e.path) });
+    out.pushed = entries.length; out.head = done.commit;
+    return out;
   },
+  pull(progress, device) { return Sync.sync(progress, device); },
   // Make one chapter fully usable offline: every figure, cached equation and figure script.
   async chapter(ch, progress) {
     const R = await Sync.remote(); const t = await Store.kv('tree'); if (!R || !t) throw new Error('get the latest first');
@@ -158,5 +298,5 @@ const Sync = {
   },
 };
 
-G.AI2AI = { Store, Files, Sync, remote, config, blobSha, mimeOf, isText, OFFLINE_SKIP };
+G.AI2AI = { Store, Files, Sync, remote, config, blobSha, mimeOf, isText, OFFLINE_SKIP, mergeChapter };
 })(typeof self !== 'undefined' ? self : window);

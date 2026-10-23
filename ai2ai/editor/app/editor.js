@@ -27,7 +27,18 @@ $('#view').href = '../view/' + ch;
 // ---------------------------------------------------------------- state: selection, undo, save
 let sel = null, curPage = null, extra = [], blockClip = null;   // sel = the main selected block, extra = the others in a multi-selection
 let cur = '', saved = '', undo = [], redo = [], applying = false, saving = false, conflict = false, held = 0;
-let savedLocal = !!info.offline;
+let savedLocal = !!disk.local, syncing = false, syncErr = '';
+if (info.offline && navigator.serviceWorker) {   // the offline edition: the service worker syncs with GitHub and reports here
+  navigator.serviceWorker.addEventListener('message', e => {
+    const d = e.data || {}; if (d.type !== 'sync') return;
+    syncing = d.state === 'syncing'; syncErr = d.state === 'error' && !d.offline ? d.error : '';
+    if (d.state === 'error' && !d.offline && !d.reply) toast('Could not sync with GitHub: ' + d.error);
+    if (d.result && d.result.clashes && d.result.clashes.length) toast('Merged with changes from another device. Pages changed in both places are kept twice: look for the copy marked "version on GitHub".');
+    setStatus();
+  });
+  const ask = () => { if (navigator.serviceWorker.controller && navigator.onLine && !document.hidden) navigator.serviceWorker.controller.postMessage({ type: 'sync' }); };
+  ask(); setInterval(ask, 60000); addEventListener('online', ask); document.addEventListener('visibilitychange', ask);   // pick up other devices' edits
+}
 if (info.offline) { const home = document.createElement('a'); home.href = '../'; home.className = 'btnlink'; home.textContent = '⌂'; home.title = 'All chapters'; home.style.cssText = 'color:#fff;background:transparent;border-color:rgba(255,255,255,.35)'; $('#bar').prepend(home); }   // the offline edition (service worker) saves to this device; GitHub sync is separate
 
 function prep() {   // make text blocks editable; equations, figures and code are edited from the side panel
@@ -44,9 +55,9 @@ const normalized = cur !== disk.content;   // first save rewrites the file in th
 
 function setStatus() {
   const dirty = cur !== saved;
-  status.textContent = conflict ? (savedLocal ? 'Changed elsewhere' : 'Changed on disk') : saving ? 'Saving…' : dirty ? 'Unsaved' : savedLocal ? '✓ Saved on device' : '✓ Saved';
+  status.textContent = conflict ? (savedLocal ? 'Changed elsewhere' : 'Changed on disk') : saving ? 'Saving…' : dirty ? 'Unsaved' : savedLocal ? (syncing ? 'Syncing…' : '✓ Saved on device') : info.offline ? '✓ Synced' : '✓ Saved';
   status.className = conflict ? 'bad' : saving || dirty ? 'dirty' : 'ok';
-  status.title = conflict ? 'chapter.html changed on disk while you had unsaved edits: choose in the banner' : dirty ? 'Click (or Cmd+S) to save now. Edits also save by themselves about a second after you stop.' : savedLocal ? 'Everything is saved on this device (it reaches GitHub when this device syncs)' : 'Everything is saved to chapter.html';
+  status.title = conflict ? 'chapter.html changed on disk while you had unsaved edits: choose in the banner' : dirty ? 'Click (or Cmd+S) to save now. Edits also save by themselves about a second after you stop.' : savedLocal ? 'Saved on this device. It goes up to GitHub a few seconds after you stop typing, whenever there is a connection' + (syncErr ? ' (last try: ' + syncErr + ')' : '') : info.offline ? 'Saved on this device and on GitHub' : 'Everything is saved to chapter.html';
   $('#undo').disabled = !undo.length; $('#redo').disabled = !redo.length;
 }
 // Chrome types a non-breaking space next to elements and at the ends of text; turn those back into ordinary
@@ -195,12 +206,13 @@ setInterval(async () => {
   if (document.hidden || saving || conflict) return;
   try {
     const d = await (await fetch('../api/stat/' + ch)).json();
+    if ('local' in d && d.local !== savedLocal && !saving && cur === saved) { savedLocal = d.local; setStatus(); }
     if (d.mtime === mtime || saving) return;
     if (cur !== saved) { conflict = true; setStatus(); return showConflict(); }
     const f = await (await fetch('../api/chapter/' + ch)).json();
     mtime = f.mtime;
     const before = cur; apply(f.content, true); saved = cur;
-    if (cur !== before) { undo.push(before); redo = []; setStatus(); toast('Reloaded: chapter.html changed on disk', 'Undo', doUndo); }
+    if (cur !== before) { undo.push(before); redo = []; setStatus(); toast(!info.offline ? 'Reloaded: chapter.html changed on disk' : /data-clash="github"/.test(f.content) ? 'Merged edits from another device. A page changed in both places is kept twice: the copy marked as the GitHub version follows yours.' : 'Updated with edits from another device', 'Undo', doUndo); }
   } catch (e) { /* server down; the save path reports it */ }
 }, 2000);
 

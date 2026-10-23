@@ -38,11 +38,12 @@ $('#go').onclick = async () => {
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo) || !token) return msg('Fill in the repository and the token.');
   $('#go').disabled = true; msg('Checking the token…');
   try {
-    const r = await fetch('https://api.github.com/repos/' + repo, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } });
+    const api = params.get('api') || 'https://api.github.com';
+    const r = await fetch(api + '/repos/' + repo, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } });
     if (!r.ok) throw new Error(r.status === 404 || r.status === 401 ? 'GitHub doesn\'t accept that token for ' + repo + '.' : 'GitHub said ' + r.status + '.');
     const d = await r.json();
     if (d.permissions && !d.permissions.push) msg('Signed in, but this token can only read. Saving back to GitHub will need Contents: Read and write.');
-    cfg = { kind: 'github', repo, token, branch: d.default_branch || 'main' }; await Store.kv('remote', cfg);
+    cfg = { kind: 'github', repo, token, branch: d.default_branch || 'main' }; if (params.get('api')) cfg.api = api; await Store.kv('remote', cfg);
     show(); await pull();
   } catch (e) { msg(e.message); }
   $('#go').disabled = false;
@@ -51,17 +52,30 @@ function msg(t) { $('#msg').textContent = $('#smsg').textContent = t || ''; }
 
 async function when() {
   const t = await Store.kv('tree');
-  $('#when').textContent = t ? 'Latest from GitHub: ' + new Date(t.at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Not downloaded yet';
+  $('#when').textContent = t ? 'Last synced with GitHub: ' + new Date(t.at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }) : 'Not downloaded yet';
 }
 const prog = (d, n) => { const p = $('#prog'); p.hidden = !n; p.max = n || 1; p.value = d; };
+// syncing runs in the service worker (one at a time for the whole app); this page asks it and shows the answer
+function swSync() {
+  const sw = navigator.serviceWorker && navigator.serviceWorker.controller;
+  if (!sw || cfg.kind === 'dev') return Sync.sync(prog, 'this device').then(result => ({ state: 'synced', result }));
+  return new Promise(res => {
+    const on = e => { const d = e.data || {}; if (d.type === 'sync' && d.reply) { navigator.serviceWorker.removeEventListener('message', on); res(d); } };
+    navigator.serviceWorker.addEventListener('message', on); sw.postMessage({ type: 'sync' });
+  });
+}
 async function pull() {
-  if (!navigator.onLine) return msg('Offline: showing what this device already has.');
-  $('#pull').disabled = true; msg('Getting the latest…');
-  try {
-    const r = await Sync.pull(prog);
-    msg((r.fetched ? r.fetched + ' files updated.' : 'Everything is up to date.') + (r.failed ? ' ' + r.failed + ' failed.' : '') +
-      (r.flagged.length ? '\n' + r.flagged.length + ' file(s) changed both here and on GitHub: ' + r.flagged.map(p => p.replace(/^chapters\//, '')).join(', ') + '. They are kept as edited here; merging arrives with syncing.' : ''));
-  } catch (e) { msg('Could not get the latest: ' + e.message); }
+  if (!navigator.onLine) return msg('Offline: edits stay on this device until it syncs.');
+  $('#pull').disabled = true; msg('Syncing with GitHub…');
+  const d = await swSync(), r = d.result || {};
+  if (d.state === 'error') msg('Could not sync: ' + d.error);
+  else msg([
+    r.pushed ? 'Sent ' + r.pushed + (r.pushed === 1 ? ' file' : ' files') + ' to GitHub.' : '',
+    r.fetched ? 'Got ' + r.fetched + (r.fetched === 1 ? ' file' : ' files') + ' from GitHub.' : '',
+    r.merged && r.merged.length ? 'Merged GitHub\'s changes into ' + r.merged.map(p => p.replace(/^chapters\/|\/chapter\.html$/g, '')).join(', ') + '.' : '',
+    r.clashes && r.clashes.length ? 'Changed in both places (both versions kept, the GitHub copy marked): ' + r.clashes.map(c => c.path.replace(/^chapters\/|\/chapter\.html$/g, '') + ' (' + c.where.join(', ') + ')').join('; ') + '.' : '',
+    r.failed ? r.failed + ' files failed to download.' : '',
+  ].filter(Boolean).join('\n') || 'Everything is up to date.');
   prog(0, 0); $('#pull').disabled = false; await when(); await list(); await chips();
 }
 $('#pull').onclick = pull;
@@ -123,6 +137,7 @@ function installHint() {
 }
 
 show(); installHint(); await chips(); await when(); await list();
+if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', async e => { const d = e.data || {}; if (d.type === 'sync' && !d.reply && d.state !== 'syncing') { await when(); await list(); await chips(); } });
 $('#foot').innerHTML = cfg ? `<a href="#" id="out">Sign out</a> · removes the token, keeps chapters and edits on this device` : '';
 if ($('#out')) $('#out').onclick = async e => { e.preventDefault(); if (!confirm('Sign out of GitHub on this device?')) return; await Store.del('kv', 'remote'); cfg = null; show(); $('#foot').textContent = ''; };
 await swReady;
