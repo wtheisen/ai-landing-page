@@ -307,6 +307,17 @@ if ('serviceWorker' in navigator) {   // a new version: reload this page to use 
   fetch('api/info').then(r => r.json()).then(d => { if (d.version) $('#ver').textContent = 'Editor version ' + d.version; }).catch(() => {});
 }
 if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', async e => { const d = e.data || {}; if (d.type === 'sync' && !d.reply && d.state !== 'syncing') { await when(); await list(); await chips(); } });
+// installed app only: the extra space under the status bar (iOS 26's blur, see app/editor.css), switchable for testing.
+// The status-bar inset tells whether this install still draws under the status bar (above 0) or not (0, after reinstalling).
+if (matchMedia('(display-mode: standalone)').matches) {
+  const probe = document.createElement('div'); probe.style.cssText = 'position:absolute;visibility:hidden;padding-top:env(safe-area-inset-top)'; document.body.appendChild(probe);
+  const inset = parseFloat(getComputedStyle(probe).paddingTop) || 0; probe.remove();
+  const on = !document.documentElement.classList.contains('no-topclear');
+  const p = document.createElement('p'); p.className = 'note';
+  p.innerHTML = `Space under the status bar: <b>${on ? 'on' : 'off'}</b> · <a href="#" id="tc">${on ? 'Turn off' : 'Turn on'}</a> · status-bar inset ${Math.round(inset)} pt (${inset > 0 ? 'drawing under the status bar' : 'status bar above the page'})`;
+  $('#ver').before(p);
+  $('#tc').onclick = e => { e.preventDefault(); try { localStorage.setItem('ai2ai-topclear', on ? '0' : '1'); } catch (x) {} location.reload(); };
+}
 $('#foot').innerHTML = cfg ? `<a href="#" id="out">Sign out</a> · removes the token, keeps chapters and edits on this device` : '';
 if ($('#out')) $('#out').onclick = async e => { e.preventDefault(); if (!confirm('Sign out of GitHub on this device?')) return; await Store.del('kv', 'remote'); cfg = null; show(); $('#foot').textContent = ''; };
 await swReady;

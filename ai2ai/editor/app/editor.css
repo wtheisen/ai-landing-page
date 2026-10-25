@@ -3,6 +3,7 @@
    the blur only ever falls on plain navy. --top-clear is that height (just the safe area in a normal browser tab). */
 :root { --top-clear: env(safe-area-inset-top); }
 @media (display-mode: standalone) { :root { --top-clear: calc(env(safe-area-inset-top) + 40px); } }
+html.no-topclear { --top-clear: env(safe-area-inset-top) !important; }   /* the home page's switch: no extra clearance */
 /* Editor chrome around the book pages. Everything here is editor-only; the pages themselves use book.css. */
 html, body.ed { height: 100%; }
 body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13px; }

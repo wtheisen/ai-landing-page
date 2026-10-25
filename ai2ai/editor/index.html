@@ -7,7 +7,10 @@
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#002B5B">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- no apple-mobile-web-app-status-bar-style: without black-translucent iOS paints the status bar itself in the theme
+     colour and the page starts below it (Apple's advice for iOS 26's edge blur, WebKit bug 317153). iOS only reads this
+     when the app is added to the home screen, so an existing install needs removing and adding again. -->
+<script>try { if (localStorage.getItem('ai2ai-topclear') === '0') document.documentElement.classList.add('no-topclear'); } catch (e) {}</script>
 <meta name="apple-mobile-web-app-title" content="AI2AI">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
@@ -19,6 +22,7 @@ body { margin: 0; font: 15px/1.4 Arial, Helvetica, sans-serif; color: var(--ink)
 header { position: sticky; top: 0; z-index: 10; background: var(--navy); color: #fff; padding: calc(14px + var(--top-clear)) 16px 14px; }
 :root { --top-clear: env(safe-area-inset-top); }
 @media (display-mode: standalone) { :root { --top-clear: calc(env(safe-area-inset-top) + 40px); } }   /* clear iOS 26's blur ramp, see app/editor.css */
+html.no-topclear { --top-clear: env(safe-area-inset-top) !important; }   /* the home page's switch: no extra clearance */
 header h1 { margin: 0; font-size: 19px; letter-spacing: .2px; }
 header .sub { font-size: 12.5px; opacity: .75; margin-top: 2px; }
 main { max-width: 980px; margin: 0 auto; padding: 14px 16px calc(28px + env(safe-area-inset-bottom)); }
