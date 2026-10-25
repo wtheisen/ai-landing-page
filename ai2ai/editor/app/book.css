@@ -402,3 +402,15 @@ html.ink-lecture .ink-sub { box-shadow: inset 0 -2px 0 var(--gold, #DCB439); }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown) > * { visibility: visible; opacity: .28; }
   html.ink-ghost .book[data-view="slides"] .qc .ans.ghost-only { display: block; opacity: .35; margin-top: 4pt; }
 }
+
+/* text columns (editor: Columns in a text block's settings) */
+.cols-2 { column-count: 2; column-gap: 18pt; }
+.cols-3 { column-count: 3; column-gap: 14pt; }
+.cols-rule { column-rule: 0.75pt solid var(--border-strong); }
+:is(ul, ol):is(.cols-2, .cols-3) > li { break-inside: avoid; -webkit-column-break-inside: avoid; }
+:is(ul, ol):is(.cols-2, .cols-3) > li.colbreak { break-before: column; -webkit-column-break-before: always; }
+.callout:is(.cols-2, .cols-3) { column-fill: balance; }
+
+/* text wrap around a pinned block with class "wrap": invisible floats at the start of each text block beside it (book.js wrapText) */
+span.wrapf { display: block; pointer-events: none; -webkit-user-select: none; user-select: none; }
+.page > [data-ed-wl] > li { display: flow-root; }   /* list items step clear of a left picture, bullets included */

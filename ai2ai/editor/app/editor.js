@@ -278,7 +278,15 @@ function revealPageRow() {
   const r = li.getBoundingClientRect(), b = ol.getBoundingClientRect();
   if (r.top < b.top || r.bottom > b.bottom) ol.scrollTo({ top: ol.scrollTop + (r.top - b.top) - (b.height - r.height) / 2, behavior: 'smooth' });
 }
+// a pinned block that wraps text: re-flow the text around it whenever it moves or changes size (drag, resize, crop, nudge)
+let wrapKey = '';
+function rewrap() {
+  if (!sel || !sel.isConnected || !sel.classList.contains('wrap') || !Book.isPinned(sel)) return;
+  const k = [sel.parentElement.id, sel.style.left, sel.style.top, sel.offsetWidth, sel.offsetHeight].join();
+  if (k === wrapKey) return; wrapKey = k; Book.wrapText(sel.parentElement);
+}
 function place() {
+  rewrap();
   placeAdders();
   const bar = $('#blockbar'), rsz = $('#rsz');
   if (!sel || !sel.isConnected) { bar.hidden = rsz.hidden = true; $('#rszb').hidden = true; placeCrop(); placeMarkers(); placeRulers(); return; }
@@ -393,7 +401,7 @@ function splitPage(el) {
 function duplicate(el) { commit(true); const c = h(Book.serializeBlock(el)); el.after(c); prep(); select(c); commit(true); Book.refresh(); }
 function togglePin(el) {
   commit(true);
-  if (Book.isPinned(el)) { for (const p of ['position', 'left', 'top', 'width', 'z-index']) el.style.removeProperty(p); if (!el.getAttribute('style')) el.removeAttribute('style'); }
+  if (Book.isPinned(el)) { for (const p of ['position', 'left', 'top', 'width', 'z-index']) el.style.removeProperty(p); if (!el.getAttribute('style')) el.removeAttribute('style'); el.classList.remove('wrap'); }
   else {
     const pg = el.parentElement, s = ptScale(pg), r = el.getBoundingClientRect(), q = pg.getBoundingClientRect();
     el.style.position = 'absolute';
@@ -1218,6 +1226,7 @@ function renderOneInspector() {
     add(`<div class="help">Tab nests an item under the one above; Shift+Tab lifts it back out.</div>`);
     add(`<div class="help">Enter adds an item. The classes below change the look: <code>cases</code> normal, <code>tight</code> small, <code>problems</code> numbered practice problems, <code>roadmap</code> the numbered road map.</div>`);
   } else if (el.classList.contains('qc')) add(`<div class="help">The answer line shows here only. In the web edition it sits behind “Show answer”; in print it is listed on the answers page (wherever the chapter has a quick-check answers block).</div>`);
+  if ((/^(P|DIV|UL|OL)$/.test(el.tagName) && el.isContentEditable && !el.querySelector(':scope > div, :scope > dl')) || /^(UL|OL)$/.test(el.tagName)) columnsControl(el, add);
   add('<hr>');
   if (Book.isPinned(el)) {
     add(`<label>Pinned position (pt from the page's top-left; the page is 432 × 648)</label>`);
@@ -1226,10 +1235,33 @@ function renderOneInspector() {
     const ord = add(`<div class="row"><button data-o="front">To front</button><button data-o="back">To back</button><label class="check" style="margin:0"><input type="checkbox" ${el.style.zIndex === '-1' ? 'checked' : ''}>Behind the text</label></div>`);
     ord.onclick = e => { const o = e.target.dataset.o; if (!o) return; commit(true); const pg = el.parentElement; if (o === 'front') pg.insertBefore(el, pg.querySelector(':scope > svg.overlay, :scope > .foot')); else pg.prepend(el); commit(true); Book.refresh(); place(); };
     ord.querySelector('input').onchange = e => { if (e.target.checked) el.style.zIndex = '-1'; else el.style.removeProperty('z-index'); commit(true); };
+    const wr = add(`<label class="check"><input type="checkbox" ${el.classList.contains('wrap') ? 'checked' : ''}>Wrap text around it</label>`);
+    wr.firstChild.onchange = e => { commit(true); el.classList.toggle('wrap', e.target.checked); if (e.target.checked) el.style.removeProperty('z-index'); wrapKey = ''; Book.wrapText(el.parentElement); commit(true); Book.refresh(); place(); renderInspector(); };
+    if (el.classList.contains('wrap')) add(`<div class="help">Text beside it flows around it, on the side it sits on, and re-flows as you drag or resize it. Wider than the text column leaves too little room: the text then runs under it.</div>`);
     add(`<div class="help">Drag with the ⠿ handle; it snaps to the margins, the centre and other blocks (hold Option to turn snapping off). Arrow keys nudge by 1pt, Shift+arrow by 10pt.</div>`);
   }
   add(`<label>Classes</label>`); const cls = add(`<input type="text" value="${esc(userClass(el))}" spellcheck="false">`);
   cls.onchange = () => { const keep = [...el.classList].filter(c => c.startsWith('ed-')); el.className = [...cls.value.split(/\s+/).filter(Boolean), ...keep].join(' '); commit(true); Book.refresh(); };
+}
+// Columns on a text block (paragraph, note, callout, list): classes cols-2 / cols-3 (+ cols-rule), styled in book.css.
+// The text flows down the first column, then the next. In a list, colbreak on an item starts a new column there.
+function columnsControl(el, add) {
+  const n = el.classList.contains('cols-3') ? 3 : el.classList.contains('cols-2') ? 2 : 1, list = /^(UL|OL)$/.test(el.tagName);
+  add(`<label>Columns</label>`);
+  const row = add(`<div class="row seg">${[1, 2, 3].map(k => `<button data-c="${k}" class="${k === n ? 'on' : ''}">${k}</button>`).join('')}<label class="check" style="margin:0 0 0 8px"><input type="checkbox" ${el.classList.contains('cols-rule') ? 'checked' : ''} ${n === 1 ? 'disabled' : ''}>Line between</label></div>`);
+  row.onclick = e => {
+    const k = +e.target.dataset.c; if (!k || k === n) return;
+    commit(true); el.classList.remove('cols-2', 'cols-3'); if (k > 1) el.classList.add('cols-' + k); else { el.classList.remove('cols-rule'); el.querySelectorAll('li.colbreak').forEach(li => li.classList.remove('colbreak')); }
+    commit(true); Book.refresh(); place(); renderInspector();
+  };
+  row.querySelector('input').onchange = e => { commit(true); el.classList.toggle('cols-rule', e.target.checked); commit(true); Book.refresh(); };
+  if (n > 1 && list) {
+    const caretLi = () => { const a = getSelection().anchorNode; const li = a && (a.nodeType === 1 ? a : a.parentElement).closest('li'); return li && el.contains(li) ? li : null; };
+    const b = add(`<div class="row"><button title="Put the caret in an item first">Start a new column at this item</button></div>`).firstChild;
+    b.onmousedown = e => e.preventDefault();   // keep the caret where it is
+    b.onclick = () => { const li = caretLi(); if (!li) return toast('Click in a list item first'); commit(true); li.classList.toggle('colbreak'); commit(true); Book.refresh(); place(); };
+    add(`<div class="help">Items flow down the first column, then the next. Click in an item and press the button to start the next column there (press again to undo).</div>`);
+  } else if (n > 1) add(`<div class="help">The text flows down the first column, then into the next, with the columns about level. For separate blocks side by side, pin them instead.</div>`);
 }
 function pageInspector() {
   const pg = curPage; if (!pg) { insp.innerHTML = '<h4>Nothing selected</h4><div class="help">Click a block to select it, or a page to see its settings.</div>' + HELP; return; }

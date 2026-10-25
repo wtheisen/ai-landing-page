@@ -373,6 +373,59 @@ Book.inView = (el, v) => {
   if (Book.hasKeys && top && el.tagName === 'P' && !el.querySelector('.key')) return false;   // in a chapter with key sentences, a paragraph without one is reading only
   return true;
 };
+// Text wrap: a pinned block with class "wrap" pushes aside the text of the flow blocks beside it. Each text block it
+// overlaps gets an invisible float at its start (span.wrapf, data-rt so it's never saved), one per side, sized in pt and
+// shaped with shape-outside so it starts level with the picture: the browser itself reflows the lines, so editing,
+// printing and the published page all keep working. Two pictures on the same side of a block merge into one float.
+// A list beside a left picture gets data-ed-wl (book.css: its items avoid the float, so the bullets move with the text).
+// Runs top to bottom, measuring as it goes, since a block that grows pushes the next one down.
+const TEXTY = /^(p|ul|ol|h[1-6]|div|aside|blockquote)$/, WRAP_PAD = 8, WRAP_MIN = 72;   // pt: gap around a picture, narrowest text column worth wrapping into
+function wrapFloat(el, side, w, t, h) {
+  const f = document.createElement('span');
+  f.className = 'wrapf'; f.setAttribute('data-rt', ''); f.setAttribute('contenteditable', 'false'); f.setAttribute('aria-hidden', 'true'); f.dataset.side = side;
+  f.style.cssText = `float:${side};width:${w.toFixed(1)}pt;height:${Math.max(1, h).toFixed(1)}pt;margin-top:${t.toFixed(1)}pt;shape-outside:inset(${t.toFixed(1)}pt 0 0 0)`;
+  el.prepend(f); return f;
+}
+Book.wrapText = pg => {
+  pg.querySelectorAll(':scope > * > span.wrapf').forEach(f => f.remove());
+  pg.querySelectorAll(':scope > [data-ed-wl]').forEach(el => el.removeAttribute('data-ed-wl'));
+  const wraps = [...pg.children].filter(el => el.classList.contains('wrap') && Book.isPinned(el) && Book.inView(el));
+  if (!wraps.length) return false;
+  const r = pg.getBoundingClientRect(); if (!r.width) return false;
+  const s = r.width / 432, P = q => ({ l: (q.left - r.left) / s, r: (q.right - r.left) / s, t: (q.top - r.top) / s, b: (q.bottom - r.top) / s });
+  const W = wraps.map(w => { const q = P(w.getBoundingClientRect()); return { l: q.l - WRAP_PAD, r: q.r + WRAP_PAD, t: q.t - WRAP_PAD, b: q.b + WRAP_PAD }; }).filter(o => o.b > o.t + WRAP_PAD);
+  for (const el of pg.children) {
+    if (!TEXTY.test(el.localName) || Book.isPinned(el) || el.hasAttribute('data-rt') || el.classList.contains('foot') || el.classList.contains('cmt') || el.classList.contains('cover-text') || !Book.inView(el) || !el.textContent.trim()) continue;
+    const q = el.getBoundingClientRect(); if (!q.height) continue;
+    const b = P(q), mid = (b.l + b.r) / 2, sides = {};
+    for (const o of W) {
+      if (!(o.t < b.b && o.b > b.t && o.r > b.l && o.l < b.r)) continue;
+      const side = (o.l + o.r) / 2 < mid ? 'left' : 'right', width = side === 'left' ? o.r - b.l : b.r - o.l, u = sides[side];
+      sides[side] = u ? { w: Math.max(u.w, width), t: Math.min(u.t, o.t), b: Math.max(u.b, o.b) } : { w: width, t: o.t, b: o.b };
+    }
+    const col = b.r - b.l, total = (sides.left ? sides.left.w : 0) + (sides.right ? sides.right.w : 0);
+    if (!sides.left && !sides.right) continue;
+    if (col - total < WRAP_MIN) {   // not enough room for both: keep the narrower picture's wrap, if that one alone leaves room
+      const keep = ['left', 'right'].filter(k => sides[k] && col - sides[k].w >= WRAP_MIN).sort((x, y) => sides[x].w - sides[y].w)[0];
+      for (const k of ['left', 'right']) if (k !== keep) delete sides[k];
+      if (!keep) continue;
+    }
+    const fl = {};
+    for (const k of ['left', 'right']) if (sides[k]) { const o = sides[k], t = Math.max(0, o.t - b.t); fl[k] = { f: wrapFloat(el, k, o.w, t, o.b - b.t - t), t, b: o.b }; }
+    if (fl.left && /^(ul|ol)$/.test(el.localName)) el.setAttribute('data-ed-wl', '');
+    // a block whose text ends beside a picture shouldn't be stretched to the picture's bottom: trim each float to its last line
+    const rg = document.createRange(); rg.selectNodeContents(el);
+    let tb = 0; for (const c of rg.getClientRects()) if (c.height && c.width) tb = Math.max(tb, (c.bottom - r.top) / s);
+    const top = (el.getBoundingClientRect().top - r.top) / s;
+    for (const k in fl) {
+      const { f, t, b: bot } = fl[k];
+      if (tb - top <= t + 0.5) f.remove();
+      else if (tb < bot) f.style.height = Math.max(1, tb - top - t).toFixed(1) + 'pt';
+    }
+    if (!el.querySelector(':scope > span.wrapf[data-side="left"]')) el.removeAttribute('data-ed-wl');
+  }
+  return true;
+};
 Book.refreshSoon = () => { if (!soon) soon = setTimeout(() => { soon = 0; if (Book.root) Book.refresh(); }, 60); };
 Book.refresh = () => {
   const root = Book.root, pages = Book.pages(), num = {}, title = Book.meta.title || '';
@@ -427,6 +480,7 @@ Book.refresh = () => {
     if (pg.classList.contains('cover')) return;
     const r = pg.getBoundingClientRect(); if (!r.width) return;
     const s = r.width / 432, cur = parseFloat(pg.style.getPropertyValue('--gap')) || 10;
+    const wraps = Book.wrapText(pg);
     let bottom = 0, right = 0, n = 0, joined = 0, pinBottom = 0;
     for (const el of pg.children) {
       if (el.hasAttribute('data-rt') || el.classList.contains('web-only') || el.classList.contains('overlay') || el.classList.contains('ink') || !Book.inView(el)) continue;   // svg.ink: the pen layer covers the whole page
@@ -440,7 +494,7 @@ Book.refresh = () => {
     let gap = cur;
     if (!Book.freezeGaps) {
       gap = free > 6 && gaps > 0 ? +(10 + Math.min(free / gaps, 12)).toFixed(1) : 10;
-      if (Math.abs(gap - cur) > 0.05) { if (gap === 10) pg.style.removeProperty('--gap'); else pg.style.setProperty('--gap', gap + 'pt'); }
+      if (Math.abs(gap - cur) > 0.05) { if (gap === 10) pg.style.removeProperty('--gap'); else pg.style.setProperty('--gap', gap + 'pt'); if (wraps) Book.wrapText(pg); }   // blocks moved: re-place the wrap floats
     }
     const end = Math.round(Math.max(base + gaps * (gap - 10), pinBottom)), over = end > 622 || Math.round(right) > 409;
     pg.classList.toggle('over', over);
