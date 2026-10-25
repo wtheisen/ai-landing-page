@@ -7,8 +7,10 @@
 <style>
 @font-face { font-family: 'Inconsolata LGC'; src: url(../kit/fonts/Inconsolata-LGC.ttf) format('truetype'); font-weight: 400; }
 @font-face { font-family: 'Inconsolata LGC'; src: url(../kit/fonts/Inconsolata-LGC-Bold.ttf) format('truetype'); font-weight: 700; }
-.navbar { padding-top: calc(10px + env(safe-area-inset-top)); padding-left: calc(15px + env(safe-area-inset-left)); padding-right: calc(15px + env(safe-area-inset-right)); }   /* installed app on a phone: clear the status bar */
-@media (display-mode: standalone) { .navbar { position: sticky; top: 0; z-index: 20; } }   /* iOS 26 blurs an installed app's top edge unless a sticky, opaque, full-width bar sits there */
+:root { --top-clear: env(safe-area-inset-top); }
+@media (display-mode: standalone) { :root { --top-clear: calc(env(safe-area-inset-top) + 40px); } }   /* clear iOS 26's blur ramp, see editor.css */
+body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15px + env(safe-area-inset-left)); padding-right: calc(15px + env(safe-area-inset-right)); }   /* installed app on a phone: clear the status bar (body: book.css loads after this and sets .navbar's padding) */
+@media (display-mode: standalone) { body .navbar { position: sticky; top: 0; z-index: 20; } }   /* iOS 26 blurs an installed app's top edge unless a sticky, opaque, full-width bar sits there */
 </style>
 <link rel="stylesheet" href="../app/book.css">
 </head>

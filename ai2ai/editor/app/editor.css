@@ -1,3 +1,8 @@
+/* iOS 26 draws a blur ramp over the top ~40pt below the status bar of an installed web app, and no CSS or meta tag turns it
+   off (WebKit bug 317153). So in an installed app the bar's navy reaches down past the ramp before any text or buttons start:
+   the blur only ever falls on plain navy. --top-clear is that height (just the safe area in a normal browser tab). */
+:root { --top-clear: env(safe-area-inset-top); }
+@media (display-mode: standalone) { :root { --top-clear: calc(env(safe-area-inset-top) + 40px); } }
 /* Editor chrome around the book pages. Everything here is editor-only; the pages themselves use book.css. */
 html, body.ed { height: 100%; }
 body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13px; }
@@ -10,7 +15,7 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 
 /* fixed + opaque + full width at the top edge: what makes iOS 26 skip its blur over an installed app's top edge (sticky
    isn't enough here, because the page itself never scrolls). #bar-space keeps its place in the layout. */
-#bar { position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 4px; background: var(--navy); color: #fff; padding: calc(5px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 5px calc(10px + env(safe-area-inset-left)); }
+#bar { position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 4px; background: var(--navy); color: #fff; padding: calc(5px + var(--top-clear)) calc(10px + env(safe-area-inset-right)) 5px calc(10px + env(safe-area-inset-left)); }
 #bar .title { font-weight: 700; font-size: 15px; margin-right: 8px; }
 #bar .grp { display: flex; align-items: center; gap: 3px; padding: 0 8px; border-left: 1px solid rgba(255,255,255,.25); }
 #bar .lbl { font-size: 11px; opacity: .75; margin-right: 2px; }
@@ -397,7 +402,7 @@ textarea.ed-code::selection { background: rgba(17, 85, 204, .25); color: transpa
 
 /* ---------------------------------------------------------------- phone (body.phone, set by editor.js under 760px) */
 body.phone { font-size: 15px; }
-.phone #bar { flex-wrap: wrap; padding: calc(4px + env(safe-area-inset-top)) 6px 4px; gap: 4px; row-gap: 6px; }
+.phone #bar { flex-wrap: wrap; padding: calc(4px + var(--top-clear)) 6px 4px; gap: 4px; row-gap: 6px; }
 .phone #bar > * { display: none; }
 .phone #bar > #home, .phone #bar > #title-btn, .phone #bar > #status, .phone #bar > #ph-tools, .phone #bar > #x-review { display: inline-flex; align-items: center; }
 .phone #bar > [hidden] { display: none !important; }
@@ -424,7 +429,7 @@ body.phone { font-size: 15px; }
 .phone #styles button { min-height: 36px; min-width: 36px; flex: none; }
 .phone #styles .dot { width: 30px; height: 30px; min-width: 30px; padding: 0; }
 /* side panels slide in over the page */
-.phone #side, .phone #insp { position: fixed; top: 0; bottom: 0; z-index: 70; width: min(86vw, 340px); box-shadow: 0 0 24px rgba(0,0,0,.3); padding-top: env(safe-area-inset-top); }
+.phone #side, .phone #insp { position: fixed; top: 0; bottom: 0; z-index: 70; width: min(86vw, 340px); box-shadow: 0 0 24px rgba(0,0,0,.3); padding-top: var(--top-clear); }
 .phone #side { left: 0; } .phone #insp { right: 0; }
 .phone.no-side #side, .phone.no-insp #insp { display: none; }
 .phone .edgetab { width: 26px; height: 54px; font-size: 18px; z-index: 65; opacity: .85; }

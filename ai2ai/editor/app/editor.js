@@ -11,7 +11,7 @@ const gsizer = document.createElement('div'), gworld = document.createElement('d
 book.before(gsizer); gsizer.append(gworld); gworld.append(book);
 const glabels = document.createElement('div'); glabels.id = 'glabels'; gsizer.before(glabels);   // column names, kept at the top of the canvas
 { const sp = document.createElement('div'); sp.id = 'bar-space'; $('#bar').after(sp); const fit = () => { sp.style.height = $('#bar').offsetHeight + 'px'; };   // the bar is position: fixed (see editor.css): hold its place
-  fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe($('#bar')); else addEventListener('resize', fit); }
+  fit(); if (window.ResizeObserver) new ResizeObserver(fit).observe($('#bar'), { box: 'border-box' }); else addEventListener('resize', fit); }   // border-box: padding changes (the top clearance) count too
 const esc = Book.esc;
 const h = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
 const NOEDIT = /^(B-EQ|B-FIG|B-CODE|B-OUT|B-ANSWERS|B-TOC|B-EMBED|FIGURE|IMG|HR|SVG)$/i;
