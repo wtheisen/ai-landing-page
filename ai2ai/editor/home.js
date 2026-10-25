@@ -1,7 +1,7 @@
 // The editor's home page: sign in, get the latest chapters, choose what's kept for offline use, open a chapter.
 (async function () {
 'use strict';
-const { Store, Files, Sync } = window.AI2AI;
+const { Store, Files, Sync, mimeOf } = window.AI2AI;
 const $ = s => document.querySelector(s), esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const params = new URLSearchParams(location.search);
 
@@ -130,7 +130,7 @@ async function list() {
     const c = chapters[it.slug], [have, need] = await Sync.coverage(it.slug), full = need && have >= need;
     const href = encodeURIComponent(it.slug);
     return `<div class="book" data-key="${esc(it.key)}" data-slug="${esc(it.slug)}">
-      <a class="cv" href="edit/${href}" draggable="false">${c.art ? `<span class="cv-art"><img src="c/${href}/${esc(c.art)}" alt="" loading="lazy" draggable="false" onerror="this.parentNode.classList.add('none')"></span>` : '<span class="cv-art none"></span>'}
+      <a class="cv" href="edit/${href}" draggable="false">${c.art ? `<span class="cv-art" data-art="chapters/${esc(it.slug)}/${esc(c.art)}"><img alt="" draggable="false"${arts[`chapters/${it.slug}/${c.art}`] ? ` src="${arts[`chapters/${it.slug}/${c.art}`]}"` : ''}></span>` : '<span class="cv-art none"></span>'}
         <span class="cv-text"><span class="kicker">${esc(num)}</span><span class="cv-title">${esc(c.title)}</span><span class="rule"></span></span></a>
       <div class="meta">${c.dirty ? '<span class="edited">Edited here</span>' : ''}<span class="off ${full ? 'full' : ''}">${full ? 'Offline ✓' : need ? `<a href="#" data-dl="${esc(it.slug)}">Download</a> ${have}/${need}` : ''}</span></div>
       <div class="acts"><a class="btn" href="view/${href}">Read</a><a class="btn" href="edit/${href}">Edit</a></div></div>`;
@@ -146,6 +146,7 @@ async function list() {
     html += '</div>';
   }
   $('#list').innerHTML = html;
+  covers();
   if ($('#tg-planned')) $('#tg-planned').onclick = () => { showPlanned = !showPlanned; try { localStorage.setItem('ai2ai-planned', showPlanned ? '1' : '0'); } catch (e) { /* no storage */ } list(); };
   $('#list').querySelectorAll('[data-dl]').forEach(a => a.onclick = async e => {
     e.preventDefault(); e.stopPropagation(); const s = a.dataset.dl; a.textContent = 'Downloading…';
@@ -153,6 +154,26 @@ async function list() {
     prog(0, 0); await list(); await chips();
   });
 }
+
+// cover art: read from this device's store, or fetched from GitHub once and kept (Sync.file), shown as a blob URL.
+// (Not through the service worker's c/ route, so it works whichever version of the worker is in charge.)
+const arts = {};   // repo path -> object URL, kept across redraws
+async function covers() {
+  const todo = [...$('#list').querySelectorAll('.cv-art[data-art]')].filter(el => !arts[el.dataset.art]);
+  await pool(todo, 4, async el => {
+    const path = el.dataset.art;
+    try {
+      const f = await Sync.file(path);
+      if (!f) throw new Error('not on this device and not on GitHub');
+      const blob = typeof f.data === 'string' ? new Blob([f.data], { type: mimeOf(path) }) : (f.data.type ? f.data : new Blob([f.data], { type: mimeOf(path) }));
+      arts[path] = arts[path] || URL.createObjectURL(blob);
+    } catch (e) { console.warn('cover art', path, e); arts[path] = null; }
+    document.querySelectorAll(`.cv-art[data-art="${CSS.escape(path)}"]`).forEach(x => {
+      if (arts[path]) x.querySelector('img').src = arts[path]; else x.classList.add('none');
+    });
+  });
+}
+async function pool(items, n, fn) { let k = 0; await Promise.all(Array.from({ length: n }, async () => { while (k < items.length) await fn(items[k++]); })); }
 
 // ---------------------------------------------------------------- drag to reorder
 // Mouse: drag after a few pixels. Touch and pen: press and hold, then drag (a plain swipe still scrolls).
