@@ -208,6 +208,15 @@ let eqActive = 0; const eqWaiting = [];   // at most 3 render requests at once, 
 const eqSlot = () => new Promise(res => { const go = () => { eqActive++; res(() => { eqActive--; const n = eqWaiting.shift(); if (n) n(); }); }; if (eqActive < 3) go(); else eqWaiting.push(go); });
 const texOf = el => el.textContent.split('\n').map(l => l.trim()).filter(Boolean).join('\n');
 Book.texOf = texOf;
+// equations typeset in the browser (Book.mathml: set where there is no TeX, i.e. the hosted editor): Temml + eqml.js,
+// loaded on first use
+let eqmlP = null;
+function loadEqML() {
+  if (window.EqML && window.temml) return Promise.resolve();
+  return eqmlP || (eqmlP = Promise.all(['../app/temml.min.js', '../app/eqml.js'].map(src => new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('could not load ' + src)); document.head.appendChild(s);
+  }))).then(() => { EqML.addFonts(); }).catch(e => { eqmlP = null; throw e; }));
+}
 class BEq extends HTMLElement {
   connectedCallback() { if (inThumb(this)) return; lock(this); this.render(); }
   rows() {
@@ -223,10 +232,13 @@ class BEq extends HTMLElement {
     const url = Book.url('eq/' + key + '.svg');
     this.classList.add('busy');
     const done = async () => {
-      let err = '';
+      let err = '', html = '';
       try {
         let ok = (await fetch(url, { method: 'HEAD' })).ok;
-        if (!ok && Book.api) {
+        if (!ok && Book.mathml) {   // no TeX on this device: typeset it here (eqml.js), no image needed
+          try { await loadEqML(); if (this._key !== key) return; html = EqML.render(rows, Book.meta.colors || {}); }
+          catch (e) { err = 'TeX: ' + String(e.message || e).replace(/^ParseError:\s*/, ''); }
+        } else if (!ok && Book.api) {
           const release = await eqSlot();
           try {
             if (this._key !== key) return;
@@ -236,12 +248,16 @@ class BEq extends HTMLElement {
         } else if (!ok) err = 'equation image missing';
       } catch (e) { err = String(e.message || e); }
       if (this._key !== key) return;
-      this.querySelectorAll(':scope > [data-rt]').forEach(n => { if (err || n.tagName !== 'IMG') n.remove(); });
+      this.querySelectorAll(':scope > [data-rt]').forEach(n => { if (err || html || n.tagName !== 'IMG') n.remove(); });
       this.classList.remove('busy');
       this.classList.toggle('bad', !!err);
       this.error = err;
       if (err) {
         const d = document.createElement('div'); d.className = 'eq-err'; d.setAttribute('data-rt', ''); d.textContent = err; this.append(d);
+      } else if (html) {
+        const d = document.createElement('div'); d.className = 'eq-ml'; d.setAttribute('data-rt', ''); d.setAttribute('contenteditable', 'false'); d.innerHTML = html; this.append(d);
+        this.querySelectorAll(':scope > eq-row[label]').forEach(r => { const a = document.createElement('a'); a.id = 'eq-' + r.getAttribute('label'); a.setAttribute('data-rt', ''); this.prepend(a); });
+        if (document.fonts) await document.fonts.ready;   // the math font changes the size: measure pages after it has loaded
       } else {
         const old = this.querySelector(':scope > img[data-rt]');
         const img = document.createElement('img'); img.setAttribute('data-rt', ''); img.alt = rows.map(r => r[r.length - 1]).join('; ');

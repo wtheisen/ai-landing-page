@@ -20,7 +20,7 @@ if (phone) document.body.classList.add('phone');
 
 Book.mode = 'edit'; Book.chapter = ch; Book.base = '../c/' + ch + '/';
 const info = await (await fetch('../api/info')).json();
-Book.kit = info.kit;
+Book.kit = info.kit; Book.mathml = !!info.offline;   // no TeX on this device: equations are typeset in the browser
 let disk = await (await fetch('../api/chapter/' + ch)).json();
 let mtime = disk.mtime;
 Book.load(book, disk.content);

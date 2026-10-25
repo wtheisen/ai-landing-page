@@ -414,3 +414,14 @@ html.ink-lecture .ink-sub { box-shadow: inset 0 -2px 0 var(--gold, #DCB439); }
 /* text wrap around a pinned block with class "wrap": invisible floats at the start of each text block beside it (book.js wrapText) */
 span.wrapf { display: block; pointer-events: none; -webkit-user-select: none; user-select: none; }
 .page > [data-ed-wl] > li { display: flow-root; }   /* list items step clear of a left picture, bullets included */
+
+/* equations typeset in the browser (eqml.js): laid out like the TeX images (kit/preamble_mathfont.tex) */
+b-eq > .eq-ml { display: inline-block; vertical-align: middle; max-width: 100%; overflow-x: auto; }
+.eqml { display: grid; grid-template-columns: 3.6em auto; column-gap: 0.5em; row-gap: 5.6pt; align-items: center; font-size: 16pt; line-height: 1.2; color: #000; }
+.eqml math { font-family: 'AI2AI Math', math; font-size: 16pt; }
+.eqml mtext { font-family: 'Inconsolata LGC', 'AI2AI Math', monospace; }
+.eqml-n { color: #666; font-family: 'AI2AI Math', math; white-space: nowrap; }
+.eqml-note { font: 9.6pt/1.2 Arial, Helvetica, sans-serif; color: #666; margin-bottom: 1pt; }
+.eqml-s { padding-left: 0.6em; font-size: 12pt; display: flex; align-items: baseline; gap: 0.5em; }
+.eqml-s math { font-size: 12pt; }
+.eqml-arrow { color: #666; font-family: 'AI2AI Math', math; }
