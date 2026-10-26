@@ -452,10 +452,11 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
     cross = crossFrame(ev.clientX, ev.clientY);
     if (cross) {   // over the other document's column: it shows where the copy would go
       crossOver(cross, ev.clientX, ev.clientY); drop.hidden = gx.hidden = gy.hidden = true; target = null;
+      if (!ghost) { ghost = dragGhost(group); moveGhost(ghost, ev.clientX - (x0 - r0.left), ev.clientY - (y0 - r0.top)); }   // crossing into the other document turns the move into a copy: a copy follows the pointer
       el.classList.remove('ed-dragging'); showBadge('Copy to the ' + (docOf(cross.v) === 'lecture' ? 'Lecture' : 'Reading'), ev.clientX, ev.clientY);
       if (pinned) { el.style.left = origin[0]; el.style.top = origin[1]; mates.forEach(([b, l, t]) => { b.style.left = l + 'pt'; b.style.top = t + 'pt'; }); place(); }
       return;
-    } else if (crossTo) { crossLeave(); hideBadge(); if (!copyMode) el.classList.add('ed-dragging'); }
+    } else if (crossTo) { crossLeave(); hideBadge(); if (!copyMode) { el.classList.add('ed-dragging'); if (ghost) { ghost.remove(); ghost = null; } } }   // back in this document: a move again
     const under = document.elementsFromPoint(ev.clientX, ev.clientY).find(n => n.matches && n.matches('section.page'));
     if (pinned) {
       const pg = el.parentElement, s = ptScale(pg), q = pg.getBoundingClientRect();
@@ -534,7 +535,6 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
   window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true); window.addEventListener('pointercancel', cancel, true);
 }
 $('#grip').addEventListener('pointerdown', e => { if (sel) { e.preventDefault(); startDrag(e, sel); } });
-$('#cgrip').addEventListener('pointerdown', e => { if (sel) { e.preventDefault(); startDrag(e, sel, true); } });   // copy-drag: the original never moves
 book.addEventListener('pointerdown', e => { const b = blockOf(e.target); if (e.target.closest && e.target.closest('.ed-code, .ed-coderun')) return; if (b && NOEDIT.test(b.tagName) && e.button === 0 && !(e.shiftKey || e.metaKey || e.ctrlKey)) { if (!(extra.length && allSel().includes(b))) select(b); if (e.pointerType !== 'touch') startDrag(e, b); } });
 $('#rsz').addEventListener('pointerdown', e => {
   if (!sel) return; e.preventDefault(); commit(true);
