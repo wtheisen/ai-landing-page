@@ -272,20 +272,26 @@ class BEq extends HTMLElement {
     return this._done = track(done());
   }
 }
+// marks="3:4-18:gold 7:0-9:blue": a tinted box behind part of a line (1-based line, 0-based columns).
+// The kind "fill" (3:8-20:fill) is a fill-in blank: plain code when reading, an underline to write on in the Lecture
+// and Workbook (u.fill, like blanks in text: faint for the signed-in instructor, a real gap in the exported Workbook).
+function codeMarks(attr) {
+  const marks = {};
+  (attr || '').split(/[\s;]+/).forEach(m => { const q = /^(\d+):(\d+)-(\d+)(?::(\w+))?$/.exec(m); if (q) (marks[q[1] - 1] = marks[q[1] - 1] || []).push([+q[2], +q[3], q[4] || 'gold']); });
+  return (l, k) => {
+    if (!marks[k]) return highlight(l);
+    let out = '', at = 0;
+    for (const [a, b, c] of marks[k].sort((x, y) => x[0] - y[0])) { if (a < at || b <= a) continue; const inner = highlight(l.slice(a, b)); out += highlight(l.slice(at, a)) + (c === 'fill' ? `<u class="fill">${inner}</u>` : `<mark class="${c}">${inner}</mark>`); at = b; }
+    return out + highlight(l.slice(at));
+  };
+}
+Book.codeMarks = codeMarks;
 class BCode extends HTMLElement {
   connectedCallback() { if (inThumb(this)) return; lock(this); if (!this.hasAttribute('data-src')) this.setAttribute('data-src', rawText(this)); this.render(); }
   get src() { return this.getAttribute('data-src') || ''; }
   set src(v) { this.setAttribute('data-src', v); this.render(); Book.refreshSoon(); }
   render() {
-    const lines = this.src.split('\n'), marks = {};
-    // marks="3:4-18:gold 7:0-9:blue": a tinted box behind part of a line (1-based line, 0-based columns)
-    (this.getAttribute('marks') || '').split(/[\s;]+/).forEach(m => { const q = /^(\d+):(\d+)-(\d+)(?::(\w+))?$/.exec(m); if (q) (marks[q[1] - 1] = marks[q[1] - 1] || []).push([+q[2], +q[3], q[4] || 'gold']); });
-    const line = (l, k) => {
-      if (!marks[k]) return highlight(l);
-      let out = '', at = 0;
-      for (const [a, b, c] of marks[k].sort((x, y) => x[0] - y[0])) { if (a < at || b <= a) continue; out += highlight(l.slice(at, a)) + `<mark class="${c}">${highlight(l.slice(a, b))}</mark>`; at = b; }
-      return out + highlight(l.slice(at));
-    };
+    const lines = this.src.split('\n'), line = codeMarks(this.getAttribute('marks'));
     // "#~ name" at the end of a line links it to the piece of the paired equation marked \lk{name}{…} (hidden here)
     const lk = lines.map(l => /\s*#~\s*([\w-]+(?:[\s,]+[\w-]+)*)\s*$/.exec(l));
     const shown = lines.map((l, k) => lk[k] ? l.slice(0, lk[k].index) : l);
@@ -797,6 +803,7 @@ function eaiRunCode() {
   }
   function source(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return l.textContent.replace(/ /g, ' '); }).join('\n'); }
   [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
+    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading') return;   // blanks in the Lecture/Workbook: no Run
     if (block._run) return; block._run = true;
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
@@ -866,7 +873,8 @@ Book.snapshot = async () => {
   live.forEach(el => el.removeAttribute('data-box'));
   if (view !== 'reading') {   // content that is not in this edition is left out of the file, not just hidden
     clone.querySelectorAll('[data-view]').forEach(n => { if (!Book.inView(n, view)) n.remove(); });
-    if (view === 'slides') clone.querySelectorAll('.qc .ans').forEach(n => n.classList.add('ghost-only'));   // kept for the instructor's faint crib (ink.js)
+    if (view === 'slides') clone.querySelectorAll('.qc .ans').forEach(n => n.classList.add('ghost-only'));
+    clone.querySelectorAll('b-code').forEach(c => { if (c.querySelector('u.fill')) c.setAttribute('norun', ''); });   // code with blanks: no Run (its output would give the answers away)   // kept for the instructor's faint crib (ink.js)
     clone.querySelectorAll(view === 'slides' ? '.aside:not([data-view]), .qc details, b-answers:not([data-view])' : '.aside:not([data-view]), .qc .ans, .qc details, b-answers:not([data-view])').forEach(n => n.remove());
     if (Book.hasKeys) clone.querySelectorAll('.page > p:not([data-view])').forEach(pp => {   // a paragraph becomes its key sentences
       const keys = [...pp.querySelectorAll('.key')]; if (!keys.length) return pp.remove();
