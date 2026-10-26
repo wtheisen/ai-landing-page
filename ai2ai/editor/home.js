@@ -133,7 +133,7 @@ async function list() {
       <a class="cv" href="edit/${href}" draggable="false">${c.art ? `<span class="cv-art" data-art="chapters/${esc(it.slug)}/${esc(c.art)}"><img alt="" draggable="false"${arts[`chapters/${it.slug}/${c.art}`] ? ` src="${arts[`chapters/${it.slug}/${c.art}`]}"` : ''}></span>` : '<span class="cv-art none"></span>'}
         <span class="cv-text"><span class="kicker">${esc(num)}</span><span class="cv-title">${esc(c.title)}</span><span class="rule"></span></span></a>
       <div class="meta">${c.dirty ? '<span class="edited">Edited here</span>' : ''}<span class="off ${full ? 'full' : ''}">${full ? 'Offline ✓' : need ? `<a href="#" data-dl="${esc(it.slug)}">Download</a> ${have}/${need}` : ''}</span></div>
-      <div class="acts"><a class="btn" href="view/${href}">Read</a><a class="btn" href="edit/${href}">Edit</a></div></div>`;
+      <div class="acts"><a class="btn" href="view/${href}">Read</a><a class="btn" href="edit/${href}">Edit</a><a class="btn lect" href="view/${href}?view=slides&lecture=1" title="Teach from this device: the Lecture with the pen in hand and the faint answers hidden (safe to mirror to the projector)">Lecture</a><a class="ans" href="view/${href}?view=slides&lecture=answers" title="For a second screen: the Lecture with the faint answers showing">answers</a></div></div>`;
   };
   for (const u of units) {
     html += `<div class="unit"><span class="un">${esc(u.n)}</span>${esc(u.title)}</div><div class="grid" data-unit="${esc(u.n)}">`;

@@ -312,7 +312,12 @@ function eaiInk(opts) {
             function (err) { if (err.status === 401) store(KEY_TOKEN, ''); msg('Not published: ' + err.message); });
   }
 
+  // ?lecture=1 (the editor home's Lecture button): teaching from this device, so the faint answers are off (Present)
+  // and the pen is in hand. ?lecture=answers (its Answers link): the crib for a second screen, faint answers on.
+  var LECT = (location.search.match(/[?&]lecture=(\w+)/) || [])[1];
+  if (LECT === '1') store('eai-ink-ghost', false); else if (LECT === 'answers') store('eai-ink-ghost', true);
   ghost(); render(); buildBar(); navbar();
+  if (LECT === '1') start();
   if (/(^|[#&])teach\b/.test(location.hash)) { start(); setupTeacher(); }
   else if (/(^|[#&])(lecture|pen)\b/.test(location.hash)) start();
   addEventListener('keydown', function (e) {
