@@ -2083,6 +2083,17 @@ function placeLabels() {
   glabels.querySelectorAll('.lineup').forEach(b => b.onclick = () => { lineUp = 2; focusChanged(); });
 }
 desk.addEventListener('scroll', () => { if (gridOn) placeLabels(); }, { passive: true });
+// Each column scrolls on its own (Eric, 2026-10-26). A preview column is slid by a transform (its frame sends the
+// scroll, see view.html); scrolling over the column being edited scrolls the canvas and slides the previews back the
+// same amount, so they stay where they are. Scrolling over the empty canvas still moves everything together.
+function colShift(v) { return parseFloat((/translateY\((-?[\d.]+)px\)/.exec(gcols[v].querySelector('iframe').style.transform) || [0, 0])[1]); }
+function shiftCol(v, dy) { const fr = gcols[v].querySelector('iframe'); fr.style.transition = 'none'; fr.style.transform = `translateY(${Math.round((colShift(v) + dy) * 10) / 10}px)`; }
+var bookScrollUntil = 0, deskTop = 0;
+['wheel', 'touchstart', 'touchmove'].forEach(t => desk.addEventListener(t, e => { if (gridOn && !e.ctrlKey && book.contains(e.target) && !(e.touches && e.touches.length > 1)) bookScrollUntil = performance.now() + 300; }, { passive: true }));
+desk.addEventListener('scroll', () => {
+  const t = desk.scrollTop, dy = t - deskTop; deskTop = t;
+  if (gridOn && dy && typeof gcols !== 'undefined' && gcols && gcols.reading && performance.now() < bookScrollUntil && !document.body.classList.contains('zooming')) Book.views.forEach(v => { if (!gcols[v].hidden) shiftCol(v, dy / canvasZ); });
+}, { passive: true });
 var canvasStarted = false, lineUp = 0;   // lineUp: the columns slide to match only when asked (Eric: following the current page jumped him around)
 function gridApply() {
   if (!GLABEL || !gcols || !gcols.reading) return;   // still loading: the canvas code at the end of this file lays out once it has run
@@ -2127,6 +2138,7 @@ window.addEventListener('message', e => {
     const dy = d.gridMatch.top != null && curPage && curPage.isConnected ? curPage.offsetTop - d.gridMatch.top : null;
     if (dy != null) { fr.style.transition = 'transform .25s ease'; fr.style.transform = `translateY(${Math.round(dy)}px)`; }
   }
+  if (d.gridScroll && gcols[d.gridScroll.view] && gridOn) { shiftCol(d.gridScroll.view, -d.gridScroll.dy / canvasZ); desk.scrollLeft += d.gridScroll.dx; }
   if (d.gridHeight && gcols[d.view]) { gridHeights[d.view] = d.gridHeight; const fr = gcols[d.view].querySelector('iframe'); if (fr && fr.style.height !== d.gridHeight + 'px') { fr.style.height = d.gridHeight + 'px'; canvasSize(); } }
   if (d.gridPick && Book.views.includes(d.view)) {   // edit this page in that edition
     const pg = Book.pages().find(p => p.id === d.gridPick);

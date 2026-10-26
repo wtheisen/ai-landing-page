@@ -134,7 +134,19 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
         if (last) place(last);
       }
     });
-    window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); parent.postMessage({ gridWheel: { dy: e.deltaY, x: e.clientX, y: e.clientY } }, '*'); }, { passive: false });   // a pinch here zooms the editor's canvas
+    window.addEventListener('wheel', e => {
+      e.preventDefault();
+      if (e.ctrlKey) return parent.postMessage({ gridWheel: { dy: e.deltaY, x: e.clientX, y: e.clientY } }, '*');   // a pinch here zooms the editor's canvas
+      const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1;   // plain scrolling moves this column only (the editor slides it)
+      parent.postMessage({ gridScroll: { view: Book.view, dx: e.deltaX * k, dy: e.deltaY * k } }, '*');
+    }, { passive: false });
+    let tch = null;   // one finger on iPad: the same, this column only (a pencil writes, two fingers pinch)
+    window.addEventListener('touchstart', e => { tch = e.touches.length === 1 && e.touches[0].touchType !== 'stylus' ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null; }, { passive: true });
+    window.addEventListener('touchmove', e => {
+      if (!tch || e.touches.length !== 1) return; e.preventDefault();
+      const t = e.touches[0]; parent.postMessage({ gridScroll: { view: Book.view, dx: tch.x - t.clientX, dy: tch.y - t.clientY } }, '*'); tch = { x: t.clientX, y: t.clientY };
+    }, { passive: false });
+    window.addEventListener('touchend', () => { tch = null; });
     ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => window.addEventListener(t, e => e.preventDefault(), { passive: false }));
     document.documentElement.dataset.ready = '1'; parent.postMessage({ gridReady: Book.view }, '*'); return;
   }
