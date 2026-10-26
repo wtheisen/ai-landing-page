@@ -159,7 +159,7 @@ function commit(now) {
     const s = Book.serialize();
     if (s === cur) return;
     undo.push(cur); if (undo.length > 300) undo.shift();
-    redo = []; cur = s; setStatus();
+    redo = []; cur = s; setStatus(); panePatchSoon();
     clearTimeout(saveT); saveT = setTimeout(save, 900);
     Book.refreshSoon(); staleSoon();
   };
@@ -197,7 +197,7 @@ function apply(s, external) {   // replace the document with chapter text s, tou
   } else book.innerHTML = body;
   curPage = null;
   prep(); Book.refresh();
-  cur = external ? Book.serialize() : s; applying = false; poolLast = null; poolSync(); staleSoon();
+  cur = external ? Book.serialize() : s; applying = false; poolLast = null; poolSync(); staleSoon(); panePatchSoon();
   const pg = keepId && pageById(keepId[0]), b = pg && Book.blocks(pg)[keepId[1]];
   if (b) select(b); else { setPage(pageId && pageById(pageId)); renderInspector(); }
   if (metaChanged) $('#title').textContent = Book.meta.title || ch;
@@ -2078,7 +2078,7 @@ document.documentElement.dataset.ready = '1';
 // there: nothing on screen moves. Line up (on a pane's label) scrolls that pane to the page that goes with the one
 // being edited. A pinch over any pane zooms them all.
 var GLABEL = { reading: 'Reading', slides: 'Lecture', workbook: 'Workbook' };
-var gcols = {}, gridOn = true, gridT = 0, gridRaf = 0, gridReload = 0;   // var: zoom and mode code earlier in the file call gridLayout() before this runs
+var gcols = {}, gridOn = true, gridT = 0, gridRaf = 0;   // var: zoom and mode code earlier in the file call gridLayout() before this runs
 try { gridOn = localStorage.getItem('book-grid') !== '0'; } catch (x) {}
 if (phone) gridOn = false;   // the panes need a wide screen
 Book.views.forEach((v, k) => {
@@ -2104,7 +2104,7 @@ function gridApply() {
   desk.style.order = gridOn ? Book.views.indexOf(Book.view) : '';
   const shown = Book.views.filter(v => gcols[v].hidden && gridOn && v !== Book.view);   // panes about to appear (a switch of edition)
   Book.views.forEach(v => { gcols[v].hidden = !gridOn || v === Book.view; });
-  if (shown.length) { commit(true); if (cur !== saved) save(); }   // unsaved edits: save now, the save reloads the panes
+  if (shown.length) { commit(true); panePatch(); shown.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (gcols[v].dataset.ready && fr.contentWindow) fr.contentWindow.postMessage({ gridRefresh: 1 }, '*'); }); }   // a pane that was hidden: bring it up to date, lay it out again
   placeLabels();
   const layout = (gridOn ? 'p' : '1') + desk.clientWidth;   // the desk's width changed (panes shown or hidden, window resized): fit the zoom again
   if (layout !== gridApply.layout) { gridApply.layout = layout; if (/fit|two|three|width/.test($('#zoom').value)) return applyZoom($('#zoom').value); }
@@ -2114,14 +2114,27 @@ function gridApply() {
     const col = gcols[v], fr = col.querySelector('iframe'); if (col.hidden) return;
     if (!fr.src) { fr.src = `../view/${ch}?view=${v}&pane=1&zoom=${zoom}`; return; }
     if (!fr.contentWindow) return;
-    if (col.dataset.stale && cur === saved) { delete col.dataset.stale; fr.contentWindow.postMessage({ gridReload: 1 }, '*'); }
     if (col.dataset.zoom !== String(zoom)) { col.dataset.zoom = zoom; fr.contentWindow.postMessage({ gridZoom: zoom }, '*'); }
     flushPane(v);
   });
 }
-// after a save the panes reload (keeping their place); a hidden one (the edition being edited) is marked stale and
-// reloads when it shows again, else switching editions would show that pane as it was before the edits
-function gridAfterSave() { if (!gcols || !gcols.reading) return; Book.views.forEach(v => { if (gcols[v].hidden || !gridOn) gcols[v].dataset.stale = '1'; }); if (!gridOn) return; clearTimeout(gridReload); gridReload = setTimeout(() => Book.views.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (!gcols[v].hidden && fr.contentWindow) { delete gcols[v].dataset.stale; fr.contentWindow.postMessage({ gridReload: 1 }, '*'); } }), 500); }
+// The panes never reload: a moment after each edit they are sent the pages that changed (gridPatch: the page order,
+// the changed pages' HTML, the chapter settings if they changed), hidden panes included, and swap just those pages in.
+// A pane that loads while there are unsaved edits is sent the whole chapter once. Saving doesn't touch them.
+var paneState = null;   // what the panes were last sent: { meta, order, pages: { id: html } }
+function gridAfterSave() {}
+function panePatchSoon() { clearTimeout(panePatchSoon.t); panePatchSoon.t = setTimeout(panePatch, 250); }
+function panePost(msg, only) { if (typeof gcols === 'undefined' || !gcols.reading) return; Object.values(gcols).forEach(c => { const fr = c.querySelector('iframe'); if (c.dataset.ready && fr.contentWindow && (!only || fr.contentWindow === only)) fr.contentWindow.postMessage(msg, '*'); }); }
+function panePatch(full) {
+  clearTimeout(panePatchSoon.t);
+  if (typeof gcols === 'undefined' || !gcols.reading) return;
+  const meta = Book.metaSource(), list = Book.pages(), order = list.map(p => p.id), pages = {}, out = {}, prev = paneState;
+  list.forEach(p => { const html = Book.serializePage(p); pages[p.id] = html; if (full || !prev || prev.pages[p.id] !== html) out[p.id] = html; });
+  paneState = { meta, order, pages };
+  if (!prev && !full) return;   // the first time: the panes loaded this very chapter
+  if (!full && prev.meta === meta && prev.order.join(' ') === order.join(' ') && !Object.keys(out).length) return;
+  panePost({ gridPatch: { order, pages: out, meta: full || prev.meta !== meta ? meta : null } }, full);
+}
 const paneFrame = v => gcols[v] && !gcols[v].hidden && gcols[v].querySelector('iframe');
 // where a page sits in a pane, in the editor's window coordinates (null if that pane doesn't show it)
 function panePageTop(v, id) {
@@ -2144,7 +2157,7 @@ window.addEventListener('message', e => {
   const d = e.data || {};
   if (d.gridReady) {
     const col = Object.values(gcols).find(c => c.querySelector('iframe').contentWindow === e.source);
-    if (col) { col.dataset.ready = '1'; col.dataset.zoom = ''; }
+    if (col) { col.dataset.ready = '1'; col.dataset.zoom = ''; if (cur !== saved) { panePatch(); panePost({ gridPatch: { order: paneState.order, pages: paneState.pages, meta: paneState.meta } }, e.source); } }   // it loaded the saved file: send it the edits since, whole
     gridApply(); setTimeout(focusChanged, 50); Book.views.forEach(flushPane);
   }
   if (d.gridNoMatch) toast('No ' + (GLABEL[d.gridNoMatch] || '') + ' page shares this page’s topic, so that pane stays where it is');
@@ -2202,6 +2215,7 @@ function endPinch() {
 }
 window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); zoomAt(e.deltaY, e.clientX, e.clientY); }, { passive: false, capture: true });
 ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => window.addEventListener(t, e => e.preventDefault(), { passive: false }));   // Safari's own pinch
+panePatch();   // the baseline: what the panes load is this chapter as it is now
 gridLayout();
 
 // ---------------------------------------------------------------- toolbar menus (Insert, Draw, More)
@@ -2653,7 +2667,7 @@ async function runFig() {
   if (d.ok) {
     figState('redrawn in ' + d.seconds + ' s');
     document.querySelectorAll('#book b-fig').forEach(f => { if (f.getAttribute('src') === fig) Book.reloadFig(f); });
-    if (typeof gcols !== 'undefined' && gcols) Book.views.forEach(v => { const fr = gcols[v] && gcols[v].querySelector('iframe'); if (fr && fr.contentWindow) fr.contentWindow.postMessage({ gridReload: true }, '*'); });
+    if (typeof panePost === 'function') panePost({ gridFig: fig });   // the panes redraw that figure too
     setTimeout(placeFigCode, 300);
   } else figState('saved, but the script stopped with an error (the figure is unchanged)');
   if (el && el.isConnected && figAt === el) ta.focus();

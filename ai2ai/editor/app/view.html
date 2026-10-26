@@ -76,6 +76,24 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       if (keep) scrollTo(keep);
       if (want) { const w = want; want = null; scrollTo(w); }
     };
+    // the editor's edits, page by page (see panePatch in editor.js): swap in the changed pages, drop the deleted ones, put
+    // them in order; only what changed is drawn again, and the page at the top stays where it is
+    let patching = Promise.resolve();
+    const patch = P => { patching = patching.then(async () => {
+      const keep = anchor();
+      if (P.meta) Book.meta = Book.parse(P.meta + '\n').meta;
+      const have = new Map(Book.pages().map(p => [p.id, p]));
+      for (const [id, html] of Object.entries(P.pages)) {
+        const t = document.createElement('template'); t.innerHTML = html.trim(); const el = t.content.firstElementChild; if (!el) continue;
+        const old = have.get(id); if (old) old.replaceWith(el); else root.append(el); have.set(id, el);
+      }
+      const want = new Set(P.order); for (const [id, p] of have) if (!want.has(id)) { p.remove(); have.delete(id); }
+      let at = root.querySelector(':scope > section.page');   // reorder with as few moves as possible (a moved page draws again)
+      for (const id of P.order) { const p = have.get(id); if (!p) continue; if (p !== at) root.insertBefore(p, at); else at = at.nextElementSibling; while (at && at.localName !== 'section') at = at.nextElementSibling; }
+      if (!innerWidth) { Book.markStale(); return; }   // a hidden pane (the edition being edited): laid out when it shows again (gridRefresh)
+      await Book.ready(); Book.refresh(); Book.markStale(); applyFocus();
+      if (keep) scrollTo(keep);
+    }).catch(err => console.error(err)); };
     root.addEventListener('click', e => { const p = e.target.closest('section.page'); if (p && Date.now() - dragEnded > 400) parent.postMessage({ gridPick: p.id, view: Book.view }, '*'); });
     // blocks between the Reading and the Lecture (split chapters, see the editor's copyPageAcross): the editor asks
     // where a block dragged over this pane would go (gridDragOver, answered with gridDropAt and a blue line), and a
@@ -124,6 +142,9 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       if (d.gridScrollTo) scrollTo(d.gridScrollTo);
       if (d.gridZoom) { const keep = anchor(); document.documentElement.style.setProperty('--zoom', d.gridZoom); Book.refresh(); if (keep) scrollTo(keep); }
       if (d.gridReload) reload();
+      if (d.gridPatch) patch(d.gridPatch);
+      if (d.gridRefresh) patching = patching.then(async () => { await Book.ready(); Book.refresh(); applyFocus(); });   // shown again after being hidden
+      if (d.gridFig) document.querySelectorAll('#book b-fig').forEach(f => { if (f.getAttribute('src') === d.gridFig) Book.reloadFig(f); });
     });
     window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); parent.postMessage({ gridWheel: { dy: e.deltaY, x: e.clientX, y: e.clientY } }, '*'); }, { passive: false });   // a pinch here zooms all the panes; plain scrolling is this pane's own
     ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => window.addEventListener(t, e => e.preventDefault(), { passive: false }));
