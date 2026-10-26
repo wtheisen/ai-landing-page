@@ -426,10 +426,11 @@ $('#blockbar').addEventListener('click', e => {
 
 // ---------------------------------------------------------------- drag: reorder in the flow, or move a pinned block freely (with snapping)
 var dragMoved = false;
-function startDrag(e, el) {
+function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer and is dropped; the original stays where it is
   const group = allSel().includes(el) && extra.length ? inOrder(allSel()) : [el];
-  const mates = group.filter(b => b !== el && Book.isPinned(b)).map(b => [b, parseFloat(b.style.left), parseFloat(b.style.top)]);
-  const pinned = Book.isPinned(el), x0 = e.clientX, y0 = e.clientY;
+  const mates = copyMode ? [] : group.filter(b => b !== el && Book.isPinned(b)).map(b => [b, parseFloat(b.style.left), parseFloat(b.style.top)]);
+  const pinned = Book.isPinned(el) && !copyMode, x0 = e.clientX, y0 = e.clientY;
+  let ghost = null;
   let moved = false, target = null;
   const pg0 = el.parentElement, r0 = el.getBoundingClientRect(), q0 = pg0.getBoundingClientRect();
   const drop = $('#drop'), gx = $('#gx'), gy = $('#gy');
@@ -443,15 +444,17 @@ function startDrag(e, el) {
   let cross = null;
   const move = ev => {
     if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 5) return;
-    if (!moved) { moved = true; commit(true); el.classList.add('ed-dragging'); closePop(); document.body.classList.add('ed-xdrag'); }
+    if (!moved) { moved = true; commit(true); if (copyMode) ghost = dragGhost(group); else el.classList.add('ed-dragging'); closePop(); document.body.classList.add('ed-xdrag'); }
+    if (ghost) moveGhost(ghost, ev.clientX - (x0 - r0.left), ev.clientY - (y0 - r0.top));
     if (ev.preventDefault && ev.cancelable) ev.preventDefault();
     last = { clientX: ev.clientX, clientY: ev.clientY, altKey: ev.altKey };
     cross = crossFrame(ev.clientX, ev.clientY);
     if (cross) {   // over the other document's column: it shows where the copy would go
       crossOver(cross, ev.clientX, ev.clientY); drop.hidden = gx.hidden = gy.hidden = true; target = null;
+      el.classList.remove('ed-dragging'); showBadge('Copy to the ' + (docOf(cross.v) === 'lecture' ? 'Lecture' : 'Reading'), ev.clientX, ev.clientY);
       if (pinned) { el.style.left = origin[0]; el.style.top = origin[1]; mates.forEach(([b, l, t]) => { b.style.left = l + 'pt'; b.style.top = t + 'pt'; }); place(); }
       return;
-    } else if (crossTo) crossLeave();
+    } else if (crossTo) { crossLeave(); hideBadge(); if (!copyMode) el.classList.add('ed-dragging'); }
     const under = document.elementsFromPoint(ev.clientX, ev.clientY).find(n => n.matches && n.matches('section.page'));
     if (pinned) {
       const pg = el.parentElement, s = ptScale(pg), q = pg.getBoundingClientRect();
@@ -490,7 +493,7 @@ function startDrag(e, el) {
     clearInterval(auto);
     drop.hidden = gx.hidden = gy.hidden = true;
     delete el.dataset.edX0; delete el.dataset.edY0;
-    document.body.classList.remove('ed-xdrag');
+    document.body.classList.remove('ed-xdrag'); hideBadge(); if (ghost) { ghost.remove(); ghost = null; }
     if (!moved) return;
     el.classList.remove('ed-dragging');
     if (cross) {   // dropped on the other document's column: copy there, leave this one as it was
@@ -498,6 +501,22 @@ function startDrag(e, el) {
       if (!crossDrop(group, grab)) crossLeave();
       if (group.length > 1) selectMany(group); else select(el);
       Book.refresh(); place(); return;
+    }
+    if (copyMode) {   // a copy where it was dropped, in this document
+      if (!target || !target.page) return select(el);
+      const q = target.page.getBoundingClientRect(), s0 = q.width / 432, made = [];
+      for (const b of group) {
+        const t = h(Book.serializeBlock(b)); t.classList.remove('ed-sel', 'ed-dragging'); if (t.id) t.removeAttribute('id'); t.removeAttribute('data-pool');   // a copy within this document is its own block
+        if (Book.isPinned(b)) {
+          const rb = b.getBoundingClientRect();
+          t.style.left = ((last.clientX - q.left) / s0 - (x0 - rb.left) / s0).toFixed(1) + 'pt'; t.style.top = ((last.clientY - q.top) / s0 - (y0 - rb.top) / s0).toFixed(1) + 'pt';
+          target.page.insertBefore(t, target.page.querySelector(':scope > svg.overlay, :scope > .foot'));
+        } else if (target.before) target.before.before(t); else target.page.insertBefore(t, target.page.querySelector(':scope > svg.overlay, :scope > .foot'));
+        made.push(t);
+      }
+      prep(); commit(true); Book.refresh();
+      if (made.length > 1) selectMany(made); else select(made[0]);
+      place(); return toast(made.length > 1 ? 'Copied ' + made.length + ' blocks' : 'Copied', 'Undo', doUndo);
     }
     if (pinned && target) {   // dropped on another page: keep the spot under the pointer
       const r = el.getBoundingClientRect(), q = target.getBoundingClientRect(), s = q.width / 432;
@@ -514,6 +533,7 @@ function startDrag(e, el) {
   window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true); window.addEventListener('pointercancel', cancel, true);
 }
 $('#grip').addEventListener('pointerdown', e => { if (sel) { e.preventDefault(); startDrag(e, sel); } });
+$('#cgrip').addEventListener('pointerdown', e => { if (sel) { e.preventDefault(); startDrag(e, sel, true); } });   // copy-drag: the original never moves
 book.addEventListener('pointerdown', e => { const b = blockOf(e.target); if (e.target.closest && e.target.closest('.ed-code, .ed-coderun')) return; if (b && NOEDIT.test(b.tagName) && e.button === 0 && !(e.shiftKey || e.metaKey || e.ctrlKey)) { if (!(extra.length && allSel().includes(b))) select(b); if (e.pointerType !== 'touch') startDrag(e, b); } });
 $('#rsz').addEventListener('pointerdown', e => {
   if (!sel) return; e.preventDefault(); commit(true);
@@ -2222,6 +2242,20 @@ function copyPageAcross(pg) {
   const n = docPages(to).indexOf(t) + 2;   // +1 for the cover
   toast('Copied to the ' + (to === 'lecture' ? 'Lecture' : 'Reading') + ' as page ' + n, 'Undo', doUndo);
 }
+// the copy that follows the pointer during a copy-drag (a fresh render of each block, at the canvas's scale)
+function dragGhost(list) {
+  const r = list[0].getBoundingClientRect(), w = list[0].offsetWidth || r.width;
+  const g = document.createElement('section'); g.className = 'page'; g.id = 'xghost'; g._k = r.width / w;
+  g.style.cssText = `position:fixed;left:0;top:0;width:${w}px;height:auto;min-height:0;padding:0;border:0;background:transparent;box-shadow:none;overflow:visible;display:block;pointer-events:none;z-index:90;opacity:.75;transform-origin:0 0;zoom:1`;
+  list.forEach(b => { const c = h(Book.serializeBlock(b)); c.classList.remove('ed-sel'); c.removeAttribute('id'); ['position', 'left', 'top', 'z-index'].forEach(p => c.style.removeProperty(p)); c.style.marginBottom = '8pt'; g.append(c); });
+  document.body.append(g); return g;
+}
+function moveGhost(g, x, y) { g.style.transform = `translate(${x}px, ${y}px) scale(${g._k})`; }
+function showBadge(text, x, y) {
+  if (!xbadge) { xbadge = document.createElement('div'); xbadge.id = 'xbadge'; document.body.append(xbadge); }
+  xbadge.hidden = false; xbadge.textContent = text; xbadge.style.left = (x + 14) + 'px'; xbadge.style.top = (y + 14) + 'px';
+}
+function hideBadge() { if (xbadge) xbadge.hidden = true; }
 // dragging out of the page being edited onto the other document's column (startDrag calls these)
 var crossTo = null, crossAt = null;
 function crossFrame(x, y) {
