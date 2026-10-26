@@ -124,7 +124,7 @@ function hit(svg, cx, cy) {   // topmost shape under the pointer, with a few px 
 }
 function overlayOf(pg, create) {
   let o = pg.querySelector(':scope > svg.overlay');
-  if (!o && create) { o = svgEl('svg', { class: 'draw overlay', viewBox: '0 0 432 648' }); pg.insertBefore(o, pg.querySelector(':scope > .foot')); }
+  if (!o && create) { o = svgEl('svg', { class: 'draw overlay', viewBox: '0 0 ' + Book.pageW(pg) + ' ' + Book.pageH(pg) }); pg.insertBefore(o, pg.querySelector(':scope > .foot')); }
   return o;
 }
 function marker(svg, color) {   // arrowhead in the line's colour, shared per drawing
@@ -327,7 +327,7 @@ function startMove(e) {
   const svg = layer, orig = shapes.map(snapshot), [sx, sy] = toSvg(svg, e.clientX, e.clientY), b0 = union(shapes), v = vbox(svg);
   const others = kids(svg).filter(k => !shapes.includes(k)).map(s => box(s));
   const gd = svg.classList.contains('overlay') ? E.guides() : { v: [], h: [] };
-  const xs = [v.x, v.x + v.width / 2, v.x + v.width, ...(svg.classList.contains('overlay') ? [24, 408] : []), ...gd.v, ...others.flatMap(o => [o.x0, (o.x0 + o.x1) / 2, o.x1])];
+  const xs = [v.x, v.x + v.width / 2, v.x + v.width, ...(svg.classList.contains('overlay') ? [24, Book.pageW(svg) - 24] : []), ...gd.v, ...others.flatMap(o => [o.x0, (o.x0 + o.x1) / 2, o.x1])];
   const ys = [v.y, v.y + v.height / 2, v.y + v.height, ...gd.h, ...others.flatMap(o => [o.y0, (o.y0 + o.y1) / 2, o.y1])];
   let moved = false;
   dragLoop(ev => {

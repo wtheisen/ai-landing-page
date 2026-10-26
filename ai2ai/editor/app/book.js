@@ -127,7 +127,18 @@ class BFig extends HTMLElement {
     if (img && img.naturalWidth) return img.naturalWidth * (1 - l - r) / (img.naturalHeight * (1 - t - b));
     return 0;
   }
+  // --ar: the figure's shape (width / height) as a CSS variable, so a 16:9 slide can cap a figure's height (book.css);
+  // runtime only, never saved
+  setRatio() {
+    let ar = 0;
+    if (this.stretched()) { const m = /([\d.]+)\s*\/\s*([\d.]+)/.exec(this.style.aspectRatio); ar = m ? m[1] / m[2] : parseFloat(this.style.aspectRatio) || 0; }
+    else ar = this.naturalRatio();
+    if (ar > 0 && isFinite(ar)) { const v = ar.toFixed(3); if (this.style.getPropertyValue('--ar') !== v) this.style.setProperty('--ar', v); }
+  }
   applyCrop() {
+    this._applyCrop(); this.setRatio();
+  }
+  _applyCrop() {
     const [l, t, r, b] = this.cropBox(), svg = this.querySelector(':scope > svg:not(.live)'), img = this.querySelector('img'), st = this.stretched();
     if (svg) {
       if (!this._vb) { const v = svg.viewBox.baseVal; this._vb = v && v.width ? [v.x, v.y, v.width, v.height] : [0, 0, parseFloat(svg.getAttribute('width')) || 384, parseFloat(svg.getAttribute('height')) || 252]; }
@@ -381,6 +392,13 @@ Book.load = (root, html) => {
 // edition from its pane (Book.viewOf); without panes it is Book.view, as before.
 Book.pages = () => [...Book.root.querySelectorAll(':scope > section.page, :scope > .dpane > section.page')];
 Book.panes = () => Book.root ? [...Book.root.querySelectorAll(':scope > .dpane')] : [];
+// Page sizes in pt (Eric, 2026-10-26): the Reading is a 6 × 9 in book page, the Lecture and the Workbook are 16:9
+// slides (10 × 5.625 in, Google Slides' size). book.css sets --page-w/--page-h per edition; these say the same in JS.
+// Text column: 24pt margins either side; content must end 26pt above the bottom (the footer line).
+Book.SIZES = { reading: { w: 432, h: 648 }, slides: { w: 720, h: 405 }, workbook: { w: 720, h: 405 } };
+Book.size = el => Book.SIZES[el && el.nodeType ? Book.viewOf(el) : (el || Book.view)] || Book.SIZES.reading;
+Book.pageW = el => Book.size(el).w;
+Book.pageH = el => Book.size(el).h;
 Book.viewOf = el => { const p = el && el.closest && el.closest('.dpane'); return p ? p.dataset.view : Book.view; };
 Book.blocks = pg => [...pg.children].filter(el => !el.hasAttribute('data-rt') && !el.classList.contains('overlay') && !el.classList.contains('cmt'));
 Book.isPinned = el => el.style.position === 'absolute';
@@ -423,7 +441,7 @@ Book.wrapText = pg => {
   const wraps = [...pg.children].filter(el => el.classList.contains('wrap') && Book.isPinned(el) && Book.inView(el));
   if (!wraps.length) return false;
   const r = pg.getBoundingClientRect(); if (!r.width) return false;
-  const s = r.width / 432, P = q => ({ l: (q.left - r.left) / s, r: (q.right - r.left) / s, t: (q.top - r.top) / s, b: (q.bottom - r.top) / s });
+  const s = r.width / Book.pageW(pg), P = q => ({ l: (q.left - r.left) / s, r: (q.right - r.left) / s, t: (q.top - r.top) / s, b: (q.bottom - r.top) / s });
   const W = wraps.map(w => { const q = P(w.getBoundingClientRect()); return { l: q.l - WRAP_PAD, r: q.r + WRAP_PAD, t: q.t - WRAP_PAD, b: q.b + WRAP_PAD }; }).filter(o => o.b > o.t + WRAP_PAD);
   for (const el of pg.children) {
     if (!TEXTY.test(el.localName) || Book.isPinned(el) || el.hasAttribute('data-rt') || el.classList.contains('foot') || el.classList.contains('cmt') || el.classList.contains('cover-text') || !Book.inView(el) || !el.textContent.trim()) continue;
@@ -516,7 +534,7 @@ Book.refresh = () => {
   pages.forEach((pg, k) => {
     if (pg.classList.contains('cover')) return;
     const r = pg.getBoundingClientRect(); if (!r.width) return;
-    const s = r.width / 432, cur = parseFloat(pg.style.getPropertyValue('--gap')) || 10;
+    const s = r.width / Book.pageW(pg), cur = parseFloat(pg.style.getPropertyValue('--gap')) || 10, PW = Book.pageW(pg), PH = Book.pageH(pg);
     const wraps = Book.wrapText(pg);
     let bottom = 0, right = 0, n = 0, joined = 0, pinBottom = 0;
     for (const el of pg.children) {
@@ -527,13 +545,13 @@ Book.refresh = () => {
       bottom = Math.max(bottom, (q.bottom - r.top) / s); n++;
       if (el.tagName === 'B-CODE' && el.nextElementSibling && el.nextElementSibling.tagName === 'B-OUT') joined++;
     }
-    const gaps = Math.max(0, n - 1 - joined), base = bottom - gaps * (cur - 10), free = 604 - base;
+    const gaps = Math.max(0, n - 1 - joined), base = bottom - gaps * (cur - 10), free = PH - 44 - base;
     let gap = cur;
     if (!Book.freezeGaps) {
       gap = free > 6 && gaps > 0 ? +(10 + Math.min(free / gaps, 12)).toFixed(1) : 10;
       if (Math.abs(gap - cur) > 0.05) { if (gap === 10) pg.style.removeProperty('--gap'); else pg.style.setProperty('--gap', gap + 'pt'); if (wraps) Book.wrapText(pg); }   // blocks moved: re-place the wrap floats
     }
-    const end = Math.round(Math.max(base + gaps * (gap - 10), pinBottom)), over = end > 622 || Math.round(right) > 409;
+    const end = Math.round(Math.max(base + gaps * (gap - 10), pinBottom)), over = end > PH - 26 || Math.round(right) > PW - 23;
     pg.classList.toggle('over', over);
     if (over) report.push({ page: k + 1, id: pg.id, bottom: end, right: Math.round(right) });
   });
@@ -558,7 +576,7 @@ function attrs(el) {
     if (n === 'class') { v = v.split(/\s+/).filter(c => c && !c.startsWith('ed-') && c !== 'live-on' && c !== 'over' && c !== 'busy' && c !== 'bad').join(' '); if (!v) continue; }
     if (n === 'style') {
       if (INLINE_STYLE_DROP.test(el.localName) && !Book.isPinned(el)) continue;
-      v = v.split(';').map(d => d.trim()).filter(d => d && !d.startsWith('--gap')).join('; '); if (!v) continue;
+      v = v.split(';').map(d => d.trim()).filter(d => d && !d.startsWith('--gap') && !d.startsWith('--ar')).join('; '); if (!v) continue;
     }
     s += ` ${n}="${escAttr(v)}"`;
   }
@@ -862,12 +880,15 @@ function eaiRunCode() {
     if (block._run) return; block._run = true;
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
-    if (!out) { out = document.createElement('b-out'); out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
+    // a block with no printed output gets a collapsed one (just the Run bar, over the code's bottom right corner), so
+    // making code runnable never adds height to a page; it opens once the code has run
+    if (!out) { out = document.createElement('b-out'); out.className = 'run-new'; out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
     function show(text, err, figs) {
+      out.classList.toggle('run-new', !printed && !text && !(figs && figs.length));
       var pre = out.querySelector('pre'); pre.textContent = text; pre.classList.toggle('run-err', !!err);
       var old = out.querySelector('.run-figs'); if (old) old.remove();
       if (figs && figs.length) { var d = document.createElement('div'); d.className = 'run-figs'; figs.forEach(function (b) { var im = document.createElement('img'); im.src = 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; d.appendChild(im); }); out.appendChild(d); }
@@ -923,7 +944,7 @@ Book.webExtras = () => {
 const b64 = async url => { const buf = new Uint8Array(await (await fetch(url)).arrayBuffer()); let s = ''; for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000)); return btoa(s); };
 Book.snapshot = async () => {
   const view = Book.view, live = [...Book.root.querySelectorAll('u.fill, [data-fill]')];
-  if (view === 'workbook') live.forEach(el => { const pg = el.closest('.page'), k = pg ? pg.getBoundingClientRect().width / 432 : 1, r = el.getBoundingClientRect(); el.setAttribute('data-box', (r.width / k).toFixed(1) + ' ' + (r.height / k).toFixed(1)); });
+  if (view === 'workbook') live.forEach(el => { const pg = el.closest('.page'), k = pg ? pg.getBoundingClientRect().width / Book.pageW(pg) : 1, r = el.getBoundingClientRect(); el.setAttribute('data-box', (r.width / k).toFixed(1) + ' ' + (r.height / k).toFixed(1)); });
   const clone = Book.root.cloneNode(true);
   live.forEach(el => el.removeAttribute('data-box'));
   if (view !== 'reading') {   // content that is not in this edition is left out of the file, not just hidden
@@ -968,7 +989,7 @@ Book.snapshot = async () => {
   const pdfmenu = `<details class="navmenu pdfmenu"><summary class="nb" title="Export PDF">${ICON.pdf}<span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span>${VIEWS.map(([, label, sfx]) => `<a href="${escAttr(pdfName(sfx))}" download>${label}</a>`).join('')}<button type="button" onclick="this.closest('details').open=false;window.print()">This page as shown, with notes</button></div></details>`;
   // close any open navbar menu on an outside tap or Escape
   const navjs = "document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){if(!d.contains(e.target))d.open=false})});document.addEventListener('keydown',function(e){if(e.key==='Escape')[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){d.open=false})});[].forEach.call(document.querySelectorAll('.navbar .toc a'),function(a){a.addEventListener('click',function(){a.closest('details').open=false})});";
-  const zoom = "(function(){function z(){var W=Math.min(window.innerWidth,document.documentElement.clientWidth||1e9,screen.width||1e9);var w=Math.min(1,(W-32)/576);document.documentElement.style.setProperty('--zoom',w)}z();window.addEventListener('resize',z)})();";
+  const zoom = "(function(){function z(){var W=Math.min(window.innerWidth,document.documentElement.clientWidth||1e9,screen.width||1e9);var w=Math.min(1,(W-32)/" + (Book.SIZES[view] || Book.SIZES.reading).w * 4 / 3 + ");document.documentElement.style.setProperty('--zoom',w)}z();window.addEventListener('resize',z)})();";
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -976,7 +997,7 @@ Book.snapshot = async () => {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(m.title || '')}</title>
 <style>${faces}
-${css}</style>
+${css}${view === 'reading' ? '' : '\n@page { size: 10in 5.625in; margin: 0; }'}</style>
 </head>
 <body>
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="${escAttr(m.toc || '/ai2ai/')}" title="All chapters">${esc(m.book || '')}</a><span class="crumb">${esc(m.title || '')}</span>${toc}<span class="spacer"></span>${viewbar}<span class="tools">${pdfmenu}</span></nav>

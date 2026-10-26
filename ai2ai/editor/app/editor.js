@@ -273,7 +273,7 @@ const topPage = pg => !!pg && (pg.parentElement === book || (!!pg.parentElement 
 const blockOf = n => { while (n && n !== book) { if (n.parentElement && n.parentElement.matches && n.parentElement.matches('section.page') && topPage(n.parentElement)) return n.hasAttribute && (n.hasAttribute('data-rt') || n.classList.contains('overlay')) ? null : n; n = n.parentNode; } return null; };
 const pageOf = n => { const e = n && (n.nodeType === 1 ? n : n.parentElement); return e ? e.closest('section.page') : null; };
 const deskXY = r => { const d = desk.getBoundingClientRect(); return [r.left - d.left + desk.scrollLeft, r.top - d.top + desk.scrollTop]; };
-const ptScale = pg => pg.getBoundingClientRect().width / 432;   // screen px per pt, zoom included
+const ptScale = pg => pg.getBoundingClientRect().width / Book.pageW(pg);   // screen px per pt, zoom included
 const pageById = id => id ? book.querySelector(':scope > section.page#' + CSS.escape(id) + ', :scope > .dpane > section.page#' + CSS.escape(id)) : null;
 const deskPages = () => dual ? Book.pages().filter(p => p.parentElement === desk) : Book.pages();   // the pages in the scroller being edited
 // review comments sit right after the block they are about (<div class="cmt">); they move, and go, with it
@@ -410,7 +410,7 @@ function alignBlocks(a) {
   const shift = (o, dx, dy) => { o.b.style.left = (parseFloat(o.b.style.left) + dx).toFixed(1) + 'pt'; o.b.style.top = (parseFloat(o.b.style.top) + dy).toFixed(1) + 'pt'; };
   if (a === 'dh' || a === 'dv') { const ax = a === 'dh'; bs.sort((m, n) => ax ? m.x0 - n.x0 : m.y0 - n.y0); const total = bs.reduce((t, o) => t + (ax ? o.x1 - o.x0 : o.y1 - o.y0), 0), gap = ((ax ? u.x1 - u.x0 : u.y1 - u.y0) - total) / (bs.length - 1); let pos = ax ? u.x0 : u.y0; bs.forEach(o => { shift(o, ax ? pos - o.x0 : 0, ax ? 0 : pos - o.y0); pos += (ax ? o.x1 - o.x0 : o.y1 - o.y0) + gap; }); }
   else if (a === 'w') { const w = Math.max(...bs.map(o => o.x1 - o.x0)); bs.forEach(o => { o.b.style.width = w.toFixed(1) + 'pt'; }); }
-  else bs.forEach(o => shift(o, a === 'l' ? u.x0 - o.x0 : a === 'r' ? u.x1 - o.x1 : a === 'c' ? (u.x0 + u.x1 - o.x0 - o.x1) / 2 : a === 'pc' ? 216 - (o.x0 + o.x1) / 2 : 0, a === 't' ? u.y0 - o.y0 : a === 'b' ? u.y1 - o.y1 : a === 'm' ? (u.y0 + u.y1 - o.y0 - o.y1) / 2 : 0));
+  else bs.forEach(o => shift(o, a === 'l' ? u.x0 - o.x0 : a === 'r' ? u.x1 - o.x1 : a === 'c' ? (u.x0 + u.x1 - o.x0 - o.x1) / 2 : a === 'pc' ? Book.pageW(pg) / 2 - (o.x0 + o.x1) / 2 : 0, a === 't' ? u.y0 - o.y0 : a === 'b' ? u.y1 - o.y1 : a === 'm' ? (u.y0 + u.y1 - o.y0 - o.y1) / 2 : 0));
   commit(true); Book.refresh(); place();
 }
 function removeBlock(el) {
@@ -505,9 +505,9 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
       const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b));
       const before = flow.find(b => { const r = b.getBoundingClientRect(); return ev.clientY < r.top + r.height / 2; }) || null;
       xpane = { page: under, before };
-      const q = under.getBoundingClientRect(), s = q.width / 432;
+      const q = under.getBoundingClientRect(), s = q.width / Book.pageW(under);
       let yy; if (before) yy = before.getBoundingClientRect().top - 5 * s; else if (flow.length) yy = flow[flow.length - 1].getBoundingClientRect().bottom + 5 * s; else yy = q.top + 20 * s;
-      dropIn(under.parentElement, q.left + 24 * s, yy, 384 * s);
+      dropIn(under.parentElement, q.left + 24 * s, yy, (Book.pageW(under) - 48) * s);
       return;
     } else if (xpane) { xpane = null; dropIn(null); hideBadge(); if (!copyMode) { el.classList.add('ed-dragging'); if (ghost) { ghost.remove(); ghost = null; } } }   // back in this document: a move again
     if (pinned) {
@@ -517,7 +517,7 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
       gx.hidden = gy.hidden = true;
       if (!ev.altKey) {
         const others = Book.blocks(pg).filter(b => b !== el).map(b => { const r = b.getBoundingClientRect(); return { l: (r.left - q.left) / s, t: (r.top - q.top) / s, b: (r.bottom - q.top) / s, r: (r.right - q.left) / s }; });
-        const xs = [[24, 0], [408, w], [216, w / 2], ...others.flatMap(o => [[o.l, 0], [o.r, w]]), ...(rulersOn ? guides.v.flatMap(g => [[g, 0], [g, w], [g, w / 2]]) : [])];
+        const PW = Book.pageW(pg), xs = [[24, 0], [PW - 24, w], [PW / 2, w / 2], ...others.flatMap(o => [[o.l, 0], [o.r, w]]), ...(rulersOn ? guides.v.flatMap(g => [[g, 0], [g, w], [g, w / 2]]) : [])];
         const ys = [[20, 0], ...others.flatMap(o => [[o.t, 0], [o.b, hh], [o.b + 10, 0], [o.t - 10, hh]]), ...(rulersOn ? guides.h.flatMap(g => [[g, 0], [g, hh], [g, hh / 2]]) : [])];
         let best = 4;
         for (const [g, off] of xs) if (Math.abs(x + off - g) < best) { best = Math.abs(x + off - g); gx._v = g; gx._x = g - off; }
@@ -536,10 +536,10 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
     const flow = Book.blocks(under).filter(b => !group.includes(b) && !Book.isPinned(b));
     const before = flow.find(b => { const r = b.getBoundingClientRect(); return ev.clientY < r.top + r.height / 2; }) || null;
     target = { page: under, before };
-    const q = under.getBoundingClientRect(), s = q.width / 432;
+    const q = under.getBoundingClientRect(), s = q.width / Book.pageW(under);
     let yy; if (before) yy = before.getBoundingClientRect().top - 5 * s; else if (flow.length) yy = flow[flow.length - 1].getBoundingClientRect().bottom + 5 * s; else yy = q.top + 20 * s;
     const [ax, ay] = deskXY({ left: q.left + 24 * s, top: yy });
-    drop.hidden = false; Object.assign(drop.style, { left: ax + 'px', top: ay + 'px', width: (384 * s) + 'px' });
+    drop.hidden = false; Object.assign(drop.style, { left: ax + 'px', top: ay + 'px', width: ((Book.pageW(under) - 48) * s) + 'px' });
   };
   const up = () => {
     window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true);
@@ -551,7 +551,7 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
     if (!moved) return;
     el.classList.remove('ed-dragging');
     if (xpane) {   // dropped on the other document's pane: copy there, leave this one as it was
-      const pg = xpane.page, made = [], q = pg.getBoundingClientRect(), s = q.width / 432, s0 = ptScale(pg0);
+      const pg = xpane.page, made = [], q = pg.getBoundingClientRect(), s = q.width / Book.pageW(pg), s0 = ptScale(pg0);
       for (const b of group) {
         const t = copyBlock(b);
         if (Book.isPinned(b)) { const rb = b.getBoundingClientRect(); t.style.left = Math.max(0, (last.clientX - q.left) / s - (x0 - rb.left) / s0).toFixed(1) + 'pt'; t.style.top = Math.max(0, (last.clientY - q.top) / s - (y0 - rb.top) / s0).toFixed(1) + 'pt'; pg.insertBefore(t, pg.querySelector(':scope > svg.overlay, :scope > .foot')); }
@@ -571,7 +571,7 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
     }
     if (copyMode) {   // a copy where it was dropped, in this document
       if (!target || !target.page) return select(el);
-      const q = target.page.getBoundingClientRect(), s0 = q.width / 432, made = [];
+      const q = target.page.getBoundingClientRect(), s0 = q.width / Book.pageW(target.page), made = [];
       for (const b of group) {
         const t = h(Book.serializeBlock(b)); t.classList.remove('ed-sel', 'ed-dragging'); if (t.id) t.removeAttribute('id'); t.removeAttribute('data-pool');   // a copy within this document is its own block
         if (Book.isPinned(b)) {
@@ -586,7 +586,7 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
       place(); return toast(made.length > 1 ? 'Copied ' + made.length + ' blocks' : 'Copied', 'Undo', doUndo);
     }
     if (pinned && target) {   // dropped on another page: keep the spot under the pointer
-      const r = el.getBoundingClientRect(), q = target.getBoundingClientRect(), s = q.width / 432;
+      const r = el.getBoundingClientRect(), q = target.getBoundingClientRect(), s = q.width / Book.pageW(target);
       target.insertBefore(el, target.querySelector(':scope > .foot'));
       el.style.left = ((r.left - q.left) / s).toFixed(1) + 'pt'; el.style.top = ((r.top - q.top) / s).toFixed(1) + 'pt';
     } else if (!pinned && target) {
@@ -615,7 +615,7 @@ $('#rsz').addEventListener('pointerdown', e => {
   const move = ev => {
     const s = ptScale(pg), r = el.getBoundingClientRect();
     if (pinned) el.style.width = Math.max(30, (ev.clientX - r.left) / s).toFixed(1) + 'pt';
-    else { const c = r.left + r.width / 2; let pct = Math.round(2 * Math.abs(ev.clientX - c) / (384 * s) * 100); pct = Math.max(15, Math.min(100, pct)); el.style.width = pct + '%'; }
+    else { const c = r.left + r.width / 2; let pct = Math.round(2 * Math.abs(ev.clientX - c) / ((Book.pageW(pg) - 48) * s) * 100); pct = Math.max(15, Math.min(100, pct)); el.style.width = pct + '%'; }
     place();
   };
   const up = () => { window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true); commit(true); Book.refresh(); renderInspector(); };
@@ -1447,7 +1447,7 @@ function renderOneInspector() {
     add(`<div class="help">The web edition shows this page in a frame, wider than the text when the window allows. Pages from your site come without the site header, and the frame fits their height by itself. The PDF shows the picture (if you choose one) and the address. Use <b>View</b> to see the frame.</div>`);
   } else if (el.localName === 'svg') {
     const vb = el.viewBox.baseVal;
-    add(`<label>Canvas height (the width is 384 = the text column, in pt)</label>`);
+    add(`<label>Canvas height (the width is the text column: ${Book.pageW(el) - 48}pt)</label>`);
     const hh = add(`<input type="number" min="20" step="10" value="${Math.round(vb.height)}">`);
     hh.oninput = () => { el.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.width} ${Math.max(20, +hh.value || 20)}`); place(); commit(); };
     const fit = add(`<div class="row"><button>Fit height to contents</button></div>`);
@@ -1486,7 +1486,7 @@ function renderOneInspector() {
   if ((/^(P|DIV|UL|OL)$/.test(el.tagName) && el.isContentEditable && !el.querySelector(':scope > div, :scope > dl')) || /^(UL|OL)$/.test(el.tagName) || el.classList.contains('colrow')) columnsControl(el, add);
   add('<hr>');
   if (Book.isPinned(el)) {
-    add(`<label>Pinned position (pt from the page's top-left; the page is 432 × 648)</label>`);
+    add(`<label>Pinned position (pt from the page's top-left; the page is ${Book.pageW(el)} × ${Book.pageH(el)})</label>`);
     const row = add(`<div class="row">x <input type="number" step="1" style="width:64px" data-p="left"> y <input type="number" step="1" style="width:64px" data-p="top"> w <input type="number" step="1" style="width:64px" data-p="width"></div>`);
     row.querySelectorAll('input').forEach(i => { i.value = parseFloat(el.style[i.dataset.p]) || 0; i.oninput = () => { el.style[i.dataset.p] = (+i.value || 0) + 'pt'; place(); commit(); }; });
     const ord = add(`<div class="row"><button data-o="front">To front</button><button data-o="back">To back</button><label class="check" style="margin:0"><input type="checkbox" ${el.style.zIndex === '-1' ? 'checked' : ''}>Behind the text</label></div>`);
@@ -1559,7 +1559,7 @@ function pageInspector() {
   add(`<label>Starts a section (name shown in the footer from here on)</label>`); const part = add(`<input type="text" value="${esc(pg.dataset.part || '')}" placeholder="none">`);
   part.onchange = () => { if (part.value.trim()) pg.dataset.part = part.value.trim(); else delete pg.dataset.part; commit(true); Book.refresh(); };
   const over = (Book.report || []).find(r => r.id === pg.id);
-  if (over) add(`<div class="err">Content ends at ${over.bottom}pt (the limit is 622pt)${over.right > 409 ? ', and something sticks out on the right' : ''}.</div>`);
+  if (over) add(`<div class="err">Content ends at ${over.bottom}pt (the limit is ${Book.pageH(pg) - 26}pt)${over.right > Book.pageW(pg) - 23 ? ', and something sticks out on the right' : ''}.</div>`);
   insp.append(h('<div>' + HELP + '</div>'));
 }
 const HELP = `<hr><div class="help"><b>Text</b>: click and type. Enter starts a new paragraph, Shift+Enter a line break.<br>
@@ -1668,6 +1668,7 @@ function paintThumb(li) {
   if (thumbSrc.get(li) === src && li.querySelector('.thumb')) return;
   thumbSrc.set(li, src);
   let box = li.querySelector('.thumb'); if (!box) { box = document.createElement('div'); box.className = 'thumb'; box.setAttribute('data-thumb', ''); li.append(box); }
+  box.classList.toggle('wide', Book.pageW(pg) > Book.pageH(pg));   // a 16:9 Lecture page
   const c = pg.cloneNode(true);
   c.querySelectorAll('[id]').forEach(n => n.removeAttribute('id')); c.removeAttribute('id');
   c.querySelectorAll('[contenteditable]').forEach(n => n.removeAttribute('contenteditable'));
@@ -1924,7 +1925,7 @@ $('#export').onclick = async () => {   // builds all three editions (Reading, Le
       done.push({ v, label, d });
     }
     const link = f => '../' + f.split('/').map(encodeURIComponent).join('/').replace(/^chapters\//, 'c/');
-    const over = done.flatMap(x => x.d.report.map(o => `${x.label}, page ${o.page} (${esc(o.id)}): content ends at ${o.bottom}pt, limit 622`));
+    const over = done.flatMap(x => x.d.report.map(o => `${x.label}, page ${o.page} (${esc(o.id)}): content ends at ${o.bottom}pt, past the footer line`));
     const logs = done.flatMap(x => x.d.log.map(l => x.label + ': ' + l));
     const rows = done.map(x => {
       const pdf = x.d.files.find(f => /\.pdf$/.test(f) && !/markup/.test(f)) || '', page = x.d.files.find(f => /\.html$/.test(f)) || '';
@@ -1964,7 +1965,7 @@ $('#croph').addEventListener('pointerdown', e => {
   const left0 = parseFloat(el.style.left) || 0, top0 = parseFloat(el.style.top) || 0, ar0 = r0.width / r0.height, keep0 = el.style.aspectRatio;
   const move = ev => {
     let w = pinned ? Math.abs(ev.clientX - ax) : 2 * Math.abs(ev.clientX - cx), hh = Math.abs(ev.clientY - ay);
-    const col = 384 * s, wMin = pinned ? 30 * s : 0.15 * col, wMax = pinned ? 432 * s : col;
+    const col = (Book.pageW(pg) - 48) * s, wMin = pinned ? 30 * s : 0.15 * col, wMax = pinned ? Book.pageW(pg) * s : col;
     if (ev.shiftKey) { const f = (w * r0.width + hh * r0.height) / (r0.width * r0.width + r0.height * r0.height); w = r0.width * f; }   // the pointer projected onto the diagonal
     w = Math.max(wMin, Math.min(wMax, w));
     if (ev.shiftKey) hh = w / ar0; else hh = Math.max(12 * s, hh);
@@ -2025,7 +2026,7 @@ function drawGuides() {
 function dragGuide(e, axis, k, pg) {   // k = index of an existing guide, or -1 for a new one pulled out of a ruler
   e.preventDefault(); e.stopPropagation();
   const arr = guides[axis]; if (k < 0) { arr.push(axis === 'v' ? 24 : 20); k = arr.length - 1; }
-  const move = ev => { const q = pg.getBoundingClientRect(), s = q.width / 432; let v = axis === 'v' ? (ev.clientX - q.left) / s : (ev.clientY - q.top) / s; v = Math.round(v); if (!ev.metaKey) for (const m of (axis === 'v' ? [24, 216, 408] : [20, 324, 622])) if (Math.abs(v - m) < 4) v = m; arr[k] = v; arr._out = axis === 'v' ? (v < -6 || v > 438) : (v < -6 || v > 654); pg._guides = ''; Book.pages().forEach(p => { p._guides = ''; }); drawGuides(); placeRulers(); };
+  const move = ev => { const q = pg.getBoundingClientRect(), s = q.width / Book.pageW(pg); let v = axis === 'v' ? (ev.clientX - q.left) / s : (ev.clientY - q.top) / s; v = Math.round(v); if (!ev.metaKey) for (const m of (axis === 'v' ? [24, Book.pageW(pg) / 2, Book.pageW(pg) - 24] : [20, Book.pageH(pg) / 2, Book.pageH(pg) - 26])) if (Math.abs(v - m) < 4) v = m; arr[k] = v; arr._out = axis === 'v' ? (v < -6 || v > Book.pageW(pg) + 6) : (v < -6 || v > Book.pageH(pg) + 6); pg._guides = ''; Book.pages().forEach(p => { p._guides = ''; }); drawGuides(); placeRulers(); };
   const up = () => { window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true); if (arr._out) arr.splice(k, 1); delete arr._out; saveGuides(); };
   window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true);
 }
@@ -2034,9 +2035,9 @@ book.addEventListener('dblclick', e => { const g = e.target.closest && e.target.
 function placeRulers() {
   const box = $('#rulers'); const pg = rulersOn ? (curPage || deskPages().find(p => { const r = p.getBoundingClientRect(), d = desk.getBoundingClientRect(); return r.bottom > d.top + 120; })) : null;
   if (!pg || !pg.isConnected) { box.innerHTML = ''; box._pg = null; return; }
-  const q = pg.getBoundingClientRect(), s = q.width / 432, [x, y] = deskXY(q), sig = [pg.id, s.toFixed(3)].join();
+  const q = pg.getBoundingClientRect(), s = q.width / Book.pageW(pg), [x, y] = deskXY(q), sig = [pg.id, s.toFixed(3)].join();
   const ticks = (len, top) => { let hh = ''; for (let v = 0; v <= len; v += 12) { const major = v % 72 === 0, mid = v % 36 === 0; hh += top ? `<i style="left:${v * s}px;height:${major ? 15 : mid ? 8 : 4}px"></i>` : `<i style="top:${v * s}px;width:${major ? 15 : mid ? 8 : 4}px"></i>`; if (major && v) hh += top ? `<span style="left:${v * s + 2}px;top:1px">${v}</span>` : `<span style="top:${v * s + 2}px;left:1px;writing-mode:vertical-rl">${v}</span>`; } return hh + '<i class="cur" hidden></i>'; };
-  if (box._sig !== sig || !box.firstChild) { box._sig = sig; box.innerHTML = `<div class="rule top" title="Drag down onto the page for a horizontal guide (measures are in pt)">${ticks(432, true)}</div><div class="rule left" title="Drag right onto the page for a vertical guide">${ticks(648, false)}</div>`; }
+  if (box._sig !== sig || !box.firstChild) { box._sig = sig; box.innerHTML = `<div class="rule top" title="Drag down onto the page for a horizontal guide (measures are in pt)">${ticks(Book.pageW(pg), true)}</div><div class="rule left" title="Drag right onto the page for a vertical guide">${ticks(Book.pageH(pg), false)}</div>`; }
   box._pg = pg;
   // the rulers stay in view: they sit just outside the page, or along the edge of the desk when that is scrolled away
   const dr = desk.getBoundingClientRect(), [ex, ey] = deskXY({ left: dr.left, top: dr.top }), t = box.firstChild, l = box.lastChild;
@@ -2156,7 +2157,7 @@ function placeMarkers() {
   openCmts().forEach(c => { const pg = c.closest('section.page'), t = targetOf(c) || pg; if (!pg || (dual && pg.parentElement !== desk)) return; const e = seenT.get(t) || { n: 0, text: [], pg }; e.n++; e.text.push((c.dataset.by || '') + ': ' + c.textContent); seenT.set(t, e); });
   seenT.forEach((e, t) => {
     const r = t.getBoundingClientRect(), q = e.pg.getBoundingClientRect(); if (!q.width) return;
-    const [x, y] = deskXY({ left: q.right - 22 * (q.width / 576), top: t === e.pg ? q.top + 4 : r.top });
+    const [x, y] = deskXY({ left: q.right - 22 * (q.width / (Book.pageW(e.pg) * 4 / 3)), top: t === e.pg ? q.top + 4 : r.top });
     const d = document.createElement('div'); d.className = 'cm'; d.textContent = e.n; d.title = e.text.join('\n'); d.style.left = x + 'px'; d.style.top = y + 'px';
     d.onclick = () => { if (t === e.pg) { select(null); setPage(e.pg); renderInspector(); } else select(t); openCommentPanel(true); };
     box.append(d);
@@ -2513,7 +2514,7 @@ function placeAdders() {
   if (!pg || !pg.isConnected) { padd.hidden = true; return; }
   padd.hidden = false;
   const r = pg.getBoundingClientRect(), span = pg.getBoundingClientRect();
-  const gap = (r.height / 648) * 9;   // half the 24px space between pages, in screen px
+  const gap = (r.height / Book.pageH(pg)) * 9;   // half the 24px space between pages, in screen px
   const cx = focusOn ? r.left + r.width / 2 : span.left + span.width / 2;   // focus mode: line up with the page itself
   const [ax, ay] = deskXY({ left: cx, top: r.top - gap }), [bx, by] = deskXY({ left: cx, top: r.bottom + gap });
   const [up, down, del, cp] = padd.children;
@@ -2642,10 +2643,10 @@ function fromFrame(d) {
   const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b));
   const before = flow.find(b => { const q = b.getBoundingClientRect(); return cy < q.top + q.height / 2; }) || null;
   fromAt = { page: under, before };
-  const q = under.getBoundingClientRect(), s = q.width / 432;
+  const q = under.getBoundingClientRect(), s = q.width / Book.pageW(under);
   let yy; if (before) yy = before.getBoundingClientRect().top - 5 * s; else if (flow.length) yy = flow[flow.length - 1].getBoundingClientRect().bottom + 5 * s; else yy = q.top + 20 * s;
   const [ax, ay] = deskXY({ left: q.left + 24 * s, top: yy });
-  drop.hidden = false; Object.assign(drop.style, { left: ax + 'px', top: ay + 'px', width: (384 * s) + 'px' });
+  drop.hidden = false; Object.assign(drop.style, { left: ax + 'px', top: ay + 'px', width: ((Book.pageW(under) - 48) * s) + 'px' });
 }
 window.addEventListener('message', e => {
   const d = e.data || {};

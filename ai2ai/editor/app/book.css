@@ -224,7 +224,8 @@ b-fig .crop { display: block; }
 /* Lecture-only fitting aids for pages that run long at the bigger type: smaller figures, slightly tighter text */
 .book[data-view="slides"] b-fig.s-sm { width: 72% !important; align-self: center; }
 .book[data-view="slides"] b-fig.s-xs { width: 58% !important; align-self: center; }
-.book[data-view="slides"] .page.s-tight { font-size: 16.5pt; --fs: 16.5pt; }
+.book:is([data-view="slides"], [data-view="workbook"]) .page.s-tight { font-size: 16.5pt; --fs: 16.5pt; }
+.book:is([data-view="slides"], [data-view="workbook"]) .page.s-tight b-code { font-size: 8.6pt; }
 u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { color: transparent; border-bottom: 1pt solid var(--ink); }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill * { color: transparent !important; }
@@ -458,3 +459,20 @@ html.lect .chap-head .navbar { display: none !important; }
 html.lect .chap-head .ink-sub { padding-top: calc(.3rem + var(--top-clear, 0px)); }
 html.lect #book, html.lect main.book { flex: 1 1 auto; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-x pan-y; align-items: flex-start; }
 html.lect #book > section.page, html.lect main.book > section.page { margin-left: auto; margin-right: auto; flex: none; }
+/* Lecture and Workbook pages are 16:9 slides, 10 × 5.625 in (Eric, 2026-10-26); the Reading stays a 6 × 9 page.
+   book.js Book.SIZES says the same for the measuring code; the exported page sets @page to match. */
+.book:is([data-view="slides"], [data-view="workbook"]) { --page-w: 720pt; --page-h: 405pt; }
+.book:is([data-view="slides"], [data-view="workbook"]) .cover { flex-direction: row-reverse; align-items: center; justify-content: space-between; gap: 28pt; padding: 28pt 40pt; }
+.book:is([data-view="slides"], [data-view="workbook"]) .cover > b-fig { width: 44%; margin-top: 0; flex: none; }
+.book:is([data-view="slides"], [data-view="workbook"]) .cover-text { flex: 1 1 0; min-width: 0; }
+/* on a slide a figure is never taller than --fig-h (default 230pt): its width is capped by its shape (--ar, set by
+   book.js), and it sits in the middle of the column. s-sm / s-xs make it smaller still. */
+.book:is([data-view="slides"], [data-view="workbook"]) .page > b-fig:not(.cover-art):not([style*="absolute"]) { max-width: calc(var(--fig-h, 230pt) * var(--ar, 1.6)); margin-left: auto; margin-right: auto; }
+.book:is([data-view="slides"], [data-view="workbook"]) .page > b-fig.s-sm:not([style*="absolute"]) { --fig-h: 180pt; }
+.book:is([data-view="slides"], [data-view="workbook"]) .page > b-fig.s-xs:not([style*="absolute"]) { --fig-h: 140pt; }
+
+/* code with no stored output: only the Run bar shows, over the code's bottom right corner, until it has run */
+b-out.run-new { height: 0; border: 0; position: relative; }
+b-out.run-new pre { display: none; }
+b-out.run-new .label { position: absolute; right: 4pt; bottom: 4pt; padding: 0; border: 0; font-size: 0; }
+b-out.run-new .run-bar .run-status { font-size: 7.5pt; }

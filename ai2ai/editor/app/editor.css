@@ -58,7 +58,7 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 .ed .book { display: flex; flex-flow: row wrap; justify-content: center; align-items: flex-start; gap: 24px; padding: 34px 24px 80px; }
 .ed .page { height: var(--page-h); overflow: visible; }
 .ed .page.over { border-color: var(--red-text); }
-.ed .page.over::after { content: "content runs into the footer"; position: absolute; left: 0; right: 0; top: 622pt; border-top: 1px dashed var(--red-text); color: var(--red-text); font-size: 7pt; text-align: right; padding-right: 4pt; pointer-events: none; }
+.ed .page.over::after { content: "content runs into the footer"; position: absolute; left: 0; right: 0; top: calc(var(--page-h) - 26pt); border-top: 1px dashed var(--red-text); color: var(--red-text); font-size: 7pt; text-align: right; padding-right: 4pt; pointer-events: none; }
 .ed .page > :not(.foot):hover { outline: 1px dashed #b5b5b5; outline-offset: 3px; }
 .ed .page > .ed-sel, .ed .page > .ed-sel:hover { outline: 1.5px solid #1a73e8; outline-offset: 3px; }
 .ed .page.ed-cur { box-shadow: 0 0 0 2px rgba(0,43,91,.25); }
@@ -509,3 +509,9 @@ html:has(body.ed), body.ed { overscroll-behavior: none; }
 .ed .dpane > .ed-cover:hover > .page { box-shadow: 0 0 0 2px rgba(26,115,232,.5); }
 #insp .linked { display: flex; gap: 8px; align-items: center; margin: 4px 0 10px; padding: 6px 8px; font-size: 11.5px; line-height: 1.35; color: #5c4700; background: #fff6d6; border: 1px solid #e6cf7a; border-radius: 4px; }
 #insp .linked button { flex: none; }
+#pages .thumb.wide { height: 85px; }
+#pages .thumb.wide .page { --page-w: 720pt; --page-h: 405pt; --zoom: 0.15625; }
+#pages.thumbs > li:has(.thumb.wide) { min-height: 112px; }
+/* in the editor a 16:9 Lecture page shows as wide as a Reading page (the zoom is set for Reading pages), so the
+   panes line up and "Fit width" fits both */
+.ed .book:is([data-view="slides"], [data-view="workbook"]) section.page { zoom: calc(var(--zoom) * .6); }

@@ -27,15 +27,15 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
 (async function () {
   const ch = location.pathname.split('/').filter(Boolean).pop(), q = new URLSearchParams(location.search), exporting = q.has('export');
   const grid = q.has('pane') || q.has('grid');   // a pane beside the editor: one edition, print layout, scrolling on its own
-  const zoom = () => { if (!grid) document.documentElement.style.setProperty('--zoom', Math.min(1, (window.innerWidth - 32) / 576) * (window.eaiZoomK || 1)); };   // eaiZoomK: Lecture mode's own page zoom (ink.js)   // in a pane the editor sets the zoom
+  const zoom = () => { if (!grid) document.documentElement.style.setProperty('--zoom', Math.min(1, (window.innerWidth - 32) / ((window.Book && Book.pageW ? Book.pageW(Book.view) : 432) * 4 / 3)) * (window.eaiZoomK || 1)); };   // eaiZoomK: Lecture mode's own page zoom (ink.js)   // in a pane the editor sets the zoom
   zoom(); window.addEventListener('resize', zoom);
   if (grid) {
     document.documentElement.style.setProperty('--zoom', +q.get('zoom') || 0.5);
-    const st = document.createElement('style'); st.textContent = '#book section.page{height:var(--page-h)!important;min-height:0!important;padding-bottom:0!important;overflow:hidden!important;cursor:pointer} #book b-code[dual],#book b-code[dual]+b-out,#book b-matmul{display:none!important} #book .page[data-ed-stale]::before{content:\'Slides changed: \' attr(data-ed-stale);position:absolute;top:6px;right:6px;z-index:3;font:600 10.5px/1.4 system-ui,sans-serif;color:#7a5c00;background:#fff3cd;border:1px solid #e6cf7a;border-radius:3px;padding:1px 6px} #book section.page.gmatch{box-shadow:0 0 0 3px #dcb439} #book section.page{transition:opacity .15s} #book{padding-top:50vh!important;padding-bottom:50vh!important} html,body{overscroll-behavior:none;overflow-x:hidden}';
+    const st = document.createElement('style'); st.textContent = '#book section.page{height:var(--page-h)!important;min-height:0!important;padding-bottom:0!important;overflow:hidden!important;cursor:pointer} #book b-code[dual],#book b-code[dual]+b-out,#book b-matmul{display:none!important} #book .page[data-ed-stale]::before{content:\'Slides changed: \' attr(data-ed-stale);position:absolute;top:6px;right:6px;z-index:3;font:600 10.5px/1.4 system-ui,sans-serif;color:#7a5c00;background:#fff3cd;border:1px solid #e6cf7a;border-radius:3px;padding:1px 6px} #book section.page.gmatch{box-shadow:0 0 0 3px #dcb439} #book section.page{transition:opacity .15s} #book{padding-top:50vh!important;padding-bottom:50vh!important} #book:is([data-view=slides],[data-view=workbook]) section.page{zoom:calc(var(--zoom) * .6)} html,body{overscroll-behavior:none;overflow-x:hidden}';
     document.head.append(st); document.querySelector('.navbar').style.display = 'none'; document.documentElement.style.background = 'transparent'; document.body.style.cssText = 'margin:0;background:transparent';
   }
   Book.chapter = ch; Book.base = '../c/' + ch + '/'; Book.web = !grid; Book.exporting = exporting; if (exporting) document.documentElement.dataset.exporting = '1';
-  const wanted = new URLSearchParams(location.search).get('view'); if (Book.views.includes(wanted)) Book.view = wanted;
+  const wanted = new URLSearchParams(location.search).get('view'); if (Book.views.includes(wanted)) Book.view = wanted; zoom();
   const info = await (await fetch('../api/info')).json(); Book.kit = info.kit; Book.mathml = !!info.offline;
   const version = new URLSearchParams(location.search).get('version');
   const d = await (await fetch(version ? '../api/history/' + ch + '?name=' + encodeURIComponent(version) : '../api/chapter/' + ch)).json();
@@ -103,11 +103,11 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       if (!ind) { ind = document.createElement('div'); ind.style.cssText = 'position:absolute;height:3px;background:#1a73e8;border-radius:2px;z-index:50;pointer-events:none'; document.body.append(ind); }
       const pg = p && document.elementsFromPoint(p.x, p.y).map(n => n.closest && n.closest('#book section.page')).find(Boolean);
       if (!pg || pg.classList.contains('cover')) { ind.hidden = true; if (p) parent.postMessage({ gridDropAt: null }, '*'); return; }
-      const r = pg.getBoundingClientRect(), s = r.width / 432, all = Book.blocks(pg);
+      const r = pg.getBoundingClientRect(), s = r.width / Book.pageW(pg), all = Book.blocks(pg);
       const vis = all.filter(b => !Book.isPinned(b) && b.getBoundingClientRect().height > 0);
       const nb = vis.find(b => { const q = b.getBoundingClientRect(); return p.y < q.top + q.height / 2; });
       const y = nb ? nb.getBoundingClientRect().top - 5 * s : vis.length ? vis[vis.length - 1].getBoundingClientRect().bottom + 5 * s : r.top + 20 * s;
-      ind.hidden = false; ind.style.left = (r.left + 24 * s + scrollX) + 'px'; ind.style.width = (384 * s) + 'px'; ind.style.top = (y + scrollY) + 'px';
+      ind.hidden = false; ind.style.left = (r.left + 24 * s + scrollX) + 'px'; ind.style.width = ((Book.pageW(pg) - 48) * s) + 'px'; ind.style.top = (y + scrollY) + 'px';
       parent.postMessage({ gridDropAt: { view: Book.view, page: pg.id, before: nb ? all.indexOf(nb) : -1, x: (p.x - r.left) / s, y: (p.y - r.top) / s } }, '*');
     };
     root.addEventListener('pointerdown', e => {

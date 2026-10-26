@@ -64,11 +64,12 @@ function eaiInk(opts) {
   function overlay(pg) {
     var svg = pg.querySelector(':scope > svg.ink');
     if (!svg) { svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'ink'); svg.setAttribute('aria-hidden', 'true'); pg.appendChild(svg); }
-    var r = pg.getBoundingClientRect(), k = 432 / (r.width || 432);
-    svg.setAttribute('viewBox', '0 0 432 ' + r1(r.height * k));
+    var W = pgW(pg), r = pg.getBoundingClientRect(), k = W / (r.width || W);
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + r1(r.height * k));
     return svg;
   }
-  function toPt(pg, e) { var r = pg.getBoundingClientRect(), k = 432 / r.width; return [r1((e.clientX - r.left) * k), r1((e.clientY - r.top) * k), Math.round((e.pressure > 0 ? e.pressure : 0.5) * 100) / 100]; }
+  function pgW(pg) { return window.Book && Book.pageW ? Book.pageW(pg) : (parseFloat(getComputedStyle(pg).width) > 700 ? 720 : 432); }   // the page's width in pt (Lecture pages are 720)
+  function toPt(pg, e) { var r = pg.getBoundingClientRect(), k = pgW(pg) / r.width; return [r1((e.clientX - r.left) * k), r1((e.clientY - r.top) * k), Math.round((e.pressure > 0 ? e.pressure : 0.5) * 100) / 100]; }
   function drawStroke(s) {
     var pg = document.getElementById(s.p); if (!pg) return null;
     var el = document.createElementNS(NS, 'path'); paint(el, s);
@@ -318,7 +319,7 @@ function eaiInk(opts) {
     var H = document.documentElement, KEY = 'ai2ai-lect-zoom', k = 1;
     try { k = +localStorage.getItem(KEY) || 1; } catch (x) {}
     H.classList.add('lect');
-    function fit() { return Math.min(1, (innerWidth - 32) / 576); }   // the view's own fit-the-width zoom (view.html)
+    function fit() { var pg = book.querySelector('section.page'), W = window.Book && Book.pageW ? Book.pageW(Book.view) : pg ? pgW(pg) : 432; return Math.min(1, (innerWidth - 32) / (W * 4 / 3)); }   // the view's own fit-the-width zoom (view.html)
     window.eaiZoomK = k;
     function apply() { H.style.setProperty('--zoom', +(fit() * k).toFixed(4)); }
     function pageAt(x, y) {   // the page nearest a point, and where in it the point is (fractions), to keep it under the fingers
