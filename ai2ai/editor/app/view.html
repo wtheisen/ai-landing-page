@@ -148,6 +148,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
     }, { passive: false });
     window.addEventListener('touchend', () => { tch = null; });
     ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => window.addEventListener(t, e => e.preventDefault(), { passive: false }));
+    document.documentElement.classList.add('ink-ghost');   // the editor's Lecture column shows the blanks' answers faintly (never Present here)
     document.documentElement.dataset.ready = '1'; parent.postMessage({ gridReady: Book.view }, '*'); return;
   }
   const report = Book.report, pages = Book.pages().length;
