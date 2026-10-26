@@ -425,3 +425,13 @@ b-eq > .eq-ml { display: inline-block; vertical-align: middle; max-width: 100%; 
 .eqml-s { padding-left: 0.6em; font-size: 12pt; display: flex; align-items: baseline; gap: 0.5em; }
 .eqml-s math { font-size: 12pt; }
 .eqml-arrow { color: #666; font-family: 'AI2AI Math', math; }
+
+/* Columns as boxes: div.colrow > div.colbox, each box its own text (editor: Columns in the inspector) */
+.colrow { display: flex; align-items: flex-start; gap: 18pt; }
+.colrow > .colbox { flex: 1 1 0; min-width: 0; }
+.colrow > .colbox > :first-child { margin-top: 0; }
+.colrow > .colbox > :last-child { margin-bottom: 0; }
+.colrow:has(> .colbox:nth-child(3)) { gap: 14pt; }
+.colrow.cols-rule { gap: 0; }
+.colrow.cols-rule > .colbox + .colbox { border-left: 0.75pt solid var(--border-strong); padding-left: 9pt; margin-left: 9pt; }
+.colrow > .colbox > p:empty { min-height: 1lh; }

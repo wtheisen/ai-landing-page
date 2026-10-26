@@ -55,10 +55,11 @@ if (info.offline) { const home = document.createElement('a'); home.href = '../';
 function prep() {   // make text blocks editable; equations, figures and code are edited from the side panel
   for (const pg of Book.pages()) for (const el of Book.blocks(pg)) {
     if (NOEDIT.test(el.tagName) || (el.tagName === 'DIV' && !el.firstChild && el.className === 'rule')) continue;
+    if (el.classList.contains('colrow')) { el.removeAttribute('contenteditable'); for (const b of el.querySelectorAll(':scope > .colbox')) if (b.getAttribute('contenteditable') !== 'true') { b.setAttribute('contenteditable', 'true'); b.setAttribute('spellcheck', 'true'); } continue; }
     if (el.getAttribute('contenteditable') !== 'true') { el.setAttribute('contenteditable', 'true'); el.setAttribute('spellcheck', 'true'); }
   }
 }
-prep();
+oldColumns(); prep();
 status.addEventListener('click', () => { commit(true); save(); });
 poolSync(); if (Book.split) Book.markStale();
 cur = saved = Book.serialize();
@@ -818,6 +819,7 @@ document.addEventListener('keydown', e => {
       if (e.shiftKey) { e.preventDefault(); return document.execCommand('insertLineBreak'); }
       if (/^(P|H1|H2|H3|H4)$/.test(host.tagName)) { e.preventDefault(); return splitBlock(host); }
       if (/^(UL|OL)$/.test(host.tagName)) return;   // the browser adds the next list item
+      if (host.classList.contains('colbox')) { document.execCommand('defaultParagraphSeparator', false, 'p'); return; }   // a column box: the browser splits the paragraph / adds the item
       e.preventDefault(); if (!cell) document.execCommand('insertLineBreak'); return;
     }
     if (e.key === 'Backspace' && host.tagName === 'P' && atStart(host)) {
@@ -1261,7 +1263,7 @@ function renderOneInspector() {
     add(`<div class="help">Tab nests an item under the one above; Shift+Tab lifts it back out.</div>`);
     add(`<div class="help">Enter adds an item. The classes below change the look: <code>cases</code> normal, <code>tight</code> small, <code>problems</code> numbered practice problems, <code>roadmap</code> the numbered road map.</div>`);
   } else if (el.classList.contains('qc')) add(`<div class="help">The answer line shows here only. In the web edition it sits behind “Show answer”; in print it is listed on the answers page (wherever the chapter has a quick-check answers block).</div>`);
-  if ((/^(P|DIV|UL|OL)$/.test(el.tagName) && el.isContentEditable && !el.querySelector(':scope > div, :scope > dl')) || /^(UL|OL)$/.test(el.tagName)) columnsControl(el, add);
+  if ((/^(P|DIV|UL|OL)$/.test(el.tagName) && el.isContentEditable && !el.querySelector(':scope > div, :scope > dl')) || /^(UL|OL)$/.test(el.tagName) || el.classList.contains('colrow')) columnsControl(el, add);
   add('<hr>');
   if (Book.isPinned(el)) {
     add(`<label>Pinned position (pt from the page's top-left; the page is 432 × 648)</label>`);
@@ -1278,25 +1280,49 @@ function renderOneInspector() {
   add(`<label>Classes</label>`); const cls = add(`<input type="text" value="${esc(userClass(el))}" spellcheck="false">`);
   cls.onchange = () => { const keep = [...el.classList].filter(c => c.startsWith('ed-')); el.className = [...cls.value.split(/\s+/).filter(Boolean), ...keep].join(' '); commit(true); Book.refresh(); };
 }
-// Columns on a text block (paragraph, note, callout, list): classes cols-2 / cols-3 (+ cols-rule), styled in book.css.
-// The text flows down the first column, then the next. In a list, colbreak on an item starts a new column there.
+// Columns: a text block becomes a row of separate boxes side by side, div.colrow > div.colbox × 2 or 3 (book.css).
+// Each box is its own editable text area, so what goes in which column is simply what you type there.
+// The block you started from moves into the first box (a list is shared out between the boxes); 1 puts it all back.
+function BOXED(el) { const c = el.cloneNode(false); c.removeAttribute('contenteditable'); c.removeAttribute('spellcheck'); c.removeAttribute('id'); c.removeAttribute('style'); c.classList.remove('cols-2', 'cols-3', 'cols-rule', ...[...c.classList].filter(k => k.startsWith('ed-'))); if (!c.className) c.removeAttribute('class'); if (c.localName === 'ol') c.removeAttribute('start'); return c; }
+function emptyLike(el) { const c = BOXED(el); if (/^(ul|ol)$/.test(c.localName)) c.append(document.createElement('li')); return c; }
+function toColumns(el, n) {   // a text block → colrow with n boxes
+  const row = document.createElement('div'); row.className = 'colrow' + (el.classList.contains('cols-rule') ? ' cols-rule' : '');
+  for (const a of ['style', 'id', 'data-view', 'data-pool']) if (el.hasAttribute(a)) row.setAttribute(a, el.getAttribute(a));
+  const boxes = Array.from({ length: n }, () => { const b = document.createElement('div'); b.className = 'colbox'; return b; });
+  if (/^(UL|OL)$/.test(el.tagName)) {
+    const items = [...el.children].filter(c => c.localName === 'li'), breaks = items.some(li => li.classList.contains('colbreak'));
+    let k = 0; const per = Math.ceil(items.length / n) || 1, lists = boxes.map(() => BOXED(el));
+    items.forEach((li, i) => { if (breaks ? li.classList.contains('colbreak') && i : i && i % per === 0) k = Math.min(k + 1, n - 1); li.classList.remove('colbreak'); if (!li.className) li.removeAttribute('class'); lists[k].append(li); });
+    lists.forEach((l, i) => { if (!l.children.length) l.append(document.createElement('li')); if (l.localName === 'ol' && i) l.setAttribute('start', lists.slice(0, i).reduce((t, x) => t + x.children.length, 0) + 1); boxes[i].append(l); });
+  } else { boxes[0].append(BOXED(el)); while (el.firstChild) boxes[0].firstChild.append(el.firstChild); for (const b of boxes.slice(1)) b.append(emptyLike(el)); }
+  row.append(...boxes); el.replaceWith(row); return row;
+}
+function blankText(c) { return !c.textContent.trim() && !c.querySelector('b-m,b-ref,b-fig,b-eq,img,svg'); }
+function setColumns(row, n) {   // change the number of boxes (1 = back to ordinary blocks)
+  const boxes = [...row.children].filter(b => b.classList.contains('colbox'));
+  if (n > boxes.length) { for (let k = boxes.length; k < n; k++) { const b = document.createElement('div'); b.className = 'colbox'; const last = boxes[boxes.length - 1].lastElementChild; b.append(last ? emptyLike(last) : document.createElement('p')); row.append(b); } return row; }
+  const keep = n > 1 ? boxes.slice(0, n) : [], into = n > 1 ? keep[n - 1] : null, moved = [];
+  for (const b of boxes.slice(n > 1 ? n : 0)) for (const c of [...b.children]) if (!blankText(c)) moved.push(c);
+  if (into) { [...boxes.slice(n)].forEach(b => b.remove()); for (const c of moved) into.append(c); return row; }
+  const merged = []; for (const c of moved) { const prev = merged[merged.length - 1]; if (prev && /^(ul|ol)$/.test(c.localName) && prev.localName === c.localName && prev.className === c.className) prev.append(...c.children); else merged.push(c); }
+  merged.forEach(c => c.removeAttribute('start'));
+  if (!merged.length) merged.push(document.createElement('p'));
+  if (row.getAttribute('style')) merged[0].setAttribute('style', row.getAttribute('style'));
+  row.replaceWith(...merged); return merged[0];
+}
+function oldColumns() {   // cols-2 / cols-3 blocks from before the boxes → boxes
+  let n = 0; for (const el of book.querySelectorAll('section.page > :is(.cols-2, .cols-3)')) { toColumns(el, el.classList.contains('cols-3') ? 3 : 2); n++; } return n;
+}
 function columnsControl(el, add) {
-  const n = el.classList.contains('cols-3') ? 3 : el.classList.contains('cols-2') ? 2 : 1, list = /^(UL|OL)$/.test(el.tagName);
+  const row = el.classList.contains('colrow') ? el : null, n = row ? row.querySelectorAll(':scope > .colbox').length : 1;
   add(`<label>Columns</label>`);
-  const row = add(`<div class="row seg">${[1, 2, 3].map(k => `<button data-c="${k}" class="${k === n ? 'on' : ''}">${k}</button>`).join('')}<label class="check" style="margin:0 0 0 8px"><input type="checkbox" ${el.classList.contains('cols-rule') ? 'checked' : ''} ${n === 1 ? 'disabled' : ''}>Line between</label></div>`);
-  row.onclick = e => {
+  const r = add(`<div class="row seg">${[1, 2, 3].map(k => `<button data-c="${k}" class="${k === n ? 'on' : ''}">${k}</button>`).join('')}<label class="check" style="margin:0 0 0 8px"><input type="checkbox" ${row && row.classList.contains('cols-rule') ? 'checked' : ''} ${n === 1 ? 'disabled' : ''}>Line between</label></div>`);
+  r.onclick = e => {
     const k = +e.target.dataset.c; if (!k || k === n) return;
-    commit(true); el.classList.remove('cols-2', 'cols-3'); if (k > 1) el.classList.add('cols-' + k); else { el.classList.remove('cols-rule'); el.querySelectorAll('li.colbreak').forEach(li => li.classList.remove('colbreak')); }
-    commit(true); Book.refresh(); place(); renderInspector();
+    commit(true); const out = row ? setColumns(row, k) : toColumns(el, k); prep(); select(out); commit(true); Book.refresh(); place(); renderInspector();
   };
-  row.querySelector('input').onchange = e => { commit(true); el.classList.toggle('cols-rule', e.target.checked); commit(true); Book.refresh(); };
-  if (n > 1 && list) {
-    const caretLi = () => { const a = getSelection().anchorNode; const li = a && (a.nodeType === 1 ? a : a.parentElement).closest('li'); return li && el.contains(li) ? li : null; };
-    const b = add(`<div class="row"><button title="Put the caret in an item first">Start a new column at this item</button></div>`).firstChild;
-    b.onmousedown = e => e.preventDefault();   // keep the caret where it is
-    b.onclick = () => { const li = caretLi(); if (!li) return toast('Click in a list item first'); commit(true); li.classList.toggle('colbreak'); commit(true); Book.refresh(); place(); };
-    add(`<div class="help">Items flow down the first column, then the next. Click in an item and press the button to start the next column there (press again to undo).</div>`);
-  } else if (n > 1) add(`<div class="help">The text flows down the first column, then into the next, with the columns about level. For separate blocks side by side, pin them instead.</div>`);
+  r.querySelector('input').onchange = e => { commit(true); row.classList.toggle('cols-rule', e.target.checked); commit(true); Book.refresh(); };
+  add(`<div class="help">${n > 1 ? 'Each column is its own box: click into one and type. Going back to 1 puts the boxes’ text one after the other.' : 'Splits this block into side-by-side boxes. What is here now goes in the first box (a list is shared out), and you type into the others.'}</div>`);
 }
 function pageInspector() {
   const pg = curPage; if (!pg) { insp.innerHTML = '<h4>Nothing selected</h4><div class="help">Click a block to select it, or a page to see its settings.</div>' + HELP; return; }

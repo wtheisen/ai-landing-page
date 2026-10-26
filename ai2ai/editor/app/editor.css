@@ -468,3 +468,9 @@ body.ed-xdrag .gcol iframe { pointer-events: none; }   /* while dragging a block
 #cgrip { cursor: copy !important; font-size: 11px !important; }
 #cgrip b { font-size: 9px; margin-left: -1px; }
 #xghost .ed-sel { outline: 0; }
+
+/* column boxes: show each box's outline, like text boxes on a slide */
+#book .colrow > .colbox { outline: 1px dashed rgba(0, 43, 91, .28); outline-offset: 3pt; border-radius: 1px; min-height: 1.4em; }
+#book .colrow > .colbox:focus { outline: 1.5px solid rgba(17, 85, 204, .65); }
+#book .colrow > .colbox > p:empty::before, #book .colrow > .colbox:empty::before { content: 'Type here'; color: #aab; pointer-events: none; }
+#book .colrow > .colbox:focus > p:only-child:empty::before { content: ''; }
