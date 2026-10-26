@@ -474,3 +474,5 @@ body.ed-xdrag .gcol iframe { pointer-events: none; }   /* while dragging a block
 #book .colrow > .colbox:focus { outline: 1.5px solid rgba(17, 85, 204, .65); }
 #book .colrow > .colbox > p:empty::before, #book .colrow > .colbox:empty::before { content: 'Type here'; color: #aab; pointer-events: none; }
 #book .colrow > .colbox:focus > p:only-child:empty::before { content: ''; }
+#glabels span button.lineup { pointer-events: auto; margin-left: 6px; font: 600 11px/1 system-ui, sans-serif; padding: 2px 7px; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #333; cursor: pointer; }
+#glabels span button.lineup:hover { background: #f1ede0; border-color: #DCB439; }

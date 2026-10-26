@@ -2078,10 +2078,12 @@ function placeLabels() {
   glabels.hidden = !gridOn; if (!gridOn) return;
   const d = desk.getBoundingClientRect();
   const cols = [[book, GLABEL[Book.view] + ' (editing)', true], ...Book.views.filter(v => !gcols[v].hidden).map(v => [gcols[v], GLABEL[v], false])];
-  glabels.innerHTML = cols.map(([el, t, ed]) => { const q = el.getBoundingClientRect(); return `<span class="${ed ? 'ed' : ''}" style="left:${Math.round(q.left - d.left + q.width / 2)}px">${t}</span>`; }).join('');
+  const other = v => Book.split && (v === 'reading') !== (Book.view === 'reading');   // (docOf is defined further down)
+  glabels.innerHTML = cols.map(([el, t, ed]) => { const q = el.getBoundingClientRect(), v = ed ? null : Book.views.find(x => gcols[x] === el); return `<span class="${ed ? 'ed' : ''}" style="left:${Math.round(q.left - d.left + q.width / 2)}px">${t}${v && other(v) ? ' <button class="lineup" title="Slide this column so the pages on the same topic as the one you are editing sit level with it">Line up</button>' : ''}</span>`; }).join('');
+  glabels.querySelectorAll('.lineup').forEach(b => b.onclick = () => { lineUp = 2; focusChanged(); });
 }
 desk.addEventListener('scroll', () => { if (gridOn) placeLabels(); }, { passive: true });
-var canvasStarted = false;
+var canvasStarted = false, lineUp = 0;   // lineUp: the columns slide to match only when asked (Eric: following the current page jumped him around)
 function gridApply() {
   if (!GLABEL || !gcols || !gcols.reading) return;   // still loading: the canvas code at the end of this file lays out once it has run
   document.body.classList.toggle('grid', gridOn); $('#x-grid').classList.toggle('on', gridOn);
@@ -2119,7 +2121,8 @@ function gridAfterSave() { if (!gridOn || !gcols || !gcols.reading) return; clea
 window.addEventListener('message', e => {
   const d = e.data || {};
   if (d.gridReady) { gridLayout(); setTimeout(focusChanged, 50); }
-  if (d.gridMatch && gcols[d.gridMatch.view]) {   // split: slide the other document's column so its first page on this topic sits level with the page being edited
+  if (d.gridMatch && gcols[d.gridMatch.view] && lineUp) {   // split, on request (Line up): slide the other document's column so its first page on this topic sits level with the page being edited
+    lineUp = Math.max(0, lineUp - 1);
     const col = gcols[d.gridMatch.view], fr = col.querySelector('iframe');
     const dy = d.gridMatch.top != null && curPage && curPage.isConnected ? curPage.offsetTop - d.gridMatch.top : null;
     if (dy != null) { fr.style.transition = 'transform .25s ease'; fr.style.transform = `translateY(${Math.round(dy)}px)`; }
@@ -2127,7 +2130,14 @@ window.addEventListener('message', e => {
   if (d.gridHeight && gcols[d.view]) { gridHeights[d.view] = d.gridHeight; const fr = gcols[d.view].querySelector('iframe'); if (fr && fr.style.height !== d.gridHeight + 'px') { fr.style.height = d.gridHeight + 'px'; canvasSize(); } }
   if (d.gridPick && Book.views.includes(d.view)) {   // edit this page in that edition
     const pg = Book.pages().find(p => p.id === d.gridPick);
-    if (d.view !== Book.view) setMode(d.view);
+    if (d.view !== Book.view) {   // swap which column is edited without moving anything on screen
+      const shift = v => parseFloat((/translateY\((-?[\d.]+)px\)/.exec(gcols[v].querySelector('iframe').style.transform) || [0, 0])[1]);
+      const old = Book.view, rel = shift(d.view), offs = Object.fromEntries(Book.views.filter(v => v !== old && v !== d.view).map(v => [v, shift(v) - rel]));
+      offs[old] = -rel;
+      setMode(d.view);
+      for (const [v, y] of Object.entries(offs)) { const fr = gcols[v].querySelector('iframe'); fr.style.transition = 'none'; fr.style.transform = `translateY(${Math.round(y)}px)`; }
+      desk.scrollTop -= rel * canvasZ;
+    }
     if (pg) { setPage(pg); renderInspector(); }
   }
 });
