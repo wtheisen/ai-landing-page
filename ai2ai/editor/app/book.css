@@ -439,3 +439,9 @@ b-eq > .eq-ml { display: inline-block; vertical-align: middle; max-width: 100%; 
 .tbox > :last-child { margin-bottom: 0; }
 .tbox > p:empty { min-height: 1lh; }
 .ink-sub .pres { font-size: 12px; font-weight: 700; color: #fff; background: #002B5B; border-radius: 10px; padding: 3px 9px; margin-right: 6px; white-space: nowrap; }
+/* Lists in the Lecture and Workbook (Eric, 2026-10-26): text then a list = half the usual gap with a faint rule in
+   the middle of it, and a little more room between the items. Page-level lists sit in the page's flex gap (--gap). */
+.book:is([data-view="slides"], [data-view="workbook"]) :is(.tbox, .colbox) > :has(+ :is(ul, ol)) { margin-bottom: 0; }
+.book:is([data-view="slides"], [data-view="workbook"]) :is(.tbox, .colbox) > * + :is(ul, ol) { margin-top: .25em; padding-top: .25em; border-top: .75pt solid rgba(0, 0, 0, .12); }
+.book:is([data-view="slides"], [data-view="workbook"]) .page > p + :is(ul, ol) { margin-top: calc(var(--gap, 10pt) * -.75); padding-top: calc(var(--gap, 10pt) * .25); border-top: .75pt solid rgba(0, 0, 0, .12); }
+.book:is([data-view="slides"], [data-view="workbook"]) :is(ul, ol):not(.cases):not(.tight) li + li { margin-top: .25em; }
