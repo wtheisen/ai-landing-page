@@ -788,19 +788,32 @@ function listShortcut(host) {
   if (host.tagName === 'P' && plain(host)) cont = host;
   else if (box) { const pp = at.closest('p'); cont = pp && box.contains(pp) ? (plain(pp) ? pp : null) : (![...box.children].some(c => /^(P|UL|OL|DIV|H\d)$/.test(c.tagName)) ? box : null); }
   if (!cont) return false;
+  // the line the caret is on: from the last line break before it (Enter makes line breaks inside a paragraph)
   const r = document.createRange(); r.selectNodeContents(cont); r.setEnd(s.anchorNode, s.anchorOffset);
+  const brs = [...cont.querySelectorAll("br")].filter(b => r.intersectsNode(b) && !b.closest("li"));
+  const br = brs[brs.length - 1]; if (br) r.setStartAfter(br);
   const m = /^\s*(?:(\d+)\.|([*\-]))$/.exec(r.toString()); if (!m || r.cloneContents().querySelector('b-m,b-ref')) return false;
   commit(true); r.deleteContents();
   const list = document.createElement(m[1] ? 'ol' : 'ul'), li = document.createElement('li');
   if (m[1] && +m[1] !== 1) list.setAttribute('start', m[1]);
-  while (cont.firstChild) li.append(cont.firstChild);
+  const rest = document.createRange(); rest.selectNodeContents(cont); if (br) rest.setStartAfter(br);
+  li.append(rest.extractContents()); if (br) br.remove();
+  li.querySelectorAll(':scope > br:last-child').forEach(b => { if (b.previousSibling) b.remove(); });
   if (!li.textContent.trim() && !li.querySelector('b-m,b-ref')) li.replaceChildren(document.createElement('br'));
   list.append(li);
+  const keep = br && (cont.textContent.trim() || cont.querySelector('b-m,b-ref'));   // text above the list stays a paragraph
   if (cont === box) box.append(list);
+  else if (keep) cont.after(list);
   else { for (const a of ['style', 'data-view', 'id']) if (!box && cont.hasAttribute(a)) list.setAttribute(a, cont.getAttribute(a)); cont.replaceWith(list); }
+  if (!box && cont.hasAttribute('data-view') && keep) list.setAttribute('data-view', cont.getAttribute('data-view'));
   prep(); select(box ? box.parentElement : list); focusIn(li, false); commit(true); Book.refresh(); place();
   return true;
 }
+// iPad and phone keyboards don't always send a usable keydown for the space, so the list shortcut listens here
+book.addEventListener('beforeinput', e => {
+  if (e.inputType !== 'insertText' || e.data !== ' ') return;
+  const host = editHost(); if (host && document.activeElement === host && listShortcut(host)) e.preventDefault();
+});
 // Cmd+Enter in a column box: what follows the caret starts the next box; in the last box it carries on below the row.
 function nextBox(box) {
   const row = box.parentElement, boxes = () => [...row.children].filter(b => b.classList.contains('colbox'));
@@ -865,7 +878,6 @@ document.addEventListener('keydown', e => {
     const cell = getSelection().anchorNode && (getSelection().anchorNode.nodeType === 1 ? getSelection().anchorNode : getSelection().anchorNode.parentElement).closest('td,th');
     if (e.key === 'Tab' && cell) { e.preventDefault(); return cellMove(cell, e.shiftKey); }
     if (e.key === 'Enter' && mod && host.classList.contains('colbox')) { e.preventDefault(); return nextBox(host); }
-    if (e.key === ' ' && !mod && !e.altKey && listShortcut(host)) { e.preventDefault(); return; }
     if (e.key === 'Enter') {
       if (e.shiftKey) { e.preventDefault(); return document.execCommand('insertLineBreak'); }
       // Enter: a new line in the same block (like a text box on a slide); Cmd+Enter: a new paragraph block below
