@@ -1402,7 +1402,7 @@ function renderPages() { clearTimeout(pagesT); pagesT = setTimeout(() => {
     if (!li) { li = document.createElement('li'); li.draggable = true; li.dataset.id = p.id; li.innerHTML = '<div class="row1"><span class="n"></span><span class="t"></span></div>'; rowOf.set(p.id, li); seen.observe(li); }
     live.add(p.id);
     const stale = p.getAttribute('data-ed-stale');
-    li.className = (p.classList.contains('over') ? 'over ' : '') + (p === curPage ? 'cur ' : '') + (p.dataset.part ? 'part ' : '') + (stale ? 'stale' : '');
+    li.className = (p.classList.contains('over') ? 'over ' : '') + (p === curPage ? 'cur ' : '') + (p.dataset.part ? 'part ' : '') + (stale ? 'stale ' : '') + (pageSel.has(p.id) ? 'sel' : '');
     li.title = p.classList.contains('over') ? 'Content runs past the page' : stale ? 'The Lecture changed since this page was last brought in step (' + stale + ')' : '';
     const n = String(k + 1), t = p.classList.contains('cover') ? 'Cover' : ((p.querySelector('h2') || {}).textContent || '(untitled)');
     if (li.querySelector('.n').textContent !== n) li.querySelector('.n').textContent = n;
@@ -1416,7 +1416,55 @@ function renderPages() { clearTimeout(pagesT); pagesT = setTimeout(() => {
 var lastRevealed = null;
 $('#pg-thumbs').onclick = () => { thumbs = !thumbs; try { localStorage.setItem('book-thumbs', thumbs ? '1' : '0'); } catch (x) {} $('#pg-thumbs').classList.toggle('on', thumbs); renderPages(); setTimeout(() => rowOf.forEach(li => { if (li._vis) paintThumb(li); }), 250); };
 $('#pg-thumbs').classList.toggle('on', thumbs);
-$('#pages').addEventListener('click', e => { const li = e.target.closest('li'); if (!li) return; const pg = pageById(li.dataset.id); if (document.activeElement) document.activeElement.blur(); select(null); setPage(pg); renderInspector(); pg.scrollIntoView({ block: 'start', behavior: 'smooth' }); });
+// the page list works like Google Slides' filmstrip: click a page, Shift-click a range, Cmd-click to add or drop one,
+// then Delete/Backspace removes the selected pages (Undo in the toast or Cmd+Z), ↑ ↓ move between pages
+const pageSel = new Set();   // ids of the pages selected in the list (besides the current page)
+const listPages = () => [...$('#pages').children].map(li => li.dataset.id);
+function markPageSel() { $('#pages').querySelectorAll(':scope > li').forEach(li => li.classList.toggle('sel', pageSel.has(li.dataset.id))); }
+function goToPage(pg) { select(null); setPage(pg); renderInspector(); pg.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+$('#pages').tabIndex = 0;
+$('#pages').addEventListener('click', e => {
+  const li = e.target.closest('li'); if (!li) return; const pg = pageById(li.dataset.id); if (!pg) return;
+  if (document.activeElement && document.activeElement !== $('#pages')) document.activeElement.blur();
+  $('#pages').focus({ preventScroll: true });
+  const ids = listPages();
+  if (e.shiftKey && curPage) {   // a range, from the current page to this one
+    const a = ids.indexOf(curPage.id), b = ids.indexOf(li.dataset.id);
+    pageSel.clear(); ids.slice(Math.min(a, b), Math.max(a, b) + 1).forEach(id => pageSel.add(id));
+  } else if (e.metaKey || e.ctrlKey) {
+    if (!pageSel.size && curPage) pageSel.add(curPage.id);
+    if (pageSel.has(li.dataset.id)) pageSel.delete(li.dataset.id); else pageSel.add(li.dataset.id);
+  } else pageSel.clear();
+  markPageSel(); goToPage(pg);
+});
+function deletePages(ids) {
+  const all = Book.pages(), doomed = ids.map(pageById).filter(Boolean);
+  if (!doomed.length) return;
+  if (doomed.length >= all.length) return toast('A chapter needs at least one page');
+  commit(true);
+  const order = listPages(), last = Math.max(...doomed.map(p => order.indexOf(p.id)));
+  const next = order.slice(last + 1).concat(order.slice(0, last).reverse()).map(pageById).find(p => p && !doomed.includes(p));
+  select(null); doomed.forEach(p => p.remove()); pageSel.clear();
+  setPage(next); Book.refresh(); commit(true); renderInspector(); renderPages();
+  toast(doomed.length === 1 ? 'Page deleted' : doomed.length + ' pages deleted', 'Undo', doUndo);
+}
+$('#pages').addEventListener('keydown', e => {
+  if (e.target !== $('#pages') || e.altKey) return;
+  const mod = e.metaKey || e.ctrlKey;
+  if ((e.key === 'Delete' || e.key === 'Backspace') && !mod) {
+    e.preventDefault(); e.stopPropagation();
+    return deletePages(pageSel.size ? [...pageSel] : curPage ? [curPage.id] : []);
+  }
+  if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && !mod && curPage) {
+    e.preventDefault(); e.stopPropagation();
+    const ids = listPages(), k = ids.indexOf(curPage.id) + (e.key === 'ArrowDown' ? 1 : -1), pg = pageById(ids[k]);
+    if (!pg) return;
+    if (e.shiftKey) { if (!pageSel.size) pageSel.add(curPage.id); pageSel.add(pg.id); } else pageSel.clear();
+    markPageSel(); goToPage(pg); revealPageRow();
+  }
+  if (mod && e.key.toLowerCase() === 'a') { e.preventDefault(); e.stopPropagation(); listPages().forEach(id => pageSel.add(id)); markPageSel(); }
+  if (e.key === 'Escape') { pageSel.clear(); markPageSel(); }
+});
 // drag a row to reorder pages: the top half of a row drops before it, the bottom half after it,
 // and holding the pointer near the top or bottom edge of the list scrolls it
 let dragId = null, dropAt = null, dragY = 0, dragScroll = 0;
@@ -1525,6 +1573,7 @@ $('#x-over').onclick = () => { const list = Book.report || []; if (!list.length)
 // keyboard shortcuts
 const KEYS = [['Writing'], ['Enter', 'new paragraph'], ['Shift+Enter', 'line break'], ['/', 'in an empty paragraph: insert menu'], ['$x_i$', 'inline math (or Cmd+E)'], ['Option+1 … 6', 'gold, navy, green, red, teal, dark grey (bold)'], ['Option+N', 'number: bold Consolas in dark grey'], ['Option+M', 'Consolas on or off (numbers, technical bits)'], ['Cmd+Shift+E', 'centre the block (again: back to the left)'], ['Option+0', 'clear emphasis'], ['Cmd+B / Cmd+I', 'bold / italic'], ['Cmd+K', 'link'], ['Tab / Shift+Tab', 'next cell in a table; nest / un-nest in a list'], ['Arrow keys', 'walk into the next block'], ['Cmd+F', 'find and replace'],
   ['Blocks'], ['Esc', 'stop typing, keep the block selected'], ['Shift-click', 'select several blocks'], ['Cmd+A', 'every block on the page (when not typing)'], ['Cmd+C / X / V', 'copy, cut, paste blocks (also to another page)'], ['Cmd+D', 'duplicate'], ['Backspace', 'delete the selected block'], ['Option+↑ ↓', 'move the block up or down'], ['Arrows', 'nudge a pinned block (Shift: by 10)'],
+  ['Page list'], ['click / Shift-click / Cmd-click', 'select a page, a range, add or drop one'], ['Delete or Backspace', 'delete the selected pages (Cmd+Z undoes)'], ['↑ ↓', 'previous / next page (Shift: extend the selection)'], ['Cmd+A', 'select every page'],
   ['Drawing'], ['double-click a tool', 'keep drawing with it (Esc stops)'], ['Shift while drawing', 'square, circle, 45° line'], ['Option-drag', 'leave a copy'], ['Cmd while dragging', 'no snapping'], ['double-click', 'polygon: move corners; label: retype'], ['Cmd+G / Shift+Cmd+G', 'group / ungroup'],
   ['Everywhere'], ['Cmd+Z / Shift+Cmd+Z', 'undo / redo'], ['Cmd+S', 'save now (it also saves by itself)'], ['?', 'this list']];
 const showHelp = () => { modal(`<h3>Shortcuts</h3><table class="keys">${KEYS.map(k => k.length === 1 ? `<tr class="h"><td colspan="2">${k[0]}</td></tr>` : `<tr><td>${esc(k[0])}</td><td>${esc(k[1])}</td></tr>`).join('')}</table><div class="actions"><button onclick="document.getElementById('modal').hidden=true">Close</button></div>`).classList.add('wide'); };
