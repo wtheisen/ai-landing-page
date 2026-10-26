@@ -2612,6 +2612,7 @@ function eaiInk(opts) {
   var bar = null, laser = null, last = { t: 'pen', c: PEN[0][0] };
   var SVG = function (d, extra) { return '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"' + (extra || '') + '>' + d + '</svg>'; };
   var I = {
+    eye: SVG('<path fill="none" stroke="currentColor" stroke-width="1.4" d="M1.2 8s2.5-4.6 6.8-4.6S14.8 8 14.8 8s-2.5 4.6-6.8 4.6S1.2 8 1.2 8z"/><circle cx="8" cy="8" r="2" fill="currentColor"/>'),
     hand: SVG('<path fill="currentColor" d="M3.5 1.8l9 5.2-4 1 2.3 4.3-1.7.9L6.8 8.9 3.9 11.6z"/>'),
     hl: SVG('<path fill="#F1C232" d="M5 10.5l5.6-7.6 2.6 1.9-5.6 7.6H5z"/><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" d="M5 10.5l5.6-7.6 2.6 1.9-5.6 7.6H5zM3 14.5h6"/>'),
     erase: SVG('<path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M2.5 10.2l6.7-6.7 4.3 4.3-5.2 5.2H5.8zM6 6.7l4.3 4.3M8.3 13h5.2"/>'),
@@ -2651,6 +2652,7 @@ function eaiInk(opts) {
       if (b.dataset.a === 'blank') { ensureTarget(); addBlank(); }
       if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter (this view)?')) { mine.strokes = []; mine.pages = []; undo = []; store(KEY_MINE, mine); render(); }
       if (b.dataset.a === 'publish') { ensureTarget(); publish(); }
+      if (b.dataset.a === 'present') { store('eai-ink-ghost', store('eai-ink-ghost') === false); ghost(); navbar(); }
       barState();
     });
     bar.addEventListener('change', function (e) {
@@ -2668,6 +2670,7 @@ function eaiInk(opts) {
     [].forEach.call(bar.querySelectorAll('[data-w]'), function (x) { x.classList.toggle('on', +x.dataset.w === width); });
     var right = bar.querySelector('.right'), h = '';
     if (layers.length) h += '<select id="ink-pick" title="Lecture notes"' + (editing && target !== mine ? ' disabled' : '') + '><option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '"' + (pub && pub.id === l.id ? ' selected' : '') + '>Notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ')') + '</option>'; }).join('') + '</select>';
+    if (teacher() && VIEW === 'slides') { var pres = store('eai-ink-ghost') === false; h += '<button data-a="present" class="' + (pres ? 'on' : '') + '" title="' + (pres ? 'Presenting: the faint answers are hidden (safe to mirror to the projector). Click to show them again.' : 'Present: hide the faint answers before mirroring this screen to the projector') + '">' + I.eye + (pres ? ' Presenting' : ' Present') + '</button>'; }
     h += teacher() ? '<button data-a="publish" class="act" title="publish today\'s notes for students">Publish</button>'
                    : '<button data-a="clear" class="quiet" title="erase all of my notes on this view">Clear mine</button>';
     right.innerHTML = h;
