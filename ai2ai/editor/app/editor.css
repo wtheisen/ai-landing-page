@@ -514,4 +514,4 @@ html:has(body.ed), body.ed { overscroll-behavior: none; }
 #pages.thumbs > li:has(.thumb.wide) { min-height: 112px; }
 /* in the editor a 16:9 Lecture page shows as wide as a Reading page (the zoom is set for Reading pages), so the
    panes line up and "Fit width" fits both */
-.ed .book:is([data-view="slides"], [data-view="workbook"]) section.page { zoom: calc(var(--zoom) * .6); }
+.ed .book[data-view="slides"] section.page { zoom: calc(var(--zoom) * .6); }

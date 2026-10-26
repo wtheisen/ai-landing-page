@@ -395,7 +395,7 @@ Book.panes = () => Book.root ? [...Book.root.querySelectorAll(':scope > .dpane')
 // Page sizes in pt (Eric, 2026-10-26): the Reading is a 6 × 9 in book page, the Lecture and the Workbook are 16:9
 // slides (10 × 5.625 in, Google Slides' size). book.css sets --page-w/--page-h per edition; these say the same in JS.
 // Text column: 24pt margins either side; content must end 26pt above the bottom (the footer line).
-Book.SIZES = { reading: { w: 432, h: 648 }, slides: { w: 720, h: 405 }, workbook: { w: 720, h: 405 } };
+Book.SIZES = { reading: { w: 432, h: 648 }, slides: { w: 720, h: 405 }, workbook: { w: 432, h: 648 } };   // the Workbook prints like the Reading (6 × 9 in), for paper and tablets
 Book.size = el => Book.SIZES[el && el.nodeType ? Book.viewOf(el) : (el || Book.view)] || Book.SIZES.reading;
 Book.pageW = el => Book.size(el).w;
 Book.pageH = el => Book.size(el).h;
@@ -997,7 +997,7 @@ Book.snapshot = async () => {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(m.title || '')}</title>
 <style>${faces}
-${css}${view === 'reading' ? '' : '\n@page { size: 10in 5.625in; margin: 0; }'}</style>
+${css}${view === 'slides' ? '\n@page { size: 10in 5.625in; margin: 0; }' : ''}</style>
 </head>
 <body>
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="${escAttr(m.toc || '/ai2ai/')}" title="All chapters">${esc(m.book || '')}</a><span class="crumb">${esc(m.title || '')}</span>${toc}<span class="spacer"></span>${viewbar}<span class="tools">${pdfmenu}</span></nav>
