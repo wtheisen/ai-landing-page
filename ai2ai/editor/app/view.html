@@ -27,7 +27,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
 (async function () {
   const ch = location.pathname.split('/').filter(Boolean).pop(), q = new URLSearchParams(location.search), exporting = q.has('export');
   const grid = q.has('pane') || q.has('grid');   // a pane beside the editor: one edition, print layout, scrolling on its own
-  const zoom = () => { if (!grid) document.documentElement.style.setProperty('--zoom', Math.min(1, (window.innerWidth - 32) / 576)); };   // in a pane the editor sets the zoom
+  const zoom = () => { if (!grid) document.documentElement.style.setProperty('--zoom', Math.min(1, (window.innerWidth - 32) / 576) * (window.eaiZoomK || 1)); };   // eaiZoomK: Lecture mode's own page zoom (ink.js)   // in a pane the editor sets the zoom
   zoom(); window.addEventListener('resize', zoom);
   if (grid) {
     document.documentElement.style.setProperty('--zoom', +q.get('zoom') || 0.5);

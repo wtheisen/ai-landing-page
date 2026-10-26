@@ -268,7 +268,7 @@ function eaiInk(opts) {
   document.addEventListener('touchmove', stylusGuard, { passive: false });
   function fingerScroll(e) {   // pages have touch-action: none while writing, so a finger drag scrolls the window by hand
     var y = e.clientY, x = e.clientX;
-    function move(ev) { if (ev.pointerId !== e.pointerId) return; scrollBy(x - ev.clientX, y - ev.clientY); x = ev.clientX; y = ev.clientY; }
+    function move(ev) { if (ev.pointerId !== e.pointerId) return; (document.documentElement.classList.contains('lect') ? book : window).scrollBy(x - ev.clientX, y - ev.clientY); x = ev.clientX; y = ev.clientY; }
     function up(ev) { if (ev.pointerId !== e.pointerId) return; removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); }
     addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
   }
@@ -311,10 +311,57 @@ function eaiInk(opts) {
             function (err) { if (err.status === 401) store(KEY_TOKEN, ''); msg('Not published: ' + err.message); });
   }
 
+  // Lecture mode (?lecture=…, the editor home's Lecture and answers links): no navbar, just the pen bar at the top, and
+  // the pages scroll in their own box under it, so a pinch (two fingers, trackpad pinch, ctrl+wheel, Cmd +/-/0) zooms
+  // the pages only and the pen bar stays put at its size. The zoom is remembered on this device.
+  function lectureZoom() {
+    var H = document.documentElement, KEY = 'ai2ai-lect-zoom', k = 1;
+    try { k = +localStorage.getItem(KEY) || 1; } catch (x) {}
+    H.classList.add('lect');
+    function fit() { return Math.min(1, (innerWidth - 32) / 576); }   // the view's own fit-the-width zoom (view.html)
+    window.eaiZoomK = k;
+    function apply() { H.style.setProperty('--zoom', +(fit() * k).toFixed(4)); }
+    function pageAt(x, y) {   // the page nearest a point, and where in it the point is (fractions), to keep it under the fingers
+      var best = null, bd = Infinity;
+      [].forEach.call(book.querySelectorAll('section.page'), function (p) {
+        var r = p.getBoundingClientRect(); if (!r.height) return;
+        var d = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0; if (d < bd) { bd = d; best = { p: p, fx: (x - r.left) / r.width, fy: (y - r.top) / r.height }; }
+      });
+      return best;
+    }
+    function zoomTo(nk, x, y) {
+      nk = Math.max(0.4, Math.min(4, nk)); if (Math.abs(nk - k) < 0.002) return;
+      var a = pageAt(x, y); k = nk; window.eaiZoomK = k; apply();
+      if (a) { var r = a.p.getBoundingClientRect(); book.scrollLeft += r.left + a.fx * r.width - x; book.scrollTop += r.top + a.fy * r.height - y; }
+      clearTimeout(zoomTo.t); zoomTo.t = setTimeout(function () { try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }, 300);
+    }
+    var raf = 0, want = null;
+    function soon(nk, x, y) { want = [nk, x, y]; if (!raf) raf = requestAnimationFrame(function () { raf = 0; zoomTo(want[0], want[1], want[2]); }); }
+    var g0 = 1;   // Safari (iPad, Mac trackpad): gesture events carry the pinch scale
+    addEventListener('gesturestart', function (e) { e.preventDefault(); g0 = k; }, { passive: false });
+    addEventListener('gesturechange', function (e) { e.preventDefault(); soon(g0 * e.scale, e.clientX || innerWidth / 2, e.clientY || innerHeight / 2); }, { passive: false });
+    addEventListener('gestureend', function (e) { e.preventDefault(); }, { passive: false });
+    if (!('ongesturestart' in window)) {   // other touch screens: two fingers
+      var t0 = null;
+      var dist = function (t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); };
+      addEventListener('touchstart', function (e) { if (e.touches.length === 2) t0 = { d: dist(e.touches), k: k }; }, { passive: true });
+      addEventListener('touchmove', function (e) { if (!t0 || e.touches.length !== 2) return; e.preventDefault(); soon(t0.k * dist(e.touches) / t0.d, (e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2); }, { passive: false });
+      addEventListener('touchend', function (e) { if (e.touches.length < 2) t0 = null; });
+    }
+    addEventListener('wheel', function (e) { if (!e.ctrlKey) return; e.preventDefault(); soon(k * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY); }, { passive: false });   // trackpad pinch in Chrome, ctrl+wheel
+    addEventListener('keydown', function (e) {
+      if (!(e.metaKey || e.ctrlKey) || !/^(=|\+|-|0)$/.test(e.key)) return; e.preventDefault();
+      var r = book.getBoundingClientRect();
+      zoomTo(e.key === '0' ? 1 : k * (e.key === '-' ? 1 / 1.15 : 1.15), r.left + r.width / 2, r.top + r.height / 2);
+    });
+    addEventListener('resize', function () { setTimeout(apply, 0); });   // after the view's own resize handler
+    apply(); setTimeout(apply, 0);
+  }
   // ?lecture=1 (the editor home's Lecture button): teaching from this device: the pen in hand, the faint answers hidden
   // (see ghost). The plain Lecture view (its answers link) shows them to the signed-in instructor.
   var LECT = (location.search.match(/[?&]lecture=(\w+)/) || [])[1];
   ghost(); render(); buildBar(); navbar();
+  if (LECT) lectureZoom();
   if (LECT === '1') start();
   // one sign-in: a device signed in to the Book Editor (same site) uses that token here too, if it can publish to this repo
   if (!teacher() && window.indexedDB) try {

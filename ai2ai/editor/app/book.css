@@ -450,3 +450,11 @@ html.present-out .book[data-view="slides"] b-out:not(.shown) > pre, html.present
 html.present-out .book[data-view="slides"] b-out:not(.shown) { cursor: pointer; }
 html.present-out .book[data-view="slides"] b-out:not(.shown) > .label::after { content: "  · run it, or tap to show"; text-transform: none; letter-spacing: 0; }
 @media print { html.present-out .book b-out > pre { visibility: visible !important; } }
+/* Lecture mode (?lecture=…, ink.js lectureZoom): the pen bar alone at the top, the pages scroll (and zoom) in their own box */
+html.lect, html.lect body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+html.lect body { display: flex; flex-direction: column; margin: 0; }
+html.lect .chap-head { flex: none; position: static; }
+html.lect .chap-head .navbar { display: none !important; }
+html.lect .chap-head .ink-sub { padding-top: calc(.3rem + var(--top-clear, 0px)); }
+html.lect #book, html.lect main.book { flex: 1 1 auto; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-x pan-y; align-items: flex-start; }
+html.lect #book > section.page, html.lect main.book > section.page { margin-left: auto; margin-right: auto; flex: none; }
