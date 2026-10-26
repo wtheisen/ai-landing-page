@@ -314,9 +314,11 @@ if (matchMedia('(display-mode: standalone)').matches) {
   const inset = parseFloat(getComputedStyle(probe).paddingTop) || 0; probe.remove();
   const on = !document.documentElement.classList.contains('no-topclear');
   const p = document.createElement('p'); p.className = 'note';
-  p.innerHTML = `Space under the status bar: <b>${on ? 'on' : 'off'}</b> · <a href="#" id="tc">${on ? 'Turn off' : 'Turn on'}</a> · status-bar inset ${Math.round(inset)} pt (${inset > 0 ? 'drawing under the status bar' : 'status bar above the page'})`;
+  p.innerHTML = inset > 0
+    ? `Space under the status bar: <b>${on ? 'on' : 'off'}</b> · <a href="#" id="tc">${on ? 'Turn off' : 'Turn on'}</a> · this install draws under the status bar (inset ${Math.round(inset)} pt): remove it and add it to the Home Screen again to drop the extra space`
+    : 'Status bar above the page, no extra space needed';
   $('#ver').before(p);
-  $('#tc').onclick = e => { e.preventDefault(); try { localStorage.setItem('ai2ai-topclear', on ? '0' : '1'); } catch (x) {} location.reload(); };
+  if ($('#tc')) $('#tc').onclick = e => { e.preventDefault(); try { localStorage.setItem('ai2ai-topclear', on ? '0' : '1'); } catch (x) {} location.reload(); };
 }
 $('#foot').innerHTML = cfg ? `<a href="#" id="out">Sign out</a> · removes the token, keeps chapters and edits on this device` : '';
 if ($('#out')) $('#out').onclick = async e => { e.preventDefault(); if (!confirm('Sign out of GitHub on this device?')) return; await Store.del('kv', 'remote'); cfg = null; show(); $('#foot').textContent = ''; };

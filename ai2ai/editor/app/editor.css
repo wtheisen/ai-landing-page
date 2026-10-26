@@ -1,8 +1,10 @@
 /* iOS 26 draws a blur ramp over the top ~40pt below the status bar of an installed web app, and no CSS or meta tag turns it
    off (WebKit bug 317153). So in an installed app the bar's navy reaches down past the ramp before any text or buttons start:
-   the blur only ever falls on plain navy. --top-clear is that height (just the safe area in a normal browser tab). */
+   the blur only ever falls on plain navy. --top-clear is that height (just the safe area in a normal browser tab).
+   Only when the page is drawn under the status bar (inset > 0, an install from before black-translucent was dropped): with
+   the status bar painted by iOS above the page (inset 0) the blur doesn't reach the bar, so no extra space (Eric, 2026-10-26). */
 :root { --top-clear: env(safe-area-inset-top); }
-@media (display-mode: standalone) { :root { --top-clear: calc(env(safe-area-inset-top) + 40px); } }
+@media (display-mode: standalone) { :root { --top-clear: calc(env(safe-area-inset-top) + min(40px, env(safe-area-inset-top) * 1000)); } }
 html.no-topclear { --top-clear: env(safe-area-inset-top) !important; }   /* the home page's switch: no extra clearance */
 /* Editor chrome around the book pages. Everything here is editor-only; the pages themselves use book.css. */
 html, body.ed { height: 100%; }
