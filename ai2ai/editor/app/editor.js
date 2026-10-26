@@ -4,7 +4,17 @@
 'use strict';
 const $ = s => document.querySelector(s);
 const ch = location.pathname.split('/').filter(Boolean).pop();
-const book = $('#book'), desk = $('#desk'), insp = $('#insp'), status = $('#status');
+const book = $('#book'), deskBox = $('#desk'), insp = $('#insp'), status = $('#status');
+// desk = the scroller holding the edition being edited: #desk itself, or, with both documents side by side (split
+// chapters with Grid on, "both documents" near the end of this file), the pane being edited. Overlays (block bar,
+// handles, + buttons, review box) live in it, so they scroll with the pages; they carry data-ed (never saved) and
+// data-ed-ui (the chapter's own listeners and the change watcher ignore them).
+let desk = deskBox;
+var dual = false, dpanes = null;   // var: used by code that can run before the "both documents" section
+const uiEl = n => { const e = n && (n.nodeType === 1 ? n : n.parentElement); return !!(e && e.closest('[data-ed-ui]')); };
+{ const add = book.addEventListener.bind(book); book.addEventListener = (type, fn, opt) => add(type, type === 'book-refresh' ? fn : function (e) { if (!uiEl(e.target)) return fn.call(this, e); }, opt); }
+const onDeskScroll = fn => deskBox.addEventListener('scroll', e => { if (e.target === desk) fn(e); }, { capture: true, passive: true });
+$('#overlay').setAttribute('data-ed', ''); $('#overlay').setAttribute('data-ed-ui', '');
 // #gsizer > #gworld > the chapter: wrappers left from the old shared canvas (now plain blocks; the panes beside the desk
 // show the other editions, see "panes" near the end of this file).
 const gsizer = document.createElement('div'), gworld = document.createElement('div'); gsizer.id = 'gsizer'; gworld.id = 'gworld';
@@ -184,17 +194,11 @@ function apply(s, external) {   // replace the document with chapter text s, tou
   const { meta, body } = Book.parse(s);
   const metaChanged = JSON.stringify(meta) !== JSON.stringify(Book.meta);
   Book.meta = meta;
-  const chunks = body.trim().split(/\n\n(?=<section[ >])/), now = Book.pages();
-  const idOf = c => (/^<section[^>]*\bid="([^"]*)"/.exec(c) || [])[1];
-  const same = !metaChanged && chunks.length === now.length && book.childElementCount === now.length && chunks.every((c, k) => idOf(c) === now[k].id);
+  const chunks = body.trim().split(/\n\n(?=<section[ >])/);
   const keepId = sel && sel.parentElement ? [sel.parentElement.id, Book.blocks(sel.parentElement).indexOf(sel)] : null, pageId = curPage && curPage.id;
   select(null, true);
-  if (same) {
-    now.forEach((pg, k) => {
-      if (Book.serializePage(pg) === chunks[k]) return;
-      const t = document.createElement('template'); t.innerHTML = chunks[k]; pg.replaceWith(t.content.firstElementChild);
-    });
-  } else book.innerHTML = body;
+  if (chunks.every(c => /^<section[ >]/.test(c))) placeChunks(chunks);
+  else { const d = dual; if (d) leaveDual(); book.innerHTML = body; if (d) enterDual(); }   // something other than pages at the top level: rebuild
   curPage = null;
   prep(); Book.refresh();
   cur = external ? Book.serialize() : s; applying = false; poolLast = null; poolSync(); staleSoon(); panePatchSoon();
@@ -204,9 +208,27 @@ function apply(s, external) {   // replace the document with chapter text s, tou
   setStatus(); renderPages();
   mo.takeRecords();
 }
+// The pages from chapter text (one chunk per page): a page whose text is unchanged stays the very same element (so
+// nothing moves on screen), the rest are made new; with both documents side by side each goes to its own pane.
+function placeChunks(chunks) {
+  const idOf = c => (/^<section[^>]*\bid="([^"]*)"/.exec(c) || [])[1], old = new Map();
+  Book.pages().forEach(p => { if (!old.has(p.id)) old.set(p.id, p); });
+  const nodes = chunks.map(c => {
+    const id = idOf(c), o = id && old.get(id);
+    if (o && Book.serializePage(o) === c) { old.delete(id); return o; }
+    const t = document.createElement('template'); t.innerHTML = c; return t.content.firstElementChild;
+  }).filter(Boolean);
+  old.forEach(p => p.remove());
+  [...book.childNodes].forEach(n => { if (n.nodeType !== 1 || (!n.matches('section.page') && !n.classList.contains('dpane'))) n.remove(); });
+  for (const cont of dual ? Object.values(dpanes) : [book]) {
+    const want = nodes.filter(n => (dual ? paneFor(n) : book) === cont);
+    let i = 0;
+    for (const n of want) { const k = [...cont.children].filter(c => c.matches('section.page')); if (k[i] !== n) cont.insertBefore(n, k[i] || null); i++; }
+  }
+}
 function doUndo() { commit(true); if (!undo.length) return; redo.push(cur); apply(undo.pop()); clearTimeout(saveT); saveT = setTimeout(save, 900); }
 function doRedo() { commit(true); if (!redo.length) return; undo.push(cur); apply(redo.pop()); clearTimeout(saveT); saveT = setTimeout(save, 900); }
-const mo = new MutationObserver(() => { if (!applying) commit(); });
+const mo = new MutationObserver(recs => { if (!applying && recs.some(r => !uiEl(r.target))) commit(); });
 mo.observe(book, { childList: true, subtree: true, characterData: true, attributes: true });
 
 // external changes (Claude or a text editor writing chapter.html)
@@ -238,11 +260,13 @@ function toast(msg, action, fn) {
   clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, action ? 7000 : 3500);
 }
 function modal(html) { const m = $('#modal'); m.hidden = false; m.innerHTML = `<div class="box">${html}</div>`; m.onclick = e => { if (e.target === m) m.hidden = true; }; return m.firstElementChild; }
-const blockOf = n => { while (n && n !== book) { if (n.parentElement && n.parentElement.matches && n.parentElement.matches('section.page') && n.parentElement.parentElement === book) return n.hasAttribute && (n.hasAttribute('data-rt') || n.classList.contains('overlay')) ? null : n; n = n.parentNode; } return null; };
+const topPage = pg => !!pg && (pg.parentElement === book || (!!pg.parentElement && pg.parentElement.classList.contains('dpane') && pg.parentElement.parentElement === book));
+const blockOf = n => { while (n && n !== book) { if (n.parentElement && n.parentElement.matches && n.parentElement.matches('section.page') && topPage(n.parentElement)) return n.hasAttribute && (n.hasAttribute('data-rt') || n.classList.contains('overlay')) ? null : n; n = n.parentNode; } return null; };
 const pageOf = n => { const e = n && (n.nodeType === 1 ? n : n.parentElement); return e ? e.closest('section.page') : null; };
 const deskXY = r => { const d = desk.getBoundingClientRect(); return [r.left - d.left + desk.scrollLeft, r.top - d.top + desk.scrollTop]; };
 const ptScale = pg => pg.getBoundingClientRect().width / 432;   // screen px per pt, zoom included
-const pageById = id => id ? book.querySelector(':scope > section.page#' + CSS.escape(id)) : null;
+const pageById = id => id ? book.querySelector(':scope > section.page#' + CSS.escape(id) + ', :scope > .dpane > section.page#' + CSS.escape(id)) : null;
+const deskPages = () => dual ? Book.pages().filter(p => p.parentElement === desk) : Book.pages();   // the pages in the scroller being edited
 // review comments sit right after the block they are about (<div class="cmt">); they move, and go, with it
 const tail = el => { const out = []; let n = el && el.nextElementSibling; while (n && n.classList.contains('cmt')) { out.push(n); n = n.nextElementSibling; } return out; };
 const lastOf = el => tail(el).pop() || el;
@@ -266,6 +290,7 @@ function select(el, keepPanel, add) {
   if (!keepPanel) renderInspector();
 }
 function setPage(pg) {
+  if (dual && pg && pg.parentElement !== desk && pg.parentElement && pg.parentElement.classList.contains('dpane')) activatePane(pg.parentElement);   // a page in the other document: edit there
   if (curPage === pg) return;
   if (curPage) curPage.classList.remove('ed-cur');
   curPage = pg; if (pg) pg.classList.add('ed-cur');
@@ -306,7 +331,7 @@ function place() {
   placeCrop(); placeMarkers(); placeRulers();
   if (typeof placeFigCode === 'function') placeFigCode();
 }
-desk.addEventListener('scroll', place);
+onDeskScroll(place);
 window.addEventListener('resize', place);
 book.addEventListener('book-refresh', () => { place(); renderPages(); });
 
@@ -330,7 +355,7 @@ book.addEventListener('click', e => {
 
 // ---------------------------------------------------------------- block operations
 function insertAfter(node, ref) {
-  let pg = ref ? ref.parentElement : curPage || Book.pages().find(p => { const r = p.getBoundingClientRect(), d = desk.getBoundingClientRect(); return r.bottom > d.top + 80; }) || Book.pages()[0];
+  let pg = ref ? ref.parentElement : curPage || deskPages().find(p => { const r = p.getBoundingClientRect(), d = desk.getBoundingClientRect(); return r.bottom > d.top + 80; }) || Book.pages()[0];
   if (ref) lastOf(ref).after(node); else { const foot = pg.querySelector(':scope > .foot'); pg.insertBefore(node, foot); }
   prep(); select(node); commit(true); Book.refresh();
   node.scrollIntoView({ block: 'nearest' });
@@ -438,14 +463,16 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
   let last = null, scroll0 = desk.scrollTop;
   const auto = setInterval(() => {   // scroll the desk while dragging near its top or bottom edge
     if (!moved || !last) return;
-    const d = desk.getBoundingClientRect(), v = last.clientY < d.top + 45 ? -16 : last.clientY > d.bottom - 45 ? 16 : 0;
-    if (v) { desk.scrollTop += v; move(last); }
+    const sc = dual && xpane ? xpane.page.parentElement : desk;   // over the other document's pane: that one scrolls
+    const d = sc.getBoundingClientRect(), v = last.clientY < d.top + 45 ? -16 : last.clientY > d.bottom - 45 ? 16 : 0;
+    if (v) { sc.scrollTop += v; move(last); }
   }, 30);
   const origin = [el.style.left, el.style.top];
-  let cross = null;
+  let cross = null, xpane = null;   // xpane: over a page in the other document's pane (both documents side by side): { page, before }
   const move = ev => {
     if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 5) return;
-    if (!moved) { moved = true; commit(true); if (copyMode) ghost = dragGhost(group); else el.classList.add('ed-dragging'); closePop(); document.body.classList.add('ed-xdrag'); }
+    if (!moved) { moved = true; commit(true); if (copyMode) ghost = dragGhost(group); else el.classList.add('ed-dragging'); closePop(); document.body.classList.add('ed-xdrag'); if (document.activeElement && book.contains(document.activeElement)) document.activeElement.blur(); }
+    getSelection().removeAllRanges();   // a drag never selects text on the way (it would, across the other pane)
     if (ghost) moveGhost(ghost, ev.clientX - (x0 - r0.left), ev.clientY - (y0 - r0.top));
     if (ev.preventDefault && ev.cancelable) ev.preventDefault();
     last = { clientX: ev.clientX, clientY: ev.clientY, altKey: ev.altKey };
@@ -457,7 +484,21 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
       if (pinned) { el.style.left = origin[0]; el.style.top = origin[1]; mates.forEach(([b, l, t]) => { b.style.left = l + 'pt'; b.style.top = t + 'pt'; }); place(); }
       return;
     } else if (crossTo) { crossLeave(); hideBadge(); if (!copyMode) { el.classList.add('ed-dragging'); if (ghost) { ghost.remove(); ghost = null; } } }   // back in this document: a move again
-    const under = document.elementsFromPoint(ev.clientX, ev.clientY).find(n => n.matches && n.matches('section.page'));
+    const under = document.elementsFromPoint(ev.clientX, ev.clientY).find(n => n.matches && n.matches('section.page') && topPage(n));
+    if (dual && under && under.parentElement !== pg0.parentElement) {   // over the other document's pane: a copy goes there
+      drop.hidden = gx.hidden = gy.hidden = true; target = null;
+      if (!ghost) ghost = dragGhost(group);
+      moveGhost(ghost, ev.clientX - (x0 - r0.left), ev.clientY - (y0 - r0.top));
+      el.classList.remove('ed-dragging'); showBadge('Copy to the ' + (under.parentElement.dataset.doc === 'lecture' ? 'Lecture' : 'Reading'), ev.clientX, ev.clientY);
+      if (pinned) { el.style.left = origin[0]; el.style.top = origin[1]; mates.forEach(([b, l, t]) => { b.style.left = l + 'pt'; b.style.top = t + 'pt'; }); place(); }
+      const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b));
+      const before = flow.find(b => { const r = b.getBoundingClientRect(); return ev.clientY < r.top + r.height / 2; }) || null;
+      xpane = { page: under, before };
+      const q = under.getBoundingClientRect(), s = q.width / 432;
+      let yy; if (before) yy = before.getBoundingClientRect().top - 5 * s; else if (flow.length) yy = flow[flow.length - 1].getBoundingClientRect().bottom + 5 * s; else yy = q.top + 20 * s;
+      dropIn(under.parentElement, q.left + 24 * s, yy, 384 * s);
+      return;
+    } else if (xpane) { xpane = null; dropIn(null); hideBadge(); if (!copyMode) { el.classList.add('ed-dragging'); if (ghost) { ghost.remove(); ghost = null; } } }   // back in this document: a move again
     if (pinned) {
       const pg = el.parentElement, s = ptScale(pg), q = pg.getBoundingClientRect();
       let x = (r0.left - q0.left + ev.clientX - x0) / s, y = (r0.top - q0.top + ev.clientY - y0 + desk.scrollTop - scroll0) / s;
@@ -495,9 +536,22 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
     clearInterval(auto);
     drop.hidden = gx.hidden = gy.hidden = true;
     delete el.dataset.edX0; delete el.dataset.edY0;
-    document.body.classList.remove('ed-xdrag'); hideBadge(); if (ghost) { ghost.remove(); ghost = null; }
+    document.body.classList.remove('ed-xdrag'); hideBadge(); dropIn(null); if (ghost) { ghost.remove(); ghost = null; }
     if (!moved) return;
     el.classList.remove('ed-dragging');
+    if (xpane) {   // dropped on the other document's pane: copy there, leave this one as it was
+      const pg = xpane.page, made = [], q = pg.getBoundingClientRect(), s = q.width / 432, s0 = ptScale(pg0);
+      for (const b of group) {
+        const t = copyBlock(b);
+        if (Book.isPinned(b)) { const rb = b.getBoundingClientRect(); t.style.left = Math.max(0, (last.clientX - q.left) / s - (x0 - rb.left) / s0).toFixed(1) + 'pt'; t.style.top = Math.max(0, (last.clientY - q.top) / s - (y0 - rb.top) / s0).toFixed(1) + 'pt'; pg.insertBefore(t, pg.querySelector(':scope > svg.overlay, :scope > .foot')); }
+        else if (xpane.before) xpane.before.before(t); else pg.insertBefore(t, pg.querySelector(':scope > svg.overlay, :scope > .foot'));
+        made.push(t);
+      }
+      prep(); Book.refresh(); commit(true);
+      if (group.length > 1) selectMany(group); else select(el);
+      place();
+      return toast((made.length === 1 ? 'Copied' : 'Copied ' + made.length + ' blocks') + ' to the ' + (pg.parentElement.dataset.doc === 'lecture' ? 'Lecture' : 'Reading'), 'Undo', doUndo);
+    }
     if (cross) {   // dropped on the other document's column: copy there, leave this one as it was
       const s0 = ptScale(pg0), grab = [(x0 - r0.left) / s0, (y0 - r0.top) / s0];
       if (!crossDrop(group, grab)) crossLeave();
@@ -533,6 +587,14 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
   };
   const cancel = () => { window.removeEventListener('pointercancel', cancel, true); if (!moved) { window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true); clearInterval(auto); } else up(); };
   window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true); window.addEventListener('pointercancel', cancel, true);
+}
+var drop2 = null;   // the drop line in the other document's pane (the overlay's own one is clipped to the pane being edited)
+function dropIn(pane, x, y, w) {
+  if (!pane) { if (drop2) drop2.hidden = true; return; }
+  if (!drop2) { drop2 = document.createElement('div'); drop2.id = 'drop2'; drop2.setAttribute('data-ed', ''); drop2.setAttribute('data-ed-ui', ''); }
+  if (drop2.parentElement !== pane) pane.append(drop2);
+  const d = pane.getBoundingClientRect();
+  drop2.hidden = false; Object.assign(drop2.style, { left: (x - d.left + pane.scrollLeft) + 'px', top: (y - d.top + pane.scrollTop) + 'px', width: w + 'px' });
 }
 $('#grip').addEventListener('pointerdown', e => { if (sel) { e.preventDefault(); startDrag(e, sel); } });
 book.addEventListener('pointerdown', e => { const b = blockOf(e.target); if (e.target.closest && e.target.closest('.ed-code, .ed-coderun')) return; if (b && NOEDIT.test(b.tagName) && e.button === 0 && !(e.shiftKey || e.metaKey || e.ctrlKey)) { if (!(extra.length && allSel().includes(b))) select(b); if (e.pointerType !== 'touch') startDrag(e, b); } });
@@ -999,8 +1061,8 @@ async function uploadFigure(file, replace) {
   return d.src;
 }
 function pickFigure(then) { const f = $('#file'); f.value = ''; f.onchange = async () => { if (f.files[0]) then(await uploadFigure(f.files[0])); }; f.click(); }
-desk.addEventListener('dragover', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
-desk.addEventListener('drop', async e => {
+deskBox.addEventListener('dragover', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
+deskBox.addEventListener('drop', async e => {
   const f = e.dataTransfer && e.dataTransfer.files[0]; if (!f) return; e.preventDefault();
   const src = await uploadFigure(f), b = blockOf(e.target), pg = pageOf(e.target);
   if (!b && pg) setPage(pg);
@@ -1563,7 +1625,7 @@ function paintThumb(li) {
   box.replaceChildren(c);
 }
 function renderPages() { clearTimeout(pagesT); pagesT = setTimeout(() => {
-  const ol = $('#pages'), pages = Book.pages().filter(p => !Book.split || Book.inView(p)), live = new Set();
+  const ol = $('#pages'), pages = Book.pages().filter(p => dual ? p.parentElement === desk : !Book.split || Book.inView(p, Book.view)), live = new Set();
   ol.classList.toggle('thumbs', thumbs);
   pages.forEach((p, k) => {
     let li = rowOf.get(p.id);
@@ -1919,7 +1981,7 @@ function dragGuide(e, axis, k, pg) {   // k = index of an existing guide, or -1 
 book.addEventListener('pointerdown', e => { const g = e.target.closest && e.target.closest('.ed-guide'); if (g && rulersOn) dragGuide(e, g.classList.contains('v') ? 'v' : 'h', +g.dataset.k, g.parentElement); }, true);
 book.addEventListener('dblclick', e => { const g = e.target.closest && e.target.closest('.ed-guide'); if (g) { guides[g.classList.contains('v') ? 'v' : 'h'].splice(+g.dataset.k, 1); saveGuides(); } }, true);
 function placeRulers() {
-  const box = $('#rulers'); const pg = rulersOn ? (curPage || Book.pages().find(p => { const r = p.getBoundingClientRect(), d = desk.getBoundingClientRect(); return r.bottom > d.top + 120; })) : null;
+  const box = $('#rulers'); const pg = rulersOn ? (curPage || deskPages().find(p => { const r = p.getBoundingClientRect(), d = desk.getBoundingClientRect(); return r.bottom > d.top + 120; })) : null;
   if (!pg || !pg.isConnected) { box.innerHTML = ''; box._pg = null; return; }
   const q = pg.getBoundingClientRect(), s = q.width / 432, [x, y] = deskXY(q), sig = [pg.id, s.toFixed(3)].join();
   const ticks = (len, top) => { let hh = ''; for (let v = 0; v <= len; v += 12) { const major = v % 72 === 0, mid = v % 36 === 0; hh += top ? `<i style="left:${v * s}px;height:${major ? 15 : mid ? 8 : 4}px"></i>` : `<i style="top:${v * s}px;width:${major ? 15 : mid ? 8 : 4}px"></i>`; if (major && v) hh += top ? `<span style="left:${v * s + 2}px;top:1px">${v}</span>` : `<span style="top:${v * s + 2}px;left:1px;writing-mode:vertical-rl">${v}</span>`; } return hh + '<i class="cur" hidden></i>'; };
@@ -2025,7 +2087,9 @@ book.addEventListener('book-refresh', () => {   // blocks that are not in the cu
   if (changed) Book.refreshSoon();   // the bars take no room, so the spacing has to be worked out again
 });
 const modeSel = $('#x-mode');
-function setMode(v) { modeSel.value = Book.views.includes(v) ? v : 'reading'; Book.setView(modeSel.value); try { localStorage.setItem('book-view-' + ch, modeSel.value); } catch (x) {} document.body.dataset.mode = modeSel.value; gridLayout(); $('#view').href = '../view/' + ch + (modeSel.value === 'reading' ? '' : '?view=' + modeSel.value); select(null); renderInspector(); place(); }
+function setMode(v) {
+  if (dual) { v = Book.views.includes(v) ? v : 'reading'; const p = dpanes[docOf(v)]; if (p.dataset.view !== v) { p.dataset.view = v; Book.refresh(); } return activatePane(p, true); }
+  modeSel.value = Book.views.includes(v) ? v : 'reading'; Book.setView(modeSel.value); try { localStorage.setItem('book-view-' + ch, modeSel.value); } catch (x) {} document.body.dataset.mode = modeSel.value; gridLayout(); $('#view').href = '../view/' + ch + (modeSel.value === 'reading' ? '' : '?view=' + modeSel.value); select(null); renderInspector(); place(); }
 modeSel.onchange = () => setMode(modeSel.value);
 function commentPanel() {
   if (extra.length) return;
@@ -2067,7 +2131,7 @@ setRulers(rulersOn); placeMarkers();
 try { const v = localStorage.getItem('book-view-' + ch); if (v && v !== 'reading') setMode(v); } catch (x) {}
 mo.takeRecords();
 if (normalized) status.title = 'The file will be rewritten in the editor\'s fixed layout on the first save.';
-window.Editor = { guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
+window.Editor = { onDeskScroll, guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
 document.dispatchEvent(new Event('editor-ready'));
 document.documentElement.dataset.ready = '1';
 
@@ -2091,19 +2155,27 @@ function gridLayout() {
   if (gridRaf) return; gridRaf = setTimeout(() => { gridRaf = 0; gridApply(); }, 16);   // a timer, not rAF: rAF never fires while the tab is hidden
 }
 function placeLabels() {   // the desk's own label: which edition is being edited
-  glabels.hidden = !gridOn; if (!gridOn) return;
+  glabels.hidden = !gridOn; glabels.classList.toggle('duo', dual); if (!gridOn) return;
+  if (dual) {   // one label per document pane, the one being edited in navy; the other has Line up
+    glabels.innerHTML = ['reading', 'lecture'].map(d => { const p = dpanes[d], on = p === desk; return `<div class="dlab" data-doc="${d}" style="order:${d === 'reading' ? 0 : 1}"><span class="${on ? 'ed' : ''}">${GLABEL[p.dataset.view]}${on ? ' (editing)' : ''}</span>${on ? '' : '<button class="lineup" title="Scroll this pane to the page on the same topics as the one you are editing">Line up</button>'}</div>`; }).join('');
+    glabels.querySelectorAll('.dlab').forEach(l => { l.onclick = e => { if (e.target.closest('.lineup')) return lineUpDoc(l.dataset.doc); activatePane(dpanes[l.dataset.doc]); }; });
+    return;
+  }
   glabels.innerHTML = `<span class="ed">${GLABEL[Book.view]} (editing)</span>`;
 }
 var lineUp = 0;
 function gridApply() {
   if (!GLABEL || !gcols || !gcols.reading) return;   // still loading: the pane code at the end of this file lays out once it has run
+  const wantDual = gridOn && Book.split && !phone && typeof enterDual === 'function';
+  if (wantDual !== dual) { if (wantDual) enterDual(); else leaveDual(); }
   let anc = null;   // panes on or off changes the room above the pages: keep the page at the top of the desk where it is
-  if (document.body.classList.contains('panes') !== gridOn) { const top = desk.getBoundingClientRect().top, pg = Book.pages().find(p => p.offsetParent && p.getBoundingClientRect().bottom > top + 1); if (pg) anc = [pg, pg.getBoundingClientRect().top]; }
+  if (document.body.classList.contains('panes') !== gridOn) { const top = desk.getBoundingClientRect().top, pg = deskPages().find(p => p.offsetParent && p.getBoundingClientRect().bottom > top + 1); if (pg) anc = [pg, pg.getBoundingClientRect().top]; }
   document.body.classList.toggle('panes', gridOn); document.body.classList.remove('grid'); $('#x-grid').classList.toggle('on', gridOn);
   if (anc) desk.scrollTop += anc[0].getBoundingClientRect().top - anc[1];
-  desk.style.order = gridOn ? Book.views.indexOf(Book.view) : '';
-  const shown = Book.views.filter(v => gcols[v].hidden && gridOn && v !== Book.view);   // panes about to appear (a switch of edition)
-  Book.views.forEach(v => { gcols[v].hidden = !gridOn || v === Book.view; });
+  deskBox.style.order = dual ? 0 : gridOn ? Book.views.indexOf(Book.view) : '';
+  const showCol = v => gridOn && (dual ? v === (dpanes.lecture.dataset.view === 'slides' ? 'workbook' : 'slides') : v !== Book.view);   // both documents side by side: only the Lecture's other edition is a preview
+  const shown = Book.views.filter(v => gcols[v].hidden && showCol(v));   // panes about to appear (a switch of edition)
+  Book.views.forEach(v => { gcols[v].hidden = !showCol(v); });
   if (shown.length) { commit(true); panePatch(); shown.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (gcols[v].dataset.ready && fr.contentWindow) fr.contentWindow.postMessage({ gridRefresh: 1 }, '*'); }); }   // a pane that was hidden: bring it up to date, lay it out again
   placeLabels();
   const layout = (gridOn ? 'p' : '1') + desk.clientWidth;   // the desk's width changed (panes shown or hidden, window resized): fit the zoom again
@@ -2148,6 +2220,13 @@ function flushPane(v) {   // send a pane its pending scroll once it is showing a
   const col = gcols[v], w = col && col._want, fr = paneFrame(v); if (!w || !fr || !col.dataset.ready || !fr.contentWindow) return;
   col._want = null; fr.contentWindow.postMessage({ gridScrollTo: Object.assign({ y: w.y - fr.getBoundingClientRect().top, smooth: w.smooth }, w.want) }, '*');
 }
+function lineUpDoc(doc) {   // both documents side by side: scroll that pane to its first page on the current page's topics, level with it
+  const p = dpanes && dpanes[doc]; if (!p) return;
+  if (!curPage || !curPage.isConnected || curPage.parentElement === p) return toast('Click a page in the other document to line this one up with first');
+  const tp = Book.topicsOf(curPage), hit = [...p.children].find(n => n.matches('section.page') && !n.classList.contains('cover') && Book.topicsOf(n).some(t => tp.includes(t)));
+  if (!hit) return toast('No ' + (doc === 'lecture' ? 'Lecture' : 'Reading') + ' page shares this page’s topic, so that pane stays where it is');
+  p.scrollTo({ top: p.scrollTop + hit.getBoundingClientRect().top - curPage.getBoundingClientRect().top, behavior: 'smooth' });
+}
 function lineUpPane(v) {
   if (!curPage || !curPage.isConnected) return toast('Click a page to line the panes up with first');
   const y = curPage.getBoundingClientRect().top, same = docOf(v) === docOf(Book.view);
@@ -2167,7 +2246,7 @@ window.addEventListener('message', e => {
       const old = Book.view, yNew = panePageTop(d.view, d.gridPick), was = curPage && curPage.isConnected ? { id: curPage.id, y: curPage.getBoundingClientRect().top } : null;
       setMode(d.view);
       if (pg && yNew != null) desk.scrollTop += pg.getBoundingClientRect().top - yNew;   // the clicked page stays put
-      if (was) scrollPane(old, { id: was.id }, was.y, false);                          // and so does the one you were editing, now in its pane
+      if (was && !dual) scrollPane(old, { id: was.id }, was.y, false);                          // and so does the one you were editing, now in its pane
     }
     if (pg) { setPage(pg); renderInspector(); }
   }
@@ -2178,7 +2257,7 @@ window.addEventListener('message', e => {
 });
 book.addEventListener('book-refresh', gridLayout);
 $('#x-grid').onclick = () => {
-  const top = desk.getBoundingClientRect().top, pg = (curPage && curPage.isConnected && curPage.getBoundingClientRect().bottom > top) ? curPage : Book.pages().find(p => p.offsetParent && p.getBoundingClientRect().bottom > top + 1), y0 = pg && pg.getBoundingClientRect().top;
+  const top = desk.getBoundingClientRect().top, pg = (curPage && curPage.isConnected && curPage.getBoundingClientRect().bottom > top) ? curPage : deskPages().find(p => p.offsetParent && p.getBoundingClientRect().bottom > top + 1), y0 = pg && pg.getBoundingClientRect().top;
   gridOn = !gridOn; try { localStorage.setItem('book-grid', gridOn ? '1' : '0'); } catch (x) {}
   gridApply(); const z = storedZoom() || '1'; setZoomMenu(z); applyZoom(z); place();
   if (pg) setTimeout(() => { desk.scrollTop += pg.getBoundingClientRect().top - y0; place(); }, 120);   // after the new zoom has been laid out: the page stays where it was
@@ -2193,8 +2272,10 @@ function zoomAt(dy, cx0, cy0) {
   if (!pinch) {
     const els = [book, ...document.querySelectorAll('.gcol:not([hidden]) iframe')].map(el => { const q = el.getBoundingClientRect(); return [el, cx0 - q.left, cy0 - q.top]; });
     const cq = book.getBoundingClientRect();
-    const pg = Book.pages().reduce((best, p) => { const q = p.getBoundingClientRect(); if (!q.height) return best; const d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !best || d < best.d ? { p, d, q } : best; }, null);
-    pinch = { z0: gridZoom(), z1: gridZoom(), cx0, cy0, els, fx: (cx0 - cq.left) / cq.width, pg: pg && pg.p, fy: pg ? (cy0 - pg.q.top) / pg.q.height : 0 };
+    const near = list => list.reduce((best, p) => { const q = p.getBoundingClientRect(); if (!q.height) return best; const d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !best || d < best.d ? { p, d, q } : best; }, null);
+    const others = dual ? Object.values(dpanes).filter(sc => sc !== desk).map(sc => { const b = near([...sc.children].filter(n => n.matches('section.page'))); return b && [sc, b.p, (cy0 - b.q.top) / b.q.height]; }).filter(Boolean) : [];
+    const pg = deskPages().reduce((best, p) => { const q = p.getBoundingClientRect(); if (!q.height) return best; const d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !best || d < best.d ? { p, d, q } : best; }, null);
+    pinch = { others, z0: gridZoom(), z1: gridZoom(), cx0, cy0, els, fx: (cx0 - cq.left) / cq.width, pg: pg && pg.p, fy: pg ? (cy0 - pg.q.top) / pg.q.height : 0 };
     document.body.classList.add('zooming');
   }
   pinch.z1 = Math.max(0.15, Math.min(2.5, pinch.z1 * Math.exp(-dy * 0.01)));
@@ -2209,12 +2290,67 @@ function endPinch() {
   book.style.setProperty('--zoom', +p.z1.toFixed(3));
   Book.refresh(); gridApply();
   if (p.pg && p.pg.isConnected) { const q = p.pg.getBoundingClientRect(); desk.scrollTop += q.top + p.fy * q.height - p.cy0; }
+  (p.others || []).forEach(([sc, pg, fy]) => { if (pg.isConnected) { const q = pg.getBoundingClientRect(); sc.scrollTop += q.top + fy * q.height - p.cy0; } });   // the other document's pane keeps its page under the fingers' height too
   document.body.classList.remove('zooming');
   place();
   try { localStorage.setItem(zoomKey(), String(+p.z1.toFixed(3))); } catch (x) {}
 }
 window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); zoomAt(e.deltaY, e.clientX, e.clientY); }, { passive: false, capture: true });
 ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => window.addEventListener(t, e => e.preventDefault(), { passive: false }));   // Safari's own pinch
+// ---------------------------------------------------------------- both documents side by side (split chapters, Grid on)
+// Eric, 2026-10-26: the Reading and the Lecture are both real, editable pages, each in its own pane that scrolls on its
+// own (div.dpane.book[data-view] inside #book, Reading on the left). Clicking into a pane makes it the one being edited:
+// nothing is redrawn and nothing moves. The Workbook (the Lecture with its blanks hidden) stays a preview beside them.
+// The file is unchanged by this: the panes are transparent to the serializer (Book.docNodes) and the cover stays first.
+function paneDoc(pg) { return pg.classList.contains('cover') || (Book.inView(pg, 'reading') && !Book.inView(pg, 'slides') && !Book.inView(pg, 'workbook')) ? 'reading' : 'lecture'; }
+function paneFor(pg) { return dpanes[paneDoc(pg)]; }
+function uiEls() { return [$('#overlay'), padd, revBox, figPanel, drop2].filter(Boolean); }
+function topAnchor() { const top = desk.getBoundingClientRect().top, pg = (curPage && curPage.isConnected && curPage.getBoundingClientRect().bottom > top) ? curPage : deskPages().find(p => p.offsetParent && p.getBoundingClientRect().bottom > top + 1); return pg ? [pg, pg.getBoundingClientRect().top] : null; }
+function activatePane(p) {
+  if (!dual || !p) return;
+  if (desk !== p) {
+    if (sel && !p.contains(sel)) select(null, true);
+    if (curPage && !p.contains(curPage)) { curPage.classList.remove('ed-cur'); curPage = null; }
+    desk = p; uiEls().forEach(n => p.append(n));
+  }
+  const v = p.dataset.view;
+  Book.view = v; modeSel.value = v; document.body.dataset.mode = v;
+  try { localStorage.setItem('book-view-' + ch, v); } catch (x) {}
+  $('#view').href = '../view/' + ch + (v === 'reading' ? '' : '?view=' + v);
+  placeLabels(); gridLayout(); renderPages(); renderInspector(); place(); focusChanged();
+}
+function enterDual() {
+  if (dual || !Book.split) return;
+  const anc = topAnchor(), was = applying; applying = true;
+  const mk = (doc, v) => { const d = document.createElement('div'); d.className = 'dpane book' + (Book.split ? ' split' : ''); d.dataset.view = v; d.dataset.doc = doc; return d; };
+  dpanes = { reading: mk('reading', 'reading'), lecture: mk('lecture', Book.view === 'workbook' ? 'workbook' : 'slides') };
+  const pages = Book.pages(), first = pages.find(p => !p.classList.contains('cover'));
+  dual = true;
+  pages.forEach(p => paneFor(p).append(p));
+  [...book.childNodes].forEach(n => n.remove());
+  (first && paneDoc(first) === 'reading' ? ['reading', 'lecture'] : ['lecture', 'reading']).forEach(d => book.append(dpanes[d]));   // in file order (the serializer reads them in this order)
+  book.classList.add('dual'); book.removeAttribute('data-view');
+  desk = null; activatePane(dpanes[docOf(Book.view)]);
+  Book.refresh(); mo.takeRecords(); applying = was;
+  if (anc && anc[0].parentElement === desk) desk.scrollTop += anc[0].getBoundingClientRect().top - anc[1];
+  const other = Object.values(dpanes).find(p => p !== desk);
+  if (curPage) setTimeout(() => lineUpDoc(other.dataset.doc), 60); else other.scrollTop = Math.max(0, (other.firstElementChild ? other.firstElementChild.offsetTop : 0) - 40);
+}
+function leaveDual() {
+  if (!dual) return;
+  const anc = topAnchor(), was = applying; applying = true;
+  uiEls().forEach(n => deskBox.append(n));
+  const nodes = Book.docNodes().filter(n => !(n.nodeType === 1 && n.hasAttribute('data-ed')));
+  Object.values(dpanes).forEach(d => d.remove());
+  nodes.forEach(n => book.append(n));
+  Book.pages().forEach(p => p.classList.remove('ed-match'));
+  book.classList.remove('dual'); dual = false; dpanes = null; desk = deskBox;
+  book.dataset.view = Book.view; Book.refresh(); mo.takeRecords(); applying = was;
+  if (anc) desk.scrollTop += anc[0].getBoundingClientRect().top - anc[1];
+  placeLabels(); renderPages();
+}
+deskBox.addEventListener('pointerdown', e => { if (!dual) return; const p = e.target.closest && e.target.closest('.dpane'); if (p && p !== desk) activatePane(p); }, true);   // click into the other document: edit there
+deskBox.addEventListener('focusin', e => { if (!dual) return; const p = e.target.closest && e.target.closest('.dpane'); if (p && p !== desk) activatePane(p); }, true);
 panePatch();   // the baseline: what the panes load is this chapter as it is now
 gridLayout();
 
@@ -2250,6 +2386,8 @@ function focusChanged() {
   let id = focusOn ? '-none-' : null;   // in focus mode every preview page fades: only the page being edited stays bright
   if (Book.split && curPage && curPage.isConnected && !curPage.classList.contains('cover')) id = { id: curPage.id, topics: Book.topicsOf(curPage), dim: focusOn };   // split: the other document's pages on the same topics light up
   Book.views.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (fr && fr.contentWindow) fr.contentWindow.postMessage({ gridFocus: id }, '*'); });
+  const tp = dual && curPage && curPage.isConnected && !curPage.classList.contains('cover') ? Book.topicsOf(curPage) : [];   // both documents side by side: the other pane's pages on the same topics light up
+  Book.pages().forEach(p => { const m = !!tp.length && p.parentElement !== curPage.parentElement && !p.classList.contains('cover') && Book.topicsOf(p).some(t => tp.includes(t)); if (p.classList.contains('ed-match') !== m) p.classList.toggle('ed-match', m); });
   if (focusOn && curPage && curPage.isConnected && !followQuiet) { const pg = curPage; clearTimeout(focusT); focusT = setTimeout(() => { if (gridRaf) return focusChanged(); centerOn(pg); }, 40); }   // after any pending re-layout (e.g. the editing column just moved)
 }
 var focusT = 0;
@@ -2259,7 +2397,7 @@ function centerOn(pg) { pg.scrollIntoView({ block: 'center', behavior: 'smooth' 
 
 $('#x-focus').onclick = () => {
   focusOn = !focusOn; document.body.classList.toggle('focus', focusOn); $('#x-focus').classList.toggle('on', focusOn);
-  if (focusOn && !curPage) { const d = desk.getBoundingClientRect(); const pg = Book.pages().find(p => { const q = p.getBoundingClientRect(); return q.bottom > d.top + d.height / 3; }); if (pg) setPage(pg); }
+  if (focusOn && !curPage) { const d = desk.getBoundingClientRect(); const pg = deskPages().find(p => { const q = p.getBoundingClientRect(); return q.bottom > d.top + d.height / 3; }); if (pg) setPage(pg); }
   try { localStorage.setItem('book-focus', focusOn ? '1' : '0'); } catch (x) {}
   focusChanged(); placeAdders();
 };
@@ -2269,12 +2407,12 @@ try { if (localStorage.getItem('book-focus') === '1') $('#x-focus').click(); } c
 // focus follows the scroll: the page nearest the middle of the window becomes the focused one (no zoom-and-centre,
 // which is only for a click). Off during a centring animation, a pinch, and in review mode (which picks its own page).
 var followT = 0, followQuiet = false;
-desk.addEventListener('scroll', () => { if (!focusOn || revOn) return; clearTimeout(followT); followT = setTimeout(followScroll, 90); }, { passive: true });
+onDeskScroll(() => { if (!focusOn || revOn) return; clearTimeout(followT); followT = setTimeout(followScroll, 90); }, { passive: true });
 function followScroll() {
   if (!focusOn || revOn || document.body.classList.contains('zooming')) return;
   const d = desk.getBoundingClientRect(), cy = d.top + d.height / 2;
   let best = null, bd = Infinity;
-  for (const pg of Book.pages()) {
+  for (const pg of deskPages()) {
     const r = pg.getBoundingClientRect(); if (!r.height) continue;
     const dy = cy < r.top ? r.top - cy : cy > r.bottom ? cy - r.bottom : 0;
     if (dy < bd) { bd = dy; best = pg; }
@@ -2290,7 +2428,7 @@ var padd;   // no initializer: placeAdders() can run (and create it) before this
 function placeAdders() {
   if (!padd) {
     if (typeof desk === 'undefined' || !desk) return;
-    padd = document.createElement('div'); padd.id = 'padd';
+    padd = document.createElement('div'); padd.id = 'padd'; padd.setAttribute('data-ed', ''); padd.setAttribute('data-ed-ui', '');
     padd.innerHTML = '<button data-w="before" title="Add a page above this one">+</button><button data-w="after" title="Add a page below this one">+</button><button data-w="del" class="pdel" title="Delete this page (undo with Cmd+Z)">×</button><button data-w="copy" class="pcopy"></button>';
     padd.addEventListener('mousedown', e => e.preventDefault());
     padd.addEventListener('click', e => {
@@ -2351,15 +2489,15 @@ function copyPageAcross(pg) {
   // where: the other document's page level with this one in the canvas (its column slides to line up topics),
   // else after its last page on the same topics, else at the end
   let before = null;
-  const fr = gridOn && paneFrame(otherView()), doc = fr && fr.contentDocument, y = pg.getBoundingClientRect().top;
-  const level = doc && mates.map(p => [p, doc.getElementById(p.id)]).filter(([, e]) => e && e.offsetParent).map(([p, e]) => [p, fr.getBoundingClientRect().top + e.getBoundingClientRect().top]).sort((a2, b2) => Math.abs(a2[1] - y) - Math.abs(b2[1] - y))[0];
+  const fr = !dual && gridOn && paneFrame(otherView()), doc = fr && fr.contentDocument, y = pg.getBoundingClientRect().top;
+  const level = dual ? mates.filter(p => p.offsetParent).map(p => [p, p.getBoundingClientRect().top]).sort((a2, b2) => Math.abs(a2[1] - y) - Math.abs(b2[1] - y))[0] : doc && mates.map(p => [p, doc.getElementById(p.id)]).filter(([, e]) => e && e.offsetParent).map(([p, e]) => [p, fr.getBoundingClientRect().top + e.getBoundingClientRect().top]).sort((a2, b2) => Math.abs(a2[1] - y) - Math.abs(b2[1] - y))[0];
   if (level) before = level[1] < y - 2 ? level[0].nextElementSibling : level[0];   // the pane's page level with this one: the copy takes its place, or goes after it
   else {
     const topics = Book.topicsOf(pg), same = mates.filter(p => Book.topicsOf(p).some(x => topics.includes(x)));
     if (same.length) before = same[same.length - 1].nextElementSibling;
   }
   if (before) before.before(t);
-  else { const last = mates[mates.length - 1]; if (last) last.after(t); else book.append(t); }
+  else { const last = mates[mates.length - 1]; if (last) last.after(t); else (dual ? dpanes[to] : book).append(t); }
   prep(); Book.refresh(); commit(true); renderPages();
   const n = docPages(to).indexOf(t) + 2;   // +1 for the cover
   toast('Copied to the ' + (to === 'lecture' ? 'Lecture' : 'Reading') + ' as page ' + n, 'Undo', doUndo);
@@ -2432,7 +2570,7 @@ function fromFrame(d) {
   const fr = gcols[d.view].querySelector('iframe'), r = fr.getBoundingClientRect(), k = r.width / fr.offsetWidth;
   const cx = r.left + d.x * k, cy = r.top + d.y * k;
   xbadge.hidden = false; xbadge.textContent = 'Copy here'; xbadge.style.left = (cx + 12) + 'px'; xbadge.style.top = (cy + 12) + 'px';
-  const under = document.elementsFromPoint(cx, cy).find(n => n.matches && n.matches('section.page') && n.parentElement === book);
+  const under = document.elementsFromPoint(cx, cy).find(n => n.matches && n.matches('section.page') && topPage(n) && (!dual || n.parentElement === desk));
   if (!under) { drop.hidden = true; fromAt = null; return; }
   const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b));
   const before = flow.find(b => { const q = b.getBoundingClientRect(); return cy < q.top + q.height / 2; }) || null;
@@ -2564,7 +2702,7 @@ function setReview(on) {
       const a = b.dataset.a; if (a === 'exit') setReview(false); else if (a === 'next') revStep(1); else if (a === 'prev') revStep(-1); else revAct(a);
     });
     revPanel.addEventListener('change', e => { if (e.target.matches('.rv-all input')) { revAll = e.target.checked; revRender(); } });
-    revBox = document.createElement('div'); revBox.id = 'revbox'; revBox.hidden = true; desk.append(revBox);
+    revBox = document.createElement('div'); revBox.id = 'revbox'; revBox.setAttribute('data-ed', ''); revBox.setAttribute('data-ed-ui', ''); revBox.hidden = true; desk.append(revBox);
   }
   if (on) {
     revWasFocus = focusOn; if (!focusOn) $('#x-focus').click();
@@ -2615,7 +2753,7 @@ async function flipFig(el) {
   try { const r = await fetch('../api/figsrc/' + ch + '?fig=' + encodeURIComponent(fig)); d = await r.json(); if (!r.ok) throw new Error(d.error); }
   catch (e) { if (e.message === 'not found') return toast('Restart the editor server (Ctrl-C, then python3 server.py) to see figure code'); return toast(/\.png$|\.jpe?g$/i.test(fig) ? 'This figure is a screenshot, so there is no code behind it' : 'No script draws ' + fig + ' yet'); }
   if (!figPanel) {
-    figPanel = document.createElement('div'); figPanel.id = 'figcode'; figPanel.hidden = true;
+    figPanel = document.createElement('div'); figPanel.id = 'figcode'; figPanel.hidden = true; figPanel.setAttribute('data-ed', ''); figPanel.setAttribute('data-ed-ui', '');
     figPanel.innerHTML = '<div class="fc-bar"><span class="fc-name"></span><span class="fc-state"></span><span class="sp"></span>' +
       '<button data-a="run" class="fc-run" title="Save the script and redraw the figure (Cmd+Enter)">▶ Run</button><button data-a="revert" title="Back to the saved script">Revert</button>' +
       '<button data-a="close" title="Flip back to the figure (Esc)">Flip back</button></div>' +
@@ -2769,7 +2907,7 @@ if (phone) {
   const kb = () => document.documentElement.style.setProperty('--kb', Math.max(0, innerHeight - vv.height - vv.offsetTop) + 'px');
   if (vv) { vv.addEventListener('resize', kb); vv.addEventListener('scroll', kb); }
   $('#styles').addEventListener('pointerdown', e => e.preventDefault());   // tapping a style keeps the text selection
-  desk.addEventListener('pointerdown', () => { if (!document.body.classList.contains('no-side') || !document.body.classList.contains('no-insp')) { document.body.classList.add('no-side', 'no-insp'); panelsChanged(); } }, true);
+  deskBox.addEventListener('pointerdown', () => { if (!document.body.classList.contains('no-side') || !document.body.classList.contains('no-insp')) { document.body.classList.add('no-side', 'no-insp'); panelsChanged(); } }, true);
   $('#pages').addEventListener('click', e => { if (e.target.closest('li')) { document.body.classList.add('no-side'); panelsChanged(); } });
   addEventListener('orientationchange', () => setTimeout(() => applyZoom($('#zoom').value), 300));
 }

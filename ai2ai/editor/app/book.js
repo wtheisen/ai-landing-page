@@ -349,15 +349,19 @@ Book.define = () => {
 // ---------------------------------------------------------------- equation numbers
 // An <eq-row label="name"> is numbered in document order: [chapter.n] (meta.chapter), or [n] without a chapter number.
 // <eq-row same="name"> repeats another equation's number (a recap) without taking one. A literal num="4.2" is kept as is.
-Book.eqNums = {};
+Book.eqNums = {}; Book.eqNumsBy = {};
 Book.numberEquations = () => {
   if (!Book.root) return;
-  const pre = Book.meta.chapter != null && Book.meta.chapter !== '' ? Book.meta.chapter + '.' : '', nums = {};
-  let n = 0;
-  Book.root.querySelectorAll('eq-row[label]').forEach(r => { const pg = r.closest('section.page'); if (pg && !Book.inView(pg)) return; const l = r.getAttribute('label'); if (l && !r.hasAttribute('same') && !(l in nums)) nums[l] = pre + (++n); });   // numbered per edition
-  Book.eqNums = nums;
+  const pre = Book.meta.chapter != null && Book.meta.chapter !== '' ? Book.meta.chapter + '.' : '', panes = Book.panes();
+  Book.eqNumsBy = {};
+  for (const v of panes.length ? panes.map(p => p.dataset.view) : [Book.view]) {   // numbered per edition (with panes: per pane)
+    const nums = {}; let n = 0;
+    Book.root.querySelectorAll('eq-row[label]').forEach(r => { const pg = r.closest('section.page'); if (pg && !Book.inView(pg, v)) return; const l = r.getAttribute('label'); if (l && !r.hasAttribute('same') && !(l in nums)) nums[l] = pre + (++n); });
+    Book.eqNumsBy[v] = nums;
+  }
+  Book.eqNums = Book.eqNumsBy[Book.view] || Object.values(Book.eqNumsBy)[0] || {};
 };
-Book.eqNum = row => row.hasAttribute('same') ? (Book.eqNums[row.getAttribute('same')] || '?') : row.hasAttribute('label') ? (Book.eqNums[row.getAttribute('label')] || null) : (row.getAttribute('num') || null);
+Book.eqNum = row => { const nums = Book.eqNumsBy[Book.viewOf(row)] || Book.eqNums; return row.hasAttribute('same') ? (nums[row.getAttribute('same')] || '?') : row.hasAttribute('label') ? (nums[row.getAttribute('label')] || null) : (row.getAttribute('num') || null); };
 
 // ---------------------------------------------------------------- load
 Book.parse = html => {
@@ -372,7 +376,12 @@ Book.load = (root, html) => {
   root.innerHTML = body;
   Book.refresh();
 };
-Book.pages = () => [...Book.root.querySelectorAll(':scope > section.page')];
+// The editor can show a split chapter's two documents side by side, each in its own pane: div.dpane.book[data-view]
+// inside the root (see "both documents" in editor.js). Pages then sit one level down, and every element takes its
+// edition from its pane (Book.viewOf); without panes it is Book.view, as before.
+Book.pages = () => [...Book.root.querySelectorAll(':scope > section.page, :scope > .dpane > section.page')];
+Book.panes = () => Book.root ? [...Book.root.querySelectorAll(':scope > .dpane')] : [];
+Book.viewOf = el => { const p = el && el.closest && el.closest('.dpane'); return p ? p.dataset.view : Book.view; };
 Book.blocks = pg => [...pg.children].filter(el => !el.hasAttribute('data-rt') && !el.classList.contains('overlay') && !el.classList.contains('cmt'));
 Book.isPinned = el => el.style.position === 'absolute';
 Book.ready = async () => {
@@ -385,9 +394,9 @@ Book.ready = async () => {
 let soon = 0;
 Book.views = ['reading', 'slides', 'workbook'];
 Book.view = 'reading';
-Book.setView = v => { Book.view = Book.views.includes(v) ? v : 'reading'; if (Book.root) { Book.root.dataset.view = Book.view; Book.refresh(); } };
+Book.setView = v => { Book.view = Book.views.includes(v) ? v : 'reading'; if (Book.root) { if (!Book.panes().length) Book.root.dataset.view = Book.view; Book.refresh(); } };
 Book.inView = (el, v) => {
-  v = v || Book.view;
+  v = v || Book.viewOf(el);
   if (el.hasAttribute('data-view')) return el.getAttribute('data-view').split(/\s+/).includes(v);
   if (v === 'reading') return !(el.localName === 'aside' && el.classList.contains('qc'));   // questions belong to the lecture and the workbook; Reading is just reading
   if (el.classList.contains('aside') || el.localName === 'b-answers') return false;          // notes and the answer list are for reading
@@ -450,33 +459,39 @@ Book.wrapText = pg => {
 };
 Book.refreshSoon = () => { if (!soon) soon = setTimeout(() => { soon = 0; if (Book.root) Book.refresh(); }, 60); };
 Book.refresh = () => {
-  const root = Book.root, pages = Book.pages(), num = {}, title = Book.meta.title || '';
-  if (root.dataset.view !== Book.view) root.dataset.view = Book.view;
+  const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();
+  if (panes.length) root.removeAttribute('data-view'); else if (root.dataset.view !== Book.view) root.dataset.view = Book.view;
   Book.hasKeys = !Book.meta.split && !!root.querySelector('.page > p .key'); root.classList.toggle('keys', Book.hasKeys);   // key sentences: the old shared-page model only
   Book.split = !!Book.meta.split; root.classList.toggle('split', Book.split);   // split: Lecture and Reading are separate documents in one file
-  const shown = pages.filter(pg => Book.inView(pg));   // page numbers and running heads count only this edition's pages
-  shown.forEach((pg, k) => { if (pg.id) num[pg.id] = k + 1; });
-  let part = '';
-  shown.forEach((pg, k) => {
+  // page numbers and running heads count only this edition's pages (with panes: each pane's edition, the cover included)
+  const numBy = {};
+  for (const v of panes.length ? panes.map(p => p.dataset.view) : [Book.view]) {
+    const shown = pages.filter(pg => Book.inView(pg, v)), num = numBy[v] = {};
+    shown.forEach((pg, k) => { if (pg.id) num[pg.id] = k + 1; });
+    let part = '';
+    shown.forEach((pg, k) => {
     if (pg.dataset.part) part = pg.dataset.part;
+    if (panes.length && Book.viewOf(pg) !== v) return;   // drawn in its own pane's numbering
     let foot = pg.querySelector(':scope > .foot');
     const label = title + (part ? ' · ' + part : ''), n = String(k + 1).padStart(2, '0');
     if (!foot) { foot = document.createElement('div'); foot.className = 'foot'; foot.setAttribute('data-rt', ''); foot.setAttribute('contenteditable', 'false'); foot.innerHTML = '<span></span><span></span>'; }
     if (foot !== pg.lastElementChild) pg.append(foot);
     if (foot.children[0].textContent !== label) foot.children[0].textContent = label;
     if (foot.children[1].textContent !== n) foot.children[1].textContent = n;
-  });
+    });
+  }
+  const numOf = el => numBy[Book.viewOf(el)] || numBy[Book.view] || Object.values(numBy)[0] || {};
   Book.numberEquations();
   root.querySelectorAll('b-eq').forEach(e => e.render && e.render());   // numbers may have shifted
   root.querySelectorAll('b-ref').forEach(r => {
-    let h = '';
+    let h = ''; const num = numOf(r), eqNums = Book.eqNumsBy[Book.viewOf(r)] || Book.eqNums;
     if (r.hasAttribute('page')) { const p = r.getAttribute('page'); h = `<a href="#${escAttr(p)}">page ${num[p] || '?'}</a>`; }
     else if (r.hasAttribute('pages')) { const [a, b] = r.getAttribute('pages').split(':'); h = `pp. ${num[a] || '?'}–${num[b] || '?'}`; }
-    else if (r.hasAttribute('eq')) { const e = r.getAttribute('eq'), known = e in Book.eqNums, lit = /^[\d.]+$/.test(e); h = `<a href="#eq-${escAttr(e)}"${known || lit ? '' : ' class="bad"'}>[${esc(known ? Book.eqNums[e] : lit ? e : '?')}]</a>`; }
+    else if (r.hasAttribute('eq')) { const e = r.getAttribute('eq'), known = e in eqNums, lit = /^[\d.]+$/.test(e); h = `<a href="#eq-${escAttr(e)}"${known || lit ? '' : ' class="bad"'}>[${esc(known ? eqNums[e] : lit ? e : '?')}]</a>`; }
     if (r.innerHTML !== h) r.innerHTML = h;
   });
   root.querySelectorAll('b-toc').forEach(box => {   // contents: one line per page that starts a section
-    const rows = pages.filter(p => p.dataset.part && p.id && num[p.id]), key = rows.map(p => p.id + '\u0001' + p.dataset.part + '\u0001' + num[p.id]).join('\u0002');
+    const num = numOf(box), rows = pages.filter(p => p.dataset.part && p.id && num[p.id]), key = rows.map(p => p.id + '\u0001' + p.dataset.part + '\u0001' + num[p.id]).join('\u0002');
     if (box._key === key && box.childElementCount === rows.length) return; box._key = key;
     box.replaceChildren(...rows.map(p => { const a = document.createElement('a'); a.setAttribute('data-rt', ''); a.href = '#' + p.id; a.innerHTML = `<span>${esc(p.dataset.part)}</span><i></i><span>${num[p.id]}</span>`; return a; }));
   });
@@ -485,7 +500,7 @@ Book.refresh = () => {
     const all = [...root.querySelectorAll('.qc > .ans')], ids = b => (b.getAttribute('pages') || '').split(/\s+/).filter(Boolean);
     const claimed = new Set([...answers].flatMap(ids));
     answers.forEach(box => {
-      const mine = new Set(ids(box)), list = all.filter(a => { const id = a.closest('.page')?.id; return mine.size ? mine.has(id) : !claimed.has(id); });
+      const num = numOf(box), mine = new Set(ids(box)), list = all.filter(a => { const id = a.closest('.page')?.id; return mine.size ? mine.has(id) : !claimed.has(id); });
       const key = list.map(a => (num[a.closest('.page').id] || 0) + '\u0001' + Book.inlineSource(a)).join('\u0002');
       if (box._key === key) return; box._key = key;
       box.replaceChildren(...list.map(a => {
@@ -593,7 +608,14 @@ function block(node, ind) {
 Book.serializePage = pg => block(pg, 0);
 Book.serializeBlock = el => block(el, 0);
 Book.metaSource = () => `<script type="application/json" id="book-meta">\n${JSON.stringify(Book.meta, null, 1)}\n</script>`;
-Book.serialize = () => [Book.metaSource(), ...[...Book.root.childNodes].map(n => block(n, 0)).filter(Boolean)].join('\n\n') + '\n';
+Book.docNodes = () => {   // the root's content in file order: panes are transparent, and the cover comes first
+  const out = [];
+  for (const n of Book.root.childNodes) { if (n.nodeType === 1 && n.classList.contains('dpane')) out.push(...n.childNodes); else out.push(n); }
+  const c = out.findIndex(n => n.nodeType === 1 && n.localName === 'section' && n.classList.contains('cover'));
+  if (c > 0 && Book.panes().length) out.unshift(...out.splice(c, 1));
+  return out;
+};
+Book.serialize = () => [Book.metaSource(), ...Book.docNodes().map(n => block(n, 0)).filter(Boolean)].join('\n\n') + '\n';
 
 
 // ---------------------------------------------------------------- runnable code (web edition only)

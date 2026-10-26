@@ -213,7 +213,7 @@ function drawHandles() {
   if (t !== 'text') { hd(...at(b.x0, b.y0), 'nw'); hd(...at(mx, b.y0), 'n'); hd(...at(b.x1, b.y0), 'ne'); hd(...at(b.x1, my), 'e'); hd(...at(b.x1, b.y1), 'se'); hd(...at(mx, b.y1), 's'); hd(...at(b.x0, b.y1), 'sw'); hd(...at(b.x0, my), 'w'); }
   if (/^(rect|ellipse|text|polygon|polyline)$/.test(t)) hd(...at(mx, b.y0 - 18 / unit(svg)), 'rot', 'round rot');
 }
-desk.addEventListener('scroll', drawHandles); window.addEventListener('resize', drawHandles); book.addEventListener('book-refresh', drawHandles);
+E.onDeskScroll(drawHandles); window.addEventListener('resize', drawHandles); book.addEventListener('book-refresh', drawHandles);
 function guides(svg, vx, vy) {
   const r = svg.getBoundingClientRect();
   gx.hidden = vx == null; gy.hidden = vy == null;

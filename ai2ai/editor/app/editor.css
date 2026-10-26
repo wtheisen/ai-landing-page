@@ -480,3 +480,23 @@ body.ed-xdrag .gcol iframe { pointer-events: none; }   /* while dragging a block
 #book .colrow > .colbox:focus > p:only-child:empty::before { content: ''; }
 #glabels span button.lineup { pointer-events: auto; margin-left: 6px; font: 600 11px/1 system-ui, sans-serif; padding: 2px 7px; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #333; cursor: pointer; }
 #glabels span button.lineup:hover { background: #f1ede0; border-color: #DCB439; }
+/* both documents side by side (split chapters, Grid on): #book holds a pane per document, each scrolling on its own */
+.ed #book.dual { display: flex; flex-flow: row nowrap; align-items: stretch; justify-content: flex-start; gap: 0; padding: 0 !important; height: 100%; }
+body.panes #desk:has(> #gsizer > #gworld > #book.dual) { display: flex; flex-direction: column; overflow: hidden; }
+body.panes #desk:has(#book.dual) > #gsizer { flex: 1 1 0; min-height: 0; }
+body.panes #desk:has(#book.dual) #gworld { height: 100%; }
+.ed .dpane { flex: 1 1 0; min-width: 0; overflow: auto; position: relative; align-content: flex-start; padding: 50vh 24px; }
+.ed .dpane[data-doc="reading"] { order: 0; } .ed .dpane[data-doc="lecture"] { order: 1; border-left: 1px solid var(--border); }
+.ed .dpane > #drop2 { position: absolute; height: 3px; background: #1a73e8; border-radius: 2px; z-index: 6; pointer-events: none; }
+.ed .dpane > #drop2[hidden] { display: none; }
+.ed .dpane section.page.ed-match { box-shadow: 0 0 0 3px #dcb439; }
+body.focus #book .dpane > section.page:not(.ed-cur) { opacity: .22; transition: opacity .15s; }
+body.focus #book .dpane > section.page.ed-match:not(.ed-cur) { opacity: .6; }
+#glabels.duo { display: flex; padding: 0 !important; pointer-events: auto; flex: none; }
+#glabels.duo .dlab { flex: 1 1 0; min-width: 0; display: flex; justify-content: center; align-items: center; gap: 6px; padding: 5px 6px; cursor: pointer; }
+#glabels.duo .dlab[data-doc="lecture"] { border-left: 1px solid var(--border); }
+#glabels.duo .dlab button.lineup { font: 600 11px/1 system-ui, sans-serif; padding: 3px 8px; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #333; cursor: pointer; }
+#glabels.duo .dlab button.lineup:hover { background: #f1ede0; border-color: #DCB439; }
+body.panes #desk:has(#book.dual) { flex: 2 1 0; }   /* two document panes: as wide as the Workbook preview each */
+body.ed-xdrag, body.ed-xdrag * { -webkit-user-select: none !important; user-select: none !important; }
+body.panes #rev { order: 99; }   /* the review panel stays at the right edge, like the settings panel */
