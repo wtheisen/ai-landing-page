@@ -1136,6 +1136,11 @@ function codeInspector(el, add) {
   if (lang.value === 'python') {
     const nr = add(`<label class="check"><input type="checkbox" ${el.hasAttribute('norun') ? '' : 'checked'}>Students can run and edit it on the web</label>`);
     nr.firstChild.onchange = e => attr('norun', e.target.checked ? '' : 'true');
+    const chn = add(`<label class="check"><input type="checkbox" ${el.hasAttribute('chain') ? 'checked' : ''}>Continues the code block before it (that one runs first, silently)</label>`);
+    chn.firstChild.onchange = e => attr('chain', e.target.checked ? 'true' : '');
+    add(`<label>Setup: hidden code that runs first (imports, data a slide leaves out)</label>`);
+    const su = add(`<textarea rows="3" spellcheck="false" style="font-family:var(--font-mono);font-size:11px" placeholder="import torch&#10;import torch.nn as nn"></textarea>`);
+    su.value = el.getAttribute('setup') || ''; su.onchange = () => attr('setup', su.value.replace(/\s+$/, ''));
     add(`<label>Data files it reads (web addresses, one per line)</label>`);
     const fl = add(`<textarea rows="2" spellcheck="false" style="font-family:var(--font-mono);font-size:11px" placeholder="https://ai.williamtheisen.com/static/data/ai2ai/nd_football.csv"></textarea>`);
     fl.value = (el.getAttribute('files') || '').split(/\s+/).filter(Boolean).join('\n');
@@ -1158,7 +1163,7 @@ let pyBoot = null, torchBoot = null;
 // same PyTorch as the web edition (see eaiRunCode in book.js), loaded when the code imports torch
 function editorTorch(py) {
   if (torchBoot) return torchBoot;
-  const url = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-5fa3763.tar.gz';
+  const url = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-eaf5a6c.tar.gz';
   torchBoot = py.loadPackage('numpy').then(() => fetch(url)).then(r => { if (!r.ok) throw new Error('could not fetch PyTorch for the browser'); return r.arrayBuffer(); })
     .then(b => { py.unpackArchive(b, 'gztar'); });
   torchBoot.catch(() => { torchBoot = null; });
@@ -1270,10 +1275,23 @@ book.addEventListener('click', e => {
   startCodeEdit(c, e);
 });
 
+// the program a block runs (book.js eaiRunCode prelude): its hidden setup, the blocks it continues (chain), then itself
+function codeProgram(el) {
+  const list = [...(el.closest('.book') || book).querySelectorAll('b-code[lang="python"]')].filter(b => { const pg = b.closest('section.page'); return !pg || Book.inView(pg); });
+  const parts = []; let b = el;
+  for (;;) {
+    if (b !== el) parts.unshift(b.src);
+    if (b.getAttribute('setup')) parts.unshift(b.getAttribute('setup'));
+    if (!b.hasAttribute('chain')) break;
+    const k = list.indexOf(b); if (k < 1) break; b = list[k - 1];
+  }
+  const pre = parts.join('\n');
+  return { code: pre ? pre + '\n' + el.src : el.src, off: pre ? pre.split('\n').length : 0 };
+}
 async function runIntoOutput(el, status, btn) {
   btn.disabled = true; status.textContent = 'Starting Python (the first run takes a few seconds)…';
   const lines = [];
-  let py;
+  let py, off = 0;
   try { py = await editorPython(); } catch (e) { btn.disabled = false; status.textContent = 'Could not start Python here (is this computer online?). The Output was left as it was.'; return; }
   try {
     for (const u of (el.getAttribute('files') || '').split(/\s+/).filter(Boolean)) {
@@ -1281,15 +1299,21 @@ async function runIntoOutput(el, status, btn) {
       const r = await fetch(u); if (!r.ok) throw new Error('could not fetch ' + u);
       py.FS.writeFile(u.split('/').pop().split('?')[0], new Uint8Array(await r.arrayBuffer()));
     }
-    if (/^\s*(import|from)\s+torch\b/m.test(el.src)) { status.textContent = 'Loading PyTorch…'; await editorTorch(py); }
+    const prog = codeProgram(el); off = prog.off;
+    if (/^\s*(import|from)\s+torch(vision)?\b/m.test(prog.code)) { status.textContent = 'Loading PyTorch…'; await editorTorch(py); }
     status.textContent = 'Running…';
-    await py.loadPackagesFromImports(el.src);
+    await py.loadPackagesFromImports(prog.code);
     py.setStdout({ batched: t => lines.push(t) }); py.setStderr({ batched: t => lines.push(t) });
-    await py.runPythonAsync(el.src, { globals: py.toPy({}) });
+    const r = await py.runPythonAsync(prog.code, { globals: py.toPy({}) });
+    if (r !== undefined && r !== null) {   // like a notebook: a last line that is an expression shows its value
+      const B = py.pyimport('builtins');
+      if (typeof r === 'object') { try { if (!/^matplotlib/.test(String(B.getattr(B.type(r), '__module__', '')))) lines.push(B.repr(r)); } finally { if (r.destroy) r.destroy(); } }
+      else lines.push(typeof r === 'string' ? "'" + r.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'" : typeof r === 'boolean' ? (r ? 'True' : 'False') : String(r));
+    }
     try { py.runPython("import sys\nif 'matplotlib.pyplot' in sys.modules:\n    import matplotlib.pyplot as _p\n    _p.close('all')"); } catch (e) {}
     status.textContent = 'Done.';
   } catch (e) {
-    const m = String(e && e.message || e).trim().split('\n'), k = m.findIndex(l => l.includes('File "<exec>"'));
+    const m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, (x, a, n) => +n > off ? a + (n - off) : a + n + ' (setup)').split('\n'), k = m.findIndex(l => l.includes('File "<exec>"'));
     lines.push(...(k >= 0 ? ['Traceback (most recent call last):', ...m.slice(k)] : m.slice(-4)));
     status.textContent = 'The code raised an error; the Output shows it.';
   }

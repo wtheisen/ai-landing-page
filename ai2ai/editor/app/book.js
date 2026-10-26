@@ -805,7 +805,7 @@ function eaiRunCode() {
   var PY = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
   // PyTorch in the browser: our fork of torch-pyodide (github.com/wtheisen/torch-pyodide, branch ai2ai), numpy backend,
   // published to the site as one tarball. Loaded only when a block imports torch. window.EAI_TORCH_URL overrides it.
-  var TORCH = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-5fa3763.tar.gz';
+  var TORCH = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-eaf5a6c.tar.gz';
   var boot = null, torchBoot = null;
   function torch(py) {
     if (torchBoot) return torchBoot;
@@ -834,6 +834,29 @@ function eaiRunCode() {
     });
   }
   function source(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return l.textContent.replace(/ /g, ' '); }).join('\n'); }
+  // What runs before a block's own code: its hidden setup (setup="…", imports and data a slide leaves out), and, for a
+  // block marked chain, the blocks it continues (the python blocks before it in this document, back to the first one
+  // not marked chain, each with its own setup), so a function split across pages or a fit used on the next slide runs.
+  function pyBlocks(bk) { return [].filter.call(bk.querySelectorAll('b-code[lang="python"]'), function (b) { var s = b.closest('section'); return !s || s.getClientRects().length > 0; }); }
+  function prelude(block) {
+    var parts = [], b = block, list = null;
+    for (;;) {
+      if (b !== block) parts.unshift(source(b));
+      if (b.getAttribute('setup')) parts.unshift(b.getAttribute('setup'));
+      if (!b.hasAttribute('chain')) break;
+      list = list || pyBlocks(block.closest('.book') || document);
+      var k = list.indexOf(b); if (k < 1) break; b = list[k - 1];
+    }
+    return parts.join('\n');
+  }
+  // like a notebook: a last line that is an expression shows its value (not for plots: those come out as pictures)
+  function shown(py, r) {
+    if (r === undefined || r === null) return '';
+    if (typeof r === 'string') return "'" + r.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+    if (typeof r === 'boolean') return r ? 'True' : 'False';
+    if (typeof r !== 'object') return String(r);
+    try { var B = py.pyimport('builtins'), mod = String(B.getattr(B.type(r), '__module__', '')); if (/^matplotlib/.test(mod)) return ''; return B.repr(r); } catch (e) { return ''; } finally { if (r.destroy) r.destroy(); }
+  }
   [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
     var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading') return;   // blanks in the Lecture/Workbook: no Run
     if (block._run) return; block._run = true;
@@ -860,7 +883,7 @@ function eaiRunCode() {
     }
     function reset() { if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed); out.classList.remove('shown'); status.textContent = ''; }
     function run() {
-      var code = editor ? editor.value : original, lines = [];
+      var own = editor ? editor.value : original, pre = prelude(block), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [];
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
       pyodide().then(function (py) {
@@ -868,15 +891,15 @@ function eaiRunCode() {
         status.textContent = 'Loading packages…';
         var files = (block.getAttribute('files') || '').split(/\s+/).filter(Boolean);
         return Promise.all(files.map(function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('could not fetch ' + u); return r.arrayBuffer(); }).then(function (b) { py.FS.writeFile(u.split('/').pop().split('?')[0], new Uint8Array(b)); }); }))
-          .then(function () { return /^\s*(import|from)\s+torch\b/m.test(code) ? torch(py) : null; })
+          .then(function () { return /^\s*(import|from)\s+torch(vision)?\b/m.test(code) ? torch(py) : null; })
           .then(function () { return py.loadPackagesFromImports(code); })
           .then(function () {
             status.textContent = 'Running…';
             py.setStdout({ batched: function (t) { lines.push(t); } }); py.setStderr({ batched: function (t) { lines.push(t); } });
             return py.runPythonAsync(code, { globals: py.globals.get('dict')() });
           })
-          .then(function () { var f = figures(py); show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; },
-                function (e) { var m = String(e && e.message || e).trim().split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); show((lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), true, figures(window._eaiPy)); out.classList.add('shown'); status.textContent = 'Error'; });
+          .then(function (r) { var v = shown(py, r), f = figures(py); if (v) lines.push(v); show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; },
+                function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); show((lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), true, figures(window._eaiPy)); out.classList.add('shown'); status.textContent = 'Error'; });
       }, function (e) { status.textContent = String(e.message || e); })
         .then(function () { bar.classList.remove('busy'); });
     }
