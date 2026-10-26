@@ -439,11 +439,19 @@ function startDrag(e, el) {
     const d = desk.getBoundingClientRect(), v = last.clientY < d.top + 45 ? -16 : last.clientY > d.bottom - 45 ? 16 : 0;
     if (v) { desk.scrollTop += v; move(last); }
   }, 30);
+  const origin = [el.style.left, el.style.top];
+  let cross = null;
   const move = ev => {
     if (!moved && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 5) return;
-    if (!moved) { moved = true; commit(true); el.classList.add('ed-dragging'); closePop(); }
+    if (!moved) { moved = true; commit(true); el.classList.add('ed-dragging'); closePop(); document.body.classList.add('ed-xdrag'); }
     if (ev.preventDefault && ev.cancelable) ev.preventDefault();
     last = { clientX: ev.clientX, clientY: ev.clientY, altKey: ev.altKey };
+    cross = crossFrame(ev.clientX, ev.clientY);
+    if (cross) {   // over the other document's column: it shows where the copy would go
+      crossOver(cross, ev.clientX, ev.clientY); drop.hidden = gx.hidden = gy.hidden = true; target = null;
+      if (pinned) { el.style.left = origin[0]; el.style.top = origin[1]; mates.forEach(([b, l, t]) => { b.style.left = l + 'pt'; b.style.top = t + 'pt'; }); place(); }
+      return;
+    } else if (crossTo) crossLeave();
     const under = document.elementsFromPoint(ev.clientX, ev.clientY).find(n => n.matches && n.matches('section.page'));
     if (pinned) {
       const pg = el.parentElement, s = ptScale(pg), q = pg.getBoundingClientRect();
@@ -482,8 +490,15 @@ function startDrag(e, el) {
     clearInterval(auto);
     drop.hidden = gx.hidden = gy.hidden = true;
     delete el.dataset.edX0; delete el.dataset.edY0;
+    document.body.classList.remove('ed-xdrag');
     if (!moved) return;
     el.classList.remove('ed-dragging');
+    if (cross) {   // dropped on the other document's column: copy there, leave this one as it was
+      const s0 = ptScale(pg0), grab = [(x0 - r0.left) / s0, (y0 - r0.top) / s0];
+      if (!crossDrop(group, grab)) crossLeave();
+      if (group.length > 1) selectMany(group); else select(el);
+      Book.refresh(); place(); return;
+    }
     if (pinned && target) {   // dropped on another page: keep the spot under the pointer
       const r = el.getBoundingClientRect(), q = target.getBoundingClientRect(), s = q.width / 432;
       target.insertBefore(el, target.querySelector(':scope > .foot'));
@@ -2131,11 +2146,12 @@ function placeAdders() {
   if (!padd) {
     if (typeof desk === 'undefined' || !desk) return;
     padd = document.createElement('div'); padd.id = 'padd';
-    padd.innerHTML = '<button data-w="before" title="Add a page above this one">+</button><button data-w="after" title="Add a page below this one">+</button><button data-w="del" class="pdel" title="Delete this page (undo with Cmd+Z)">×</button>';
+    padd.innerHTML = '<button data-w="before" title="Add a page above this one">+</button><button data-w="after" title="Add a page below this one">+</button><button data-w="del" class="pdel" title="Delete this page (undo with Cmd+Z)">×</button><button data-w="copy" class="pcopy"></button>';
     padd.addEventListener('mousedown', e => e.preventDefault());
     padd.addEventListener('click', e => {
       const b = e.target.closest('button'); if (!b || !curPage) return;
       if (b.dataset.w === 'del') return $('#pg-del').click();
+      if (b.dataset.w === 'copy') return copyPageAcross(curPage);
       const pg = curPage, before = b.dataset.w === 'before', q = b.getBoundingClientRect();
       openMenu(q.left, q.bottom + 4, LAYOUTS.filter(l => l[0] !== 'toc'), kind => addPageAt(kind, pg, before));
     });
@@ -2148,12 +2164,133 @@ function placeAdders() {
   const gap = (r.height / 648) * 9;   // half the 24px space between pages, in screen px
   const cx = focusOn ? r.left + r.width / 2 : span.left + span.width / 2;   // focus mode: line up with the page itself
   const [ax, ay] = deskXY({ left: cx, top: r.top - gap }), [bx, by] = deskXY({ left: cx, top: r.bottom + gap });
-  const [up, down, del] = padd.children;
+  const [up, down, del, cp] = padd.children;
+  cp.hidden = !Book.split || pg.classList.contains('cover');
+  if (!cp.hidden) {   // beside the page, on the side the other document's column is on
+    const left = Book.views.indexOf(otherView()) < Book.views.indexOf(Book.view), [cx2, cy2] = deskXY({ left: left ? r.left - 22 : r.right + 22, top: r.top + Math.min(r.height / 2, 120) });
+    cp.textContent = left ? '←' : '→'; cp.title = 'Copy this page into the ' + (docOf(Book.view) === 'reading' ? 'Lecture' : 'Reading') + ', level with it'; cp.style.left = cx2 + 'px'; cp.style.top = cy2 + 'px';
+  }
   del.hidden = !focusOn || Book.pages().length < 2;
   if (!del.hidden) { const [dx, dy] = deskXY({ left: r.left, top: r.top }); del.style.left = dx + 'px'; del.style.top = dy + 'px'; }
   up.hidden = pg.classList.contains('cover'); up.style.left = ax + 'px'; up.style.top = ay + 'px';
   down.style.left = bx + 'px'; down.style.top = by + 'px';
 }
+
+// ---------------------------------------------------------------- split chapters: copy pages and blocks between the Reading and the Lecture
+// The → button beside a page copies it into the other document, level with it in the canvas; a block dragged onto the
+// other document's column is copied there, and one dragged out of that column into the page being edited is copied in.
+// Copies, not moves: the source stays as it was. Figures, equations, code and tables become shared (one data-pool id
+// on both copies), so editing either keeps them in step; text is copied plain. Comments stay behind.
+var docOf = v => v === 'reading' ? 'reading' : 'lecture';
+var DOCVIEW = { reading: 'reading', lecture: 'slides workbook' };
+var POOLABLE = /^(B-FIG|B-EQ|B-CODE|B-OUT|B-MATMUL|TABLE)$/;
+function otherView() { return docOf(Book.view) === 'reading' ? 'slides' : 'reading'; }
+function inDoc(p, doc) { return Book.inView(p, doc === 'reading' ? 'reading' : 'slides'); }
+function docPages(doc) { return Book.pages().filter(p => !p.classList.contains('cover') && inDoc(p, doc) && !inDoc(p, doc === 'reading' ? 'lecture' : 'reading')); }
+function poolUp(el) { if (POOLABLE.test(el.tagName) && !el.dataset.pool) el.dataset.pool = 'pool-' + Math.random().toString(36).slice(2, 8); }
+function copyBlock(el) {   // a copy of a block for the other document
+  poolUp(el);
+  const t = h(Book.serializeBlock(el));
+  t.removeAttribute('data-view'); t.classList.remove('ed-sel', 'ed-dragging');
+  return t;
+}
+function copyPageAcross(pg) {
+  if (!Book.split || !pg || pg.classList.contains('cover')) return;
+  const to = docOf(otherView()), mates = docPages(to);
+  commit(true);
+  Book.blocks(pg).forEach(poolUp);
+  const t = h(Book.serializePage(pg));
+  t.id = (to === 'lecture' ? 'lec-' : '') + uid(); t.setAttribute('data-view', DOCVIEW[to]); t.classList.remove('ed-cur', 'over');
+  t.querySelectorAll(':scope > .cmt').forEach(c => c.remove());
+  t.querySelectorAll(':scope > [data-view]').forEach(c => c.removeAttribute('data-view'));
+  // where: the other document's page level with this one in the canvas (its column slides to line up topics),
+  // else after its last page on the same topics, else at the end
+  let before = null;
+  const fr = gridOn && gcols[otherView()] && gcols[otherView()].querySelector('iframe'), rows = Book.pages().filter(p => Book.inView(p));
+  if (fr && rows.length > 1 && mates.length) {
+    const dy = parseFloat((/translateY\((-?[\d.]+)px\)/.exec(fr.style.transform) || [0, 0])[1]), step = rows[1].offsetTop - rows[0].offsetTop;
+    const own = Book.pages().filter(p => inDoc(p, to)), k = Math.round((pg.offsetTop - dy - rows[0].offsetTop) / step);
+    before = k <= 0 ? own.find(p => !p.classList.contains('cover')) || null : own[k] || null;
+    if (before && before.classList.contains('cover')) before = own[1] || null;
+  } else {
+    const topics = Book.topicsOf(pg), same = mates.filter(p => Book.topicsOf(p).some(x => topics.includes(x)));
+    if (same.length) before = same[same.length - 1].nextElementSibling;
+  }
+  if (before) before.before(t);
+  else { const last = mates[mates.length - 1]; if (last) last.after(t); else book.append(t); }
+  prep(); Book.refresh(); commit(true); renderPages();
+  const n = docPages(to).indexOf(t) + 2;   // +1 for the cover
+  toast('Copied to the ' + (to === 'lecture' ? 'Lecture' : 'Reading') + ' as page ' + n, 'Undo', doUndo);
+}
+// dragging out of the page being edited onto the other document's column (startDrag calls these)
+var crossTo = null, crossAt = null;
+function crossFrame(x, y) {
+  if (!Book.split || !gridOn) return null;
+  const v = otherView(), views = [v].concat(v === 'slides' ? ['workbook'] : []);
+  for (const w of views) {
+    const col = gcols[w], fr = col && !col.hidden && col.querySelector('iframe'); if (!fr) continue;
+    const r = fr.getBoundingClientRect(); if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return { fr, v: w };
+  }
+  return null;
+}
+function crossOver(c, x, y) {
+  if (crossTo && crossTo.fr !== c.fr) crossLeave();
+  crossTo = c; const r = c.fr.getBoundingClientRect(), k = r.width / c.fr.offsetWidth;
+  c.fr.contentWindow.postMessage({ gridDragOver: { x: (x - r.left) / k, y: (y - r.top) / k } }, '*');
+}
+function crossLeave() { if (crossTo && crossTo.fr.contentWindow) crossTo.fr.contentWindow.postMessage({ gridDragOver: null }, '*'); crossTo = null; crossAt = null; }
+function crossDrop(list, grab) {   // copy list into the other document where its column last said (crossAt)
+  const at = crossAt, pg = at && pageById(at.page); crossLeave();
+  if (!pg) return false;
+  const blocks = Book.blocks(pg), ref = at.before >= 0 ? blocks[at.before] : null, made = [];
+  commit(true);
+  for (const b of list) {
+    const t = copyBlock(b);
+    if (Book.isPinned(b)) { t.style.left = Math.max(0, at.x - grab[0]).toFixed(1) + 'pt'; t.style.top = Math.max(0, at.y - grab[1]).toFixed(1) + 'pt'; pg.insertBefore(t, pg.querySelector(':scope > svg.overlay, :scope > .foot')); }
+    else if (ref) ref.before(t); else pg.insertBefore(t, pg.querySelector(':scope > svg.overlay, :scope > .foot'));
+    made.push(t);
+  }
+  prep(); Book.refresh(); commit(true);
+  toast((made.length === 1 ? 'Copied' : 'Copied ' + made.length + ' blocks') + ' to the ' + (docOf(at.view) === 'lecture' ? 'Lecture' : 'Reading'), 'Undo', doUndo);
+  return true;
+}
+// dragging a block out of the other document's column into the page being edited (the preview frame sends gridDrag)
+var fromAt = null, xbadge = null;
+function fromFrame(d) {
+  const drop = $('#drop');
+  if (!Book.split || docOf(d.view) === docOf(Book.view) || !gcols[d.view]) return;
+  if (!xbadge) { xbadge = document.createElement('div'); xbadge.id = 'xbadge'; document.body.append(xbadge); }
+  if (d.phase !== 'move') {
+    drop.hidden = true; xbadge.hidden = true;
+    const at = fromAt; fromAt = null;
+    if (d.phase !== 'end' || !at) return;
+    const src = Book.blocks(pageById(d.page) || document.createElement('div'))[d.index];
+    if (!src || src.tagName !== d.tag) return toast('That block has changed since the preview was drawn: try again in a moment');
+    commit(true);
+    const t = copyBlock(src);
+    if (Book.isPinned(src)) { t.style.removeProperty('position'); t.style.removeProperty('left'); t.style.removeProperty('top'); t.style.removeProperty('z-index'); t.classList.remove('wrap'); }
+    if (at.before) at.before.before(t); else at.page.insertBefore(t, at.page.querySelector(':scope > svg.overlay, :scope > .foot'));
+    prep(); Book.refresh(); commit(true); select(t);
+    return toast('Copied from the ' + (docOf(d.view) === 'lecture' ? 'Lecture' : 'Reading'), 'Undo', doUndo);
+  }
+  const fr = gcols[d.view].querySelector('iframe'), r = fr.getBoundingClientRect(), k = r.width / fr.offsetWidth;
+  const cx = r.left + d.x * k, cy = r.top + d.y * k;
+  xbadge.hidden = false; xbadge.textContent = 'Copy here'; xbadge.style.left = (cx + 12) + 'px'; xbadge.style.top = (cy + 12) + 'px';
+  const under = document.elementsFromPoint(cx, cy).find(n => n.matches && n.matches('section.page') && n.parentElement === book);
+  if (!under) { drop.hidden = true; fromAt = null; return; }
+  const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b));
+  const before = flow.find(b => { const q = b.getBoundingClientRect(); return cy < q.top + q.height / 2; }) || null;
+  fromAt = { page: under, before };
+  const q = under.getBoundingClientRect(), s = q.width / 432;
+  let yy; if (before) yy = before.getBoundingClientRect().top - 5 * s; else if (flow.length) yy = flow[flow.length - 1].getBoundingClientRect().bottom + 5 * s; else yy = q.top + 20 * s;
+  const [ax, ay] = deskXY({ left: q.left + 24 * s, top: yy });
+  drop.hidden = false; Object.assign(drop.style, { left: ax + 'px', top: ay + 'px', width: (384 * s) + 'px' });
+}
+window.addEventListener('message', e => {
+  const d = e.data || {};
+  if ('gridDropAt' in d) crossAt = d.gridDropAt && crossTo && d.gridDropAt.view === crossTo.v ? d.gridDropAt : null;
+  if (d.gridDrag) fromFrame(d.gridDrag);
+});
 
 // ---------------------------------------------------------------- review mode: answer comments one at a time
 // A thread is a comment (data-id) plus the replies that point at it (data-re = that id). A reply can carry a verdict

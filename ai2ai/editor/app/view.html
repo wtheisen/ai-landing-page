@@ -73,7 +73,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       tops.forEach(t => {
         const slot = document.createElement('div'); slot.className = 'gslot'; slot.dataset.id = t.id; slot.style.cssText = `position:absolute;left:0;right:0;top:${t.top}px;display:flex;justify-content:center`;
         const p = pages[t.id];
-        if (p && Book.inView(p)) { p.style.display = ''; slot.append(p); slot.style.cursor = 'pointer'; slot.title = 'Click to edit this page in ' + NAMES[Book.view]; slot.onclick = () => parent.postMessage({ gridPick: t.id, view: Book.view }, '*'); }
+        if (p && Book.inView(p)) { p.style.display = ''; slot.append(p); slot.style.cursor = 'pointer'; slot.title = 'Click to edit this page in ' + NAMES[Book.view]; slot.onclick = () => { if (Date.now() - dragEnded > 400) parent.postMessage({ gridPick: t.id, view: Book.view }, '*'); }; }
         else {
           const ins = p ? Book.views.filter(v => Book.inView(p, v)).map(v => NAMES[v]) : [];
           slot.innerHTML = `<div style="width:calc(var(--page-w) * ${L.zoom});height:calc(var(--page-h) * ${L.zoom});border:1px dashed #c3c3c3;border-radius:2px;display:flex;align-items:center;justify-content:center;font:12px system-ui,sans-serif;color:#999">${ins.length ? ins.join(' and ') + ' only' : 'not in this edition'}</div>`;
@@ -83,8 +83,49 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       Object.values(pages).forEach(p => { if (!p.parentElement.classList.contains('gslot')) p.style.display = 'none'; });
       applyFocus();
     };
+    // blocks between the Reading and the Lecture (split chapters, see the editor's copyPageAcross): the editor asks
+    // where a block dragged over this column would go (gridDragOver, answered with gridDropAt and a blue line), and a
+    // block dragged out of this column is reported as it moves (gridDrag), so the editor can copy it in
+    let ind = null, drag = null, dragEnded = 0;
+    const dropAt = p => {
+      if (!ind) { ind = document.createElement('div'); ind.style.cssText = 'position:absolute;height:3px;background:#1a73e8;border-radius:2px;z-index:50;pointer-events:none'; document.body.append(ind); }
+      const pg = p && document.elementsFromPoint(p.x, p.y).map(n => n.closest && n.closest('.gslot section.page')).find(Boolean);
+      if (!pg || pg.classList.contains('cover')) { ind.hidden = true; if (p) parent.postMessage({ gridDropAt: null }, '*'); return; }
+      const r = pg.getBoundingClientRect(), s = r.width / 432, all = Book.blocks(pg);
+      const vis = all.filter(b => !Book.isPinned(b) && b.getBoundingClientRect().height > 0);
+      const nb = vis.find(b => { const q = b.getBoundingClientRect(); return p.y < q.top + q.height / 2; });
+      const y = nb ? nb.getBoundingClientRect().top - 5 * s : vis.length ? vis[vis.length - 1].getBoundingClientRect().bottom + 5 * s : r.top + 20 * s;
+      ind.hidden = false; ind.style.left = (r.left + 24 * s + scrollX) + 'px'; ind.style.width = (384 * s) + 'px'; ind.style.top = (y + scrollY) + 'px';
+      parent.postMessage({ gridDropAt: { view: Book.view, page: pg.id, before: nb ? all.indexOf(nb) : -1, x: (p.x - r.left) / s, y: (p.y - r.top) / s } }, '*');
+    };
+    root.addEventListener('pointerdown', e => {
+      if (e.button !== 0 || e.pointerType === 'touch' || !Book.split) return;
+      const pg = e.target.closest('.gslot section.page'); if (!pg || pg.classList.contains('cover')) return;
+      let b = e.target; while (b && b.parentElement !== pg) b = b.parentElement;
+      const index = b ? Book.blocks(pg).indexOf(b) : -1; if (index < 0) return;
+      e.preventDefault();   // no text selection: a drag here copies the block
+      drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, page: pg.id, index, tag: b.tagName, el: b, live: false };
+    });
+    const sendDrag = (e, phase) => parent.postMessage({ gridDrag: { phase, view: Book.view, page: drag.page, index: drag.index, tag: drag.tag, x: e.clientX, y: e.clientY } }, '*');
+    window.addEventListener('pointermove', e => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (!drag.live) {
+        if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 6) return;
+        drag.live = true; try { drag.el.setPointerCapture(e.pointerId); } catch (x) {}   // keep getting the pointer once it leaves this column
+        drag.el.style.outline = '2px solid #1a73e8'; drag.el.style.outlineOffset = '2px';
+      }
+      e.preventDefault(); sendDrag(e, 'move');
+    });
+    const endDrag = (e, phase) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      if (drag.live) { drag.el.style.outline = ''; drag.el.style.outlineOffset = ''; dragEnded = Date.now(); sendDrag(e, phase); }
+      drag = null;
+    };
+    window.addEventListener('pointerup', e => endDrag(e, 'end'));
+    window.addEventListener('pointercancel', e => endDrag(e, 'cancel'));
     window.addEventListener('message', async e => {
       const d = e.data || {};
+      if ('gridDragOver' in d) dropAt(d.gridDragOver);
       if (d.gridLayout) place(d.gridLayout);
       if ('gridFocus' in d) { focus = d.gridFocus; applyFocus(); reportMatch(); }
       if (d.gridReload) {
