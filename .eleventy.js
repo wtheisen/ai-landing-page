@@ -223,6 +223,7 @@ module.exports = function(eleventyConfig) {
   // AI2AI textbook: landing page + chapters (exported by the Book Editor); book/ only holds redirects to it
   eleventyConfig.addPassthroughCopy({ "ai2ai": "ai2ai" });
   eleventyConfig.addPassthroughCopy({ "book": "book" });
+  eleventyConfig.addPassthroughCopy({ "404.html": "404.html" });
 
   // ===== WATCH TARGETS =====
   eleventyConfig.addWatchTarget("./src/");

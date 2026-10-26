@@ -299,6 +299,10 @@ function installHint() {
     : 'Install it from the browser menu (<b>Install app</b> or <b>Add to Home screen</b>) so its chapters are kept.';
 }
 
+// A reload that skipped the service worker (hard refresh) asks the web server for edit/<slug>, which only the
+// service worker knows: the site's 404 page sends it here as ?open=edit/<slug>, and we go back once it's running.
+const reopen = params.get('open');
+if (reopen && /^(edit|view)\/[\w.-]+([?#].*)?$/.test(reopen)) { msg('Opening the chapter…'); await swReady; location.replace(reopen); await new Promise(() => {}); }
 show(); installHint(); await chips(); await when(); await list();
 if ('serviceWorker' in navigator) {   // a new version: reload this page to use it; and say which version is running
   let had = !!navigator.serviceWorker.controller;
