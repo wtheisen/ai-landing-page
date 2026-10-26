@@ -2103,8 +2103,12 @@ function placeLabels() {
   const d = desk.getBoundingClientRect();
   const cols = [[book, GLABEL[Book.view] + ' (editing)', true], ...Book.views.filter(v => !gcols[v].hidden).map(v => [gcols[v], GLABEL[v], false])];
   const other = v => Book.split && (v === 'reading') !== (Book.view === 'reading');   // (docOf is defined further down)
-  glabels.innerHTML = cols.map(([el, t, ed]) => { const q = el.getBoundingClientRect(), v = ed ? null : Book.views.find(x => gcols[x] === el); return `<span class="${ed ? 'ed' : ''}" style="left:${Math.round(q.left - d.left + q.width / 2)}px">${t}${v && other(v) ? ' <button class="lineup" title="Slide this column so the pages on the same topic as the one you are editing sit level with it">Line up</button>' : ''}</span>`; }).join('');
-  glabels.querySelectorAll('.lineup').forEach(b => b.onclick = () => { lineUp = 2; focusChanged(); });
+  glabels.innerHTML = cols.map(([el, t, ed]) => { const q = el.getBoundingClientRect(), v = ed ? null : Book.views.find(x => gcols[x] === el); return `<span class="${ed ? 'ed' : ''}" style="left:${Math.round(q.left - d.left + q.width / 2)}px">${t}${v ? ` <button class="lineup" data-v="${v}" title="Slide this column so its pages ${other(v) ? 'on the same topic as the one you are editing' : 'sit level with the same pages in the column you are editing'}">Line up</button>` : ''}</span>`; }).join('');
+  glabels.querySelectorAll('.lineup').forEach(b => b.onclick = () => {
+    const v = b.dataset.v;
+    if (other(v)) { lineUp = Book.views.filter(x => !gcols[x].hidden && other(x)).length; focusChanged(); }   // the other document: match by topic (its preview reports where)
+    else { const fr = gcols[v].querySelector('iframe'); fr.style.transition = 'transform .25s ease'; fr.style.transform = ''; }   // the same document: same rows as the edited column
+  });
 }
 desk.addEventListener('scroll', () => { if (gridOn) placeLabels(); }, { passive: true });
 // Each column scrolls on its own (Eric, 2026-10-26). A preview column is slid by a transform (its frame sends the
@@ -2156,8 +2160,9 @@ function gridAfterSave() { if (!gridOn || !gcols || !gcols.reading) return; clea
 window.addEventListener('message', e => {
   const d = e.data || {};
   if (d.gridReady) { gridLayout(); setTimeout(focusChanged, 50); }
-  if (d.gridMatch && gcols[d.gridMatch.view] && lineUp) {   // split, on request (Line up): slide the other document's column so its first page on this topic sits level with the page being edited
+  if (d.gridMatch && gcols[d.gridMatch.view] && !gcols[d.gridMatch.view].hidden && lineUp) {   // split, on request (Line up): slide the other document's column so its first page on this topic sits level with the page being edited
     lineUp = Math.max(0, lineUp - 1);
+    if (d.gridMatch.top == null) toast('No ' + (GLABEL[d.gridMatch.view] || 'page') + ' page shares this page\u2019s topic, so that column stays where it is');
     const col = gcols[d.gridMatch.view], fr = col.querySelector('iframe');
     const dy = d.gridMatch.top != null && curPage && curPage.isConnected ? curPage.offsetTop - d.gridMatch.top : null;
     if (dy != null) { fr.style.transition = 'transform .25s ease'; fr.style.transform = `translateY(${Math.round(dy)}px)`; }
@@ -2170,9 +2175,17 @@ window.addEventListener('message', e => {
       const shift = v => parseFloat((/translateY\((-?[\d.]+)px\)/.exec(gcols[v].querySelector('iframe').style.transform) || [0, 0])[1]);
       const old = Book.view, rel = shift(d.view), offs = Object.fromEntries(Book.views.filter(v => v !== old && v !== d.view).map(v => [v, shift(v) - rel]));
       offs[old] = -rel;
+      const was = curPage && curPage.isConnected ? { id: curPage.id, y: curPage.getBoundingClientRect().top } : null;
       setMode(d.view);
       for (const [v, y] of Object.entries(offs)) { const fr = gcols[v].querySelector('iframe'); fr.style.transition = 'none'; fr.style.transform = `translateY(${Math.round(y)}px)`; }
       desk.scrollTop -= rel * canvasZ;
+      // the document that was being edited becomes a preview laid out on its own: put the page that was being edited
+      // back where it was on screen (once the preview has laid out), so that column doesn't vanish off screen
+      if (was) [60, 400, 1200].forEach(t => setTimeout(() => {
+        const fr = gcols[old] && gcols[old].querySelector('iframe'), doc = fr && !gcols[old].hidden && fr.contentDocument, el = doc && doc.getElementById(was.id);
+        if (!el) return; const fy = fr.getBoundingClientRect().top + el.getBoundingClientRect().top * canvasZ;
+        if (Math.abs(fy - was.y) > 1) shiftCol(old, (was.y - fy) / canvasZ);
+      }, t));
     }
     if (pg) { setPage(pg); renderInspector(); }
   }
