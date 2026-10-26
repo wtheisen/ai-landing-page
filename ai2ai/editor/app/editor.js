@@ -63,6 +63,15 @@ if (info.offline && navigator.serviceWorker) {   // the offline edition: the ser
 if (info.offline) { const home = document.createElement('a'); home.href = '../'; home.id = 'home'; home.className = 'btnlink'; home.textContent = '⌂'; home.title = 'All chapters'; home.style.cssText = 'color:#fff;background:transparent;border-color:rgba(255,255,255,.35)'; $('#bar').prepend(home); }   // the offline edition (service worker) saves to this device; GitHub sync is separate
 
 function prep() {   // make text blocks editable; equations, figures and code are edited from the side panel
+  // a figure, equation, code or table can't live inside a text box: lift it out (before the box if nothing comes
+  // before it there, else after the box), so it is an ordinary block again
+  book.querySelectorAll('.tbox > :is(b-fig, b-eq, b-code, b-out, b-matmul, table, svg), .colbox > :is(b-fig, b-eq, b-code, b-out, b-matmul, table, svg)').forEach(b => {
+    const box = b.parentElement, host = box.classList.contains('colbox') ? box.parentElement : box;
+    if (!host.parentElement || !host.parentElement.matches('section.page')) return;
+    const first = [...box.children].indexOf(b) === 0 || ![...box.children].slice(0, [...box.children].indexOf(b)).some(x => x.textContent.trim());
+    if (first) host.before(b); else host.after(b);
+    b.removeAttribute('contenteditable'); b.removeAttribute('spellcheck');
+  });
   for (const pg of Book.pages()) for (const el of Book.blocks(pg)) {
     if (NOEDIT.test(el.tagName) || (el.tagName === 'DIV' && !el.firstChild && el.className === 'rule')) continue;
     if (el.classList.contains('colrow')) { el.removeAttribute('contenteditable'); for (const b of el.querySelectorAll(':scope > .colbox')) if (b.getAttribute('contenteditable') !== 'true') { b.setAttribute('contenteditable', 'true'); b.setAttribute('spellcheck', 'true'); } continue; }
@@ -1063,6 +1072,14 @@ async function uploadFigure(file, replace) {
   return d.src;
 }
 function pickFigure(then) { const f = $('#file'); f.value = ''; f.onchange = async () => { if (f.files[0]) then(await uploadFigure(f.files[0])); }; f.click(); }
+// The browser's own drag and drop must never carry a figure, equation or code block into a text box: figures move with
+// the editor's own drag (startDrag); a native drag of a picture would be pasted inside the text (Eric, 2026-10-26: the
+// MSE figure ended up inside a text box). Only files (new figures) and plain text drop natively.
+book.addEventListener('dragstart', e => { const b = e.target.closest && e.target.closest('b-fig, b-eq, b-code, b-out, b-matmul, svg, img, table'); if (b) e.preventDefault(); });
+deskBox.addEventListener('drop', e => {
+  const dt = e.dataTransfer; if (!dt || dt.files.length) return;
+  if ([...dt.types].includes('text/html') && /<(b-fig|b-eq|b-code|b-out|b-matmul|svg|img|table|section)\b/i.test(dt.getData('text/html'))) e.preventDefault();
+}, true);
 deskBox.addEventListener('dragover', e => { if (e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
 deskBox.addEventListener('drop', async e => {
   const f = e.dataTransfer && e.dataTransfer.files[0]; if (!f) return; e.preventDefault();
