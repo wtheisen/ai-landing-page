@@ -42,13 +42,22 @@ function colorize(tex, colors) {   // render.py colorize: wrap each coloured sym
   }
   return out.join('');
 }
+function boldText(tex) {   // text inside a coloured piece is bold too (preamble_mathfont.tex \eqfam): \blue{\text{Precision}}
+  const re = /\\(?:eqfam\{[^{}]*\}|blue|gold|purple|green|red|wnum|bnum)(?![A-Za-z])/g; let m, out = '', at = 0;
+  while ((m = re.exec(tex))) {
+    const i = m.index + m[0].length; if (tex[i] !== '{') continue;
+    const g = group(tex, i);
+    out += tex.slice(at, i) + g.replace(/\\text\{/g, '\\textbf{'); at = i + g.length; re.lastIndex = at;
+  }
+  return out + tex.slice(at);
+}
 function texColors(colors) {   // chapter colour map {symbol: family} -> {TeX token: hex}
   const m = {}; for (const k in colors || {}) { const hex = FAM[colors[k]] || colors[k]; m[TEX[k] || k] = hex; if (TEX[k]) m[k] = hex; }
   return m;
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function one(tex, colors, display) {
-  return G.temml.renderToString(colorize(tex, colors), { displayMode: false, macros: Object.assign({}, MACROS), trust: true, throwOnError: true, annotate: false, xml: false, wrap: 'none' })
+  return G.temml.renderToString(colorize(boldText(tex), colors), { displayMode: false, macros: Object.assign({}, MACROS), trust: true, throwOnError: true, annotate: false, xml: false, wrap: 'none' })
     .replace(/^<math/, display ? '<math display="block" displaystyle="true" style="display:inline-block"' : '<math')
     .replace(/<mi>/g, '<mi mathvariant="normal">');   // unicode-math math-style=upright: letters are upright, as in the TeX images
 }
