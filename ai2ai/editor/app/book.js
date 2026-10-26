@@ -823,6 +823,16 @@ function eaiRunCode() {
     });
     return boot;
   }
+  // Presenting (the Lecture opened with ?lecture=1, the editor home's Lecture button): outputs are hidden, their space
+  // kept, until the code is run live or the output is clicked (click again to hide it), like the fill-in blanks.
+  if (/[?&]lecture=1\b/.test(location.search) && !document.documentElement.classList.contains('present-out')) {
+    document.documentElement.classList.add('present-out');
+    document.addEventListener('click', function (e) {
+      var o = e.target.closest && e.target.closest('b-out'); if (!o || e.target.closest('.run-bar, .run-editor')) return;
+      var bk = o.closest('.book'); if (!bk || bk.getAttribute('data-view') !== 'slides') return;
+      o.classList.toggle('shown');
+    });
+  }
   function source(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return l.textContent.replace(/ /g, ' '); }).join('\n'); }
   [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
     var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading') return;   // blanks in the Lecture/Workbook: no Run
@@ -848,7 +858,7 @@ function eaiRunCode() {
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; editor.focus();
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
-    function reset() { if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed); status.textContent = ''; }
+    function reset() { if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed); out.classList.remove('shown'); status.textContent = ''; }
     function run() {
       var code = editor ? editor.value : original, lines = [];
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
@@ -865,8 +875,8 @@ function eaiRunCode() {
             py.setStdout({ batched: function (t) { lines.push(t); } }); py.setStderr({ batched: function (t) { lines.push(t); } });
             return py.runPythonAsync(code, { globals: py.globals.get('dict')() });
           })
-          .then(function () { var f = figures(py); show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); status.textContent = 'Ran in your browser'; },
-                function (e) { var m = String(e && e.message || e).trim().split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); show((lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), true, figures(window._eaiPy)); status.textContent = 'Error'; });
+          .then(function () { var f = figures(py); show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; },
+                function (e) { var m = String(e && e.message || e).trim().split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); show((lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), true, figures(window._eaiPy)); out.classList.add('shown'); status.textContent = 'Error'; });
       }, function (e) { status.textContent = String(e.message || e); })
         .then(function () { bar.classList.remove('busy'); });
     }

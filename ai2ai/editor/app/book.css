@@ -445,3 +445,8 @@ b-eq > .eq-ml { display: inline-block; vertical-align: middle; max-width: 100%; 
 :is(.tbox, .colbox) > * + :is(ul, ol) { margin-top: .25em; padding-top: .25em; border-top: .75pt solid rgba(0, 0, 0, .12); }
 .page > p + :is(ul, ol) { margin-top: calc(var(--gap, 10pt) * -.75); padding-top: calc(var(--gap, 10pt) * .25); border-top: .75pt solid rgba(0, 0, 0, .12); }
 :is(ul, ol):not(.cases):not(.tight) li + li { margin-top: .25em; }
+/* presenting the Lecture (?lecture=1): code output hidden, its space kept, until run live or clicked (book.js eaiRunCode) */
+html.present-out .book[data-view="slides"] b-out:not(.shown) > pre, html.present-out .book[data-view="slides"] b-out:not(.shown) > .run-figs { visibility: hidden; }
+html.present-out .book[data-view="slides"] b-out:not(.shown) { cursor: pointer; }
+html.present-out .book[data-view="slides"] b-out:not(.shown) > .label::after { content: "  · run it, or tap to show"; text-transform: none; letter-spacing: 0; }
+@media print { html.present-out .book b-out > pre { visibility: visible !important; } }
