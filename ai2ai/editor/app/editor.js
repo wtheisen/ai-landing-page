@@ -2102,7 +2102,7 @@ function commentPanel() {
 function placeMarkers() {
   const box = $('#cmtm'); box.innerHTML = '';
   const seenT = new Map();
-  openCmts().forEach(c => { const pg = c.closest('section.page'), t = targetOf(c) || pg; if (!pg) return; const e = seenT.get(t) || { n: 0, text: [], pg }; e.n++; e.text.push((c.dataset.by || '') + ': ' + c.textContent); seenT.set(t, e); });
+  openCmts().forEach(c => { const pg = c.closest('section.page'), t = targetOf(c) || pg; if (!pg || (dual && pg.parentElement !== desk)) return; const e = seenT.get(t) || { n: 0, text: [], pg }; e.n++; e.text.push((c.dataset.by || '') + ': ' + c.textContent); seenT.set(t, e); });
   seenT.forEach((e, t) => {
     const r = t.getBoundingClientRect(), q = e.pg.getBoundingClientRect(); if (!q.width) return;
     const [x, y] = deskXY({ left: q.right - 22 * (q.width / 576), top: t === e.pg ? q.top + 4 : r.top });
