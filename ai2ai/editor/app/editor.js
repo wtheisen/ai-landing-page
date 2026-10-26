@@ -777,11 +777,21 @@ function atStart(host) {
   const r = document.createRange(); r.selectNodeContents(host); r.setEnd(s.anchorNode, s.anchorOffset);
   return r.toString() === '' && !r.cloneContents().querySelector('b-m,b-ref,br,b-eq');
 }
+// A text box: one page-level block (div.tbox) that holds paragraphs and lists together, like a text box on a slide.
+// A paragraph becomes one when a list starts inside it; a list becomes one when Enter on its empty last item carries on in text.
+const isBox = el => !!el && (el.classList.contains('colbox') || el.classList.contains('tbox'));
+function toTextBox(el, ...more) {   // wrap a page-level block (plus any blocks given) into a text box, in place
+  const tb = document.createElement('div'); tb.className = 'tbox';
+  for (const a of ['style', 'data-view', 'id']) if (el.hasAttribute(a)) { tb.setAttribute(a, el.getAttribute(a)); el.removeAttribute(a); }
+  el.replaceWith(tb);
+  for (const c of [el, ...more]) { c.removeAttribute('contenteditable'); c.removeAttribute('spellcheck'); c.classList.remove('ed-sel'); if (!c.className) c.removeAttribute('class'); tb.append(c); }
+  prep(); return tb;
+}
 const caretEl = () => { const a = getSelection().anchorNode; return a ? (a.nodeType === 1 ? a : a.parentElement) : null; };
 // Typing "1. ", "* " or "- " at the start of a plain paragraph (on the page or in a column box) makes it a list.
 function listShortcut(host) {
   const s = getSelection(); if (!s.rangeCount || !s.isCollapsed) return false;
-  const at = caretEl(), box = host.classList.contains('colbox') ? host : null;
+  const at = caretEl(), box = isBox(host) ? host : null;
   if (!at || at.closest('li')) return false;
   const plain = el => [...el.classList].every(c => c.startsWith('ed-'));
   let cont = null;
@@ -801,12 +811,12 @@ function listShortcut(host) {
   li.querySelectorAll(':scope > br:last-child').forEach(b => { if (b.previousSibling) b.remove(); });
   if (!li.textContent.trim() && !li.querySelector('b-m,b-ref')) li.replaceChildren(document.createElement('br'));
   list.append(li);
-  const keep = br && (cont.textContent.trim() || cont.querySelector('b-m,b-ref'));   // text above the list stays a paragraph
+  let box2 = null; const keep = br && (cont.textContent.trim() || cont.querySelector('b-m,b-ref'));   // text above the list stays a paragraph
   if (cont === box) box.append(list);
-  else if (keep) cont.after(list);
+  else if (keep && box) cont.after(list);
+  else if (keep) { cont.after(list); box2 = toTextBox(cont, list); }
   else { for (const a of ['style', 'data-view', 'id']) if (!box && cont.hasAttribute(a)) list.setAttribute(a, cont.getAttribute(a)); cont.replaceWith(list); }
-  if (!box && cont.hasAttribute('data-view') && keep) list.setAttribute('data-view', cont.getAttribute('data-view'));
-  prep(); select(box ? box.parentElement : list); focusIn(li, false); commit(true); Book.refresh(); place();
+  prep(); const tb = box || box2; select(tb ? (tb.classList.contains('colbox') ? tb.parentElement : tb) : list); focusIn(li, false); commit(true); Book.refresh(); place();
   return true;
 }
 // iPad and phone keyboards don't always send a usable keydown for the space, so the list shortcut listens here
@@ -816,7 +826,7 @@ book.addEventListener('beforeinput', e => {
 });
 // Cmd+Enter in a column box: what follows the caret starts the next box; in the last box it carries on below the row.
 function nextBox(box) {
-  const row = box.parentElement, boxes = () => [...row.children].filter(b => b.classList.contains('colbox'));
+  const single = box.classList.contains('tbox'), row = single ? box : box.parentElement, boxes = () => single ? [box] : [...row.children].filter(b => b.classList.contains('colbox'));
   const k = boxes().indexOf(box), last = k === boxes().length - 1;
   commit(true);
   // the last box: carry on below the row, in a new paragraph (the row of boxes ends there)
@@ -877,7 +887,7 @@ document.addEventListener('keydown', e => {
     if (li0 && host.contains(li0)) { e.preventDefault(); return indentItem(li0, e.shiftKey); }
     const cell = getSelection().anchorNode && (getSelection().anchorNode.nodeType === 1 ? getSelection().anchorNode : getSelection().anchorNode.parentElement).closest('td,th');
     if (e.key === 'Tab' && cell) { e.preventDefault(); return cellMove(cell, e.shiftKey); }
-    if (e.key === 'Enter' && mod && host.classList.contains('colbox')) { e.preventDefault(); return nextBox(host); }
+    if (e.key === 'Enter' && mod && isBox(host)) { e.preventDefault(); return nextBox(host); }
     if (e.key === 'Enter') {
       if (e.shiftKey) { e.preventDefault(); return document.execCommand('insertLineBreak'); }
       // Enter: a new line in the same block (like a text box on a slide); Cmd+Enter: a new paragraph block below
@@ -888,11 +898,11 @@ document.addEventListener('keydown', e => {
       if (/^(UL|OL)$/.test(host.tagName)) {   // the browser adds the next list item; Enter on an empty last item ends the list
         const li = caretEl() && caretEl().closest('li');
         if (li && li.parentElement === host && li === host.lastElementChild && host.children.length > 1 && blankText(li) && !li.querySelector('ul,ol')) {
-          e.preventDefault(); commit(true); li.remove(); const np = document.createElement('p'); host.after(np); prep(); select(np); focusIn(np, false); return commit(true);
+          e.preventDefault(); commit(true); li.remove(); const np = document.createElement('p'); const tb = toTextBox(host, np); select(tb); focusIn(np, false); return commit(true);
         }
         return;
       }
-      if (host.classList.contains('colbox')) { document.execCommand('defaultParagraphSeparator', false, 'p'); return; }   // a column box: the browser splits the paragraph / adds the item
+      if (isBox(host)) { document.execCommand('defaultParagraphSeparator', false, 'p'); return; }   // a column box: the browser splits the paragraph / adds the item
       e.preventDefault(); if (!cell) document.execCommand('insertLineBreak'); return;
     }
     if (e.key === 'Backspace' && host.tagName === 'P' && atStart(host)) {
@@ -1326,7 +1336,7 @@ function renderOneInspector() {
       const k = add(`<label class="check"><input type="checkbox" ${el.classList.contains(c) ? 'checked' : ''}>${label}</label>`); k.firstChild.onchange = e => { el.classList.toggle(c, e.target.checked); commit(true); Book.refresh(); };
     }
     add(`<div class="help">Click a cell, then use the buttons. Tab moves to the next cell (and adds a row at the end).</div>`);
-  } else if (/^(P|H2|H3|DIV)$/.test(el.tagName) && !el.querySelector(':scope > div, :scope > dl') && el.isContentEditable) {
+  } else if (/^(P|H2|H3|DIV)$/.test(el.tagName) && !el.classList.contains('tbox') && !el.querySelector(':scope > div, :scope > dl') && el.isContentEditable) {
     add(`<label>Style</label>`);
     const s = add(`<select>${TEXT_TYPES.map(([t, c, n], k) => `<option value="${k}"${el.localName === t && (el.classList.contains(c) || (!c && !el.classList.contains('aside') && !el.classList.contains('callout'))) ? ' selected' : ''}>${n}</option>`).join('')}</select>`);
     s.onchange = () => { const [t, c] = TEXT_TYPES[+s.value]; commit(true); const n = document.createElement(t); if (c) n.className = c; if (el.getAttribute('style')) n.setAttribute('style', el.getAttribute('style')); while (el.firstChild) n.append(el.firstChild); el.replaceWith(n); prep(); select(n); commit(true); Book.refresh(); };
@@ -1367,7 +1377,7 @@ function toColumns(el, n) {   // a text block → colrow with n boxes
     let k = 0; const per = Math.ceil(items.length / n) || 1, lists = boxes.map(() => BOXED(el));
     items.forEach((li, i) => { if (breaks ? li.classList.contains('colbreak') && i : i && i % per === 0) k = Math.min(k + 1, n - 1); li.classList.remove('colbreak'); if (!li.className) li.removeAttribute('class'); lists[k].append(li); });
     lists.forEach((l, i) => { if (!l.children.length) l.append(document.createElement('li')); if (l.localName === 'ol' && i) l.setAttribute('start', lists.slice(0, i).reduce((t, x) => t + x.children.length, 0) + 1); boxes[i].append(l); });
-  } else { boxes[0].append(BOXED(el)); while (el.firstChild) boxes[0].firstChild.append(el.firstChild); for (const b of boxes.slice(1)) b.append(emptyLike(el)); }
+  } else if (el.classList.contains('tbox')) { boxes[0].append(...el.childNodes); for (const b of boxes.slice(1)) b.append(document.createElement('p')); } else { boxes[0].append(BOXED(el)); while (el.firstChild) boxes[0].firstChild.append(el.firstChild); for (const b of boxes.slice(1)) b.append(emptyLike(el)); }
   row.append(...boxes); el.replaceWith(row); return row;
 }
 function blankText(c) { return !c.textContent.trim() && !c.querySelector('b-m,b-ref,b-fig,b-eq,img,svg'); }

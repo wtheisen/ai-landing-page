@@ -435,3 +435,6 @@ b-eq > .eq-ml { display: inline-block; vertical-align: middle; max-width: 100%; 
 .colrow.cols-rule { gap: 0; }
 .colrow.cols-rule > .colbox + .colbox { border-left: 0.75pt solid var(--border-strong); padding-left: 9pt; margin-left: 9pt; }
 .colrow > .colbox > p:empty { min-height: 1lh; }
+.tbox > :first-child { margin-top: 0; }
+.tbox > :last-child { margin-bottom: 0; }
+.tbox > p:empty { min-height: 1lh; }
