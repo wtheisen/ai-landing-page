@@ -278,7 +278,7 @@ function eaiInk(opts) {
   // Instructor sign-in, once per device: the token is checked with GitHub (it must be able to push to the site's
   // repository) and kept in this browser for the whole site, so every chapter's pen can publish from then on.
   function signIn() {
-    var t = prompt('Instructor sign-in: GitHub token for ' + REPO + ' (fine-grained, contents read and write). It stays on this device.');
+    var t = prompt('Instructor sign-in: GitHub token for ' + REPO + ' (fine-grained, contents read and write). It stays on this device. (Signing in to the Book Editor on this device does this for you when its token also covers ' + REPO + '.)');
     if (!t) return Promise.resolve(false); t = t.trim(); msg('Checking…');
     return fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + t, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
@@ -318,6 +318,21 @@ function eaiInk(opts) {
   if (LECT === '1') store('eai-ink-ghost', false); else if (LECT === 'answers') store('eai-ink-ghost', true);
   ghost(); render(); buildBar(); navbar();
   if (LECT === '1') start();
+  // one sign-in: a device signed in to the Book Editor (same site) uses that token here too, if it can publish to this repo
+  if (!teacher() && window.indexedDB) try {
+    var rq = indexedDB.open('ai2ai-book');
+    rq.onupgradeneeded = function () { rq.transaction.abort(); };   // no editor on this device: don't create its database
+    rq.onsuccess = function () {
+      var db = rq.result; if (!db.objectStoreNames.contains('kv')) return db.close();
+      var g = db.transaction('kv').objectStore('kv').get('remote');
+      g.onsuccess = function () {
+        db.close(); var c = g.result; if (!c || !c.token || c.api) return;
+        fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (j) { if (!j || !j.permissions || !j.permissions.push || teacher()) return; store(KEY_TOKEN, c.token); var was = editing; stop(); target = null; ghost(); navbar(); if (was) start(); }, function () {});
+      };
+    };
+  } catch (e) {}
   if (/(^|[#&])teach\b/.test(location.hash)) { start(); setupTeacher(); }
   else if (/(^|[#&])(lecture|pen)\b/.test(location.hash)) start();
   addEventListener('keydown', function (e) {

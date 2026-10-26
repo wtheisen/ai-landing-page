@@ -44,10 +44,23 @@ $('#go').onclick = async () => {
     const d = await r.json();
     if (d.permissions && !d.permissions.push) msg('Signed in, but this token can only read. Saving back to GitHub will need Contents: Read and write.');
     cfg = { kind: 'github', repo, token, branch: d.default_branch || 'main' }; if (params.get('api')) cfg.api = api; await Store.kv('remote', cfg);
-    show(); await pull();
+    show(); shareToken(token).then(inkNote); await pull();
   } catch (e) { msg(e.message); }
   $('#go').disabled = false;
 };
+// One sign-in for everything: the editor's token also signs this device in for lecture notes (ink.js, the pen on
+// the Lecture pages, reads eai-ink-token), as long as the token can also write to the site's repository.
+const SITE_REPO = 'wtheisen/ai-landing-page';
+async function shareToken(token) {
+  if (params.get('api')) return null;   // tests against the stand-in GitHub
+  try {
+    const r = await fetch('https://api.github.com/repos/' + SITE_REPO, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }, cache: 'no-store' });
+    const d = r.ok ? await r.json() : null;
+    if (d && d.permissions && d.permissions.push) { localStorage.setItem('eai-ink-token', JSON.stringify(token)); return true; }
+  } catch (x) { return null; }   // offline: try again next time
+  return false;
+}
+function inkNote(ok) { const n = $('#inknote'); if (n) n.hidden = ok !== false; }
 function msg(t) { $('#msg').textContent = $('#smsg').textContent = t || ''; }
 
 async function when() {
@@ -324,8 +337,10 @@ if (matchMedia('(display-mode: standalone)').matches) {
   $('#ver').before(p);
   if ($('#tc')) $('#tc').onclick = e => { e.preventDefault(); try { localStorage.setItem('ai2ai-topclear', on ? '0' : '1'); } catch (x) {} location.reload(); };
 }
+$('#foot').insertAdjacentHTML('beforebegin', '<p id="inknote" class="note" hidden>Lecture notes: this token can\'t publish to the site, so the Lecture pages will ask for a sign-in of their own. To make one sign-in do both, edit the token on GitHub (Settings ▸ Developer settings ▸ Fine-grained tokens) and add the repository <b>' + SITE_REPO + '</b> with Contents: Read and write.</p>');
+if (cfg && cfg.token) { let have = null; try { have = JSON.parse(localStorage.getItem('eai-ink-token') || 'null'); } catch (x) {} if (have !== cfg.token) shareToken(cfg.token).then(inkNote); }
 $('#foot').innerHTML = cfg ? `<a href="#" id="out">Sign out</a> · removes the token, keeps chapters and edits on this device` : '';
-if ($('#out')) $('#out').onclick = async e => { e.preventDefault(); if (!confirm('Sign out of GitHub on this device?')) return; await Store.del('kv', 'remote'); cfg = null; show(); $('#foot').textContent = ''; };
+if ($('#out')) $('#out').onclick = async e => { e.preventDefault(); if (!confirm('Sign out of GitHub on this device?')) return; try { if (JSON.parse(localStorage.getItem('eai-ink-token') || 'null') === (cfg && cfg.token)) localStorage.removeItem('eai-ink-token'); } catch (x) {} await Store.del('kv', 'remote'); cfg = null; show(); $('#foot').textContent = ''; };
 await swReady;
 if (cfg && navigator.onLine && !params.has('nopull')) pull();
 })();
