@@ -801,13 +801,14 @@ function listShortcut(host) {
   prep(); select(box ? box.parentElement : list); focusIn(li, false); commit(true); Book.refresh(); place();
   return true;
 }
-// Cmd+Enter in a column box: what follows the caret starts the next box (a new box if this is the last, up to three).
+// Cmd+Enter in a column box: what follows the caret starts the next box; in the last box it carries on below the row.
 function nextBox(box) {
   const row = box.parentElement, boxes = () => [...row.children].filter(b => b.classList.contains('colbox'));
-  let k = boxes().indexOf(box);
-  if (k === boxes().length - 1) { if (boxes().length >= 3) return toast('Three boxes is the most a row can have'); commit(true); setColumns(row, boxes().length + 1); prep(); }
-  else commit(true);
-  const next = boxes()[k + 1], s = getSelection();
+  const k = boxes().indexOf(box), last = k === boxes().length - 1;
+  commit(true);
+  // the last box: carry on below the row, in a new paragraph (the row of boxes ends there)
+  const next = last ? document.createElement('div') : boxes()[k + 1], s = getSelection();
+  if (last) next.append(document.createElement('p'));
   if (s.rangeCount && box.contains(s.anchorNode)) {
     const r = s.getRangeAt(0); r.deleteContents();
     const tail = document.createRange(); tail.selectNodeContents(box); tail.setStart(r.endContainer, r.endOffset);
@@ -816,6 +817,11 @@ function nextBox(box) {
     else if (blankText(next)) next.replaceChildren(document.createElement('p'));   // nothing after the caret: a fresh box starts as a paragraph
     if (!box.children.length || !box.textContent.trim() && !box.querySelector('b-m,b-ref,li')) box.replaceChildren(document.createElement('p'));
     for (const c of [...box.children]) if (box.children.length > 1 && blankText(c) && c.localName === 'p') c.remove();
+  }
+  if (last) {   // unwrap the stand-in box into page-level blocks after the row
+    const blocks = [...next.children]; row.after(...blocks); prep();
+    const f = blocks[0]; select(f); focusIn(/^(UL|OL)$/.test(f.tagName) ? f.firstElementChild || f : f, false);
+    commit(true); Book.refresh(); place(); return;
   }
   const first = next.firstElementChild || next; select(row); focusIn(first.localName === 'ul' || first.localName === 'ol' ? first.firstElementChild || first : first, false);
   commit(true); Book.refresh(); place();
@@ -1373,7 +1379,7 @@ function columnsControl(el, add) {
     commit(true); const out = row ? setColumns(row, k) : toColumns(el, k); prep(); select(out); commit(true); Book.refresh(); place(); renderInspector();
   };
   r.querySelector('input').onchange = e => { commit(true); row.classList.toggle('cols-rule', e.target.checked); commit(true); Book.refresh(); };
-  add(`<div class="help">${n > 1 ? 'Each column is its own box: click into one and type (Enter adds a line, Cmd+Enter carries on in the next box, <code>1.</code> or <code>*</code> then space starts a list). Going back to 1 puts the boxes’ text one after the other.' : 'Splits this block into side-by-side boxes. What is here now goes in the first box (a list is shared out), and you type into the others.'}</div>`);
+  add(`<div class="help">${n > 1 ? 'Each column is its own box: click into one and type (Enter adds a line, Cmd+Enter goes on to the next box, or below the boxes from the last one, <code>1.</code> or <code>*</code> then space starts a list). Going back to 1 puts the boxes’ text one after the other.' : 'Splits this block into side-by-side boxes. What is here now goes in the first box (a list is shared out), and you type into the others.'}</div>`);
 }
 function pageInspector() {
   const pg = curPage; if (!pg) { insp.innerHTML = '<h4>Nothing selected</h4><div class="help">Click a block to select it, or a page to see its settings.</div>' + HELP; return; }
@@ -1683,7 +1689,7 @@ try { if (localStorage.getItem('book-margins') === '1') $('#x-margins').click();
 book.addEventListener('book-refresh', () => { const n = (Book.report || []).length, b = $('#x-over'); b.hidden = !n; b.textContent = n + (n === 1 ? ' page over' : ' pages over'); });
 $('#x-over').onclick = () => { const list = Book.report || []; if (!list.length) return; const pages = Book.pages(), at = curPage ? pages.indexOf(curPage) + 1 : 0; const next = list.find(r => r.page > at) || list[0]; const pg = pages[next.page - 1]; select(null); setPage(pg); renderInspector(); pg.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
 // keyboard shortcuts
-const KEYS = [['Writing'], ['Enter', 'new paragraph'], ['Shift+Enter', 'line break'], ['1. or * then space', 'at the start of a paragraph: a numbered or bulleted list'], ['Enter on an empty last item', 'end the list'], ['Cmd+Enter', 'in a column box: start the next box from the caret'], ['/', 'in an empty paragraph: insert menu'], ['$x_i$', 'inline math (or Cmd+E)'], ['Option+1 … 6', 'gold, navy, green, red, teal, dark grey (bold)'], ['Option+N', 'number: bold Consolas in dark grey'], ['Option+M', 'Consolas on or off (numbers, technical bits)'], ['Cmd+Shift+E', 'centre the block (again: back to the left)'], ['Option+0', 'clear emphasis'], ['Cmd+B / Cmd+I', 'bold / italic'], ['Cmd+K', 'link'], ['Tab / Shift+Tab', 'next cell in a table; nest / un-nest in a list'], ['Arrow keys', 'walk into the next block'], ['Cmd+F', 'find and replace'],
+const KEYS = [['Writing'], ['Enter', 'new paragraph'], ['Shift+Enter', 'line break'], ['1. or * then space', 'at the start of a paragraph: a numbered or bulleted list'], ['Enter on an empty last item', 'end the list'], ['Cmd+Enter', 'in a column box: on to the next box (from the last box: a new paragraph below the boxes)'], ['/', 'in an empty paragraph: insert menu'], ['$x_i$', 'inline math (or Cmd+E)'], ['Option+1 … 6', 'gold, navy, green, red, teal, dark grey (bold)'], ['Option+N', 'number: bold Consolas in dark grey'], ['Option+M', 'Consolas on or off (numbers, technical bits)'], ['Cmd+Shift+E', 'centre the block (again: back to the left)'], ['Option+0', 'clear emphasis'], ['Cmd+B / Cmd+I', 'bold / italic'], ['Cmd+K', 'link'], ['Tab / Shift+Tab', 'next cell in a table; nest / un-nest in a list'], ['Arrow keys', 'walk into the next block'], ['Cmd+F', 'find and replace'],
   ['Blocks'], ['Esc', 'stop typing, keep the block selected'], ['Shift-click', 'select several blocks'], ['Cmd+A', 'every block on the page (when not typing)'], ['Cmd+C / X / V', 'copy, cut, paste blocks (also to another page)'], ['Cmd+D', 'duplicate'], ['Backspace', 'delete the selected block'], ['Option+↑ ↓', 'move the block up or down'], ['Arrows', 'nudge a pinned block (Shift: by 10)'],
   ['Page list'], ['click / Shift-click / Cmd-click', 'select a page, a range, add or drop one'], ['Delete or Backspace', 'delete the selected pages (Cmd+Z undoes)'], ['↑ ↓', 'previous / next page (Shift: extend the selection)'], ['Cmd+A', 'select every page'],
   ['Drawing'], ['double-click a tool', 'keep drawing with it (Esc stops)'], ['Shift while drawing', 'square, circle, 45° line'], ['Option-drag', 'leave a copy'], ['Cmd while dragging', 'no snapping'], ['double-click', 'polygon: move corners; label: retype'], ['Cmd+G / Shift+Cmd+G', 'group / ungroup'],
