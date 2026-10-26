@@ -5,8 +5,8 @@
 const $ = s => document.querySelector(s);
 const ch = location.pathname.split('/').filter(Boolean).pop();
 const book = $('#book'), desk = $('#desk'), insp = $('#insp'), status = $('#status');
-// the canvas: #gsizer (takes the scaled size, so scrolling covers it) > #gworld (laid out once at 100%, then scaled
-// as a whole by a CSS transform) > the chapter plus the preview columns. Zooming the canvas never re-lays anything out.
+// #gsizer > #gworld > the chapter: wrappers left from the old shared canvas (now plain blocks; the panes beside the desk
+// show the other editions, see "panes" near the end of this file).
 const gsizer = document.createElement('div'), gworld = document.createElement('div'); gsizer.id = 'gsizer'; gworld.id = 'gworld';
 book.before(gsizer); gsizer.append(gworld); gworld.append(book);
 const glabels = document.createElement('div'); glabels.id = 'glabels'; gsizer.before(glabels);   // column names, kept at the top of the canvas
@@ -1722,17 +1722,16 @@ function applyZoom(v) {
   let z = +v;
   if (v === 'width') z = Math.max(0.3, +((desk.clientWidth - 12) / 578).toFixed(3));
   else if (v === 'fit' || v === 'two') { const w = desk.clientWidth - 48 - (v === 'two' ? 24 : 0); z = Math.max(0.3, Math.min(2, +(w / (v === 'two' ? 2 : 1) / 578).toFixed(3))); if (v === 'fit') z = Math.min(z, +((desk.clientHeight - 60) / 866).toFixed(3)); }
-  if (gridOn && typeof gworld !== 'undefined') {   // canvas: the menu sets the magnification, the pages stay laid out at 100%
-    const W = gworld.offsetWidth || 3 * 624, one = 624;
-    const cz = v === 'three' ? (desk.clientWidth - 24) / W : v === 'two' ? (desk.clientWidth - 24) / (2 * one) : v === 'fit' ? (desk.clientHeight - 40) / 900 : +v;
-    if (cz > 0) { setCanvasZoom(cz); return; }
-  }
   if (v === 'three') z = Math.max(0.2, Math.min(2, +((desk.clientWidth - 3 * 48 - 2 * 16) / 3 / 578).toFixed(3)));
   book.style.setProperty('--zoom', z); gridLayout(); setTimeout(() => { Book.refresh(); place(); }, 50);
 }
-$('#zoom').onchange = e => { try { localStorage.setItem('book-zoom', e.target.value); } catch (x) {} applyZoom(e.target.value); };
-try { const z = phone ? null : localStorage.getItem('book-zoom'); if (z) { const zs = $('#zoom'); if (![...zs.options].some(o => o.value === z)) { const o = document.createElement('option'); o.value = z; o.textContent = Math.round(+z * 100) + '%'; zs.prepend(o); } zs.value = z; applyZoom(z); } } catch (x) {}
-window.addEventListener('resize', () => { if (/fit|two|three|width/.test($('#zoom').value)) applyZoom($('#zoom').value); else gridLayout(); if (typeof canvasSize === 'function' && gridOn) canvasSize(); });
+// the page zoom is kept per layout: with the panes (three editions side by side, default: fit the pane's width) and without
+function zoomKey() { let on = typeof gridOn === 'boolean' ? gridOn : null; if (on === null) { try { on = !phone && localStorage.getItem('book-grid') !== '0'; } catch (x) { on = !phone; } } return on ? 'book-zoom-p' : 'book-zoom'; }
+function storedZoom() { let z = null; try { z = localStorage.getItem(zoomKey()); } catch (x) {} return z || (zoomKey() === 'book-zoom-p' ? 'width' : null); }
+function setZoomMenu(z) { const zs = $('#zoom'); if (![...zs.options].some(o => o.value === z)) { const o = document.createElement('option'); o.value = z; o.textContent = Math.round(+z * 100) + '%'; zs.prepend(o); } zs.value = z; }
+$('#zoom').onchange = e => { try { localStorage.setItem(zoomKey(), e.target.value); } catch (x) {} applyZoom(e.target.value); };
+{ const z = phone ? null : storedZoom(); if (z) { setZoomMenu(z); applyZoom(z); } }
+window.addEventListener('resize', () => { if (/fit|two|three|width/.test($('#zoom').value)) applyZoom($('#zoom').value); else gridLayout(); if (typeof placeLabels === 'function') placeLabels(); });
 $('#x-margins').onclick = () => { const on = book.classList.toggle('ed-margins'); $('#x-margins').classList.toggle('on', on); try { localStorage.setItem('book-margins', on ? '1' : '0'); } catch (x) {} };
 try { if (localStorage.getItem('book-margins') === '1') $('#x-margins').click(); } catch (x) {}
 // pages that run over: a counter in the bar that jumps to the next one
@@ -2072,148 +2071,117 @@ window.Editor = { guides: () => (rulersOn ? guides : { v: [], h: [] }), clearCli
 document.dispatchEvent(new Event('editor-ready'));
 document.documentElement.dataset.ready = '1';
 
-// ---------------------------------------------------------------- canvas: every page in all three editions (rows = pages, columns = editions)
-// The editable chapter sits in the column of the edition you are editing; the other two columns are live previews
-// (/view/<chapter>?grid=1&view=…), one frame per edition, with each page placed level with its row in the editor.
-// Click a page in a preview to edit that edition there. Two-finger scroll pans in any direction, pinch zooms.
+// ---------------------------------------------------------------- panes: the three editions side by side
+// The edition being edited is the desk (the editable chapter, scrolled and zoomed as usual); the other two are panes
+// beside it, each a preview frame (/view/<chapter>?pane=1&view=…) that scrolls on its own, natively (Eric, 2026-10-26:
+// the old shared canvas twitched). The panes keep the desk's page zoom. Click a page in a pane to edit that edition
+// there: nothing on screen moves. Line up (on a pane's label) scrolls that pane to the page that goes with the one
+// being edited. A pinch over any pane zooms them all.
 var GLABEL = { reading: 'Reading', slides: 'Lecture', workbook: 'Workbook' };
-var gcols = {}, gridOn = true, gridT = 0, gridRaf = 0, gridReload = 0, gridHeights = {};   // var: zoom and mode code earlier in the file call gridLayout() before this runs
+var gcols = {}, gridOn = true, gridT = 0, gridRaf = 0, gridReload = 0;   // var: zoom and mode code earlier in the file call gridLayout() before this runs
 try { gridOn = localStorage.getItem('book-grid') !== '0'; } catch (x) {}
-if (phone) gridOn = false;   // the canvas needs a wide screen
+if (phone) gridOn = false;   // the panes need a wide screen
 Book.views.forEach((v, k) => {
-  const col = h(`<div class="gcol" data-view="${v}" style="order:${k}"><div class="glab"><span>${GLABEL[v]}</span></div><iframe title="${GLABEL[v]} preview" scrolling="no"></iframe></div>`);
-  gworld.append(col); gcols[v] = col;
+  const col = h(`<div class="gcol" data-view="${v}" style="order:${k}" hidden><div class="glab"><span>${GLABEL[v]}</span><button class="lineup" title="Scroll this pane to the page that goes with the one you are editing">Line up</button></div><iframe title="${GLABEL[v]} preview"></iframe></div>`);
+  col.querySelector('.lineup').onclick = () => lineUpPane(v);
+  desk.parentElement.insertBefore(col, $('#insp')); gcols[v] = col;
 });
-var canvasZ = 0.5; try { canvasZ = +localStorage.getItem('book-canvas-zoom') || 0.5; } catch (x) {}
-function gridZoom() { return parseFloat(book.style.getPropertyValue('--zoom')) || 1; }   // the page zoom (single-column mode)
+function gridZoom() { return parseFloat(book.style.getPropertyValue('--zoom')) || 1; }   // the page zoom, shared by the panes
 function gridLayout() {
   if (gridRaf) return; gridRaf = setTimeout(() => { gridRaf = 0; gridApply(); }, 16);   // a timer, not rAF: rAF never fires while the tab is hidden
 }
-function canvasPad() { return [Math.round(desk.clientWidth * 0.5), Math.round(desk.clientHeight * 0.5)]; }   // room on every side, so the canvas can always be panned
-function canvasSize() {   // scale the world; the sizer takes its scaled size plus the margins, so scrolling covers it
-  const [px, py] = canvasPad();
-  gworld.style.transform = gridOn ? `scale(${canvasZ})` : '';
-  gworld.style.left = gridOn ? px + 'px' : ''; gworld.style.top = gridOn ? py + 'px' : '';
-  gsizer.style.width = gridOn ? Math.ceil(gworld.offsetWidth * canvasZ + 2 * px) + 'px' : '';
-  gsizer.style.height = gridOn ? Math.ceil(gworld.offsetHeight * canvasZ + 2 * py) + 'px' : '';
-  placeLabels();
-}
-function placeLabels() {
+function placeLabels() {   // the desk's own label: which edition is being edited
   glabels.hidden = !gridOn; if (!gridOn) return;
-  const d = desk.getBoundingClientRect();
-  const cols = [[book, GLABEL[Book.view] + ' (editing)', true], ...Book.views.filter(v => !gcols[v].hidden).map(v => [gcols[v], GLABEL[v], false])];
-  const other = v => Book.split && (v === 'reading') !== (Book.view === 'reading');   // (docOf is defined further down)
-  glabels.innerHTML = cols.map(([el, t, ed]) => { const q = el.getBoundingClientRect(), v = ed ? null : Book.views.find(x => gcols[x] === el); return `<span class="${ed ? 'ed' : ''}" style="left:${Math.round(q.left - d.left + q.width / 2)}px">${t}${v ? ` <button class="lineup" data-v="${v}" title="Slide this column so its pages ${other(v) ? 'on the same topic as the one you are editing' : 'sit level with the same pages in the column you are editing'}">Line up</button>` : ''}</span>`; }).join('');
-  glabels.querySelectorAll('.lineup').forEach(b => b.onclick = () => {
-    const v = b.dataset.v;
-    if (other(v)) { lineUp = Book.views.filter(x => !gcols[x].hidden && other(x)).length; focusChanged(); }   // the other document: match by topic (its preview reports where)
-    else { const fr = gcols[v].querySelector('iframe'); fr.style.transition = 'transform .25s ease'; fr.style.transform = ''; }   // the same document: same rows as the edited column
-  });
+  glabels.innerHTML = `<span class="ed">${GLABEL[Book.view]} (editing)</span>`;
 }
-desk.addEventListener('scroll', () => { if (gridOn) placeLabels(); }, { passive: true });
-// Each column scrolls on its own (Eric, 2026-10-26). A preview column is slid by a transform (its frame sends the
-// scroll, see view.html); scrolling over the column being edited scrolls the canvas and slides the previews back the
-// same amount, so they stay where they are. Scrolling over the empty canvas still moves everything together.
-function colShift(v) { return parseFloat((/translateY\((-?[\d.]+)px\)/.exec(gcols[v].querySelector('iframe').style.transform) || [0, 0])[1]); }
-function shiftCol(v, dy) { const fr = gcols[v].querySelector('iframe'); fr.style.transition = 'none'; fr.style.transform = `translateY(${Math.round((colShift(v) + dy) * 10) / 10}px)`; }
-var bookScrollUntil = 0, deskTop = 0;
-['wheel', 'touchstart', 'touchmove'].forEach(t => desk.addEventListener(t, e => { if (gridOn && !e.ctrlKey && book.contains(e.target) && !(e.touches && e.touches.length > 1)) bookScrollUntil = performance.now() + 300; }, { passive: true }));
-desk.addEventListener('scroll', () => {
-  const t = desk.scrollTop, dy = t - deskTop; deskTop = t;
-  if (gridOn && dy && typeof gcols !== 'undefined' && gcols && gcols.reading && performance.now() < bookScrollUntil && !document.body.classList.contains('zooming')) Book.views.forEach(v => { if (!gcols[v].hidden) shiftCol(v, dy / canvasZ); });
-}, { passive: true });
-var canvasStarted = false, lineUp = 0;   // lineUp: the columns slide to match only when asked (Eric: following the current page jumped him around)
+var lineUp = 0;
 function gridApply() {
-  if (!GLABEL || !gcols || !gcols.reading) return;   // still loading: the canvas code at the end of this file lays out once it has run
-  document.body.classList.toggle('grid', gridOn); $('#x-grid').classList.toggle('on', gridOn);
-  if (gridOn && gridZoom() !== 1) { book.style.setProperty('--zoom', 1); Book.refresh(); }   // the canvas is always laid out at 100%
-  desk.style.setProperty('--gcolw', (576 + 48) + 'px');
-  book.style.order = Book.views.indexOf(Book.view); book.dataset.glabel = GLABEL[Book.view] + ' (editing)';
-  const shown = Book.views.filter(v => gcols[v].hidden && gridOn && v !== Book.view);   // columns about to appear (a switch of edition)
+  if (!GLABEL || !gcols || !gcols.reading) return;   // still loading: the pane code at the end of this file lays out once it has run
+  let anc = null;   // panes on or off changes the room above the pages: keep the page at the top of the desk where it is
+  if (document.body.classList.contains('panes') !== gridOn) { const top = desk.getBoundingClientRect().top, pg = Book.pages().find(p => p.offsetParent && p.getBoundingClientRect().bottom > top + 1); if (pg) anc = [pg, pg.getBoundingClientRect().top]; }
+  document.body.classList.toggle('panes', gridOn); document.body.classList.remove('grid'); $('#x-grid').classList.toggle('on', gridOn);
+  if (anc) desk.scrollTop += anc[0].getBoundingClientRect().top - anc[1];
+  desk.style.order = gridOn ? Book.views.indexOf(Book.view) : '';
+  const shown = Book.views.filter(v => gcols[v].hidden && gridOn && v !== Book.view);   // panes about to appear (a switch of edition)
   Book.views.forEach(v => { gcols[v].hidden = !gridOn || v === Book.view; });
-  if (shown.length) { commit(true); if (cur !== saved) save(); }   // unsaved edits: save now, the save reloads the previews
-  Book.views.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (!gcols[v].hidden && gcols[v].dataset.stale && fr.contentWindow && cur === saved) { delete gcols[v].dataset.stale; fr.contentWindow.postMessage({ gridReload: 1 }, '*'); } });
-  canvasSize();
+  if (shown.length) { commit(true); if (cur !== saved) save(); }   // unsaved edits: save now, the save reloads the panes
+  placeLabels();
+  const layout = (gridOn ? 'p' : '1') + desk.clientWidth;   // the desk's width changed (panes shown or hidden, window resized): fit the zoom again
+  if (layout !== gridApply.layout) { gridApply.layout = layout; if (/fit|two|three|width/.test($('#zoom').value)) return applyZoom($('#zoom').value); }
   if (!gridOn) return;
-  const tops = Book.pages().filter(p => !Book.split || Book.inView(p)).map(p => ({ id: p.id, top: p.offsetTop })), height = book.offsetHeight;
+  const zoom = gridZoom();
   Book.views.forEach(v => {
     const col = gcols[v], fr = col.querySelector('iframe'); if (col.hidden) return;
-    fr.style.height = (Book.split && gridHeights[v] ? gridHeights[v] : height) + 'px';
-    if (!fr.src) fr.src = `../view/${ch}?view=${v}&grid=1`;
-    else if (fr.contentWindow) fr.contentWindow.postMessage({ gridLayout: { zoom: 1, tops, height } }, '*');
+    if (!fr.src) { fr.src = `../view/${ch}?view=${v}&pane=1&zoom=${zoom}`; return; }
+    if (!fr.contentWindow) return;
+    if (col.dataset.stale && cur === saved) { delete col.dataset.stale; fr.contentWindow.postMessage({ gridReload: 1 }, '*'); }
+    if (col.dataset.zoom !== String(zoom)) { col.dataset.zoom = zoom; fr.contentWindow.postMessage({ gridZoom: zoom }, '*'); }
+    flushPane(v);
   });
-  canvasSize();
-  if (!canvasStarted) { canvasStarted = true; const [px, py] = canvasPad(); desk.scrollLeft = px - 16; desk.scrollTop = py - 40; placeLabels(); const zs = $('#zoom'); let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(canvasZ * 100) + '%'; zs.value = 'custom'; }
 }
-var canvasAnchor = null;
-function setCanvasZoom(z, cx0, cy0) {   // scale the canvas, keeping the point under (cx0, cy0) where it is on screen
-  z = Math.max(0.1, Math.min(3, z));
-  const r = desk.getBoundingClientRect(); if (cx0 == null) { cx0 = r.left + r.width / 2; cy0 = r.top + r.height / 2; }
-  if (!canvasAnchor || canvasAnchor.cx0 !== cx0 || canvasAnchor.cy0 !== cy0) {   // a new gesture (or a moved pointer): note which world point is under it
-    const w = gworld.getBoundingClientRect(); canvasAnchor = { cx0, cy0, wx: (cx0 - w.left) / canvasZ, wy: (cy0 - w.top) / canvasZ };
-  }
-  canvasZ = z; canvasSize();
-  const [px, py] = canvasPad();
-  desk.scrollLeft = px + canvasAnchor.wx * z - (cx0 - r.left); desk.scrollTop = py + canvasAnchor.wy * z - (cy0 - r.top);
-  placeLabels();
-  const zs = $('#zoom'); let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(z * 100) + '%'; zs.value = 'custom';
-  document.body.classList.add('zooming'); clearTimeout(gridT); gridT = setTimeout(() => { canvasAnchor = null; document.body.classList.remove('zooming'); place(); try { localStorage.setItem('book-canvas-zoom', String(+z.toFixed(3))); } catch (x) {} }, 150);
-}
-// after a save the previews reload; a hidden one (the edition being edited) is marked stale and reloads when it shows
-// again, else switching editions shows that column as it was before the edits (Eric: a deleted block came back)
+// after a save the panes reload (keeping their place); a hidden one (the edition being edited) is marked stale and
+// reloads when it shows again, else switching editions would show that pane as it was before the edits
 function gridAfterSave() { if (!gcols || !gcols.reading) return; Book.views.forEach(v => { if (gcols[v].hidden || !gridOn) gcols[v].dataset.stale = '1'; }); if (!gridOn) return; clearTimeout(gridReload); gridReload = setTimeout(() => Book.views.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (!gcols[v].hidden && fr.contentWindow) { delete gcols[v].dataset.stale; fr.contentWindow.postMessage({ gridReload: 1 }, '*'); } }), 500); }
+const paneFrame = v => gcols[v] && !gcols[v].hidden && gcols[v].querySelector('iframe');
+// where a page sits in a pane, in the editor's window coordinates (null if that pane doesn't show it)
+function panePageTop(v, id) {
+  const fr = paneFrame(v), doc = fr && fr.contentDocument, el = doc && doc.getElementById(id);
+  return el && el.offsetParent ? fr.getBoundingClientRect().top + el.getBoundingClientRect().top : null;
+}
+// scroll a pane so a page (by id, or its first page on any of these topics) sits at window height y
+// (a pane that hasn't loaded yet gets it once it says it's ready)
+function scrollPane(v, want, y, smooth) { if (gcols[v]) { gcols[v]._want = { want, y, smooth: !!smooth }; flushPane(v); } }
+function flushPane(v) {   // send a pane its pending scroll once it is showing and loaded
+  const col = gcols[v], w = col && col._want, fr = paneFrame(v); if (!w || !fr || !col.dataset.ready || !fr.contentWindow) return;
+  col._want = null; fr.contentWindow.postMessage({ gridScrollTo: Object.assign({ y: w.y - fr.getBoundingClientRect().top, smooth: w.smooth }, w.want) }, '*');
+}
+function lineUpPane(v) {
+  if (!curPage || !curPage.isConnected) return toast('Click a page to line the panes up with first');
+  const y = curPage.getBoundingClientRect().top, same = docOf(v) === docOf(Book.view);
+  scrollPane(v, same ? { id: curPage.id } : { topics: Book.topicsOf(curPage) }, y, true);
+}
 window.addEventListener('message', e => {
   const d = e.data || {};
-  if (d.gridReady) { gridLayout(); setTimeout(focusChanged, 50); }
-  if (d.gridMatch && gcols[d.gridMatch.view] && !gcols[d.gridMatch.view].hidden && lineUp) {   // split, on request (Line up): slide the other document's column so its first page on this topic sits level with the page being edited
-    lineUp = Math.max(0, lineUp - 1);
-    if (d.gridMatch.top == null) toast('No ' + (GLABEL[d.gridMatch.view] || 'page') + ' page shares this page\u2019s topic, so that column stays where it is');
-    const col = gcols[d.gridMatch.view], fr = col.querySelector('iframe');
-    const dy = d.gridMatch.top != null && curPage && curPage.isConnected ? curPage.offsetTop - d.gridMatch.top : null;
-    if (dy != null) { fr.style.transition = 'transform .25s ease'; fr.style.transform = `translateY(${Math.round(dy)}px)`; }
+  if (d.gridReady) {
+    const col = Object.values(gcols).find(c => c.querySelector('iframe').contentWindow === e.source);
+    if (col) { col.dataset.ready = '1'; col.dataset.zoom = ''; }
+    gridApply(); setTimeout(focusChanged, 50); Book.views.forEach(flushPane);
   }
-  if (d.gridScroll && gcols[d.gridScroll.view] && gridOn) { shiftCol(d.gridScroll.view, -d.gridScroll.dy / canvasZ); desk.scrollLeft += d.gridScroll.dx; }
-  if (d.gridHeight && gcols[d.view]) { gridHeights[d.view] = d.gridHeight; const fr = gcols[d.view].querySelector('iframe'); if (fr && fr.style.height !== d.gridHeight + 'px') { fr.style.height = d.gridHeight + 'px'; canvasSize(); } }
-  if (d.gridPick && Book.views.includes(d.view)) {   // edit this page in that edition
+  if (d.gridNoMatch) toast('No ' + (GLABEL[d.gridNoMatch] || '') + ' page shares this page’s topic, so that pane stays where it is');
+  if (d.gridPick && Book.views.includes(d.view)) {   // edit this page in that edition, without anything on screen moving
     const pg = Book.pages().find(p => p.id === d.gridPick);
-    if (d.view !== Book.view) {   // swap which column is edited without moving anything on screen
-      const shift = v => parseFloat((/translateY\((-?[\d.]+)px\)/.exec(gcols[v].querySelector('iframe').style.transform) || [0, 0])[1]);
-      const old = Book.view, rel = shift(d.view), offs = Object.fromEntries(Book.views.filter(v => v !== old && v !== d.view).map(v => [v, shift(v) - rel]));
-      offs[old] = -rel;
-      const was = curPage && curPage.isConnected ? { id: curPage.id, y: curPage.getBoundingClientRect().top } : null;
+    if (d.view !== Book.view) {
+      const old = Book.view, yNew = panePageTop(d.view, d.gridPick), was = curPage && curPage.isConnected ? { id: curPage.id, y: curPage.getBoundingClientRect().top } : null;
       setMode(d.view);
-      for (const [v, y] of Object.entries(offs)) { const fr = gcols[v].querySelector('iframe'); fr.style.transition = 'none'; fr.style.transform = `translateY(${Math.round(y)}px)`; }
-      desk.scrollTop -= rel * canvasZ;
-      // the document that was being edited becomes a preview laid out on its own: put the page that was being edited
-      // back where it was on screen (once the preview has laid out), so that column doesn't vanish off screen
-      if (was) [60, 400, 1200].forEach(t => setTimeout(() => {
-        const fr = gcols[old] && gcols[old].querySelector('iframe'), doc = fr && !gcols[old].hidden && fr.contentDocument, el = doc && doc.getElementById(was.id);
-        if (!el) return; const fy = fr.getBoundingClientRect().top + el.getBoundingClientRect().top * canvasZ;
-        if (Math.abs(fy - was.y) > 1) shiftCol(old, (was.y - fy) / canvasZ);
-      }, t));
+      if (pg && yNew != null) desk.scrollTop += pg.getBoundingClientRect().top - yNew;   // the clicked page stays put
+      if (was) scrollPane(old, { id: was.id }, was.y, false);                          // and so does the one you were editing, now in its pane
     }
     if (pg) { setPage(pg); renderInspector(); }
   }
+  if (d.gridWheel) {   // a pinch over a pane zooms everything
+    const fr = Object.values(gcols).map(c => c.querySelector('iframe')).find(f => f.contentWindow === e.source); if (!fr) return;
+    const r = fr.getBoundingClientRect(); zoomAt(d.gridWheel.dy, r.left + d.gridWheel.x, r.top + d.gridWheel.y);
+  }
 });
 book.addEventListener('book-refresh', gridLayout);
-$('#x-grid').onclick = () => { gridOn = !gridOn; try { localStorage.setItem('book-grid', gridOn ? '1' : '0'); } catch (x) {} if (!gridOn) { let z = '1'; try { z = localStorage.getItem('book-zoom') || '1'; } catch (x) {} book.style.setProperty('--zoom', isNaN(+z) ? 1 : +z); Book.refresh(); } else canvasStarted = false; gridApply(); place(); const zs = $('#zoom'); if (gridOn) { let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(canvasZ * 100) + '%'; zs.value = 'custom'; } };
-// pinch (a trackpad pinch arrives as a ctrl+wheel event) zooms the canvas around the pointer, never the whole page.
-// Caught on the window so a pinch over the toolbar or side panels can't zoom the browser either; the preview
-// frames forward theirs (see view.html, grid mode).
-// During a pinch only a CSS transform changes (cheap, so it follows the fingers smoothly); when the fingers stop, the
-// real zoom is applied once: pages re-laid out, the previews re-placed, and the scroll set so the point under the
-// fingers stays put.
+$('#x-grid').onclick = () => {
+  const top = desk.getBoundingClientRect().top, pg = (curPage && curPage.isConnected && curPage.getBoundingClientRect().bottom > top) ? curPage : Book.pages().find(p => p.offsetParent && p.getBoundingClientRect().bottom > top + 1), y0 = pg && pg.getBoundingClientRect().top;
+  gridOn = !gridOn; try { localStorage.setItem('book-grid', gridOn ? '1' : '0'); } catch (x) {}
+  gridApply(); const z = storedZoom() || '1'; setZoomMenu(z); applyZoom(z); place();
+  if (pg) setTimeout(() => { desk.scrollTop += pg.getBoundingClientRect().top - y0; place(); }, 120);   // after the new zoom has been laid out: the page stays where it was
+};
+// pinch (a trackpad pinch arrives as a ctrl+wheel event) zooms the pages around the pointer, never the whole page.
+// Caught on the window so a pinch over the toolbar or side panels can't zoom the browser either; the panes forward
+// theirs (see view.html). During a pinch only a CSS transform changes (cheap, so it follows the fingers smoothly);
+// when the fingers stop, the real zoom is applied once: pages re-laid out, the panes told, and the scroll set so the
+// point under the fingers stays put.
 var pinch = null;   // { z0, z1, cx, cy (pointer, desk coords), els: [[el, ox, oy]] }
 function zoomAt(dy, cx0, cy0) {
-  if (gridOn) return setCanvasZoom(canvasZ * Math.exp(-dy * 0.01), cx0, cy0);   // canvas: pure magnification
-  const r = desk.getBoundingClientRect();
   if (!pinch) {
-    const els = [book, ...document.querySelectorAll('.gcol:not([hidden])')].map(el => { const q = el.getBoundingClientRect(); return [el, cx0 - q.left, cy0 - q.top]; });
-    // anchor: the column and the page under the pointer, as fractions of their size, so that spot stays under the fingers
-    const col = els.map(e => e[0]).find(el => { const q = el.getBoundingClientRect(); return cx0 >= q.left && cx0 <= q.right; }) || book;
-    const cq = col.getBoundingClientRect();
-    const pg = Book.pages().reduce((best, p) => { const q = p.getBoundingClientRect(), d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !best || d < best.d ? { p, d, q } : best; }, null);
-    pinch = { z0: gridZoom(), z1: gridZoom(), cx0, cy0, els, col, fx: (cx0 - cq.left) / cq.width, pg: pg && pg.p, fy: pg ? (cy0 - pg.q.top) / pg.q.height : 0 };
+    const els = [book, ...document.querySelectorAll('.gcol:not([hidden]) iframe')].map(el => { const q = el.getBoundingClientRect(); return [el, cx0 - q.left, cy0 - q.top]; });
+    const cq = book.getBoundingClientRect();
+    const pg = Book.pages().reduce((best, p) => { const q = p.getBoundingClientRect(); if (!q.height) return best; const d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !best || d < best.d ? { p, d, q } : best; }, null);
+    pinch = { z0: gridZoom(), z1: gridZoom(), cx0, cy0, els, fx: (cx0 - cq.left) / cq.width, pg: pg && pg.p, fy: pg ? (cy0 - pg.q.top) / pg.q.height : 0 };
     document.body.classList.add('zooming');
   }
   pinch.z1 = Math.max(0.15, Math.min(2.5, pinch.z1 * Math.exp(-dy * 0.01)));
@@ -2226,21 +2194,14 @@ function endPinch() {
   const p = pinch; if (!p) return; pinch = null;
   p.els.forEach(([el]) => { el.style.transform = ''; el.style.transformOrigin = ''; });
   book.style.setProperty('--zoom', +p.z1.toFixed(3));
-  gridApply();
-  const cq = p.col.getBoundingClientRect(); desk.scrollLeft += cq.left + p.fx * cq.width - p.cx0;
+  Book.refresh(); gridApply();
   if (p.pg && p.pg.isConnected) { const q = p.pg.getBoundingClientRect(); desk.scrollTop += q.top + p.fy * q.height - p.cy0; }
   document.body.classList.remove('zooming');
-  Book.refresh(); place();
-  try { localStorage.setItem('book-zoom', String(+p.z1.toFixed(3))); } catch (x) {}
+  place();
+  try { localStorage.setItem(zoomKey(), String(+p.z1.toFixed(3))); } catch (x) {}
 }
 window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); zoomAt(e.deltaY, e.clientX, e.clientY); }, { passive: false, capture: true });
 ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => window.addEventListener(t, e => e.preventDefault(), { passive: false }));   // Safari's own pinch
-window.addEventListener('message', e => {
-  const d = e.data || {}; if (!d.gridWheel) return;
-  const fr = [...document.querySelectorAll('.gcol iframe')].find(f => f.contentWindow === e.source); if (!fr) return;
-  const r = fr.getBoundingClientRect(), k = r.width / (fr.offsetWidth || r.width);   // the frame's own coordinates are unscaled
-  zoomAt(d.gridWheel.dy, r.left + d.gridWheel.x * k, r.top + d.gridWheel.y * k);
-});
 gridLayout();
 
 // ---------------------------------------------------------------- toolbar menus (Insert, Draw, More)
@@ -2258,7 +2219,8 @@ function panelsChanged() {
   $('#tg-side').title = (document.body.classList.contains('no-side') ? 'Show' : 'Hide') + ' the page list (Cmd+\\ toggles both side panels)';
   $('#tg-insp').title = (document.body.classList.contains('no-insp') ? 'Show' : 'Hide') + ' the settings panel (Cmd+\\ toggles both side panels)';
   try { localStorage.setItem('book-panels', (document.body.classList.contains('no-side') ? 's' : '') + (document.body.classList.contains('no-insp') ? 'i' : '')); } catch (x) {}
-  if (typeof canvasSize === 'function' && gridOn) { canvasSize(); placeLabels(); }
+  if (typeof placeLabels === 'function') placeLabels();
+  if (/fit|two|three|width/.test($('#zoom').value)) applyZoom($('#zoom').value);
   place();
 }
 function togglePanel(cls, on) { document.body.classList.toggle(cls, on); panelsChanged(); }
@@ -2279,32 +2241,8 @@ function focusChanged() {
 var focusT = 0;
 // glide the canvas so the page fills most of the window, centred (a short zoom-and-pan animation)
 var centerAnim = 0;
-function centerOn(pg) {
-  if (!document.body.classList.contains('grid')) { pg.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
-  const W = desk.clientWidth, H = desk.clientHeight, [px, py] = canvasPad();
-  const w = gworld.getBoundingClientRect(), r = pg.getBoundingClientRect(), d = desk.getBoundingClientRect();
-  const TOP = 34, AV = H - TOP - 64;   // room for the column labels on top and the + buttons above and below
-  const z0 = canvasZ, z1 = Math.max(0.1, Math.min(3, Math.min(AV / (r.height / z0), W * 0.92 / (r.width / z0))));
-  const c0 = [(d.left + W / 2 - w.left) / z0, (d.top + TOP / 2 + H / 2 - w.top) / z0];                    // world point now at the centre of the window
-  const c1 = [(r.left + r.width / 2 - w.left) / z0, (r.top + r.height / 2 - w.top) / z0];       // world point at the centre of the page
-  const t0 = performance.now(), T = 320, ease = t => 1 - Math.pow(1 - t, 3);
-  cancelAnimationFrame(centerAnim); document.body.classList.add('zooming');
-  const step = now => {
-    const t = Math.min(1, (now - t0) / T), e = ease(t);
-    const z = z0 * Math.pow(z1 / z0, e), cx = c0[0] + (c1[0] - c0[0]) * e, cy = c0[1] + (c1[1] - c0[1]) * e;
-    canvasZ = z; canvasSize();
-    desk.scrollLeft = px + cx * z - W / 2; desk.scrollTop = py + cy * z - H / 2 - TOP / 2;
-    placeLabels();
-    if (t < 1 && !document.hidden) centerAnim = requestAnimationFrame(step);
-    else {
-      if (t < 1) { canvasZ = z1; canvasSize(); desk.scrollLeft = px + c1[0] * z1 - W / 2; desk.scrollTop = py + c1[1] * z1 - H / 2 - TOP / 2; placeLabels(); }
-      document.body.classList.remove('zooming'); place();
-      const zs = $('#zoom'); let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(canvasZ * 100) + '%'; zs.value = 'custom';
-      try { localStorage.setItem('book-canvas-zoom', String(+canvasZ.toFixed(3))); } catch (x) {}
-    }
-  };
-  if (document.hidden) step(t0 + T); else centerAnim = requestAnimationFrame(step);
-}
+function centerOn(pg) { pg.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+
 $('#x-focus').onclick = () => {
   focusOn = !focusOn; document.body.classList.toggle('focus', focusOn); $('#x-focus').classList.toggle('on', focusOn);
   if (focusOn && !curPage) { const d = desk.getBoundingClientRect(); const pg = Book.pages().find(p => { const q = p.getBoundingClientRect(); return q.bottom > d.top + d.height / 3; }); if (pg) setPage(pg); }
@@ -2353,7 +2291,7 @@ function placeAdders() {
   const pg = curPage;
   if (!pg || !pg.isConnected) { padd.hidden = true; return; }
   padd.hidden = false;
-  const r = pg.getBoundingClientRect(), span = (document.body.classList.contains('grid') ? gworld : pg).getBoundingClientRect();
+  const r = pg.getBoundingClientRect(), span = pg.getBoundingClientRect();
   const gap = (r.height / 648) * 9;   // half the 24px space between pages, in screen px
   const cx = focusOn ? r.left + r.width / 2 : span.left + span.width / 2;   // focus mode: line up with the page itself
   const [ax, ay] = deskXY({ left: cx, top: r.top - gap }), [bx, by] = deskXY({ left: cx, top: r.bottom + gap });
@@ -2399,13 +2337,10 @@ function copyPageAcross(pg) {
   // where: the other document's page level with this one in the canvas (its column slides to line up topics),
   // else after its last page on the same topics, else at the end
   let before = null;
-  const fr = gridOn && gcols[otherView()] && gcols[otherView()].querySelector('iframe'), rows = Book.pages().filter(p => Book.inView(p));
-  if (fr && rows.length > 1 && mates.length) {
-    const dy = parseFloat((/translateY\((-?[\d.]+)px\)/.exec(fr.style.transform) || [0, 0])[1]), step = rows[1].offsetTop - rows[0].offsetTop;
-    const own = Book.pages().filter(p => inDoc(p, to)), k = Math.round((pg.offsetTop - dy - rows[0].offsetTop) / step);
-    before = k <= 0 ? own.find(p => !p.classList.contains('cover')) || null : own[k] || null;
-    if (before && before.classList.contains('cover')) before = own[1] || null;
-  } else {
+  const fr = gridOn && paneFrame(otherView()), doc = fr && fr.contentDocument, y = pg.getBoundingClientRect().top;
+  const level = doc && mates.map(p => [p, doc.getElementById(p.id)]).filter(([, e]) => e && e.offsetParent).map(([p, e]) => [p, fr.getBoundingClientRect().top + e.getBoundingClientRect().top]).sort((a2, b2) => Math.abs(a2[1] - y) - Math.abs(b2[1] - y))[0];
+  if (level) before = level[1] < y - 2 ? level[0].nextElementSibling : level[0];   // the pane's page level with this one: the copy takes its place, or goes after it
+  else {
     const topics = Book.topicsOf(pg), same = mates.filter(p => Book.topicsOf(p).some(x => topics.includes(x)));
     if (same.length) before = same[same.length - 1].nextElementSibling;
   }

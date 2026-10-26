@@ -26,10 +26,14 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
 <script>
 (async function () {
   const ch = location.pathname.split('/').filter(Boolean).pop(), q = new URLSearchParams(location.search), exporting = q.has('export');
-  const grid = q.has('grid');   // grid: one edition's pages, placed level with the editor's rows (the editor's canvas)
-  const zoom = () => { if (!grid) document.documentElement.style.setProperty('--zoom', Math.min(1, (window.innerWidth - 32) / 576)); };   // in the grid the editor sets the zoom
+  const grid = q.has('pane') || q.has('grid');   // a pane beside the editor: one edition, print layout, scrolling on its own
+  const zoom = () => { if (!grid) document.documentElement.style.setProperty('--zoom', Math.min(1, (window.innerWidth - 32) / 576)); };   // in a pane the editor sets the zoom
   zoom(); window.addEventListener('resize', zoom);
-  if (grid) { const st = document.createElement('style'); st.textContent = '.gslot section.page{height:var(--page-h)!important;min-height:0!important;padding-bottom:0!important;overflow:hidden!important} .gslot b-code[dual],.gslot b-code[dual]+b-out,.gslot b-matmul{display:none!important} .gslot .page[data-ed-stale]::before{content:\'Slides changed: \' attr(data-ed-stale);position:absolute;top:6px;right:6px;z-index:3;font:600 10.5px/1.4 system-ui,sans-serif;color:#7a5c00;background:#fff3cd;border:1px solid #e6cf7a;border-radius:3px;padding:1px 6px} .gslot.gmatch section.page{box-shadow:0 0 0 3px #dcb439}'; document.head.append(st); document.querySelector('.navbar').style.display = 'none'; document.documentElement.style.cssText = 'overflow:hidden;background:transparent'; document.body.style.cssText = 'margin:0;background:transparent;overflow:hidden'; }
+  if (grid) {
+    document.documentElement.style.setProperty('--zoom', +q.get('zoom') || 0.5);
+    const st = document.createElement('style'); st.textContent = '#book section.page{height:var(--page-h)!important;min-height:0!important;padding-bottom:0!important;overflow:hidden!important;cursor:pointer} #book b-code[dual],#book b-code[dual]+b-out,#book b-matmul{display:none!important} #book .page[data-ed-stale]::before{content:\'Slides changed: \' attr(data-ed-stale);position:absolute;top:6px;right:6px;z-index:3;font:600 10.5px/1.4 system-ui,sans-serif;color:#7a5c00;background:#fff3cd;border:1px solid #e6cf7a;border-radius:3px;padding:1px 6px} #book section.page.gmatch{box-shadow:0 0 0 3px #dcb439} #book section.page{transition:opacity .15s} #book{padding-top:50vh!important;padding-bottom:50vh!important}';
+    document.head.append(st); document.querySelector('.navbar').style.display = 'none'; document.documentElement.style.background = 'transparent'; document.body.style.cssText = 'margin:0;background:transparent';
+  }
   Book.chapter = ch; Book.base = '../c/' + ch + '/'; Book.web = !grid; Book.exporting = exporting; if (exporting) document.documentElement.dataset.exporting = '1';
   const wanted = new URLSearchParams(location.search).get('view'); if (Book.views.includes(wanted)) Book.view = wanted;
   const info = await (await fetch('../api/info')).json(); Book.kit = info.kit; Book.mathml = !!info.offline;
@@ -44,52 +48,42 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
     + (exporting ? '' : '<span style="opacity:.5">|</span>' + Book.views.map(v => `<a href="?view=${v}" style="${v === Book.view ? 'font-weight:700;text-decoration:underline' : ''}">${v[0].toUpperCase() + v.slice(1)}</a>`).join(''));
   await Book.ready(); Book.refresh(); await Book.ready(); Book.refresh();
   if (grid) Book.markStale();
-  if (grid) {   // lay the pages out where the editor says each row is; a page this edition leaves out becomes a labelled gap
-    const root = document.getElementById('book'), NAMES = { reading: 'Reading', slides: 'Lecture', workbook: 'Workbook' };
-    let last = null, focus = null;
+  if (grid) {   // a pane beside the editor (see "panes" in editor.js): its pages in their own flow, scrolling natively
+    const root = document.getElementById('book');
+    let focus = null, busy = null, want = null;
     const topicsOf = p => ((p && p.getAttribute('data-topic')) || '').split(/\s+/).filter(Boolean);
-    const applyFocus = () => root.querySelectorAll('.gslot').forEach(s => {   // split chapters match by topic (the other document's pages have their own ids)
-      s.style.transition = 'opacity .15s';
-      if (focus && typeof focus === 'object') { const t = topicsOf(s.querySelector('section.page')), hit = s.dataset.id === focus.id || t.some(x => (focus.topics || []).includes(x)); s.style.opacity = focus.dim ? '.22' : '';   /* focus mode: every preview fades, matching pages included; only the page being edited stays bright */ s.classList.toggle('gmatch', hit && !!s.querySelector('section.page')); }
-      else { s.classList.remove('gmatch'); s.style.opacity = focus && s.dataset.id !== focus ? '.22' : ''; }
+    const shown = () => Book.pages().filter(p => Book.inView(p) && p.offsetParent);
+    const applyFocus = () => Book.pages().forEach(p => {   // split chapters match by topic (the other document's pages have their own ids)
+      if (focus && typeof focus === 'object') { const hit = p.id === focus.id || topicsOf(p).some(x => (focus.topics || []).includes(x)); p.style.opacity = focus.dim ? '.22' : ''; p.classList.toggle('gmatch', hit && !p.classList.contains('cover')); }
+      else { p.classList.remove('gmatch'); p.style.opacity = focus && p.id !== focus ? '.22' : ''; }
     });
-    const reportMatch = () => {   // split: tell the editor where this edition's first page on the focused topics is, so it can line it up
-      if (!Book.split || !focus || typeof focus !== 'object') return;
-      const m = root.querySelector('.gslot.gmatch');
-      parent.postMessage({ gridMatch: { view: Book.view, top: m ? parseFloat(m.style.top) : null } }, '*');
+    const scrollTo = w => {   // put a page (by id, else the first on any of the topics) at height y of this pane
+      if (busy) { want = w; return; }
+      const list = shown(), all = Book.pages(), at = w.id ? all.findIndex(p => p.id === w.id) : -1;
+      const near = at < 0 ? null : all.slice(0, at + 1).reverse().find(p => list.includes(p)) || all.slice(at).find(p => list.includes(p));   // a page this edition leaves out: the nearest one it shows
+      const el = near || (w.topics && list.find(p => !p.classList.contains('cover') && topicsOf(p).some(t => w.topics.includes(t))));
+      if (!el) { if (w.topics) parent.postMessage({ gridNoMatch: Book.view }, '*'); return; }
+      window.scrollTo({ top: scrollY + el.getBoundingClientRect().top - w.y, behavior: w.smooth ? 'smooth' : 'auto' });
     };
-    const place = L => {
-      last = L; document.documentElement.style.setProperty('--zoom', L.zoom);
-      const pages = Object.fromEntries([...root.querySelectorAll('section.page')].map(p => [p.id, p]));
-      root.querySelectorAll('.gslot').forEach(s => { const p = s.querySelector('section.page'); if (p) root.append(p); s.remove(); });
-      root.style.cssText = `position:relative;display:block;padding:0;height:${L.height}px`;
-      let tops = L.tops;
-      if (Book.split) {   // this edition's pages in their own order, spaced like the editor's rows
-        const step = L.tops.length > 1 ? L.tops[1].top - L.tops[0].top : 0, own = Object.values(pages).filter(p => Book.inView(p)), y0 = L.tops.length ? L.tops[0].top : 0;
-        tops = own.map((p, k) => ({ id: p.id, top: y0 + k * step }));
-        const hgt = tops.length ? tops[tops.length - 1].top + step : 0; root.style.height = hgt + 'px';
-        parent.postMessage({ gridHeight: hgt, view: Book.view }, '*');
-      }
-      tops.forEach(t => {
-        const slot = document.createElement('div'); slot.className = 'gslot'; slot.dataset.id = t.id; slot.style.cssText = `position:absolute;left:0;right:0;top:${t.top}px;display:flex;justify-content:center`;
-        const p = pages[t.id];
-        if (p && Book.inView(p)) { p.style.display = ''; slot.append(p); slot.style.cursor = 'pointer'; slot.title = 'Click to edit this page in ' + NAMES[Book.view]; slot.onclick = () => { if (Date.now() - dragEnded > 400) parent.postMessage({ gridPick: t.id, view: Book.view }, '*'); }; }
-        else {
-          const ins = p ? Book.views.filter(v => Book.inView(p, v)).map(v => NAMES[v]) : [];
-          slot.innerHTML = `<div style="width:calc(var(--page-w) * ${L.zoom});height:calc(var(--page-h) * ${L.zoom});border:1px dashed #c3c3c3;border-radius:2px;display:flex;align-items:center;justify-content:center;font:12px system-ui,sans-serif;color:#999">${ins.length ? ins.join(' and ') + ' only' : 'not in this edition'}</div>`;
-        }
-        root.append(slot);
-      });
-      Object.values(pages).forEach(p => { if (!p.parentElement.classList.contains('gslot')) p.style.display = 'none'; });
-      applyFocus();
+    const anchor = () => { const p = shown().find(x => x.getBoundingClientRect().bottom > 0); return p ? { id: p.id, y: p.getBoundingClientRect().top } : null; };
+    const reload = async () => {   // the chapter changed: draw it again in place, keeping the page at the top where it was
+      const keep = anchor();
+      busy = (async () => {
+        const c = await (await fetch('../api/chapter/' + ch)).json();
+        Book.load(root, c.content); await Book.ready(); Book.refresh(); Book.markStale(); applyFocus();
+      })();
+      try { await busy; } finally { busy = null; }
+      if (keep) scrollTo(keep);
+      if (want) { const w = want; want = null; scrollTo(w); }
     };
+    root.addEventListener('click', e => { const p = e.target.closest('section.page'); if (p && Date.now() - dragEnded > 400) parent.postMessage({ gridPick: p.id, view: Book.view }, '*'); });
     // blocks between the Reading and the Lecture (split chapters, see the editor's copyPageAcross): the editor asks
-    // where a block dragged over this column would go (gridDragOver, answered with gridDropAt and a blue line), and a
-    // block dragged out of this column is reported as it moves (gridDrag), so the editor can copy it in
+    // where a block dragged over this pane would go (gridDragOver, answered with gridDropAt and a blue line), and a
+    // block dragged out of this pane is reported as it moves (gridDrag), so the editor can copy it in
     let ind = null, drag = null, dragEnded = 0;
     const dropAt = p => {
       if (!ind) { ind = document.createElement('div'); ind.style.cssText = 'position:absolute;height:3px;background:#1a73e8;border-radius:2px;z-index:50;pointer-events:none'; document.body.append(ind); }
-      const pg = p && document.elementsFromPoint(p.x, p.y).map(n => n.closest && n.closest('.gslot section.page')).find(Boolean);
+      const pg = p && document.elementsFromPoint(p.x, p.y).map(n => n.closest && n.closest('#book section.page')).find(Boolean);
       if (!pg || pg.classList.contains('cover')) { ind.hidden = true; if (p) parent.postMessage({ gridDropAt: null }, '*'); return; }
       const r = pg.getBoundingClientRect(), s = r.width / 432, all = Book.blocks(pg);
       const vis = all.filter(b => !Book.isPinned(b) && b.getBoundingClientRect().height > 0);
@@ -100,7 +94,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
     };
     root.addEventListener('pointerdown', e => {
       if (e.button !== 0 || e.pointerType === 'touch' || !Book.split) return;
-      const pg = e.target.closest('.gslot section.page'); if (!pg || pg.classList.contains('cover')) return;
+      const pg = e.target.closest('#book section.page'); if (!pg || pg.classList.contains('cover')) return;
       let b = e.target; while (b && b.parentElement !== pg) b = b.parentElement;
       const index = b ? Book.blocks(pg).indexOf(b) : -1; if (index < 0) return;
       e.preventDefault();   // no text selection: a drag here copies the block
@@ -111,7 +105,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       if (!drag || e.pointerId !== drag.id) return;
       if (!drag.live) {
         if (Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 6) return;
-        drag.live = true; try { drag.el.setPointerCapture(e.pointerId); } catch (x) {}   // keep getting the pointer once it leaves this column
+        drag.live = true; try { drag.el.setPointerCapture(e.pointerId); } catch (x) {}   // keep getting the pointer once it leaves this pane
         drag.el.style.outline = '2px solid #1a73e8'; drag.el.style.outlineOffset = '2px';
       }
       e.preventDefault(); sendDrag(e, 'move');
@@ -123,32 +117,18 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
     };
     window.addEventListener('pointerup', e => endDrag(e, 'end'));
     window.addEventListener('pointercancel', e => endDrag(e, 'cancel'));
-    window.addEventListener('message', async e => {
+    window.addEventListener('message', e => {
       const d = e.data || {};
       if ('gridDragOver' in d) dropAt(d.gridDragOver);
-      if (d.gridLayout) place(d.gridLayout);
-      if ('gridFocus' in d) { focus = d.gridFocus; applyFocus(); reportMatch(); }
-      if (d.gridReload) {
-        const c = await (await fetch('../api/chapter/' + ch)).json();
-        Book.load(root, c.content); await Book.ready(); Book.refresh(); Book.markStale();
-        if (last) place(last);
-      }
+      if ('gridFocus' in d) { focus = d.gridFocus; applyFocus(); }
+      if (d.gridScrollTo) scrollTo(d.gridScrollTo);
+      if (d.gridZoom) { const keep = anchor(); document.documentElement.style.setProperty('--zoom', d.gridZoom); Book.refresh(); if (keep) scrollTo(keep); }
+      if (d.gridReload) reload();
     });
-    window.addEventListener('wheel', e => {
-      e.preventDefault();
-      if (e.ctrlKey) return parent.postMessage({ gridWheel: { dy: e.deltaY, x: e.clientX, y: e.clientY } }, '*');   // a pinch here zooms the editor's canvas
-      const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1;   // plain scrolling moves this column only (the editor slides it)
-      parent.postMessage({ gridScroll: { view: Book.view, dx: e.deltaX * k, dy: e.deltaY * k } }, '*');
-    }, { passive: false });
-    let tch = null;   // one finger on iPad: the same, this column only (a pencil writes, two fingers pinch)
-    window.addEventListener('touchstart', e => { tch = e.touches.length === 1 && e.touches[0].touchType !== 'stylus' ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null; }, { passive: true });
-    window.addEventListener('touchmove', e => {
-      if (!tch || e.touches.length !== 1) return; e.preventDefault();
-      const t = e.touches[0]; parent.postMessage({ gridScroll: { view: Book.view, dx: tch.x - t.clientX, dy: tch.y - t.clientY } }, '*'); tch = { x: t.clientX, y: t.clientY };
-    }, { passive: false });
-    window.addEventListener('touchend', () => { tch = null; });
+    window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); parent.postMessage({ gridWheel: { dy: e.deltaY, x: e.clientX, y: e.clientY } }, '*'); }, { passive: false });   // a pinch here zooms all the panes; plain scrolling is this pane's own
     ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => window.addEventListener(t, e => e.preventDefault(), { passive: false }));
-    document.documentElement.classList.add('ink-ghost');   // the editor's Lecture column shows the blanks' answers faintly (never Present here)
+    { const c = Book.pages()[0]; if (c) window.scrollTo(0, scrollY + c.getBoundingClientRect().top - 24); }   // start at the cover (above it is room to line pages up)
+    document.documentElement.classList.add('ink-ghost');   // the panes show the blanks' answers faintly (never Present here)
     document.documentElement.dataset.ready = '1'; parent.postMessage({ gridReady: Book.view }, '*'); return;
   }
   const report = Book.report, pages = Book.pages().length;

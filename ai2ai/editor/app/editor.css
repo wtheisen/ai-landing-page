@@ -262,12 +262,18 @@ body.ed-tool #book, body.ed-tool #book * { cursor: crosshair !important; }
 
 /* canvas: rows = pages, columns = editions (the editable chapter plus two live previews) */
 .gcol { display: none; }
-#gsizer { position: relative; }
-body.grid #gworld { position: absolute; left: 0; top: 0; display: flex; align-items: flex-start; transform-origin: 0 0; }
-body.grid #book { flex: 0 0 var(--gcolw); width: var(--gcolw); flex-flow: column nowrap; align-items: center; padding-left: 0; padding-right: 0; padding-top: 0; position: relative; }
-body.grid .gcol:not([hidden]) { display: block; flex: 0 0 var(--gcolw); width: var(--gcolw); position: relative; border-left: 1px dashed #c8c8c8; }
-body.grid .gcol .glab { display: none; }
-body.grid .gcol iframe { display: block; width: 100%; border: 0; background: transparent; }
+/* panes (Eric, 2026-10-26): the desk is the edition being edited, the other editions are panes beside it, each scrolling on its own */
+body.panes #side { order: -1; } body.panes #insp { order: 99; }
+body.panes #desk { flex: 1 1 0; min-width: 0; }
+body.panes #book { padding-top: 50vh; padding-bottom: 50vh; }
+body.panes #glabels { height: auto; display: flex; justify-content: center; align-items: center; padding: 5px 6px; background: #f7f7f5; border-bottom: 1px solid var(--border); z-index: 40; }   /* the desk's header, like the panes' */
+body.panes #glabels span { position: static; transform: none; padding: 3px 10px; font-size: 11.5px; }   /* room to scroll any page level with one in another pane */
+body.panes .gcol:not([hidden]) { display: flex; flex-direction: column; flex: 1 1 0; min-width: 0; border-left: 1px solid var(--border); background: var(--desk); }
+body.panes .gcol + #desk, body.panes #desk + .gcol { border-left: 1px solid var(--border); }
+.gcol .glab { flex: none; display: flex; justify-content: center; align-items: center; gap: 6px; padding: 5px 6px; font: 600 12px/1 system-ui, sans-serif; color: #555; background: #f7f7f5; border-bottom: 1px solid var(--border); }
+.gcol .glab button.lineup { font: 600 11px/1 system-ui, sans-serif; padding: 3px 8px; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #333; cursor: pointer; }
+.gcol .glab button.lineup:hover { background: #f1ede0; border-color: #DCB439; }
+.gcol iframe { flex: 1; min-height: 0; width: 100%; border: 0; background: transparent; display: block; }
 
 /* toolbar: Insert, Draw and More are menus */
 #bar .grp2 { display: flex; align-items: center; gap: 3px; }
@@ -291,7 +297,7 @@ body.grid .gcol iframe { display: block; width: 100%; border: 0; background: tra
 #bar button.ico { font-size: 15px; line-height: 1; padding: 3px 7px; }
 /* while pinching only a transform changes; the editing overlays come back when the zoom is applied */
 body.zooming #blockbar, body.zooming #rsz, body.zooming #rszb, body.zooming #croph, body.zooming #rulers, body.zooming #cmtm, body.zooming #drop { visibility: hidden !important; }
-body.zooming #book, body.zooming .gcol { will-change: transform; }
+body.zooming #book, body.zooming .gcol iframe { will-change: transform; }
 #glabels { position: sticky; top: 0; left: 0; height: 0; z-index: 30; pointer-events: none; }
 #glabels[hidden] { display: none; }
 #glabels span { position: absolute; top: 4px; transform: translateX(-50%); white-space: nowrap; font: 600 12px/1 system-ui, sans-serif; color: #555; background: rgba(255,255,255,.9); border: 1px solid #ddd; border-radius: 10px; padding: 4px 10px; }
