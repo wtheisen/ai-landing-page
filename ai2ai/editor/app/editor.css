@@ -504,3 +504,6 @@ body.panes #rev { order: 99; }   /* the review panel stays at the right edge, li
 html:has(body.ed), body.ed { overscroll-behavior: none; }
 .ed .dpane, #desk, .gcol iframe { overscroll-behavior: contain; }
 .ed .dpane { overflow-x: hidden; overflow-y: auto; }
+.ed .dpane > .ed-cover { cursor: pointer; }   /* the Lecture pane's copy of the cover */
+.ed .dpane > .ed-cover > * { pointer-events: none; }
+.ed .dpane > .ed-cover:hover > .page { box-shadow: 0 0 0 2px rgba(26,115,232,.5); }

@@ -2331,7 +2331,7 @@ function enterDual() {
   (first && paneDoc(first) === 'reading' ? ['reading', 'lecture'] : ['lecture', 'reading']).forEach(d => book.append(dpanes[d]));   // in file order (the serializer reads them in this order)
   book.classList.add('dual'); book.removeAttribute('data-view');
   desk = null; activatePane(dpanes[docOf(Book.view)]);
-  Book.refresh(); mo.takeRecords(); applying = was;
+  coverKey = ''; lectureCover(); Book.refresh(); mo.takeRecords(); applying = was;
   if (anc && anc[0].parentElement === desk) desk.scrollTop += anc[0].getBoundingClientRect().top - anc[1];
   const other = Object.values(dpanes).find(p => p !== desk);
   if (curPage) setTimeout(() => lineUpDoc(other.dataset.doc), 60); else other.scrollTop = Math.max(0, (other.firstElementChild ? other.firstElementChild.offsetTop : 0) - 40);
@@ -2349,6 +2349,24 @@ function leaveDual() {
   if (anc) desk.scrollTop += anc[0].getBoundingClientRect().top - anc[1];
   placeLabels(); renderPages();
 }
+// The cover lives once, in the Reading pane (it is one page in the file); the Lecture pane shows a copy of it at its
+// top (data-ed: never saved; refreshed when the cover changes). Clicking the copy edits the real cover.
+var coverKey = '';
+function lectureCover() {
+  if (!dual) { coverKey = ''; return; }
+  const cv = Book.pages().find(p => p.classList.contains('cover')), lp = dpanes.lecture;
+  let w = lp.querySelector(':scope > .ed-cover');
+  if (!cv) { if (w) w.remove(); coverKey = ''; return; }
+  const src = Book.serializePage(cv);
+  if (w && src === coverKey && lp.firstElementChild === w) return;
+  if (!w) {
+    w = document.createElement('div'); w.className = 'ed-cover'; w.setAttribute('data-ed', ''); w.setAttribute('data-ed-ui', ''); w.title = 'The cover (shared with the Reading): click to edit it';
+    w.addEventListener('click', () => { const c = Book.pages().find(p => p.classList.contains('cover')); if (!c) return; select(null); setPage(c); renderInspector(); });
+  }
+  if (src !== coverKey || !w.firstChild) { const t = h(src); t.removeAttribute('id'); t.querySelectorAll('[id]').forEach(n => n.removeAttribute('id')); w.replaceChildren(t); coverKey = src; }
+  if (lp.firstElementChild !== w) lp.prepend(w);
+}
+book.addEventListener('book-refresh', lectureCover);
 deskBox.addEventListener('pointerdown', e => { if (!dual) return; const p = e.target.closest && e.target.closest('.dpane'); if (p && p !== desk) activatePane(p); }, true);   // click into the other document: edit there
 deskBox.addEventListener('focusin', e => { if (!dual) return; const p = e.target.closest && e.target.closest('.dpane'); if (p && p !== desk) activatePane(p); }, true);
 panePatch();   // the baseline: what the panes load is this chapter as it is now
