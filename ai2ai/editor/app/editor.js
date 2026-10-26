@@ -138,8 +138,8 @@ let commitT = 0, saveT = 0;
 // A block with data-pool="id" (figure, equation, code, table) appears once in the Lecture and once in the Reading.
 // Edit either copy and the other follows on the next commit; each keeps its own layout (size, class, blanks).
 var poolLast;   // pool id -> its content as of the last sync
-const POOL_LAYOUT = ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'contenteditable', 'spellcheck', 'draggable'];
-function poolKey(el) { return Book.serializeBlock(el).replace(/ (style|class|data-view|data-fill|data-pool)="[^"]*"/g, ''); }
+const POOL_LAYOUT = ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'setup', 'chain', 'norun', 'contenteditable', 'spellcheck', 'draggable'];   // per copy: layout, and how a code copy runs
+function poolKey(el) { return Book.serializeBlock(el).replace(/ (style|class|data-view|data-fill|data-pool|setup|chain|norun)="[^"]*"/g, ''); }
 function poolSync() {
   const groups = {}; book.querySelectorAll('section.page > [data-pool]').forEach(el => { (groups[el.dataset.pool] = groups[el.dataset.pool] || []).push(el); });
   if (!poolLast) { poolLast = {}; for (const id in groups) poolLast[id] = poolKey(groups[id][0]); return; }
@@ -388,11 +388,11 @@ $('#insert').addEventListener('mousedown', e => e.preventDefault());
 $('#insert').addEventListener('click', e => { const k = e.target.dataset && e.target.dataset.ins; if (k) insert(k); });
 
 function removeAll() { const list = allSel(); if (list.length < 2) return removeBlock(sel); commit(true); select(null); list.forEach(b => { tail(b).forEach(c => c.remove()); b.remove(); }); commit(true); Book.refresh(); }
-function duplicateAll() { const list = inOrder(allSel()); if (list.length < 2) return duplicate(sel); commit(true); const last = list[list.length - 1]; const copies = list.map(b => h(Book.serializeBlock(b))); let at = last; copies.forEach(c => { at.after(c); at = c; }); prep(); selectMany(copies); commit(true); Book.refresh(); }
+function duplicateAll() { const list = inOrder(allSel()); if (list.length < 2) return duplicate(sel); commit(true); const last = list[list.length - 1]; const copies = list.map(b => unpool(h(Book.serializeBlock(b)))); let at = last; copies.forEach(c => { at.after(c); at = c; }); prep(); selectMany(copies); commit(true); Book.refresh(); }
 function selectMany(list) { select(null, true); if (!list.length) return renderInspector(); select(list[0], true); list.slice(1).forEach(b => select(b, true, true)); place(); renderInspector(); }
 function moveAll(d) { const list = inOrder(allSel()); if (list.length < 2) return moveBy(sel, d); const pg = list[0].parentElement; if (list.some(b => b.parentElement !== pg)) return; const flow = Book.blocks(pg), idx = list.map(b => flow.indexOf(b)); const other = d < 0 ? flow[Math.min(...idx) - 1] : flow[Math.max(...idx) + 1]; if (!other) return; commit(true); const ot = tail(other); if (d < 0) lastOf(list[list.length - 1]).after(other); else list[0].before(other); carry(other, ot); commit(true); Book.refresh(); place(); }
 function copyBlocks(cut) { const list = inOrder(allSel()); if (!list.length) return; blockClip = list.map(b => Book.serializeBlock(b)); if (window.Draw) Draw.clearClip(); toast(`${list.length} block${list.length > 1 ? 's' : ''} copied: Cmd+V pastes after the selected block, on any page`); if (cut) removeAll(); }
-function pasteBlocks() { if (!blockClip) return false; commit(true); const copies = blockClip.map(src => h(src)); let at = sel && sel.isConnected ? inOrder(allSel()).pop() : null; const pg = curPage || Book.pages()[0]; copies.forEach(c => { if (at) at.after(c); else pg.insertBefore(c, pg.querySelector(':scope > .foot')); at = c; }); prep(); selectMany(copies); commit(true); Book.refresh(); copies[0].scrollIntoView({ block: 'nearest' }); return true; }
+function pasteBlocks() { if (!blockClip) return false; commit(true); const copies = blockClip.map(src => unpool(h(src))); let at = sel && sel.isConnected ? inOrder(allSel()).pop() : null; const pg = curPage || Book.pages()[0]; copies.forEach(c => { if (at) at.after(c); else pg.insertBefore(c, pg.querySelector(':scope > .foot')); at = c; }); prep(); selectMany(copies); commit(true); Book.refresh(); copies[0].scrollIntoView({ block: 'nearest' }); return true; }
 function alignBlocks(a) {
   const list = allSel().filter(Book.isPinned); if (list.length < 2) return;
   commit(true);
@@ -424,7 +424,9 @@ function splitPage(el) {
   pg.after(np); prep(); Book.refresh(); commit(true); setPage(np); select(el);
   np.scrollIntoView({ block: 'start' }); toast('Split: the rest of the page is now on a new page', 'Undo', doUndo);
 }
-function duplicate(el) { commit(true); const c = h(Book.serializeBlock(el)); el.after(c); prep(); select(c); commit(true); Book.refresh(); }
+// a copy is its own block: never linked to what it was copied from (Eric, 2026-10-26: editing a copy changed the original)
+function unpool(n) { if (n && n.removeAttribute) { n.removeAttribute('data-pool'); n.querySelectorAll('[data-pool]').forEach(x => x.removeAttribute('data-pool')); } return n; }
+function duplicate(el) { commit(true); const c = unpool(h(Book.serializeBlock(el))); el.after(c); prep(); select(c); commit(true); Book.refresh(); }
 function togglePin(el) {
   commit(true);
   if (Book.isPinned(el)) { for (const p of ['position', 'left', 'top', 'width', 'z-index']) el.style.removeProperty(p); if (!el.getAttribute('style')) el.removeAttribute('style'); el.classList.remove('wrap'); }
@@ -1355,6 +1357,14 @@ function renderOneInspector() {
   if (!sel) { pageInspector(); return; }
   const el = sel, add = html => { const n = h(html); insp.append(n); return n; };
   add(`<h4>${KIND(el)}</h4>`);
+  if (el.dataset.pool) {   // linked copies (shared between the Reading and the Lecture): say so, and let it go its own way
+    const mates = [...book.querySelectorAll('section.page > [data-pool]')].filter(b => b !== el && b.dataset.pool === el.dataset.pool);
+    if (mates.length) {
+      const where = [...new Set(mates.map(b => { const pg = b.closest('section.page'); return pg && Book.inView(pg, 'reading') && !Book.inView(pg, 'slides') ? 'the Reading' : 'the Lecture'; }))].join(' and ');
+      const lk = add(`<div class="linked"><span>Linked to ${mates.length === 1 ? 'a copy' : mates.length + ' copies'} in ${where}: editing this changes ${mates.length === 1 ? 'it' : 'them'} too.</span><button>Unlink</button></div>`);
+      lk.querySelector('button').onclick = () => { commit(true); el.removeAttribute('data-pool'); if (mates.length === 1) mates[0].removeAttribute('data-pool'); poolLast = null; poolSync(); commit(true); renderInspector(); toast('Unlinked: this block now changes on its own', 'Undo', doUndo); };
+    }
+  }
   if (el.tagName === 'B-EQ') { eqInspector(el); dualForEq(el); }
   else if (el.tagName === 'B-FIG') {
     const w = el.style.width ? parseInt(el.style.width) : el.classList.contains('sm') ? 80 : el.hasAttribute('live') ? 90 : 100;
@@ -1799,7 +1809,7 @@ function addPageAt(kind, ref, before) {   // a new page with the chosen layout, 
   pg.scrollIntoView({ block: 'start' });
 }
 $('#pg-add').onclick = e => { const r = e.currentTarget.getBoundingClientRect(); openMenu(r.left, r.top - LAYOUTS.length * 28 - 16, LAYOUTS, addPage); };
-$('#pg-dup').onclick = () => { if (!curPage) return toast('Click a page first'); commit(true); const pg = h(Book.serializePage(curPage)); pg.id = uid(); delete pg.dataset.part; curPage.after(pg); prep(); Book.refresh(); commit(true); setPage(pg); pg.scrollIntoView({ block: 'start' }); };
+$('#pg-dup').onclick = () => { if (!curPage) return toast('Click a page first'); commit(true); const pg = unpool(h(Book.serializePage(curPage))); pg.id = uid(); delete pg.dataset.part; curPage.after(pg); prep(); Book.refresh(); commit(true); setPage(pg); pg.scrollIntoView({ block: 'start' }); };
 $('#pg-del').onclick = () => { if (!curPage) return toast('Click a page first'); if (Book.pages().length < 2) return; commit(true); const pg = curPage, next = pg.nextElementSibling || pg.previousElementSibling; select(null); pg.remove(); setPage(next); Book.refresh(); commit(true); renderInspector(); toast('Page deleted', 'Undo', doUndo); };
 
 // ---------------------------------------------------------------- bar: undo, zoom, settings, export
@@ -2513,9 +2523,8 @@ function otherView() { return docOf(Book.view) === 'reading' ? 'slides' : 'readi
 function inDoc(p, doc) { return Book.inView(p, doc === 'reading' ? 'reading' : 'slides'); }
 function docPages(doc) { return Book.pages().filter(p => !p.classList.contains('cover') && inDoc(p, doc) && !inDoc(p, doc === 'reading' ? 'lecture' : 'reading')); }
 function poolUp(el) { if (POOLABLE.test(el.tagName) && !el.dataset.pool) el.dataset.pool = 'pool-' + Math.random().toString(36).slice(2, 8); }
-function copyBlock(el) {   // a copy of a block for the other document
-  poolUp(el);
-  const t = h(Book.serializeBlock(el));
+function copyBlock(el) {   // a copy of a block for the other document (its own block, not linked)
+  const t = unpool(h(Book.serializeBlock(el)));
   t.removeAttribute('data-view'); t.classList.remove('ed-sel', 'ed-dragging');
   return t;
 }
@@ -2523,8 +2532,7 @@ function copyPageAcross(pg) {
   if (!Book.split || !pg || pg.classList.contains('cover')) return;
   const to = docOf(otherView()), mates = docPages(to);
   commit(true);
-  Book.blocks(pg).forEach(poolUp);
-  const t = h(Book.serializePage(pg));
+  const t = unpool(h(Book.serializePage(pg)));
   t.id = (to === 'lecture' ? 'lec-' : '') + uid(); t.setAttribute('data-view', DOCVIEW[to]); t.classList.remove('ed-cur', 'over');
   t.querySelectorAll(':scope > .cmt').forEach(c => c.remove());
   t.querySelectorAll(':scope > [data-view]').forEach(c => c.removeAttribute('data-view'));
