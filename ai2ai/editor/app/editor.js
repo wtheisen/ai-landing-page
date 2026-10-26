@@ -2129,7 +2129,10 @@ function gridApply() {
   if (gridOn && gridZoom() !== 1) { book.style.setProperty('--zoom', 1); Book.refresh(); }   // the canvas is always laid out at 100%
   desk.style.setProperty('--gcolw', (576 + 48) + 'px');
   book.style.order = Book.views.indexOf(Book.view); book.dataset.glabel = GLABEL[Book.view] + ' (editing)';
+  const shown = Book.views.filter(v => gcols[v].hidden && gridOn && v !== Book.view);   // columns about to appear (a switch of edition)
   Book.views.forEach(v => { gcols[v].hidden = !gridOn || v === Book.view; });
+  if (shown.length) { commit(true); if (cur !== saved) save(); }   // unsaved edits: save now, the save reloads the previews
+  Book.views.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (!gcols[v].hidden && gcols[v].dataset.stale && fr.contentWindow && cur === saved) { delete gcols[v].dataset.stale; fr.contentWindow.postMessage({ gridReload: 1 }, '*'); } });
   canvasSize();
   if (!gridOn) return;
   const tops = Book.pages().filter(p => !Book.split || Book.inView(p)).map(p => ({ id: p.id, top: p.offsetTop })), height = book.offsetHeight;
@@ -2156,7 +2159,9 @@ function setCanvasZoom(z, cx0, cy0) {   // scale the canvas, keeping the point u
   const zs = $('#zoom'); let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(z * 100) + '%'; zs.value = 'custom';
   document.body.classList.add('zooming'); clearTimeout(gridT); gridT = setTimeout(() => { canvasAnchor = null; document.body.classList.remove('zooming'); place(); try { localStorage.setItem('book-canvas-zoom', String(+z.toFixed(3))); } catch (x) {} }, 150);
 }
-function gridAfterSave() { if (!gridOn || !gcols || !gcols.reading) return; clearTimeout(gridReload); gridReload = setTimeout(() => Book.views.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (!gcols[v].hidden && fr.contentWindow) fr.contentWindow.postMessage({ gridReload: 1 }, '*'); }), 500); }
+// after a save the previews reload; a hidden one (the edition being edited) is marked stale and reloads when it shows
+// again, else switching editions shows that column as it was before the edits (Eric: a deleted block came back)
+function gridAfterSave() { if (!gcols || !gcols.reading) return; Book.views.forEach(v => { if (gcols[v].hidden || !gridOn) gcols[v].dataset.stale = '1'; }); if (!gridOn) return; clearTimeout(gridReload); gridReload = setTimeout(() => Book.views.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (!gcols[v].hidden && fr.contentWindow) { delete gcols[v].dataset.stale; fr.contentWindow.postMessage({ gridReload: 1 }, '*'); } }), 500); }
 window.addEventListener('message', e => {
   const d = e.data || {};
   if (d.gridReady) { gridLayout(); setTimeout(focusChanged, 50); }
