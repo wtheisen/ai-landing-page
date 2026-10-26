@@ -2584,14 +2584,13 @@ function eaiInk(opts) {
     var gh = document.getElementById('ink-gh'); if (gh) gh.remove();
     gh = document.createElement('details'); gh.id = 'ink-gh'; gh.className = 'navmenu' + (teacher() ? ' on' : '');
     gh.innerHTML = '<summary class="nb icon" title="' + (teacher() ? 'Instructor (signed in on this device)' : 'Instructor sign-in') + '">' + GHSVG + '</summary><div class="menu">'
-      + (teacher() ? '<span class="who">Instructor: this device can publish lecture notes</span><label><input type="checkbox" data-g="ghost"' + (store('eai-ink-ghost') === false ? '' : ' checked') + '> Faint answers to trace (Lecture view)</label><button type="button" data-g="out">Sign out on this device</button>'
+      + (teacher() ? '<span class="who">Instructor: this device can publish lecture notes</span><button type="button" data-g="out">Sign out on this device</button>'
                    : '<button type="button" data-g="in">Instructor sign-in…</button>') + '</div>';
     gh.addEventListener('click', function (e) {
       var g = e.target.getAttribute && e.target.getAttribute('data-g'); if (!g) return;
       if (g === 'in') { gh.open = false; signIn(); }
       if (g === 'out' && confirm('Sign out? This device will no longer be able to publish lecture notes.')) { store(KEY_TOKEN, ''); stop(); target = null; ghost(); navbar(); }
     });
-    gh.addEventListener('change', function (e) { if (e.target.getAttribute('data-g') === 'ghost') { store('eai-ink-ghost', e.target.checked); ghost(); } });
     box.appendChild(gh);
     barState();
   }
@@ -2606,7 +2605,7 @@ function eaiInk(opts) {
     });
   // the instructor's crib: in the Lecture view every blank, worked equation and quick-check answer shows in faint ink
   // to trace over (screen only; never for students, never printed)
-  function ghost() { document.documentElement.classList.toggle('ink-ghost', teacher() && VIEW === 'slides' && store('eai-ink-ghost') !== false); }
+  function ghost() { document.documentElement.classList.toggle('ink-ghost', /[?&]grid=1/.test(location.search) || (teacher() && VIEW === 'slides' && !/[?&]lecture=1/.test(location.search))); }   // ?lecture=1 (the editor home's Lecture button): presenting, so hidden
 
   // ---------------------------------------------------------------- writing
   var bar = null, laser = null, last = { t: 'pen', c: PEN[0][0] };
@@ -2652,7 +2651,6 @@ function eaiInk(opts) {
       if (b.dataset.a === 'blank') { ensureTarget(); addBlank(); }
       if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter (this view)?')) { mine.strokes = []; mine.pages = []; undo = []; store(KEY_MINE, mine); render(); }
       if (b.dataset.a === 'publish') { ensureTarget(); publish(); }
-      if (b.dataset.a === 'present') { store('eai-ink-ghost', store('eai-ink-ghost') === false); ghost(); navbar(); }
       barState();
     });
     bar.addEventListener('change', function (e) {
@@ -2670,7 +2668,7 @@ function eaiInk(opts) {
     [].forEach.call(bar.querySelectorAll('[data-w]'), function (x) { x.classList.toggle('on', +x.dataset.w === width); });
     var right = bar.querySelector('.right'), h = '';
     if (layers.length) h += '<select id="ink-pick" title="Lecture notes"' + (editing && target !== mine ? ' disabled' : '') + '><option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '"' + (pub && pub.id === l.id ? ' selected' : '') + '>Notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ')') + '</option>'; }).join('') + '</select>';
-    if (teacher() && VIEW === 'slides') { var pres = store('eai-ink-ghost') === false; h += '<button data-a="present" class="' + (pres ? 'on' : '') + '" title="' + (pres ? 'Presenting: the faint answers are hidden (safe to mirror to the projector). Click to show them again.' : 'Present: hide the faint answers before mirroring this screen to the projector') + '">' + I.eye + (pres ? ' Presenting' : ' Present') + '</button>'; }
+    if (teacher() && VIEW === 'slides' && /[?&]lecture=1/.test(location.search)) h += '<span class="pres" title="Opened from the Lecture button: the faint answers are hidden, safe to mirror to the projector">Presenting</span>';
     h += teacher() ? '<button data-a="publish" class="act" title="publish today\'s notes for students">Publish</button>'
                    : '<button data-a="clear" class="quiet" title="erase all of my notes on this view">Clear mine</button>';
     right.innerHTML = h;
