@@ -479,3 +479,13 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 
 /* the Workbook: a slide that continues the one before it shares its page (Book.packWorkbook) */
 .book section.page.wb-packed { display: none !important; }
+
+/* Lecture (16:9): a code block's output sits beside it, not under it (Eric, 2026-10-27: code rarely needs the full
+   width, and this keeps the output on the same slide). The slide becomes a two-column grid in which every block spans
+   both columns except a code block with an output after it (left, as wide as its longest line, up to 64%) and that
+   output (right). An empty output (run-new: just the Run bar) stays under its code. */
+.book[data-view="slides"] .page:not(.cover) { display: grid; grid-template-columns: fit-content(64%) minmax(0, 1fr); column-gap: 10pt; row-gap: var(--gap, 10pt); align-content: start; }
+.book[data-view="slides"] .page:not(.cover) > * { grid-column: 1 / -1; }
+.book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
+.book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
+.book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { font-size: 8.6pt; overflow: hidden; }
