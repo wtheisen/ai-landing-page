@@ -731,8 +731,8 @@ function insertRef() {
 }
 document.addEventListener('mousedown', e => { if (!$('#pop').hidden && !e.target.closest('#pop') && !(e.target.closest && e.target.closest('b-m,b-ref'))) closePop(); }, true);
 function style(k) {
+  if (codeEd && document.activeElement === codeEd.ta && codeEd.el.tagName === 'B-CODE' && (k === 'fill' || CODE_COLOUR[k])) return codeMark(k === 'fill' ? 'fill' : CODE_COLOUR[k]);
   if (k === 'math') return insertMath(); if (k === 'ref') return insertRef(); if (k === 'link') return linkPop(); if (k === 'clear') return clearSel();
-  if (k === 'fill' && codeEd && document.activeElement === codeEd.ta) return codeFill();
   if (k === 'fill') return wrapSel('u', 'fill');
   if (k === 'key') return wrapSel('span', 'key');
   if (k === 'mono') return wrapSel('span', 'mono');
@@ -1203,7 +1203,7 @@ function codeInspector(el, add) {
   add(`<label>Highlights (line:from-to:colour, separated by spaces)</label>`);
   const mk = add(`<input type="text" spellcheck="false" style="font-family:var(--font-mono);font-size:11px" placeholder="3:4-18:gold">`);
   mk.value = el.getAttribute('marks') || ''; mk.onchange = () => attr('marks', mk.value.trim());
-  add(`<div class="help">Line numbers start at 1, columns at 0. Colours: gold, blue, red, green, purple, or <code>fill</code> for a fill-in blank (easier: click into the code, select the part to blank out and press Fill on the toolbar; Fill again on it removes the blank). Python is highlighted automatically; extra type names to colour purple go in the chapter settings.</div>`);
+  add(`<div class="help">Line numbers start at 1, columns at 0. Colours: gold, blue, green, red, teal, gray, purple, or <code>fill</code> for a fill-in blank. Easier: click into the code, select the part and press a colour circle (Option+1-6) or Fill on the toolbar; the same button again removes it, Clear removes highlights. Python is highlighted automatically; extra type names to colour purple go in the chapter settings.</div>`);
 }
 let pyBoot = null, torchBoot = null;
 // same PyTorch as the web edition (see eaiRunCode in book.js), loaded when the code imports torch
@@ -1240,11 +1240,16 @@ function codeEditView(el, text) {
 }
 // Fill in a code cell: the selected characters become a blank (marks "line:from-to:fill"), one per line they span.
 // Selecting inside an existing blank and pressing Fill again removes it.
-function codeFill() {
-  const { el, ta } = codeEd, a = ta.selectionStart, b = ta.selectionEnd;
-  if (a === b) return toast('Select the code to blank out first');
+function codeFill() { return codeMark('fill'); }
+// The toolbar's colour circles (Option+1-6) highlight the selected code the same way (marks "line:from-to:colour"):
+// pressing a colour on code already highlighted in that colour removes it, another colour recolours it, Clear removes
+// every highlight (not blanks) in the selection.
+const CODE_COLOUR = { def: 'gold', name: 'blue', take: 'green', warn: 'red', ex: 'teal', gray: 'gray', clear: 'clear' };
+function codeMark(kind) {
+  const { el, ta } = codeEd, a = ta.selectionStart, b = ta.selectionEnd, isFill = kind === 'fill';
+  if (a === b) return toast(isFill ? 'Select the code to blank out first' : 'Select the code to highlight first');
   const lines = ta.value.split('\n'), marks = (el.getAttribute('marks') || '').split(/[\s;]+/).filter(Boolean);
-  const fills = marks.map(m => /^(\d+):(\d+)-(\d+):fill$/.exec(m)).filter(Boolean).map(q => ({ m: q[0], k: +q[1] - 1, a: +q[2], b: +q[3] }));
+  const parsed = marks.map(m => /^(\d+):(\d+)-(\d+)(?::(\w+))?$/.exec(m)).filter(Boolean).map(q => ({ m: q[0], k: +q[1] - 1, a: +q[2], b: +q[3], c: q[4] || 'gold' }));
   const spans = []; let at = 0;
   lines.forEach((l, k) => {
     const s = Math.max(a, at) - at, e = Math.min(b, at + l.length) - at;
@@ -1252,13 +1257,17 @@ function codeFill() {
     at += l.length + 1;
   });
   if (!spans.length) return toast('Select some code (not just spaces) first');
-  const hit = fills.filter(f => spans.some(sp => sp.k === f.k && sp.a < f.b && f.a < sp.b));
+  const over = f => spans.some(sp => sp.k === f.k && sp.a < f.b && f.a < sp.b);
+  // blanks and highlights are separate layers: Fill only touches blanks, colours and Clear only touch highlights
+  const hit = parsed.filter(f => over(f) && (isFill ? f.c === 'fill' : f.c !== 'fill'));
+  const same = hit.length && hit.every(f => f.c === kind);
   commit(true);
   const keep = marks.filter(m => !hit.some(h => h.m === m));
-  if (!hit.length) spans.forEach(sp => keep.push(`${sp.k + 1}:${sp.a}-${sp.b}:fill`));
+  if (kind !== 'clear' && !same) spans.forEach(sp => keep.push(`${sp.k + 1}:${sp.a}-${sp.b}:${kind}`));
   if (keep.length) el.setAttribute('marks', keep.join(' ')); else el.removeAttribute('marks');
   codeEditView(el, ta.value); commit(true); place();
-  toast(hit.length ? 'Blank removed' : 'Blanked: an underline in the Lecture and Workbook, plain code in the Reading');
+  if (isFill) toast(hit.length ? 'Blank removed' : 'Blanked: an underline in the Lecture and Workbook, plain code in the Reading');
+  else if (kind === 'clear' || same) toast(hit.length ? 'Highlight removed' : 'Nothing highlighted there');
 }
 function startCodeEdit(el, ev) {
   if (codeEd && codeEd.el === el) return;
@@ -1282,6 +1291,7 @@ function startCodeEdit(el, ev) {
   ta.oninput = () => { el.setAttribute('data-src', ta.value); codeEditView(el, ta.value); place(); commit(); };
   ta.onkeydown = e => {
     if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.execCommand('insertText', false, '    '); }
+    else if (e.altKey && !e.metaKey && !e.ctrlKey && /^Digit[0-6]$/.test(e.code) && !isOut) { e.preventDefault(); style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray'][+e.code.slice(5)]); }
     else if (e.key === 'Escape') { e.preventDefault(); ta.blur(); }
     else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && run) { e.preventDefault(); run.lastChild.click(); }
     else if (e.key === 'Enter' && !e.shiftKey) {   // keep the indentation of the line above

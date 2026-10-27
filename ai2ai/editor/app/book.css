@@ -156,6 +156,7 @@ b-code .cc { font-weight: 700; } b-code .cc.red { color: #CC0000; } b-code .cc.b
 b-code .cc.purple { color: #674EA7; } b-code .cc.gold { color: #DCB439; } b-code .cc.green { color: #38761D; } b-code .nu.nn { color: #434343; }
 b-code mark { background: var(--yellow-fill); box-shadow: 0 0 0 1px var(--yellow-line); border-radius: 2px; color: inherit; }
 b-code mark.blue { background: #c9daf8; box-shadow: 0 0 0 1px #6d9eeb; } b-code mark.green { background: #d9ead3; box-shadow: 0 0 0 1px #93c47d; }
+b-code mark.teal { background: #d5ecf1; box-shadow: 0 0 0 1px #5aabbc; } b-code mark.gray { background: #e6e6e6; box-shadow: 0 0 0 1px #999; }
 b-code mark.purple { background: #d9d2e9; box-shadow: 0 0 0 1px #8e7cc3; } b-code mark.red { background: #f4cccc; box-shadow: 0 0 0 1px #e06666; }
 b-out { display: block; border: 1px solid var(--border); border-radius: 0 0 4px 4px; }
 b-out .label { padding: 2pt 7pt; font-size: 7.5pt; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-muted); border-bottom: 1px solid var(--border); }
