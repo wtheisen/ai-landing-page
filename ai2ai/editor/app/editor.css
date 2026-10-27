@@ -506,13 +506,15 @@ html:has(body.ed), body.ed { overscroll-behavior: none; }
 .ed .dpane { overflow-x: auto; overflow-y: auto; justify-content: safe center; }   /* each column has its own zoom: zoomed past its width, it scrolls sideways */
 #cols { flex: 1 1 0; min-width: 0; display: flex; position: relative; }
 /* the columns: a gutter between them, a grip in it to drag their widths, and a folded column as a strip with its name */
-body.panes #cols { gap: 8px; background: #dedcd4; }
-.ed #book.dual { gap: 8px !important; background: #dedcd4; }
-#glabels.duo { gap: 8px; background: #dedcd4 !important; }
+:root { --gutter: #9aa7b8; }   /* the gutters between columns: a cool slate, clearly not the desk or a page */
+body.panes #cols { gap: 8px; background: var(--gutter); }
+.ed .dpane, body.panes .gcol:not([hidden]), body.panes #desk { background: var(--desk) !important; }   /* the columns themselves: the desk grey, so the gutters show */
+.ed #book.dual { gap: 8px !important; background: var(--gutter); }
+#glabels.duo { gap: 8px; background: var(--gutter) !important; }
 #glabels.duo .dlab { background: #f7f7f5; }
 body.panes .gcol:not([hidden]), body.panes #desk, .ed .dpane, #glabels.duo .dlab { border-left: 0 !important; }
 .colgrip { position: absolute; top: 0; bottom: 0; z-index: 45; cursor: col-resize; }
-.colgrip::after { content: ''; position: absolute; left: 50%; top: 50%; width: 2px; height: 36px; margin: -18px 0 0 -1px; border-radius: 1px; background: #b4b1a6; }
+.colgrip::after { content: ''; position: absolute; left: 50%; top: 50%; width: 2px; height: 36px; margin: -18px 0 0 -1px; border-radius: 1px; background: #fff; opacity: .85; }
 .colgrip:hover { background: rgba(26, 115, 232, .12); } .colgrip:hover::after { background: #1a73e8; }
 body.colresizing, body.colresizing * { cursor: col-resize !important; user-select: none !important; }
 body.colresizing iframe { pointer-events: none; }
@@ -535,3 +537,48 @@ button.colx:hover { background: #f1ede0; border-color: #DCB439; color: #333; }
 /* in the editor a 16:9 Lecture page shows as wide as a Reading page (the zoom is set for Reading pages), so the
    panes line up and "Fit width" fits both */
 .ed .book[data-view="slides"] section.page { zoom: calc(var(--zoom) * .6); }
+
+/* Question pool panel (qpool.js) */
+#qpool { display: none; width: 340px; flex: none; background: #fff; border-left: 1px solid var(--border); overflow: hidden; padding: 10px 10px 0; font-size: 13px; flex-direction: column; }
+body.qpool #qpool { display: flex; }
+body.qpool #insp, body.qpool #tg-insp, body.review #qpool { display: none; }
+#x-qpool.on { background: #e8f0fe; border-color: #1a73e8; }
+#qpool .qp-top { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+#qpool .qp-top b { color: var(--navy); text-transform: uppercase; letter-spacing: .5px; font-size: 13px; }
+#qpool .qp-n { font-size: 11px; color: var(--ink-muted); }
+#qpool .sp { flex: 1; }
+#qpool .qp-top button { padding: 1px 7px; }
+#qpool .qp-q { width: 100%; padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: 4px; margin-bottom: 4px; }
+#qpool .qp-f { display: flex; gap: 4px; }
+#qpool .qp-f select { flex: 1; min-width: 0; font-size: 11px; padding: 2px; }
+#qpool .qp-un { display: flex; gap: 5px; align-items: center; font-size: 11px; color: var(--ink-muted); margin: 5px 0 2px; }
+#qpool .help { font-size: 11px; color: var(--ink-muted); line-height: 1.45; margin: 4px 0 6px; }
+#qpool .qp-list { flex: 1; overflow-y: auto; margin: 0 -10px; padding: 2px 10px 12px; border-top: 1px solid var(--border); }
+#qpool .qp-card { border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; margin-top: 8px; background: #fff; cursor: grab; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+#qpool .qp-card:hover { border-color: #9bb8e8; }
+#qpool .qp-card.used { background: var(--surface-sunken); }
+#qpool .qp-card.qp-hold { box-shadow: 0 0 0 2px #1a73e8; }
+#qpool .qp-card.qp-dragging { opacity: .45; }
+#qpool .qp-meta { display: flex; gap: 6px; align-items: center; font-size: 10.5px; color: var(--ink-muted); margin-bottom: 4px; }
+#qpool .qp-src { font-weight: 600; color: var(--navy); }
+#qpool .qp-kind { background: var(--surface-sunken); border-radius: 3px; padding: 0 4px; }
+#qpool .qp-lv { color: #DCB439; letter-spacing: 1px; font-size: 9px; }
+#qpool .qp-used { margin-left: auto; font-size: 10px; padding: 0 6px; background: #e6f4ea; border: 1px solid #38761D; color: #38761D; border-radius: 3px; }
+#qpool .qp-body { font: 12px/1.4 Arial, sans-serif; color: #222; }
+#qpool .qp-body p { margin: 0 0 4px; }
+#qpool .qp-body ol, #qpool .qp-body ul { margin: 2px 0 4px; padding-left: 18px; }
+#qpool .qp-body b-fig, #qpool .qp-body img { display: block; max-width: 100%; width: 100% !important; margin: 4px 0; }
+#qpool .qp-body table { border-collapse: collapse; font-size: 11px; } #qpool .qp-body td, #qpool .qp-body th { border: 1px solid #ccc; padding: 1px 4px; }
+#qpool .qp-body b-code, #qpool .qp-body pre { font-size: 10.5px; display: block; overflow-x: auto; }
+#qpool .qp-ans { font-size: 11.5px; margin-top: 4px; color: #333; }
+#qpool .qp-ans summary { cursor: pointer; color: var(--ink-muted); font-size: 11px; }
+#qpool .qp-ans > div { padding: 4px 6px; background: #f6f8fc; border-radius: 4px; margin-top: 3px; user-select: text; -webkit-user-select: text; }
+#qpool .qp-mine { background: #fff4d6; color: #8a6100; border-radius: 3px; padding: 0 4px; font-size: 10px; }
+#qpool .qp-noans { font-size: 11px; color: #b3261e; margin-top: 4px; }
+#qpool .qp-note { font-size: 11px; color: #8a6100; background: #fff8e1; border-radius: 4px; padding: 3px 6px; margin-top: 4px; }
+#qpool .qp-tags { display: flex; gap: 3px; flex-wrap: wrap; align-items: center; margin-top: 5px; }
+#qpool .qp-tags span:not(.sp) { font-size: 10px; color: #555; background: #eef1f5; border-radius: 8px; padding: 0 6px; }
+#qpool .qp-tags button { font-size: 11px; padding: 1px 8px; }
+#qp-ghost { position: fixed; z-index: 96; pointer-events: none; font: 600 11px/1 system-ui, sans-serif; color: #fff; background: #1a73e8; border-radius: 3px; padding: 5px 7px; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+#qp-ghost.no { background: #888; }
+body.qp-drag, body.qp-drag * { cursor: grabbing !important; }

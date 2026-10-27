@@ -3084,4 +3084,230 @@ if (phone) {
   $('#pages').addEventListener('click', e => { if (e.target.closest('li')) { document.body.classList.add('no-side'); panelsChanged(); } });
   addEventListener('orientationchange', () => setTimeout(() => applyZoom($('#zoom').value), 300));
 }
+
+// ---------------------------------------------------------------- question pool
+// Question pool: every practice and exam question for a chapter, kept in chapters/<slug>/questions.html, shown in the
+// right-hand panel (Questions button). Drag a question onto a Lecture/Workbook page (or press Add) to put a copy of it
+// there: an ordinary aside.qc, not linked to the pool, that remembers where it came from (data-qsrc) so the panel can
+// show which questions are already used. Nothing goes into a chapter on its own.
+//
+// questions.html holds one <aside class="qc"> per question:
+//   data-qid      unique id (pp01-14, ex02-6, wb01-r3, …)
+//   data-topic    the chapter's topic tags it tests (same tags as the pages)
+//   data-kind     short | calc | mc | tf | match | code | draw | fill
+//   data-level    1 recall, 2 apply, 3 harder
+//   data-src      where it came from ("Practice Packet 01, Q14")
+//   data-ans-from key (Eric's key) | claude (answer written by Claude: check it)
+//   data-note     something to check, shown as a flag
+// with the question HTML and a <div class="ans"> inside, like any quick check.
+(function () {
+  const POOL_ATTRS = ['data-qid', 'data-topic', 'data-kind', 'data-level', 'data-src', 'data-ans-from', 'data-note'];
+  const KINDS = { short: 'Explain', calc: 'Calculate', mc: 'Multiple choice', tf: 'True/false', match: 'Matching', code: 'Code', draw: 'Draw', fill: 'Fill in' };
+  const LS = 'ai2ai-qpool-filter';
+  let on = false, panel = null, pool = null, loading = null, filt = { topic: 'page', kind: '', src: '', q: '', unused: false };
+  try { Object.assign(filt, JSON.parse(localStorage.getItem(LS) || '{}'), { q: '' }); } catch (e) {}
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ---------------------------------------------------------------- loading
+  async function load(force) {
+    if (pool && !force) return pool;
+    if (loading) return loading;
+    loading = (async () => {
+      try {
+        const r = await fetch(Book.base + 'questions.html', { cache: 'no-store' });
+        if (!r.ok) return (pool = []);
+        const t = document.createElement('template'); t.innerHTML = await r.text();
+        pool = [...t.content.querySelectorAll('aside.qc[data-qid]')].map(el => ({
+          el, id: el.dataset.qid, topics: (el.dataset.topic || '').split(/\s+/).filter(Boolean), kind: el.dataset.kind || '',
+          level: +el.dataset.level || 0, src: el.dataset.src || '', mine: el.dataset.ansFrom === 'claude', note: el.dataset.note || '',
+          text: el.textContent.replace(/\s+/g, ' ').toLowerCase(),
+        }));
+      } catch (e) { pool = []; }
+      return pool;
+    })();
+    try { return await loading; } finally { loading = null; }
+  }
+  const srcGroup = s => s.replace(/,?\s*Q[\w.()-]*$/i, '').replace(/\s*\(old Q.*\)$/, '').trim();
+
+  // ---------------------------------------------------------------- the panel
+  function used() {   // qid -> copies in the chapter
+    const m = new Map();
+    book.querySelectorAll('aside.qc[data-qsrc]').forEach(a => { const k = a.dataset.qsrc; m.set(k, (m.get(k) || []).concat(a)); });
+    return m;
+  }
+  function pageTopics() { const pg = curPage; return pg ? (pg.dataset.topic || '').split(/\s+/).filter(Boolean) : []; }
+  function shown(u) {
+    const pt = pageTopics(), words = filt.q.toLowerCase().split(/\s+/).filter(Boolean);
+    return pool.filter(q =>
+      (filt.topic === 'all' || (filt.topic === 'page' ? !pt.length || q.topics.some(t => pt.includes(t)) : q.topics.includes(filt.topic))) &&
+      (!filt.kind || q.kind === filt.kind) && (!filt.src || srcGroup(q.src) === filt.src) &&
+      (!filt.unused || !u.has(q.id)) && words.every(w => q.text.includes(w) || q.id.includes(w) || q.src.toLowerCase().includes(w)));
+  }
+  function opts(list, cur, all) { return `<option value="">${all}</option>` + list.map(([v, l]) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(l)}</option>`).join(''); }
+  function render() {
+    if (!panel || !on) return;
+    if (!pool) { panel.innerHTML = '<div class="qp-top"><b>Questions</b></div><div class="help">Loading…</div>'; load().then(render); return; }
+    const u = used(), list = shown(u), pt = pageTopics();
+    const topics = [...new Set(pool.flatMap(q => q.topics))].sort(), srcs = [...new Set(pool.map(q => srcGroup(q.src)))].sort(), kinds = [...new Set(pool.map(q => q.kind))].filter(k => k);
+    const topicSel = `<option value="page"${filt.topic === 'page' ? ' selected' : ''}>This page's topics${pt.length ? ' (' + esc(pt.join(', ')) + ')' : ''}</option><option value="all"${filt.topic === 'all' ? ' selected' : ''}>All topics</option>` +
+      topics.map(t => `<option value="${esc(t)}"${t === filt.topic ? ' selected' : ''}>${esc(t)}</option>`).join('');
+    const scroll = panel.querySelector('.qp-list') ? panel.querySelector('.qp-list').scrollTop : 0, focus = document.activeElement && document.activeElement.matches('.qp-q') ? document.activeElement.selectionStart : null;
+    panel.innerHTML = `<div class="qp-top"><b>Questions</b><span class="qp-n">${list.length} of ${pool.length}${u.size ? ' · ' + u.size + ' used' : ''}</span><span class="sp"></span><button data-a="close" title="Back to the settings panel">Done</button></div>
+      ${pool.length ? `<input type="search" class="qp-q" placeholder="Search questions" value="${esc(filt.q)}" spellcheck="false">
+      <div class="qp-f"><select data-f="topic" title="Topic">${topicSel}</select>
+        <select data-f="kind" title="Kind">${opts(kinds.map(k => [k, KINDS[k] || k]), filt.kind, 'Any kind')}</select>
+        <select data-f="src" title="Source">${opts(srcs.map(s => [s, s]), filt.src, 'Any source')}</select></div>
+      <label class="qp-un"><input type="checkbox" ${filt.unused ? 'checked' : ''}> Hide questions already in the chapter</label>
+      <div class="help qp-how">Drag a question onto a Lecture or Workbook page, or select a block and press <b>Add</b> to put it after it.</div>` :
+      `<div class="help">No question pool for this chapter yet (<code>questions.html</code>).</div>`}
+      <div class="qp-list">${list.map(q => card(q, u.get(q.id))).join('') || (pool.length ? '<div class="help">No questions match.</div>' : '')}</div>`;
+    const l = panel.querySelector('.qp-list'); if (l) l.scrollTop = scroll;
+    if (focus !== null) { const i = panel.querySelector('.qp-q'); i.focus(); i.setSelectionRange(focus, focus); }
+  }
+  function card(q, copies) {
+    const body = q.el.cloneNode(true); body.querySelectorAll('.ans').forEach(a => a.remove());
+    const ans = q.el.querySelector('.ans');
+    const lvl = q.level ? '<span class="qp-lv" title="Level ' + q.level + '">' + '●'.repeat(q.level) + '○'.repeat(Math.max(0, 3 - q.level)) + '</span>' : '';
+    return `<div class="qp-card${copies ? ' used' : ''}" data-id="${esc(q.id)}">
+      <div class="qp-meta"><span class="qp-src" title="${esc(q.id)}">${esc(q.src || q.id)}</span><span class="qp-kind">${esc(KINDS[q.kind] || q.kind)}</span>${lvl}
+        ${copies ? `<button class="qp-used" data-a="go" title="Go to it in the chapter">Used${copies.length > 1 ? ' ×' + copies.length : ''}</button>` : ''}</div>
+      <div class="qp-body">${body.innerHTML}</div>
+      ${ans ? `<details class="qp-ans"><summary>Answer${q.mine ? ' <span class="qp-mine" title="Written by Claude, not from your key: check it">check</span>' : ''}</summary><div>${ans.innerHTML}</div></details>` : '<div class="qp-noans">No answer yet</div>'}
+      ${q.note ? `<div class="qp-note" title="Something to check">⚑ ${esc(q.note)}</div>` : ''}
+      <div class="qp-tags">${q.topics.map(t => `<span>${esc(t)}</span>`).join('')}<span class="sp"></span><button data-a="add" title="Put it after the selected block (or at the end of the current page)">Add</button></div>
+    </div>`;
+  }
+  function saveFilt() { try { localStorage.setItem(LS, JSON.stringify(Object.assign({}, filt, { q: '' }))); } catch (e) {} }
+
+  // ---------------------------------------------------------------- putting a question into the chapter
+  function nextNumber(pg) {   // one more than the highest "Qn." among the questions in this document
+    let n = 0;
+    const pages = Book.split && typeof docPages === 'function' ? docPages(docOf(Book.viewOf(pg) || 'slides')) : Book.pages();
+    pages.forEach(p => p.querySelectorAll('aside.qc > b:first-child, aside.qc > p:first-child > b:first-child').forEach(b => { const m = /^Q(\d+)/.exec(b.textContent.trim()); if (m) n = Math.max(n, +m[1]); }));
+    return n + 1;
+  }
+  function copyOf(q, pg) {
+    const t = q.el.cloneNode(true);
+    POOL_ATTRS.forEach(a => t.removeAttribute(a)); t.setAttribute('data-qsrc', q.id);
+    const num = document.createElement('b'); num.textContent = 'Q' + nextNumber(pg) + '.';
+    const lead = [...t.childNodes].find(n => n.nodeType === 1 || n.nodeValue.trim());
+    const first = lead && lead.nodeType === 1 && lead.localName === 'p' ? lead : t;
+    first.prepend(num, ' ');
+    return document.importNode(t, true);
+  }
+  function okPage(pg) {
+    if (!pg || pg.classList.contains('cover')) return false;
+    const v = pg.getAttribute('data-view'); return !v || /\b(slides|workbook)\b/.test(v);
+  }
+  function insert(q, pg, before) {
+    if (!okPage(pg)) { toast('Questions only show in the Lecture and the Workbook: drop it on a Lecture page'); return; }
+    commit(true);
+    const t = copyOf(q, pg);
+    if (before) before.before(t); else pg.insertBefore(t, pg.querySelector(':scope > svg.overlay, :scope > .foot'));
+    prep(); Book.refresh(); commit(true); select(t);
+    toast('Added ' + (q.src || q.id), 'Undo', doUndo);
+    render();
+  }
+  function lecturePane() { return dual && dpanes ? [...book.querySelectorAll(':scope > .dpane')].find(p => p.dataset.doc === 'lecture') : null; }
+  function addNear(q) {
+    const lp = lecturePane();
+    let at = sel && sel.isConnected && okPage(sel.closest('section.page')) ? sel : null, pg = at ? at.closest('section.page') : curPage;
+    if (!okPage(pg)) { at = null; pg = null; }
+    if (!pg && lp) pg = [...lp.querySelectorAll(':scope > section.page')].find(okPage);
+    if (!pg) return toast('Pick a Lecture page first, then press Add');
+    if (lp && lp.contains(pg)) activatePane(lp);
+    insert(q, pg, at ? at.nextElementSibling && !at.nextElementSibling.matches('.foot, svg.overlay') ? (at.nextElementSibling.classList.contains('cmt') ? at.nextElementSibling.nextElementSibling : at.nextElementSibling) : null : null);
+  }
+
+  // ---------------------------------------------------------------- dragging a card onto a page
+  let drag = null;
+  function dropTarget(cx, cy) {
+    const under = document.elementsFromPoint(cx, cy).find(n => n.matches && n.matches('section.page') && topPage(n) && (!dual || n.parentElement === desk));
+    if (!under || !okPage(under)) return null;
+    const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b));
+    const before = flow.find(b => { const r = b.getBoundingClientRect(); return cy < r.top + r.height / 2; }) || null;
+    return { page: under, before, flow };
+  }
+  function dragMove(e) {
+    if (!drag) return;
+    if (!drag.live) {
+      if (Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 5) return;
+      if (drag.touch && !drag.held) { cancel(); return; }   // a swipe before the hold: let the list scroll
+      start();
+    }
+    e.preventDefault();
+    drag.ghost.style.left = e.clientX + 10 + 'px'; drag.ghost.style.top = e.clientY + 10 + 'px';
+    const drop = $('#drop'), at = dropTarget(e.clientX, e.clientY); drag.at = at;
+    if (!at) { drop.hidden = true; drag.ghost.classList.add('no'); return; }
+    drag.ghost.classList.remove('no');
+    const q = at.page.getBoundingClientRect(), s = q.width / Book.pageW(at.page), fl = at.flow;
+    const yy = at.before ? at.before.getBoundingClientRect().top - 5 * s : fl.length ? fl[fl.length - 1].getBoundingClientRect().bottom + 5 * s : q.top + 20 * s;
+    const [ax, ay] = deskXY({ left: q.left + 24 * s, top: yy });
+    drop.hidden = false; Object.assign(drop.style, { left: ax + 'px', top: ay + 'px', width: ((Book.pageW(at.page) - 48) * s) + 'px' });
+  }
+  function start() {
+    drag.live = true;
+    const lp = lecturePane(); if (lp) activatePane(lp);
+    drag.card.classList.add('qp-dragging');
+    const g = drag.ghost = document.createElement('div'); g.id = 'qp-ghost'; g.textContent = drag.q.src || drag.q.id; document.body.append(g);
+    document.body.classList.add('qp-drag');
+  }
+  function end(e) {
+    if (!drag) return;
+    const d = drag; cancel();
+    if (d.live && d.at) insert(d.q, d.at.page, d.at.before);
+  }
+  function cancel() {
+    if (!drag) return;
+    clearTimeout(drag.timer); if (drag.ghost) drag.ghost.remove(); drag.card.classList.remove('qp-dragging', 'qp-hold');
+    const drop = $('#drop'); if (drop) drop.hidden = true;
+    document.body.classList.remove('qp-drag');
+    window.removeEventListener('pointermove', dragMove, { capture: true }); window.removeEventListener('pointerup', end, true); window.removeEventListener('pointercancel', cancel, true);
+    drag = null;
+  }
+  function down(e) {
+    const c = e.target.closest('.qp-card'); if (!c || e.button > 0 || e.target.closest('button, summary, a, input, select, details[open] > div')) return;
+    const q = pool.find(x => x.id === c.dataset.id); if (!q) return;
+    drag = { q, card: c, x: e.clientX, y: e.clientY, touch: e.pointerType !== 'mouse', live: false, held: false };
+    if (drag.touch) drag.timer = setTimeout(() => { if (drag) { drag.held = true; c.classList.add('qp-hold'); try { navigator.vibrate && navigator.vibrate(10); } catch (x) {} } }, 300);
+    else e.preventDefault();   // no text selection while dragging with the mouse
+    window.addEventListener('pointermove', dragMove, { capture: true, passive: false }); window.addEventListener('pointerup', end, true); window.addEventListener('pointercancel', cancel, true);
+  }
+
+  // ---------------------------------------------------------------- on/off
+  function setOn(v) {
+    if (v === on) return;
+    on = v; document.body.classList.toggle('qpool', on);
+    if (on && typeof revOn !== 'undefined' && revOn) setReview(false);
+    if (!panel) {
+      panel = document.createElement('aside'); panel.id = 'qpool'; $('#insp').after(panel);
+      panel.addEventListener('pointerdown', down);
+      panel.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.dataset.a === 'close') return setOn(false);
+        const c = b.closest('.qp-card'), q = c && pool.find(x => x.id === c.dataset.id); if (!q) return;
+        if (b.dataset.a === 'add') addNear(q);
+        if (b.dataset.a === 'go') { const list = used().get(q.id) || [], i = (+b.dataset.i || 0) % list.length, t = list[i]; b.dataset.i = i + 1; if (t) { const p = t.closest('.dpane'); if (p) activatePane(p); setPage(t.closest('section.page')); select(t); t.scrollIntoView({ block: 'center', behavior: 'smooth' }); } }
+      });
+      panel.addEventListener('input', e => { if (e.target.matches('.qp-q')) { filt.q = e.target.value; render(); } });
+      panel.addEventListener('change', e => {
+        if (e.target.dataset.f) { filt[e.target.dataset.f] = e.target.value; saveFilt(); render(); }
+        else if (e.target.closest('.qp-un')) { filt.unused = e.target.checked; saveFilt(); render(); }
+      });
+    }
+    if (on) $('#main').append(panel);   // rightmost, after any preview columns
+    const b = $('#x-qpool'); if (b) b.classList.toggle('on', on);
+    if (on) load(true).then(render); else renderInspector();
+  }
+  document.addEventListener('touchmove', e => { if (drag && drag.held) e.preventDefault(); }, { passive: false });   // after the hold, the finger drags the question, not the list
+  const btn = document.createElement('button'); btn.id = 'x-qpool'; btn.textContent = 'Questions';
+  btn.title = 'Question pool: every practice and exam question for this chapter. Drag one onto a Lecture or Workbook page.';
+  btn.onclick = () => setOn(!on);
+  ($('#x-review') || $('#x-cmts')).after(btn);
+  // follow the page you are on (the "This page's topics" filter) and edits that add or remove copies
+  let pend = 0; const soon = () => { if (!on || drag) return; cancelAnimationFrame(pend); pend = requestAnimationFrame(() => { if (!panel.contains(document.activeElement) || !document.activeElement.matches('select')) render(); }); };
+  let lastPage = null, lastN = -1;
+  setInterval(() => { if (!on) return; const n = book.querySelectorAll('aside.qc[data-qsrc]').length; if (curPage !== lastPage || n !== lastN) { lastPage = curPage; lastN = n; soon(); } }, 400);
+  window.QPool = { open: () => setOn(true), close: () => setOn(false), reload: () => load(true).then(render), get pool() { return pool; } };
+})();
 })();
