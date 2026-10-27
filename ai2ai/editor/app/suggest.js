@@ -116,7 +116,7 @@ function suggestInit() {
   function trailing(b) { const out = []; let n = b.nextElementSibling; while (n && n.classList.contains('cmt')) { out.push(n); n = n.nextElementSibling; } return out; }
   function applyOne(it) {
     if (it.op === 'replace') { const b = blockById(it.target); b.replaceWith(...nodes(it.html)); return; }
-    if (it.op === 'delete') { const b = blockById(it.target); trailing(b).forEach(c => c.remove()); b.remove(); return; }
+    if (it.op === 'delete') { blockById(it.target).remove(); return; }   // its comments stay (they then follow the block before), as tools/ai2ai does
     if (it.op === 'insert') {
       const ns = nodes(it.html), pg = pageById(it.page);
       if (it.after && it.after !== 'end') { const b = blockById(it.after), t = trailing(b); (t.length ? t[t.length - 1] : b).after(...ns); }
@@ -227,6 +227,14 @@ function suggestInit() {
   if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', e => { if (e.data && e.data.type === 'sync' && e.data.state !== 'syncing') setTimeout(load, 300); });
   Book.root.addEventListener('book-refresh', () => { if (openItems().length) mark(); });
   setInterval(() => { if (openItems().length) mark(); }, 1500);
-  window.Suggest = { load, open: () => setOn(true), close: () => setOn(false), get data() { return data; } };
+  // a comment thread's open suggestions: the ids a Claude reply lists (data-sugs) plus any made for the thread (task)
+  const forThread = (tid, ids) => openItems().filter(i => (ids || []).includes(i.id) || (tid && i.task === tid));
+  // Review mode's verdict on such a thread: Fix it accepts them, Leave it rejects them (Discuss leaves them open)
+  function answer(tid, ids, v) {
+    const list = forThread(tid, ids); if (!list.length) return 0;
+    if (v === 'fix') accept(list.filter(i => !problem(i) || problem(i) === 'changed')); else if (v === 'leave') reject(list);
+    return list.length;
+  }
+  window.Suggest = { load, open: () => setOn(true), close: () => setOn(false), forThread, answer, get data() { return data; } };
 }
 if (window.Editor) suggestInit(); else document.addEventListener('editor-ready', suggestInit);   // editor.js sets itself up after loading the chapter

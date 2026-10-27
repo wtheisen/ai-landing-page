@@ -2922,13 +2922,15 @@ function revRender() {
     const { pg, t } = revTarget(c), n = Book.pages().indexOf(pg) + 1, done = c.hasAttribute('data-done');
     const thread = [c, ...cmtReplies(c)];
     const mine = thread.slice(1).filter(r => (r.dataset.by || '') === me).pop();
+    const nSug = window.Suggest ? Suggest.forThread(c.dataset.id, threadSugs(c)).length : 0;
     const msg = r => `<div class="rv-msg ${(r.dataset.by || '') === me ? 'me' : ''}"><div class="rv-meta"><b>${esc(r.dataset.by || '')}</b>${r.dataset.kind ? `<span class="rv-kind k-${esc(r.dataset.kind)}">${esc(r.dataset.kind)}</span>` : ''}${r.dataset.verdict ? `<span class="rv-verd v-${esc(r.dataset.verdict)}">${esc(VERDICT[r.dataset.verdict] || r.dataset.verdict)}</span>` : ''}<span>${esc(r.dataset.when || '')}</span></div>${r.textContent.trim() ? `<div class="rv-txt">${esc(r.textContent)}</div>` : ''}</div>`;
     html += `<div class="rv-card ${done ? 'done' : ''}">
       <div class="rv-where" title="Go to it">${k >= 0 ? (k + 1) + ' of ' + q.length + ' · ' : ''}p. ${n} · ${esc((pg.querySelector('h2') || {}).textContent || pg.id)}${done ? ' · resolved' : ''}</div>
       ${c.dataset.quote ? `<div class="rv-quote">“${esc(c.dataset.quote)}”</div>` : ''}
       ${thread.map(msg).join('')}
       <textarea class="rv-reply" placeholder="Your reply (optional). Then pick what to do:" spellcheck="true"></textarea>
-      <div class="rv-acts">${Object.entries(VERDICT).map(([v, l], i) => `<button data-v="${v}" class="${mine && mine.dataset.verdict === v ? 'cur' : ''}">${l} <kbd>${i + 1}</kbd></button>`).join('')}</div>
+      ${nSug ? `<div class="rv-sugs">Claude suggested ${nSug === 1 ? 'an edit' : nSug + ' edits'} here. <b>Fix it</b> accepts ${nSug === 1 ? 'it' : 'them'}, <b>Leave it</b> rejects ${nSug === 1 ? 'it' : 'them'}, <b>Discuss</b> keeps ${nSug === 1 ? 'it' : 'them'} open. <button data-a="sugs">Look first</button></div>` : ''}
+      <div class="rv-acts">${Object.entries(VERDICT).map(([v, l], i) => `<button data-v="${v}" class="${mine && mine.dataset.verdict === v ? 'cur' : ''}">${l}${nSug && v === 'fix' ? ' · accept' : nSug && v === 'leave' ? ' · reject' : ''} <kbd>${i + 1}</kbd></button>`).join('')}</div>
       <div class="rv-row2">${done ? '<button data-a="reopen">Reopen</button>' : '<button data-a="resolve">Resolve (nothing to do)</button>'}${mine ? '<button data-a="unreply">Remove my reply</button>' : ''}</div>
       <div class="help"><b>1</b> fix it, <b>2</b> leave it, <b>3</b> discuss: saves your reply and moves on. <b>J</b>/<b>K</b> next and previous, <b>R</b> to type a reply, <b>Cmd+Enter</b> in the box saves it as Discuss, <b>Esc</b> leaves review. You can edit the page while reviewing.</div>
     </div>`;
@@ -2953,6 +2955,7 @@ function revStep(d) {   // next / previous in the queue, by position in the chap
   const pick = d > 0 ? q.find(c => roots.indexOf(c) > at) || q[0] : [...q].reverse().find(c => roots.indexOf(c) < at) || q[q.length - 1];
   revGo(pick);
 }
+const threadSugs = c => cmtReplies(c).filter(x => x.dataset.by === 'Claude' && x.dataset.sugs).flatMap(x => x.dataset.sugs.split(/\s+/)).filter(Boolean);
 function revAnswer(v) {
   const c = revAt; if (!c || !c.isConnected) return;
   const ta = revPanel.querySelector('.rv-reply'), text = ta ? ta.value.trim() : '';
@@ -2964,7 +2967,10 @@ function revAnswer(v) {
     r = document.createElement('div'); r.className = 'cmt'; r.dataset.by = me; r.dataset.re = c.dataset.id; last.after(r);
   }
   r.dataset.when = stamp(); r.dataset.verdict = v; r.textContent = text;
-  commit(true); placeMarkers(); renderInspector();
+  commit(true);
+  // Claude's replies list the suggestions they made (data-sugs): Fix it accepts them, Leave it rejects them
+  if (window.Suggest && (v === 'fix' || v === 'leave')) Suggest.answer(c.dataset.id, threadSugs(c), v);
+  placeMarkers(); renderInspector();
   if (revAll) revRender(); else revStep(1);
 }
 function revAct(a) {
@@ -2986,7 +2992,7 @@ function setReview(on) {
       if (w && revAt) return revGo(revAt);
       if (!b) return;
       if (b.dataset.v) return revAnswer(b.dataset.v);
-      const a = b.dataset.a; if (a === 'exit') setReview(false); else if (a === 'next') revStep(1); else if (a === 'prev') revStep(-1); else revAct(a);
+      const a = b.dataset.a; if (a === 'sugs') { if (window.Suggest) Suggest.open(); return; } if (a === 'exit') setReview(false); else if (a === 'next') revStep(1); else if (a === 'prev') revStep(-1); else revAct(a);
     });
     revPanel.addEventListener('change', e => { if (e.target.matches('.rv-all input')) { revAll = e.target.checked; revRender(); } });
     revBox = document.createElement('div'); revBox.id = 'revbox'; revBox.setAttribute('data-ed', ''); revBox.setAttribute('data-ed-ui', ''); revBox.hidden = true; desk.append(revBox);

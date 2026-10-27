@@ -351,6 +351,8 @@ body.review #tg-insp { display: none; }
 #rev .v-fix { background: #d4edda; color: #1d5e2c; } #rev .v-leave { background: #e8e8e8; color: #444; } #rev .v-discuss { background: #fff3cd; color: #7a5a00; }
 #rev .rv-txt { white-space: pre-wrap; line-height: 1.4; }
 #rev .rv-reply { width: 100%; min-height: 70px; margin-top: 4px; padding: 5px 7px; border: 1px solid var(--border-strong); border-radius: 4px; font: inherit; font-size: 13px; resize: vertical; }
+#rev .rv-sugs { margin-top: 8px; padding: 6px 8px; background: #fff8e1; border: 1px solid #e8d48a; border-radius: 5px; font-size: 12px; line-height: 1.4; }
+#rev .rv-sugs button { margin-left: 4px; padding: 1px 6px; font-size: 11px; }
 #rev .rv-acts { display: flex; gap: 5px; margin-top: 6px; }
 #rev .rv-acts button { flex: 1; padding: 5px 4px; font-weight: 600; }
 #rev .rv-acts button[data-v=fix] { background: #2e7d32; color: #fff; border-color: #2e7d32; }
