@@ -579,3 +579,4 @@ body.qpool #insp, body.qpool #tg-insp, body.review #qpool { display: none; }
 #qp-ghost { position: fixed; z-index: 96; pointer-events: none; font: 600 11px/1 system-ui, sans-serif; color: #fff; background: #1a73e8; border-radius: 3px; padding: 5px 7px; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
 #qp-ghost.no { background: #888; }
 body.qp-drag, body.qp-drag * { cursor: grabbing !important; }
+#qpool pre.qp-code { font: 10px/1.35 Consolas, Menlo, monospace; background: #f6f8fa; border-radius: 4px; padding: 4px 6px; margin: 4px 0; max-height: 180px; overflow: auto; white-space: pre; }

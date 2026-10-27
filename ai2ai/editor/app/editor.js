@@ -3170,6 +3170,7 @@ if (phone) {
   }
   function card(q, copies) {
     const body = q.el.cloneNode(true); body.querySelectorAll('.ans').forEach(a => a.remove());
+    body.querySelectorAll('b-code').forEach(c => { const pre = document.createElement('pre'); pre.className = 'qp-code'; pre.textContent = c.textContent.replace(/^\n+|\s+$/g, ''); c.replaceWith(pre); });   // a light preview: the real block goes in when it's dropped
     const ans = q.el.querySelector('.ans');
     const lvl = q.level ? '<span class="qp-lv" title="Level ' + q.level + '">' + '●'.repeat(q.level) + '○'.repeat(Math.max(0, 3 - q.level)) + '</span>' : '';
     return `<div class="qp-card${copies ? ' used' : ''}" data-id="${esc(q.id)}">
