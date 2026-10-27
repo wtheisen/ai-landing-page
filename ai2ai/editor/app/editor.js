@@ -2110,14 +2110,24 @@ function addComment(block, text) {
   const pg = block ? block.parentElement : curPage; if (!pg) return toast('Click a block or a page first');
   if (document.body.classList.contains('no-insp') && !text) togglePanel('no-insp', false);
   commit(true);
-  const c = document.createElement('div'); c.className = 'cmt'; c.dataset.by = me; c.dataset.when = stamp(); c.textContent = text || '';
+  const c = document.createElement('div'); c.className = 'cmt'; c.dataset.by = me; c.dataset.when = stamp(); c.dataset.id = 'c-' + uid().slice(2); c.textContent = text || '';
   if (block) lastOf(block).after(c); else { let first = pg.firstElementChild; while (first && first.classList.contains('cmt')) first = first.nextElementSibling; pg.insertBefore(c, first); }
   commit(true); renderInspector(); placeMarkers();
   if (!text) openCommentPanel(true);
 }
+// @Claude: a comment that mentions @Claude, is the newest in its thread and isn't done is a request a scheduled Claude
+// session answers in the thread (tools/agent/tasks.py); its reply may carry data-sugs (suggestions it made).
+function askWaiting(c) {
+  if (!c || c.dataset.by === 'Claude' || !/@claude\b/i.test(c.textContent) || c.hasAttribute('data-done')) return false;
+  const root = c.dataset.re ? book.querySelector(`.cmt[data-id="${CSS.escape(c.dataset.re)}"]`) || c : c, th = [root, ...cmtReplies(root)];
+  return th[th.length - 1] === c && !root.hasAttribute('data-done');
+}
 function commentItem(c, withWhere) {
   const done = c.hasAttribute('data-done'), d = h(`<div class="cmt-item ${done ? 'done' : ''}"><div class="meta"><b>${esc(c.dataset.by || '')}</b>${c.dataset.verdict ? `<span class="vd">${esc(c.dataset.verdict)}</span>` : ''}${c.dataset.re ? '<span>↳ reply</span>' : ''}<span>${esc(c.dataset.when || '')}</span><span class="sp"></span><button data-a="done">${done ? 'Reopen' : 'Resolve'}</button><button data-a="del">Delete</button></div><div class="txt" contenteditable="plaintext-only" spellcheck="true"></div></div>`);
   const txt = d.querySelector('.txt'); txt.textContent = c.textContent;
+  if (askWaiting(c)) d.querySelector('.meta').append(h('<span class="ask-wait" title="A scheduled Claude session answers @Claude comments within the hour (7am to 11pm)">waiting for Claude</span>'));
+  if (c.dataset.sugs && c.dataset.by === 'Claude') { const b = h('<button class="ask-sugs">Suggestions</button>'); b.onclick = () => { if (window.Suggest) Suggest.open(); }; d.append(b); }
+  txt.addEventListener('input', () => { const w = d.querySelector('.ask-wait'), on = askWaiting(c); if (on && !w) d.querySelector('.meta').append(h('<span class="ask-wait">will go to Claude</span>')); else if (!on && w) w.remove(); });
   txt.oninput = () => { c.textContent = txt.textContent; };
   txt.onkeydown = e => { e.stopPropagation(); if (e.key === 'Escape' || (e.key === 'Enter' && (e.metaKey || e.ctrlKey))) { e.preventDefault(); txt.blur(); } };
   txt.onblur = () => { if (!c.textContent.trim() && c.isConnected) { c.remove(); commit(true); renderInspector(); } placeMarkers(); };
@@ -2190,11 +2200,11 @@ function commentPanel() {
 function placeMarkers() {
   const box = $('#cmtm'); box.innerHTML = '';
   const seenT = new Map();
-  openCmts().forEach(c => { const pg = c.closest('section.page'), t = targetOf(c) || pg; if (!pg || (dual && pg.parentElement !== desk)) return; const e = seenT.get(t) || { n: 0, text: [], pg }; e.n++; e.text.push((c.dataset.by || '') + ': ' + c.textContent); seenT.set(t, e); });
+  openCmts().forEach(c => { const pg = c.closest('section.page'), t = targetOf(c) || pg; if (!pg || (dual && pg.parentElement !== desk)) return; const e = seenT.get(t) || { n: 0, text: [], pg }; e.n++; if (askWaiting(c) || cmtReplies(c).some(askWaiting)) e.ask = true; e.text.push((c.dataset.by || '') + ': ' + c.textContent); seenT.set(t, e); });
   seenT.forEach((e, t) => {
     const r = t.getBoundingClientRect(), q = e.pg.getBoundingClientRect(); if (!q.width) return;
     const [x, y] = deskXY({ left: q.right - 22 * (q.width / (Book.pageW(e.pg) * 4 / 3)), top: t === e.pg ? q.top + 4 : r.top });
-    const d = document.createElement('div'); d.className = 'cm'; d.textContent = e.n; d.title = e.text.join('\n'); d.style.left = x + 'px'; d.style.top = y + 'px';
+    const d = document.createElement('div'); d.className = 'cm'; d.textContent = e.n; if (e.ask) d.classList.add('ask'); d.title = e.text.join('\n'); d.style.left = x + 'px'; d.style.top = y + 'px';
     d.onclick = () => { if (t === e.pg) { select(null); setPage(e.pg); renderInspector(); } else select(t); openCommentPanel(true); };
     box.append(d);
   });

@@ -38,27 +38,7 @@ section.page[data-ed-sug-page] { box-shadow: 0 0 0 3px #5AABBC88; }
 .ed-sug-flash { animation: sugflash 1.4s ease-out; }
 @keyframes sugflash { 0%, 40% { background: #5AABBC33; } 100% { background: transparent; } }
 
-/* Ask Claude (suggest.js): requests in chapters/<slug>/tasks.json */
-#sugs .ask { border: 1px solid var(--border); border-radius: 6px; padding: 7px 8px; margin-bottom: 8px; background: #fbfaf6; }
-#sugs .ask-ctx { font-size: 11.5px; color: #555; margin-bottom: 5px; line-height: 1.4; }
-#sugs .ask-ctx .ask-pg { color: var(--ink-muted); }
-#sugs .ask-ctx button { padding: 0 5px; font-size: 11px; }
-#sugs .ask textarea { width: 100%; box-sizing: border-box; font: 13px/1.4 inherit; font-family: inherit; padding: 5px 6px; border: 1px solid var(--border-strong); border-radius: 4px; resize: vertical; min-height: 54px; }
-#sugs .ask-b { display: flex; gap: 6px; align-items: center; margin-top: 5px; }
-#sugs .ask-b button { padding: 2px 9px; font-size: 12px; }
-#sugs .ask-b button.pri { background: var(--navy); color: #fff; border-color: var(--navy); }
-#sugs .tk-list { margin-bottom: 8px; max-height: 40%; overflow-y: auto; }
-#sugs .tk-card { border: 1px solid var(--border); border-left: 3px solid #DCB439; border-radius: 6px; padding: 6px 8px; margin-top: 6px; background: #fff; }
-#sugs .tk-card.st-done { border-left-color: #38761D; }
-#sugs .tk-card.st-declined { border-left-color: #999; }
-#sugs .tk-st { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #8a6d00; }
-#sugs .st-working .tk-st::after { content: ''; display: inline-block; width: 6px; height: 6px; margin-left: 5px; border-radius: 50%; background: #DCB439; animation: askpulse 1.2s infinite; vertical-align: middle; }
-#sugs .st-done .tk-st { color: #38761D; }
-#sugs .st-declined .tk-st { color: #777; }
-#sugs .tk-req { font-size: 13px; margin: 3px 0; white-space: pre-wrap; }
-#sugs .tk-q { font-size: 11.5px; color: var(--ink-muted); font-style: italic; }
-#sugs .tk-reply { font-size: 12.5px; margin: 5px 0 2px; padding: 4px 6px; background: #f2f7ef; border-radius: 4px; white-space: pre-wrap; }
-#sugs .tk-n { font-size: 11px; color: #2f7f8f; }
-#x-sugs .busy { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #DCB439; margin-left: 3px; vertical-align: middle; animation: askpulse 1.6s infinite; }
-@keyframes askpulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-[data-ed-ask] { box-shadow: -6px 0 0 -3px #DCB439; }
+/* @Claude in comments (editor.js commentItem / placeMarkers) */
+.cmt-item .ask-wait { font-size: 10.5px; color: #8a6d00; background: #fdf3d3; border-radius: 8px; padding: 0 6px; margin-left: 6px; white-space: nowrap; }
+.cmt-item .ask-sugs { font-size: 11px; padding: 1px 7px; margin-top: 4px; }
+#cmtm .cm.ask { background: #DCB439; color: #002B5B; }
