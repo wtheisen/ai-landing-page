@@ -1846,13 +1846,16 @@ function applyZoom(v, keepCols) {
   else if (v === 'fit' || v === 'two') { const w = cw - 48 - (v === 'two' ? 24 : 0); z = Math.max(0.3, Math.min(2, +(w / (v === 'two' ? 2 : 1) / 578).toFixed(3))); if (v === 'fit') z = Math.min(z, +((desk.clientHeight - 60) / 866).toFixed(3)); }
   if (v === 'three') z = Math.max(0.2, Math.min(2, +((cw - 3 * 48 - 2 * 16) / 3 / 578).toFixed(3)));
   baseZ = z; if (!keepCols) { colZ = {}; saveColZ(); }
+  fitZ = {};
+  if (v === 'width' && typeof zoomCols === 'function' && document.body.classList.contains('panes') && gcols && gcols.reading)   // every column fitted to its own width (they can be resized)
+    zoomCols().forEach(([k, el]) => { const pad = k.startsWith('g-') ? 40 : k === 'desk' ? 56 : 32; fitZ[k] = Math.max(0.2, +((el.clientWidth - pad) / 578).toFixed(3)); });
   book.style.setProperty('--zoom', z); if (typeof applyColZooms === 'function') applyColZooms(); gridLayout(); setTimeout(() => { Book.refresh(); place(); }, 50);
 }
 // Each column can be zoomed on its own (Eric, 2026-10-27): a pinch zooms only the column under the fingers, its
 // width and the gaps between the columns stay put, and pages wider than their column scroll sideways inside it.
 // colZ holds those columns' zooms (keys: reading / lecture for the two document panes, desk otherwise, g-<view> for
 // the previews); the zoom menu sets every column back to one zoom (baseZ). Kept per browser.
-var baseZ = 1, colZ = {};
+var baseZ = 1, colZ = {}, fitZ = {};   // fitZ: Fit width fits each column to its own width
 try { colZ = JSON.parse(localStorage.getItem('book-zoom-cols') || '{}') || {}; } catch (x) { colZ = {}; }
 function saveColZ() { try { localStorage.setItem('book-zoom-cols', JSON.stringify(colZ)); } catch (x) {} }
 // the page zoom is kept per layout: with the panes (three editions side by side, default: fit the pane's width) and without
@@ -2214,8 +2217,9 @@ var gcols = {}, gridOn = true, gridT = 0, gridRaf = 0;   // var: zoom and mode c
 try { gridOn = localStorage.getItem('book-grid') !== '0'; } catch (x) {}
 if (phone) gridOn = false;   // the panes need a wide screen
 Book.views.forEach((v, k) => {
-  const col = h(`<div class="gcol" data-view="${v}" style="order:${k}" hidden><div class="glab"><span>${GLABEL[v]}</span><button class="lineup" title="Scroll this pane to the page that goes with the one you are editing">Line up</button></div><iframe title="${GLABEL[v]} preview"></iframe></div>`);
+  const col = h(`<div class="gcol" data-view="${v}" style="order:${k}" hidden><div class="glab"><span>${GLABEL[v]}</span><button class="lineup" title="Scroll this pane to the page that goes with the one you are editing">Line up</button><button class="colx" title="Hide this column (click its strip to bring it back)">‹›</button></div><iframe title="${GLABEL[v]} preview"></iframe></div>`);
   col.querySelector('.lineup').onclick = () => lineUpPane(v);
+  col.querySelector('.colx').onclick = e => { e.stopPropagation(); hideCol('g-' + v, true); };
   desk.parentElement.insertBefore(col, $('#insp')); gcols[v] = col;
 });
 // the desk and the preview panes sit in one row, #cols (colWidth() shares it out for the fit zooms)
@@ -2226,11 +2230,73 @@ function zoomCols() {
   if (dual) ['reading', 'lecture'].forEach(d => out.push([d, dpanes[d]]));
   else out.push(['desk', deskBox]);
   Book.views.forEach(v => { if (!gcols[v].hidden) out.push(['g-' + v, gcols[v]]); });
-  return out;
+  return out.filter(([, el]) => !el.classList.contains('colhid'));
 }
-function colZoom(key) { return colZ[key] || baseZ; }
+function colZoom(key) { return colZ[key] || fitZ[key] || baseZ; }
+// Column layout (Eric, 2026-10-27): a gutter between the columns, a grip in each gutter to drag their widths, and a
+// ‹› button on each column's label that folds it to a strip (click the strip to open it again). Widths are weights
+// (flex-grow, the dual desk gets the sum of its two panes), kept per browser with the hidden columns.
+var colW = {}, colHide = {};
+try { const c = JSON.parse(localStorage.getItem('book-cols') || '{}'); colW = c.w || {}; colHide = c.hide || {}; } catch (x) {}
+function saveCols() { try { localStorage.setItem('book-cols', JSON.stringify({ w: colW, hide: colHide })); } catch (x) {} }
+function allCols() {   // every column that is showing (folded or not), left to right: [key, element, its label (dual panes)]
+  const out = [];
+  if (dual) ['reading', 'lecture'].forEach(d => out.push([d, dpanes[d], glabels.querySelector('.dlab[data-doc="' + d + '"]')]));
+  else out.push(['desk', deskBox, null]);
+  Book.views.forEach(v => { if (!gcols[v].hidden) out.push(['g-' + v, gcols[v], null]); });
+  return out.sort((a, b) => a[1].getBoundingClientRect().left - b[1].getBoundingClientRect().left);
+}
+const COLNAME = k => k === 'reading' ? 'Reading' : k === 'lecture' ? (dpanes && dpanes.lecture.dataset.view === 'workbook' ? 'Workbook' : 'Lecture') : k.startsWith('g-') ? GLABEL[k.slice(2)] : '';
+function hideCol(k, on) {
+  if (on) {
+    const open = allCols().filter(([kk]) => kk !== 'desk' && !colHide[kk] && kk !== k);
+    if (!open.length && !(allCols().some(([kk]) => kk === 'desk'))) return toast('One column has to stay open');
+    if (dual && dpanes[k] === desk) { const other = Object.keys(dpanes).find(d => d !== k); if (colHide[other]) return toast('One of the two documents has to stay open'); activatePane(dpanes[other]); }   // folding the pane being edited: edit the other one
+  }
+  if (on) colHide[k] = true; else delete colHide[k];
+  saveCols(); gridApply(); if (/width/.test($('#zoom').value)) applyZoom('width', true); place();
+}
+function layoutCols(noGrips) {
+  const cols = $('#cols'); if (!noGrips) cols.querySelectorAll(':scope > .colgrip').forEach(g => g.remove());
+  const reset = el => { if (el) { el.style.flex = ''; el.classList.remove('colhid'); el.removeAttribute('data-colname'); } };
+  if (!gridOn || !gcols.reading) { [deskBox, ...Object.values(gcols), ...(dpanes ? Object.values(dpanes) : [])].forEach(reset); return; }
+  const list = allCols(); let deskW = 0;
+  list.forEach(([k, el, lab]) => {
+    const hid = !!colHide[k] && k !== 'desk', w = colW[k] || 1;
+    el.classList.toggle('colhid', hid); el.dataset.colname = COLNAME(k);
+    el.style.flex = hid ? '0 0 26px' : w + ' 1 0';
+    if (lab) { lab.style.flex = el.style.flex; lab.classList.toggle('colhid', hid); }
+    if (dual && dpanes[k]) deskW += hid ? 0 : w;
+  });
+  if (dual) deskBox.style.flex = (deskW || 0.0001) + ' 1 0'; else if (!colHide.desk) deskBox.style.flex = (colW.desk || 1) + ' 1 0';
+  if (noGrips) return;
+  // a grip in each gutter between two open columns
+  const cr = cols.getBoundingClientRect();
+  for (let i = 1; i < list.length; i++) {
+    const a = list[i - 1], b = list[i]; if (a[1].classList.contains('colhid') || b[1].classList.contains('colhid')) continue;
+    const ra = a[1].getBoundingClientRect(), rb = b[1].getBoundingClientRect(), g = document.createElement('div');
+    g.className = 'colgrip'; g.title = 'Drag to resize the columns'; g.style.left = (ra.right - cr.left) + 'px'; g.style.width = Math.max(6, rb.left - ra.right) + 'px';
+    g.onpointerdown = e => {
+      e.preventDefault(); g.setPointerCapture(e.pointerId); document.body.classList.add('colresizing');
+      const x0 = e.clientX, pa = ra.width, pb = rb.width, wa = colW[a[0]] || 1, wb = colW[b[0]] || 1;
+      g.onpointermove = ev => {
+        const na = Math.max(160, Math.min(pa + pb - 160, pa + ev.clientX - x0));
+        colW[a[0]] = (wa + wb) * na / (pa + pb); colW[b[0]] = wa + wb - colW[a[0]];
+        layoutCols(true); g.style.left = (a[1].getBoundingClientRect().right - cr.left) + 'px';
+      };
+      g.onpointerup = g.onpointercancel = () => { g.onpointermove = null; document.body.classList.remove('colresizing'); saveCols(); gridApply(); if (/width/.test($('#zoom').value)) applyZoom('width', true); place(); };
+    };
+    cols.append(g);
+  }
+}
+// a folded column opens again when its strip is clicked (caught before the pane's own click handling)
+document.addEventListener('pointerdown', e => {
+  const c = e.target.closest && e.target.closest('.colhid'); if (!c || !$('#cols').contains(c)) return;
+  const hit = allCols().find(([, el, lab]) => el === c || lab === c); if (!hit) return;
+  e.preventDefault(); e.stopPropagation(); hideCol(hit[0], false);
+}, true);
 function applyColZooms() {   // the document panes (and a lone desk) take their own zoom; the previews get theirs in gridApply
-  if (dual) ['reading', 'lecture'].forEach(d => { const z = colZ[d]; if (z) dpanes[d].style.setProperty('--zoom', z); else dpanes[d].style.removeProperty('--zoom'); });
+  if (dual) ['reading', 'lecture'].forEach(d => { const z = colZ[d] || fitZ[d]; if (z) dpanes[d].style.setProperty('--zoom', z); else dpanes[d].style.removeProperty('--zoom'); });
   else book.style.setProperty('--zoom', colZoom('desk'));
 }
 function gridZoom() { return baseZ; }   // the zoom menu's zoom, the one every column starts from
@@ -2240,8 +2306,8 @@ function gridLayout() {
 function placeLabels() {   // the desk's own label: which edition is being edited
   glabels.hidden = !gridOn; glabels.classList.toggle('duo', dual); if (!gridOn) return;
   if (dual) {   // one label per document pane, the one being edited in navy; the other has Line up
-    glabels.innerHTML = ['reading', 'lecture'].map(d => { const p = dpanes[d], on = p === desk; return `<div class="dlab" data-doc="${d}" style="order:${d === 'reading' ? 0 : 1}"><span class="${on ? 'ed' : ''}">${GLABEL[p.dataset.view]}${on ? ' (editing)' : ''}</span>${on ? '' : '<button class="lineup" title="Scroll this pane to the page on the same topics as the one you are editing">Line up</button>'}</div>`; }).join('');
-    glabels.querySelectorAll('.dlab').forEach(l => { l.onclick = e => { if (e.target.closest('.lineup')) return lineUpDoc(l.dataset.doc); activatePane(dpanes[l.dataset.doc]); }; });
+    glabels.innerHTML = ['reading', 'lecture'].map(d => { const p = dpanes[d], on = p === desk; return `<div class="dlab" data-doc="${d}" style="order:${d === 'reading' ? 0 : 1}"><span class="${on ? 'ed' : ''}">${GLABEL[p.dataset.view]}${on ? ' (editing)' : ''}</span>${on ? '' : '<button class="lineup" title="Scroll this pane to the page on the same topics as the one you are editing">Line up</button>'}<button class="colx" title="Hide this column (click its strip to bring it back)">‹›</button></div>`; }).join('');
+    glabels.querySelectorAll('.dlab').forEach(l => { l.onclick = e => { if (e.target.closest('.colx')) return hideCol(l.dataset.doc, true); if (e.target.closest('.lineup')) return lineUpDoc(l.dataset.doc); activatePane(dpanes[l.dataset.doc]); }; });
     return;
   }
   glabels.innerHTML = `<span class="ed">${GLABEL[Book.view]} (editing)</span>`;
@@ -2260,8 +2326,8 @@ function gridApply() {
   const shown = Book.views.filter(v => gcols[v].hidden && showCol(v));   // panes about to appear (a switch of edition)
   Book.views.forEach(v => { gcols[v].hidden = !showCol(v); });
   if (shown.length) { commit(true); panePatch(); shown.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (gcols[v].dataset.ready && fr.contentWindow) fr.contentWindow.postMessage({ gridRefresh: 1 }, '*'); }); }   // a pane that was hidden: bring it up to date, lay it out again
-  placeLabels();
-  const layout = (gridOn ? 'p' : '1') + colWidth();   // the desk's width changed (panes shown or hidden, window resized): fit the zoom again
+  placeLabels(); layoutCols();
+  const layout = (gridOn ? 'p' : '1') + zoomCols().map(([k, el]) => k + el.clientWidth).join(' ');   // the desk's width changed (panes shown or hidden, window resized): fit the zoom again
   if (layout !== gridApply.layout) { gridApply.layout = layout; if (/fit|two|three|width/.test($('#zoom').value)) return applyZoom($('#zoom').value, true); }
   if (!gridOn) return;
   applyColZooms();

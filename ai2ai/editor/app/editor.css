@@ -485,7 +485,7 @@ body.ed-xdrag .gcol iframe { pointer-events: none; }   /* while dragging a block
 body.panes #desk:has(> #gsizer > #gworld > #book.dual) { display: flex; flex-direction: column; overflow: hidden; }
 body.panes #desk:has(#book.dual) > #gsizer { flex: 1 1 0; min-height: 0; }
 body.panes #desk:has(#book.dual) #gworld { height: 100%; }
-.ed .dpane { flex: 1 1 0; min-width: 0; overflow: auto; position: relative; align-content: flex-start; padding: 50vh 6px; }
+.ed .dpane { flex: 1 1 0; min-width: 0; overflow: auto; position: relative; align-content: flex-start; padding: 50vh 12px; }
 .ed .dpane[data-doc="reading"] { order: 0; } .ed .dpane[data-doc="lecture"] { order: 1; border-left: 1px solid var(--border); }
 .ed .dpane > #drop2 { position: absolute; height: 3px; background: #1a73e8; border-radius: 2px; z-index: 6; pointer-events: none; }
 .ed .dpane > #drop2[hidden] { display: none; }
@@ -505,6 +505,24 @@ html:has(body.ed), body.ed { overscroll-behavior: none; }
 .ed .dpane, #desk, .gcol iframe { overscroll-behavior: contain; }
 .ed .dpane { overflow-x: auto; overflow-y: auto; justify-content: safe center; }   /* each column has its own zoom: zoomed past its width, it scrolls sideways */
 #cols { flex: 1 1 0; min-width: 0; display: flex; position: relative; }
+/* the columns: a gutter between them, a grip in it to drag their widths, and a folded column as a strip with its name */
+body.panes #cols { gap: 8px; background: #dedcd4; }
+.ed #book.dual { gap: 8px !important; background: #dedcd4; }
+#glabels.duo { gap: 8px; background: #dedcd4 !important; }
+#glabels.duo .dlab { background: #f7f7f5; }
+body.panes .gcol:not([hidden]), body.panes #desk, .ed .dpane, #glabels.duo .dlab { border-left: 0 !important; }
+.colgrip { position: absolute; top: 0; bottom: 0; z-index: 45; cursor: col-resize; }
+.colgrip::after { content: ''; position: absolute; left: 50%; top: 50%; width: 2px; height: 36px; margin: -18px 0 0 -1px; border-radius: 1px; background: #b4b1a6; }
+.colgrip:hover { background: rgba(26, 115, 232, .12); } .colgrip:hover::after { background: #1a73e8; }
+body.colresizing, body.colresizing * { cursor: col-resize !important; user-select: none !important; }
+body.colresizing iframe { pointer-events: none; }
+.colhid { overflow: hidden !important; padding: 0 !important; cursor: pointer; background: #f1f0eb !important; position: relative; }
+.colhid > * { visibility: hidden !important; pointer-events: none !important; }   /* still laid out: its pages are still measured (pages over) */
+.colhid::before { content: attr(data-colname); position: absolute; top: 12px; left: 50%; writing-mode: vertical-rl; transform: translateX(-50%); font: 600 12px/1 system-ui, sans-serif; color: #555; white-space: nowrap; }
+.colhid:hover { background: #e8eefb !important; }
+#glabels.duo .dlab.colhid::before { content: none; }
+button.colx { font: 600 11px/1 system-ui, sans-serif; padding: 3px 6px; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #666; cursor: pointer; }
+button.colx:hover { background: #f1ede0; border-color: #DCB439; color: #333; }
 .gcol { overflow: hidden; }   /* a preview being pinched scales inside its own column */
 .ed .dpane > .ed-cover { cursor: pointer; }   /* the Lecture pane's copy of the cover */
 .ed .dpane > .ed-cover > * { pointer-events: none; }
