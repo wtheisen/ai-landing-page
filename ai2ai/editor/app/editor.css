@@ -518,11 +518,8 @@ body.panes .gcol:not([hidden]), body.panes #desk, .ed .dpane, #glabels.duo .dlab
 .colgrip:hover { background: rgba(26, 115, 232, .12); } .colgrip:hover::after { background: #1a73e8; }
 body.colresizing, body.colresizing * { cursor: col-resize !important; user-select: none !important; }
 body.colresizing iframe { pointer-events: none; }
-.colhid { overflow: hidden !important; padding: 0 !important; cursor: pointer; background: #f1f0eb !important; position: relative; }
-.colhid > * { visibility: hidden !important; pointer-events: none !important; }   /* still laid out: its pages are still measured (pages over) */
-.colhid::before { content: attr(data-colname); position: absolute; top: 12px; left: 50%; writing-mode: vertical-rl; transform: translateX(-50%); font: 600 12px/1 system-ui, sans-serif; color: #555; white-space: nowrap; }
-.colhid:hover { background: #e8eefb !important; }
-#glabels.duo .dlab.colhid::before { content: none; }
+/* a hidden column takes no room (its gutter goes too) but stays laid out, so its pages still count in "pages over" */
+.colhid { overflow: hidden !important; padding: 0 !important; min-width: 0 !important; width: 0 !important; visibility: hidden; pointer-events: none; border: 0 !important; }
 button.colx { font: 600 11px/1 system-ui, sans-serif; padding: 3px 6px; border-radius: 8px; border: 1px solid #ccc; background: #fff; color: #666; cursor: pointer; }
 button.colx:hover { background: #f1ede0; border-color: #DCB439; color: #333; }
 .gcol { overflow: hidden; }   /* a preview being pinched scales inside its own column */

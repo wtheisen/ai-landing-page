@@ -2217,7 +2217,7 @@ var gcols = {}, gridOn = true, gridT = 0, gridRaf = 0;   // var: zoom and mode c
 try { gridOn = localStorage.getItem('book-grid') !== '0'; } catch (x) {}
 if (phone) gridOn = false;   // the panes need a wide screen
 Book.views.forEach((v, k) => {
-  const col = h(`<div class="gcol" data-view="${v}" style="order:${k}" hidden><div class="glab"><span>${GLABEL[v]}</span><button class="lineup" title="Scroll this pane to the page that goes with the one you are editing">Line up</button><button class="colx" title="Hide this column (click its strip to bring it back)">‹›</button></div><iframe title="${GLABEL[v]} preview"></iframe></div>`);
+  const col = h(`<div class="gcol" data-view="${v}" style="order:${k}" hidden><div class="glab"><span>${GLABEL[v]}</span><button class="lineup" title="Scroll this pane to the page that goes with the one you are editing">Line up</button><button class="colx" title="Hide this column (Columns ▾ in the header brings it back)">×</button></div><iframe title="${GLABEL[v]} preview"></iframe></div>`);
   col.querySelector('.lineup').onclick = () => lineUpPane(v);
   col.querySelector('.colx').onclick = e => { e.stopPropagation(); hideCol('g-' + v, true); };
   desk.parentElement.insertBefore(col, $('#insp')); gcols[v] = col;
@@ -2258,22 +2258,25 @@ function hideCol(k, on) {
 }
 function layoutCols(noGrips) {
   const cols = $('#cols'); if (!noGrips) cols.querySelectorAll(':scope > .colgrip').forEach(g => g.remove());
-  const reset = el => { if (el) { el.style.flex = ''; el.classList.remove('colhid'); el.removeAttribute('data-colname'); } };
+  const reset = el => { if (el) { el.style.flex = ''; el.style.margin = ''; el.classList.remove('colhid'); el.removeAttribute('data-colname'); } };
   if (!gridOn || !gcols.reading) { [deskBox, ...Object.values(gcols), ...(dpanes ? Object.values(dpanes) : [])].forEach(reset); return; }
   const list = allCols(); let deskW = 0;
   list.forEach(([k, el, lab]) => {
     const hid = !!colHide[k] && k !== 'desk', w = colW[k] || 1;
     el.classList.toggle('colhid', hid); el.dataset.colname = COLNAME(k);
-    el.style.flex = hid ? '0 0 26px' : w + ' 1 0';
+    el.style.flex = hid ? '0 0 0px' : w + ' 1 0';
+    const first = list.find(c => c[1].parentElement === el.parentElement)[1] === el;   // a hidden column gives back its gutter
+    el.style.margin = hid ? (first ? '0 -8px 0 0' : '0 0 0 -8px') : '';
+    if (lab) lab.style.margin = el.style.margin;
     if (lab) { lab.style.flex = el.style.flex; lab.classList.toggle('colhid', hid); }
     if (dual && dpanes[k]) deskW += hid ? 0 : w;
   });
   if (dual) deskBox.style.flex = (deskW || 0.0001) + ' 1 0'; else if (!colHide.desk) deskBox.style.flex = (colW.desk || 1) + ' 1 0';
   if (noGrips) return;
   // a grip in each gutter between two open columns
-  const cr = cols.getBoundingClientRect();
-  for (let i = 1; i < list.length; i++) {
-    const a = list[i - 1], b = list[i]; if (a[1].classList.contains('colhid') || b[1].classList.contains('colhid')) continue;
+  const cr = cols.getBoundingClientRect(), open = list.filter(c => !c[1].classList.contains('colhid'));
+  for (let i = 1; i < open.length; i++) {
+    const a = open[i - 1], b = open[i];
     const ra = a[1].getBoundingClientRect(), rb = b[1].getBoundingClientRect(), g = document.createElement('div');
     g.className = 'colgrip'; g.title = 'Drag to resize the columns'; g.style.left = (ra.right - cr.left) + 'px'; g.style.width = Math.max(6, rb.left - ra.right) + 'px';
     g.onpointerdown = e => {
@@ -2289,12 +2292,13 @@ function layoutCols(noGrips) {
     cols.append(g);
   }
 }
-// a folded column opens again when its strip is clicked (caught before the pane's own click handling)
-document.addEventListener('pointerdown', e => {
-  const c = e.target.closest && e.target.closest('.colhid'); if (!c || !$('#cols').contains(c)) return;
-  const hit = allCols().find(([, el, lab]) => el === c || lab === c); if (!hit) return;
-  e.preventDefault(); e.stopPropagation(); hideCol(hit[0], false);
-}, true);
+// Columns ▾ in the header: tick a column to show it, untick to hide it completely
+$('#x-cols').onclick = e => {
+  if (!gridOn) return toast('Columns are for the side-by-side view: turn on Grid first');
+  const r = e.currentTarget.getBoundingClientRect(), cols = allCols().filter(([k]) => k !== 'desk');
+  if (!cols.length) return toast('No other columns in this view');
+  openMenu(r.left, r.bottom + 4, cols.map(([k]) => [k, (colHide[k] ? '☐  ' : '☑  ') + COLNAME(k), colHide[k] ? 'hidden' : 'shown']), k => hideCol(k, !colHide[k]));
+};
 function applyColZooms() {   // the document panes (and a lone desk) take their own zoom; the previews get theirs in gridApply
   if (dual) ['reading', 'lecture'].forEach(d => { const z = colZ[d] || fitZ[d]; if (z) dpanes[d].style.setProperty('--zoom', z); else dpanes[d].style.removeProperty('--zoom'); });
   else book.style.setProperty('--zoom', colZoom('desk'));
@@ -2306,7 +2310,7 @@ function gridLayout() {
 function placeLabels() {   // the desk's own label: which edition is being edited
   glabels.hidden = !gridOn; glabels.classList.toggle('duo', dual); if (!gridOn) return;
   if (dual) {   // one label per document pane, the one being edited in navy; the other has Line up
-    glabels.innerHTML = ['reading', 'lecture'].map(d => { const p = dpanes[d], on = p === desk; return `<div class="dlab" data-doc="${d}" style="order:${d === 'reading' ? 0 : 1}"><span class="${on ? 'ed' : ''}">${GLABEL[p.dataset.view]}${on ? ' (editing)' : ''}</span>${on ? '' : '<button class="lineup" title="Scroll this pane to the page on the same topics as the one you are editing">Line up</button>'}<button class="colx" title="Hide this column (click its strip to bring it back)">‹›</button></div>`; }).join('');
+    glabels.innerHTML = ['reading', 'lecture'].map(d => { const p = dpanes[d], on = p === desk; return `<div class="dlab" data-doc="${d}" style="order:${d === 'reading' ? 0 : 1}"><span class="${on ? 'ed' : ''}">${GLABEL[p.dataset.view]}${on ? ' (editing)' : ''}</span>${on ? '' : '<button class="lineup" title="Scroll this pane to the page on the same topics as the one you are editing">Line up</button>'}<button class="colx" title="Hide this column (Columns ▾ in the header brings it back)">×</button></div>`; }).join('');
     glabels.querySelectorAll('.dlab').forEach(l => { l.onclick = e => { if (e.target.closest('.colx')) return hideCol(l.dataset.doc, true); if (e.target.closest('.lineup')) return lineUpDoc(l.dataset.doc); activatePane(dpanes[l.dataset.doc]); }; });
     return;
   }
