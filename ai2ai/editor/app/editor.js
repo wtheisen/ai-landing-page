@@ -57,7 +57,10 @@ if (info.offline && navigator.serviceWorker) {   // the offline edition: the ser
   let hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!hadController) { hadController = true; return; }
-    toast('New version of the editor', 'Reload', async () => { commit(true); await save(); location.reload(); });
+    const go = async () => { commit(true); await save(); location.reload(); };
+    toast('New version of the editor', 'Reload', go);
+    // and a button in the header that stays until it's used: other messages replace the toast (2026-10-27)
+    if (!$('#x-update')) { const b = document.createElement('button'); b.id = 'x-update'; b.textContent = 'Update editor ↻'; b.title = 'A new version of the editor is ready: save and reload'; b.style.cssText = 'background:#DCB439;color:#002B5B;border-color:#DCB439;font-weight:600'; b.onclick = go; $('#bar').append(b); }
   });
 }
 if (info.offline) { const home = document.createElement('a'); home.href = '../'; home.id = 'home'; home.className = 'btnlink'; home.textContent = '⌂'; home.title = 'All chapters'; home.style.cssText = 'color:#fff;background:transparent;border-color:rgba(255,255,255,.35)'; $('#bar').prepend(home); }   // the offline edition (service worker) saves to this device; GitHub sync is separate
