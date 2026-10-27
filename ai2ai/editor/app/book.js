@@ -415,6 +415,7 @@ Book.view = 'reading';
 Book.setView = v => { Book.view = Book.views.includes(v) ? v : 'reading'; if (Book.root) { if (!Book.panes().length) Book.root.dataset.view = Book.view; Book.refresh(); } };
 Book.inView = (el, v) => {
   v = v || Book.viewOf(el);
+  if (el.classList && el.classList.contains('wb-packed')) return false;   // a Workbook page whose blocks went onto the page before it
   if (el.hasAttribute('data-view')) return el.getAttribute('data-view').split(/\s+/).includes(v);
   if (v === 'reading') return !(el.localName === 'aside' && el.classList.contains('qc'));   // questions belong to the lecture and the workbook; Reading is just reading
   if (el.classList.contains('aside') || el.localName === 'b-answers') return false;          // notes and the answer list are for reading
@@ -474,6 +475,45 @@ Book.wrapText = pg => {
     if (!el.querySelector(':scope > span.wrapf[data-side="left"]')) el.removeAttribute('data-ed-wl');
   }
   return true;
+};
+// The Workbook prints at 6 × 9 (like the Reading) while the Lecture is 16:9, so in a split chapter's Workbook the
+// slides that continue one another (the same title on consecutive pages) go back onto one page as long as it fits:
+// the later page's blocks move onto the first and the later page is hidden (class wb-packed). Viewer and export only
+// (view.html), never in the editor, whose pages must stay the file's pages; unpackWorkbook() puts everything back.
+Book.unpackWorkbook = () => {
+  if (!Book.root) return;
+  Book.root.querySelectorAll('[data-wb-from]').forEach(el => {
+    const pg = document.getElementById(el.getAttribute('data-wb-from')); el.removeAttribute('data-wb-from');
+    if (pg) pg.insertBefore(el, pg.querySelector(':scope > .foot'));
+  });
+  Book.root.querySelectorAll('section.page.wb-packed').forEach(p => p.classList.remove('wb-packed'));
+};
+Book.packWorkbook = () => {
+  Book.unpackWorkbook();
+  if (!Book.root || Book.view !== 'workbook' || !Book.meta.split || Book.panes().length) return false;
+  const title = pg => { const h = pg.querySelector(':scope > h2'); return h ? h.textContent.replace(/\s+/g, ' ').trim() : ''; };
+  const skip = el => el.localName === 'h2' || el.hasAttribute('data-rt') || el.classList.contains('foot') || el.classList.contains('ink') || el.classList.contains('overlay') || el.hasAttribute('data-ink');
+  const fits = host => {   // the host's blocks end above the footer (gaps at their smallest, as Book.refresh measures)
+    const r = host.getBoundingClientRect(); if (!r.width) return true;
+    const s = r.width / Book.pageW(host); let bottom = 0;
+    for (const el of host.children) { if (skip(el) && el.localName !== 'h2') continue; if (!Book.inView(el) || Book.isPinned(el)) continue; const q = el.getBoundingClientRect(); if (q.height) bottom = Math.max(bottom, (q.bottom - r.top) / s); }
+    return bottom <= Book.pageH(host) - 30;
+  };
+  let host = null, packed = 0;
+  for (const pg of Book.pages()) {
+    if (!Book.inView(pg) || pg.classList.contains('cover')) continue;
+    const t = title(pg);
+    if (host && t && pg.id && t === title(host)) {
+      const moved = [...pg.children].filter(el => !skip(el)), foot = host.querySelector(':scope > .foot'), gap = host.style.getPropertyValue('--gap');
+      host.style.removeProperty('--gap');
+      moved.forEach(el => { el.setAttribute('data-wb-from', pg.id); host.insertBefore(el, foot); });
+      if (fits(host)) { pg.classList.add('wb-packed'); packed++; continue; }
+      moved.forEach(el => { el.removeAttribute('data-wb-from'); pg.insertBefore(el, pg.querySelector(':scope > .foot')); });
+      if (gap) host.style.setProperty('--gap', gap);
+    }
+    host = pg;
+  }
+  return packed > 0;
 };
 Book.refreshSoon = () => { if (!soon) soon = setTimeout(() => { soon = 0; if (Book.root) Book.refresh(); }, 60); };
 Book.refresh = () => {

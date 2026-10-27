@@ -47,6 +47,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
   document.getElementById('nav').outerHTML = Book.pages().filter(p => p.dataset.part && Book.inView(p)).map(p => `<a href="#${p.id}">${Book.esc(p.dataset.part)}</a>`).join('')
     + (exporting ? '' : '<span style="opacity:.5">|</span>' + Book.views.map(v => `<a href="?view=${v}" style="${v === Book.view ? 'font-weight:700;text-decoration:underline' : ''}">${v[0].toUpperCase() + v.slice(1)}</a>`).join(''));
   await Book.ready(); Book.refresh(); await Book.ready(); Book.refresh();
+  if (Book.packWorkbook()) { await Book.ready(); Book.refresh(); }   // the Workbook: continued slides share a page
   if (grid) Book.markStale();
   if (grid) {   // a pane beside the editor (see "panes" in editor.js): its pages in their own flow, scrolling natively
     const root = document.getElementById('book');
@@ -70,7 +71,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       const keep = anchor();
       busy = (async () => {
         const c = await (await fetch('../api/chapter/' + ch)).json();
-        Book.load(root, c.content); await Book.ready(); Book.refresh(); Book.markStale(); applyFocus();
+        Book.load(root, c.content); await Book.ready(); Book.refresh(); if (Book.packWorkbook()) Book.refresh(); Book.markStale(); applyFocus();
       })();
       try { await busy; } finally { busy = null; }
       if (keep) scrollTo(keep);
@@ -81,6 +82,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
     let patching = Promise.resolve();
     const patch = P => { patching = patching.then(async () => {
       const keep = anchor();
+      Book.unpackWorkbook();   // pages go back to the file's pages before the editor's are swapped in
       if (P.meta) Book.meta = Book.parse(P.meta + '\n').meta;
       const have = new Map(Book.pages().map(p => [p.id, p]));
       for (const [id, html] of Object.entries(P.pages)) {
@@ -91,7 +93,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       let at = root.querySelector(':scope > section.page');   // reorder with as few moves as possible (a moved page draws again)
       for (const id of P.order) { const p = have.get(id); if (!p) continue; if (p !== at) root.insertBefore(p, at); else at = at.nextElementSibling; while (at && at.localName !== 'section') at = at.nextElementSibling; }
       if (!innerWidth) { Book.markStale(); return; }   // a hidden pane (the edition being edited): laid out when it shows again (gridRefresh)
-      await Book.ready(); Book.refresh(); Book.markStale(); applyFocus();
+      await Book.ready(); Book.refresh(); if (Book.packWorkbook()) Book.refresh(); Book.markStale(); applyFocus();
       if (keep) scrollTo(keep);
     }).catch(err => console.error(err)); };
     root.addEventListener('click', e => { const p = e.target.closest('section.page'); if (p && Date.now() - dragEnded > 400) parent.postMessage({ gridPick: p.id, view: Book.view }, '*'); });
@@ -143,7 +145,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       if (d.gridZoom) { const keep = anchor(); document.documentElement.style.setProperty('--zoom', d.gridZoom); Book.refresh(); if (keep) scrollTo(keep); }
       if (d.gridReload) reload();
       if (d.gridPatch) patch(d.gridPatch);
-      if (d.gridRefresh) patching = patching.then(async () => { await Book.ready(); Book.refresh(); applyFocus(); });   // shown again after being hidden
+      if (d.gridRefresh) patching = patching.then(async () => { await Book.ready(); Book.refresh(); if (Book.packWorkbook()) Book.refresh(); applyFocus(); });   // shown again after being hidden
       if (d.gridFig) document.querySelectorAll('#book b-fig').forEach(f => { if (f.getAttribute('src') === d.gridFig) Book.reloadFig(f); });
     });
     window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); parent.postMessage({ gridWheel: { dy: e.deltaY, x: e.clientX, y: e.clientY } }, '*'); }, { passive: false });   // a pinch here zooms all the panes; plain scrolling is this pane's own

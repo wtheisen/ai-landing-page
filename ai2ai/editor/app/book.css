@@ -476,3 +476,6 @@ b-out.run-new { height: 0; border: 0; position: relative; }
 b-out.run-new pre { display: none; }
 b-out.run-new .label { position: absolute; right: 4pt; bottom: 4pt; padding: 0; border: 0; font-size: 0; }
 b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
+
+/* the Workbook: a slide that continues the one before it shares its page (Book.packWorkbook) */
+.book section.page.wb-packed { display: none !important; }
