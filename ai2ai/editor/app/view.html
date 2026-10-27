@@ -142,10 +142,13 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       if ('gridDragOver' in d) dropAt(d.gridDragOver);
       if ('gridFocus' in d) { focus = d.gridFocus; applyFocus(); }
       if (d.gridScrollTo) scrollTo(d.gridScrollTo);
-      if (d.gridZoom) {   // with at: a pinch here, so the point under the fingers stays put; else the page at the top does
-        const old = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--zoom')) || 1, keep = d.at ? null : anchor(), sx = scrollX, sy = scrollY;
+      if (d.gridZoom) {   // with at: a pinch here, so the page under the fingers goes back under them; else the page at the top stays
+        let pin = null, keep = null;
+        if (d.at) { const near = shown().reduce((b, n) => { const q = n.getBoundingClientRect(), dd = d.at.y < q.top ? q.top - d.at.y : d.at.y > q.bottom ? d.at.y - q.bottom : 0; return !b || dd < b.dd ? { n, dd, q } : b; }, null); if (near) pin = { n: near.n, fx: (d.at.x - near.q.left) / near.q.width, fy: (d.at.y - near.q.top) / near.q.height }; }
+        else keep = anchor();
         document.documentElement.style.setProperty('--zoom', d.gridZoom); Book.refresh();
-        if (d.at) { const k = d.gridZoom / old; window.scrollTo((sx + d.at.x) * k - d.at.x, (sy + d.at.y) * k - d.at.y); } else if (keep) scrollTo(keep);
+        if (pin) { const q = pin.n.getBoundingClientRect(); window.scrollBy(q.left + pin.fx * q.width - d.at.x, q.top + pin.fy * q.height - d.at.y); } else if (keep) scrollTo(keep);
+        if (d.at) requestAnimationFrame(() => parent.postMessage({ gridZoomed: 1 }, '*'));
       }
       if (d.gridReload) reload();
       if (d.gridPatch) patch(d.gridPatch);

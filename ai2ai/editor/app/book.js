@@ -191,7 +191,7 @@ Book.topicHashes = () => {
   Book.pages().forEach(pg => {
     if (!Book.isLecture(pg)) return;
     const c = pg.cloneNode(true); c.querySelectorAll(':scope > [data-pool], :scope > .cmt').forEach(n => n.remove());   // shared pieces stay in step by themselves; comments aren't content
-    const src = Book.serializePage(c).replace(/^<section([^>]*?) id="[^"]*"/, '<section$1');
+    const src = Book.serializePage(c).replace(/^<section([^>]*?) id="[^"]*"/, '<section$1').replace(/ data-b="[^"]*"/g, '');   // block ids aren't content
     Book.topicsOf(pg).forEach(t => { acc[t] = (acc[t] || '') + src; });
   });
   const out = {}; Object.keys(acc).sort().forEach(t => { out[t] = hash(acc[t]); }); return out;

@@ -580,3 +580,4 @@ body.qpool #insp, body.qpool #tg-insp, body.review #qpool { display: none; }
 #qp-ghost.no { background: #888; }
 body.qp-drag, body.qp-drag * { cursor: grabbing !important; }
 #qpool pre.qp-code { font: 10px/1.35 Consolas, Menlo, monospace; background: #f6f8fa; border-radius: 4px; padding: 4px 6px; margin: 4px 0; max-height: 180px; overflow: auto; white-space: pre; }
+.ed .dpane { row-gap: calc(24px * var(--zoom, 1)); }   /* the gaps between pages zoom with them, so a pinch preview and the result line up */

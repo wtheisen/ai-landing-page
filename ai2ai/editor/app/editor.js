@@ -80,7 +80,7 @@ function prep() {   // make text blocks editable; equations, figures and code ar
 }
 oldColumns(); prep();
 status.addEventListener('click', () => { commit(true); save(); });
-poolSync(); if (Book.split) Book.markStale();
+poolSync(); blockIds(); if (Book.split) Book.markStale();
 cur = saved = Book.serialize();
 const normalized = cur !== disk.content;   // first save rewrites the file in the editor's fixed layout
 
@@ -147,8 +147,8 @@ let commitT = 0, saveT = 0;
 // A block with data-pool="id" (figure, equation, code, table) appears once in the Lecture and once in the Reading.
 // Edit either copy and the other follows on the next commit; each keeps its own layout (size, class, blanks).
 var poolLast;   // pool id -> its content as of the last sync
-const POOL_LAYOUT = ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'setup', 'chain', 'norun', 'contenteditable', 'spellcheck', 'draggable'];   // per copy: layout, and how a code copy runs
-function poolKey(el) { return Book.serializeBlock(el).replace(/ (style|class|data-view|data-fill|data-pool|setup|chain|norun)="[^"]*"/g, ''); }
+const POOL_LAYOUT = ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'setup', 'chain', 'norun', 'contenteditable', 'spellcheck', 'draggable'];   // per copy: layout, and how a code copy runs
+function poolKey(el) { return Book.serializeBlock(el).replace(/ (style|class|data-view|data-fill|data-pool|data-b|setup|chain|norun)="[^"]*"/g, ''); }
 function poolSync() {
   const groups = {}; book.querySelectorAll('section.page > [data-pool]').forEach(el => { (groups[el.dataset.pool] = groups[el.dataset.pool] || []).push(el); });
   if (!poolLast) { poolLast = {}; for (const id in groups) poolLast[id] = poolKey(groups[id][0]); return; }
@@ -168,13 +168,30 @@ function poolSync() {
   }
   if (n) { prep(); toast(n === 1 ? 'Updated the same piece in the ' + (Book.view === 'reading' ? 'Lecture' : 'Reading') + ' too' : `Updated ${n} shared pieces in the other document too`); }
 }
+// Every page-level block has a stable id, data-b, so tools and suggestions can point at it (tools/agent). New blocks
+// get one on the next commit; a copy that arrives carrying another block's id gets a fresh one, and the block that
+// had the id keeps it (bidOwner remembers which element that is).
+var bidOwner;   // var: blockIds runs once before this line is reached
+function blockIds() {
+  if (!bidOwner) bidOwner = new Map();
+  const groups = new Map(), loose = [], all = [];
+  for (const pg of Book.pages()) for (const el of Book.blocks(pg)) {
+    const k = el.getAttribute('data-b'); all.push(el);
+    if (!k) loose.push(el); else { if (!groups.has(k)) groups.set(k, []); groups.get(k).push(el); }
+  }
+  const taken = new Set(groups.keys());
+  const fresh = () => { for (;;) { const k = 'abcdefghijklmnopqrstuvwxyz'[Math.random() * 26 | 0] + Math.random().toString(36).slice(2, 6); if (k.length === 5 && !taken.has(k)) { taken.add(k); return k; } } };
+  for (const [k, els] of groups) if (els.length > 1) { const keep = els.includes(bidOwner.get(k)) ? bidOwner.get(k) : els[0]; els.forEach(el => { if (el !== keep) loose.push(el); }); }
+  loose.forEach(el => el.setAttribute('data-b', fresh()));
+  all.forEach(el => bidOwner.set(el.getAttribute('data-b'), el));
+}
 let staleT = 0;
 function staleSoon() { if (!Book.split) return; clearTimeout(staleT); staleT = setTimeout(() => { Book.markStale(); renderPages(); }, 400); }
 function commit(now) {
   clearTimeout(commitT);
   const run = () => {
     if (applying || held) return;
-    prep(); denbsp(); mathGuard(); poolSync();
+    prep(); denbsp(); mathGuard(); poolSync(); blockIds();
     const s = Book.serialize();
     if (s === cur) return;
     undo.push(cur); if (undo.length > 300) undo.shift();
@@ -2420,38 +2437,56 @@ $('#x-grid').onclick = () => {
 // theirs (see view.html). During a pinch only a CSS transform changes (cheap, so it follows the fingers smoothly);
 // when the fingers stop, the real zoom is applied once: pages re-laid out, the panes told, and the scroll set so the
 // point under the fingers stays put.
-var pinch = null;   // { key, col, z0, z1, cx0, cy0, els: [[el, ox, oy]], sx, sy }
+var pinch = null;
+// A pinch zooms one column. While the fingers move only CSS transforms change (smooth); when they stop, the column's
+// real zoom is applied once. The preview is drawn the way the real zoom will lay the pages out, so nothing jumps on
+// release: vertically about the fingers; sideways about the fingers only when the pages will be wider than the
+// column (it can then scroll sideways), else about the column's middle, since pages that fit stay centred. On release
+// the page under the fingers is put back under them (by its own position, so the column's padding doesn't skew it).
 function zoomAt(dy, cx0, cy0) {
   if (!pinch) {
     const hit = zoomCols().find(([, el]) => { const q = el.getBoundingClientRect(); return cx0 >= q.left && cx0 <= q.right && cy0 >= q.top && cy0 <= q.bottom; });
     if (!hit) return;
     const [key, col] = hit, frame = key.startsWith('g-') ? col.querySelector('iframe') : null;
-    // what scales while the fingers move: the preview frame, or the column's pages (all about the same point, so the
-    // column's content scales like one picture, clipped by the column)
-    const parts = frame ? [frame] : key === 'desk' ? [book] : [...col.children].filter(n => n.matches('section.page, .ed-cover'));
-    const els = parts.map(el => { const q = el.getBoundingClientRect(); return [el, cx0 - q.left, cy0 - q.top]; });
+    const sc = frame ? null : key === 'desk' ? deskBox : col, box = (frame || sc).getBoundingClientRect();
+    const pages = frame ? [] : [...(key === 'desk' ? book : col).querySelectorAll(':scope > section.page, :scope > .ed-cover')].filter(n => n.getClientRects().length);
+    const parts = frame ? [frame] : key === 'desk' ? [book] : pages;
     const z0 = key === 'desk' ? colZoom('desk') : key.startsWith('g-') ? colZoom(key) : parseFloat(getComputedStyle(col).getPropertyValue('--zoom')) || baseZ;
-    const sc = frame ? null : key === 'desk' ? deskBox : col, r = col.getBoundingClientRect();
-    pinch = { key, col, frame, sc, z0, z1: z0, cx0, cy0, els, lx: cx0 - r.left, ly: cy0 - r.top, sx: sc ? sc.scrollLeft : 0, sy: sc ? sc.scrollTop : 0 };
+    // the widest page now, and the room the column has for it
+    const wide = pages.reduce((b, n) => { const q = n.getBoundingClientRect(); return !b || q.width > b.width ? q : b; }, null);
+    const c0 = frame ? box.left + box.width / 2 : wide ? wide.left + wide.width / 2 : cx0;   // the pages' centre line now
+    const pw = frame ? 578 * z0 : Math.max(1, ...pages.map(n => n.getBoundingClientRect().width)), pad = frame ? 32 : key === 'desk' ? 48 : 24;
+    const near = pages.reduce((b, n) => { const q = n.getBoundingClientRect(); const d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !b || d < b.d ? { n, d, q } : b; }, null);
+    pinch = { key, col, frame, sc, z0, z1: z0, cx0, cy0, pw, pad, box, c0,
+      // transform-origin is in the element's own (zoomed) units: a page carries the column's zoom, so divide by it
+      els: parts.map(el => { const q = el.getBoundingClientRect(); return [el, q, el.matches('section.page') ? q.width / (Book.pageW(el) * 4 / 3) : 1]; }),
+      mid: frame ? box.left + box.width / 2 : box.left + sc.clientWidth / 2,   // the middle of the room the pages are centred in (without the scrollbar)
+      anchor: near && { n: near.n, fx: (cx0 - near.q.left) / near.q.width, fy: (cy0 - near.q.top) / near.q.height } };
     document.body.classList.add('zooming');
   }
-  pinch.z1 = Math.max(0.15, Math.min(2.5, pinch.z1 * Math.exp(-dy * 0.01)));
-  const k = pinch.z1 / pinch.z0;
-  pinch.els.forEach(([el, ox, oy]) => { el.style.transformOrigin = ox + 'px ' + oy + 'px'; el.style.transform = 'scale(' + k + ')'; });
-  const zs = $('#zoom'); let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(pinch.z1 * 100) + '%'; zs.value = 'custom';
+  const p = pinch;
+  p.z1 = Math.max(0.15, Math.min(2.5, p.z1 * Math.exp(-dy * 0.01)));
+  const k = p.z1 / p.z0, fits = p.pw * k + p.pad <= (p.sc ? p.sc.clientWidth : p.box.width);
+  // pages that will fit end up centred in the column: pick the origin that takes the pages' centre (c0) to the middle
+  const ox = !fits ? p.cx0 : Math.abs(1 - k) < 1e-3 ? p.mid : (p.mid - p.c0 * k) / (1 - k);
+  p.els.forEach(([el, q, zf]) => { el.style.transformOrigin = (ox - q.left) / zf + 'px ' + (p.cy0 - q.top) / zf + 'px'; el.style.transform = 'scale(' + k + ')'; });
+  const zs = $('#zoom'); let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(p.z1 * 100) + '%'; zs.value = 'custom';
   clearTimeout(gridT); gridT = setTimeout(endPinch, 150);
 }
 function endPinch() {
   const p = pinch; if (!p) return; pinch = null;
-  p.els.forEach(([el]) => { el.style.transform = ''; el.style.transformOrigin = ''; });
-  const z = +p.z1.toFixed(3), k = z / p.z0;
+  const z = +p.z1.toFixed(3);
   colZ[p.key] = z; saveColZ();
-  if (p.frame) {   // a preview: it zooms itself and keeps the point under the fingers
-    p.col.dataset.zoom = z; p.frame.contentWindow && p.frame.contentWindow.postMessage({ gridZoom: z, at: { x: p.lx, y: p.ly } }, '*');
+  if (p.frame) {   // a preview zooms itself and puts the page under the fingers back under them
+    p.col.dataset.zoom = z; p.frame.contentWindow && p.frame.contentWindow.postMessage({ gridZoom: z, at: { x: p.cx0 - p.box.left, y: p.cy0 - p.box.top } }, '*');
+    // its transform comes off once it has redrawn (view.html answers gridZoomed), so it doesn't flash the old zoom
+    const fr = p.frame, off = () => { fr.style.transform = ''; fr.style.transformOrigin = ''; window.removeEventListener('message', on); }, on = e => { if (e.source === fr.contentWindow && e.data && e.data.gridZoomed) off(); };
+    window.addEventListener('message', on); setTimeout(off, 1500);
   } else {
     applyColZooms(); Book.refresh();
-    // the point under the fingers stays put (the pane's padding doesn't scale, which is close enough)
-    p.sc.scrollLeft = (p.sx + p.lx) * k - p.lx; p.sc.scrollTop = (p.sy + p.ly) * k - p.ly;
+    p.els.forEach(([el]) => { el.style.transform = ''; el.style.transformOrigin = ''; });
+    const a = p.anchor;
+    if (a && a.n.isConnected) { const q = a.n.getBoundingClientRect(); p.sc.scrollTop += q.top + a.fy * q.height - p.cy0; p.sc.scrollLeft += q.left + a.fx * q.width - p.cx0; }
   }
   document.body.classList.remove('zooming');
   place();
