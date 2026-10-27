@@ -503,7 +503,13 @@ body.panes #rev { order: 99; }   /* the review panel stays at the right edge, li
 /* a trackpad scroll is never quite vertical: the sideways part must not scroll a pane, chain to another, or bounce the window */
 html:has(body.ed), body.ed { overscroll-behavior: none; }
 .ed .dpane, #desk, .gcol iframe { overscroll-behavior: contain; }
-.ed .dpane { overflow-x: auto; overflow-y: auto; justify-content: safe center; }   /* zoomed past the pane's width: scroll sideways, the left edge stays reachable */
+.ed .dpane { overflow-x: hidden; overflow-y: auto; justify-content: safe center; }
+/* the columns zoom like a canvas: each is as wide as its pages need (6 × 9 page or a 16:9 slide at 0.6, both 578px at
+   100%, plus the pane's padding), and the row of columns scrolls sideways as a whole when they don't fit */
+#cols { flex: 1 1 0; min-width: 0; display: flex; position: relative; }
+body.panes #cols { overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; }
+body.panes #cols > .gcol:not([hidden]), body.panes #cols > #desk { min-width: calc(578px * var(--pz, 1) + 14px); }
+body.panes #cols > #desk:has(#book.dual) { min-width: calc(2 * (578px * var(--pz, 1) + 14px)); }
 .ed .dpane > .ed-cover { cursor: pointer; }   /* the Lecture pane's copy of the cover */
 .ed .dpane > .ed-cover > * { pointer-events: none; }
 .ed .dpane > .ed-cover:hover > .page { box-shadow: 0 0 0 2px rgba(26,115,232,.5); }

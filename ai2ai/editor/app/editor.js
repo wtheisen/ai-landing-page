@@ -1832,12 +1832,20 @@ $('#pg-del').onclick = () => { if (!curPage) return toast('Click a page first');
 
 // ---------------------------------------------------------------- bar: undo, zoom, settings, export
 $('#undo').onclick = doUndo; $('#redo').onclick = doRedo;
+// the width one column has to show its pages in: with the panes, an equal share of the row of columns (not the
+// column's own width, which grows with the zoom, see #cols), else the desk
+function colWidth() {
+  const c = document.getElementById('cols');
+  if (!c || !document.body.classList.contains('panes')) return desk.clientWidth;
+  const n = (typeof dual !== 'undefined' && dual ? 2 : 1) + document.querySelectorAll('#cols > .gcol:not([hidden])').length;
+  return Math.floor(c.clientWidth / n) - 2;
+}
 function applyZoom(v) {
-  let z = +v;
-  if (v === 'width') z = Math.max(0.3, +((desk.clientWidth - 12) / 578).toFixed(3));
-  else if (v === 'fit' || v === 'two') { const w = desk.clientWidth - 48 - (v === 'two' ? 24 : 0); z = Math.max(0.3, Math.min(2, +(w / (v === 'two' ? 2 : 1) / 578).toFixed(3))); if (v === 'fit') z = Math.min(z, +((desk.clientHeight - 60) / 866).toFixed(3)); }
-  if (v === 'three') z = Math.max(0.2, Math.min(2, +((desk.clientWidth - 3 * 48 - 2 * 16) / 3 / 578).toFixed(3)));
-  book.style.setProperty('--zoom', z); gridLayout(); setTimeout(() => { Book.refresh(); place(); }, 50);
+  let z = +v; const cw = colWidth();
+  if (v === 'width') z = Math.max(0.3, +((cw - 16) / 578).toFixed(3));
+  else if (v === 'fit' || v === 'two') { const w = cw - 48 - (v === 'two' ? 24 : 0); z = Math.max(0.3, Math.min(2, +(w / (v === 'two' ? 2 : 1) / 578).toFixed(3))); if (v === 'fit') z = Math.min(z, +((desk.clientHeight - 60) / 866).toFixed(3)); }
+  if (v === 'three') z = Math.max(0.2, Math.min(2, +((cw - 3 * 48 - 2 * 16) / 3 / 578).toFixed(3)));
+  book.style.setProperty('--zoom', z); if (typeof setPaneZoom === 'function') setPaneZoom(z); gridLayout(); setTimeout(() => { Book.refresh(); place(); }, 50);
 }
 // the page zoom is kept per layout: with the panes (three editions side by side, default: fit the pane's width) and without
 function zoomKey() { let on = typeof gridOn === 'boolean' ? gridOn : null; if (on === null) { try { on = !phone && localStorage.getItem('book-grid') !== '0'; } catch (x) { on = !phone; } } return on ? 'book-zoom-p' : 'book-zoom'; }
@@ -2202,6 +2210,11 @@ Book.views.forEach((v, k) => {
   col.querySelector('.lineup').onclick = () => lineUpPane(v);
   desk.parentElement.insertBefore(col, $('#insp')); gcols[v] = col;
 });
+// The columns (the desk and the preview panes) sit in one row, #cols, that zooms like a canvas (Eric, 2026-10-27):
+// each column is at least as wide as its pages at the current zoom (--pz), so zooming in widens the columns and the
+// row scrolls sideways as a whole, instead of each column squeezing its pages into a fixed width.
+(() => { const c = h('<div id="cols"></div>'); deskBox.before(c); c.append(deskBox, ...Book.views.map(v => gcols[v])); c.style.setProperty('--pz', gridZoom()); })();
+function setPaneZoom(z) { const c = document.getElementById('cols'); if (c) c.style.setProperty('--pz', z); }
 function gridZoom() { return parseFloat(book.style.getPropertyValue('--zoom')) || 1; }   // the page zoom, shared by the panes
 function gridLayout() {
   if (gridRaf) return; gridRaf = setTimeout(() => { gridRaf = 0; gridApply(); }, 16);   // a timer, not rAF: rAF never fires while the tab is hidden
@@ -2230,7 +2243,7 @@ function gridApply() {
   Book.views.forEach(v => { gcols[v].hidden = !showCol(v); });
   if (shown.length) { commit(true); panePatch(); shown.forEach(v => { const fr = gcols[v].querySelector('iframe'); if (gcols[v].dataset.ready && fr.contentWindow) fr.contentWindow.postMessage({ gridRefresh: 1 }, '*'); }); }   // a pane that was hidden: bring it up to date, lay it out again
   placeLabels();
-  const layout = (gridOn ? 'p' : '1') + desk.clientWidth;   // the desk's width changed (panes shown or hidden, window resized): fit the zoom again
+  const layout = (gridOn ? 'p' : '1') + colWidth();   // the desk's width changed (panes shown or hidden, window resized): fit the zoom again
   if (layout !== gridApply.layout) { gridApply.layout = layout; if (/fit|two|three|width/.test($('#zoom').value)) return applyZoom($('#zoom').value); }
   if (!gridOn) return;
   const zoom = gridZoom();
@@ -2322,12 +2335,13 @@ $('#x-grid').onclick = () => {
 var pinch = null;   // { z0, z1, cx, cy (pointer, desk coords), els: [[el, ox, oy]] }
 function zoomAt(dy, cx0, cy0) {
   if (!pinch) {
-    const els = [book, ...document.querySelectorAll('.gcol:not([hidden]) iframe')].map(el => { const q = el.getBoundingClientRect(); return [el, cx0 - q.left, cy0 - q.top]; });
+    const cols = $('#cols'), cr = cols.getBoundingClientRect();
+    const els = [deskBox, ...document.querySelectorAll('.gcol:not([hidden])')].map(el => { const q = el.getBoundingClientRect(); return [el, cx0 - q.left, cy0 - q.top]; });   // every column scales about the same point: the whole row zooms like one picture
     const cq = book.getBoundingClientRect();
     const near = list => list.reduce((best, p) => { const q = p.getBoundingClientRect(); if (!q.height) return best; const d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !best || d < best.d ? { p, d, q } : best; }, null);
     const others = dual ? Object.values(dpanes).filter(sc => sc !== desk).map(sc => { const b = near([...sc.children].filter(n => n.matches('section.page'))); return b && [sc, b.p, (cy0 - b.q.top) / b.q.height]; }).filter(Boolean) : [];
     const pg = deskPages().reduce((best, p) => { const q = p.getBoundingClientRect(); if (!q.height) return best; const d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !best || d < best.d ? { p, d, q } : best; }, null);
-    pinch = { others, z0: gridZoom(), z1: gridZoom(), cx0, cy0, els, fx: (cx0 - cq.left) / cq.width, pg: pg && pg.p, fy: pg ? (cy0 - pg.q.top) / pg.q.height : 0 };
+    pinch = { cols, sx: cols.scrollLeft + cx0 - cr.left, sw: cols.scrollWidth, cl: cx0 - cr.left, others, z0: gridZoom(), z1: gridZoom(), cx0, cy0, els, fx: (cx0 - cq.left) / cq.width, pg: pg && pg.p, fy: pg ? (cy0 - pg.q.top) / pg.q.height : 0 };
     document.body.classList.add('zooming');
   }
   pinch.z1 = Math.max(0.15, Math.min(2.5, pinch.z1 * Math.exp(-dy * 0.01)));
@@ -2339,8 +2353,9 @@ function zoomAt(dy, cx0, cy0) {
 function endPinch() {
   const p = pinch; if (!p) return; pinch = null;
   p.els.forEach(([el]) => { el.style.transform = ''; el.style.transformOrigin = ''; });
-  book.style.setProperty('--zoom', +p.z1.toFixed(3));
+  book.style.setProperty('--zoom', +p.z1.toFixed(3)); setPaneZoom(+p.z1.toFixed(3));
   Book.refresh(); gridApply();
+  if (p.cols && p.sw) p.cols.scrollLeft = p.sx * p.cols.scrollWidth / p.sw - p.cl;   // sideways too, the point under the fingers stays put
   if (p.pg && p.pg.isConnected) { const q = p.pg.getBoundingClientRect(); desk.scrollTop += q.top + p.fy * q.height - p.cy0; }
   (p.others || []).forEach(([sc, pg, fy]) => { if (pg.isConnected) { const q = pg.getBoundingClientRect(); sc.scrollTop += q.top + fy * q.height - p.cy0; } });   // the other document's pane keeps its page under the fingers' height too
   document.body.classList.remove('zooming');
