@@ -6,7 +6,7 @@
 // the block on its page), Accept and Reject; suggestions with the same group label can be taken together. Blocks
 // with an open suggestion get a dashed teal outline on the page (data-ed-sug, never saved).
 //
-// Requests to Claude are ordinary comments that mention @Claude (tools/agent/tasks.py). Claude answers in the thread;
+// Requests to Claude are ordinary comments (every comment of Eric's, tools/agent/tasks.py). Claude answers in the thread;
 // a reply with suggestions carries data-sugs, and its "Suggestions" button opens this panel.
 function suggestInit() {
   if (window.Suggest || !window.Editor || typeof Book === 'undefined' || Book.mode !== 'edit') return;

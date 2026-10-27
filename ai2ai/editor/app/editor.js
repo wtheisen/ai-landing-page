@@ -2178,17 +2178,22 @@ function addComment(block, text) {
   commit(true); renderInspector(); placeMarkers();
   if (!text) openCommentPanel(true);
 }
-// @Claude: a comment that mentions @Claude, is the newest in its thread and isn't done is a request a scheduled Claude
-// session answers in the thread (tools/agent/tasks.py); its reply may carry data-sugs (suggestions it made).
+// Every comment is for Claude (Eric, 2026-10-27, no @Claude needed): the newest comment in a thread that isn't done and
+// isn't Claude's is a request a scheduled Claude session answers in the thread (tools/agent/tasks.py waiting(), same rule).
+// A bare Review verdict counts only as Fix it on a Claude reply without suggestions (with them, Fix it / Leave it accept
+// or reject them here). Claude's reply may carry data-sugs (suggestions it made).
 function askWaiting(c) {
-  if (!c || c.dataset.by === 'Claude' || !/@claude\b/i.test(c.textContent) || c.hasAttribute('data-done')) return false;
+  if (!c || c.dataset.by === 'Claude' || c.hasAttribute('data-done')) return false;
   const root = c.dataset.re ? book.querySelector(`.cmt[data-id="${CSS.escape(c.dataset.re)}"]`) || c : c, th = [root, ...cmtReplies(root)];
-  return th[th.length - 1] === c && !root.hasAttribute('data-done');
+  if (th[th.length - 1] !== c || root.hasAttribute('data-done')) return false;
+  if (c.textContent.trim()) return true;
+  const prev = th[th.length - 2];
+  return c.dataset.verdict === 'fix' && !!prev && prev.dataset.by === 'Claude' && !prev.dataset.sugs;
 }
 function commentItem(c, withWhere) {
   const done = c.hasAttribute('data-done'), d = h(`<div class="cmt-item ${done ? 'done' : ''}"><div class="meta"><b>${esc(c.dataset.by || '')}</b>${c.dataset.verdict ? `<span class="vd">${esc(c.dataset.verdict)}</span>` : ''}${c.dataset.re ? '<span>↳ reply</span>' : ''}<span>${esc(c.dataset.when || '')}</span><span class="sp"></span><button data-a="done">${done ? 'Reopen' : 'Resolve'}</button><button data-a="del">Delete</button></div><div class="txt" contenteditable="plaintext-only" spellcheck="true"></div></div>`);
   const txt = d.querySelector('.txt'); txt.textContent = c.textContent;
-  if (askWaiting(c)) d.querySelector('.meta').append(h('<span class="ask-wait" title="A scheduled Claude session answers @Claude comments within the hour (7am to 11pm)">waiting for Claude</span>'));
+  if (askWaiting(c)) d.querySelector('.meta').append(h('<span class="ask-wait" title="A scheduled Claude session answers comments within the hour (7am to 11pm)">waiting for Claude</span>'));
   if (c.dataset.sugs && c.dataset.by === 'Claude') { const b = h('<button class="ask-sugs">Suggestions</button>'); b.onclick = () => { if (window.Suggest) Suggest.open(); }; d.append(b); }
   txt.addEventListener('input', () => { const w = d.querySelector('.ask-wait'), on = askWaiting(c); if (on && !w) d.querySelector('.meta').append(h('<span class="ask-wait">will go to Claude</span>')); else if (!on && w) w.remove(); });
   txt.oninput = () => { c.textContent = txt.textContent; };
