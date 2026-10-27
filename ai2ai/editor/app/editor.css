@@ -581,3 +581,7 @@ body.qpool #insp, body.qpool #tg-insp, body.review #qpool { display: none; }
 body.qp-drag, body.qp-drag * { cursor: grabbing !important; }
 #qpool pre.qp-code { font: 10px/1.35 Consolas, Menlo, monospace; background: #f6f8fa; border-radius: 4px; padding: 4px 6px; margin: 4px 0; max-height: 180px; overflow: auto; white-space: pre; }
 .ed .dpane { row-gap: calc(24px * var(--zoom, 1)); }   /* the gaps between pages zoom with them, so a pinch preview and the result line up */
+
+/* the gap between a slide's code and its output drags the code's width (editor.js codeGapAt) */
+#book.ed-cwhover, #book.ed-cwhover * { cursor: col-resize !important; }
+.ed-cwtip { position: fixed; z-index: 100; pointer-events: none; background: #002b5b; color: #fff; font: 11px/1.2 var(--font-mono, monospace); padding: 3px 6px; border-radius: 3px; }

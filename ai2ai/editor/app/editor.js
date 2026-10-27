@@ -148,7 +148,7 @@ let commitT = 0, saveT = 0;
 // A block with data-pool="id" (figure, equation, code, table) appears once in the Lecture and once in the Reading.
 // Edit either copy and the other follows on the next commit; each keeps its own layout (size, class, blanks).
 var poolLast;   // pool id -> its content as of the last sync
-const POOL_LAYOUT = ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'setup', 'chain', 'norun', 'contenteditable', 'spellcheck', 'draggable'];   // per copy: layout, and how a code copy runs
+const POOL_LAYOUT = ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'setup', 'chain', 'norun', 'cw', 'contenteditable', 'spellcheck', 'draggable'];   // per copy: layout, and how a code copy runs
 function poolKey(el) { return Book.serializeBlock(el).replace(/ (style|class|data-view|data-fill|data-pool|data-b|setup|chain|norun)="[^"]*"/g, ''); }
 function poolSync() {
   const groups = {}; book.querySelectorAll('section.page > [data-pool]').forEach(el => { (groups[el.dataset.pool] = groups[el.dataset.pool] || []).push(el); });
@@ -627,6 +627,37 @@ function dropIn(pane, x, y, w) {
 }
 $('#grip').addEventListener('pointerdown', e => { if (sel) { e.preventDefault(); startDrag(e, sel); } });
 book.addEventListener('pointerdown', e => { const b = blockOf(e.target); if (e.target.closest && e.target.closest('.ed-code, .ed-coderun')) return; if (b && NOEDIT.test(b.tagName) && e.button === 0 && !(e.shiftKey || e.metaKey || e.ctrlKey)) { if (!(extra.length && allSel().includes(b))) select(b); if (e.pointerType !== 'touch') startDrag(e, b); } });
+// On a slide, the gap between a code cell and its output is a grip: drag it to set how wide the code is (cw, 20-80% in
+// steps of 5, Lecture only). The pair's two edges are the slide's text column, so the percentage is measured between them.
+function codeGapAt(e) {
+  const pg = e.target.closest && e.target.closest('section.page');
+  if (!pg || pg.classList.contains('cover') || Book.viewOf(pg) !== 'slides') return null;
+  for (const out of pg.querySelectorAll(':scope > b-code + b-out:not(.run-new)')) {
+    const code = out.previousElementSibling, a = code.getBoundingClientRect(), b = out.getBoundingClientRect();
+    if (b.left - a.right < 2 || e.clientX < a.right - 4 || e.clientX > b.left + 4) continue;
+    if (e.clientY < Math.min(a.top, b.top) || e.clientY > Math.max(a.bottom, b.bottom)) continue;
+    return { code, out, x0: a.left, x1: b.right };
+  }
+  return null;
+}
+book.addEventListener('pointermove', e => { if (e.buttons) return; book.classList.toggle('ed-cwhover', !!codeGapAt(e)); });
+book.addEventListener('pointerdown', e => {
+  const g = e.button === 0 && codeGapAt(e); if (!g) return;
+  e.preventDefault(); e.stopPropagation();
+  const { code, x0, x1 } = g, before = code.getAttribute('cw');
+  select(code);
+  const tip = document.createElement('div'); tip.setAttribute('data-ed', ''); tip.className = 'ed-cwtip'; document.body.append(tip);
+  const move = ev => {
+    const v = Math.max(20, Math.min(80, Math.round((ev.clientX - x0) / (x1 - x0) * 20) * 5));
+    if (code.getAttribute('cw') !== String(v)) { code.setAttribute('cw', v); place(); }
+    tip.textContent = `code ${v}%`; tip.style.left = ev.clientX + 12 + 'px'; tip.style.top = ev.clientY - 28 + 'px';
+  };
+  const up = () => {
+    removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); tip.remove();
+    if (code.getAttribute('cw') !== before) { commit(true); Book.refreshSoon(); if (sel === code) renderInspector(); }
+  };
+  addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up); move(e);
+}, true);
 $('#rsz').addEventListener('pointerdown', e => {
   if (!sel) return; e.preventDefault(); commit(true);
   const el = sel, pg = el.parentElement, pinned = Book.isPinned(el);
@@ -1199,6 +1230,18 @@ function codeInspector(el, add) {
       for (let k = 0; k < blocks.length; k++) { await runIntoOutput(blocks[k], run.lastChild, e.target); if (/error|Could not/.test(run.lastChild.textContent)) return; }
       run.lastChild.textContent = `Filled ${blocks.length} Output block${blocks.length === 1 ? '' : 's'}.`;
     };
+  }
+  if (el.tagName === 'B-CODE' && el.nextElementSibling && el.nextElementSibling.tagName === 'B-OUT') {
+    const cur = el.getAttribute('cw');
+    add(`<label>Width beside its output, on a slide</label>`);
+    const cwr = add(`<div class="row" style="display:flex;gap:6px;align-items:center"><input type="range" min="20" max="80" step="5" style="flex:1"><span class="mono" style="width:5.5em;font-size:11px"></span><button>Auto</button></div>`);
+    const rng = cwr.querySelector('input'), lab = cwr.querySelector('span');
+    const show = () => { const v = el.getAttribute('cw'); rng.value = v || 65; lab.textContent = v ? `code ${v}%` : 'auto'; };
+    rng.oninput = () => { el.setAttribute('cw', rng.value); show(); place(); };
+    rng.onchange = () => { commit(true); Book.refreshSoon(); };
+    cwr.querySelector('button').onclick = () => { el.removeAttribute('cw'); show(); commit(true); place(); Book.refreshSoon(); };
+    show();
+    add(`<div class="help">The Lecture puts code and its output side by side. Auto fits the code to its longest line; or drag the gap between them on the slide.</div>`);
   }
   add(`<label>Highlights (line:from-to:colour, separated by spaces)</label>`);
   const mk = add(`<input type="text" spellcheck="false" style="font-family:var(--font-mono);font-size:11px" placeholder="3:4-18:gold">`);
