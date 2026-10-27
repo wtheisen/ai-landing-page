@@ -31,7 +31,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
   zoom(); window.addEventListener('resize', zoom);
   if (grid) {
     document.documentElement.style.setProperty('--zoom', +q.get('zoom') || 0.5);
-    const st = document.createElement('style'); st.textContent = '#book section.page{height:var(--page-h)!important;min-height:0!important;padding-bottom:0!important;overflow:hidden!important;cursor:pointer} #book b-code[dual],#book b-code[dual]+b-out,#book b-matmul{display:none!important} #book .page[data-ed-stale]::before{content:\'Slides changed: \' attr(data-ed-stale);position:absolute;top:6px;right:6px;z-index:3;font:600 10.5px/1.4 system-ui,sans-serif;color:#7a5c00;background:#fff3cd;border:1px solid #e6cf7a;border-radius:3px;padding:1px 6px} #book section.page.gmatch{box-shadow:0 0 0 3px #dcb439} #book section.page{transition:opacity .15s} #book{padding-top:50vh!important;padding-bottom:50vh!important} #book[data-view=slides] section.page{zoom:calc(var(--zoom) * .6)} html,body{overscroll-behavior:none;overflow-x:hidden} #book{align-items:safe center}';
+    const st = document.createElement('style'); st.textContent = '#book section.page{height:var(--page-h)!important;min-height:0!important;padding-bottom:0!important;overflow:hidden!important;cursor:pointer} #book b-code[dual],#book b-code[dual]+b-out,#book b-matmul{display:none!important} #book .page[data-ed-stale]::before{content:\'Slides changed: \' attr(data-ed-stale);position:absolute;top:6px;right:6px;z-index:3;font:600 10.5px/1.4 system-ui,sans-serif;color:#7a5c00;background:#fff3cd;border:1px solid #e6cf7a;border-radius:3px;padding:1px 6px} #book section.page.gmatch{box-shadow:0 0 0 3px #dcb439} #book section.page{transition:opacity .15s} #book{padding-top:50vh!important;padding-bottom:50vh!important} #book[data-view=slides] section.page{zoom:calc(var(--zoom) * .6)} html,body{overscroll-behavior:none} #book{align-items:safe center}';
     document.head.append(st); document.querySelector('.navbar').style.display = 'none'; document.documentElement.style.background = 'transparent'; document.body.style.cssText = 'margin:0;background:transparent';
   }
   Book.chapter = ch; Book.base = '../c/' + ch + '/'; Book.web = !grid; Book.exporting = exporting; if (exporting) document.documentElement.dataset.exporting = '1';
@@ -142,13 +142,17 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       if ('gridDragOver' in d) dropAt(d.gridDragOver);
       if ('gridFocus' in d) { focus = d.gridFocus; applyFocus(); }
       if (d.gridScrollTo) scrollTo(d.gridScrollTo);
-      if (d.gridZoom) { const keep = anchor(); document.documentElement.style.setProperty('--zoom', d.gridZoom); Book.refresh(); if (keep) scrollTo(keep); }
+      if (d.gridZoom) {   // with at: a pinch here, so the point under the fingers stays put; else the page at the top does
+        const old = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--zoom')) || 1, keep = d.at ? null : anchor(), sx = scrollX, sy = scrollY;
+        document.documentElement.style.setProperty('--zoom', d.gridZoom); Book.refresh();
+        if (d.at) { const k = d.gridZoom / old; window.scrollTo((sx + d.at.x) * k - d.at.x, (sy + d.at.y) * k - d.at.y); } else if (keep) scrollTo(keep);
+      }
       if (d.gridReload) reload();
       if (d.gridPatch) patch(d.gridPatch);
       if (d.gridRefresh) patching = patching.then(async () => { await Book.ready(); Book.refresh(); if (Book.packWorkbook()) Book.refresh(); applyFocus(); });   // shown again after being hidden
       if (d.gridFig) document.querySelectorAll('#book b-fig').forEach(f => { if (f.getAttribute('src') === d.gridFig) Book.reloadFig(f); });
     });
-    window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); parent.postMessage({ gridWheel: { dy: e.deltaY, x: e.clientX, y: e.clientY } }, '*'); }, { passive: false });   // a pinch here zooms all the panes; plain scrolling is this pane's own
+    window.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); parent.postMessage({ gridWheel: { dy: e.deltaY, x: e.clientX, y: e.clientY } }, '*'); }, { passive: false });   // a pinch here zooms this pane (the editor scales it while the fingers move); plain scrolling is this pane's own
     ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => window.addEventListener(t, e => e.preventDefault(), { passive: false }));
     { const c = Book.pages()[0]; if (c) window.scrollTo(0, scrollY + c.getBoundingClientRect().top - 24); }   // start at the cover (above it is room to line pages up)
     document.documentElement.classList.add('ink-ghost');   // the panes show the blanks' answers faintly (never Present here)
