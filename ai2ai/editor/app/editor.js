@@ -63,6 +63,7 @@ if (info.offline && navigator.serviceWorker) {   // the offline edition: the ser
 if (info.offline) { const home = document.createElement('a'); home.href = '../'; home.id = 'home'; home.className = 'btnlink'; home.textContent = '⌂'; home.title = 'All chapters'; home.style.cssText = 'color:#fff;background:transparent;border-color:rgba(255,255,255,.35)'; $('#bar').prepend(home); }   // the offline edition (service worker) saves to this device; GitHub sync is separate
 
 function prep() {   // make text blocks editable; equations, figures and code are edited from the side panel
+  book.querySelectorAll('.tbox, .colbox').forEach(boxDivsToP);   // lines a browser made into <div>s are paragraphs
   // a figure, equation, code or table can't live inside a text box: lift it out (before the box if nothing comes
   // before it there, else after the box), so it is an ordinary block again
   book.querySelectorAll('.tbox > :is(b-fig, b-eq, b-code, b-out, b-matmul, table, svg), .colbox > :is(b-fig, b-eq, b-code, b-out, b-matmul, table, svg)').forEach(b => {
@@ -887,7 +888,7 @@ function listShortcut(host) {
   const plain = el => [...el.classList].every(c => c.startsWith('ed-'));
   let cont = null;
   if (host.tagName === 'P' && plain(host)) cont = host;
-  else if (box) { const pp = at.closest('p'); cont = pp && box.contains(pp) ? (plain(pp) ? pp : null) : (![...box.children].some(c => /^(P|UL|OL|DIV|H\d)$/.test(c.tagName)) ? box : null); }
+  else if (box) { const pp = at.closest('p') || [...box.children].find(c => c.tagName === 'DIV' && !c.className && c.contains(at)); cont = pp && box.contains(pp) ? (plain(pp) ? pp : null) : (![...box.children].some(c => /^(P|UL|OL|DIV|H\d)$/.test(c.tagName)) ? box : null); }
   if (!cont) return false;
   // the line the caret is on: from the last line break before it (Enter makes line breaks inside a paragraph)
   const r = document.createRange(); r.selectNodeContents(cont); r.setEnd(s.anchorNode, s.anchorOffset);
@@ -910,6 +911,15 @@ function listShortcut(host) {
   prep(); const tb = box || box2; select(tb ? (tb.classList.contains('colbox') ? tb.parentElement : tb) : list); focusIn(li, false); commit(true); Book.refresh(); place();
   return true;
 }
+// Some browsers (Safari) make a new line in a text box or column box a <div> rather than a <p>: turn those into
+// paragraphs as they appear (the caret stays where it was), so lists by typing and the layout treat them alike
+function boxDivsToP(box) {
+  const divs = [...box.children].filter(d => d.tagName === 'DIV' && !d.className && !d.attributes.length); if (!divs.length) return;
+  const s = getSelection(); let an = s.rangeCount ? s.anchorNode : null; const ao = s.rangeCount ? s.anchorOffset : 0;
+  divs.forEach(d => { const p = document.createElement('p'); p.append(...d.childNodes); d.replaceWith(p); if (an === d) an = p; });
+  if (an && an.isConnected && box.contains(an)) { const r = document.createRange(); r.setStart(an, Math.min(ao, an.nodeType === 3 ? an.length : an.childNodes.length)); r.collapse(true); s.removeAllRanges(); s.addRange(r); }
+}
+book.addEventListener('input', e => { const t = e.target; if (t && t.nodeType === 1 && isBox(t)) boxDivsToP(t); });
 // iPad and phone keyboards don't always send a usable keydown for the space, so the list shortcut listens here
 book.addEventListener('beforeinput', e => {
   if (e.inputType !== 'insertText' || e.data !== ' ') return;
@@ -2672,13 +2682,15 @@ function placeAdders() {
   const cx = focusOn ? r.left + r.width / 2 : span.left + span.width / 2;   // focus mode: line up with the page itself
   const [ax, ay] = deskXY({ left: cx, top: r.top - gap }), [bx, by] = deskXY({ left: cx, top: r.bottom + gap });
   const [up, down, del, cp] = padd.children;
+  const dr = desk.getBoundingClientRect(), inX = x => Math.max(dr.left + 16, Math.min(dr.right - 16, x));   // keep the side buttons inside the column (a gutter or the next column would hide them)
   cp.hidden = !Book.split || pg.classList.contains('cover');
   if (!cp.hidden) {   // beside the page, on the side the other document's column is on
-    const left = Book.views.indexOf(otherView()) < Book.views.indexOf(Book.view), [cx2, cy2] = deskXY({ left: left ? r.left - 22 : r.right + 22, top: r.top + Math.min(r.height / 2, 120) });
+    const left = Book.views.indexOf(otherView()) < Book.views.indexOf(Book.view), [cx2, cy2] = deskXY({ left: inX(left ? r.left - 22 : r.right + 22), top: r.top + Math.min(r.height / 2, 120) });
     cp.textContent = left ? '←' : '→'; cp.title = 'Copy this page into the ' + (docOf(Book.view) === 'reading' ? 'Lecture' : 'Reading') + ', level with it'; cp.style.left = cx2 + 'px'; cp.style.top = cy2 + 'px';
   }
-  del.hidden = !focusOn || Book.pages().length < 2;
-  if (!del.hidden) { const [dx, dy] = deskXY({ left: r.left, top: r.top }); del.style.left = dx + 'px'; del.style.top = dy + 'px'; }
+  // × beside the page's top corner (Eric, 2026-10-27: always there, like the + and → buttons), on the side the → is on
+  del.hidden = Book.pages().length < 2 || pg.classList.contains('cover');
+  if (!del.hidden) { const left = !cp.hidden && Book.views.indexOf(otherView()) < Book.views.indexOf(Book.view), [dx, dy] = deskXY({ left: inX(left ? r.left - 22 : r.right + 22), top: r.top + 16 }); del.style.left = dx + 'px'; del.style.top = dy + 'px'; }
   up.hidden = pg.classList.contains('cover'); up.style.left = ax + 'px'; up.style.top = ay + 'px';
   down.style.left = bx + 'px'; down.style.top = by + 'px';
 }
