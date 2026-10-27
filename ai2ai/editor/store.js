@@ -165,6 +165,48 @@ function clashCopy(page, when) {
   return page.replace(/^<section([^>]*?)\bid="([^"]*)"([^>]*)>/, (all, a, id, c) =>
     `<section${a}id="${id}-github"${c} data-clash="github">\n  <div class="cmt" data-by="Sync" data-when="${when}" data-kind="structure">This page was changed on two devices. This copy is the version on GitHub; the page before it is this device's. Keep one and delete the other.</div>`);
 }
+// A page changed on both sides is often one edit plus comments (an @Claude reply landing while Eric edits the page):
+// the comments are merged on their own, by identity, and put back after the block they follow, so the page doesn't
+// clash. Only when the page's content (everything but comments) changed on both sides does it clash.
+// (Same as tools/drive_sync.py merge_page.)
+const CMT_LINE = /^  <div class="cmt"[^>]*>.*<\/div>$/, BLOCK_START = /^  <(?!\/)/;
+function cmtKey(line) {
+  const a = {}; for (const m of line.slice(0, line.indexOf('>')).matchAll(/\s([\w-]+)="([^"]*)"/g)) a[m[1]] = m[2];
+  if (a['data-id']) return 'id:' + a['data-id'];
+  return `${a['data-re'] ? 're' : 'x'}:${a['data-re'] || ''}|${a['data-by'] || ''}|${a['data-when'] || ''}`;
+}
+const anchorOf = ln => { const m = /\sdata-b="([^"]*)"/.exec(ln.split('>')[0]); return m ? m[1] : '?' + ln.trim().slice(0, 40); };
+function splitPage(p) {
+  const content = [], cms = [], seen = {}; let anchor = '';
+  for (const ln of p.split('\n')) {
+    if (CMT_LINE.test(ln)) { let k = cmtKey(ln); const n = seen[k] || 0; seen[k] = n + 1; if (n) k += '#' + n; cms.push([k, ln, anchor]); continue; }
+    if (BLOCK_START.test(ln)) anchor = anchorOf(ln);
+    content.push(ln);
+  }
+  return [content, cms];
+}
+function mergePage(b, m, t) {
+  const [cb, kb] = splitPage(b), [cm, km] = splitPage(m), [ct, kt] = splitPage(t), eq = (x, y) => x.length === y.length && x.every((v, i) => v === y[i]);
+  let content;
+  if (eq(cm, ct) || eq(ct, cb)) content = cm; else if (eq(cm, cb)) content = ct; else return null;
+  const map = list => new Map(list.map(([k, l, a]) => [k, l + '\u0000' + a]));
+  const B = map(kb), M = map(km), T = map(kt);
+  const keys = [...km.map(x => x[0]), ...kt.map(x => x[0]).filter(k => !M.has(k))], final = [];
+  for (const k of keys) {
+    const vb = B.get(k), vm = M.get(k), vt = T.get(k);
+    const v = vm === vt ? vm : vm === vb ? vt : vt === vb ? vm : vm === undefined ? vt : vt === undefined ? vm : vm;
+    if (v !== undefined) final.push(v.split('\u0000'));
+  }
+  const anchors = new Set(content.filter(ln => BLOCK_START.test(ln)).map(anchorOf)), groups = new Map();
+  for (const [line, a] of final) { const g = anchors.has(a) ? a : ''; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(line); }
+  const out = []; let cur = '';
+  content.forEach((ln, i) => {
+    if (i > 0 && (BLOCK_START.test(ln) || ln === '</section>')) { out.push(...(groups.get(cur) || [])); groups.delete(cur); }
+    if (BLOCK_START.test(ln)) cur = anchorOf(ln);
+    out.push(ln);
+  });
+  return out.join('\n');
+}
 function mergeChapter(base, mine, theirs, when) {
   const B = chunks(base), M = chunks(mine), T = chunks(theirs), clashes = [];
   const head = mergeMeta(B.head, M.head, T.head, clashes);
@@ -175,6 +217,8 @@ function mergeChapter(base, mine, theirs, when) {
     if (t === b) return m === undefined ? [] : [m];          // only this device changed it (or deleted it)
     if (m === undefined) return [t];                          // deleted here, edited there: keep the edit
     if (t === undefined) return [m];                          // edited here, deleted there: keep the edit
+    const merged = b !== undefined ? mergePage(b, m, t) : null;  // the content changed on one side only, comments on both
+    if (merged !== null) return [merged];
     clashes.push(id); return [m, clashCopy(t, when)];
   };
   // this device's order, with pages that are new on GitHub slotted in after the page they follow there
