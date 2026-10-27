@@ -1,0 +1,39 @@
+/* Suggestions panel (suggest.js): edits proposed in chapters/<slug>/suggestions.json, accepted or rejected here */
+#sugs { display: none; width: 360px; flex: none; background: #fff; border-left: 1px solid var(--border); overflow: hidden; padding: 10px 10px 0; font-size: 13px; flex-direction: column; }
+body.sugs #sugs { display: flex; }
+body.sugs #insp, body.sugs #tg-insp, body.review #sugs { display: none; }
+#x-sugs.on { background: #e8f0fe; border-color: #1a73e8; }
+#x-sugs .badge { display: inline-block; min-width: 16px; padding: 0 4px; border-radius: 8px; background: #5AABBC; color: #fff; font-size: 11px; font-weight: 700; line-height: 16px; text-align: center; margin-left: 2px; }
+#sugs .sp { flex: 1; }
+#sugs .sg-top { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+#sugs .sg-top b { color: var(--navy); text-transform: uppercase; letter-spacing: .5px; font-size: 13px; }
+#sugs .sg-n { font-size: 11px; color: var(--ink-muted); }
+#sugs .sg-top button { padding: 1px 7px; }
+#sugs .sg-tools { display: flex; gap: 6px; align-items: center; font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
+#sugs .sg-tools label { display: flex; gap: 4px; align-items: center; }
+#sugs .sg-list { flex: 1; overflow-y: auto; margin: 0 -10px; padding: 2px 10px 14px; border-top: 1px solid var(--border); }
+#sugs .help { font-size: 12px; color: var(--ink-muted); line-height: 1.5; margin: 10px 0; }
+#sugs .sg-g { display: flex; gap: 6px; align-items: center; margin: 12px 0 0; font-weight: 700; color: var(--navy); font-size: 12px; }
+#sugs .sg-g button { font-weight: 400; padding: 1px 7px; font-size: 11px; }
+#sugs .sg-card { border: 1px solid var(--border); border-left: 3px solid #5AABBC; border-radius: 6px; padding: 7px 8px; margin-top: 8px; background: #fff; }
+#sugs .sg-card.done { opacity: .6; border-left-color: var(--border); }
+#sugs .sg-h { display: flex; gap: 5px; align-items: baseline; font-size: 12px; }
+#sugs .sg-h b { color: #2f7f8f; }
+#sugs .sg-by { font-size: 10.5px; color: var(--ink-muted); white-space: nowrap; }
+#sugs .sg-note { font-size: 12px; color: #333; margin: 4px 0 2px; font-style: italic; }
+#sugs .sg-diff { font: 12.5px/1.45 Georgia, serif; white-space: pre-wrap; margin: 5px 0; max-height: 220px; overflow: auto; background: #fafaf7; border-radius: 4px; padding: 5px 6px; }
+#sugs .sg-diff del { background: #fde2e1; color: #a1271f; text-decoration: line-through; }
+#sugs .sg-diff ins { background: #ddf4e4; color: #1d6b35; text-decoration: none; }
+#sugs .sg-warn { font-size: 11.5px; color: #8a5a00; background: #fff6dd; border-radius: 4px; padding: 3px 6px; margin: 4px 0; }
+#sugs .sg-st { font-size: 11px; color: var(--ink-muted); text-transform: capitalize; }
+#sugs .sg-b { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+#sugs .sg-b button { padding: 2px 9px; }
+#sugs .sg-b button.pri { background: #2f7f8f; color: #fff; border-color: #2f7f8f; }
+#sugs .sg-b button.pri:disabled { opacity: .4; }
+[data-ed-sug] { outline: 2px dashed #5AABBC; outline-offset: 3px; }
+[data-ed-sug="delete"] { opacity: .5; }
+[data-ed-sug-after] { box-shadow: 0 4px 0 -1px #5AABBC; }
+section.page[data-ed-sug-page] { box-shadow: 0 0 0 3px #5AABBC88; }
+.ed-sug-hot { outline: 2px solid #2f7f8f !important; outline-offset: 3px; }
+.ed-sug-flash { animation: sugflash 1.4s ease-out; }
+@keyframes sugflash { 0%, 40% { background: #5AABBC33; } 100% { background: transparent; } }

@@ -197,9 +197,23 @@ function mergeOther(base, mine, theirs) {
   return { data: mine, clash: true };
 }
 
+// suggestions.json / tasks.json (tools/agent): lists of items that are never deleted, so both sides' items are kept;
+// an item on both sides: a resolved/finished copy beats an open one, else the later one wins. Same rule as
+// tools/agent/suggestions.py merge().
+function mergeItems(mine, theirs) {
+  let M, T; try { M = JSON.parse(mine); T = JSON.parse(theirs); } catch (e) { return null; }
+  const done = i => (i.status || 'open') !== 'open', at = i => (i.resolved && i.resolved.when) || i.when || '';
+  const order = [], out = new Map();
+  for (const src of [T, M]) for (const it of (src.items || [])) {
+    if (!out.has(it.id)) { order.push(it.id); out.set(it.id, it); continue; }
+    const a = out.get(it.id); out.set(it.id, done(a) !== done(it) ? (done(a) ? a : it) : (at(a) >= at(it) ? a : it));
+  }
+  return JSON.stringify(Object.assign({}, T, M, { items: order.map(k => out.get(k)) }), null, 1) + '\n';
+}
+
 // ---------------------------------------------------------------- sync
 const OFFLINE_SKIP = /(^|\/)(markup|dist|\.history)\/|\.pdf$/;   // never needed to edit a chapter
-const CORE = p => /^chapters\/[^/]+\/chapter\.html$/.test(p) || p === 'chapters/toc.json';
+const CORE = p => /^chapters\/[^/]+\/(chapter\.html|suggestions\.json|tasks\.json)$/.test(p) || p === 'chapters/toc.json';   // always kept on the device
 let running = null;
 const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
 const Sync = {
@@ -242,6 +256,7 @@ const Sync = {
       const cur = await Store.get('files', l.path);
       let data, clash;
       if (/chapter\.html$/.test(l.path) && typeof cur.data === 'string') { const m = mergeChapter(base, cur.data, theirs, stamp()); data = m.text; clash = m.clashes.length ? m.clashes : null; }
+      else if (/\/(suggestions|tasks)\.json$/.test(l.path) && typeof cur.data === 'string' && typeof theirs === 'string' && mergeItems(cur.data, theirs)) { data = mergeItems(cur.data, theirs); clash = null; }
       else { const m = mergeOther(base, cur.data, theirs); data = m.data; clash = m.clash ? ['whole file'] : null; }
       const still = typeof data === 'string' && typeof theirs === 'string' ? data !== theirs : true;
       await Store.put('files', Object.assign(cur, { data, sha, dirty: still, rev: cur.rev + 1, t: Date.now() }));
@@ -298,5 +313,5 @@ const Sync = {
   },
 };
 
-G.AI2AI = { Store, Files, Sync, remote, config, blobSha, mimeOf, isText, OFFLINE_SKIP, mergeChapter };
+G.AI2AI = { Store, Files, Sync, remote, config, blobSha, mimeOf, isText, OFFLINE_SKIP, mergeChapter, mergeItems };
 })(typeof self !== 'undefined' ? self : window);

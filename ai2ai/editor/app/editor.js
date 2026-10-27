@@ -2219,7 +2219,7 @@ setRulers(rulersOn); placeMarkers();
 try { const v = localStorage.getItem('book-view-' + ch); if (v && v !== 'reading') setMode(v); } catch (x) {}
 mo.takeRecords();
 if (normalized) status.title = 'The file will be rewritten in the editor\'s fixed layout on the first save.';
-window.Editor = { onDeskScroll, guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
+window.Editor = { onDeskScroll, renderPages, guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
 document.dispatchEvent(new Event('editor-ready'));
 document.documentElement.dataset.ready = '1';
 
@@ -3318,6 +3318,7 @@ if (phone) {
   function setOn(v) {
     if (v === on) return;
     on = v; document.body.classList.toggle('qpool', on);
+    if (on && window.Suggest) Suggest.close();
     if (on && typeof revOn !== 'undefined' && revOn) setReview(false);
     if (!panel) {
       panel = document.createElement('aside'); panel.id = 'qpool'; $('#insp').after(panel);

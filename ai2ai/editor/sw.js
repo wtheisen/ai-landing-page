@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = '5411f224b8', KIT = '4b770b3e', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = '8669d4c8fe', KIT = '4b770b3e', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/
@@ -134,6 +134,13 @@ async function api(req, u, parts) {
     if (!hit) return json(404, { error: 'no script draws ' + q.get('fig') });
     if (typeof d.code === 'string' && d.code !== hit.file.data) { await Files.put(hit.file.path, d.code); soon(); }
     return json(200, { ok: false, out: '', err: 'Saved. Running figure scripts on this device is not built yet: the figure redraws the next time the script runs on the Mac.', home: hit.home });
+  }
+  if (kind === 'file') {   // suggestions.json / tasks.json beside the chapter (tools/agent)
+    const name = q.get('name') || '';
+    if (!['suggestions.json', 'tasks.json'].includes(name)) return json(400, { error: 'not a file the editor writes' });
+    const text = await req.text(); try { JSON.parse(text); } catch (e) { return json(400, { error: 'not JSON' }); }
+    await Files.put('chapters/' + ch + '/' + name, text); soon();
+    return json(200, { ok: true, local: true });
   }
   if (kind === 'eq') return json(422, { error: 'New equations can\'t be drawn on this device yet (coming soon). It will draw when the chapter is next opened on the Mac.' });
   if (kind === 'export') return json(500, { error: 'Export isn\'t available on this device yet. It will run on GitHub in a later update.' });
