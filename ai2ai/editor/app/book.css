@@ -464,7 +464,7 @@ html.lect #book > section.page, html.lect main.book > section.page { margin-left
    book.js Book.SIZES says the same for the measuring code; the exported page sets @page to match. */
 .book[data-view="slides"] { --page-w: 720pt; --page-h: 405pt; }
 .book[data-view="slides"] .cover { flex-direction: row-reverse; align-items: center; justify-content: space-between; gap: 28pt; padding: 28pt 40pt; }
-.book[data-view="slides"] .cover > b-fig { width: 44%; margin-top: 0; flex: none; }
+.book[data-view="slides"] .cover > b-fig { width: 44% !important; margin-top: 0; flex: none; }   /* !important: a width set on the cover art is for the 6 × 9 cover (ffn had 95.9%, which squeezed the title to one letter per line) */
 .book[data-view="slides"] .cover-text { flex: 1 1 0; min-width: 0; }
 /* on a slide a figure is never taller than --fig-h (default 230pt): its width is capped by its shape (--ar, set by
    book.js), and it sits in the middle of the column. s-sm / s-xs make it smaller still. */
