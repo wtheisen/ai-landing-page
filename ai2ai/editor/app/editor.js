@@ -148,8 +148,14 @@ let commitT = 0, saveT = 0;
 // A block with data-pool="id" (figure, equation, code, table) appears once in the Lecture and once in the Reading.
 // Edit either copy and the other follows on the next commit; each keeps its own layout (size, class, blanks).
 var poolLast;   // pool id -> its content as of the last sync
-const POOL_LAYOUT = ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'setup', 'chain', 'norun', 'cw', 'contenteditable', 'spellcheck', 'draggable'];   // per copy: layout, and how a code copy runs
-function poolKey(el) { return Book.serializeBlock(el).replace(/ (style|class|data-view|data-fill|data-pool|data-b|setup|chain|norun)="[^"]*"/g, ''); }
+// per copy: layout, and how a code copy runs (a hoisted function, so poolKey can use it before this line is reached)
+function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'setup', 'chain', 'norun', 'cw', 'contenteditable', 'spellcheck', 'draggable']; }
+const POOL_LAYOUT = poolLayoutAttrs();
+// the content two copies share: everything but the per-copy attributes (built from POOL_LAYOUT, so a new per-copy
+// attribute can't make the copies look different forever: cw did, and every commit swapped the copies, 2026-10-27)
+// (made on first use: poolSync can run before these lines are reached, like blockIds below)
+var POOL_ATTR;
+function poolKey(el) { POOL_ATTR = POOL_ATTR || new RegExp(' (' + poolLayoutAttrs().join('|') + ')="[^"]*"', 'g'); return Book.serializeBlock(el).replace(POOL_ATTR, ''); }
 function poolSync() {
   const groups = {}; book.querySelectorAll('section.page > [data-pool]').forEach(el => { (groups[el.dataset.pool] = groups[el.dataset.pool] || []).push(el); });
   if (!poolLast) { poolLast = {}; for (const id in groups) poolLast[id] = poolKey(groups[id][0]); return; }
@@ -160,6 +166,7 @@ function poolSync() {
     const k = keys.findIndex(x => x !== poolLast[id]); if (k < 0) continue;
     els.forEach((el, j) => {
       if (j === k || keys[j] === keys[k]) return;
+      if (el.contains(document.activeElement)) return;   // never swap out the copy being typed in (it would lose focus)
       const t = h(Book.serializeBlock(els[k]));
       for (const a of [...t.attributes]) if (POOL_LAYOUT.includes(a.name)) t.removeAttribute(a.name);
       for (const a of [...el.attributes]) if (POOL_LAYOUT.includes(a.name)) t.setAttribute(a.name, a.value);
@@ -2183,7 +2190,7 @@ function addComment(block, text) {
 // A bare Review verdict counts only as Fix it on a Claude reply without suggestions (with them, Fix it / Leave it accept
 // or reject them here). Claude's reply may carry data-sugs (suggestions it made).
 function askWaiting(c) {
-  if (!c || c.dataset.by === 'Claude' || c.hasAttribute('data-done')) return false;
+  if (!c || c.dataset.by === 'Claude' || c.dataset.by === 'Sync' || c.hasAttribute('data-done')) return false;
   const root = c.dataset.re ? book.querySelector(`.cmt[data-id="${CSS.escape(c.dataset.re)}"]`) || c : c, th = [root, ...cmtReplies(root)];
   if (th[th.length - 1] !== c || root.hasAttribute('data-done')) return false;
   if (c.textContent.trim()) return true;
