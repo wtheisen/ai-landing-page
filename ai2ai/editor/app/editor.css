@@ -55,7 +55,7 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 #insp { width: 290px; flex: none; background: #fff; border-left: 1px solid var(--border); overflow-y: auto; padding: 10px; }
 
 /* pages on the desk: fixed 6x9 sheets, overflow visible so you can see what runs over */
-.ed .book { display: flex; flex-flow: row wrap; justify-content: center; align-items: flex-start; gap: 24px; padding: 34px 24px 80px; }
+.ed .book { display: flex; flex-flow: row wrap; justify-content: safe center; align-items: flex-start; gap: 24px; padding: 34px 24px 80px; }
 .ed .page { height: var(--page-h); overflow: visible; }
 .ed .page.over { border-color: var(--red-text); }
 .ed .page.over::after { content: "content runs into the footer"; position: absolute; left: 0; right: 0; top: calc(var(--page-h) - 26pt); border-top: 1px dashed var(--red-text); color: var(--red-text); font-size: 7pt; text-align: right; padding-right: 4pt; pointer-events: none; }
@@ -183,7 +183,7 @@ body.ed-tool #book, body.ed-tool #book * { cursor: crosshair !important; }
 #pages.thumbs > li { min-height: 252px; }
 
 /* margins overlay, overflow counter, slash menu, help, history */
-#book.ed-margins .page:not(.cover)::before { content: ""; position: absolute; left: 24pt; right: 24pt; top: 20pt; height: 602pt; border: 1px dashed rgba(26,115,232,.45); border-bottom-color: rgba(204,0,0,.5); pointer-events: none; z-index: 3; }
+#book.ed-margins .page:not(.cover)::before { content: ""; position: absolute; left: 24pt; right: 24pt; top: 20pt; height: calc(var(--page-h) - 46pt); border: 1px dashed rgba(26,115,232,.45); border-bottom-color: rgba(204,0,0,.5); pointer-events: none; z-index: 3; }
 #x-over { background: var(--red-text) !important; color: #fff !important; border-color: var(--red-text) !important; font-weight: 700; }
 #x-over[hidden] { display: none; }
 #x-menu { position: fixed; background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 3px 12px rgba(0,0,0,.2); padding: 4px; z-index: 40; min-width: 200px; max-height: 320px; overflow-y: auto; }
@@ -503,7 +503,7 @@ body.panes #rev { order: 99; }   /* the review panel stays at the right edge, li
 /* a trackpad scroll is never quite vertical: the sideways part must not scroll a pane, chain to another, or bounce the window */
 html:has(body.ed), body.ed { overscroll-behavior: none; }
 .ed .dpane, #desk, .gcol iframe { overscroll-behavior: contain; }
-.ed .dpane { overflow-x: hidden; overflow-y: auto; }
+.ed .dpane { overflow-x: auto; overflow-y: auto; justify-content: safe center; }   /* zoomed past the pane's width: scroll sideways, the left edge stays reachable */
 .ed .dpane > .ed-cover { cursor: pointer; }   /* the Lecture pane's copy of the cover */
 .ed .dpane > .ed-cover > * { pointer-events: none; }
 .ed .dpane > .ed-cover:hover > .page { box-shadow: 0 0 0 2px rgba(26,115,232,.5); }
