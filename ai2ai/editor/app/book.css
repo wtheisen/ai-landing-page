@@ -69,6 +69,7 @@ b-m .c { font-weight: 700; }
 /* Ω in inline math is the weight matrix: ω stretched to capital height, as in the AI2AI Math font (scale from kit/build_math_font.py) */
 b-m .Om { display: inline-block; line-height: 1; transform: scaleY(1.355); transform-origin: 50% 80%; }
 b-m .c .Om { transform: scaleY(1.332); }
+.eqml-note .Om { display: inline-block; line-height: 1; transform: scaleY(1.355); transform-origin: 50% 80%; }   /* Ω in an equation's note: the tall ω too */
 .c.blue { color: var(--blue-text); } .c.gold { color: var(--yellow-text); } .c.purple { color: var(--purple-text); }
 .c.green { color: var(--green-text); } .c.red { color: var(--red-text); } .c.gray { color: #666666; } .c.wblue { color: #1155CC; }
 b-eq { display: block; border: 1px solid var(--border); border-radius: 4px; background: #fff; padding: 5pt 4pt; text-align: left; }
@@ -89,9 +90,9 @@ span.mono { font-family: var(--font-mono); }
 span.num { font-family: var(--font-mono); color: var(--gray-text); font-weight: 700; font-size: .94em; line-height: 1; }   /* numbers in running text: Consolas, dark grey, bold */
 [data-align="center"] { text-align: center; }   /* centred block: text, headings, an equation (its number moves with it) */
 ul[data-align="center"], ol[data-align="center"] { list-style-position: inside; padding-left: 0; }   /* Consolas in running text: numbers and technical bits (no box, unlike code) */
-.qc { font-size: 12pt; line-height: 1.3; background: var(--yellow-fill); border-radius: 4px; padding: 7pt 10pt; }
+/* every question is an old exam question (Eric, 2026-10-28): the diagrams' red, soft fill and a darker border */
+.qc { font-size: 12pt; line-height: 1.3; background: #F4CCCC; border: 1.2pt solid #E06666; border-radius: 4px; padding: 7pt 10pt; }
 .qc > b:first-child { color: var(--navy); }
-.qc.exam { background: #F4CCCC; border: 1.2pt solid #E06666; }   /* an old exam question: the diagrams' red (soft fill, darker border) */
 .qc details { margin-top: 5pt; } .qc summary { cursor: pointer; color: var(--navy); font-weight: 700; }
 .qc details p { margin-top: 4pt; }
 .callout { background: var(--surface-sunken); border-radius: 4px; padding: 7pt 11pt; color: var(--navy); }

@@ -1177,7 +1177,7 @@ document.addEventListener('selectionchange', () => { const n = getSelection().an
 
 // ---------------------------------------------------------------- side panel
 const KIND = el => el.localName === 'svg' ? 'Drawing' : el.tagName === 'B-EQ' ? 'Equation' : el.tagName === 'B-FIG' ? 'Figure' : el.tagName === 'B-CODE' ? 'Code' : el.tagName === 'B-OUT' ? 'Code output' : el.tagName === 'TABLE' ? 'Table'
-  : /^(UL|OL)$/.test(el.tagName) ? 'List' : el.classList.contains('qc') ? 'Quick check' : /^H\d$/.test(el.tagName) ? 'Heading' : el.tagName === 'B-ANSWERS' ? 'Quick-check answers' : el.tagName === 'B-TOC' ? 'Contents' : el.tagName === 'B-EMBED' ? 'Interactive' : 'Text';
+  : /^(UL|OL)$/.test(el.tagName) ? 'List' : el.classList.contains('qc') ? 'Exam question' : /^H\d$/.test(el.tagName) ? 'Heading' : el.tagName === 'B-ANSWERS' ? 'Quick-check answers' : el.tagName === 'B-TOC' ? 'Contents' : el.tagName === 'B-EMBED' ? 'Interactive' : 'Text';
 const TEXT_TYPES = [['p', '', 'Paragraph'], ['h2', '', 'Page title'], ['h3', '', 'Subheading'], ['p', 'aside', 'Note (small grey)'], ['div', 'callout', 'Callout']];
 function userClass(el) { return [...el.classList].filter(c => !c.startsWith('ed-') && !['over', 'busy', 'bad', 'live-on'].includes(c)).join(' '); }
 // ---------------------------------------------------------------- code blocks
@@ -1583,9 +1583,6 @@ function renderOneInspector() {
     add(`<div class="help">Enter adds an item. The classes below change the look: <code>cases</code> normal, <code>tight</code> small, <code>problems</code> numbered practice problems, <code>roadmap</code> the numbered road map.</div>`);
   } else if (el.classList.contains('qc')) {
     add(`<div class="help">The answer line shows here only. In the web edition it sits behind “Show answer”; in print it is listed on the answers page (wherever the chapter has a quick-check answers block).</div>`);
-    // old exam questions get the diagrams' red box (Eric, 2026-10-28): class "exam"
-    const ex = add(`<label class="check"><input type="checkbox" ${el.classList.contains('exam') ? 'checked' : ''}>Old exam question (red box)</label>`);
-    ex.querySelector('input').onchange = e => { commit(true); el.classList.toggle('exam', e.target.checked); commit(true); Book.refresh(); place(); };
   }
   if ((/^(P|DIV|UL|OL)$/.test(el.tagName) && el.isContentEditable && !el.querySelector(':scope > div, :scope > dl')) || /^(UL|OL)$/.test(el.tagName) || el.classList.contains('colrow')) columnsControl(el, add);
   add('<hr>');
@@ -3339,7 +3336,6 @@ if (phone) {
   function copyOf(q, pg) {
     const t = q.el.cloneNode(true);
     POOL_ATTRS.forEach(a => t.removeAttribute(a)); t.setAttribute('data-qsrc', q.id);
-    if (/^(ex\d|oldex)/.test(q.id)) t.classList.add('exam');   // from an old exam: the red box
     const num = document.createElement('b'); num.textContent = 'Q' + nextNumber(pg) + '.';
     const lead = [...t.childNodes].find(n => n.nodeType === 1 || n.nodeValue.trim());
     const first = lead && lead.nodeType === 1 && lead.localName === 'p' ? lead : t;

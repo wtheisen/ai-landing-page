@@ -65,7 +65,7 @@ function one(tex, colors, display) {
 function render(rows, colors) {
   const cm = texColors(colors);
   return '<div class="eqml" role="math">' + rows.map(r => r[0] === 'eq'
-    ? `<div class="eqml-n">${r[1] ? '[' + esc(r[1]) + ']' : ''}</div><div class="eqml-e">${r[2] ? `<div class="eqml-note">${esc(r[2])}</div>` : ''}${one(r[3], cm, true)}</div>`
+    ? `<div class="eqml-n">${r[1] ? '[' + esc(r[1]) + ']' : ''}</div><div class="eqml-e">${r[2] ? `<div class="eqml-note">${esc(r[2]).replace(/Ω/g, '<span class="Om">ω</span>')}</div>` : ''}${one(r[3], cm, true)}</div>`
     : `<div class="eqml-n"></div><div class="eqml-s"><span class="eqml-arrow">↓</span>${one(r[1], cm, false)}</div>`).join('') + '</div>';
 }
 let fonts = false;

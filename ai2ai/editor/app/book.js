@@ -237,7 +237,8 @@ class BEq extends HTMLElement {
   render() {
     Book.numberEquations();
     const rows = this.rows();
-    const key = hash(JSON.stringify([rows, Book.meta.colors || {}, Book.kit]));
+    // a note with Ω is drawn with the tall ω since 2026-10-28: the extra 'om' gives those equations a new image
+    const key = hash(JSON.stringify([rows, Book.meta.colors || {}, Book.kit].concat(rows.some(r => r[0] === 'eq' && r[2] && r[2].includes('Ω')) ? ['om'] : [])));
     if (key === this._key) return this._done;
     this._key = key;
     const url = Book.url('eq/' + key + '.svg');
