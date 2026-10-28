@@ -319,6 +319,20 @@ function eaiInk(opts) {
     var H = document.documentElement, KEY = 'ai2ai-lect-zoom', k = 1;
     try { k = +localStorage.getItem(KEY) || 1; } catch (x) {}
     H.classList.add('lect');
+    // Safari's own page zoom must never happen here: it zooms the pen bar too and throws the pen off its mark. Block it in
+    // the viewport (Chrome, home-screen apps) and in CSS (book.css: double tap), and if it happens anyway (Safari may
+    // ignore both), put the page back at scale 1 by rewriting the viewport tag, which makes Safari re-apply it.
+    var vp = document.querySelector('meta[name=viewport]');
+    if (!vp) { vp = document.createElement('meta'); vp.name = 'viewport'; document.head.appendChild(vp); }
+    var VP = 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+    vp.setAttribute('content', VP);
+    function unzoom() {
+      var v = window.visualViewport; if (!v || v.scale < 1.01) return;
+      vp.setAttribute('content', VP.replace('initial-scale=1', 'initial-scale=0.99'));
+      setTimeout(function () { vp.setAttribute('content', VP); window.scrollTo(0, 0); }, 30);
+    }
+    if (window.visualViewport) { var ut = 0; visualViewport.addEventListener('resize', function () { clearTimeout(ut); ut = setTimeout(unzoom, 250); }); }
+    addEventListener('gestureend', function () { setTimeout(unzoom, 300); });
     function fit() { var pg = book.querySelector('section.page'), W = window.Book && Book.pageW ? Book.pageW(Book.view) : pg ? pgW(pg) : 432; return Math.min(1, (innerWidth - 32) / (W * 4 / 3)); }   // the view's own fit-the-width zoom (view.html)
     window.eaiZoomK = k;
     function apply() { H.style.setProperty('--zoom', +(fit() * k).toFixed(4)); }
@@ -339,9 +353,11 @@ function eaiInk(opts) {
     var raf = 0, want = null;
     function soon(nk, x, y) { want = [nk, x, y]; if (!raf) raf = requestAnimationFrame(function () { raf = 0; zoomTo(want[0], want[1], want[2]); }); }
     var g0 = 1;   // Safari (iPad, Mac trackpad): gesture events carry the pinch scale
-    addEventListener('gesturestart', function (e) { e.preventDefault(); g0 = k; }, { passive: false });
-    addEventListener('gesturechange', function (e) { e.preventDefault(); soon(g0 * e.scale, e.clientX || innerWidth / 2, e.clientY || innerHeight / 2); }, { passive: false });
-    addEventListener('gestureend', function (e) { e.preventDefault(); }, { passive: false });
+    var page = false;   // the page itself is zoomed (Safari): let this pinch go to Safari so it can zoom back out
+    function pageZoomed() { return !!(window.visualViewport && visualViewport.scale > 1.01); }
+    addEventListener('gesturestart', function (e) { page = pageZoomed(); if (page) return; e.preventDefault(); g0 = k; }, { passive: false });
+    addEventListener('gesturechange', function (e) { if (page) return; e.preventDefault(); soon(g0 * e.scale, e.clientX || innerWidth / 2, e.clientY || innerHeight / 2); }, { passive: false });
+    addEventListener('gestureend', function (e) { if (!page) e.preventDefault(); page = false; }, { passive: false });
     if (!('ongesturestart' in window)) {   // other touch screens: two fingers
       var t0 = null;
       var dist = function (t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); };

@@ -476,6 +476,8 @@ html.lect .chap-head .navbar { display: none !important; }
 html.lect .chap-head .ink-sub { padding-top: calc(.3rem + var(--top-clear, 0px)); }
 html.lect #book, html.lect main.book { flex: 1 1 auto; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-x pan-y; align-items: flex-start; }
 html.lect #book > section.page, html.lect main.book > section.page { margin-left: auto; margin-right: auto; flex: none; }
+/* no page zoom in Lecture mode: a double tap on the pen bar used to zoom the whole page (and the pen then missed); pinches go to lectureZoom */
+html.lect, html.lect body, html.lect .chap-head, html.lect .chap-head * { touch-action: manipulation; }
 /* Lecture and Workbook pages are 16:9 slides, 10 × 5.625 in (Eric, 2026-10-26); the Reading stays a 6 × 9 page.
    book.js Book.SIZES says the same for the measuring code; the exported page sets @page to match. */
 .book[data-view="slides"] { --page-w: 720pt; --page-h: 405pt; }
