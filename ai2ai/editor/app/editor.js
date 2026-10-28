@@ -706,7 +706,20 @@ function clearSel() {
   const hit = [];
   while (n && n !== host) { if (/^(B|I|CODE|EM|STRONG|U)$/.test(n.tagName) || n.matches('span.key, span.mono, span.num')) hit.push(n); n = n.parentElement; }
   if (!r.collapsed) host.querySelectorAll('b,i,code,em,strong,u,span.key,span.mono,span.num').forEach(e => { if (r.intersectsNode(e) && !hit.includes(e) && !e.closest('.ans, th') ) hit.push(e); });
-  hit.forEach(unwrap); commit(true);
+  if (r.collapsed) { hit.forEach(unwrap); return commit(true); }   // just a caret: clear the formatting it sits in
+  // A selection clears only the selected text (2026-10-28: it used to unwrap every formatted element the selection
+  // touched, so text outside the selection lost its formatting too). Mark both ends, split each formatted element at
+  // the marks so none crosses them, then unwrap the formatted elements between the marks.
+  const FMT = e => e && e !== host && e.nodeType === 1 && (/^(B|I|CODE|EM|STRONG|U)$/.test(e.tagName) || e.matches('span.key, span.mono, span.num'));
+  const mark = () => { const m = document.createElement('span'); m.setAttribute('data-clear-mark', ''); return m; };
+  const mS = mark(), mE = mark(), re = r.cloneRange(); re.collapse(false); re.insertNode(mE); const rs = r.cloneRange(); rs.collapse(true); rs.insertNode(mS);
+  const split = m => { for (let p = m.parentElement; FMT(p); p = m.parentElement) { const right = p.cloneNode(false); while (m.nextSibling) right.append(m.nextSibling); p.after(m); m.after(right); } };
+  split(mS); split(mE);
+  const mid = document.createRange(); mid.setStartAfter(mS); mid.setEndBefore(mE);
+  [...host.querySelectorAll('b,i,code,em,strong,u,span.key,span.mono,span.num')].filter(e => mid.intersectsNode(e) && !e.closest('.ans, th')).forEach(unwrap);
+  host.querySelectorAll('b,i,code,em,strong,u,span.key,span.mono,span.num').forEach(e => { if (!e.textContent && !e.querySelector('b-m, br, img')) e.remove(); });   // halves the split left empty
+  const keep = document.createRange(); keep.setStartAfter(mS); keep.setEndBefore(mE); mS.remove(); mE.remove(); host.normalize();
+  s.removeAllRanges(); s.addRange(keep); commit(true);
 }
 const ALIAS = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', theta: 'θ', lambda: 'λ', mu: 'μ', sigma: 'σ', phi: 'φ', varphi: 'φ', eta: 'η', rho: 'ρ', tau: 'τ', omega: 'ω', xi: 'ξ',
   Sigma: 'Σ', sum: 'Σ', ge: '≥', geq: '≥', le: '≤', leq: '≤', ne: '≠', neq: '≠', cdot: '·', times: '×', pm: '±', in: '∈', approx: '≈', infty: '∞', sqrt: '√', norm: '‖', half: '½', prime: '′', yhat: 'ŷ', to: '→', partial: '∂' };
