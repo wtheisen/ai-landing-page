@@ -491,10 +491,13 @@ $('#blockbar').addEventListener('click', e => {
 
 // ---------------------------------------------------------------- drag: reorder in the flow, or move a pinned block freely (with snapping)
 var dragMoved = false;
-function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer and is dropped; the original stays where it is
+// autoPin (a figure dragged by its body, Eric 2026-10-28): the first move within this document pins it where it is and it
+// follows the pointer freely; moving it between paragraphs is the ⠿ handle's job
+function startDrag(e, el, copyMode, autoPin) {   // copyMode: a copy follows the pointer and is dropped; the original stays where it is
   const group = allSel().includes(el) && extra.length ? inOrder(allSel()) : [el];
+  if (group.length > 1 || copyMode) autoPin = false;
   const mates = copyMode ? [] : group.filter(b => b !== el && Book.isPinned(b)).map(b => [b, parseFloat(b.style.left), parseFloat(b.style.top)]);
-  const pinned = Book.isPinned(el) && !copyMode, x0 = e.clientX, y0 = e.clientY;
+  let pinned = Book.isPinned(el) && !copyMode; const x0 = e.clientX, y0 = e.clientY;
   let ghost = null;
   let moved = false, target = null;
   const pg0 = el.parentElement, r0 = el.getBoundingClientRect(), q0 = pg0.getBoundingClientRect();
@@ -538,9 +541,16 @@ function startDrag(e, el, copyMode) {   // copyMode: a copy follows the pointer 
       dropIn(under.parentElement, q.left + 24 * s, yy, (Book.pageW(under) - 48) * s);
       return;
     } else if (xpane) { xpane = null; dropIn(null); hideBadge(); if (!copyMode) { el.classList.add('ed-dragging'); if (ghost) { ghost.remove(); ghost = null; } } }   // back in this document: a move again
+    if (autoPin && !pinned) {   // pin it right where it is (same as the pushpin), wrapping the text beside it
+      const pg = el.parentElement, s = ptScale(pg), r = el.getBoundingClientRect(), q = pg.getBoundingClientRect();
+      el.style.position = 'absolute'; el.style.left = ((r.left - q.left) / s).toFixed(1) + 'pt'; el.style.top = ((r.top - q.top) / s).toFixed(1) + 'pt'; el.style.width = (r.width / s).toFixed(1) + 'pt';
+      el.classList.add('wrap'); pinned = true; origin[0] = el.style.left; origin[1] = el.style.top;
+    }
     if (pinned) {
       const pg = el.parentElement, s = ptScale(pg), q = pg.getBoundingClientRect();
-      let x = (r0.left - q0.left + ev.clientX - x0) / s, y = (r0.top - q0.top + ev.clientY - y0 + desk.scrollTop - scroll0) / s;
+      // keep the grabbed point under the pointer, measured against the page as it is now (scrolling, or the pane
+      // switching under the first click, can't throw it off)
+      let x = (ev.clientX - (x0 - r0.left) - q.left) / s, y = (ev.clientY - (y0 - r0.top) - q.top) / s;
       const w = r0.width / s, hh = r0.height / s;
       gx.hidden = gy.hidden = true;
       if (!ev.altKey) {
@@ -636,7 +646,7 @@ function dropIn(pane, x, y, w) {
   drop2.hidden = false; Object.assign(drop2.style, { left: (x - d.left + pane.scrollLeft) + 'px', top: (y - d.top + pane.scrollTop) + 'px', width: w + 'px' });
 }
 $('#grip').addEventListener('pointerdown', e => { if (sel) { e.preventDefault(); startDrag(e, sel); } });
-book.addEventListener('pointerdown', e => { const b = blockOf(e.target); if (e.target.closest && e.target.closest('.ed-code, .ed-coderun')) return; if (b && NOEDIT.test(b.tagName) && e.button === 0 && !(e.shiftKey || e.metaKey || e.ctrlKey)) { if (!(extra.length && allSel().includes(b))) select(b); if (e.pointerType !== 'touch') startDrag(e, b); } });
+book.addEventListener('pointerdown', e => { const b = blockOf(e.target); if (e.target.closest && e.target.closest('.ed-code, .ed-coderun')) return; if (b && NOEDIT.test(b.tagName) && e.button === 0 && !(e.shiftKey || e.metaKey || e.ctrlKey)) { if (!(extra.length && allSel().includes(b))) select(b); if (e.pointerType !== 'touch') startDrag(e, b, false, b.tagName === 'B-FIG' && !Book.isPinned(b)); } });
 // On a slide, the gap between a code cell and its output is a grip: drag it to set how wide the code is (cw, 20-80% in
 // steps of 5, Lecture only). The pair's two edges are the slide's text column, so the percentage is measured between them.
 function codeGapAt(e) {
@@ -1535,7 +1545,7 @@ function renderOneInspector() {
       const pr = add(`<div class="row">Proportions: stretched <button title="Back to the picture's own width-to-height ratio, keeping the width">Restore</button></div>`);
       pr.querySelector('button').onclick = () => { commit(true); el.style.removeProperty('aspect-ratio'); el.applyCrop(); commit(true); Book.refresh(); renderInspector(); };
     }
-    add(`<div class="help">Drag a corner to resize; hold Shift to keep the proportions.</div>`);
+    add(`<div class="help">Drag a corner to resize; hold Shift to keep the proportions. Drag the picture itself to place it anywhere on the page (it pins there, text wraps around it); drag the ⠿ handle to move it between paragraphs instead.</div>`);
     add(`<label>Description (alt text)</label>`); const alt = add(`<input type="text" value="${esc(el.getAttribute('alt') || '')}">`);
     alt.oninput = () => { if (alt.value) el.setAttribute('alt', alt.value); else el.removeAttribute('alt'); };
   } else if (el.tagName === 'B-EMBED') {

@@ -492,6 +492,9 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
    output (right). An empty output (run-new: just the Run bar) stays under its code. */
 .book[data-view="slides"] .page:not(.cover) { display: grid; grid-template-columns: fit-content(64%) minmax(0, 1fr); column-gap: 10pt; row-gap: var(--gap, 10pt); align-content: start; }
 .book[data-view="slides"] .page:not(.cover) > * { grid-column: 1 / -1; }
+/* a pinned block is placed from the page's edge, not from inside the grid (a grid column would make left: count from the
+   page margin, so pinning a picture on a slide made it jump sideways by the margin; 2026-10-28) */
+.book[data-view="slides"] .page:not(.cover) > [style*="absolute"] { grid-column: auto; grid-row: auto; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { font-size: 8.6pt; overflow: hidden; }
