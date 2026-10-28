@@ -91,6 +91,7 @@ span.num { font-family: var(--font-mono); color: var(--gray-text); font-weight: 
 ul[data-align="center"], ol[data-align="center"] { list-style-position: inside; padding-left: 0; }   /* Consolas in running text: numbers and technical bits (no box, unlike code) */
 .qc { font-size: 12pt; line-height: 1.3; background: var(--yellow-fill); border-radius: 4px; padding: 7pt 10pt; }
 .qc > b:first-child { color: var(--navy); }
+.qc.exam { background: #F4CCCC; border: 1.2pt solid #E06666; }   /* an old exam question: the diagrams' red (soft fill, darker border) */
 .qc details { margin-top: 5pt; } .qc summary { cursor: pointer; color: var(--navy); font-weight: 700; }
 .qc details p { margin-top: 4pt; }
 .callout { background: var(--surface-sunken); border-radius: 4px; padding: 7pt 11pt; color: var(--navy); }

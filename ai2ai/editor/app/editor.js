@@ -1331,6 +1331,11 @@ function startCodeEdit(el, ev) {
   const ta = document.createElement('textarea');
   ta.setAttribute('data-ed', ''); ta.className = 'ed-code'; ta.spellcheck = false; ta.wrap = 'off'; ta.value = el.src;
   ta.style.top = area.offsetTop + 'px'; ta.style.left = area.offsetLeft + 'px';
+  // the typing layer must match the drawn code exactly: its size (8.6pt on tight slides, outputs beside code) and its
+  // line height (each .ln is at least 1.42em, a little more than the 1.4 line height); a mismatch offset selections
+  const acs = getComputedStyle(area), ln = !isOut && area.querySelector('.ln'), lcs = ln && getComputedStyle(ln);
+  ta.style.fontSize = acs.fontSize;
+  ta.style.lineHeight = Math.max(parseFloat(acs.lineHeight) || 0, lcs ? parseFloat(lcs.minHeight) || 0 : 0) + 'px';
   el.append(ta);
   let run = null;
   if (!isOut && el.getAttribute('lang') === 'python') {
@@ -1359,7 +1364,7 @@ function startCodeEdit(el, ev) {
   if (ev) {
     // measure on screen (the canvas may be zoomed): one character's width and one line's height as drawn
     const probe = document.createElement('span'); probe.setAttribute('data-ed', ''); probe.textContent = '0000000000';
-    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font:inherit;font-family:var(--font-mono);font-size:9.4pt;line-height:1.4';
+    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;font:inherit;font-family:var(--font-mono);font-size:' + ta.style.fontSize + ';line-height:' + ta.style.lineHeight;
     el.append(probe); const pr = probe.getBoundingClientRect(); probe.remove();
     const r = ta.getBoundingClientRect(), cs = getComputedStyle(ta), z = pr.height / (parseFloat(cs.lineHeight) || pr.height) || 1;
     const cw = pr.width / 10 || 7, lh = pr.height || 13, lines = ta.value.split('\n');
@@ -1576,7 +1581,12 @@ function renderOneInspector() {
     lt.onchange = () => { commit(true); const n = document.createElement(lt.value); for (const a of el.attributes) if (a.name !== 'contenteditable' && a.name !== 'spellcheck') n.setAttribute(a.name, a.value); while (el.firstChild) n.append(el.firstChild); el.replaceWith(n); prep(); select(n); commit(true); Book.refresh(); };
     add(`<div class="help">Tab nests an item under the one above; Shift+Tab lifts it back out.</div>`);
     add(`<div class="help">Enter adds an item. The classes below change the look: <code>cases</code> normal, <code>tight</code> small, <code>problems</code> numbered practice problems, <code>roadmap</code> the numbered road map.</div>`);
-  } else if (el.classList.contains('qc')) add(`<div class="help">The answer line shows here only. In the web edition it sits behind “Show answer”; in print it is listed on the answers page (wherever the chapter has a quick-check answers block).</div>`);
+  } else if (el.classList.contains('qc')) {
+    add(`<div class="help">The answer line shows here only. In the web edition it sits behind “Show answer”; in print it is listed on the answers page (wherever the chapter has a quick-check answers block).</div>`);
+    // old exam questions get the diagrams' red box (Eric, 2026-10-28): class "exam"
+    const ex = add(`<label class="check"><input type="checkbox" ${el.classList.contains('exam') ? 'checked' : ''}>Old exam question (red box)</label>`);
+    ex.querySelector('input').onchange = e => { commit(true); el.classList.toggle('exam', e.target.checked); commit(true); Book.refresh(); place(); };
+  }
   if ((/^(P|DIV|UL|OL)$/.test(el.tagName) && el.isContentEditable && !el.querySelector(':scope > div, :scope > dl')) || /^(UL|OL)$/.test(el.tagName) || el.classList.contains('colrow')) columnsControl(el, add);
   add('<hr>');
   if (Book.isPinned(el)) {
@@ -3329,6 +3339,7 @@ if (phone) {
   function copyOf(q, pg) {
     const t = q.el.cloneNode(true);
     POOL_ATTRS.forEach(a => t.removeAttribute(a)); t.setAttribute('data-qsrc', q.id);
+    if (/^(ex\d|oldex)/.test(q.id)) t.classList.add('exam');   // from an old exam: the red box
     const num = document.createElement('b'); num.textContent = 'Q' + nextNumber(pg) + '.';
     const lead = [...t.childNodes].find(n => n.nodeType === 1 || n.nodeValue.trim());
     const first = lead && lead.nodeType === 1 && lead.localName === 'p' ? lead : t;
