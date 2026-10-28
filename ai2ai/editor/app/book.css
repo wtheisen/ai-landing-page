@@ -284,7 +284,7 @@ b-code[dual]::after { content: 'code version of the equation above'; display: bl
 .dual > b-code[dual] { border-left: 0; } .dual > b-code[dual]::after { content: none; }
 .dual:not([data-face="math"]) > [data-f="math"], .dual:not([data-face="code"]) > [data-f="code"], .dual:not([data-face="mat"]) > [data-f="mat"] { display: none; }
 /* Matrices (eaiMatmul in book.js): a step-by-step walk through the matrix arithmetic behind an equation */
-b-matmul { display: block; border: 1px solid var(--border); border-radius: 4px; background: #fff; padding: 6pt 8pt; font-family: var(--font-mono); font-size: 0.62em; line-height: 1.25; }
+b-matmul { display: block; border: 1px solid var(--border); border-radius: 4px; background: #fff; padding: 6pt 8pt; font-family: var(--font-mono); font-size: 0.62em; line-height: 1.25; min-height: var(--mm-h, 0); box-sizing: border-box; }
 b-matmul[dual]:not([data-f]) { border-left: 3pt solid var(--gold, #DCB439); }
 b-matmul[dual]:not([data-f])::after { content: 'matrix walk-through of the equation above'; display: block; font: 9pt Arial, sans-serif; color: var(--ink-muted); padding-top: 4pt; }
 .mm-bar { display: flex; align-items: center; gap: 6pt; font-family: var(--font-sans, Arial), sans-serif; font-size: 1.15em; color: var(--ink-muted); margin-bottom: 6pt; }

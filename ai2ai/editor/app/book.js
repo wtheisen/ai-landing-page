@@ -616,7 +616,7 @@ function attrs(el) {
     if (n === 'class') { v = v.split(/\s+/).filter(c => c && !c.startsWith('ed-') && c !== 'live-on' && c !== 'over' && c !== 'busy' && c !== 'bad').join(' '); if (!v) continue; }
     if (n === 'style') {
       if (INLINE_STYLE_DROP.test(el.localName) && !Book.isPinned(el)) continue;
-      v = v.split(';').map(d => d.trim()).filter(d => d && !d.startsWith('--gap') && !d.startsWith('--ar')).join('; '); if (!v) continue;
+      v = v.split(';').map(d => d.trim()).filter(d => d && !d.startsWith('--gap') && !d.startsWith('--ar') && !d.startsWith('--mm-h')).join('; '); if (!v) continue;
     }
     s += ` ${n}="${escAttr(v)}"`;
   }
@@ -747,10 +747,28 @@ function eaiMatmul() {
       var c = e.target.closest && e.target.closest('[data-role="c"] .mm-c'); if (c) pick(+c.getAttribute('data-i'), +c.getAttribute('data-j'));
     };
     el.onpointerover = function (e) { var c = e.target.closest && e.target.closest('[data-role="c"] .mm-c'); if (c && e.pointerType === 'mouse') pick(+c.getAttribute('data-i'), +c.getAttribute('data-j')); };
-    el._tallest = function () { var keep = at, h = 0; el.style.minHeight = ''; for (at = 0; at < steps.length; at++) { draw(); h = Math.max(h, el.offsetHeight); } at = keep; draw(); return h; };
-    if (steps.length) draw(); else el.innerHTML = '<div class="mm-err">Matrices: no steps yet</div>';
+    // the tallest it gets: every step, and in each step every cell of the result picked (the sum written out under the
+    // matrices wraps to more lines for some cells than others)
+    el._tallest = function () {
+      var keep = at, h = 0; el.style.minHeight = ''; el.style.removeProperty('--mm-h');
+      for (at = 0; at < steps.length; at++) {
+        draw(); var C = V[steps[at].out] || [[0]];
+        for (var i = 0; i < C.length; i++) for (var j = 0; j < C[0].length; j++) { pick(i, j); h = Math.max(h, el.offsetHeight); }
+      }
+      at = keep; draw(); return h;
+    };
+    // a block on its own keeps that height, so stepping through it (or hovering its cells) never moves the page under it
+    // (Eric, 2026-10-28); inside a Math | Code pair eaiDual does the same for the whole pair. --mm-h is never saved.
+    el._lockH = function (tries) {
+      var p = el.parentElement; if (p && p.classList.contains('dual') && p.querySelector(':scope > b-eq')) return;   // a Math | Code pair: eaiDual locks it
+      if (!el.offsetParent) { if ((tries || 0) < 20) setTimeout(function () { el._lockH((tries || 0) + 1); }, 500); return; }   // not laid out yet
+      var h = el._tallest(); if (h) el.style.setProperty('--mm-h', h + 'px');
+    };
+    if (steps.length) { draw(); requestAnimationFrame(function () { el._lockH(); }); if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { el._lockH(); }); }
+    else el.innerHTML = '<div class="mm-err">Matrices: no steps yet</div>';
   }
   window.eaiMatmulOne = one;
+  var rz = 0; window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { [].forEach.call(document.querySelectorAll('b-matmul'), function (el) { if (el._lockH) el._lockH(); }); }, 250); });
   [].forEach.call(document.querySelectorAll('b-matmul'), function (el) { if (!el._mm) { el._mm = 1; one(el); } });
 }
 // Math / Code: an equation followed by <b-code dual> (its code version) becomes one block with a Math | Code switch.
