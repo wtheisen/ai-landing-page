@@ -720,7 +720,7 @@ function eaiMatmul() {
     var at = 0;
     function draw() {
       // ◀ ▶ together on the left, the title after them, the step counter on the right (Eric, 2026-10-28)
-      var st = steps[at], h = '<div class="mm-bar"><button type="button" data-g="-1"' + (at ? '' : ' disabled') + '>◀</button><button type="button" data-g="1"' + (at < steps.length - 1 ? '' : ' disabled') + '>▶</button><span class="mm-t">' + (st.title || '') + '</span><span class="mm-n">Step ' + (at + 1) + ' of ' + steps.length + '</span></div><div class="mm-row">';
+      var st = steps[at], h = '<div class="mm-bar"><span class="mm-n">Step ' + (at + 1) + ' of ' + steps.length + '</span><span class="mm-t">' + (st.title || '') + '</span><button type="button" data-g="-1"' + (at ? '' : ' disabled') + '>◀</button><button type="button" data-g="1"' + (at < steps.length - 1 ? '' : ' disabled') + '>▶</button></div><div class="mm-row">';
       if (st.op === 'T') h += mat(st.a, 'a') + '<span class="mm-op">→</span>' + mat(st.out, 'c');
       else if (st.op === 'mul') h += mat(st.a, 'a') + '<span class="mm-op">·</span>' + mat(st.b, 'b') + '<span class="mm-op">=</span>' + mat(st.out, 'c');
       else if (st.op === 'add') h += mat(st.a, 'a') + '<span class="mm-op">+</span>' + mat(st.b, 'b') + '<span class="mm-op">=</span>' + mat(st.out, 'c');

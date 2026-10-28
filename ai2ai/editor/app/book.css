@@ -289,7 +289,7 @@ b-matmul { display: block; border: 1px solid var(--border); border-radius: 4px; 
 b-matmul[dual]:not([data-f]) { border-left: 3pt solid var(--gold, #DCB439); }
 b-matmul[dual]:not([data-f])::after { content: 'matrix walk-through of the equation above'; display: block; font: 9pt Arial, sans-serif; color: var(--ink-muted); padding-top: 4pt; }
 .mm-bar { display: flex; align-items: center; gap: 6pt; font-family: var(--font-sans, Arial), sans-serif; font-size: 1.15em; color: var(--ink-muted); margin-bottom: 6pt; }
-.mm-bar .mm-t { flex: 1; text-align: left; padding-left: 4pt; }
+.mm-bar .mm-t { flex: 1; text-align: left; padding: 0 4pt; }
 .mm-bar .mm-n { white-space: nowrap; }
 .mm-calc { display: flex; flex-direction: column; gap: 4pt; font-size: 1.25em; padding: 2pt 0; }
 .mm-out { font-weight: 700; }
