@@ -135,6 +135,9 @@ figure { margin: 0; }
 b-fig { display: block; width: 100%; align-self: center; }
 b-fig.sm { width: 80%; align-self: center; }
 b-fig[live] { width: 90%; align-self: center; }
+/* a figure on the left or right of the column instead of the middle (inspector: Align; !important beats the slides' auto margins) */
+b-fig[data-align="left"] { align-self: flex-start; margin-left: 0 !important; margin-right: auto !important; }
+b-fig[data-align="right"] { align-self: flex-end; margin-left: auto !important; margin-right: 0 !important; }
 b-fig svg, b-fig img { display: block; width: 100%; height: auto; }
 b-fig.live-on > svg:not(.live) { display: none; }
 svg.live { background: #fafafa; touch-action: none; border-radius: 4px; }

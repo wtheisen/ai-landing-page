@@ -152,7 +152,7 @@ let commitT = 0, saveT = 0;
 // Edit either copy and the other follows on the next commit; each keeps its own layout (size, class, blanks).
 var poolLast;   // pool id -> its content as of the last sync
 // per copy: layout, and how a code copy runs (a hoisted function, so poolKey can use it before this line is reached)
-function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'setup', 'chain', 'norun', 'cw', 'contenteditable', 'spellcheck', 'draggable']; }
+function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'data-align', 'setup', 'chain', 'norun', 'cw', 'contenteditable', 'spellcheck', 'draggable']; }
 const POOL_LAYOUT = poolLayoutAttrs();
 // the content two copies share: everything but the per-copy attributes (built from POOL_LAYOUT, so a new per-copy
 // attribute can't make the copies look different forever: cw did, and every commit swapped the copies, 2026-10-27)
@@ -1508,6 +1508,10 @@ function renderOneInspector() {
       add(`<label>Width: <span id="f-wv">${w}</span>% of the text column</label>`);
       const r = add(`<input type="range" min="15" max="100" value="${w}">`);
       r.oninput = () => { el.classList.remove('sm'); el.style.width = r.value + '%'; insp.querySelector('#f-wv').textContent = r.value; place(); commit(); };
+      // left / centre / right in the column (Eric, 2026-10-28): data-align="left|right", centre is the default (no attribute)
+      const cur = el.getAttribute('data-align') === 'left' || el.getAttribute('data-align') === 'right' ? el.getAttribute('data-align') : 'center';
+      const al = add(`<div class="row seg">Align ${[['left', 'Left'], ['center', 'Centre'], ['right', 'Right']].map(([v, l]) => `<button data-al="${v}" class="${v === cur ? 'on' : ''}">${l}</button>`).join('')}</div>`);
+      al.onclick = e => { const v = e.target.dataset && e.target.dataset.al; if (!v) return; commit(true); if (v === 'center') el.removeAttribute('data-align'); else el.setAttribute('data-align', v); commit(true); Book.refresh(); place(); renderInspector(); };
     }
     if (el.stretched && el.stretched()) {
       const pr = add(`<div class="row">Proportions: stretched <button title="Back to the picture's own width-to-height ratio, keeping the width">Restore</button></div>`);
