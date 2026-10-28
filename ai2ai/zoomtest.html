@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pen zoom test</title>
+<style>
+  /* same layout as the Lecture view (book.css html.lect): a bar on top, the page scrolls in its own box */
+  html, body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; font: 15px -apple-system, Helvetica, Arial, sans-serif; color: #222; background: #e9ecef; }
+  body { display: flex; flex-direction: column; }
+  #bar { flex: none; background: #002B5B; color: #fff; padding: 10px 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  #bar b { font-weight: 600; }
+  #bar button { font: inherit; padding: 6px 12px; border-radius: 6px; border: 0; background: #DCB439; color: #002B5B; font-weight: 600; }
+  #book { flex: 1 1 auto; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding: 16px; }
+  #page { position: relative; width: min(92vw, 900px); aspect-ratio: 16 / 9; margin: 0 auto; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.2); touch-action: none; -webkit-user-select: none; user-select: none; }
+  .dot { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; border: 3px solid #E06666; box-sizing: border-box; }
+  .dot::after { content: ''; position: absolute; left: 7px; top: 7px; width: 2px; height: 2px; background: #E06666; }
+  .dot span { position: absolute; left: 18px; top: -4px; font-size: 13px; color: #E06666; white-space: nowrap; font-weight: 600; }
+  .hit { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: #1155CC; pointer-events: none; }
+  #help { position: absolute; left: 4%; top: 62%; right: 22%; text-align: left; color: #666; font-size: 14px; pointer-events: none; }
+  #log { width: min(92vw, 900px); margin: 14px auto; font: 12px Menlo, Consolas, monospace; white-space: pre-wrap; color: #333; }
+</style>
+</head>
+<body>
+<div id="bar"><b>Pen zoom test</b> <span id="state"></span> <button id="copy">Copy results</button> <button id="clear">Clear</button></div>
+<div id="book">
+  <div id="page">
+    <div id="help">1. Tap each red dot once with the Pencil (not zoomed).<br>2. Pinch-zoom the whole page (bar included), then tap each dot again.<br>3. Press Copy results and paste them to Claude (or screenshot this page).</div>
+    <div class="dot" style="left:10%;top:15%"><span>A</span></div>
+    <div class="dot" style="left:50%;top:50%"><span>B</span></div>
+    <div class="dot" style="left:88%;top:85%"><span>C</span></div>
+  </div>
+  <div id="log"></div>
+</div>
+<script>
+(function () {
+  var page = document.getElementById('page'), log = document.getElementById('log'), st = document.getElementById('state'), rows = [];
+  function r2(x) { return Math.round(x * 100) / 100; }
+  function vv() { var v = window.visualViewport; return v ? { scale: r2(v.scale), offL: r2(v.offsetLeft), offT: r2(v.offsetTop), pageL: r2(v.pageLeft), pageT: r2(v.pageTop), w: r2(v.width), h: r2(v.height) } : null; }
+  function showState() { var v = vv(); st.textContent = v ? 'zoom ' + v.scale + '  offset ' + v.offL + ', ' + v.offT : 'no visualViewport'; }
+  if (window.visualViewport) { visualViewport.addEventListener('resize', showState); visualViewport.addEventListener('scroll', showState); }
+  showState();
+  page.addEventListener('pointerdown', function (e) {
+    e.preventDefault();
+    var pr = page.getBoundingClientRect(), best = null, bd = 1e9;
+    [].forEach.call(page.querySelectorAll('.dot'), function (d) {   // the dot meant: nearest in the page's own fractions, so a large offset still picks the right one
+      var r = d.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, dd = Math.hypot(cx - e.clientX, cy - e.clientY);
+      if (dd < bd) { bd = dd; best = { name: d.textContent, cx: cx, cy: cy }; }
+    });
+    var row = {
+      dot: best.name, type: e.pointerType, vv: vv(), dpr: window.devicePixelRatio, inner: [innerWidth, innerHeight], scroll: [r2(scrollX), r2(scrollY)], bookScroll: [r2(document.getElementById('book').scrollLeft), r2(document.getElementById('book').scrollTop)],
+      client: [r2(e.clientX), r2(e.clientY)], pageXY: [r2(e.pageX), r2(e.pageY)], screen: [r2(e.screenX), r2(e.screenY)],
+      dotCentre: [r2(best.cx), r2(best.cy)], pageRect: [r2(pr.left), r2(pr.top), r2(pr.width), r2(pr.height)],
+      miss: [r2(e.clientX - best.cx), r2(e.clientY - best.cy)]
+    };
+    rows.push(row);
+    var h = document.createElement('div'); h.className = 'hit';   // where the pen would draw: the same sum as ink.js toPt
+    h.style.left = ((e.clientX - pr.left) / pr.width * 100) + '%'; h.style.top = ((e.clientY - pr.top) / pr.height * 100) + '%'; page.appendChild(h);
+    log.textContent = rows.map(function (r, i) { return (i + 1) + '. dot ' + r.dot + ' (' + r.type + ')  zoom ' + (r.vv && r.vv.scale) + '  missed by ' + r.miss[0] + ', ' + r.miss[1] + ' px'; }).join('\n');
+  });
+  document.getElementById('copy').onclick = function () {
+    var t = JSON.stringify({ ua: navigator.userAgent, rows: rows });
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { st.textContent = 'Copied ' + rows.length + ' taps'; }, function () { prompt('Copy this:', t); });
+  };
+  document.getElementById('clear').onclick = function () { rows = []; log.textContent = ''; [].forEach.call(page.querySelectorAll('.hit'), function (h) { h.remove(); }); };
+})();
+</script>
+</body>
+</html>
