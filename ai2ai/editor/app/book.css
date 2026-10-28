@@ -289,7 +289,17 @@ b-matmul { display: block; border: 1px solid var(--border); border-radius: 4px; 
 b-matmul[dual]:not([data-f]) { border-left: 3pt solid var(--gold, #DCB439); }
 b-matmul[dual]:not([data-f])::after { content: 'matrix walk-through of the equation above'; display: block; font: 9pt Arial, sans-serif; color: var(--ink-muted); padding-top: 4pt; }
 .mm-bar { display: flex; align-items: center; gap: 6pt; font-family: var(--font-sans, Arial), sans-serif; font-size: 1.15em; color: var(--ink-muted); margin-bottom: 6pt; }
-.mm-bar span { flex: 1; text-align: center; }
+.mm-bar .mm-t { flex: 1; text-align: left; padding-left: 4pt; }
+.mm-bar .mm-n { white-space: nowrap; }
+.mm-calc { display: flex; flex-direction: column; gap: 4pt; font-size: 1.25em; padding: 2pt 0; }
+.mm-out { font-weight: 700; }
+.mm-tbl { width: 100%; font-family: var(--font-sans, Arial), sans-serif; }
+.mm-tbl table { margin: 0 auto; }
+.mm-tbl .tbl, .mm-tbl .tbl.small { font-size: 11pt; } .mm-tbl .tbl th { font-size: 10pt; }
+.mm-tbl .tbl :is(td, th) { padding: 2pt 4pt; }
+/* a table that is a walk-through's last step: on screen only inside the walk-through, printed (and in the editor) as itself */
+b-matmul + table.mm-final { display: none; }
+body.ed b-matmul + table.mm-final, .measure-print b-matmul + table.mm-final { display: table !important; }
 .mm-bar button { border: 1px solid var(--border); background: var(--surface); border-radius: 4px; padding: 1pt 7pt; cursor: pointer; font: inherit; color: var(--navy); }
 .mm-bar button:disabled { opacity: .3; cursor: default; }
 .mm-row { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4pt 8pt; }
@@ -302,6 +312,7 @@ b-matmul[dual]:not([data-f])::after { content: 'matrix walk-through of the equat
 .mm-lab { font-family: var(--font-math, var(--font-mono)); font-weight: 700; font-size: 1.2em; }
 .mm-lab small { font-weight: 400; color: var(--ink-muted); font-size: .7em; }
 .mm-op { font-size: 1.5em; color: var(--ink-muted); }
+.mm-say:empty { display: none; }
 .mm-say { margin-top: 7pt; padding-top: 5pt; border-top: 1px dashed var(--border); font-size: 1.1em; white-space: normal; }
 .mm-say b { color: var(--navy); }
 .mm-note { margin-top: 4pt; font-family: var(--font-sans, Arial), sans-serif; font-size: 1.1em; color: var(--ink-muted); }
@@ -319,7 +330,7 @@ b-matmul[dual]:not([data-f])::after { content: 'matrix walk-through of the equat
 .dual-tabs { align-self: flex-end; display: inline-flex; gap: 2px; padding: 2px; background: var(--surface-sunken); border-radius: 6px; font: 11px Arial, sans-serif; margin-bottom: -2pt; }
 .dual-tabs button { border: 0; background: none; color: var(--ink-muted); padding: 3px 9px; border-radius: 4px; cursor: pointer; font: inherit; }
 .dual-tabs button.on { background: var(--surface); color: var(--navy); font-weight: 700; box-shadow: 0 0 0 1px var(--border); }
-@media print { b-code[dual], b-code[dual] + b-out, b-matmul, .dual-tabs { display: none !important; } .dual > b-eq[data-f] { display: block !important; } .dual { min-height: 0 !important; } }
+@media print { b-code[dual], b-code[dual] + b-out, b-matmul, .dual-tabs { display: none !important; } b-matmul + table.mm-final { display: table !important; } .dual > b-eq[data-f] { display: block !important; } .dual { min-height: 0 !important; } }
 .run-figs { padding: 4pt 7pt; border-top: 1px solid var(--border); } .run-figs img { display: block; max-width: 100%; margin: 0 auto 4pt; }
 .run-figs + pre, b-out pre:empty { display: none; }
 

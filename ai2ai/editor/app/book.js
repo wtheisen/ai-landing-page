@@ -684,7 +684,10 @@ Book.serialize = () => [Book.metaSource(), ...Book.docNodes().map(n => block(n, 
 // The PDF and the editor never see any of this: the bar is web-only and only the published page and the viewer start it.
 // Self-contained on purpose: Book.snapshot() copies this function's source into the published page.
 // Matrices: <b-matmul spec='{"vars":{"X":[[1,2],…]},"steps":[{"op":"mul","a":"X","b":"w","out":"ŷ"}],"colors":{"X":"blue"}}'>
-// walks through the matrix arithmetic behind an equation, one step at a time. Steps: T (transpose), mul, add, inv (2×2).
+// walks through the matrix arithmetic behind an equation, one step at a time. Steps: T (transpose), mul, add, inv (2×2),
+// calc ({"op":"calc","lines":[["h₁","σ(10·50 − …)","σ(−15)","0"], …]}: one worked line per row, the cells joined by =,
+// HTML allowed, the first cell is the name) and table (shows the table right after the block, which carries class
+// mm-final: on screen that table only appears as this last step, printed it stands in for the walk-through; Eric 2026-10-28).
 // Tapping (or hovering) a cell of a product lights the row and column it comes from and writes the sum out in full.
 // In a Math | Code pair it becomes a third face, "Matrices" (see eaiDual). Not printed.
 function eaiMatmul() {
@@ -716,15 +719,22 @@ function eaiMatmul() {
     }
     var at = 0;
     function draw() {
-      var st = steps[at], h = '<div class="mm-bar"><button type="button" data-g="-1"' + (at ? '' : ' disabled') + '>◀</button><span>Step ' + (at + 1) + ' of ' + steps.length + (st.title ? ': ' + st.title : '') + '</span><button type="button" data-g="1"' + (at < steps.length - 1 ? '' : ' disabled') + '>▶</button></div><div class="mm-row">';
+      // ◀ ▶ together on the left, the title after them, the step counter on the right (Eric, 2026-10-28)
+      var st = steps[at], h = '<div class="mm-bar"><button type="button" data-g="-1"' + (at ? '' : ' disabled') + '>◀</button><button type="button" data-g="1"' + (at < steps.length - 1 ? '' : ' disabled') + '>▶</button><span class="mm-t">' + (st.title || '') + '</span><span class="mm-n">Step ' + (at + 1) + ' of ' + steps.length + '</span></div><div class="mm-row">';
       if (st.op === 'T') h += mat(st.a, 'a') + '<span class="mm-op">→</span>' + mat(st.out, 'c');
       else if (st.op === 'mul') h += mat(st.a, 'a') + '<span class="mm-op">·</span>' + mat(st.b, 'b') + '<span class="mm-op">=</span>' + mat(st.out, 'c');
       else if (st.op === 'add') h += mat(st.a, 'a') + '<span class="mm-op">+</span>' + mat(st.b, 'b') + '<span class="mm-op">=</span>' + mat(st.out, 'c');
       else if (st.op === 'inv') h += mat(st.a, 'a') + '<span class="mm-op">→</span>' + mat(st.out, 'c');
+      else if (st.op === 'calc') h += '<div class="mm-calc">' + (st.lines || []).map(function (l) { return '<div class="mm-line"><span class="mm-out">' + l[0] + '</span> = ' + l.slice(1).join(' = ') + '</div>'; }).join('') + '</div>';
+      else if (st.op === 'table') { var t = el.nextElementSibling; h += t && t.tagName === 'TABLE' ? '<div class="mm-tbl"></div>' : '<div class="mm-err">Matrices: a table step needs the table right after this block</div>'; }
       h += '</div><div class="mm-say"></div>' + (st.note ? '<div class="mm-note">' + st.note + '</div>' : '');
-      el.innerHTML = h; pick(0, 0);
+      el.innerHTML = h;
+      var box = el.querySelector('.mm-tbl');
+      if (box) { var c = el.nextElementSibling.cloneNode(true); c.removeAttribute('data-b'); c.classList.remove('mm-final'); box.appendChild(c); }
+      pick(0, 0);
     }
     function pick(i, j) {
+      if (steps[at].op === 'calc' || steps[at].op === 'table') return;
       var st = steps[at], A = V[st.a], B = V[st.b], C = V[st.out], say = el.querySelector('.mm-say');
       [].forEach.call(el.querySelectorAll('.mm-c'), function (c) { c.classList.remove('on', 'src'); });
       var cell = function (role, r, c) { return el.querySelector('[data-role="' + role + '"] .mm-c[data-i="' + r + '"][data-j="' + c + '"]'); };
