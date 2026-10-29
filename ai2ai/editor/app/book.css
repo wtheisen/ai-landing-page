@@ -213,6 +213,8 @@ b-answers { display: flex; }
 
 /* ---------- drawings: an <svg class="draw"> block in the text flow, or one page-sized overlay per page ---------- */
 svg.draw { display: block; width: 100%; height: auto; align-self: center; overflow: visible; }
+/* a drawing given a size (in pt) never runs wider than its column: a drawing sized on a slide fits the 6 × 9 Workbook (2026-10-29) */
+svg.draw:not(.overlay):not([style*="absolute"]) { max-width: 100%; }
 svg.draw.overlay { position: absolute; left: 0; top: 0; width: var(--page-w); height: var(--page-h); pointer-events: none; }
 b-ref a.bad { color: var(--red-text); }
 .page { isolation: isolate; }   /* lets a pinned block with z-index:-1 sit behind the text but above the paper */

@@ -128,7 +128,10 @@ function overlayOf(pg, create) {
   return o;
 }
 function marker(svg, color) {   // arrowhead in the line's colour, shared per drawing
-  const hex = color.replace('#', '').toUpperCase(), id = 'ah' + hex;
+  // ids are per drawing (ah<colour>-<block id>): Chrome takes the first element with an id, and when that one sits in a
+  // hidden page (the other document's, in a split chapter) its arrowheads don't draw at all (2026-10-29)
+  const pg = svg.closest && svg.closest('section.page'), own = svg.getAttribute('data-b') || (pg && pg.id ? 'p-' + pg.id : '');
+  const hex = color.replace('#', '').toUpperCase(), id = 'ah' + hex + (own ? '-' + own : '');
   let defs = svg.querySelector(':scope > defs');
   if (!defs) { defs = svgEl('defs'); svg.prepend(defs); }
   if (![...defs.children].some(m => m.id === id)) {
@@ -446,6 +449,11 @@ book.addEventListener('dblclick', e => {
   if (shapes.length !== 1) return;
   if (/^(polygon|polyline)$/.test(shapes[0].localName) && hit(layer, e.clientX, e.clientY) === shapes[0]) { ptMode = !ptMode; return drawHandles(); }
   if (shapes[0].localName === 'text') { e.preventDefault(); editLabel(shapes[0]); }
+  else if (shapes[0].localName === 'g') {   // a tile (box + label grouped): edit the label under the pointer, the group stays (2026-10-29)
+    const t = [...shapes[0].querySelectorAll('text')].reverse().find(n => { const r = n.getBoundingClientRect(); return e.clientX >= r.left - 3 && e.clientX <= r.right + 3 && e.clientY >= r.top - 3 && e.clientY <= r.bottom + 3; })
+      || (shapes[0].querySelectorAll('text').length === 1 ? shapes[0].querySelector('text') : null);
+    if (t) { e.preventDefault(); editLabel(t); }
+  }
 });
 book.addEventListener('pointermove', e => {   // show that a shape can be grabbed
   if (e.buttons || tool !== 'select') return;
