@@ -464,6 +464,9 @@ function splitPage(el) {
 // a copy is its own block: never linked to what it was copied from (Eric, 2026-10-26: editing a copy changed the original)
 function unpool(n) { if (n && n.removeAttribute) { n.removeAttribute('data-pool'); n.querySelectorAll('[data-pool]').forEach(x => x.removeAttribute('data-pool')); } return n; }
 function duplicate(el) { commit(true); const c = unpool(h(Book.serializeBlock(el))); el.after(c); prep(); select(c); commit(true); Book.refresh(); }
+// a figure resized by hand on a slide keeps the size it was given: the slide cap (book.css: at most --fig-h tall) stops applying to it
+// (Eric, 2026-10-29: "many images that I can't actually scale larger")
+function uncap(el) { if (el && el.matches('b-fig') && !el.classList.contains('cover-art') && Book.viewOf(el.parentElement) === 'slides') el.style.setProperty('--fig-h', 'none'); }
 function togglePin(el) {
   commit(true);
   if (Book.isPinned(el)) { for (const p of ['position', 'left', 'top', 'width', 'z-index']) el.style.removeProperty(p); if (!el.getAttribute('style')) el.removeAttribute('style'); el.classList.remove('wrap'); }
@@ -685,7 +688,7 @@ $('#rsz').addEventListener('pointerdown', e => {
   const move = ev => {
     const s = ptScale(pg), r = el.getBoundingClientRect();
     if (pinned) el.style.width = Math.max(30, (ev.clientX - r.left) / s).toFixed(1) + 'pt';
-    else { const c = r.left + r.width / 2; let pct = Math.round(2 * Math.abs(ev.clientX - c) / ((Book.pageW(pg) - 48) * s) * 100); pct = Math.max(15, Math.min(100, pct)); el.style.width = pct + '%'; }
+    else { const c = r.left + r.width / 2; let pct = Math.round(2 * Math.abs(ev.clientX - c) / ((Book.pageW(pg) - 48) * s) * 100); pct = Math.max(15, Math.min(100, pct)); el.style.width = pct + '%'; uncap(el); }
     place();
   };
   const up = () => { window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true); commit(true); Book.refresh(); renderInspector(); };
@@ -1536,7 +1539,7 @@ function renderOneInspector() {
     if (!Book.isPinned(el)) {
       add(`<label>Width: <span id="f-wv">${w}</span>% of the text column</label>`);
       const r = add(`<input type="range" min="15" max="100" value="${w}">`);
-      r.oninput = () => { el.classList.remove('sm'); el.style.width = r.value + '%'; insp.querySelector('#f-wv').textContent = r.value; place(); commit(); };
+      r.oninput = () => { el.classList.remove('sm'); el.style.width = r.value + '%'; uncap(el); insp.querySelector('#f-wv').textContent = r.value; place(); commit(); };
       // left / centre / right in the column (Eric, 2026-10-28): data-align="left|right", centre is the default (no attribute)
       const cur = el.getAttribute('data-align') === 'left' || el.getAttribute('data-align') === 'right' ? el.getAttribute('data-align') : 'center';
       const al = add(`<div class="row seg">Align ${[['left', 'Left'], ['center', 'Centre'], ['right', 'Right']].map(([v, l]) => `<button data-al="${v}" class="${v === cur ? 'on' : ''}">${l}</button>`).join('')}</div>`);
@@ -2117,7 +2120,7 @@ $('#croph').addEventListener('pointerdown', e => {
       el.style.width = (w / s).toFixed(1) + 'pt';
       if (W) el.style.left = (left0 + (r0.width - w) / s).toFixed(1) + 'pt';
       if (N) el.style.top = (top0 + (r0.height - hh) / s).toFixed(1) + 'pt';
-    } else { el.classList.remove('sm'); el.style.width = (w / col * 100).toFixed(1) + '%'; }
+    } else { el.classList.remove('sm'); el.style.width = (w / col * 100).toFixed(1) + '%'; uncap(el); }
     if (ev.shiftKey) { if (keep0) el.style.aspectRatio = keep0; else el.style.removeProperty('aspect-ratio'); }
     else {
       const ratio = w / hh, nat = el.naturalRatio();
