@@ -630,7 +630,7 @@ function inline(node, parentStruct) {
   if (node.nodeType !== 1 || skip(node)) return '';
   let tag = node.localName;
   if (tag === 'b-m') return `<b-m>${esc(node.getAttribute('tex') || '')}</b-m>`;
-  if (tag === 'b-ref' || tag === 'b-fig' || tag === 'b-answers' || tag === 'b-toc' || tag === 'b-embed') return `<${tag}${attrs(node)}></${tag}>`;
+  if (tag === 'b-ref' || tag === 'b-fig' || tag === 'b-answers' || tag === 'b-toc' || tag === 'b-embed' || tag === 'b-matmul') return `<${tag}${attrs(node)}></${tag}>`;   // b-matmul: only its spec is source, the drawn step isn't (2026-10-29: stepping through one changed the file)
   if (tag === 'b-code' || tag === 'b-out') return `<${tag}${attrs(node)}>\n${esc(node.getAttribute('data-src') || '')}\n</${tag}>`;
   if (tag === 'eq-row' || tag === 'eq-step') return `<${tag}${attrs(node)}>${esc(texOf(node))}</${tag}>`;
   if ((tag === 'span' && !node.className && !node.id) || tag === 'font') return kids(node, false);
