@@ -687,7 +687,9 @@ Book.serialize = () => [Book.metaSource(), ...Book.docNodes().map(n => block(n, 
 // walks through the matrix arithmetic behind an equation, one step at a time. Steps: T (transpose), mul, add, inv (2×2),
 // calc ({"op":"calc","lines":[["h₁","σ(10·50 − …)","σ(−15)","0"], …]}: one worked line per row, the cells joined by =,
 // HTML allowed, the first cell is the name) and table (shows the table right after the block, which carries class
-// mm-final: on screen that table only appears as this last step, printed it stands in for the walk-through; Eric 2026-10-28).
+// mm-final: on screen that table only appears as this last step, printed it stands in for the walk-through; Eric 2026-10-28)
+// and fig ({"op":"fig","src":"fig/forward-step-1.svg","alt":"…"}: a picture as the step, e.g. one forward pass drawn on
+// the network diagram; Eric 2026-10-29). Book.snapshot inlines the pictures into the spec so published pages carry them.
 // Tapping (or hovering) a cell of a product lights the row and column it comes from and writes the sum out in full.
 // In a Math | Code pair it becomes a third face, "Matrices" (see eaiDual). Not printed.
 function eaiMatmul() {
@@ -697,6 +699,7 @@ function eaiMatmul() {
   function T(m) { return m[0].map(function (_, j) { return m.map(function (r) { return r[j]; }); }); }
   function mul(a, b) { return a.map(function (r) { return b[0].map(function (_, j) { return r.reduce(function (s, x, k) { return s + x * b[k][j]; }, 0); }); }); }
   function add(a, b) { return a.map(function (r, i) { return r.map(function (x, j) { return x + b[i][j]; }); }); }
+  function figSrc(s) { s = String(s || ''); return /^(data:|https?:|\/)/.test(s) ? s : ((window.Book && window.Book.base) || '') + s; }
   function inv(m) { var d = m[0][0] * m[1][1] - m[0][1] * m[1][0]; return [[m[1][1] / d, -m[0][1] / d], [-m[1][0] / d, m[0][0] / d]]; }
   function one(el) {
     var spec; try { spec = JSON.parse(el.getAttribute('spec') || '{}'); } catch (e) { el.innerHTML = '<div class="mm-err">Matrices: the spec isn\'t valid JSON (' + e.message + ')</div>'; return; }
@@ -726,6 +729,7 @@ function eaiMatmul() {
       else if (st.op === 'add') h += mat(st.a, 'a') + '<span class="mm-op">+</span>' + mat(st.b, 'b') + '<span class="mm-op">=</span>' + mat(st.out, 'c');
       else if (st.op === 'inv') h += mat(st.a, 'a') + '<span class="mm-op">→</span>' + mat(st.out, 'c');
       else if (st.op === 'calc') h += '<div class="mm-calc">' + (st.lines || []).map(function (l) { return '<div class="mm-line"><span class="mm-out">' + l[0] + '</span> = ' + l.slice(1).join(' = ') + '</div>'; }).join('') + '</div>';
+      else if (st.op === 'fig') h += '<div class="mm-fig"><img src="' + figSrc(st.src) + '" alt="' + String(st.alt || '').replace(/"/g, '&quot;') + '"></div>';
       else if (st.op === 'table') { var t = el.nextElementSibling; h += t && t.tagName === 'TABLE' ? '<div class="mm-tbl"></div>' : '<div class="mm-err">Matrices: a table step needs the table right after this block</div>'; }
       h += '</div><div class="mm-say"></div>' + (st.note ? '<div class="mm-note">' + st.note + '</div>' : '');
       el.innerHTML = h;
@@ -734,7 +738,7 @@ function eaiMatmul() {
       pick(0, 0);
     }
     function pick(i, j) {
-      if (steps[at].op === 'calc' || steps[at].op === 'table') return;
+      if (steps[at].op === 'calc' || steps[at].op === 'table' || steps[at].op === 'fig') return;
       var st = steps[at], A = V[st.a], B = V[st.b], C = V[st.out], say = el.querySelector('.mm-say');
       [].forEach.call(el.querySelectorAll('.mm-c'), function (c) { c.classList.remove('on', 'src'); });
       var cell = function (role, r, c) { return el.querySelector('[data-role="' + role + '"] .mm-c[data-i="' + r + '"][data-j="' + c + '"]'); };
@@ -775,6 +779,9 @@ function eaiMatmul() {
       if (!el.offsetParent) { if ((tries || 0) < 20) setTimeout(function () { el._lockH((tries || 0) + 1); }, 500); return; }   // not laid out yet
       var h = el._tallest(); if (h) el.style.setProperty('--mm-h', h + 'px');
     };
+    // pictures: lock the height again once they have all loaded (their size isn't known before)
+    var figs = steps.filter(function (s) { return s.op === 'fig'; }), left = figs.length;
+    figs.forEach(function (s) { var im = new Image(); im.onload = im.onerror = function () { if (--left === 0) el._lockH(); }; im.src = figSrc(s.src); });
     if (steps.length) { draw(); requestAnimationFrame(function () { el._lockH(); }); if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { el._lockH(); }); }
     else el.innerHTML = '<div class="mm-err">Matrices: no steps yet</div>';
   }
@@ -1035,6 +1042,11 @@ Book.snapshot = async () => {
   clone.querySelectorAll('[data-ed-stale]').forEach(n => n.removeAttribute('data-ed-stale'));   // editor furniture and review comments stay out of the published page
   clone.querySelectorAll('[contenteditable]').forEach(n => n.removeAttribute('contenteditable'));
   clone.querySelectorAll('[data-src]').forEach(n => n.removeAttribute('data-src'));
+  for (const mm of clone.querySelectorAll('b-matmul[spec*="fig"]')) {   // a walk-through's pictures go into its spec (see eaiMatmul)
+    let spec; try { spec = JSON.parse(mm.getAttribute('spec')); } catch (e) { continue; }
+    for (const st of spec.steps || []) if (st.op === 'fig' && st.src && !st.src.startsWith('data:')) st.src = 'data:image/' + (/\.svg$/.test(st.src) ? 'svg+xml' : 'png') + ';base64,' + await b64(Book.base + st.src);
+    mm.setAttribute('spec', JSON.stringify(spec));
+  }
   for (const img of clone.querySelectorAll('img')) {
     const src = img.getAttribute('src'); if (!src || src.startsWith('data:')) continue;
     const type = /\.svg(\?|$)/.test(src) ? 'image/svg+xml' : /\.png(\?|$)/.test(src) ? 'image/png' : /\.jpe?g(\?|$)/.test(src) ? 'image/jpeg' : 'application/octet-stream';

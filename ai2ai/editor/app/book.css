@@ -544,3 +544,8 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
   .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code:has(+ b-out:not(.run-new)) { overflow: auto; }   /* beats the cw rule's overflow: hidden */
   .book[data-view="slides"] b-code.ed-editing, .book[data-view="slides"] .page:not(.cover) > b-code.ed-editing { max-height: none; overflow: visible; }
 }
+
+/* a picture as a walk-through step (b-matmul op "fig") */
+b-matmul .mm-fig { width: 100%; }
+b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
+.book[data-view="slides"] b-matmul .mm-fig img { width: auto; max-width: 100%; max-height: var(--fig-h, 300pt); margin: 0 auto; }
