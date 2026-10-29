@@ -231,7 +231,10 @@ b-fig .crop { display: block; }
 .book[data-view="slides"] b-fig.s-sm { width: 72% !important; align-self: center; }
 .book[data-view="slides"] b-fig.s-xs { width: 58% !important; align-self: center; }
 .book[data-view="slides"] .page.s-tight { font-size: 16.5pt; --fs: 16.5pt; }
-.book[data-view="slides"] .page.s-tight b-code { font-size: 8.6pt; }
+/* code on slides (Eric, 2026-10-29): 12pt, about two-thirds of the 18pt slide text (it was the Reading's 9.4pt);
+   tight slides and an output beside its code get 11pt */
+.book[data-view="slides"] b-code, .book[data-view="slides"] b-out pre { font-size: 12pt; }
+.book[data-view="slides"] .page.s-tight b-code, .book[data-view="slides"] .page.s-tight b-out pre { font-size: 11pt; }
 u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { color: transparent; border-bottom: 1pt solid var(--ink); }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill * { color: transparent !important; }
@@ -511,7 +514,8 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > [style*="absolute"] { grid-column: auto; grid-row: auto; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
-.book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { font-size: 8.6pt; overflow: hidden; }
+.book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { font-size: 11pt; overflow: hidden; }
+.book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { font-size: 11pt; }
 /* cw="N" on a b-code sets how much of the slide's width (N%, 20-80 in steps of 5) the code takes beside its output.
    A slide with one switches to a 20-track grid: every block still spans it all, each code/output pair splits it (no cw = 65%). */
 .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) { grid-template-columns: repeat(20, minmax(0, 1fr)); column-gap: 0; }
@@ -530,3 +534,8 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="70"]:has(+ b-out:not(.run-new)) { grid-column: 1 / span 14; } .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="70"] + b-out:not(.run-new) { grid-column: 15 / -1; }
 .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="75"]:has(+ b-out:not(.run-new)) { grid-column: 1 / span 15; } .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="75"] + b-out:not(.run-new) { grid-column: 16 / -1; }
 .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="80"]:has(+ b-out:not(.run-new)) { grid-column: 1 / span 16; } .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="80"] + b-out:not(.run-new) { grid-column: 17 / -1; }
+/* cw="below" (Eric, 2026-10-29, with 12pt slide code): this code's output goes under it, full width, at the slide
+   size, for lines too long to share the slide. The :has() prefix matches the cw rules above so these win. */
+.book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="below"]:has(+ b-out:not(.run-new)) { grid-column: 1 / -1; font-size: 12pt; border-radius: 4px 4px 0 0; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="below"] + b-out:not(.run-new) { grid-column: 1 / -1; margin-left: 0; border-top: 0; border-radius: 0 0 4px 4px; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="below"] + b-out:not(.run-new) pre { font-size: 12pt; }
