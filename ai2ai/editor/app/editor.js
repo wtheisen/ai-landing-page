@@ -1269,14 +1269,12 @@ function codeInspector(el, add) {
     add(`<label>Width beside its output, on a slide</label>`);
     const cwr = add(`<div class="row" style="display:flex;gap:6px;align-items:center"><input type="range" min="20" max="80" step="5" style="flex:1"><span class="mono" style="width:5.5em;font-size:11px"></span><button>Auto</button></div>`);
     const rng = cwr.querySelector('input'), lab = cwr.querySelector('span');
-    const show = () => { const v = el.getAttribute('cw'); rng.value = v && v !== 'below' ? v : 65; lab.textContent = v === 'below' ? 'output below' : v ? `code ${v}%` : 'auto'; };
+    const show = () => { const v = el.getAttribute('cw'); rng.value = v || 65; lab.textContent = v ? `code ${v}%` : 'auto'; };
     rng.oninput = () => { el.setAttribute('cw', rng.value); show(); place(); };
     rng.onchange = () => { commit(true); Book.refreshSoon(); };
     cwr.querySelector('button').onclick = () => { el.removeAttribute('cw'); show(); commit(true); place(); Book.refreshSoon(); };
-    const below = h(`<button title="Put the output under the code, full width (for long lines)">Below</button>`); cwr.append(below);
-    below.onclick = () => { el.setAttribute('cw', 'below'); show(); commit(true); place(); Book.refreshSoon(); };
     show();
-    add(`<div class="help">The Lecture puts code and its output side by side. Auto fits the code to its longest line; or drag the gap between them on the slide. Below puts the output under the code instead.</div>`);
+    add(`<div class="help">The Lecture puts code and its output side by side. Auto fits the code to its longest line; or drag the gap between them on the slide.</div>`);
   }
   add(`<label>Highlights (line:from-to:colour, separated by spaces)</label>`);
   const mk = add(`<input type="text" spellcheck="false" style="font-family:var(--font-mono);font-size:11px" placeholder="3:4-18:gold">`);
