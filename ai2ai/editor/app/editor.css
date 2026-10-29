@@ -530,10 +530,10 @@ button.colx:hover { background: #f1ede0; border-color: #DCB439; color: #333; }
 .ed .dpane > .ed-cover:hover > .page { box-shadow: 0 0 0 2px rgba(26,115,232,.5); }
 #insp .linked { display: flex; gap: 8px; align-items: center; margin: 4px 0 10px; padding: 6px 8px; font-size: 11.5px; line-height: 1.35; color: #5c4700; background: #fff6d6; border: 1px solid #e6cf7a; border-radius: 4px; }
 #insp .linked button { flex: none; }
-#pages .thumb.wide { height: 85px; }
-#pages .thumb.wide .page { --page-w: 720pt; --page-h: 405pt; --zoom: 0.15625; }
-#pages.thumbs > li:has(.thumb.wide) { min-height: 112px; }
-/* in the editor a 16:9 Lecture page shows as wide as a Reading page (the zoom is set for Reading pages), so the
+#pages .thumb.wide { height: 113px; }
+#pages .thumb.wide .page { --page-w: 720pt; --page-h: 540pt; --zoom: 0.15625; }
+#pages.thumbs > li:has(.thumb.wide) { min-height: 140px; }
+/* in the editor a 4:3 Lecture page shows as wide as a Reading page (the zoom is set for Reading pages), so the
    panes line up and "Fit width" fits both */
 .ed .book[data-view="slides"] section.page { zoom: calc(var(--zoom) * .6); }
 

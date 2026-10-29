@@ -1792,7 +1792,7 @@ function paintThumb(li) {
   if (thumbSrc.get(li) === src && li.querySelector('.thumb')) return;
   thumbSrc.set(li, src);
   let box = li.querySelector('.thumb'); if (!box) { box = document.createElement('div'); box.className = 'thumb'; box.setAttribute('data-thumb', ''); li.append(box); }
-  box.classList.toggle('wide', Book.pageW(pg) > Book.pageH(pg));   // a 16:9 Lecture page
+  box.classList.toggle('wide', Book.pageW(pg) > Book.pageH(pg));   // a 4:3 Lecture page
   const c = pg.cloneNode(true);
   c.querySelectorAll('[id]').forEach(n => n.removeAttribute('id')); c.removeAttribute('id');
   c.querySelectorAll('[contenteditable]').forEach(n => n.removeAttribute('contenteditable'));

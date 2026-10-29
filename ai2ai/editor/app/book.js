@@ -127,7 +127,7 @@ class BFig extends HTMLElement {
     if (img && img.naturalWidth) return img.naturalWidth * (1 - l - r) / (img.naturalHeight * (1 - t - b));
     return 0;
   }
-  // --ar: the figure's shape (width / height) as a CSS variable, so a 16:9 slide can cap a figure's height (book.css);
+  // --ar: the figure's shape (width / height) as a CSS variable, so a slide can cap a figure's height (book.css);
   // runtime only, never saved
   setRatio() {
     let ar = 0;
@@ -393,10 +393,10 @@ Book.load = (root, html) => {
 // edition from its pane (Book.viewOf); without panes it is Book.view, as before.
 Book.pages = () => [...Book.root.querySelectorAll(':scope > section.page, :scope > .dpane > section.page')];
 Book.panes = () => Book.root ? [...Book.root.querySelectorAll(':scope > .dpane')] : [];
-// Page sizes in pt (Eric, 2026-10-26): the Reading is a 6 × 9 in book page, the Lecture and the Workbook are 16:9
-// slides (10 × 5.625 in, Google Slides' size). book.css sets --page-w/--page-h per edition; these say the same in JS.
+// Page sizes in pt: the Reading and the Workbook are 6 × 9 in book pages, the Lecture is a 4:3 slide (10 × 7.5 in;
+// Eric, 2026-10-29, closer to his iPad; 16:9 at 10 × 5.625 in from 2026-10-26). book.css sets --page-w/--page-h per edition; these say the same in JS.
 // Text column: 24pt margins either side; content must end 26pt above the bottom (the footer line).
-Book.SIZES = { reading: { w: 432, h: 648 }, slides: { w: 720, h: 405 }, workbook: { w: 432, h: 648 } };   // the Workbook prints like the Reading (6 × 9 in), for paper and tablets
+Book.SIZES = { reading: { w: 432, h: 648 }, slides: { w: 720, h: 540 }, workbook: { w: 432, h: 648 } };   // the Workbook prints like the Reading (6 × 9 in), for paper and tablets
 Book.size = el => Book.SIZES[el && el.nodeType ? Book.viewOf(el) : (el || Book.view)] || Book.SIZES.reading;
 Book.pageW = el => Book.size(el).w;
 Book.pageH = el => Book.size(el).h;
@@ -477,7 +477,7 @@ Book.wrapText = pg => {
   }
   return true;
 };
-// The Workbook prints at 6 × 9 (like the Reading) while the Lecture is 16:9, so in a split chapter's Workbook the
+// The Workbook prints at 6 × 9 (like the Reading) while the Lecture is a 4:3 slide, so in a split chapter's Workbook the
 // slides that continue one another (the same title on consecutive pages) go back onto one page as long as it fits:
 // the later page's blocks move onto the first and the later page is hidden (class wb-packed). Viewer and export only
 // (view.html), never in the editor, whose pages must stay the file's pages; unpackWorkbook() puts everything back.
@@ -1066,7 +1066,7 @@ Book.snapshot = async () => {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(m.title || '')}</title>
 <style>${faces}
-${css}${view === 'slides' ? '\n@page { size: 10in 5.625in; margin: 0; }' : ''}</style>
+${css}${view === 'slides' ? '\n@page { size: 10in 7.5in; margin: 0; }' : ''}</style>
 </head>
 <body>
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="${escAttr(m.toc || '/ai2ai/')}" title="All chapters">${esc(m.book || '')}</a><span class="crumb">${esc(m.title || '')}</span>${toc}<span class="spacer"></span>${viewbar}<span class="tools">${pdfmenu}</span></nav>

@@ -478,17 +478,18 @@ html.lect #book, html.lect main.book { flex: 1 1 auto; min-height: 0; overflow: 
 html.lect #book > section.page, html.lect main.book > section.page { margin-left: auto; margin-right: auto; flex: none; }
 /* no page zoom in Lecture mode: a double tap on the pen bar used to zoom the whole page (and the pen then missed); pinches go to lectureZoom */
 html.lect, html.lect body, html.lect .chap-head, html.lect .chap-head * { touch-action: manipulation; }
-/* Lecture and Workbook pages are 16:9 slides, 10 × 5.625 in (Eric, 2026-10-26); the Reading stays a 6 × 9 page.
+/* Lecture pages are 4:3 slides, 10 × 7.5 in (Eric, 2026-10-29: 16:9 was too wide next to his iPad; 16:9 from 2026-10-26);
+   the Reading and the Workbook stay 6 × 9 pages.
    book.js Book.SIZES says the same for the measuring code; the exported page sets @page to match. */
-.book[data-view="slides"] { --page-w: 720pt; --page-h: 405pt; }
+.book[data-view="slides"] { --page-w: 720pt; --page-h: 540pt; }
 .book[data-view="slides"] .cover { flex-direction: row-reverse; align-items: center; justify-content: space-between; gap: 28pt; padding: 28pt 40pt; }
 .book[data-view="slides"] .cover > b-fig { width: 44% !important; margin-top: 0; flex: none; }   /* !important: a width set on the cover art is for the 6 × 9 cover (ffn had 95.9%, which squeezed the title to one letter per line) */
 .book[data-view="slides"] .cover-text { flex: 1 1 0; min-width: 0; }
-/* on a slide a figure is never taller than --fig-h (default 230pt): its width is capped by its shape (--ar, set by
+/* on a slide a figure is never taller than --fig-h (default 300pt; 230pt when slides were 16:9): its width is capped by its shape (--ar, set by
    book.js), and it sits in the middle of the column. s-sm / s-xs make it smaller still. */
-.book[data-view="slides"] .page > b-fig:not(.cover-art):not([style*="absolute"]) { max-width: calc(var(--fig-h, 230pt) * var(--ar, 1.6)); margin-left: auto; margin-right: auto; }
-.book[data-view="slides"] .page > b-fig.s-sm:not([style*="absolute"]) { --fig-h: 180pt; }
-.book[data-view="slides"] .page > b-fig.s-xs:not([style*="absolute"]) { --fig-h: 140pt; }
+.book[data-view="slides"] .page > b-fig:not(.cover-art):not([style*="absolute"]) { max-width: calc(var(--fig-h, 300pt) * var(--ar, 1.6)); margin-left: auto; margin-right: auto; }
+.book[data-view="slides"] .page > b-fig.s-sm:not([style*="absolute"]) { --fig-h: 240pt; }
+.book[data-view="slides"] .page > b-fig.s-xs:not([style*="absolute"]) { --fig-h: 185pt; }
 
 /* code with no stored output: only the Run bar shows, over the code's bottom right corner, until it has run */
 b-out.run-new { height: 0; border: 0; position: relative; }
@@ -499,7 +500,7 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 /* the Workbook: a slide that continues the one before it shares its page (Book.packWorkbook) */
 .book section.page.wb-packed { display: none !important; }
 
-/* Lecture (16:9): a code block's output sits beside it, not under it (Eric, 2026-10-27: code rarely needs the full
+/* Lecture slides: a code block's output sits beside it, not under it (Eric, 2026-10-27: code rarely needs the full
    width, and this keeps the output on the same slide). The slide becomes a two-column grid in which every block spans
    both columns except a code block with an output after it (left, as wide as its longest line, up to 64%) and that
    output (right). An empty output (run-new: just the Run bar) stays under its code. */
