@@ -12,7 +12,8 @@ function suggestInit() {
   if (window.Suggest || !window.Editor || typeof Book === 'undefined' || Book.mode !== 'edit') return;
   const E = Editor, ch = Book.chapter, $ = s => document.querySelector(s);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const OPS = { replace: 'Change', insert: 'Add', delete: 'Remove', page: 'New page' };
+  const OPS = { replace: 'Change', insert: 'Add', delete: 'Remove', page: 'New page', 'page-delete': 'Remove page', 'page-move': 'Move page' };
+  const pageOp = it => it.op === 'page-delete' || it.op === 'page-move';   // whole pages (tools/ai2ai delete-page / move-page --suggest)
   let data = { items: [] }, on = false, panel = null, lastText = '', showAll = false;
 
   // ---------------------------------------------------------------- the file
@@ -45,6 +46,7 @@ function suggestInit() {
     if (it.op === 'replace' || it.op === 'delete') return blockById(it.target);
     if (it.op === 'insert') return (it.after && it.after !== 'end' && blockById(it.after)) || pageById(it.page);
     if (it.op === 'page') return pageById(it.after);
+    if (pageOp(it)) return pageById(it.page);
   }
   function problem(it) {   // why it can't be applied as it stands, or ''
     if (it.op === 'replace' || it.op === 'delete') {
@@ -54,6 +56,9 @@ function suggestInit() {
     if (it.op === 'insert' && !pageById(it.page)) return 'Its page is no longer in the chapter.';
     if (it.op === 'insert' && it.after && it.after !== 'end' && !blockById(it.after)) return 'The block it goes after is no longer in the chapter.';
     if (it.op === 'page' && !pageById(it.after)) return 'The page it goes after is no longer in the chapter.';
+    if (pageOp(it) && !pageById(it.page)) return 'The page it ' + (it.op === 'page-move' ? 'moves' : 'removes') + ' is no longer in the chapter.';
+    if (it.op === 'page-move' && !pageById(it.after)) return 'The page it goes after is no longer in the chapter.';
+    if (it.op === 'page-move' && it.after === it.page) return 'A page can\'t go after itself.';
     return '';
   }
 
@@ -63,11 +68,14 @@ function suggestInit() {
     for (const it of openItems()) {
       const a = anchorOf(it); if (!a) continue;
       const k = it.op === 'replace' || it.op === 'delete' ? 'data-ed-sug' : a.matches('section.page') ? 'data-ed-sug-page' : 'data-ed-sug-after';
-      const v = k === 'data-ed-sug' ? it.op : (it.op === 'page' ? 'page' : (it.after === 'end' ? 'end' : it.after ? 'after' : 'top'));
+      const v = k === 'data-ed-sug' ? it.op : pageOp(it) ? (it.op === 'page-delete' ? 'delete' : 'move') : (it.op === 'page' ? 'page' : (it.after === 'end' ? 'end' : it.after ? 'after' : 'top'));
       want.set(a, Object.assign(want.get(a) || {}, { [k]: v }));
+      const dest = it.op === 'page-move' && pageById(it.after);   // where a moved page would land: a bar under that page
+      if (dest) want.set(dest, Object.assign(want.get(dest) || {}, { 'data-ed-sug-dest': '1' }));
     }
-    for (const el of document.querySelectorAll('[data-ed-sug], [data-ed-sug-after], [data-ed-sug-page]'))
-      for (const k of ['data-ed-sug', 'data-ed-sug-after', 'data-ed-sug-page']) if (el.hasAttribute(k) && !(want.get(el) || {})[k]) el.removeAttribute(k);
+    const KEYS = ['data-ed-sug', 'data-ed-sug-after', 'data-ed-sug-page', 'data-ed-sug-dest'];
+    for (const el of document.querySelectorAll(KEYS.map(k => '[' + k + ']').join(', ')))
+      for (const k of KEYS) if (el.hasAttribute(k) && !(want.get(el) || {})[k]) el.removeAttribute(k);
     for (const [el, kv] of want) for (const k in kv) if (el.getAttribute(k) !== kv[k]) el.setAttribute(k, kv[k]);
   }
 
@@ -103,9 +111,16 @@ function suggestInit() {
   function preview(it) {
     if (it.op === 'replace') return diff(textOf(it.base || (blockById(it.target) && Book.serializeBlock(blockById(it.target)))), textOf(it.html));
     if (it.op === 'delete') return `<del>${esc(textOf(it.base || (blockById(it.target) && Book.serializeBlock(blockById(it.target)))))}</del>`;
+    if (pageOp(it)) {
+      const pg = pageById(it.page), n = pg ? Book.blocks(pg).filter(b => !b.classList.contains('cmt')).length : 0;
+      if (it.op === 'page-delete') return `<del>${esc(titleOf(pageById(it.page)) || it.page)}</del> <span class="sg-what">(the whole page${pg ? ', ' + n + ' block' + (n === 1 ? '' : 's') : ''})</span>`;
+      return `Move <b>${esc(titleOf(pageById(it.page)) || it.page)}</b> to just after <b>${esc(titleOf(pageById(it.after)) || it.after)}</b>`;
+    }
     return `<ins>${esc(textOf(it.html))}</ins>`;
   }
+  function titleOf(pg) { const h = pg && pg.querySelector(':scope > h1, :scope > h2, :scope > h3'); return h ? h.textContent.trim() : (pg ? pg.id : ''); }
   function where(it) {
+    if (pageOp(it)) return titleOf(pageById(it.page)) ? `“${titleOf(pageById(it.page))}”` : it.page;
     const pg = pageById(it.op === 'page' ? it.after : it.page) || (anchorOf(it) && anchorOf(it).closest && anchorOf(it).closest('section.page'));
     const title = pg && (pg.querySelector(':scope > h1, :scope > h2, :scope > h3') || {}).textContent;
     return (it.op === 'page' ? 'after ' : 'on ') + (title ? `“${title.trim()}”` : (it.page || it.after || 'a page'));
@@ -125,6 +140,13 @@ function suggestInit() {
       return;
     }
     if (it.op === 'page') { pageById(it.after).after(...nodes(it.html)); return; }
+    if (it.op === 'page-move') { pageById(it.after).after(pageById(it.page)); return; }   // the page itself moves, comments and all
+    if (it.op === 'page-delete') {
+      const pg = pageById(it.page);
+      if (Book.pages().length < 2) throw new Error('a chapter needs at least one page');
+      if (E.curPage === pg) { const sib = Book.pages(), i = sib.indexOf(pg); E.select && E.select(null); E.setPage(sib[i + 1] || sib[i - 1]); }
+      pg.remove(); return;
+    }
     throw new Error('unknown kind of suggestion: ' + it.op);
   }
   function resolve(list, status) {
