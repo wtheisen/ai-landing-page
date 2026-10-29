@@ -87,6 +87,8 @@ b-eq img { display: inline-block; vertical-align: middle; max-width: 100%; heigh
 b.lead { color: var(--navy); }
 .aside b.name { color: var(--navy); }
 span.mono { font-family: var(--font-mono); }
+/* a note (Eric, 2026-10-29): smaller text in a light grey, for asides inside a paragraph (toolbar "note", Option+T) */
+span.note { font-size: .8em; color: #999999; }
 span.num { font-family: var(--font-mono); color: var(--gray-text); font-weight: 700; font-size: .94em; line-height: 1; }   /* numbers in running text: Consolas, dark grey, bold */
 [data-align="center"] { text-align: center; }   /* centred block: text, headings, an equation (its number moves with it) */
 ul[data-align="center"], ol[data-align="center"] { list-style-position: inside; padding-left: 0; }   /* Consolas in running text: numbers and technical bits (no box, unlike code) */

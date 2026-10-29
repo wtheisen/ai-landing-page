@@ -28,6 +28,7 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 #bar .mono { font-family: var(--font-math); }
 #bar .cons { font-family: var(--font-mono); }
 #bar .numb { color: var(--gray-text); }
+#bar .notb { color: #999999; font-size: .85em; }
 #status { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 10px; white-space: nowrap; cursor: pointer; text-align: center; min-width: 64px; }
 #status.ok { background: #2e7d32; color: #fff; }
 #status.dirty { background: #f2b51b; color: #1d2433; }

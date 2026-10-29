@@ -718,20 +718,20 @@ function clearSel() {
   const s = getSelection(), r = s.getRangeAt(0);
   let n = r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement;
   const hit = [];
-  while (n && n !== host) { if (/^(B|I|CODE|EM|STRONG|U)$/.test(n.tagName) || n.matches('span.key, span.mono, span.num')) hit.push(n); n = n.parentElement; }
-  if (!r.collapsed) host.querySelectorAll('b,i,code,em,strong,u,span.key,span.mono,span.num').forEach(e => { if (r.intersectsNode(e) && !hit.includes(e) && !e.closest('.ans, th') ) hit.push(e); });
+  while (n && n !== host) { if (/^(B|I|CODE|EM|STRONG|U)$/.test(n.tagName) || n.matches('span.key, span.mono, span.num, span.note')) hit.push(n); n = n.parentElement; }
+  if (!r.collapsed) host.querySelectorAll('b,i,code,em,strong,u,span.key,span.mono,span.num,span.note').forEach(e => { if (r.intersectsNode(e) && !hit.includes(e) && !e.closest('.ans, th') ) hit.push(e); });
   if (r.collapsed) { hit.forEach(unwrap); return commit(true); }   // just a caret: clear the formatting it sits in
   // A selection clears only the selected text (2026-10-28: it used to unwrap every formatted element the selection
   // touched, so text outside the selection lost its formatting too). Mark both ends, split each formatted element at
   // the marks so none crosses them, then unwrap the formatted elements between the marks.
-  const FMT = e => e && e !== host && e.nodeType === 1 && (/^(B|I|CODE|EM|STRONG|U)$/.test(e.tagName) || e.matches('span.key, span.mono, span.num'));
+  const FMT = e => e && e !== host && e.nodeType === 1 && (/^(B|I|CODE|EM|STRONG|U)$/.test(e.tagName) || e.matches('span.key, span.mono, span.num, span.note'));
   const mark = () => { const m = document.createElement('span'); m.setAttribute('data-clear-mark', ''); return m; };
   const mS = mark(), mE = mark(), re = r.cloneRange(); re.collapse(false); re.insertNode(mE); const rs = r.cloneRange(); rs.collapse(true); rs.insertNode(mS);
   const split = m => { for (let p = m.parentElement; FMT(p); p = m.parentElement) { const right = p.cloneNode(false); while (m.nextSibling) right.append(m.nextSibling); p.after(m); m.after(right); } };
   split(mS); split(mE);
   const mid = document.createRange(); mid.setStartAfter(mS); mid.setEndBefore(mE);
-  [...host.querySelectorAll('b,i,code,em,strong,u,span.key,span.mono,span.num')].filter(e => mid.intersectsNode(e) && !e.closest('.ans, th')).forEach(unwrap);
-  host.querySelectorAll('b,i,code,em,strong,u,span.key,span.mono,span.num').forEach(e => { if (!e.textContent && !e.querySelector('b-m, br, img')) e.remove(); });   // halves the split left empty
+  [...host.querySelectorAll('b,i,code,em,strong,u,span.key,span.mono,span.num,span.note')].filter(e => mid.intersectsNode(e) && !e.closest('.ans, th')).forEach(unwrap);
+  host.querySelectorAll('b,i,code,em,strong,u,span.key,span.mono,span.num,span.note').forEach(e => { if (!e.textContent && !e.querySelector('b-m, br, img')) e.remove(); });   // halves the split left empty
   const keep = document.createRange(); keep.setStartAfter(mS); keep.setEndBefore(mE); mS.remove(); mE.remove(); host.normalize();
   s.removeAllRanges(); s.addRange(keep); commit(true);
 }
@@ -805,6 +805,7 @@ function style(k) {
   if (k === 'key') return wrapSel('span', 'key');
   if (k === 'mono') return wrapSel('span', 'mono');
   if (k === 'num') return wrapSel('span', 'num');
+  if (k === 'note') return wrapSel('span', 'note');
   if (k === 'b') return wrapSel('b', ''); if (k === 'i') return wrapSel('i', ''); if (k === 'code') return wrapSel('code', '');
   wrapSel('b', k);
 }
@@ -853,8 +854,8 @@ function clean(node) {
     else {
       const tag = n.tagName === 'STRONG' ? 'B' : n.tagName === 'EM' ? 'I' : n.tagName, inner = clean(n);
       if (tag === 'BR') out += ' ';
-      else if (tag === 'SPAN' && !/^(key|mono|num)$/.test(n.className)) out += inner;
-      else if (KEEP[tag]) { const cls = (tag === 'B' && /^(def|name|take|warn|ex|gray|lead)$/.test(n.className)) || (tag === 'U' && n.className === 'fill') || (tag === 'SPAN' && /^(key|mono|num)$/.test(n.className)) ? ` class="${n.className}"` : ''; out += `<${tag.toLowerCase()}${cls}>${inner}</${tag.toLowerCase()}>`; }
+      else if (tag === 'SPAN' && !/^(key|mono|num|note)$/.test(n.className)) out += inner;
+      else if (KEEP[tag]) { const cls = (tag === 'B' && /^(def|name|take|warn|ex|gray|lead)$/.test(n.className)) || (tag === 'U' && n.className === 'fill') || (tag === 'SPAN' && /^(key|mono|num|note)$/.test(n.className)) ? ` class="${n.className}"` : ''; out += `<${tag.toLowerCase()}${cls}>${inner}</${tag.toLowerCase()}>`; }
       else out += inner + (/^(P|DIV|LI|H[1-6]|TR)$/.test(n.tagName) ? ' ' : '');
     }
   }
@@ -1048,6 +1049,7 @@ document.addEventListener('keydown', e => {
     if (mod && e.key.toLowerCase() === 'e') { e.preventDefault(); return style('math'); }
     if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyM') { e.preventDefault(); return style('mono'); }
     if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyN') { e.preventDefault(); return style('num'); }
+    if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyT') { e.preventDefault(); return style('note'); }
     if (e.altKey && /^Digit[0-6]$/.test(e.code)) { e.preventDefault(); return style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray'][+e.code.slice(5)]); }
     if (e.key === 'Escape') { host.blur(); getSelection().removeAllRanges(); return; }
     if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); return linkPop(); }
@@ -1691,7 +1693,7 @@ function pageInspector() {
   insp.append(h('<div>' + HELP + '</div>'));
 }
 const HELP = `<hr><div class="help"><b>Text</b>: click and type. Enter starts a new paragraph, Shift+Enter a line break.<br>
-<b>Emphasis</b>: select text, then a colour circle, or Option+1 gold, +2 navy, +3 green, +4 red, +5 teal, +6 dark grey, +0 clear; Option+M Consolas; Option+N number (bold Consolas, dark grey); Cmd+B bold.<br>
+<b>Emphasis</b>: select text, then a colour circle, or Option+1 gold, +2 navy, +3 green, +4 red, +5 teal, +6 dark grey, +0 clear; Option+M Consolas; Option+N number (bold Consolas, dark grey); Option+T note (smaller, light grey); Cmd+B bold.<br>
 <b>Inline math</b>: type <code>$x_i$</code>, or Cmd+E. Click math to edit it.<br>
 <b>Blocks</b>: the blue bar moves, copies, pins and deletes the selected block; drag ⠿ to reorder, also across pages. Equations, figures and code drag by their body.<br>
 <b>Undo</b>: Cmd+Z, as far back as this session goes. Saving is automatic.</div>`;
@@ -1999,7 +2001,7 @@ try { if (localStorage.getItem('book-margins') === '1') $('#x-margins').click();
 book.addEventListener('book-refresh', () => { const n = (Book.report || []).length, b = $('#x-over'); b.hidden = !n; b.textContent = n + (n === 1 ? ' page over' : ' pages over'); });
 $('#x-over').onclick = () => { const list = Book.report || []; if (!list.length) return; const pages = Book.pages(), at = curPage ? pages.indexOf(curPage) + 1 : 0; const next = list.find(r => r.page > at) || list[0]; const pg = pages[next.page - 1]; select(null); setPage(pg); renderInspector(); pg.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
 // keyboard shortcuts
-const KEYS = [['Writing'], ['Enter', 'new line in the same block (in a list: next item)'], ['Cmd+Enter', 'new paragraph block below (in a column box: the next box)'], ['1. or * then space', 'at the start of a paragraph: a numbered or bulleted list'], ['Enter on an empty last item', 'end the list'], ['/', 'in an empty paragraph: insert menu'], ['$x_i$', 'inline math (or Cmd+E)'], ['Option+1 … 6', 'gold, navy, green, red, teal, dark grey (bold)'], ['Option+N', 'number: bold Consolas in dark grey'], ['Option+M', 'Consolas on or off (numbers, technical bits)'], ['Cmd+Shift+E', 'centre the block (again: back to the left)'], ['Option+0', 'clear emphasis'], ['Cmd+B / Cmd+I', 'bold / italic'], ['Cmd+K', 'link'], ['Tab / Shift+Tab', 'next cell in a table; nest / un-nest in a list'], ['Arrow keys', 'walk into the next block'], ['Cmd+F', 'find and replace'],
+const KEYS = [['Writing'], ['Enter', 'new line in the same block (in a list: next item)'], ['Cmd+Enter', 'new paragraph block below (in a column box: the next box)'], ['1. or * then space', 'at the start of a paragraph: a numbered or bulleted list'], ['Enter on an empty last item', 'end the list'], ['/', 'in an empty paragraph: insert menu'], ['$x_i$', 'inline math (or Cmd+E)'], ['Option+1 … 6', 'gold, navy, green, red, teal, dark grey (bold)'], ['Option+N', 'number: bold Consolas in dark grey'], ['Option+M', 'Consolas on or off (numbers, technical bits)'], ['Option+T', 'note: smaller text in light grey (again: back to normal)'], ['Cmd+Shift+E', 'centre the block (again: back to the left)'], ['Option+0', 'clear emphasis'], ['Cmd+B / Cmd+I', 'bold / italic'], ['Cmd+K', 'link'], ['Tab / Shift+Tab', 'next cell in a table; nest / un-nest in a list'], ['Arrow keys', 'walk into the next block'], ['Cmd+F', 'find and replace'],
   ['Blocks'], ['Esc', 'stop typing, keep the block selected'], ['Shift-click', 'select several blocks'], ['Cmd+A', 'every block on the page (when not typing)'], ['Cmd+C / X / V', 'copy, cut, paste blocks (also to another page)'], ['Cmd+D', 'duplicate'], ['Backspace', 'delete the selected block'], ['Option+↑ ↓', 'move the block up or down'], ['Arrows', 'nudge a pinned block (Shift: by 10)'],
   ['Page list'], ['click / Shift-click / Cmd-click', 'select a page, a range, add or drop one'], ['Delete or Backspace', 'delete the selected pages (Cmd+Z undoes)'], ['↑ ↓', 'previous / next page (Shift: extend the selection)'], ['Cmd+A', 'select every page'],
   ['Drawing'], ['double-click a tool', 'keep drawing with it (Esc stops)'], ['Shift while drawing', 'square, circle, 45° line'], ['Option-drag', 'leave a copy'], ['Cmd while dragging', 'no snapping'], ['double-click', 'polygon: move corners; label: retype'], ['Cmd+G / Shift+Cmd+G', 'group / ungroup'],
@@ -3176,7 +3178,7 @@ function toggleCenter() {
 // run of digits (with thousands commas, a decimal part, a leading minus or a trailing %), not touching a letter: so
 // "2012", "−6.7", "9,553", "82%" and the 8 in "degree-8" count, but "3D" and "x2" don't.
 const NUM_RE = /(?<![\p{L}\p{N}_.,])[−-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?%?(?![\p{L}\p{N}_])|(?<![\p{L}\p{N}_.,])[−-]?\d+(?:\.\d+)?%?(?![\p{L}\p{N}_]|[.,]\d)/gu;
-const NUM_SKIP = 'b-m, b-eq, b-code, b-out, b-fig, b-matmul, b-answers, b-ref, b-toc, b-embed, svg, code, pre, h1, h2, h3, h4, b, strong, a, u, sup, sub, td, th, .cmt, .foot, [data-rt], span.num, span.mono, .cover-text';   // tables keep their own look
+const NUM_SKIP = 'b-m, b-eq, b-code, b-out, b-fig, b-matmul, b-answers, b-ref, b-toc, b-embed, svg, code, pre, h1, h2, h3, h4, b, strong, a, u, sup, sub, td, th, .cmt, .foot, [data-rt], span.num, span.mono, span.note, .cover-text';   // tables keep their own look
 function formatNumbers(root) {
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest(NUM_SKIP) ? 2 : 1 });
   const nodes = []; let n; while ((n = w.nextNode())) if (/\d/.test(n.nodeValue)) nodes.push(n);
