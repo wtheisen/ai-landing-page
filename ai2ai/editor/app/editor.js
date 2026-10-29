@@ -471,6 +471,7 @@ function togglePin(el) {
     const pg = el.parentElement, s = ptScale(pg), r = el.getBoundingClientRect(), q = pg.getBoundingClientRect();
     el.style.position = 'absolute';
     el.style.left = ((r.left - q.left) / s).toFixed(1) + 'pt'; el.style.top = ((r.top - q.top) / s).toFixed(1) + 'pt'; el.style.width = (r.width / s).toFixed(1) + 'pt';
+    el.classList.add('wrap');   // text beside it flows around it, as when a figure is pinned by dragging (Eric, 2026-10-29)
   }
   commit(true); Book.refresh(); select(el);
 }
