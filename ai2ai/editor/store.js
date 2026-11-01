@@ -185,10 +185,56 @@ function splitPage(p) {
   }
   return [content, cms];
 }
+// Both sides changed a page's content: merge it block by block (Eric, 2026-11-01: his edit to a sentence and Claude's
+// to the table on the same slide clashed). Blocks are keyed by data-b; a block changed on one side takes that change,
+// a block deleted on one side and untouched on the other goes, deleted on one side and edited on the other stays;
+// blocks new on one side go in after the block they follow there. Only the same block (or the section's own tag)
+// changed differently on both sides, or the blocks reordered differently on both, still clashes (null).
+// (Same as tools/drive_sync.py merge_blocks.)
+function splitBlocks(lines) {
+  const head = [], blocks = [], seen = {}; let tail = [], cur = null;
+  for (const ln of lines) {
+    if (ln === '</section>' || tail.length) { tail.push(ln); continue; }
+    if (BLOCK_START.test(ln)) { let k = anchorOf(ln); const n = seen[k] || 0; seen[k] = n + 1; if (n) k += '#' + n; cur = [k, [ln]]; blocks.push(cur); }
+    else if (cur) cur[1].push(ln); else head.push(ln);
+  }
+  return { head: head.join('\n'), tail: tail.join('\n'), order: blocks.map(x => x[0]), map: new Map(blocks.map(([k, l]) => [k, l.join('\n')])) };
+}
+function mergeBlocks(cb, cm, ct) {
+  const B = splitBlocks(cb), M = splitBlocks(cm), T = splitBlocks(ct);
+  if ([B, M, T].some(x => x.order.some(k => k[0] === '?'))) return null;   // a block without data-b: no stable key
+  const same = (x, y) => x.length === y.length && x.every((v, i) => v === y[i]);
+  const three = (b, m, t) => m === t ? m : m === b ? t : t === b ? m : null;
+  const head = three(B.head, M.head, T.head), tail = three(B.tail, M.tail, T.tail);
+  if (head === null || tail === null) return null;
+  let ok = true;
+  const pick = k => {
+    const b = B.map.get(k), m = M.map.get(k), t = T.map.get(k);
+    if (m === t) return m; if (m === b) return t; if (t === b) return m;
+    if (m === undefined) return t; if (t === undefined) return m;
+    ok = false; return m;
+  };
+  // the order: kept by whichever side didn't reorder the blocks both still have
+  const common = o => o.filter(k => B.map.has(k) && M.map.has(k) && T.map.has(k));
+  const ob = common(B.order), om = common(M.order), ot = common(T.order);
+  if (!same(om, ob) && !same(ot, ob) && !same(om, ot)) return null;
+  const [P, Q] = same(om, ob) && !same(ot, ob) ? [T, M] : [M, T];   // P's order, Q's new blocks slotted in
+  const order = P.order.filter(k => !(B.map.has(k) && !Q.map.has(k) && P.map.get(k) === B.map.get(k)));
+  Q.order.forEach((k, i) => {
+    if (order.includes(k)) return;
+    const fresh = !P.map.has(k) && !B.map.has(k), revived = B.map.has(k) && !P.map.has(k) && Q.map.get(k) !== B.map.get(k);
+    if (!fresh && !revived) return;
+    let at = -1; for (let j = i - 1; j >= 0 && at < 0; j--) at = order.indexOf(Q.order[j]);
+    order.splice(at + 1, 0, k);
+  });
+  const out = order.map(pick).filter(v => v !== undefined);
+  if (!ok) return null;
+  return [head, ...out, tail].filter(x => x !== '').join('\n').split('\n');
+}
 function mergePage(b, m, t) {
   const [cb, kb] = splitPage(b), [cm, km] = splitPage(m), [ct, kt] = splitPage(t), eq = (x, y) => x.length === y.length && x.every((v, i) => v === y[i]);
   let content;
-  if (eq(cm, ct) || eq(ct, cb)) content = cm; else if (eq(cm, cb)) content = ct; else return null;
+  if (eq(cm, ct) || eq(ct, cb)) content = cm; else if (eq(cm, cb)) content = ct; else { content = mergeBlocks(cb, cm, ct); if (!content) return null; }
   const map = list => new Map(list.map(([k, l, a]) => [k, l + '\u0000' + a]));
   const B = map(kb), M = map(km), T = map(kt);
   const keys = [...km.map(x => x[0]), ...kt.map(x => x[0]).filter(k => !M.has(k))], final = [];
