@@ -167,8 +167,8 @@ b-code .cc.purple { color: #674EA7; } b-code .cc.gold { color: #DCB439; } b-code
 :is(b-code, b-out) mark.purple { background: #d9d2e9; box-shadow: 0 0 0 1px #8e7cc3; } :is(b-code, b-out) mark.red { background: #f4cccc; box-shadow: 0 0 0 1px #e06666; }
 /* Output colours (book.js eaiOutHL, Eric 2026-11-01): the network colours of the diagrams and equations (f-<family> on a
    line's label and its numbers; gold and grey a shade darker so plain text stays readable), unnamed labels bold navy,
-   other numbers dark grey (red means an input), tensor( / array( wrappers grey; mark = a pre-registered highlight */
-b-out .nu { color: var(--red-text); } b-out .nu.nn { color: #434343; } b-out .ow { color: #999; }
+   numbers bold (Eric, 2026-11-01), other numbers dark grey (red means an input), tensor( / array( wrappers grey; mark = a pre-registered highlight */
+b-out .nu { color: var(--red-text); font-weight: 700; } b-out .nu.nn { color: #434343; } b-out .ow { color: #999; }
 b-out .olab { font-weight: 700; color: #002B5B; } b-out .cc { font-weight: 700; }
 b-out :is(.cc, .olab, .nu).red, b-out .f-red { color: #CC0000; } b-out :is(.cc, .olab, .nu).blue, b-out .f-blue { color: #1155CC; }
 b-out :is(.cc, .olab, .nu).gray, b-out .f-gray { color: #666666; } b-out :is(.cc, .olab, .nu).purple, b-out .f-purple { color: #674EA7; }
