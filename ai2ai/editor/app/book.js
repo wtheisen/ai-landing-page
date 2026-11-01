@@ -27,7 +27,7 @@ const isAlpha = c => /\p{L}/u.test(c);
 // \name shortcuts for symbols (editor.js's maths box turns them into the symbol as you type; a <b-m> stored with one,
 // e.g. typed before the editor knew the name, still renders the symbol: Eric 2026-11-01, \sig showed as text)
 Book.MATH_ALIAS = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', theta: 'θ', lambda: 'λ', mu: 'μ', sigma: 'σ', sig: 'σ', phi: 'φ', varphi: 'φ', eta: 'η', rho: 'ρ', tau: 'τ', omega: 'ω', xi: 'ξ',
-  Sigma: 'Σ', sum: 'Σ', ge: '≥', geq: '≥', le: '≤', leq: '≤', ne: '≠', neq: '≠', cdot: '·', times: '×', pm: '±', in: '∈', approx: '≈', infty: '∞', sqrt: '√', norm: '‖', half: '½', prime: '′', yhat: 'ŷ', to: '→', partial: '∂' };
+  Sigma: 'Σ', sum: 'Σ', Omega: 'Ω', Delta: 'Δ', Gamma: 'Γ', Theta: 'Θ', Lambda: 'Λ', Phi: 'Φ', Pi: 'Π', Psi: 'Ψ', pi: 'π', psi: 'ψ', kappa: 'κ', nu: 'ν', zeta: 'ζ', chi: 'χ', nabla: '∇', ge: '≥', geq: '≥', le: '≤', leq: '≤', ne: '≠', neq: '≠', cdot: '·', times: '×', pm: '±', in: '∈', approx: '≈', infty: '∞', sqrt: '√', norm: '‖', half: '½', prime: '′', yhat: 'ŷ', to: '→', partial: '∂' };
 function inlineMath(s) {
   s = String(s).replace(/\\([A-Za-z]+)(?![A-Za-z])/g, (m, w) => w !== 'T' && Book.MATH_ALIAS[w] ? Book.MATH_ALIAS[w] : m);
   const out = []; let i = 0;

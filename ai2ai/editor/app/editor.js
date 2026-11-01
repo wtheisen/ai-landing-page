@@ -754,7 +754,7 @@ function openPop(el, html) {
   return p;
 }
 function mathPop(m) {
-  const p = openPop(m, `<input type="text" spellcheck="false"><div class="hint"><code>x_i</code> subscript · <code>^2</code> power · <code>x_{ij}</code> group · <code>\\T</code> transpose · <code>\\sig \\alpha \\ge \\sum \\norm \\half \\yhat</code> become σ α ≥ Σ ‖ ½ ŷ · <code>'</code> prime. Symbols in the chapter's colour list are coloured automatically. Enter to finish.</div>`);
+  const p = openPop(m, `<input type="text" spellcheck="false"><div class="hint"><code>x_i</code> subscript · <code>^2</code> power · <code>x_{ij}</code> group · <code>\\T</code> transpose · <code>\\sig \\alpha \\Omega \\ge \\sum \\norm \\half \\yhat</code> become σ α Ω ≥ Σ ‖ ½ ŷ · <code>'</code> prime. Symbols in the chapter's colour list are coloured automatically. Enter to finish.</div>`);
   const inp = p.querySelector('input'); inp.value = m.getAttribute('tex') || ''; inp.focus(); inp.select();
   inp.oninput = () => { const a = inp.selectionStart, before = inp.value, v = mathNorm(before); if (v !== before) { inp.value = v; const pos = Math.max(0, a - (before.length - v.length)); inp.setSelectionRange(pos, pos); } m.setAttribute('tex', v); place(); };
   inp.onkeydown = e => { if (e.key === 'Enter' || e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); m.setAttribute('tex', mathNorm(inp.value, true).trim()); const keep = m.getAttribute('tex'); closePop(); if (keep) caretAfter(m); commit(true); } };
