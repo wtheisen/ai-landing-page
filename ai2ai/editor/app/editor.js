@@ -152,7 +152,7 @@ let commitT = 0, saveT = 0;
 // Edit either copy and the other follows on the next commit; each keeps its own layout (size, class, blanks).
 var poolLast;   // pool id -> its content as of the last sync
 // per copy: layout, and how a code copy runs (a hoisted function, so poolKey can use it before this line is reached)
-function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'data-align', 'setup', 'chain', 'norun', 'cw', 'contenteditable', 'spellcheck', 'draggable']; }
+function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'data-align', 'setup', 'chain', 'norun', 'cw', 'out', 'contenteditable', 'spellcheck', 'draggable']; }
 const POOL_LAYOUT = poolLayoutAttrs();
 // the content two copies share: everything but the per-copy attributes (built from POOL_LAYOUT, so a new per-copy
 // attribute can't make the copies look different forever: cw did, and every commit swapped the copies, 2026-10-27)
@@ -1272,6 +1272,12 @@ function codeInspector(el, add) {
   }
   if (el.tagName === 'B-CODE' && el.nextElementSibling && el.nextElementSibling.tagName === 'B-OUT') {
     const cur = el.getAttribute('cw');
+    // beside (the default) or below (out="below"; Eric, 2026-11-01): where the output goes on a slide
+    add(`<label>Output on a slide</label>`);
+    const ob = add(`<div class="seg"><button data-o="">Beside the code</button><button data-o="below">Below the code</button></div>`);
+    ob.querySelectorAll('button').forEach(b => { b.classList.toggle('on', (el.getAttribute('out') || '') === b.dataset.o);
+      b.onclick = () => { commit(true); if (b.dataset.o) el.setAttribute('out', 'below'); else el.removeAttribute('out'); commit(true); place(); Book.refreshSoon(); renderInspector(); }; });
+    if (el.getAttribute('out') !== 'below') {
     add(`<label>Width beside its output, on a slide</label>`);
     const cwr = add(`<div class="row" style="display:flex;gap:6px;align-items:center"><input type="range" min="20" max="80" step="5" style="flex:1"><span class="mono" style="width:5.5em;font-size:11px"></span><button>Auto</button></div>`);
     const rng = cwr.querySelector('input'), lab = cwr.querySelector('span');
@@ -1281,6 +1287,7 @@ function codeInspector(el, add) {
     cwr.querySelector('button').onclick = () => { el.removeAttribute('cw'); show(); commit(true); place(); Book.refreshSoon(); };
     show();
     add(`<div class="help">The Lecture puts code and its output side by side. Auto fits the code to its longest line; or drag the gap between them on the slide.</div>`);
+    }
   }
   add(`<label>Highlights (line:from-to:colour, separated by spaces)</label>`);
   const mk = add(`<input type="text" spellcheck="false" style="font-family:var(--font-mono);font-size:11px" placeholder="3:4-18:gold">`);

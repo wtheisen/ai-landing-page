@@ -525,6 +525,9 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { overflow: hidden; }
+/* out="below" on a b-code puts its output under it on a slide too, across the full width (Eric, 2026-11-01) */
+.book[data-view="slides"] .page:not(.cover) > b-code[out="below"]:has(+ b-out:not(.run-new)) { grid-column: 1 / -1 !important; border-radius: 4px 4px 0 0; }
+.book[data-view="slides"] .page:not(.cover) > b-code[out="below"] + b-out:not(.run-new) { grid-column: 1 / -1 !important; margin-left: 0 !important; margin-top: calc(-1 * var(--gap, 10pt)) !important; border-top: 0; border-radius: 0 0 4px 4px; }
 /* cw="N" on a b-code sets how much of the slide's width (N%, 20-80 in steps of 5) the code takes beside its output.
    A slide with one switches to a 20-track grid: every block still spans it all, each code/output pair splits it (no cw = 65%). */
 .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) { grid-template-columns: repeat(20, minmax(0, 1fr)); column-gap: 0; }
