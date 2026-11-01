@@ -97,6 +97,53 @@ function highlight(line) {
 
 Book.highlight = highlight;   // the editor's in-place code editing redraws the colours as you type
 
+// Code output colours (Eric, 2026-11-01: "the outputs are all just plain black which can make it hard to parse").
+// Automatic: numbers take the code's number colour, names coloured in the code (book-meta codeColors) keep their colour,
+// a label at the start of a line ("loss:", "fc1.weight tensor(") is bold, tensor( / array( wrappers are grey.
+// Pre-registered: hl="gold y_hat (predictions):\nred loss" on the b-out, one rule per line (colour, a space, the exact
+// text): every occurrence of that text gets a highlight box like the code's, so it survives reruns. Tracebacks stay plain.
+// Self-contained on purpose: Book.snapshot() copies it into the published page, where Run uses it on live output.
+function eaiOutHL(text, cc, hl) {
+  function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  text = String(text || '');
+  if (/Traceback \(most recent call last\)|^\w*Error\b/m.test(text)) return esc(text);
+  cc = cc || {};
+  var nuCls = Object.keys(cc).length ? 'nu nn' : 'nu', WRAP = { tensor: 1, array: 1, Tensor: 1, Parameter: 1, dtype: 1, device: 1, grad_fn: 1, requires_grad: 1 };
+  var CONST = { True: 1, False: 1, None: 1, nan: 1, inf: 1 };
+  var rules = String(hl || '').split('\n').map(function (l) { var m = /^(\w+) (.+)$/.exec(l.replace(/\s+$/, '')); return m ? { c: m[1], t: m[2] } : null; })
+    .filter(Boolean).sort(function (a, b) { return b.t.length - a.t.length; });
+  function name(t) {
+    if (WRAP[t]) return 'ow'; if (CONST[t]) return nuCls;
+    if (cc[t]) return 'cc ' + cc[t];
+    var parts = t.split('.'); for (var i = parts.length - 1; i >= 0; i--) if (cc[parts[i]]) return 'cc ' + cc[parts[i]];
+    return null;
+  }
+  function auto(seg) {
+    var TOK = /(-?\b\d+(?:\.\d*)?(?:[eE][-+]?\d+)?|-?\.\d+)|([A-Za-z_][\w.]*\w|[A-Za-z_])|([\s\S])/g, out = '', m;
+    while ((m = TOK.exec(seg))) {
+      var e = esc(m[0]);
+      if (m[1] !== undefined) out += '<span class="' + nuCls + '">' + e + '</span>';
+      else if (m[2] !== undefined) { var c = name(m[0]); out += c ? '<span class="' + c + '">' + e + '</span>' : e; }
+      else out += e;
+    }
+    return out;
+  }
+  function marked(seg) {   // pre-registered texts first, the rest coloured automatically
+    if (!seg) return '';
+    for (var i = 0; i < rules.length; i++) {
+      var k = seg.indexOf(rules[i].t);
+      if (k >= 0) return marked(seg.slice(0, k)) + '<mark class="' + rules[i].c + '">' + auto(rules[i].t) + '</mark>' + marked(seg.slice(k + rules[i].t.length));
+    }
+    return auto(seg);
+  }
+  return text.split('\n').map(function (line) {
+    var lab = /^([A-Za-z_][^:\n]{0,48}?:)(?=\s|$)/.exec(line) || /^([A-Za-z_][\w.\[\]']*)(?=\s+(?:tensor|array|Parameter|[\[(]|-?\d))/.exec(line);
+    if (!lab || rules.some(function (r) { return line.indexOf(r.t) >= 0 && line.indexOf(r.t) < lab[1].length; })) return marked(line);
+    return '<span class="olab">' + marked(lab[1]) + '</span>' + marked(line.slice(lab[1].length));
+  }).join('\n');
+}
+window.eaiOutHL = eaiOutHL;
+
 // ---------------------------------------------------------------- custom elements
 const inThumb = el => !!el.closest('[data-thumb]');   // copies shown in the page list: already rendered, must not load or renumber anything
 const lock = el => { if (Book.mode === 'edit') el.setAttribute('contenteditable', 'false'); };
@@ -316,7 +363,7 @@ class BMatmul extends HTMLElement {
   attributeChangedCallback() { if (this.isConnected && window.eaiMatmulOne && !inThumb(this)) { this._mm = 1; window.eaiMatmulOne(this); Book.refreshSoon(); } }
 }
 class BOut extends BCode {
-  render() { this.innerHTML = `<div class="label">Output</div><pre>${esc(this.src)}</pre>`; }
+  render() { this.innerHTML = `<div class="label">Output</div><pre>${eaiOutHL(this.src, Book.meta.codeColors, this.getAttribute('hl'))}</pre>`; }
 }
 // <b-embed src="https://…/pca.html" title="PCA visualizer" height="640" poster="fig/x.svg"></b-embed>
 // An interactive page from elsewhere. The web page shows it in a frame, wider than the text column when there is room;
@@ -965,7 +1012,7 @@ function eaiRunCode() {
     var status = bar.querySelector('.run-status'), editor = null;
     function show(text, err, figs) {
       out.classList.toggle('run-new', !printed && !text && !(figs && figs.length));
-      var pre = out.querySelector('pre'); pre.textContent = text; pre.classList.toggle('run-err', !!err);
+      var pre = out.querySelector('pre'); if (!err && typeof eaiOutHL === 'function') pre.innerHTML = eaiOutHL(text, window.EAI_CC || (window.Book && window.Book.meta && window.Book.meta.codeColors), out.getAttribute('hl')); else pre.textContent = text; pre.classList.toggle('run-err', !!err);
       var old = out.querySelector('.run-figs'); if (old) old.remove();
       if (figs && figs.length) { var d = document.createElement('div'); d.className = 'run-figs'; figs.forEach(function (b) { var im = document.createElement('img'); im.src = 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; d.appendChild(im); }); out.appendChild(d); }
     }
@@ -1087,6 +1134,8 @@ ${clone.innerHTML}
 </main>
 <script>${zoom}${navjs}${reveal}${frames}
 ${liveJs}
+var EAI_CC = ${JSON.stringify(m.codeColors || null).replace(/</g, '\\u003c')};
+${eaiOutHL.toString()}
 ${eaiRunCode.toString()}
 eaiRunCode();
 ${eaiMatmul.toString()}

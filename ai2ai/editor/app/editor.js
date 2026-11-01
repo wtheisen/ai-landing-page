@@ -800,6 +800,7 @@ function insertRef() {
 document.addEventListener('mousedown', e => { if (!$('#pop').hidden && !e.target.closest('#pop') && !(e.target.closest && e.target.closest('b-m,b-ref'))) closePop(); }, true);
 function style(k) {
   if (codeEd && document.activeElement === codeEd.ta && codeEd.el.tagName === 'B-CODE' && (k === 'fill' || CODE_COLOUR[k])) return codeMark(k === 'fill' ? 'fill' : CODE_COLOUR[k]);
+  if (codeEd && document.activeElement === codeEd.ta && codeEd.el.tagName === 'B-OUT' && CODE_COLOUR[k]) return outMark(CODE_COLOUR[k]);
   if (k === 'math') return insertMath(); if (k === 'ref') return insertRef(); if (k === 'link') return linkPop(); if (k === 'clear') return clearSel();
   if (k === 'fill') return wrapSel('u', 'fill');
   if (k === 'key') return wrapSel('span', 'key');
@@ -1322,7 +1323,7 @@ function editorPython() {
 let codeEd = null;
 function codeEditView(el, text) {
   const lines = text.split('\n');
-  if (el.tagName === 'B-OUT') { el.querySelector('pre').textContent = text; return; }
+  if (el.tagName === 'B-OUT') { el.querySelector('pre').innerHTML = eaiOutHL(text, Book.meta.codeColors, el.getAttribute('hl')); return; }
   el.querySelector('.gutter').innerHTML = lines.map((_, k) => `<div>${k + 1}</div>`).join('');
   const line = Book.codeMarks(el.getAttribute('marks'));
   el.querySelector('.src').innerHTML = lines.map((l, k) => `<div class="ln">${line(l, k)}</div>`).join('');
@@ -1358,6 +1359,29 @@ function codeMark(kind) {
   if (isFill) toast(hit.length ? 'Blank removed' : 'Blanked: an underline in the Lecture and Workbook, plain code in the Reading');
   else if (kind === 'clear' || same) toast(hit.length ? 'Highlight removed' : 'Nothing highlighted there');
 }
+// Pre-registered output colours (Eric, 2026-11-01): in an Output cell the colour circles (Option+1-6) don't mark
+// characters (a rerun rewrites them) but the selected text itself: hl="colour text" rules on the b-out, one per line,
+// and every occurrence of that text is highlighted, now and after every rerun (book.js eaiOutHL). The same colour on a
+// registered text removes it, another recolours it, Clear removes every rule the selection touches.
+function outMark(kind) {
+  const { el, ta } = codeEd, a = ta.selectionStart, b = ta.selectionEnd;
+  if (a === b) return toast('Select the text in the output to colour first');
+  const texts = ta.value.slice(a, b).split('\n').map(t => t.trim()).filter(Boolean);
+  if (!texts.length) return toast('Select some text (not just spaces) first');
+  const rules = (el.getAttribute('hl') || '').split('\n').map(l => /^(\w+) (.+)$/.exec(l)).filter(Boolean).map(m => ({ c: m[1], t: m[2] }));
+  const touches = r => texts.some(t => t.includes(r.t) || r.t.includes(t));
+  let keep, msg;
+  if (kind === 'clear') { keep = rules.filter(r => !touches(r)); msg = keep.length < rules.length ? 'Output colour removed' : 'Nothing coloured there'; }
+  else {
+    const same = texts.every(t => rules.some(r => r.t === t && r.c === kind));
+    keep = rules.filter(r => !texts.includes(r.t));
+    if (!same) texts.forEach(t => keep.push({ c: kind, t }));
+    msg = same ? 'Output colour removed' : 'Coloured wherever “' + (texts[0].length > 30 ? texts[0].slice(0, 30) + '…' : texts[0]) + '” appears in this output, also after a rerun';
+  }
+  commit(true);
+  if (keep.length) el.setAttribute('hl', keep.map(r => r.c + ' ' + r.t).join('\n')); else el.removeAttribute('hl');
+  codeEditView(el, ta.value); commit(true); place(); toast(msg);
+}
 function startCodeEdit(el, ev) {
   if (codeEd && codeEd.el === el) return;
   endCodeEdit();
@@ -1385,7 +1409,7 @@ function startCodeEdit(el, ev) {
   ta.oninput = () => { el.setAttribute('data-src', ta.value); codeEditView(el, ta.value); place(); commit(); };
   ta.onkeydown = e => {
     if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.execCommand('insertText', false, '    '); }
-    else if (e.altKey && !e.metaKey && !e.ctrlKey && /^Digit[0-6]$/.test(e.code) && !isOut) { e.preventDefault(); style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray'][+e.code.slice(5)]); }
+    else if (e.altKey && !e.metaKey && !e.ctrlKey && /^Digit[0-6]$/.test(e.code)) { e.preventDefault(); style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray'][+e.code.slice(5)]); }
     else if (e.key === 'Escape') { e.preventDefault(); ta.blur(); }
     else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && run) { e.preventDefault(); run.lastChild.click(); }
     else if (e.key === 'Enter' && !e.shiftKey) {   // keep the indentation of the line above
