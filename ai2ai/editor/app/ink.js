@@ -136,7 +136,12 @@ function eaiInk(opts) {
     undo: SVG('<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.5 3.5l-3 3 3 3M2.5 6.5H10a3.5 3.5 0 010 7H7"/>'),
     page: SVG('<path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M3.5 1.5h6l3 3v10h-9z"/><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 7v5M5.5 9.5h5"/>') };
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
-  function save() { if (target === mine) store(KEY_MINE, mine); else if (target) store(KEY_DRAFT + target.id, target); }
+  function save() { clearTimeout(saveSoon.t); if (target === mine) store(KEY_MINE, mine); else if (target) store(KEY_DRAFT + target.id, target); }
+  // after a stroke: written to this browser's storage a moment later (the notes are one JSON blob, and writing it as
+  // the pen lifts made the start of the next stroke stutter); leaving the page writes it at once
+  function saveSoon() { clearTimeout(saveSoon.t); saveSoon.t = setTimeout(save, 600); }
+  addEventListener('pagehide', function () { if (saveSoon.t) save(); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden && saveSoon.t) save(); });
   // where the pen writes: the instructor into today's lecture notes (a draft on this device until published), anyone else into My notes
   function ensureTarget() {
     if (target && (target === mine) === !teacher()) return;
@@ -221,41 +226,80 @@ function eaiInk(opts) {
     if (e.pointerType === 'touch') return IOS ? undefined : fingerScroll(e);
     e.preventDefault(); try { pg.setPointerCapture(e.pointerId); } catch (x) {}
     var svg = overlay(pg), cur = null, el = null, erased = [], sm = null, raw = null, tail = null, queued = false;
-    // speed-aware smoothing: slow, wobbly movement is averaged out, fast movement passes straight through (no trailing)
-    function smooth(pt) {
-      raw = pt; if (!sm) { sm = pt.slice(); return pt; }
-      var dx = pt[0] - sm[0], dy = pt[1] - sm[1], a = Math.min(1, 0.2 + Math.sqrt(dx * dx + dy * dy) / 6);
-      sm[0] += a * dx; sm[1] += a * dy; return [r1(sm[0]), r1(sm[1]), pt[2]];
+    // The page's box is read once per stroke (and again only if something scrolls), not on every pen event: reading it
+    // after the stroke was redrawn made the browser lay the page out again for each event (2026-11-01, Eric: "still
+    // isn't as smooth as Notability's").
+    var box = null, onScroll = function () { box = null; };
+    addEventListener('scroll', onScroll, true);
+    function pt(q) {
+      if (!box) { var r = pg.getBoundingClientRect(); box = { l: r.left, t: r.top, k: pgW(pg) / r.width }; }
+      return [r1((q.clientX - box.l) * box.k), r1((q.clientY - box.t) * box.k), 0.5];
     }
-    function frame() { queued = false; if (el) paint(el, cur, tail); }
+    // speed-aware smoothing: slow, wobbly movement is averaged out a little, fast movement passes straight through
+    function smooth(p) {
+      raw = p; if (!sm) { sm = p.slice(); return p; }
+      var dx = p[0] - sm[0], dy = p[1] - sm[1], a = Math.min(1, 0.35 + Math.sqrt(dx * dx + dy * dy) / 4);
+      sm[0] += a * dx; sm[1] += a * dy; return [r1(sm[0]), r1(sm[1]), p[2]];
+    }
+    // A long stroke is drawn as a chain of short paths while the pen is down (each frame rewrites only the last one),
+    // then joined into one path when it lifts.
+    var chunks = [], from = 0, CH = 40;
+    function frame() {
+      queued = false; if (!el) return;
+      var n = cur.pts.length;
+      if (n - from > CH) {
+        var done = { c: cur.c, w: cur.w, o: cur.o, pts: cur.pts.slice(from, n - 1) }; paint(el, done);
+        chunks.push(el); el = document.createElementNS(NS, 'path'); el._s = cur; if (cur.o && cur.o < 1) el.setAttribute('opacity', cur.o); svg.appendChild(el);
+        from = n - 2;
+      }
+      paint(el, { c: cur.c, w: cur.w, o: cur.o, pts: cur.pts.slice(from) }, tail);
+    }
+    // where the pen will be a frame from now: the browser's guess if it has one (Chrome), else ours from the last speed
+    var last = null, prev = null;
+    function ahead(ev) {
+      var pr = ev.getPredictedEvents ? ev.getPredictedEvents() : [];
+      if (pr.length) return pt(pr[pr.length - 1]);
+      if (!last || !prev || last.t - prev.t <= 0) return last ? last.p : null;
+      var dt = Math.min(16, (last.t - prev.t) * 2), vx = (last.p[0] - prev.p[0]) / (last.t - prev.t), vy = (last.p[1] - prev.p[1]) / (last.t - prev.t);
+      var dx = vx * dt, dy = vy * dt, d = Math.sqrt(dx * dx + dy * dy); if (d > 6) { dx *= 6 / d; dy *= 6 / d; }
+      return [r1(last.p[0] + dx), r1(last.p[1] + dy), 0.5];
+    }
     if (tool === 'laser') { laser = laser || document.createElement('div'); laser.className = 'ink-laser'; document.body.appendChild(laser); laser.style.left = e.clientX + 'px'; laser.style.top = e.clientY + 'px'; }
     else if (tool !== 'erase') {
-      cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [smooth(toPt(pg, e))] }; if (tool === 'hl') cur.o = 0.35;
+      cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [smooth(pt(e))] }; if (tool === 'hl') cur.o = 0.35;
       el = drawStroke(cur);
     }
     function move(ev) {
+      if (ev.pointerId !== e.pointerId) return;
       var es = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [ev]; if (!es.length) es = [ev];
       if (tool === 'laser') { laser.style.left = ev.clientX + 'px'; laser.style.top = ev.clientY + 'px'; return; }
       es.forEach(function (q) {
-        var pt = toPt(pg, q);
+        var p = pt(q);
+        prev = last; last = { p: p, t: q.timeStamp || ev.timeStamp };
         if (tool === 'erase') {   // only your own strokes can be erased
-          target.strokes.filter(function (s) { return s.p === pg.id && near(s, pt[0], pt[1], 6); }).forEach(function (s) {
+          target.strokes.filter(function (s) { return s.p === pg.id && near(s, p[0], p[1], 6); }).forEach(function (s) {
             target.strokes.splice(target.strokes.indexOf(s), 1); erased.push(s);
             [].forEach.call(svg.querySelectorAll('path'), function (pp) { if (pp._s === s) pp.remove(); });
           });
-        } else { var f = smooth(pt), l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - f[0]) + Math.abs(l[1] - f[1]) >= 0.8) cur.pts.push(f); }
+        } else { var f = smooth(p), l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - f[0]) + Math.abs(l[1] - f[1]) >= 0.35) cur.pts.push(f); }
       });
       if (!cur) return;
-      // draw ahead to where the pen is (or is about to be) so the line keeps up with the tip
-      var pr = ev.getPredictedEvents ? ev.getPredictedEvents() : []; tail = toPt(pg, pr.length ? pr[pr.length - 1] : ev);
+      tail = ahead(ev);   // draw ahead to where the pen is about to be, so the line keeps up with the tip
       if (!queued) { queued = true; requestAnimationFrame(frame); }
     }
-    function up() {
+    function up(ev) {
+      if (ev && ev.pointerId !== e.pointerId) return;
       pg.removeEventListener('pointermove', move); pg.removeEventListener('pointerup', up); pg.removeEventListener('pointercancel', up);
+      removeEventListener('scroll', onScroll, true);
       if (tool === 'laser') { if (laser) laser.remove(); laser = null; return; }
-      if (cur && cur.pts.length) { var l = cur.pts[cur.pts.length - 1]; if (raw && cur.pts.length > 1 && (raw[0] !== l[0] || raw[1] !== l[1])) cur.pts.push(raw); tail = null; paint(el, cur); target.strokes.push(cur); undo.push({ stroke: cur, el: el }); }
+      if (cur && cur.pts.length) {
+        var l = cur.pts[cur.pts.length - 1]; if (raw && cur.pts.length > 1 && (raw[0] !== l[0] || raw[1] !== l[1])) cur.pts.push(raw);
+        tail = null; chunks.forEach(function (c) { c.remove(); }); chunks = [];
+        if (from) { el.remove(); el = drawStroke(cur); } else paint(el, cur);
+        target.strokes.push(cur); undo.push({ stroke: cur, el: el });
+      }
       if (erased.length) undo.push({ erased: erased });
-      save();
+      saveSoon();
     }
     pg.addEventListener('pointermove', move); pg.addEventListener('pointerup', up); pg.addEventListener('pointercancel', up);
   }
@@ -350,22 +394,46 @@ function eaiInk(opts) {
       if (a) { var r = a.p.getBoundingClientRect(); book.scrollLeft += r.left + a.fx * r.width - x; book.scrollTop += r.top + a.fy * r.height - y; }
       clearTimeout(zoomTo.t); zoomTo.t = setTimeout(function () { try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }, 300);
     }
-    var raf = 0, want = null;
-    function soon(nk, x, y) { want = [nk, x, y]; if (!raf) raf = requestAnimationFrame(function () { raf = 0; zoomTo(want[0], want[1], want[2]); }); }
+    // While the fingers move, the pages are only scaled as a picture (a transform the GPU does, nothing is laid out
+    // again); the real zoom, which lays every page out at the new size, happens once when the pinch ends, with the point
+    // under the fingers kept under them (2026-11-01, Eric: zooming and panning in the presenting view were laggy).
+    var raf = 0, live = null;
+    function soon(nk, x, y, slide) {
+      nk = Math.max(0.4, Math.min(4, nk));
+      if (!live) {
+        var r = book.getBoundingClientRect();
+        live = { x0: x, y0: y, a: pageAt(x, y) }; H.classList.add('lect-zooming');
+        book.style.transformOrigin = (x - r.left) + 'px ' + (y - r.top) + 'px';
+      }
+      live.nk = nk; live.x = x; live.y = y; live.slide = !!slide;
+      if (!raf) raf = requestAnimationFrame(function () {
+        raf = 0; if (!live) return;
+        var tx = live.slide ? live.x - live.x0 : 0, ty = live.slide ? live.y - live.y0 : 0;
+        book.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + (live.nk / k) + ')';
+      });
+      clearTimeout(soon.t); soon.t = setTimeout(commit, 200);   // a trackpad or ctrl+wheel pinch has no end event
+    }
+    function commit() {
+      clearTimeout(soon.t); if (!live) return;
+      var L = live; live = null; if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming');
+      if (Math.abs(L.nk - k) >= 0.002) { k = L.nk; window.eaiZoomK = k; apply(); try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }
+      if (L.a) { var r = L.a.p.getBoundingClientRect(); book.scrollLeft += r.left + L.a.fx * r.width - L.x; book.scrollTop += r.top + L.a.fy * r.height - L.y; }
+    }
     var g0 = 1;   // Safari (iPad, Mac trackpad): gesture events carry the pinch scale
     var page = false;   // the page itself is zoomed (Safari): let this pinch go to Safari so it can zoom back out
     function pageZoomed() { return !!(window.visualViewport && visualViewport.scale > 1.01); }
     addEventListener('gesturestart', function (e) { page = pageZoomed(); if (page) return; e.preventDefault(); g0 = k; }, { passive: false });
     addEventListener('gesturechange', function (e) { if (page) return; e.preventDefault(); soon(g0 * e.scale, e.clientX || innerWidth / 2, e.clientY || innerHeight / 2); }, { passive: false });
-    addEventListener('gestureend', function (e) { if (!page) e.preventDefault(); page = false; }, { passive: false });
+    addEventListener('gestureend', function (e) { if (!page) { e.preventDefault(); commit(); } page = false; }, { passive: false });
     if (!('ongesturestart' in window)) {   // other touch screens: two fingers
       var t0 = null;
       var dist = function (t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); };
       addEventListener('touchstart', function (e) { if (e.touches.length === 2) t0 = { d: dist(e.touches), k: k }; }, { passive: true });
-      addEventListener('touchmove', function (e) { if (!t0 || e.touches.length !== 2) return; e.preventDefault(); soon(t0.k * dist(e.touches) / t0.d, (e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2); }, { passive: false });
-      addEventListener('touchend', function (e) { if (e.touches.length < 2) t0 = null; });
+      addEventListener('touchmove', function (e) { if (!t0 || e.touches.length !== 2) return; e.preventDefault(); soon(t0.k * dist(e.touches) / t0.d, (e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2, true); }, { passive: false });
+      addEventListener('touchend', function (e) { if (e.touches.length < 2 && t0) { t0 = null; commit(); } });
     }
-    addEventListener('wheel', function (e) { if (!e.ctrlKey) return; e.preventDefault(); soon(k * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY); }, { passive: false });   // trackpad pinch in Chrome, ctrl+wheel
+    addEventListener('wheel', function (e) { if (!e.ctrlKey) return; e.preventDefault(); soon((live ? live.nk : k) * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY); }, { passive: false });   // trackpad pinch in Chrome, ctrl+wheel
     addEventListener('keydown', function (e) {
       if (!(e.metaKey || e.ctrlKey) || !/^(=|\+|-|0)$/.test(e.key)) return; e.preventDefault();
       var r = book.getBoundingClientRect();
