@@ -359,7 +359,8 @@ function place() {
   else { bar.style.left = Math.max(2, x - 34) + 'px'; bar.style.top = y + 'px'; }
   bar.querySelector('[data-act=pin]').classList.toggle('on', Book.isPinned(sel));
   bar.querySelector('[data-act=code]').hidden = sel.tagName !== 'B-FIG' || !!extra.length;
-  bar.querySelector('[data-act=center]').classList.toggle('on', sel.getAttribute('data-align') === 'center');
+  bar.querySelector('[data-act=center]').classList.toggle('on', isCentred(sel));
+  bar.querySelector('[data-act=center]').hidden = sel.tagName === 'B-CODE' || sel.tagName === 'B-OUT';
   const sizable = Book.isPinned(sel) || sel.tagName === 'B-FIG' || sel.localName === 'svg';
   rsz.hidden = !sizable;
   if (sizable) { rsz.style.left = (x + r.width - 3) + 'px'; rsz.style.top = (y + r.height / 2 - 13) + 'px'; }
@@ -3330,15 +3331,29 @@ function centrePinned(el) {
   const pr = pg.getBoundingClientRect(), r = el.getBoundingClientRect(), k = pr.width / Book.pageW(pg);   // screen px per pt
   commit(true); el.style.left = Math.round((Book.pageW(pg) - r.width / k) / 2 * 10) / 10 + 'pt'; commit(true); Book.refresh(); place();
 }
+// The centre button on the block bar works on any block (Eric, 2026-11-01): text, headings, equations, tables, notes
+// get data-align="center" (again: off); a figure or drawing in the flow is centred by default, so the button takes it
+// back to the middle, or to the left when it already is; a pinned block (figure, drawing, anything) goes to the middle
+// of the page. Code always spans the column, so it is left alone.
+const FLOWBOX = b => (b.tagName === 'B-FIG' || b.localName === 'svg') && !Book.isPinned(b);
+function isCentred(b) {
+  if (Book.isPinned(b)) { const pg = b.closest('section.page'); if (!pg) return false; const pr = pg.getBoundingClientRect(), r = b.getBoundingClientRect(); return Math.abs((r.left + r.right) / 2 - (pr.left + pr.right) / 2) < 2; }
+  if (FLOWBOX(b)) return b.getAttribute('data-align') !== 'left' && b.getAttribute('data-align') !== 'right';
+  return b.getAttribute('data-align') === 'center';
+}
 function toggleCenter() {
-  const h = editHost(), list = allSel().length ? allSel() : (h ? [blockOf(h)].filter(Boolean) : []);
-  if (!list.length) return toast('Click a block (or into some text) first');
-  if (list.every(b => Book.isPinned(b))) { list.forEach(centrePinned); return toast(list.length > 1 ? 'Centred on the page' : 'Centred on the page'); }
-  if (list.length === 1 && list[0].localName === 'svg') { const b = list[0]; commit(true); b.removeAttribute('data-align'); commit(true); Book.refresh(); place(); renderInspector(); return; }
-  const on = !list.every(b => b.getAttribute('data-align') === 'center');
+  const h = editHost(), all = allSel().length ? allSel() : sel ? [sel] : (h ? [blockOf(h)].filter(Boolean) : []);
+  const list = all.filter(b => b.tagName !== 'B-CODE' && b.tagName !== 'B-OUT');
+  if (!list.length) return toast(all.length ? 'Code always spans the text column' : 'Click a block (or into some text) first');
+  const off = list.every(isCentred);
+  if (off && list.every(b => Book.isPinned(b))) return toast('Already in the middle of the page');
   commit(true);
-  list.forEach(b => { if (on) b.setAttribute('data-align', 'center'); else b.removeAttribute('data-align'); });
-  commit(true); Book.refresh(); place();
+  list.forEach(b => {
+    if (Book.isPinned(b)) { if (!off) centrePinned(b); return; }
+    if (FLOWBOX(b)) { if (off) b.setAttribute('data-align', 'left'); else b.removeAttribute('data-align'); return; }
+    if (off) b.removeAttribute('data-align'); else b.setAttribute('data-align', 'center');
+  });
+  commit(true); Book.refresh(); place(); if (sel) renderInspector();
 }
 
 // ---------------------------------------------------------------- numbers in running text: <span class="num"> (Consolas, dark grey)
