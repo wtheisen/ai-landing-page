@@ -450,6 +450,7 @@ span.wrapf { display: block; pointer-events: none; -webkit-user-select: none; us
 
 /* equations typeset in the browser (eqml.js): laid out like the TeX images (kit/preamble_mathfont.tex) */
 b-eq > .eq-ml { display: inline-block; vertical-align: middle; max-width: 100%; overflow-x: auto; }
+.eqml.flush { grid-template-columns: 0 auto; column-gap: 0; }
 .eqml { display: grid; grid-template-columns: 3.6em auto; column-gap: 0.5em; row-gap: 5.6pt; align-items: center; font-size: 16pt; line-height: 1.2; color: #000; }
 .eqml math { font-family: 'AI2AI Math', math; font-size: 16pt; }
 .eqml mtext { font-family: 'Inconsolata LGC', 'AI2AI Math', monospace; }

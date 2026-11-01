@@ -1772,6 +1772,8 @@ function eqInspector(el) {
   draw();
   const row = add(`<div class="row"><button data-k="eq-row">+ Equation row</button><button data-k="eq-step">+ Step row</button></div>`);
   row.onclick = e => { const k = e.target.dataset.k; if (!k) return; const n = document.createElement(k); n.textContent = k === 'eq-step' ? '\\text{substitute}' : '= x'; const img = el.querySelector(':scope > [data-rt]'); el.insertBefore(n, null); if (img) el.append(...el.querySelectorAll(':scope > [data-rt]')); el.render(); draw(); const tas = list.querySelectorAll('textarea'); tas[tas.length - 1].focus(); tas[tas.length - 1].select(); };
+  const fl = add(`<label class="check"><input type="checkbox" ${el.hasAttribute('flush') ? 'checked' : ''}>Flush left (no number column, so it can draw larger)</label>`);
+  fl.firstChild.onchange = e => { commit(true); el.toggleAttribute('flush', e.target.checked); commit(true); place(); };
   add(`<div class="help">LaTeX, rendered by the equation kit${info.tex ? '' : ' (<b style="color:var(--red-text)">no TeX found on this computer: existing equations show, changes need xelatex or tectonic</b>)'}. Symbols in the chapter's colour list are coloured and bolded for you.<br>
 <code>x w\\T</code> transpose · <code>\\yhat</code> ŷ · <code>\\norm{w}</code> ‖w‖ · <code>x\\p</code> prime · <code>\\cd</code> dot<br>
 <code>\\frac{a}{b}</code> · <code>\\tfrac{1}{2}</code> · <code>\\sum_i</code> · <code>\\text{words}</code><br>
