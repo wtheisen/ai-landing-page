@@ -495,7 +495,12 @@ function endLabel(keep) {
 }
 
 // ---------------------------------------------------------------- group, order, keyboard
-function remove() { if (!shapes.length) return; E.commit(true); shapes.forEach(s => s.remove()); setShapes([]); E.commit(true); }
+function remove() {
+  if (!shapes.length) return;
+  const svg = layer && !layer.classList.contains('overlay') ? layer : null;
+  E.commit(true); shapes.forEach(s => s.remove()); setShapes([]); E.commit(true);
+  if (svg && svg.isConnected && fit(svg, true)) E.toast('Canvas trimmed to what is left', 'Undo', E.doUndo);
+}
 function duplicate(list, into, d) {
   const out = list.map(s => { const c = s.cloneNode(true); into.append(c); c.removeAttribute('id'); c.removeAttribute('data-a'); c.removeAttribute('data-b'); moveTo(c, snapshot(c), d, d);
     for (const n of [c, ...c.querySelectorAll('*')]) for (const a of ['marker-start', 'marker-end']) if (n.getAttribute(a)) n.setAttribute(a, marker(into, n.getAttribute('stroke') || '#000000')); return c; });
@@ -665,13 +670,28 @@ async function convertFigure(fig) {
   E.commit(true); fig.replaceWith(svg); E.prep(); E.select(svg); E.commit(true); Book.refresh();
   E.toast('Converted. The file ' + src + ' is no longer used by this page.', 'Undo', E.doUndo);
 }
-function fit(svg) {
-  const list = kids(svg); if (!list.length) return;
+// Fit the canvas to its shapes, both ways (Eric, 2026-11-01: "have the drawing region automatically adjust to the size of
+// the component pieces"): the shapes move to the top-left corner with a small margin, the viewBox shrinks or grows to
+// them, and the drawing's width (pt or %) changes by the same factor so nothing on it changes size. A pinned drawing
+// also moves by the cut-off margin, so its shapes stay where they were on the page. Deleting shapes from a drawing fits
+// it again by itself (remove()); the inspector's "Fit to contents" does it on demand.
+function fit(svg, quiet) {
+  const list = kids(svg); if (!list.length || svg.classList.contains('overlay')) return false;
   const u = union(list), v = vbox(svg), pad = 4;
-  E.commit(true);
-  const dy = pad - u.y0; list.forEach(s => moveTo(s, snapshot(s), 0, dy));
-  svg.setAttribute('viewBox', `${r1(v.x)} 0 ${r1(v.width)} ${r1(u.y1 - u.y0 + 2 * pad)}`);
+  const nw = r1(u.x1 - u.x0 + 2 * pad), nh = r1(u.y1 - u.y0 + 2 * pad), dx = pad - u.x0, dy = pad - u.y0;
+  if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5 && Math.abs(nw - v.width) < 0.5 && Math.abs(nh - v.height) < 0.5) return false;
+  if (!quiet) E.commit(true);
+  list.forEach(s => moveTo(s, snapshot(s), dx, dy));
+  const k = nw / v.width, w = svg.style.width, m = /^([\d.]+)(pt|%)$/.exec(w || '');
+  if (m) svg.style.width = r1(+m[1] * k) + m[2];
+  else if (!w && svg.style.position !== 'absolute') svg.style.width = r1(100 * k) + '%';
+  if (svg.style.position === 'absolute' && m && m[2] === 'pt') {
+    const per = +m[1] / v.width, mv = (prop, d) => { const q = /^([-\d.]+)pt$/.exec(svg.style[prop] || ''); if (q) svg.style[prop] = r1(+q[1] + d * per) + 'pt'; };
+    mv('left', u.x0 - pad - v.x); mv('top', u.y0 - pad - v.y);
+  }
+  svg.setAttribute('viewBox', `0 0 ${nw} ${nh}`);
   drawHandles(); E.commit(true); Book.refresh(); E.place();
+  return true;
 }
 window.Draw = { inspect, layers, convertFigure, fit, clearClip() { clip = null; }, onBlockSelect(el) { if (shapes.length && layer !== el) { shapes = []; layer = null; drawHandles(); } }, get shapes() { return shapes; }, get tool() { return tool; }, get locked() { return locked; }, setTool };
 E.renderInspector();

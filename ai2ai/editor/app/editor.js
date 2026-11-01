@@ -1608,7 +1608,7 @@ function renderOneInspector() {
     add(`<label>Canvas height (the width is the text column: ${Book.pageW(el) - 48}pt)</label>`);
     const hh = add(`<input type="number" min="20" step="10" value="${Math.round(vb.height)}">`);
     hh.oninput = () => { el.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.width} ${Math.max(20, +hh.value || 20)}`); place(); commit(); };
-    const fit = add(`<div class="row"><button>Fit height to contents</button></div>`);
+    const fit = add(`<div class="row"><button title="Trim (or grow) the canvas to the shapes on it, keeping their size and place">Fit to contents</button></div>`);
     fit.firstChild.onclick = () => { if (window.Draw) { Draw.fit(el); renderInspector(); } };
     add(`<div class="help">Pick a tool under <b>Draw</b> and drag inside the canvas. Click a shape to select it (Shift-click for several); its colours, line style and arrowheads appear here. Drawing outside a canvas puts the shape on the page itself, on top of the text.</div>`);
   } else if (el.tagName === 'B-CODE' || el.tagName === 'B-OUT') {
