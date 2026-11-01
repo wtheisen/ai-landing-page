@@ -735,7 +735,7 @@ function clearSel() {
   const keep = document.createRange(); keep.setStartAfter(mS); keep.setEndBefore(mE); mS.remove(); mE.remove(); host.normalize();
   s.removeAllRanges(); s.addRange(keep); commit(true);
 }
-const ALIAS = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', theta: 'θ', lambda: 'λ', mu: 'μ', sigma: 'σ', phi: 'φ', varphi: 'φ', eta: 'η', rho: 'ρ', tau: 'τ', omega: 'ω', xi: 'ξ',
+const ALIAS = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', theta: 'θ', lambda: 'λ', mu: 'μ', sigma: 'σ', sig: 'σ', phi: 'φ', varphi: 'φ', eta: 'η', rho: 'ρ', tau: 'τ', omega: 'ω', xi: 'ξ',
   Sigma: 'Σ', sum: 'Σ', ge: '≥', geq: '≥', le: '≤', leq: '≤', ne: '≠', neq: '≠', cdot: '·', times: '×', pm: '±', in: '∈', approx: '≈', infty: '∞', sqrt: '√', norm: '‖', half: '½', prime: '′', yhat: 'ŷ', to: '→', partial: '∂' };
 const mathNorm = (s, final) => (final ? s + '\n' : s).replace(/\\([A-Za-z]+)(?=[^A-Za-z])/g, (m, w) => ALIAS[w] ? ALIAS[w] : m).replace(/'/g, '′').normalize('NFC');
 function insertMath() {
@@ -755,7 +755,7 @@ function openPop(el, html) {
   return p;
 }
 function mathPop(m) {
-  const p = openPop(m, `<input type="text" spellcheck="false"><div class="hint"><code>x_i</code> subscript · <code>^2</code> power · <code>x_{ij}</code> group · <code>\\T</code> transpose · <code>\\alpha \\ge \\sum \\norm \\half \\yhat</code> become α ≥ Σ ‖ ½ ŷ · <code>'</code> prime. Symbols in the chapter's colour list are coloured automatically. Enter to finish.</div>`);
+  const p = openPop(m, `<input type="text" spellcheck="false"><div class="hint"><code>x_i</code> subscript · <code>^2</code> power · <code>x_{ij}</code> group · <code>\\T</code> transpose · <code>\\sig \\alpha \\ge \\sum \\norm \\half \\yhat</code> become σ α ≥ Σ ‖ ½ ŷ · <code>'</code> prime. Symbols in the chapter's colour list are coloured automatically. Enter to finish.</div>`);
   const inp = p.querySelector('input'); inp.value = m.getAttribute('tex') || ''; inp.focus(); inp.select();
   inp.oninput = () => { const a = inp.selectionStart, before = inp.value, v = mathNorm(before); if (v !== before) { inp.value = v; const pos = Math.max(0, a - (before.length - v.length)); inp.setSelectionRange(pos, pos); } m.setAttribute('tex', v); place(); };
   inp.onkeydown = e => { if (e.key === 'Enter' || e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); m.setAttribute('tex', mathNorm(inp.value, true).trim()); const keep = m.getAttribute('tex'); closePop(); if (keep) caretAfter(m); commit(true); } };
