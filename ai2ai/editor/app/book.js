@@ -97,9 +97,12 @@ function highlight(line) {
 
 Book.highlight = highlight;   // the editor's in-place code editing redraws the colours as you type
 
-// Code output colours (Eric, 2026-11-01: "the outputs are all just plain black which can make it hard to parse").
-// Automatic: numbers take the code's number colour, names coloured in the code (book-meta codeColors) keep their colour,
-// a label at the start of a line ("loss:", "fc1.weight tensor(") is bold, tensor( / array( wrappers are grey.
+// Code output colours (Eric, 2026-11-01: "the outputs are all just plain black which can make it hard to parse", then:
+// "follow what I do in the diagrams and equations": weights blue, bias grey, Z purple, post-activations gold, final
+// predictions green). A label at the start of a line ("loss:", "fc1.weight tensor(", "y_hat (predictions):") is bold and
+// takes the family of the first word in it that names one (DEF below, overridden by book-meta codeColors), and so do
+// the numbers after it, also on the lines a tensor wraps onto. Unnamed labels are navy, other numbers are dark grey
+// (red means an input), tensor( / array( wrappers are grey, names from codeColors elsewhere keep their colour.
 // Pre-registered: hl="gold y_hat (predictions):\nred loss" on the b-out, one rule per line (colour, a space, the exact
 // text): every occurrence of that text gets a highlight box like the code's, so it survives reruns. Tracebacks stay plain.
 // Self-contained on purpose: Book.snapshot() copies it into the published page, where Run uses it on live output.
@@ -107,39 +110,59 @@ function eaiOutHL(text, cc, hl) {
   function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   text = String(text || '');
   if (/Traceback \(most recent call last\)|^\w*Error\b/m.test(text)) return esc(text);
+  var DEF = {}, fams = {
+    red: 'x X x_train X_train X_test x_test input inputs features pts',
+    blue: 'weight weights W W1 W2 W3 Ω ω coef coef_ coefs_ kernel filters',
+    gray: 'bias biases b b1 b2 b3 intercept intercept_ intercepts_',
+    purple: 'z Z z1 z2 z_1 z_2 Z1 Z2 logit logits pre-activation pre-activations',
+    gold: 'h H a A a1 A1 a_1 h1 h2 hidden activation activations post-activation post-activations y_hat yhat ŷ prob probs proba probability probabilities sigmoid softmax p',
+    green: 'y Y y_true y_train y_test label labels target targets pred preds y_pred prediction predictions predicted class classes'
+  };
+  Object.keys(fams).forEach(function (f) { fams[f].split(' ').forEach(function (w) { DEF[w] = f; }); });
   cc = cc || {};
-  var nuCls = Object.keys(cc).length ? 'nu nn' : 'nu', WRAP = { tensor: 1, array: 1, Tensor: 1, Parameter: 1, dtype: 1, device: 1, grad_fn: 1, requires_grad: 1 };
+  var map = {}; Object.keys(DEF).forEach(function (k) { map[k] = DEF[k]; }); Object.keys(cc).forEach(function (k) { map[k] = cc[k]; });
+  var nuCls = 'nu nn', WRAP = { tensor: 1, array: 1, Tensor: 1, Parameter: 1, dtype: 1, device: 1, grad_fn: 1, requires_grad: 1 };
   var CONST = { True: 1, False: 1, None: 1, nan: 1, inf: 1 };
   var rules = String(hl || '').split('\n').map(function (l) { var m = /^(\w+) (.+)$/.exec(l.replace(/\s+$/, '')); return m ? { c: m[1], t: m[2] } : null; })
     .filter(Boolean).sort(function (a, b) { return b.t.length - a.t.length; });
-  function name(t) {
+  function name(t) {   // outside labels: codeColors names, and the longer DEF names (not single letters in running output)
     if (WRAP[t]) return 'ow'; if (CONST[t]) return nuCls;
-    if (cc[t]) return 'cc ' + cc[t];
-    var parts = t.split('.'); for (var i = parts.length - 1; i >= 0; i--) if (cc[parts[i]]) return 'cc ' + cc[parts[i]];
+    var parts = t.split('.');
+    for (var i = parts.length - 1; i >= 0; i--) { var w = parts[i]; if (cc[w]) return 'cc ' + cc[w]; if (w.length > 2 && DEF[w]) return 'cc ' + DEF[w]; }
     return null;
   }
-  function auto(seg) {
+  function famOf(label) {   // the family of a label: its first word that names one (single letters only in a one-word label)
+    var words = label.replace(/:$/, '').match(/[A-Za-zΩωŷ_][\w\-]*(?:\.[\w\-]+)*/g) || [], one = words.length === 1;
+    for (var i = 0; i < words.length; i++) {
+      var parts = words[i].split('.');
+      for (var j = parts.length - 1; j >= 0; j--) { var w = parts[j]; if (map[w] && (one || w.length > 1)) return map[w]; if (map[w.toLowerCase()] && w.length > 2) return map[w.toLowerCase()]; }
+    }
+    return null;
+  }
+  function auto(seg, fam) {
     var TOK = /(-?\b\d+(?:\.\d*)?(?:[eE][-+]?\d+)?|-?\.\d+)|([A-Za-z_][\w.]*\w|[A-Za-z_])|([\s\S])/g, out = '', m;
     while ((m = TOK.exec(seg))) {
       var e = esc(m[0]);
-      if (m[1] !== undefined) out += '<span class="' + nuCls + '">' + e + '</span>';
+      if (m[1] !== undefined) out += '<span class="' + (fam ? 'nu f-' + fam : nuCls) + '">' + e + '</span>';
       else if (m[2] !== undefined) { var c = name(m[0]); out += c ? '<span class="' + c + '">' + e + '</span>' : e; }
       else out += e;
     }
     return out;
   }
-  function marked(seg) {   // pre-registered texts first, the rest coloured automatically
+  function marked(seg, fam, plain) {   // pre-registered texts first, the rest coloured automatically (plain: just escaped)
     if (!seg) return '';
     for (var i = 0; i < rules.length; i++) {
       var k = seg.indexOf(rules[i].t);
-      if (k >= 0) return marked(seg.slice(0, k)) + '<mark class="' + rules[i].c + '">' + auto(rules[i].t) + '</mark>' + marked(seg.slice(k + rules[i].t.length));
+      if (k >= 0) return marked(seg.slice(0, k), fam, plain) + '<mark class="' + rules[i].c + '">' + (plain ? esc(rules[i].t) : auto(rules[i].t, fam)) + '</mark>' + marked(seg.slice(k + rules[i].t.length), fam, plain);
     }
-    return auto(seg);
+    return plain ? esc(seg) : auto(seg, fam);
   }
+  var fam = null;
   return text.split('\n').map(function (line) {
     var lab = /^([A-Za-z_][^:\n]{0,48}?:)(?=\s|$)/.exec(line) || /^([A-Za-z_][\w.\[\]']*)(?=\s+(?:tensor|array|Parameter|[\[(]|-?\d))/.exec(line);
-    if (!lab || rules.some(function (r) { return line.indexOf(r.t) >= 0 && line.indexOf(r.t) < lab[1].length; })) return marked(line);
-    return '<span class="olab">' + marked(lab[1]) + '</span>' + marked(line.slice(lab[1].length));
+    if (!lab) { if (!/^\s/.test(line)) fam = null; return marked(line, fam); }   // a wrapped tensor's next lines keep the family
+    fam = famOf(lab[1]);
+    return '<span class="olab' + (fam ? ' f-' + fam : '') + '">' + marked(lab[1], fam, !!fam) + '</span>' + marked(line.slice(lab[1].length), fam);
   }).join('\n');
 }
 window.eaiOutHL = eaiOutHL;
