@@ -512,6 +512,8 @@ html.lect #book > section.page, html.lect main.book > section.page { content-vis
 /* on a slide a figure is never taller than --fig-h (default 300pt; 230pt when slides were 16:9): its width is capped by its shape (--ar, set by
    book.js), and it sits in the middle of the column. s-sm / s-xs make it smaller still. */
 .book[data-view="slides"] .page > b-fig:not(.cover-art):not([style*="absolute"]) { max-width: calc(var(--fig-h, 300pt) * var(--ar, 1.6)); margin-left: auto; margin-right: auto; }
+/* a drawing on a slide centres like a figure (slides are a grid, so align-self alone doesn't; Eric 2026-11-01) */
+.book[data-view="slides"] .page > svg.draw:not(.overlay):not([style*="absolute"]) { margin-left: auto; margin-right: auto; }
 .book[data-view="slides"] .page > b-fig.s-sm:not([style*="absolute"]) { --fig-h: 240pt; }
 .book[data-view="slides"] .page > b-fig.s-xs:not([style*="absolute"]) { --fig-h: 185pt; }
 
