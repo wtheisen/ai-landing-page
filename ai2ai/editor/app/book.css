@@ -223,6 +223,8 @@ b-answers { display: flex; }
 svg.draw { display: block; width: 100%; height: auto; align-self: center; overflow: visible; }
 /* a drawing given a size (in pt) never runs wider than its column: a drawing sized on a slide fits the 6 × 9 Workbook (2026-10-29) */
 svg.draw:not(.overlay):not([style*="absolute"]) { max-width: 100%; }
+svg.draw[data-align="left"]:not(.overlay) { align-self: flex-start; margin-left: 0 !important; margin-right: auto !important; }   /* Eric 2026-11-01: drawings align like figures */
+svg.draw[data-align="right"]:not(.overlay) { align-self: flex-end; margin-left: auto !important; margin-right: 0 !important; }
 svg.draw.overlay { position: absolute; left: 0; top: 0; width: var(--page-w); height: var(--page-h); pointer-events: none; }
 b-ref a.bad { color: var(--red-text); }
 .page { isolation: isolate; }   /* lets a pinned block with z-index:-1 sit behind the text but above the paper */

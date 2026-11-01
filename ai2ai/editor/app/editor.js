@@ -1608,7 +1608,20 @@ function renderOneInspector() {
     add(`<label>Canvas height (the width is the text column: ${Book.pageW(el) - 48}pt)</label>`);
     const hh = add(`<input type="number" min="20" step="10" value="${Math.round(vb.height)}">`);
     hh.oninput = () => { el.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.width} ${Math.max(20, +hh.value || 20)}`); place(); commit(); };
-    const fit = add(`<div class="row"><button title="Trim (or grow) the canvas to the shapes on it, keeping their size and place">Fit to contents</button></div>`);
+    // where it sits (Eric, 2026-11-01): in the flow, a width and Left / Centre / Right like a figure; pinned, centre it on the page
+    if (!Book.isPinned(el)) {
+      const w0 = Math.round(parseFloat(el.style.width) || 100);
+      add(`<label>Width: <span id="d-wv">${w0}</span>% of the text column</label>`);
+      const dr = add(`<input type="range" min="15" max="100" value="${Math.min(100, w0)}">`);
+      dr.oninput = () => { el.style.width = dr.value + '%'; insp.querySelector('#d-wv').textContent = dr.value; place(); commit(); };
+      const cur = el.getAttribute('data-align') === 'left' || el.getAttribute('data-align') === 'right' ? el.getAttribute('data-align') : 'center';
+      const al = add(`<div class="row seg">Align ${[['left', 'Left'], ['center', 'Centre'], ['right', 'Right']].map(([v, l]) => `<button data-al="${v}" class="${v === cur ? 'on' : ''}">${l}</button>`).join('')}</div>`);
+      al.onclick = e => { const v = e.target.dataset && e.target.dataset.al; if (!v) return; commit(true); if (v === 'center') el.removeAttribute('data-align'); else el.setAttribute('data-align', v); commit(true); Book.refresh(); place(); renderInspector(); };
+    } else {
+      const cr = add(`<div class="row"><button title="Put it in the middle of the page, left to right">Centre on the page</button></div>`);
+      cr.firstChild.onclick = () => centrePinned(el);
+    }
+    const fit = add(`<div class="row"><button title=""Trim (or grow) the canvas to the shapes on it, keeping their size and place">Fit to contents</button></div>`);
     fit.firstChild.onclick = () => { if (window.Draw) { Draw.fit(el); renderInspector(); } };
     add(`<div class="help">Pick a tool under <b>Draw</b> and drag inside the canvas. Click a shape to select it (Shift-click for several); its colours, line style and arrowheads appear here. Drawing outside a canvas puts the shape on the page itself, on top of the text.</div>`);
   } else if (el.tagName === 'B-CODE' || el.tagName === 'B-OUT') {
@@ -3311,9 +3324,17 @@ document.addEventListener('keydown', e => {
 }, true);
 
 // ---------------------------------------------------------------- centring a block (text, heading, equation): data-align="center"
+// a pinned block (drawing, figure) centred left to right on its page, in pt like its left/width (Eric, 2026-11-01)
+function centrePinned(el) {
+  const pg = el.closest('section.page'); if (!pg) return;
+  const pr = pg.getBoundingClientRect(), r = el.getBoundingClientRect(), k = pr.width / Book.pageW(pg);   // screen px per pt
+  commit(true); el.style.left = Math.round((Book.pageW(pg) - r.width / k) / 2 * 10) / 10 + 'pt'; commit(true); Book.refresh(); place();
+}
 function toggleCenter() {
   const h = editHost(), list = allSel().length ? allSel() : (h ? [blockOf(h)].filter(Boolean) : []);
   if (!list.length) return toast('Click a block (or into some text) first');
+  if (list.every(b => Book.isPinned(b))) { list.forEach(centrePinned); return toast(list.length > 1 ? 'Centred on the page' : 'Centred on the page'); }
+  if (list.length === 1 && list[0].localName === 'svg') { const b = list[0]; commit(true); b.removeAttribute('data-align'); commit(true); Book.refresh(); place(); renderInspector(); return; }
   const on = !list.every(b => b.getAttribute('data-align') === 'center');
   commit(true);
   list.forEach(b => { if (on) b.setAttribute('data-align', 'center'); else b.removeAttribute('data-align'); });
