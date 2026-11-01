@@ -2369,12 +2369,91 @@ Book.views.forEach((v, k) => {
 });
 // the desk and the preview panes sit in one row, #cols (colWidth() shares it out for the fit zooms)
 (() => { const c = h('<div id="cols"></div>'); deskBox.before(c); c.append(deskBox, ...Book.views.map(v => gcols[v])); })();
+// Another chapter beside this one (Eric, 2026-11-01: "view the FFN lecture in one column and the backprop one next to
+// it so I could move content in between"). Columns ▾ ▸ Open another chapter… adds it as a preview column (key g-x,
+// /view/<other>?pane=1&ext=1). Drag a block out of it into a page here to copy it (figure files come along, into
+// this chapter's fig/); click a page in it, then Copy page, to copy the whole page after the one you are on; Edit it
+// swaps: that chapter opens in the editor with this one beside it. A move is a copy, then a delete over there.
+var xcol = null, xside = null, xPick = null;   // the column, { slug, view }, the page picked in it
+const XVIEWS = { slides: 'Lecture', reading: 'Reading', workbook: 'Workbook' };
+function xLabel() { return xside ? xside.slug + ' · ' + (XVIEWS[xside.view] || xside.view) : ''; }
+function xSave() { try { if (xside) localStorage.setItem('book-side-' + ch, JSON.stringify(xside)); else localStorage.removeItem('book-side-' + ch); } catch (x) {} }
+function xOpen(slug, view) {
+  if (!slug || slug === ch) return;
+  xside = { slug, view: XVIEWS[view] ? view : 'slides' }; xPick = null; xSave();
+  if (!xcol) {
+    xcol = h(`<div class="gcol xcol" data-view="x" style="order:9"><div class="glab"><span class="xname"></span><button class="lineup xcopy" title="Copy the page you clicked in this column into this chapter, after the page you are on">Copy page</button><button class="lineup xedit" title="Edit that chapter instead, with this one beside it">Edit it</button><button class="colx" title="Close this chapter">×</button></div><iframe title="Another chapter"></iframe></div>`);
+    xcol.querySelector('.xcopy').onclick = () => xCopyPage();
+    xcol.querySelector('.xedit').onclick = () => xSwap();
+    xcol.querySelector('.colx').onclick = e => { e.stopPropagation(); xClose(); };
+    $('#cols').append(xcol);
+  }
+  xcol.hidden = false; delete colHide['g-x']; delete xcol.dataset.ready; xcol.dataset.zoom = '';
+  xcol.querySelector('.xname').textContent = xLabel();
+  const fr = xcol.querySelector('iframe'); fr.removeAttribute('src');
+  gridApply(); if (/width/.test($('#zoom').value)) applyZoom('width', true); place();
+}
+function xClose() { if (!xcol) return; xcol.hidden = true; xside = null; xPick = null; xSave(); xcol.querySelector('iframe').removeAttribute('src'); gridApply(); if (/width/.test($('#zoom').value)) applyZoom('width', true); place(); }
+function xFrame() { return xcol && !xcol.hidden ? xcol.querySelector('iframe') : null; }
+// figures a copied block refers to (fig/…) are copied into this chapter's fig/ (same name, or name-2 if this chapter
+// already has a different picture by that name); equations draw themselves again here; drawings and code carry everything
+async function xImport(root) {
+  const from = xside && xside.slug, done = new Map();
+  const get = async src => {
+    if (!from || !src || !/^fig\//.test(src)) return src;
+    if (!done.has(src)) done.set(src, (async () => {
+      const r = await fetch('../c/' + from + '/' + src); if (!r.ok) return src;
+      const b = await r.blob();
+      return uploadFigure(new File([b], src.split('/').pop(), { type: b.type || 'image/svg+xml' }));
+    })().catch(() => src));
+    return done.get(src);
+  };
+  for (const el of [root, ...root.querySelectorAll('*')]) {
+    if (el.matches('b-fig, img') && el.getAttribute('src')) el.setAttribute('src', await get(el.getAttribute('src')));
+    if (el.matches('b-matmul') && /"fig"/.test(el.getAttribute('spec') || '')) {
+      try { const sp = JSON.parse(el.getAttribute('spec')); for (const st of sp.steps || []) if (st.op === 'fig') st.src = await get(st.src); el.setAttribute('spec', JSON.stringify(sp)); } catch (x) { /* leave it */ }
+    }
+  }
+  return root;
+}
+function xClean(t) {   // a copy is a new block of this chapter: no links, no ids from the other chapter, no comments
+  unpool(t); t.removeAttribute('data-b'); t.querySelectorAll('[data-b]').forEach(n => { if (!n.closest('svg')) n.removeAttribute('data-b'); });
+  t.querySelectorAll('.cmt').forEach(n => n.remove()); t.classList.remove('ed-sel', 'ed-dragging', 'ed-cur');
+  return t;
+}
+async function xCopyPage() {
+  const fr = xFrame(), fw = fr && fr.contentWindow;
+  const src = xPick && fw && fw.document.getElementById(xPick);
+  if (!src) return toast('Click a page in ' + xLabel() + ' first, then Copy page');
+  const pg = h(fw.Book.serializePage(src));
+  pg.id = (docOf(Book.view) === 'lecture' && Book.split ? 'lec-' : '') + uid();
+  pg.querySelectorAll(':scope > .cmt').forEach(n => n.remove());
+  [...pg.children].forEach(b => { if (!b.matches('svg.overlay, .foot')) xClean(b); });
+  if (Book.split) pg.setAttribute('data-view', docOf(Book.view) === 'lecture' ? 'slides workbook' : 'reading');
+  else if (!Book.split && pg.getAttribute('data-view') && xside.view !== 'reading') pg.removeAttribute('data-view');
+  pg.classList.remove('cover', 'ed-cur', 'ed-match');
+  await xImport(pg);
+  commit(true);
+  const at = curPage && curPage.isConnected && !curPage.classList.contains('cover') ? curPage : deskPages().filter(p => p.offsetParent).pop();
+  if (at) at.after(pg); else (dual ? desk : book).append(pg);
+  prep(); Book.refresh(); commit(true); setPage(pg); pg.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  toast('Copied the page from ' + xLabel(), 'Undo', doUndo);
+}
+function xSwap() {
+  if (!xside) return;
+  commit(true); if (cur !== saved) save();
+  const back = { slug: ch, view: Book.view };
+  try { localStorage.setItem('book-side-' + xside.slug, JSON.stringify(back)); localStorage.setItem('book-view-' + xside.slug, xside.view); } catch (x) {}
+  const go = () => { location.href = '../edit/' + xside.slug + '?side=' + encodeURIComponent(ch) + '&sideview=' + encodeURIComponent(Book.view); };
+  if (cur === saved) go(); else { toast('Saving first…'); const t = setInterval(() => { if (cur === saved && !saving) { clearInterval(t); go(); } }, 150); setTimeout(() => { clearInterval(t); go(); }, 6000); }
+}
 // the columns and their zooms: [key, element that scrolls, element(s) to scale while pinching]
 function zoomCols() {
   const out = [];
   if (dual) ['reading', 'lecture'].forEach(d => out.push([d, dpanes[d]]));
   else out.push(['desk', deskBox]);
   Book.views.forEach(v => { if (!gcols[v].hidden) out.push(['g-' + v, gcols[v]]); });
+  if (xcol && !xcol.hidden) out.push(['g-x', xcol]);
   return out.filter(([, el]) => !el.classList.contains('colhid'));
 }
 function colZoom(key) { return colZ[key] || fitZ[key] || baseZ; }
@@ -2389,9 +2468,10 @@ function allCols() {   // every column that is showing (folded or not), left to 
   if (dual) ['reading', 'lecture'].forEach(d => out.push([d, dpanes[d], glabels.querySelector('.dlab[data-doc="' + d + '"]')]));
   else out.push(['desk', deskBox, null]);
   Book.views.forEach(v => { if (!gcols[v].hidden) out.push(['g-' + v, gcols[v], null]); });
+  if (xcol && !xcol.hidden) out.push(['g-x', xcol, null]);
   return out.sort((a, b) => a[1].getBoundingClientRect().left - b[1].getBoundingClientRect().left);
 }
-const COLNAME = k => k === 'reading' ? 'Reading' : k === 'lecture' ? (dpanes && dpanes.lecture.dataset.view === 'workbook' ? 'Workbook' : 'Lecture') : k.startsWith('g-') ? GLABEL[k.slice(2)] : '';
+const COLNAME = k => k === 'reading' ? 'Reading' : k === 'lecture' ? (dpanes && dpanes.lecture.dataset.view === 'workbook' ? 'Workbook' : 'Lecture') : k === 'g-x' ? xLabel() : k.startsWith('g-') ? GLABEL[k.slice(2)] : '';
 function hideCol(k, on) {
   if (on) {
     const open = allCols().filter(([kk]) => kk !== 'desk' && !colHide[kk] && kk !== k);
@@ -2404,7 +2484,7 @@ function hideCol(k, on) {
 function layoutCols(noGrips) {
   const cols = $('#cols'); if (!noGrips) cols.querySelectorAll(':scope > .colgrip').forEach(g => g.remove());
   const reset = el => { if (el) { el.style.flex = ''; el.style.margin = ''; el.classList.remove('colhid'); el.removeAttribute('data-colname'); } };
-  if (!gridOn || !gcols.reading) { [deskBox, ...Object.values(gcols), ...(dpanes ? Object.values(dpanes) : [])].forEach(reset); return; }
+  if (!gridOn || !gcols.reading) { [deskBox, ...Object.values(gcols), xcol, ...(dpanes ? Object.values(dpanes) : [])].forEach(reset); return; }
   const list = allCols(); let deskW = 0;
   list.forEach(([k, el, lab]) => {
     const hid = !!colHide[k] && k !== 'desk', w = colW[k] || 1;
@@ -2440,9 +2520,17 @@ function layoutCols(noGrips) {
 // Columns ▾ in the header: tick a column to show it, untick to hide it completely
 $('#x-cols').onclick = e => {
   if (!gridOn) return toast('Columns are for the side-by-side view: turn on Grid first');
-  const r = e.currentTarget.getBoundingClientRect(), cols = allCols().filter(([k]) => k !== 'desk');
-  if (!cols.length) return toast('No other columns in this view');
-  openMenu(r.left, r.bottom + 4, cols.map(([k]) => [k, (colHide[k] ? '☐  ' : '☑  ') + COLNAME(k), colHide[k] ? 'hidden' : 'shown']), k => hideCol(k, !colHide[k]));
+  const r = e.currentTarget.getBoundingClientRect(), cols = allCols().filter(([k]) => k !== 'desk' && k !== 'g-x');
+  const items = cols.map(([k]) => [k, (colHide[k] ? '☐  ' : '☑  ') + COLNAME(k), colHide[k] ? 'hidden' : 'shown']);
+  items.push(['+other', 'Open another chapter…', 'beside this one']);
+  if (xside) items.push(['-other', 'Close ' + xLabel(), '']);
+  openMenu(r.left, r.bottom + 4, items, k => {
+    if (k === '-other') return xClose();
+    if (k !== '+other') return hideCol(k, !colHide[k]);
+    const others = (info.chapters || []).filter(c => c !== ch);
+    openMenu(r.left, r.bottom + 4, others.map(c => [c, c, '']), slug =>
+      openMenu(r.left, r.bottom + 4, [['slides', 'Lecture', ''], ['reading', 'Reading', ''], ['workbook', 'Workbook', '']], v => xOpen(slug, v)));
+  });
 };
 function applyColZooms() {   // the document panes (and a lone desk) take their own zoom; the previews get theirs in gridApply
   if (dual) ['reading', 'lecture'].forEach(d => { const z = colZ[d] || fitZ[d]; if (z) dpanes[d].style.setProperty('--zoom', z); else dpanes[d].style.removeProperty('--zoom'); });
@@ -2487,6 +2575,11 @@ function gridApply() {
     if (col.dataset.zoom !== String(zoom)) { col.dataset.zoom = zoom; fr.contentWindow.postMessage({ gridZoom: zoom }, '*'); }
     flushPane(v);
   });
+  if (xcol && !xcol.hidden && xside) {
+    const fr = xcol.querySelector('iframe'), zoom = colZoom('g-x');
+    if (!fr.getAttribute('src')) fr.src = `../view/${xside.slug}?view=${xside.view}&pane=1&ext=1&zoom=${zoom}`;
+    else if (xcol.dataset.ready && fr.contentWindow && xcol.dataset.zoom !== String(zoom)) { xcol.dataset.zoom = zoom; fr.contentWindow.postMessage({ gridZoom: zoom }, '*'); }
+  }
 }
 // The panes never reload: a moment after each edit they are sent the pages that changed (gridPatch: the page order,
 // the changed pages' HTML, the chapter settings if they changed), hidden panes included, and swap just those pages in.
@@ -2538,6 +2631,13 @@ window.addEventListener('message', e => {
     gridApply(); setTimeout(focusChanged, 50); Book.views.forEach(flushPane);
   }
   if (d.gridNoMatch) toast('No ' + (GLABEL[d.gridNoMatch] || '') + ' page shares this page’s topic, so that pane stays where it is');
+  const xf = xFrame();
+  if (xf && e.source === xf.contentWindow) {   // the other chapter's column
+    if (d.gridReady) { xcol.dataset.ready = '1'; xcol.dataset.zoom = ''; gridApply(); }
+    if (d.gridPick) { xPick = d.gridPick; xf.contentWindow.postMessage({ gridFocus: xPick }, '*'); }
+    if (d.gridWheel) { const r = xf.getBoundingClientRect(); zoomAt(d.gridWheel.dy, r.left + d.gridWheel.x, r.top + d.gridWheel.y); }
+    return;
+  }
   if (d.gridPick && Book.views.includes(d.view)) {   // edit this page in that edition, without anything on screen moving
     const pg = Book.pages().find(p => p.id === d.gridPick);
     if (d.view !== Book.view) {
@@ -2894,12 +2994,28 @@ function crossDrop(list, grab) {   // copy list into the other document where it
 var fromAt = null, xbadge = null;
 function fromFrame(d) {
   const drop = $('#drop');
-  if (!Book.split || docOf(d.view) === docOf(Book.view) || !gcols[d.view]) return;
+  const ext = !!d.ext && !!xFrame();
+  if (!ext && (!Book.split || docOf(d.view) === docOf(Book.view) || !gcols[d.view])) return;
   if (!xbadge) { xbadge = document.createElement('div'); xbadge.id = 'xbadge'; document.body.append(xbadge); }
   if (d.phase !== 'move') {
     drop.hidden = true; xbadge.hidden = true;
     const at = fromAt; fromAt = null;
     if (d.phase !== 'end' || !at) return;
+    if (ext) {   // from the other chapter: its block, its figure files
+      const fw = xFrame().contentWindow, fp = fw.document.getElementById(d.page), sb = fp && fw.Book.blocks(fp)[d.index];
+      if (!sb || sb.tagName !== d.tag) return toast('That block has changed since the column was drawn: try again in a moment');
+      const t = xClean(h(fw.Book.serializeBlock(sb))); t.removeAttribute('data-view');
+      if (fw.Book.isPinned(sb)) { t.style.removeProperty('position'); t.style.removeProperty('left'); t.style.removeProperty('top'); t.style.removeProperty('z-index'); t.classList.remove('wrap'); }
+      xImport(t).then(() => {
+        if (!at.page.isConnected) return;
+        if (dual && at.page.parentElement !== desk) activatePane(at.page.parentElement);
+        commit(true);
+        if (at.before && at.before.isConnected) at.before.before(t); else at.page.insertBefore(t, at.page.querySelector(':scope > svg.overlay, :scope > .foot'));
+        prep(); Book.refresh(); commit(true); select(t);
+        toast('Copied from ' + xLabel(), 'Undo', doUndo);
+      });
+      return;
+    }
     const src = Book.blocks(pageById(d.page) || document.createElement('div'))[d.index];
     if (!src || src.tagName !== d.tag) return toast('That block has changed since the preview was drawn: try again in a moment');
     commit(true);
@@ -2909,10 +3025,10 @@ function fromFrame(d) {
     prep(); Book.refresh(); commit(true); select(t);
     return toast('Copied from the ' + (docOf(d.view) === 'lecture' ? 'Lecture' : 'Reading'), 'Undo', doUndo);
   }
-  const fr = gcols[d.view].querySelector('iframe'), r = fr.getBoundingClientRect(), k = r.width / fr.offsetWidth;
+  const fr = ext ? xFrame() : gcols[d.view].querySelector('iframe'), r = fr.getBoundingClientRect(), k = r.width / fr.offsetWidth;
   const cx = r.left + d.x * k, cy = r.top + d.y * k;
   xbadge.hidden = false; xbadge.textContent = 'Copy here'; xbadge.style.left = (cx + 12) + 'px'; xbadge.style.top = (cy + 12) + 'px';
-  const under = document.elementsFromPoint(cx, cy).find(n => n.matches && n.matches('section.page') && topPage(n) && (!dual || n.parentElement === desk));
+  const under = document.elementsFromPoint(cx, cy).find(n => n.matches && n.matches('section.page') && topPage(n) && (!dual || n.parentElement === desk || (ext && Object.values(dpanes).includes(n.parentElement))));   // from another chapter: either document
   if (!under) { drop.hidden = true; fromAt = null; return; }
   const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b));
   const before = flow.find(b => { const q = b.getBoundingClientRect(); return cy < q.top + q.height / 2; }) || null;
@@ -3486,5 +3602,12 @@ if (phone) {
   let lastPage = null, lastN = -1;
   setInterval(() => { if (!on) return; const n = book.querySelectorAll('aside.qc[data-qsrc]').length; if (curPage !== lastPage || n !== lastN) { lastPage = curPage; lastN = n; soon(); } }, 400);
   window.QPool = { open: () => setOn(true), close: () => setOn(false), reload: () => load(true).then(render), get pool() { return pool; } };
+})();
+// another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)
+(() => {
+  const q = new URLSearchParams(location.search); let s = q.get('side') ? { slug: q.get('side'), view: q.get('sideview') || 'slides' } : null;
+  if (!s) try { s = JSON.parse(localStorage.getItem('book-side-' + ch) || 'null'); } catch (x) {}
+  if (s && s.slug && gridOn && !phone && (info.chapters || []).includes(s.slug)) xOpen(s.slug, s.view);
+  if (q.has('side')) history.replaceState(null, '', location.pathname);
 })();
 })();

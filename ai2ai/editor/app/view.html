@@ -27,7 +27,8 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
 <script>
 (async function () {
   const ch = location.pathname.split('/').filter(Boolean).pop(), q = new URLSearchParams(location.search), exporting = q.has('export');
-  const grid = q.has('pane') || q.has('grid');   // a pane beside the editor: one edition, print layout, scrolling on its own
+  const grid = q.has('pane') || q.has('grid');
+  const ext = q.has('ext');   // another chapter's column beside the editor: blocks drag out of it whatever the chapter   // a pane beside the editor: one edition, print layout, scrolling on its own
   const zoom = () => { if (!grid) document.documentElement.style.setProperty('--zoom', Math.min(1, (window.innerWidth - 32) / ((window.Book && Book.pageW ? Book.pageW(Book.view) : 432) * 4 / 3)) * (window.eaiZoomK || 1)); };   // eaiZoomK: Lecture mode's own page zoom (ink.js)   // in a pane the editor sets the zoom
   zoom(); window.addEventListener('resize', zoom);
   if (grid) {
@@ -97,7 +98,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       await Book.ready(); Book.refresh(); if (Book.packWorkbook()) Book.refresh(); Book.markStale(); applyFocus();
       if (keep) scrollTo(keep);
     }).catch(err => console.error(err)); };
-    root.addEventListener('click', e => { const p = e.target.closest('section.page'); if (p && Date.now() - dragEnded > 400) parent.postMessage({ gridPick: p.id, view: Book.view }, '*'); });
+    root.addEventListener('click', e => { const p = e.target.closest('section.page'); if (p && Date.now() - dragEnded > 400) parent.postMessage({ gridPick: p.id, view: Book.view, ext }, '*'); });
     // blocks between the Reading and the Lecture (split chapters, see the editor's copyPageAcross): the editor asks
     // where a block dragged over this pane would go (gridDragOver, answered with gridDropAt and a blue line), and a
     // block dragged out of this pane is reported as it moves (gridDrag), so the editor can copy it in
@@ -114,14 +115,14 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
       parent.postMessage({ gridDropAt: { view: Book.view, page: pg.id, before: nb ? all.indexOf(nb) : -1, x: (p.x - r.left) / s, y: (p.y - r.top) / s } }, '*');
     };
     root.addEventListener('pointerdown', e => {
-      if (e.button !== 0 || e.pointerType === 'touch' || !Book.split) return;
+      if (e.button !== 0 || e.pointerType === 'touch' || (!Book.split && !ext)) return;
       const pg = e.target.closest('#book section.page'); if (!pg || pg.classList.contains('cover')) return;
       let b = e.target; while (b && b.parentElement !== pg) b = b.parentElement;
       const index = b ? Book.blocks(pg).indexOf(b) : -1; if (index < 0) return;
       e.preventDefault();   // no text selection: a drag here copies the block
       drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, page: pg.id, index, tag: b.tagName, el: b, live: false };
     });
-    const sendDrag = (e, phase) => parent.postMessage({ gridDrag: { phase, view: Book.view, page: drag.page, index: drag.index, tag: drag.tag, x: e.clientX, y: e.clientY } }, '*');
+    const sendDrag = (e, phase) => parent.postMessage({ gridDrag: { phase, view: Book.view, page: drag.page, index: drag.index, tag: drag.tag, ext, x: e.clientX, y: e.clientY } }, '*');
     window.addEventListener('pointermove', e => {
       if (!drag || e.pointerId !== drag.id) return;
       if (!drag.live) {
