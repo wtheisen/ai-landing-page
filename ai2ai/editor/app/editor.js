@@ -735,8 +735,7 @@ function clearSel() {
   const keep = document.createRange(); keep.setStartAfter(mS); keep.setEndBefore(mE); mS.remove(); mE.remove(); host.normalize();
   s.removeAllRanges(); s.addRange(keep); commit(true);
 }
-const ALIAS = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', theta: 'θ', lambda: 'λ', mu: 'μ', sigma: 'σ', sig: 'σ', phi: 'φ', varphi: 'φ', eta: 'η', rho: 'ρ', tau: 'τ', omega: 'ω', xi: 'ξ',
-  Sigma: 'Σ', sum: 'Σ', ge: '≥', geq: '≥', le: '≤', leq: '≤', ne: '≠', neq: '≠', cdot: '·', times: '×', pm: '±', in: '∈', approx: '≈', infty: '∞', sqrt: '√', norm: '‖', half: '½', prime: '′', yhat: 'ŷ', to: '→', partial: '∂' };
+const ALIAS = Book.MATH_ALIAS;   // book.js: the same names render in a stored <b-m> too
 const mathNorm = (s, final) => (final ? s + '\n' : s).replace(/\\([A-Za-z]+)(?=[^A-Za-z])/g, (m, w) => ALIAS[w] ? ALIAS[w] : m).replace(/'/g, '′').normalize('NFC');
 function insertMath() {
   const host = editHost(); if (!host) return toast('Click into some text first');
