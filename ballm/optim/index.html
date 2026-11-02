@@ -25398,7 +25398,7 @@ function eaiRunCode() {
             py.setStdout({ batched: function (t) { lines.push(t); } }); py.setStderr({ batched: function (t) { lines.push(t); } });
             return py.runPythonAsync(code, { globals: py.globals.get('dict')() });
           })
-          .then(function (r) { var v = shown(py, r), f = figures(py); if (v) lines.push(v); show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; },
+          .then(function (r) { var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed) { show(''); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; } show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; },
                 function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); show((lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), true, figures(window._eaiPy)); out.classList.add('shown'); status.textContent = 'Error'; });
       }, function (e) { status.textContent = String(e.message || e); })
         .then(function () { bar.classList.remove('busy'); });
