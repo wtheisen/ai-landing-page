@@ -798,6 +798,18 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
 
 
 
+<section class="page" id="lec-bio-prediction" data-view="slides workbook" data-topic="reading-seeing biology" style="--gap: 22pt;">
+  <h2 data-b="epnn8">Prediction in the Brain</h2>
+  <p data-b="y6d44"><b class="name">Goldstein et al.</b> (<i>Nature Neuroscience</i>, <span class="num">2022</span>) played a <span class="num">30</span>-minute podcast (<span class="num">5,113</span> words) and stopped before every word to ask people to guess it.</p>
+  <ul data-b="ept65">
+    <li>People guessed the next word right <span class="num">28%</span> of the time on average.</li>
+    <li>GPT-2's guesses lined up with theirs (correlation <span class="num">0.79</span>), and lined up better the more of the story GPT-2 could see, up to about <span class="num">100</span> words back.</li>
+    <li>Electrodes on the brains of <span class="num">9</span> epilepsy patients picked up signs of the <b class="take">upcoming word hundreds of milliseconds before it was heard</b>, and a <b class="def">surprise</b> signal after a word they didn't expect.</li>
+  </ul>
+  <p data-b="b3tzw">Our brains also predict the <u class="fill blank" style="width: 69.4pt;">&nbsp;</u>, and they need the <u class="fill blank" style="width: 51.6pt;">&nbsp;</u> to do it.</p>
+  <p data-b="q38lw"><b class="warn">Careful:</b> matching a model's guesses says nothing about how the brain makes them. The brain is not an RNN.</p>
+<div class="foot" data-rt=""><span>Recurrent Neural Networks · Reading vs. Seeing</span><span>04</span></div></section>
+
 <section class="page" id="lec-time-context" data-part="Time and Context" data-view="slides workbook" data-topic="context" style="--gap: 22pt;">
   <h2 data-b="me73u">Time and Context</h2>
   <svg class="draw" viewBox="0 0 560 300" style="width: 560pt" role="img" aria-label="Input prompt &quot;The cat sat on the mat and&quot;. Time steps 1 to 7 across the top; row t holds the first t tokens, so the available context (h) grows over time (t)" data-b="ftjx3">
@@ -1131,7 +1143,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <text x="32.0" y="138.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">(h)</text>
   <text x="32.0" y="151.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">over time</text>
   <text x="32.0" y="164.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">(t)</text>
-  </svg><div class="foot" data-rt=""><span>Recurrent Neural Networks · Time and Context</span><span>04</span></div></section>
+  </svg><div class="foot" data-rt=""><span>Recurrent Neural Networks · Time and Context</span><span>05</span></div></section>
 
 
 
@@ -1201,7 +1213,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <text x="300.0" y="232.0" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">embedding layer</text>
   <text x="458.0" y="232.0" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">one &lt;1, 768&gt; row per token</text>
   </svg>
-<div class="foot" data-rt=""><span>Recurrent Neural Networks · Time and Context</span><span>05</span></div></section>
+<div class="foot" data-rt=""><span>Recurrent Neural Networks · Time and Context</span><span>06</span></div></section>
 
 <section class="page" id="lec-remember" data-part="Recurrent Neural Networks" data-view="slides workbook" data-topic="remember" style="--gap: 22pt;">
   <h2 data-b="pzqyr">Remembering Context</h2>
@@ -1214,7 +1226,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <li><b-m tex="h_{t−1}">h<sub>t−1</sub></b-m> = context from <span class="mono">time t-1</span> (prior timestep)</li>
   <li><b-m tex="Ɛ_t">Ɛ<sub>t</sub></b-m> = <b class="def"><u class="fill blank" style="width: 85.3pt;">&nbsp;</u></b> for current <b class="def">token</b></li>
   </ul>
-<div class="foot" data-rt=""><span>Recurrent Neural Networks · Recurrent Neural Networks</span><span>06</span></div></section>
+<div class="foot" data-rt=""><span>Recurrent Neural Networks · Recurrent Neural Networks</span><span>07</span></div></section>
 
 <section class="page" id="lec-time-context-3" data-view="slides workbook" data-topic="remember building" style="--gap: 22pt;">
   <h2 data-b="d5nah">Time and Context</h2>
@@ -1394,7 +1406,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <text x="32.0" y="151.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">over time</text>
   <text x="32.0" y="164.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">(t)</text>
   </svg>
-<div class="foot" data-rt=""><span>Recurrent Neural Networks · Recurrent Neural Networks</span><span>07</span></div></section>
+<div class="foot" data-rt=""><span>Recurrent Neural Networks · Recurrent Neural Networks</span><span>08</span></div></section>
 
 <section class="page" id="lec-building" data-view="slides workbook" data-topic="building" style="--gap: 22pt;">
   <h2 data-b="sn93a">Building <b class="def">Context</b> over <span class="mono">time (t)</span></h2>
@@ -1958,7 +1970,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <text x="487.1" y="265.4" font-size="12.1" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
   <polyline points="80.0,241.0 80.0,250.0 338.3,250.0 338.3,250.6" fill="none" stroke="#DCB439" stroke-width="1.20" marker-end="url(#ahDCB439-ai6bw)"></polyline>
   <polyline points="185.0,228.0 403.2,228.0 403.2,250.6" fill="none" stroke="#E06666" stroke-width="1.20" marker-end="url(#ahE06666-ai6bw)"></polyline>
-  </svg><div class="foot" data-rt=""><span>Recurrent Neural Networks · Recurrent Neural Networks</span><span>08</span></div></section>
+  </svg><div class="foot" data-rt=""><span>Recurrent Neural Networks · Recurrent Neural Networks</span><span>09</span></div></section>
 
 
 
@@ -2024,7 +2036,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   </tbody>
   </table>
   <p data-b="b5rby">The RNN's most likely next token is token <span class="num">7</span>, " sat".</p>
-<div class="foot" data-rt=""><span>Recurrent Neural Networks · Producing Output</span><span>09</span></div></section>
+<div class="foot" data-rt=""><span>Recurrent Neural Networks · Producing Output</span><span>10</span></div></section>
 
 <section class="page" id="lec-output-time" data-view="slides workbook" data-topic="output-time" style="--gap: 22pt;">
   <h2 data-b="fj9fo">Producing <b class="take">output</b> over <span class="mono">time (t)</span></h2>
@@ -2155,7 +2167,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   </g>
   <text x="412.7" y="192.4" font-size="12.1" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
   </svg>
-<div class="foot" data-rt=""><span>Recurrent Neural Networks · Producing Output</span><span>10</span></div></section>
+<div class="foot" data-rt=""><span>Recurrent Neural Networks · Producing Output</span><span>11</span></div></section>
 
 <section class="page" id="lec-training" data-part="Training" data-view="slides workbook" data-topic="training" style="--gap: 22pt;">
   <h2 data-b="avhvy">Training Recurrent Neural Networks</h2>
@@ -2226,7 +2238,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <tr><td><b-m tex="y"><span class="c green">y</span></b-m></td><td>0.00</td><td>0.00</td><td>0.00</td><td><b>1.00</b></td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td><td>0.00</td></tr>
   </tbody>
   </table>
-<div class="foot" data-rt=""><span>Recurrent Neural Networks · Training</span><span>11</span></div></section>
+<div class="foot" data-rt=""><span>Recurrent Neural Networks · Training</span><span>12</span></div></section>
 
 <section class="page" id="lec-pipeline" data-view="slides workbook" data-topic="training" style="--gap: 22pt;">
   <h2 data-b="g66g5">Training a Text Prediction Model</h2>
@@ -2277,7 +2289,9 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <polyline points="510.0,130.0 510.0,150.0 405.0,150.0" fill="none" stroke="#666666" stroke-width="1.30" marker-end="url(#ah666666-v2z2k)"></polyline>
   <polyline points="510.0,150.0 510.0,222.0 385.0,222.0" fill="none" stroke="#666666" stroke-width="1.30" marker-end="url(#ah666666-v2z2k)"></polyline>
   </svg>
-<div class="foot" data-rt=""><span>Recurrent Neural Networks · Training</span><span>12</span></div></section>
+<div class="foot" data-rt=""><span>Recurrent Neural Networks · Training</span><span>13</span></div></section>
+
+
 
 
 

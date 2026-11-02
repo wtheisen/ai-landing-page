@@ -982,8 +982,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <line x1="90.0" y1="243.0" x2="174.0" y2="243.0" stroke="#000000" stroke-width="1.20"></line>
   <g id="lec-mha-rs7os-s10">
   <rect x="112.0" y="250.0" width="40.0" height="22.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="132.0" y="262.1" font-size="11.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">√dₖ</text>
-  <text x="132.0" y="268.8" font-size="4.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;8&gt;</text>
+  <text x="132.0" y="265.0" font-size="11.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">√dₖ</text>
   </g>
   <text x="180.0" y="250.7" font-size="35.2" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
   <g id="lec-mha-rs7os-s11">
@@ -1031,7 +1030,7 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
 
 <section class="page" id="lec-gqa" data-view="slides workbook" data-topic="gqa" style="--gap: 22pt;">
   <h2 data-b="rjvk9">Variant: Group-Query Attention (GQA)</h2>
-  <svg class="draw" viewBox="0 0 620 300" style="width: 560pt" role="img" aria-label="Grouped-query attention. Ɛ, 7 by 768. Head 1 and head 2 each have their own Omega Q, 768 by 64, but share one Omega K, 768 by 64, and one Omega V, 768 by 384. Each head computes softmax of Q times K transposed over the square root of d k, times V, giving a head context of 7 by 384. The two are concatenated to 7 by 768, times Omega O, 768 by 768, giving Ɛ CA, 7 by 768. Used by Llama 3 8B, Qwen3 4B, Gemma 3 27B, Mistral Small 3.1 24B and SmolLM3 3B." data-b="wvmwc">
+  <svg class="draw" viewBox="0 0 620 300" style="width: 560pt" role="img" aria-label="Grouped-query attention. Ɛ, 7 by 768. Head 1 and head 2 each have their own Omega Q, 768 by 64, but share one Omega K, 768 by 64, and one Omega V, 768 by 64. Each head computes softmax of Q times K transposed over the square root of d k, times V, giving a head context of 7 by 64. The two are concatenated to 7 by 128, times Omega O, 128 by 768, giving Ɛ CA, 7 by 768. Used by Llama 3 8B, Qwen3 4B, Gemma 3 27B, Mistral Small 3.1 24B and SmolLM3 3B." data-b="wvmwc">
   <defs></defs>
   <g id="lec-gqa-wvmwc-s1">
   <rect x="30.0" y="6.0" width="560.0" height="28.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
@@ -1061,14 +1060,13 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <line x1="84.0" y1="163.0" x2="168.0" y2="163.0" stroke="#000000" stroke-width="1.20"></line>
   <g id="lec-gqa-wvmwc-s5">
   <rect x="106.0" y="171.0" width="40.0" height="20.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="126.0" y="182.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">√dₖ</text>
-  <text x="126.0" y="187.8" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;8&gt;</text>
+  <text x="126.0" y="184.6" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">√dₖ</text>
   </g>
   <text x="174.0" y="169.5" font-size="32.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
   <g id="lec-gqa-wvmwc-s6">
   <rect x="184.0" y="150.0" width="36.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
   <text x="202.0" y="161.0" font-size="10.0" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">V</text>
-  <text x="202.0" y="166.8" font-size="3.6" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 384&gt;</text>
+  <text x="202.0" y="166.8" font-size="3.6" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 64&gt;</text>
   </g>
   <rect x="360.0" y="64.0" width="250.0" height="140.0" rx="10.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.40"></rect>
   <text x="370.0" y="80.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Head 2</text>
@@ -1092,14 +1090,13 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <line x1="434.0" y1="163.0" x2="518.0" y2="163.0" stroke="#000000" stroke-width="1.20"></line>
   <g id="lec-gqa-wvmwc-s10">
   <rect x="456.0" y="171.0" width="40.0" height="20.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="476.0" y="182.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">√dₖ</text>
-  <text x="476.0" y="187.8" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;8&gt;</text>
+  <text x="476.0" y="184.6" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">√dₖ</text>
   </g>
   <text x="524.0" y="169.5" font-size="32.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
   <g id="lec-gqa-wvmwc-s11">
   <rect x="534.0" y="150.0" width="36.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
   <text x="552.0" y="161.0" font-size="10.0" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">V</text>
-  <text x="552.0" y="166.8" font-size="3.6" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 384&gt;</text>
+  <text x="552.0" y="166.8" font-size="3.6" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 64&gt;</text>
   </g>
   <g id="lec-gqa-wvmwc-s12">
   <rect x="285.0" y="101.0" width="50.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
@@ -1109,31 +1106,31 @@ b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
   <g id="lec-gqa-wvmwc-s13">
   <rect x="285.0" y="145.0" width="50.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
   <text x="305.1" y="157.1" font-size="11.0" fill="#6AA84F" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text><text x="311.1" y="160.2" font-size="6.8" fill="#6AA84F" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">V</text>
-  <text x="310.0" y="163.8" font-size="4.0" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;768, 384&gt;</text>
+  <text x="310.0" y="163.8" font-size="4.0" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;768, 64&gt;</text>
   </g>
   <text x="310.0" y="84.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">shared by</text>
   <text x="310.0" y="92.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">both heads</text>
   <g id="lec-gqa-wvmwc-s14">
   <rect x="20.0" y="215.0" width="230.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
   <text x="135.0" y="227.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Head 1 Context</text>
-  <text x="135.0" y="237.0" font-size="5.6" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">&lt;7, 384&gt;</text>
+  <text x="135.0" y="237.0" font-size="5.6" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">&lt;7, 64&gt;</text>
   </g>
   <text x="310.0" y="232.3" font-size="12.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">⧺</text>
   <g id="lec-gqa-wvmwc-s15">
   <rect x="370.0" y="215.0" width="230.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
   <text x="485.0" y="227.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Head 2 Context</text>
-  <text x="485.0" y="237.0" font-size="5.6" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">&lt;7, 384&gt;</text>
+  <text x="485.0" y="237.0" font-size="5.6" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">&lt;7, 64&gt;</text>
   </g>
   <g id="lec-gqa-wvmwc-s16">
   <rect x="165.0" y="263.0" width="130.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
   <text x="230.0" y="275.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Concatenated Context</text>
-  <text x="230.0" y="285.0" font-size="5.6" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">&lt;7, 768&gt;</text>
+  <text x="230.0" y="285.0" font-size="5.6" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">&lt;7, 128&gt;</text>
   </g>
   <text x="310.0" y="280.3" font-size="12.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
   <g id="lec-gqa-wvmwc-s17">
   <rect x="322.0" y="265.0" width="48.0" height="22.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
   <text x="341.1" y="277.1" font-size="11.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text><text x="347.1" y="280.2" font-size="6.8" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">O</text>
-  <text x="346.0" y="283.8" font-size="4.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;768, 768&gt;</text>
+  <text x="346.0" y="283.8" font-size="4.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;128, 768&gt;</text>
   </g>
   <text x="384.0" y="280.3" font-size="12.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
   <g id="lec-gqa-wvmwc-s18">
@@ -1954,7 +1951,7 @@ L 53.92 25.272031
   <text x="450.0" y="97.0" font-size="6.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">2 apart → arrows differ by 60°</text>
   </svg>
   <p data-b="amv9i">This is one of the trickiest things I've seen in the past few years</p>
-<svg class="draw" viewBox="0 0 560 250" style="width: 560pt" role="img" aria-label="The rotation matrix R theta, 64 by 64: 2 by 2 blocks of cos m theta i, minus sin m theta i, sin m theta i, cos m theta i down the diagonal and zeros elsewhere, where m is the token position. Ɛ, 7 by 768, times Omega Q, 768 by 64, times R theta gives Q, and times Omega K, 768 by 64, times R theta gives K. Ɛ times Omega V, 768 by 768, gives V, which is not rotated. Then softmax of Q K transposed over the square root of d k, times V." data-b="asycz" data-wb-from="lec-rope-2">
+<svg class="draw" viewBox="0 0 560 250" style="width: 560pt" role="img" aria-label="The rotation matrix R theta, 64 by 64: 2 by 2 blocks of cos m theta i, minus sin m theta i, sin m theta i, cos m theta i down the diagonal and zeros elsewhere, where m is the token position. Ɛ, 7 by 768, times Omega Q, 768 by 64, times R theta gives Q, and times Omega K, 768 by 64, times R theta gives K. Ɛ times Omega V, 768 by 64, gives V, which is not rotated. Then softmax of Q K transposed over the square root of d k, times V." data-b="asycz" data-wb-from="lec-rope-2">
   <defs><marker id="ah6D9EEB-asycz" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6D9EEB"></path></marker><marker id="ah8E7CC3-asycz" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path></marker><marker id="ah93C47D-asycz" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#93C47D"></path></marker><marker id="ahE06666-asycz" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path></marker></defs>
   <rect x="6.0" y="12.0" width="196.0" height="214.0" rx="12.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
   <rect x="14.0" y="20.0" width="30.0" height="30.0" rx="0.0" fill="#C9DAF8" stroke="#BBBBBB" stroke-width="0.60"></rect>
@@ -2064,7 +2061,7 @@ L 53.92 25.272031
   <g id="lec-rope-matrix-asycz-s4">
   <rect x="457.0" y="64.0" width="46.0" height="24.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
   <text x="474.7" y="77.2" font-size="12.0" fill="#6AA84F" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text><text x="481.3" y="80.6" font-size="7.4" fill="#6AA84F" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">V</text>
-  <text x="480.0" y="84.8" font-size="4.3" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;768, 768&gt;</text>
+  <text x="480.0" y="84.8" font-size="4.3" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;768, 64&gt;</text>
   </g>
   <text x="370.0" y="108.0" font-size="11.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
   <g id="lec-rope-matrix-asycz-s5">
@@ -2094,14 +2091,13 @@ L 53.92 25.272031
   <line x1="350.0" y1="203.0" x2="434.0" y2="203.0" stroke="#000000" stroke-width="1.20"></line>
   <g id="lec-rope-matrix-asycz-s9">
   <rect x="372.0" y="210.0" width="40.0" height="22.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="392.0" y="222.1" font-size="11.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">√dₖ</text>
-  <text x="392.0" y="228.8" font-size="4.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;8&gt;</text>
+  <text x="392.0" y="225.0" font-size="11.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">√dₖ</text>
   </g>
   <text x="440.0" y="210.7" font-size="35.2" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
   <g id="lec-rope-matrix-asycz-s10">
   <rect x="450.0" y="189.0" width="36.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
   <text x="468.0" y="201.1" font-size="11.0" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">V</text>
-  <text x="468.0" y="207.8" font-size="4.0" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 768&gt;</text>
+  <text x="468.0" y="207.8" font-size="4.0" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 64&gt;</text>
   </g>
   <polyline points="370.0,143.0 370.0,160.0 361.0,172.0" fill="none" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-asycz)"></polyline>
   <line x1="420.0" y1="143.0" x2="403.0" y2="172.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-asycz)" data-a="lec-rope-matrix-asycz-s6" data-b="lec-rope-matrix-asycz-s8"></line>

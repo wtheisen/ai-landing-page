@@ -1467,367 +1467,23 @@ L 376.32 120
   <p data-b="bgfpz">The script also lowers the learning rate after every epoch, along a cosine curve: Adam starts at <b-m tex="0.003">0.003</b-m> in the first epoch and is down to about a tenth of that in the fifth, so the early steps are big and the late ones only polish.</p>
 <div class="foot" data-rt=""><span>Building irishQwen · Training</span><span>20</span></div></section>
 
-<section class="page" id="shakespeare-run" data-view="reading" data-topic="training" style="">
+<section class="page" id="shakespeare-run" data-view="reading" data-topic="training" style="--gap: 22pt;">
   <h2 data-b="ltqsw">Training on Shakespeare</h2>
-  <p data-b="x9gmh">For this chapter we trained irishQwen itself (the class code, with its exercises filled in) on Shakespeare, with the class tokenizer, the same held-out end of the corpus and the same Adam learning rate and cosine schedule as the training script (lowered a little every step rather than once an epoch). Unfortunately our version of PyTorch is slow, so the model is smaller than the script's: vectors of <span class="num">128</span>, <span class="num">4</span> blocks, windows of <span class="num">64</span> tokens and batches of <span class="num">16</span>, <span class="num">918,912</span> parameters in all, trained for <span class="num">3,000</span> steps (about <span class="num">1.3</span> passes through the training text).</p>
-  <b-fig src="fig/loss-curve.svg" style="width: 100%; --ar: 2.021;" alt="Training loss (navy) and validation loss (gold) over 3,000 training steps. The validation loss starts at 7.20, above the 6.24 of a uniform guess, falls quickly below 4 by step 250, then slowly to its best at the end. The two curves lie almost on top of each other." data-b="eqns6"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 190" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 190 
-L 384 190 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="patch_2">
-    <path d="M 34.56 157.7 
-L 376.32 157.7 
-L 376.32 5.7 
-L 34.56 5.7 
-z
-" style="fill: #ffffff"></path>
-   </g>
-   <g id="matplotlib.axis_1">
-    <g id="xtick_1">
-     <g id="line2d_1">
-      <defs>
-       <path id="mcc7d9af0bc" d="M 0 0 
-L 0 2 
-" style="stroke: #9aa5b1; stroke-width: 0.8"></path>
-      </defs>
-      <g>
-       <use xlink:href="#mcc7d9af0bc" x="34.56" y="157.7" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_1">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #666666" x="34.56" y="168.660205" transform="rotate(-0 34.56 168.660205)">0</text>
-     </g>
-    </g>
-    <g id="xtick_2">
-     <g id="line2d_2">
-      <g>
-       <use xlink:href="#mcc7d9af0bc" x="91.52" y="157.7" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_2">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #666666" x="91.52" y="168.660205" transform="rotate(-0 91.52 168.660205)">500</text>
-     </g>
-    </g>
-    <g id="xtick_3">
-     <g id="line2d_3">
-      <g>
-       <use xlink:href="#mcc7d9af0bc" x="148.48" y="157.7" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_3">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #666666" x="148.48" y="168.660205" transform="rotate(-0 148.48 168.660205)">1000</text>
-     </g>
-    </g>
-    <g id="xtick_4">
-     <g id="line2d_4">
-      <g>
-       <use xlink:href="#mcc7d9af0bc" x="205.44" y="157.7" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_4">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #666666" x="205.44" y="168.660205" transform="rotate(-0 205.44 168.660205)">1500</text>
-     </g>
-    </g>
-    <g id="xtick_5">
-     <g id="line2d_5">
-      <g>
-       <use xlink:href="#mcc7d9af0bc" x="262.4" y="157.7" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_5">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #666666" x="262.4" y="168.660205" transform="rotate(-0 262.4 168.660205)">2000</text>
-     </g>
-    </g>
-    <g id="xtick_6">
-     <g id="line2d_6">
-      <g>
-       <use xlink:href="#mcc7d9af0bc" x="319.36" y="157.7" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_6">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #666666" x="319.36" y="168.660205" transform="rotate(-0 319.36 168.660205)">2500</text>
-     </g>
-    </g>
-    <g id="xtick_7">
-     <g id="line2d_7">
-      <g>
-       <use xlink:href="#mcc7d9af0bc" x="376.32" y="157.7" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_7">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #666666" x="376.32" y="168.660205" transform="rotate(-0 376.32 168.660205)">3000</text>
-     </g>
-    </g>
-    <g id="text_8">
-     <text style="font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #666666" x="205.44" y="177.062793" transform="rotate(-0 205.44 177.062793)">training step (16 windows of 64 tokens each)</text>
-    </g>
-   </g>
-   <g id="matplotlib.axis_2">
-    <g id="ytick_1">
-     <g id="line2d_8">
-      <defs>
-       <path id="mc818759ad2" d="M 0 0 
-L -2 0 
-" style="stroke: #9aa5b1; stroke-width: 0.8"></path>
-      </defs>
-      <g>
-       <use xlink:href="#mc818759ad2" x="34.56" y="157.7" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_9">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="29.06" y="160.430103" transform="rotate(-0 29.06 160.430103)">2</text>
-     </g>
-    </g>
-    <g id="ytick_2">
-     <g id="line2d_9">
-      <g>
-       <use xlink:href="#mc818759ad2" x="34.56" y="130.063636" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_10">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="29.06" y="132.793739" transform="rotate(-0 29.06 132.793739)">3</text>
-     </g>
-    </g>
-    <g id="ytick_3">
-     <g id="line2d_10">
-      <g>
-       <use xlink:href="#mc818759ad2" x="34.56" y="102.427273" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_11">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="29.06" y="105.157375" transform="rotate(-0 29.06 105.157375)">4</text>
-     </g>
-    </g>
-    <g id="ytick_4">
-     <g id="line2d_11">
-      <g>
-       <use xlink:href="#mc818759ad2" x="34.56" y="74.790909" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_12">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="29.06" y="77.521012" transform="rotate(-0 29.06 77.521012)">5</text>
-     </g>
-    </g>
-    <g id="ytick_5">
-     <g id="line2d_12">
-      <g>
-       <use xlink:href="#mc818759ad2" x="34.56" y="47.154545" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_13">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="29.06" y="49.884648" transform="rotate(-0 29.06 49.884648)">6</text>
-     </g>
-    </g>
-    <g id="ytick_6">
-     <g id="line2d_13">
-      <g>
-       <use xlink:href="#mc818759ad2" x="34.56" y="19.518182" style="fill: #9aa5b1; stroke: #9aa5b1; stroke-width: 0.8"></use>
-      </g>
-     </g>
-     <g id="text_14">
-      <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="29.06" y="22.248284" transform="rotate(-0 29.06 22.248284)">7</text>
-     </g>
-    </g>
-    <g id="text_15">
-     <text style="font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #666666" x="21.205703" y="81.7" transform="rotate(-90 21.205703 81.7)">cross-entropy loss</text>
-    </g>
-   </g>
-   <g id="line2d_14">
-    <path d="M 40.256 64.151052 
-L 45.952 83.777877 
-L 51.648 96.446917 
-L 57.344 103.443563 
-L 63.04 107.380315 
-L 68.736 110.320129 
-L 74.432 113.157534 
-L 80.128 115.097618 
-L 85.824 117.46976 
-L 91.52 118.757763 
-L 97.216 121.040247 
-L 102.912 122.421203 
-L 108.608 124.058954 
-L 114.304 125.516497 
-L 120 125.968616 
-L 125.696 126.918232 
-L 131.392 127.655093 
-L 137.088 127.824488 
-L 142.784 128.936267 
-L 148.48 130.401254 
-L 154.176 130.600599 
-L 159.872 131.436068 
-L 165.568 132.138837 
-L 171.264 132.385853 
-L 176.96 132.921572 
-L 182.656 133.459571 
-L 188.352 133.710847 
-L 194.048 134.381944 
-L 199.744 134.364708 
-L 205.44 135.131214 
-L 211.136 135.566182 
-L 216.832 135.870397 
-L 222.528 136.952561 
-L 228.224 137.003778 
-L 233.92 137.22506 
-L 239.616 137.006783 
-L 245.312 137.37228 
-L 251.008 138.265619 
-L 256.704 138.010852 
-L 262.4 137.592745 
-L 268.096 138.643521 
-L 273.792 138.694907 
-L 279.488 139.063253 
-L 285.184 138.545512 
-L 290.88 139.17071 
-L 296.576 139.249632 
-L 302.272 139.264127 
-L 307.968 141.355714 
-L 313.664 140.476613 
-L 319.36 141.188399 
-L 325.056 141.653222 
-L 330.752 141.368855 
-L 336.448 141.89201 
-L 342.144 141.440556 
-L 347.84 141.665122 
-L 353.536 142.068656 
-L 359.232 141.608357 
-L 364.928 141.65934 
-L 370.624 141.337542 
-L 376.32 141.8936 
-" clip-path="url(#p5019aafb7d)" style="fill: none; stroke: #002b5b; stroke-width: 1.4; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_15">
-    <path d="M 34.56 13.993123 
-L 63.04 109.539721 
-L 91.52 121.195895 
-L 120 127.202391 
-L 148.48 128.754047 
-L 176.96 133.919504 
-L 205.44 135.491172 
-L 233.92 136.691237 
-L 262.4 138.784423 
-L 290.88 139.842917 
-L 319.36 140.941186 
-L 347.84 141.311266 
-L 376.32 141.37259 
-" clip-path="url(#p5019aafb7d)" style="fill: none; stroke: #dcb439; stroke-width: 1.6; stroke-linecap: square"></path>
-    <defs>
-     <path id="m837029315c" d="M 0 1.6 
-C 0.424325 1.6 0.831328 1.431414 1.131371 1.131371 
-C 1.431414 0.831328 1.6 0.424325 1.6 0 
-C 1.6 -0.424325 1.431414 -0.831328 1.131371 -1.131371 
-C 0.831328 -1.431414 0.424325 -1.6 0 -1.6 
-C -0.424325 -1.6 -0.831328 -1.431414 -1.131371 -1.131371 
-C -1.431414 -0.831328 -1.6 -0.424325 -1.6 0 
-C -1.6 0.424325 -1.431414 0.831328 -1.131371 1.131371 
-C -0.831328 1.431414 -0.424325 1.6 0 1.6 
-z
-" style="stroke: #dcb439"></path>
-    </defs>
-    <g clip-path="url(#p5019aafb7d)">
-     <use xlink:href="#m837029315c" x="34.56" y="13.993123" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="63.04" y="109.539721" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="91.52" y="121.195895" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="120" y="127.202391" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="148.48" y="128.754047" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="176.96" y="133.919504" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="205.44" y="135.491172" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="233.92" y="136.691237" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="262.4" y="138.784423" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="290.88" y="139.842917" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="319.36" y="140.941186" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="347.84" y="141.311266" style="fill: #dcb439; stroke: #dcb439"></use>
-     <use xlink:href="#m837029315c" x="376.32" y="141.37259" style="fill: #dcb439; stroke: #dcb439"></use>
-    </g>
-   </g>
-   <g id="line2d_16">
-    <path d="M 34.56 40.568119 
-L 376.32 40.568119 
-" clip-path="url(#p5019aafb7d)" style="fill: none; stroke-dasharray: 3.2,2.4; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="patch_3">
-    <path d="M 34.56 157.7 
-L 34.56 5.7 
-" style="fill: none; stroke: #9aa5b1; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"></path>
-   </g>
-   <g id="patch_4">
-    <path d="M 34.56 157.7 
-L 376.32 157.7 
-" style="fill: none; stroke: #9aa5b1; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"></path>
-   </g>
-   <g id="text_16">
-    <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="376.32" y="36.778841" transform="rotate(-0 376.32 36.778841)">every token equally likely, ln 512 = 6.24</text>
-   </g>
-   <g id="patch_5">
-    <path d="M 352.920087 121.376164 
-Q 363.858804 130.723858 374.79752 140.071553 
-" style="fill: none; stroke: #8a6d10; stroke-width: 0.7; stroke-linecap: round"></path>
-   </g>
-   <g id="text_17">
-    <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: start; fill: #8a6d10" x="328.4736" y="116.499863" transform="rotate(-0 328.4736 116.499863)">best: 2.59</text>
-   </g>
-   <g id="legend_1">
-    <g id="line2d_17">
-     <path d="M 235.602422 54.805205 
-L 243.102422 54.805205 
-L 250.602422 54.805205 
-" style="fill: none; stroke: #002b5b; stroke-width: 1.4; stroke-linecap: square"></path>
-    </g>
-    <g id="text_18">
-     <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: start" x="256.602422" y="57.430205" transform="rotate(-0 256.602422 57.430205)">training loss (average of 50 steps)</text>
-    </g>
-    <g id="line2d_18">
-     <path d="M 235.602422 65.593779 
-L 243.102422 65.593779 
-L 250.602422 65.593779 
-" style="fill: none; stroke: #dcb439; stroke-width: 1.6; stroke-linecap: square"></path>
-     <g>
-      <use xlink:href="#m837029315c" x="243.102422" y="65.593779" style="fill: #dcb439; stroke: #dcb439"></use>
-     </g>
-    </g>
-    <g id="text_19">
-     <text style="font-size: 7.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: start" x="256.602422" y="68.218779" transform="rotate(-0 256.602422 68.218779)">validation loss (held-out text)</text>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p5019aafb7d">
-   <rect x="34.56" y="5.7" width="341.76" height="152"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig>
-  <p data-b="fz5fm">The validation loss (measured on <span class="num">320</span> held-out windows every <span class="num">250</span> steps) starts at <span class="num">7.20</span>, worse than the <span class="num">6.24</span> of a model that thinks every token is equally likely, since random weights are confidently wrong about everything. It falls below <span class="num">4</span> within <span class="num">250</span> steps and then keeps creeping down, to <span class="num">2.59</span> at step <span class="num">3,000</span>.</p>
+  <p data-b="x9gmh">The numbers and samples from here on come from the model we trained for class: the training script run with its default sizes in Google Colab (vectors of <span class="num">256</span>, <span class="num">4</span> blocks, windows of <span class="num">128</span> tokens, batches of <span class="num">32</span>), <span class="num">3,410,432</span> parameters in all. It made five passes over the <span class="num">18,749</span> training windows and saved its best epoch as <span class="mono">qwen_shakespeare.pt</span>. The run printed its losses as it went but didn't keep them, so we look at where it ended up.</p>
+  <table class="tbl small" data-b="eqns6">
+    <tbody><tr><th>Model</th><th>Validation loss</th></tr>
+    <tr><td>Every token equally likely, <b-m tex="ln 512">ln 512</b-m></td><td><span class="num">6.24</span></td></tr>
+    <tr><td>irishQwen, random weights</td><td><span class="num">7.26</span></td></tr>
+    <tr><td>irishQwen, trained (<span class="mono">qwen_shakespeare.pt</span>)</td><td><span class="num">2.50</span></td></tr>
+  </tbody></table>
+  <p data-b="fz5fm">We measured both irishQwens the way the script does, on all <span class="num">986</span> held-out windows. With random weights the model scores <span class="num">7.26</span> (between <span class="num">7.22</span> and <span class="num">7.26</span> for three different random starts), worse than the <span class="num">6.24</span> of a model that thinks every token is equally likely, since random weights are confidently wrong about everything. The trained model is down to <span class="num">2.50</span>.</p>
 <div class="foot" data-rt=""><span>Building irishQwen · Training</span><span>21</span></div></section>
 
 <section class="page" id="loss-meaning" data-view="reading" data-topic="training" style="--gap: 22pt;">
-  <h2 data-b="m2t7u">What a Loss of 2.59 Means</h2>
-  <p data-b="buuql">Notice that <b class="take">the two curves lie almost on top of each other</b>. The model has seen each training window about once, so it hasn't had the chance to memorize anything, and held-out Shakespeare is just as hard as the Shakespeare it trained on.</p>
-  <p data-b="rixt0">A cross-entropy of <span class="num">2.59</span> is easier to picture backwards. A model that spread its bets evenly over <b-m tex="k">k</b-m> tokens would have a loss of <b-m tex="ln k">ln k</b-m>, so a loss of <span class="num">2.59</span> is as unsure as choosing evenly between <b-m tex="e^{2.59}">e<sup>2.59</sup></b-m> ≈ <span class="num">13</span> tokens. Our model started out as unsure as picking from all <span class="num">512</span> (and then some), and <span class="num">3,000</span> steps narrowed that down to about <span class="num">13</span>.</p>
-  <p data-b="pt14n">Another way to look at it is how often its favorite token is the right one. Over its last <span class="num">50</span> training steps the model's top guess was the actual next token <span class="num">37%</span> of the time, against <span class="num">5%</span> over its first <span class="num">50</span>.</p>
+  <h2 data-b="m2t7u">What a Loss of 2.50 Means</h2>
+  <p data-b="buuql">First, a check that the model hasn't just memorized its training text. On every 19th training window (<span class="num">987</span> of them) it scores <span class="num">2.45</span>, so <b class="take">text it trained on is barely easier for it than text it never saw</b>. Five passes over <span class="num">2.4</span> million tokens is not enough for a model this size to learn them by heart.</p>
+  <p data-b="rixt0">A cross-entropy of <span class="num">2.50</span> is easier to picture backwards. A model that spread its bets evenly over <b-m tex="k">k</b-m> tokens would have a loss of <b-m tex="ln k">ln k</b-m>, so a loss of <span class="num">2.50</span> is as unsure as choosing evenly between <b-m tex="e^{2.50}">e<sup>2.50</sup></b-m> ≈ <span class="num">12</span> tokens. Our model started out as unsure as picking from all <span class="num">512</span> (and then some), and five epochs narrowed that down to about <span class="num">12</span>.</p>
+  <p data-b="pt14n">Another way to look at it is how often its favorite token is the right one. On the held-out windows the trained model's top guess is the actual next token <span class="num">38%</span> of the time. With random weights it is right <span class="num">0.2%</span> of the time, about one guess in <span class="num">512</span>.</p>
   <p data-b="bp8dn">That is still a long way from writing Shakespeare. To see how far, we have to make it write.</p>
 <div class="foot" data-rt=""><span>Building irishQwen · Training</span><span>22</span></div></section>
 
@@ -1840,44 +1496,56 @@ L 250.602422 65.593779
   <p data-b="n5xxu">The loop only ever shows the model the last <span class="num">32</span> bytes (<span class="mono">out[-T:]</span>), since that is the longest window it trained on. After <span class="num">100</span> steps on <span class="num">20,000</span> bytes of sonnets the browser model has learned that words are short and separated by spaces, with a comma now and then. That's about all.</p>
 <div class="foot" data-rt=""><span>Building irishQwen · Generation</span><span>23</span></div></section>
 
-<section class="page" id="sampling" data-view="reading" data-topic="generation" style="--gap: 22pt;">
+<section class="page" id="sampling" data-view="reading" data-topic="generation">
   <h2 data-b="s69er">Temperature and Top-k</h2>
   <p data-b="tvifs">Notice that <span class="mono">sample</span> doesn't just take the most likely byte. Always taking the top token (greedy decoding) gives the same text for the same prompt every time, and a small model that always takes its favorite tends to fall into a rut. So we draw a token at random, in proportion to its probability, after two adjustments.</p>
   <p data-b="xrf0c"><b class="def">Temperature</b> raises every probability to the power <b-m tex="1 / temperature">1 / temperature</b-m> and normalizes them again. Below <span class="num">1</span> the favorites get stronger: three tokens with probabilities <span class="num">0.5</span>, <span class="num">0.3</span> and <span class="num">0.2</span> become <span class="num">0.54</span>, <span class="num">0.29</span> and <span class="num">0.17</span> at a temperature of <span class="num">0.8</span>. Above <span class="num">1</span> they even out (<span class="num">0.44</span>, <span class="num">0.32</span>, <span class="num">0.24</span> at <span class="num">1.5</span>), and at <span class="num">0</span> it is greedy decoding.</p>
   <p data-b="jt20r"><b class="def">Top-k</b> throws away everything but the <b-m tex="k">k</b-m> most likely tokens before drawing, so a rare, silly token can never be picked by bad luck. irishQwen's <span class="mono">sample</span> does both (plus top-p, which keeps the smallest set of tokens whose probabilities add up to <b-m tex="p">p</b-m>). The training script samples with a temperature of <span class="num">0.8</span> and top-k <span class="num">40</span>, and Qwen3-0.6B's recommended settings for chatting are a temperature of <span class="num">0.7</span>, top-k <span class="num">20</span> and top-p <span class="num">0.8</span>.</p>
+  <p data-b="w89ef">irishQwen's <span class="mono">chat</span> method runs the same loop, but keeps every block's keys and values from earlier tokens (the KV cache), so each new token runs through the model on its own.</p>
 <div class="foot" data-rt=""><span>Building irishQwen · Generation</span><span>24</span></div></section>
 
 <section class="page" id="samples" data-view="reading" data-topic="generation">
   <h2 data-b="d2m18">What Our irishQwen Writes</h2>
-  <p data-b="fxakq">irishQwen's <span class="mono">chat</span> method is the same loop, with temperature and top-k, plus one trick to save time: it keeps every block's keys and values from earlier tokens (the KV cache) so each new token only has to run through the model on its own.</p>
-  <p data-b="n2o3u">Here is our trained irishQwen, the weights from its best validation loss, given the training script's four prompts and allowed <span class="num">60</span> tokens each (temperature <span class="num">0.8</span>, top-k <span class="num">40</span>):</p>
-  <b-out data-b="l5dgs"><div class="label">Output</div><pre>ROMEO. I know I have heard thee out of France, but the honour of his name.
-BOYET. And I tell you, by thine eye in my rain
-
-So would not do with</pre></b-out>
-  <b-out data-b="wbg2x"><div class="label">Output</div><pre>To be, or not to bear it;
-In this excused gams of men throws-
-The never true intention
-Our brother begins.
-POMPEY. We d</pre></b-out>
-  <p data-b="nwuwq">Plays in the corpus are laid out as a speaker's name in capitals and a period, then their lines, and the model has picked that up, handing over from Romeo to Boyet (a lord from <i>Love's Labour's Lost</i>) and from Hamlet's words to a Pompey. The words are nearly all real and the grammar holds for a few words at a time ("I know I have heard thee"), but the sense never lasts a line.</p>
+  <p data-b="n2o3u">Here is the class model, <span class="mono">qwen_shakespeare.pt</span>, given the training script's four prompts with its settings (temperature <span class="num">0.8</span>, top-k <span class="num">40</span>, after <span class="mono">torch.manual_seed(0)</span>). The script asks for <span class="num">150</span> tokens, but <span class="mono">chat</span> stops once the <span class="num">128</span>-token window is full, so each one stops wherever the window runs out:</p>
+  <b-out data-b="l5dgs"><div class="label">Output</div><pre>ROMEO. Nay, my lord.
+IAGO. Thou hast seen, a boys, if in the penance
+And what's here is not enchakes it. They
+Infort my departarment in the wretch
+To slay so nightly burns to blood,
+Like a world to acts in their bleser bad;
+Though though ne'er ar</pre></b-out>
+  <b-out data-b="wbg2x"><div class="label">Output</div><pre>To be, or not to be
+One boy, or some single against these sight.
+Therefore sack, he is most outwards wit,
+We have told my poor action, my lord,
+At these hours in this mind together-sin
+That hath heavy things. Harry 'tis told you?
+<span class="olab">IAGO.</span>                         [Knocks</pre></b-out>
+  <p data-b="o4s0f">Plays in the corpus are laid out as a speaker's name in capitals and a period, then their lines, and the model has picked that up, handing over from Romeo to Iago (from <i>Othello</i>) and even ending Hamlet's words on a stage direction. The words are mostly real and the grammar holds for a few words at a time ("We have told my poor action, my lord"), but the sense never lasts a line.</p>
 <div class="foot" data-rt=""><span>Building irishQwen · Generation</span><span>25</span></div></section>
 
 <section class="page" id="samples-2" data-view="reading" data-topic="generation" style="--gap: 22pt;">
   <h2 data-b="w7umh">What Our irishQwen Writes, Continued</h2>
-  <b-out data-b="yb0gg"><div class="label">Output</div><pre>KING HENRY. O heaven for me, I will remember you.
-BASSANIO. Thou that, my lord; I'll be assur'd you. Who can make a
-begent cock</pre></b-out>
-  <b-out data-b="y1zmm"><div class="label">Output</div><pre>Shall I compare thee, cold,
-Let her with her, by him to choose appear
-As we shall speak. Did you be, person me,
-Go to the whole ever or ey</pre></b-out>
-  <p data-b="nfirv">King Henry gets an answer from Bassanio, from <i>The Merchant of Venice</i>, and the sonnet prompt carries on in short lines that start with capitals, like verse, though they scan about as well as they make sense. "gams" and "begent" aren't words, a model that writes in pieces of words can make up new ones. <b class="take">Our model has learned the layout of Shakespeare, a lot of his vocabulary and a little of his grammar</b>, from about three million tokens with under a million parameters.</p>
+  <b-out data-b="yb0gg"><div class="label">Output</div><pre>KING HENRY. God rose they be trained on, the banker
+Tign'd with castle.
+These wors that the heavens is most enaction
+Which how you were daffle he bearing;
+And so, sir, and I bear the worth and head,
+And write the Prince of Lancaster and brave
+On our honours have I p</pre></b-out>
+  <b-out data-b="y1zmm"><div class="label">Output</div><pre>Shall I compare thee, I would added back
+By between their pole to back again too.
+MACBETH. Here I were holide, and my charging bold
+To make the hands of a slay together,
+For I will make discretion'd a thing to pieces,
+Let him being enough.
+ISA</pre></b-out>
+  <p data-b="nfirv">King Henry talks of the Prince of Lancaster, which is at least the right royal house, and the sonnet prompt turns into a speech by Macbeth, in lines that start with capitals like verse, though they scan about as well as they make sense. "enchakes", "departarment" and "daffle" aren't words, a model that writes in pieces of words can make up new ones. <b class="take">Our model has learned the layout of Shakespeare, a lot of his vocabulary and a little of his grammar</b>, from about <span class="num">12</span> million tokens with <span class="num">3.4</span> million parameters.</p>
 <div class="foot" data-rt=""><span>Building irishQwen · Generation</span><span>26</span></div></section>
 
-<section class="page" id="scale" data-view="reading" data-topic="scale" style="--gap: 20.8pt;">
+<section class="page" id="scale" data-view="reading" data-topic="scale" style="--gap: 22pt;">
   <h2 data-b="hpg4u">From Shakespeare to Qwen3-0.6B</h2>
-  <p data-b="d33vk">Our run saw <span class="num">3,072,000</span> tokens (<span class="num">3,000</span> steps of <span class="num">16</span> windows of <span class="num">64</span>). The training script's five epochs come to about <span class="num">12</span> million. Qwen3-0.6B was trained on about <span class="num">36</span> trillion tokens, roughly <b class="take">three million times as much text as the class model sees</b>, on a model <span class="num">175</span> times the size.</p>
+  <p data-b="d33vk">The class run saw about <span class="num">12</span> million tokens (five epochs of <span class="num">18,749</span> windows of <span class="num">128</span>). Qwen3-0.6B was trained on about <span class="num">36</span> trillion tokens, roughly <b class="take">three million times as much text as the class model sees</b>, on a model <span class="num">175</span> times the size.</p>
   <p data-b="bwvsj">Everything else is the same. irishQwen can load Qwen3-0.6B's real weights (<span class="mono">scripts/import_qwen3.py</span> converts them), and then the same embedding table, the same <span class="mono">forward</span> through the same kind of block and the same sampling loop write English, Chinese and Python instead of muttering half-words of Shakespeare. The difference is entirely in the numbers inside the matrices.</p>
   <p data-b="lmvqt">That raises an awkward question. Our model's validation loss went down, and its Shakespeare looks a bit more like Shakespeare, but a lower loss on held-out Shakespeare is a pretty narrow idea of "good". Neither our model nor Qwen3-0.6B can be judged by eye forever, and <b class="warn">a loss can't tell us whether a model knows anything</b>. For that we need a way to measure models against each other.</p>
 <div class="foot" data-rt=""><span>Building irishQwen · Generation</span><span>27</span></div></section>
