@@ -222,6 +222,7 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy({ "CNAME": "CNAME" });
   // AI2AI textbook: landing page + chapters (exported by the Book Editor); book/ only holds redirects to it
   eleventyConfig.addPassthroughCopy({ "ai2ai": "ai2ai" });
+  eleventyConfig.addPassthroughCopy({ "ballm": "ballm" });   // BaLLM, the CSE 10124 book (same editor as AI2AI)
   eleventyConfig.addPassthroughCopy({ "book": "book" });
   eleventyConfig.addPassthroughCopy({ "404.html": "404.html" });
 
