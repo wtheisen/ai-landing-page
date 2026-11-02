@@ -50,6 +50,42 @@ function eaiInk(opts) {
   // to find out on the iPad why ink can land off the tip (Eric, 2026-11-02; nothing like it reproduces in WebKit or
   // Chrome on a desktop). Screen only, never saved.
   var DEBUG = /[?&#]inkdebug\b/.test(location.search + location.hash), dbg = null;
+  // Calibration (inkdebug): nine targets fixed on the screen; touch the centre of each with the Pencil and the box
+  // lists where Safari said the touch was, plus the straight-line fit reported = a * target + b on each axis. That
+  // measures the input error directly (a screenshot can't show where the Pencil tip was).
+  if (DEBUG) (function () {
+    var T = [], hits = [], box = null;
+    function place() {
+      T.forEach(function (t) { t.el.remove(); }); T = [];
+      [0.12, 0.5, 0.88].forEach(function (fy) { [0.1, 0.5, 0.9].forEach(function (fx) {
+        var x = Math.round(innerWidth * fx), y = Math.round(innerHeight * (0.18 + fy * 0.62)), el = document.createElement('div');
+        el.style.cssText = 'position:fixed;left:' + (x - 14) + 'px;top:' + (y - 14) + 'px;width:28px;height:28px;border:2px solid #0a0;border-radius:50%;pointer-events:none;z-index:9998;background:radial-gradient(circle,#0a0 0 2px,transparent 3px)';
+        document.body.appendChild(el); T.push({ x: x, y: y, el: el });
+      }); });
+    }
+    function fit(k) {
+      var n = hits.length; if (n < 2) return '-';
+      var mx = 0, my = 0; hits.forEach(function (h) { mx += h.t[k]; my += h.r[k]; }); mx /= n; my /= n;
+      var sxy = 0, sxx = 0; hits.forEach(function (h) { sxy += (h.t[k] - mx) * (h.r[k] - my); sxx += (h.t[k] - mx) * (h.t[k] - mx); });
+      var A = sxx ? sxy / sxx : 1, B = my - A * mx; return 'a ' + A.toFixed(4) + ' b ' + B.toFixed(1) + (Math.abs(A - 1) > 1e-3 ? ' (fixed point ' + (B / (1 - A)).toFixed(0) + ')' : '');
+    }
+    function show() {
+      if (!box) { box = document.createElement('pre'); box.style.cssText = 'position:fixed;right:6px;bottom:6px;margin:0;padding:6px 8px;z-index:9999;pointer-events:none;font:11px/1.35 Menlo,monospace;background:rgba(255,255,255,.92);border:1px solid #0a0;color:#000'; document.body.appendChild(box); }
+      box.textContent = 'touch the centre of each green target\n--zoom ' + getComputedStyle(document.documentElement).getPropertyValue('--zoom') + '  window ' + innerWidth + ' x ' + innerHeight + '\n'
+        + hits.slice(-9).map(function (h) { return 'target ' + h.t[0] + ', ' + h.t[1] + '  said ' + h.r[0].toFixed(1) + ', ' + h.r[1].toFixed(1) + '  off ' + (h.r[0] - h.t[0]).toFixed(1) + ', ' + (h.r[1] - h.t[1]).toFixed(1) + '  ' + h.z; }).join('\n')
+        + '\nx: ' + fit(0) + '\ny: ' + fit(1);
+    }
+    addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'touch') return;
+      var best = null, bd = 1e9; T.forEach(function (t) { var d = Math.hypot(t.x - e.clientX, t.y - e.clientY); if (d < bd) { bd = d; best = t; } });
+      if (!best || bd > 150) return;
+      var z = getComputedStyle(document.documentElement).getPropertyValue('--zoom').trim();
+      if (hits.length && hits[0].z !== z) hits = [];   // a new zoom starts a new fit
+      hits.push({ t: [best.x, best.y], r: [e.clientX, e.clientY], z: z }); show();
+    }, true);
+    addEventListener('resize', place);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { place(); show(); }); else { place(); show(); }
+  })();
   function debugShow(pg, ev, p, box, svgp) {
     if (!dbg) {
       dbg = document.createElement('div');
