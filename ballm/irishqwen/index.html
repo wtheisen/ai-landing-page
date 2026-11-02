@@ -2123,8 +2123,10 @@ function eaiInk(opts) {
     // the Pencil's position were right. Elsewhere this is the page box less its 1px border.
     var W = pgW(pg), r = rectOf(pg), k = W / (r.width || W), o = rectOf(svg);
     if (!o.width || !o.height) svg.setAttribute('viewBox', '0 0 ' + W + ' ' + r1(r.height * k));
-    else svg.setAttribute('viewBox', [(o.left - r.left) * k, (o.top - r.top) * k, o.width * k, o.height * k].map(function (v) { return Math.round(v * 100) / 100; }).join(' '));
-    svg.setAttribute('preserveAspectRatio', 'none');
+    else svg.setAttribute('viewBox', [(o.left - r.left) * k, (o.top - r.top) * k, o.width * k, o.height * k].map(function (v) { return Math.round(v * 1e4) / 1e4; }).join(' '));
+    // keep the default preserveAspectRatio (the view box has the box's own shape, so it fits exactly): "none" made the
+    // scale a hair non-uniform, and Safari then drew thick strokes with white slivers where they turn back (Eric, 2026-11-02)
+    svg.removeAttribute('preserveAspectRatio');
     return svg;
   }
   // Where an element really is on screen, in viewport px. Lecture pages are scaled with CSS zoom, and Safari reports a
