@@ -241,19 +241,9 @@ function eaiInk(opts) {
       var dx = p[0] - sm[0], dy = p[1] - sm[1], a = Math.min(1, 0.35 + Math.sqrt(dx * dx + dy * dy) / 4);
       sm[0] += a * dx; sm[1] += a * dy; return [r1(sm[0]), r1(sm[1]), p[2]];
     }
-    // A long stroke is drawn as a chain of short paths while the pen is down (each frame rewrites only the last one),
-    // then joined into one path when it lifts.
-    var chunks = [], from = 0, CH = 40;
-    function frame() {
-      queued = false; if (!el) return;
-      var n = cur.pts.length;
-      if (n - from > CH) {
-        var done = { c: cur.c, w: cur.w, o: cur.o, pts: cur.pts.slice(from, n - 1) }; paint(el, done);
-        chunks.push(el); el = document.createElementNS(NS, 'path'); el._s = cur; if (cur.o && cur.o < 1) el.setAttribute('opacity', cur.o); svg.appendChild(el);
-        from = n - 2;
-      }
-      paint(el, { c: cur.c, w: cur.w, o: cur.o, pts: cur.pts.slice(from) }, tail);
-    }
+    // One path for the whole stroke, rewritten each frame. (2026-11-01 to 11-02 a long stroke was drawn as a chain of
+    // short paths joined on lift: on the iPad only the end of each stroke was left on screen, Eric 2026-11-02.)
+    function frame() { queued = false; if (el) paint(el, cur, tail); }
     // where the pen will be a frame from now: the browser's guess if it has one (Chrome), else ours from the last speed
     var last = null, prev = null;
     function ahead(ev) {
@@ -294,8 +284,7 @@ function eaiInk(opts) {
       if (tool === 'laser') { if (laser) laser.remove(); laser = null; return; }
       if (cur && cur.pts.length) {
         var l = cur.pts[cur.pts.length - 1]; if (raw && cur.pts.length > 1 && (raw[0] !== l[0] || raw[1] !== l[1])) cur.pts.push(raw);
-        tail = null; chunks.forEach(function (c) { c.remove(); }); chunks = [];
-        if (from) { el.remove(); el = drawStroke(cur); } else paint(el, cur);
+        tail = null; paint(el, cur);
         target.strokes.push(cur); undo.push({ stroke: cur, el: el });
       }
       if (erased.length) undo.push({ erased: erased });
