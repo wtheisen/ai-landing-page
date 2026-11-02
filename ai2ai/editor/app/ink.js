@@ -25,7 +25,7 @@ function eaiInk(opts) {
   var NS = 'http://www.w3.org/2000/svg';
   var REPO = opts.repo || 'wtheisen/ai-landing-page', BRANCH = opts.branch || 'main', SITE_DIR = opts.dir || '';
   var book = document.querySelector('main.book, #book'); if (!book) return;
-  var PEN = [['#002B5B', 'navy'], ['#CC0000', 'red'], ['#38761D', 'green'], ['#674EA7', 'purple']];
+  var PEN = [['#1155CC', 'blue'], ['#CC0000', 'red'], ['#38761D', 'green'], ['#674EA7', 'purple'], ['#DCB439', 'gold']];
   var HL = '#F1C232';
   // Ink sits in page coordinates and the three views lay pages out differently (the Lecture view has bigger type), so a
   // set of notes belongs to the view it was drawn in. Other views list it in the picker and switch to that view.
