@@ -25647,6 +25647,11 @@ function eaiInk(opts) {
   var pub = null, layers = [], mine = null, target = null, editing = false, tool = 'hand', color = PEN[0][0], width = 2.2, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
+  // penDown: a pen stroke is under way (Lecture mode ignores pinches meanwhile: on the iPad a palm resting beside the
+  // Pencil reads as a second finger, and the "pinch" scaled the slide about a point between palm and pen, so the ink
+  // landed off the tip, more so the further from that point; Eric, 2026-11-02). zoomGen goes up whenever the pages are
+  // scaled or laid out at a new zoom, so a stroke reads the page's box again instead of trusting the one it started with.
+  var penDown = false, zoomGen = 0, lectZoom = null;
   var teacher = function () { return !!store(KEY_TOKEN); };
   // iPadOS tells Pencil touches apart (touchType 'stylus'), so fingers keep Safari's own scrolling (with momentum) and
   // only the Pencil is stopped from scrolling. Elsewhere the pages lock touch while writing and fingers scroll by hand.
@@ -25840,9 +25845,10 @@ function eaiInk(opts) {
     // after the stroke was redrawn made the browser lay the page out again for each event (2026-11-01, Eric: "still
     // isn't as smooth as Notability's").
     var box = null, onScroll = function () { box = null; };
+    if (tool !== 'laser') { penDown = true; if (lectZoom) lectZoom.cancel(); }
     addEventListener('scroll', onScroll, true);
     function pt(q) {
-      if (!box) { var r = pg.getBoundingClientRect(); box = { l: r.left, t: r.top, k: pgW(pg) / r.width }; }
+      if (!box || box.g !== zoomGen) { var r = pg.getBoundingClientRect(); box = { l: r.left, t: r.top, k: pgW(pg) / r.width, g: zoomGen }; }
       return [r1((q.clientX - box.l) * box.k), r1((q.clientY - box.t) * box.k), 0.5];
     }
     // speed-aware smoothing: slow, wobbly movement is averaged out a little, fast movement passes straight through
@@ -25889,7 +25895,7 @@ function eaiInk(opts) {
     function up(ev) {
       if (ev && ev.pointerId !== e.pointerId) return;
       pg.removeEventListener('pointermove', move); pg.removeEventListener('pointerup', up); pg.removeEventListener('pointercancel', up);
-      removeEventListener('scroll', onScroll, true);
+      removeEventListener('scroll', onScroll, true); penDown = false;
       if (tool === 'laser') { if (laser) laser.remove(); laser = null; return; }
       if (cur && cur.pts.length) {
         var l = cur.pts[cur.pts.length - 1]; if (raw && cur.pts.length > 1 && (raw[0] !== l[0] || raw[1] !== l[1])) cur.pts.push(raw);
@@ -25977,7 +25983,7 @@ function eaiInk(opts) {
     addEventListener('gestureend', function () { setTimeout(unzoom, 300); });
     function fit() { var pg = book.querySelector('section.page'), W = window.Book && Book.pageW ? Book.pageW(Book.view) : pg ? pgW(pg) : 432; return Math.min(1, (innerWidth - 32) / (W * 4 / 3)); }   // the view's own fit-the-width zoom (view.html)
     window.eaiZoomK = k;
-    function apply() { H.style.setProperty('--zoom', +(fit() * k).toFixed(4)); }
+    function apply() { H.style.setProperty('--zoom', +(fit() * k).toFixed(4)); zoomGen++; }
     function pageAt(x, y) {   // the page nearest a point, and where in it the point is (fractions), to keep it under the fingers
       var best = null, bd = Infinity;
       [].forEach.call(book.querySelectorAll('section.page'), function (p) {
@@ -26007,28 +26013,37 @@ function eaiInk(opts) {
       if (!raf) raf = requestAnimationFrame(function () {
         raf = 0; if (!live) return;
         var tx = live.slide ? live.x - live.x0 : 0, ty = live.slide ? live.y - live.y0 : 0;
-        book.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + (live.nk / k) + ')';
+        book.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + (live.nk / k) + ')'; zoomGen++;
       });
       clearTimeout(soon.t); soon.t = setTimeout(commit, 200);   // a trackpad or ctrl+wheel pinch has no end event
     }
     function commit() {
       clearTimeout(soon.t); if (!live) return;
       var L = live; live = null; if (raf) { cancelAnimationFrame(raf); raf = 0; }
-      book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming');
+      book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming'); zoomGen++;
       if (Math.abs(L.nk - k) >= 0.002) { k = L.nk; window.eaiZoomK = k; apply(); try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }
       if (L.a) { var r = L.a.p.getBoundingClientRect(); book.scrollLeft += r.left + L.a.fx * r.width - L.x; book.scrollTop += r.top + L.a.fy * r.height - L.y; }
     }
+    // the pen came down: a pinch under way was a palm, not a zoom, so put the pages back as they were, and ignore the
+    // rest of that gesture (and any gesture while the pen is down)
+    var blocked = false;
+    function cancel() {
+      clearTimeout(soon.t); if (raf) { cancelAnimationFrame(raf); raf = 0; }
+      if (live) { live = null; book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming'); zoomGen++; }
+      blocked = true; t0 = null;
+    }
+    lectZoom = { cancel: cancel };
+    var t0 = null;
     var g0 = 1;   // Safari (iPad, Mac trackpad): gesture events carry the pinch scale
     var page = false;   // the page itself is zoomed (Safari): let this pinch go to Safari so it can zoom back out
     function pageZoomed() { return !!(window.visualViewport && visualViewport.scale > 1.01); }
-    addEventListener('gesturestart', function (e) { page = pageZoomed(); if (page) return; e.preventDefault(); g0 = k; }, { passive: false });
-    addEventListener('gesturechange', function (e) { if (page) return; e.preventDefault(); soon(g0 * e.scale, e.clientX || innerWidth / 2, e.clientY || innerHeight / 2); }, { passive: false });
-    addEventListener('gestureend', function (e) { if (!page) { e.preventDefault(); commit(); } page = false; }, { passive: false });
+    addEventListener('gesturestart', function (e) { page = pageZoomed(); if (page) return; e.preventDefault(); g0 = k; blocked = penDown; }, { passive: false });
+    addEventListener('gesturechange', function (e) { if (page) return; e.preventDefault(); if (blocked || penDown) return; soon(g0 * e.scale, e.clientX || innerWidth / 2, e.clientY || innerHeight / 2); }, { passive: false });
+    addEventListener('gestureend', function (e) { if (!page) { e.preventDefault(); if (!blocked) commit(); } page = false; blocked = false; }, { passive: false });
     if (!('ongesturestart' in window)) {   // other touch screens: two fingers
-      var t0 = null;
       var dist = function (t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); };
-      addEventListener('touchstart', function (e) { if (e.touches.length === 2) t0 = { d: dist(e.touches), k: k }; }, { passive: true });
-      addEventListener('touchmove', function (e) { if (!t0 || e.touches.length !== 2) return; e.preventDefault(); soon(t0.k * dist(e.touches) / t0.d, (e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2, true); }, { passive: false });
+      addEventListener('touchstart', function (e) { if (e.touches.length === 2 && !penDown) { t0 = { d: dist(e.touches), k: k }; blocked = false; } }, { passive: true });
+      addEventListener('touchmove', function (e) { if (!t0 || e.touches.length !== 2 || penDown) return; e.preventDefault(); soon(t0.k * dist(e.touches) / t0.d, (e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2, true); }, { passive: false });
       addEventListener('touchend', function (e) { if (e.touches.length < 2 && t0) { t0 = null; commit(); } });
     }
     addEventListener('wheel', function (e) { if (!e.ctrlKey) return; e.preventDefault(); soon((live ? live.nk : k) * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY); }, { passive: false });   // trackpad pinch in Chrome, ctrl+wheel
@@ -26037,7 +26052,7 @@ function eaiInk(opts) {
       var r = book.getBoundingClientRect();
       zoomTo(e.key === '0' ? 1 : k * (e.key === '-' ? 1 / 1.15 : 1.15), r.left + r.width / 2, r.top + r.height / 2);
     });
-    addEventListener('resize', function () { setTimeout(apply, 0); });   // after the view's own resize handler
+    addEventListener('resize', function () { zoomGen++; setTimeout(apply, 0); });   // after the view's own resize handler
     apply(); setTimeout(apply, 0);
   }
   // ?lecture=1 (the editor home's Lecture button): teaching from this device: the pen in hand, the faint answers hidden
