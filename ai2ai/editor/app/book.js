@@ -368,14 +368,16 @@ class BEq extends HTMLElement {
 // marks="3:4-18:gold 7:0-9:blue": a tinted box behind part of a line (1-based line, 0-based columns).
 // The kind "fill" (3:8-20:fill) is a fill-in blank: plain code when reading, an underline to write on in the Lecture
 // and Workbook (u.fill, like blanks in text: faint for the signed-in instructor, a real gap in the exported Workbook).
-function codeMarks(attr) {
+function codeMarks(attr, lang) {
+  // lang="text" (prompts, data, plain output in a code box: BaLLM's evals chapter) gets no Python colouring
+  const hl = lang && !/^(python|py)$/i.test(lang) ? l => l.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) : highlight;
   const marks = {};
   (attr || '').split(/[\s;]+/).forEach(m => { const q = /^(\d+):(\d+)-(\d+)(?::(\w+))?$/.exec(m); if (q) (marks[q[1] - 1] = marks[q[1] - 1] || []).push([+q[2], +q[3], q[4] || 'gold']); });
   return (l, k) => {
-    if (!marks[k]) return highlight(l);
+    if (!marks[k]) return hl(l);
     let out = '', at = 0;
-    for (const [a, b, c] of marks[k].sort((x, y) => x[0] - y[0])) { if (a < at || b <= a) continue; const inner = highlight(l.slice(a, b)); out += highlight(l.slice(at, a)) + (c === 'fill' ? `<u class="fill">${inner}</u>` : `<mark class="${c}">${inner}</mark>`); at = b; }
-    return out + highlight(l.slice(at));
+    for (const [a, b, c] of marks[k].sort((x, y) => x[0] - y[0])) { if (a < at || b <= a) continue; const inner = hl(l.slice(a, b)); out += hl(l.slice(at, a)) + (c === 'fill' ? `<u class="fill">${inner}</u>` : `<mark class="${c}">${inner}</mark>`); at = b; }
+    return out + hl(l.slice(at));
   };
 }
 Book.codeMarks = codeMarks;
@@ -384,7 +386,7 @@ class BCode extends HTMLElement {
   get src() { return this.getAttribute('data-src') || ''; }
   set src(v) { this.setAttribute('data-src', v); this.render(); Book.refreshSoon(); }
   render() {
-    const lines = this.src.split('\n'), line = codeMarks(this.getAttribute('marks'));
+    const lines = this.src.split('\n'), line = codeMarks(this.getAttribute('marks'), this.getAttribute('lang'));
     // "#~ name" at the end of a line links it to the piece of the paired equation marked \lk{name}{…} (hidden here)
     const lk = lines.map(l => /\s*#~\s*([\w-]+(?:[\s,]+[\w-]+)*)\s*$/.exec(l));
     const shown = lines.map((l, k) => lk[k] ? l.slice(0, lk[k].index) : l);

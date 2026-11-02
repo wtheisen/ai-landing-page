@@ -1325,7 +1325,7 @@ function codeEditView(el, text) {
   const lines = text.split('\n');
   if (el.tagName === 'B-OUT') { el.querySelector('pre').innerHTML = eaiOutHL(text, Book.meta.codeColors, el.getAttribute('hl')); return; }
   el.querySelector('.gutter').innerHTML = lines.map((_, k) => `<div>${k + 1}</div>`).join('');
-  const line = Book.codeMarks(el.getAttribute('marks'));
+  const line = Book.codeMarks(el.getAttribute('marks'), el.getAttribute('lang'));
   el.querySelector('.src').innerHTML = lines.map((l, k) => `<div class="ln">${line(l, k)}</div>`).join('');
 }
 // Fill in a code cell: the selected characters become a blank (marks "line:from-to:fill"), one per line they span.
