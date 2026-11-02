@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AI2AI Book Editor</title>
+<title>Book Editor</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#002B5B">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -72,13 +72,17 @@ body.dragging .cv { cursor: grabbing; }
 @media (max-width: 520px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
 .off { font-size: 12px; color: var(--muted); }
 .off.full { color: var(--green); font-weight: 700; }
+.books { display: flex; gap: 8px; margin: 4px 0 14px; flex-wrap: wrap; }
+.booktab { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 8px 14px; border: 1px solid #c9ced6; border-radius: 10px; background: #fff; color: #002B5B; cursor: pointer; font: inherit; }
+.booktab b { font-size: 15px; } .booktab span { font-size: 11px; color: #6b6b6b; }
+.booktab.on { background: #002B5B; border-color: #002B5B; color: #fff; } .booktab.on span { color: #DCB439; }
 .edited { color: #8a6a00; font-weight: 700; }
 progress { width: 100%; height: 6px; }
 #msg { white-space: pre-wrap; }
 </style>
 </head>
 <body>
-<header><h1>AI2AI Book Editor</h1><div class="sub">Exploring Artificial Intelligence · works offline on this device</div></header>
+<header><h1>Book Editor</h1><div class="sub" id="booksub">Exploring Artificial Intelligence · works offline on this device</div></header>
 <main>
   <div class="chips" id="chips"></div>
 

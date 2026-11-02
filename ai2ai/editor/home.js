@@ -108,17 +108,40 @@ $('#all').onclick = async () => {
 let showPlanned = true; try { showPlanned = localStorage.getItem('ai2ai-planned') !== '0'; } catch (e) { /* no storage */ }
 let shelf = null;   // { toc, units: [{n, title, items: [{key, slug?, title}]}], chapters: {slug: info} }
 
+// Books (Eric, 2026-11-02: BaLLM for CSE 10124 joins AI2AI): chapters/books.json lists them, each with its own contents
+// file and slug prefix; every chapter folder sits in chapters/. The shelf shows one book at a time, tabs switch.
+let BOOKS = [{ id: 'ai2ai', title: 'Exploring Artificial Intelligence', short: 'AI2AI', course: 'CSE 30124 · Introduction to Artificial Intelligence', toc: 'toc.json', prefix: '' }];
+let bookId = params.get('book'); try { bookId = bookId || localStorage.getItem('ai2ai-book'); } catch (e) { /* no storage */ }
+const book = () => BOOKS.find(b => b.id === bookId) || BOOKS[0], tocPath = b => 'chapters/' + (b || book()).toc;
+async function loadBooks() {
+  const f = await Files.get('chapters/books.json');
+  try { const bs = f && JSON.parse(f.data).books; if (bs && bs.length) BOOKS = bs; } catch (e) { /* bad file: one book */ }
+  const tocs = {};
+  for (const b of BOOKS) { const t = await Files.get(tocPath(b)); try { tocs[b.id] = t ? JSON.parse(t.data) : null; } catch (e) { tocs[b.id] = null; } }
+  return tocs;
+}
+function bookOf(slug, tocs) {   // the book whose contents lists it, else the longest prefix that fits
+  for (const b of BOOKS) for (const u of ((tocs[b.id] || {}).units || [])) for (const c of u.chapters || []) if (c.slug === slug) return b.id;
+  return BOOKS.filter(b => slug.startsWith(b.prefix || '')).sort((a, b) => (b.prefix || '').length - (a.prefix || '').length).map(b => b.id)[0] || BOOKS[0].id;
+}
+function heading() {
+  const b = book(); $('#booksub').textContent = b.title + (b.course ? ' · ' + b.course : '') + ' · works offline on this device';
+  document.title = (BOOKS.length > 1 ? b.short + ' · ' : '') + 'Book Editor';
+}
+
 async function load() {
-  const tocF = await Files.get('chapters/toc.json'), files = await Files.under('chapters/');
+  const tocs = await loadBooks(), files = await Files.under('chapters/');
+  if (!BOOKS.some(b => b.id === bookId)) bookId = BOOKS[0].id;
+  const toc = tocs[bookId];
   const chapters = {};
   for (const f of files) {
     const m = /^chapters\/([^/]+)\/chapter\.html$/.exec(f.path); if (!m || typeof f.data !== 'string') continue;
+    if (bookOf(m[1], tocs) !== bookId) continue;
     let meta = {}; try { meta = JSON.parse((/<script type="application\/json" id="book-meta">([\s\S]*?)<\/script>/.exec(f.data) || [])[1] || '{}'); } catch (e) { /* bad meta */ }
     const cover = (/<section class="page[^"]*\bcover\b[^"]*"[^>]*>([\s\S]*?)<\/section>/.exec(f.data) || [])[1] || '';
     const art = (/<b-fig\b[^>]*\bsrc="([^"]+)"/.exec(cover) || [])[1] || '';
     chapters[m[1]] = { slug: m[1], title: meta.title || m[1], dirty: f.dirty, art: /^[\w./-]+$/.test(art) && !art.includes('..') ? art : '' };
   }
-  let toc = null; try { toc = tocF ? JSON.parse(tocF.data) : null; } catch (e) { /* bad toc */ }
   const units = [], seen = new Set();
   for (const u of (toc && toc.units) || []) {
     units.push({ n: u.n, title: u.title, items: (u.chapters || []).map((c, i) => {
@@ -132,11 +155,13 @@ async function load() {
 const pad = (v, like) => String(v).padStart(String(like).length, '0');
 
 async function list() {
-  await load();
+  await load(); heading();
   const { units, other, chapters } = shelf;
-  if (!units.length && !other.length) { $('#list').innerHTML = cfg ? '<p class="note">No chapters on this device yet. Get the latest while online.</p>' : ''; return; }
+  const tabs = BOOKS.length > 1 ? `<div class="books" role="tablist">${BOOKS.map(b => `<button class="booktab${b.id === book().id ? ' on' : ''}" role="tab" aria-selected="${b.id === book().id}" data-book="${esc(b.id)}" title="${esc(b.title)}"><b>${esc(b.short || b.id)}</b><span>${esc((b.course || '').split(' · ')[0])}</span></button>`).join('')}</div>` : '';
+  const wire = () => $('#list').querySelectorAll('[data-book]').forEach(t => t.onclick = () => { bookId = t.dataset.book; try { localStorage.setItem('ai2ai-book', bookId); } catch (e) { /* no storage */ } list(); });
+  if (!units.length && !other.length) { $('#list').innerHTML = tabs + (cfg ? `<p class="note">${BOOKS.length > 1 ? 'No chapters of this book on this device yet.' : 'No chapters on this device yet.'} Get the latest while online.</p>` : ''); wire(); return; }
   const planned = units.reduce((k, u) => k + u.items.filter(i => !i.slug).length, 0);
-  let html = `<div class="shelf-bar"><span class="note">Drag a cover to reorder${matchMedia('(pointer: coarse)').matches ? ' (press and hold first)' : ''}.</span>`
+  let html = tabs + `<div class="shelf-bar"><span class="note">Drag a cover to reorder${matchMedia('(pointer: coarse)').matches ? ' (press and hold first)' : ''}.</span>`
     + (planned ? `<button class="mini" id="tg-planned">${showPlanned ? 'Hide' : 'Show'} planned (${planned})</button>` : '') + '</div>';
   const card = async (it, u, num) => {
     if (!it.slug) return showPlanned ? `<div class="book planned" data-key="${esc(it.key)}"><div class="cv"><div class="cv-text"><div class="kicker">${esc(num)}</div><div class="cv-title">${esc(it.title)}</div><div class="rule"></div></div><div class="cv-plan">Planned</div></div></div>` : '';
@@ -158,7 +183,7 @@ async function list() {
     for (const it of other) html += await card(it, null, '');
     html += '</div>';
   }
-  $('#list').innerHTML = html;
+  $('#list').innerHTML = html; wire();
   covers();
   if ($('#tg-planned')) $('#tg-planned').onclick = () => { showPlanned = !showPlanned; try { localStorage.setItem('ai2ai-planned', showPlanned ? '1' : '0'); } catch (e) { /* no storage */ } list(); };
   $('#list').querySelectorAll('[data-dl]').forEach(a => a.onclick = async e => {
@@ -255,7 +280,7 @@ async function end(e, cancel) {
 
 // a new order of the covers on screen -> a new toc.json (planned chapters that are hidden keep their place)
 async function reorder(order) {
-  const { toc, units, other } = shelf; if (!toc) return msg('There is no contents file (chapters/toc.json) to reorder.');
+  const { toc, units, other } = shelf; if (!toc) return msg('There is no contents file (' + tocPath() + ') to reorder.');
   const byKey = {}; for (const u of units) for (const it of u.items) byKey[it.key] = it; for (const it of other) byKey[it.key] = it;
   const shown = new Set(order.flatMap(o => o[1]));
   const next = JSON.parse(JSON.stringify(toc));
@@ -278,7 +303,7 @@ async function reorder(order) {
 async function apply(next, prevToc) {
   const num = t => { const m = {}; for (const u of t.units) for (const c of u.chapters) if (c.slug) m[c.slug] = [u.n, c.n]; return m; };
   const was = num(prevToc), now = num(next), changed = [];
-  await Files.put('chapters/toc.json', JSON.stringify(next, null, 1) + '\n');
+  const tp = tocPath(); await Files.put(tp, JSON.stringify(next, null, 1) + '\n');
   for (const s of Object.keys(now)) {
     if (was[s] && was[s][0] === now[s][0] && was[s][1] === now[s][1]) continue;
     const f = await Files.get('chapters/' + s + '/chapter.html'); if (!f || typeof f.data !== 'string') continue;
@@ -291,7 +316,7 @@ async function apply(next, prevToc) {
   undoToc = prevToc;
   msg('');
   $('#msg').innerHTML = `Saved the new order${changed.length ? ' and renumbered ' + changed.length + (changed.length === 1 ? ' chapter' : ' chapters') : ''}. <a href="#" id="undo">Undo</a>`;
-  $('#undo').onclick = async e => { e.preventDefault(); const t = undoToc; undoToc = null; if (t) { const cur = JSON.parse((await Files.get('chapters/toc.json')).data); await apply(t, cur); msg('Put the old order back.'); } };
+  $('#undo').onclick = async e => { e.preventDefault(); const t = undoToc; undoToc = null; if (t) { const cur = JSON.parse((await Files.get(tp)).data); await apply(t, cur); msg('Put the old order back.'); } };
   await list(); await chips();
   const sw = navigator.serviceWorker && navigator.serviceWorker.controller;
   if (sw && cfg && cfg.kind !== 'dev' && navigator.onLine) sw.postMessage({ type: 'sync' });

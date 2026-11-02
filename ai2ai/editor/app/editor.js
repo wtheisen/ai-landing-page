@@ -3395,15 +3395,18 @@ async function loadChapters() {   // every chapter folder, with its title and pl
     try {
       const c = (await (await fetch('../api/chapter/' + slug)).json()).content || '', meta = Book.parse(c).meta || {};
       const k = /Unit\s*0*(\d+)\s*·\s*Chapter\s*0*(\d+)/i.exec(c) || [], u = +k[1] || 99, n = +k[2] || +meta.chapter || 99;
-      return { slug, title: meta.title || slug, u, n, split: !!meta.split };
-    } catch (x) { return { slug, title: slug, u: 99, n: 99 }; }
+      return { slug, title: meta.title || slug, u, n, split: !!meta.split, book: meta.book || '' };
+    } catch (x) { return { slug, title: slug, u: 99, n: 99, book: '' }; }
   }));
-  return rows.sort((a, b) => a.u - b.u || a.n - b.n || a.title.localeCompare(b.title));
+  // two books share the editor (AI2AI, BaLLM; chapters/books.json): this chapter's book first, then the others
+  const mine = (Book.meta && Book.meta.book) || '', bk = r => r.book === mine ? '' : (r.book || '~');
+  return rows.sort((a, b) => bk(a).localeCompare(bk(b)) || a.u - b.u || a.n - b.n || a.title.localeCompare(b.title));
 }
 async function switchChapter() {
   const r = $('#title-btn').getBoundingClientRect();
   if (!chapterList) { menu.className = 'chapters'; openMenu(r.left, r.bottom + 4, [['', 'Loading chapters…', '']], () => {}); chapterList = await loadChapters(); }
-  const items = chapterList.map(c => [c.slug, (c.u < 99 ? c.u + '.' + c.n + '  ' : '') + c.title, c.slug === ch ? 'open now' : c.split ? 'Lecture + Reading' : '']);
+  const mine = (Book.meta && Book.meta.book) || '', short = b => (/^([^:]+):/.exec(b) || [])[1] || (b === 'Exploring Artificial Intelligence' ? 'AI2AI' : b);
+  const items = chapterList.map(c => [c.slug, (c.book && c.book !== mine ? short(c.book) + ' ' : '') + (c.u < 99 ? c.u + '.' + c.n + '  ' : '') + c.title, c.slug === ch ? 'open now' : c.split ? 'Lecture + Reading' : '']);
   openMenu(r.left, r.bottom + 4, items, async slug => {
     if (!slug || slug === ch) return;
     commit(true); await save();   // nothing is lost by switching: the current chapter is saved first

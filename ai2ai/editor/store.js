@@ -303,7 +303,7 @@ function mergeItems(mine, theirs) {
 
 // ---------------------------------------------------------------- sync
 const OFFLINE_SKIP = /(^|\/)(markup|dist|\.history)\/|\.pdf$/;   // never needed to edit a chapter
-const CORE = p => /^chapters\/[^/]+\/(chapter\.html|suggestions\.json|tasks\.json)$/.test(p) || p === 'chapters/toc.json';   // always kept on the device
+const CORE = p => /^chapters\/[^/]+\/(chapter\.html|suggestions\.json|tasks\.json)$/.test(p) || /^chapters\/(toc[\w-]*|books)\.json$/.test(p);   // always kept on the device (every book's contents file)
 let running = null;
 const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
 const Sync = {
