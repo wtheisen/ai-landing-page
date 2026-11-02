@@ -46,6 +46,27 @@ function eaiInk(opts) {
   // iPadOS tells Pencil touches apart (touchType 'stylus'), so fingers keep Safari's own scrolling (with momentum) and
   // only the Pencil is stopped from scrolling. Elsewhere the pages lock touch while writing and fingers scroll by hand.
   var IOS = navigator.maxTouchPoints > 1 && /iPad|iPhone|Macintosh/.test(navigator.userAgent);
+  // ?inkdebug (or #inkdebug): a red crosshair where the browser says the pen is, and the numbers the pen works from,
+  // to find out on the iPad why ink can land off the tip (Eric, 2026-11-02; nothing like it reproduces in WebKit or
+  // Chrome on a desktop). Screen only, never saved.
+  var DEBUG = /[?&#]inkdebug\b/.test(location.search + location.hash), dbg = null;
+  function debugShow(pg, ev, p, box, svgp) {
+    if (!dbg) {
+      dbg = document.createElement('div');
+      dbg.innerHTML = '<div style="position:fixed;width:30px;height:30px;margin:-15px 0 0 -15px;pointer-events:none;z-index:9999;background:linear-gradient(red,red) center/1.5px 100% no-repeat,linear-gradient(red,red) center/100% 1.5px no-repeat"></div>'
+        + '<pre style="position:fixed;left:6px;bottom:6px;margin:0;padding:6px 8px;z-index:9999;pointer-events:none;font:11px/1.35 Menlo,monospace;background:rgba(255,255,255,.92);border:1px solid #c00;color:#000;white-space:pre"></pre>';
+      document.body.appendChild(dbg);
+    }
+    var x = dbg.firstChild, t = dbg.lastChild, r = pg.getBoundingClientRect(), v = window.visualViewport || {};
+    x.style.left = ev.clientX + 'px'; x.style.top = ev.clientY + 'px';
+    var f = function (n) { return n == null ? '-' : Math.round(n * 10) / 10; };
+    t.textContent = 'pointer ' + ev.pointerType + '  client ' + f(ev.clientX) + ', ' + f(ev.clientY) + '  page ' + f(ev.pageX) + ', ' + f(ev.pageY)
+      + '\nink at ' + f(p[0]) + ', ' + f(p[1]) + ' pt' + (svgp ? '   svg says ' + f(svgp[0]) + ', ' + f(svgp[1]) : '')
+      + '\nbox ' + f(box.l) + ', ' + f(box.t) + '  k ' + (Math.round(box.k * 1e4) / 1e4) + '  rect ' + f(r.left) + ', ' + f(r.top) + ' w ' + f(r.width) + '  offsetW ' + pg.offsetWidth
+      + '\n--zoom ' + getComputedStyle(document.documentElement).getPropertyValue('--zoom') + '  page zoom ' + getComputedStyle(pg).zoom + '  book transform ' + (book.style.transform || 'none')
+      + '\nviewport scale ' + f(v.scale) + '  offset ' + f(v.offsetLeft) + ', ' + f(v.offsetTop) + '  size ' + f(v.width) + ' x ' + f(v.height) + '  window ' + innerWidth + ' x ' + innerHeight
+      + '\nscroll book ' + f(book.scrollLeft) + ', ' + f(book.scrollTop) + '  window ' + f(scrollX) + ', ' + f(scrollY) + '  dpr ' + devicePixelRatio;
+  }
   mine = store(KEY_MINE) || { id: 'mine', title: 'My notes', pages: [], strokes: [] };
 
   // Even-width ink (pressure is ignored), so a stroke is a plain round-capped SVG line: crisp at any zoom and cheap to
@@ -291,6 +312,7 @@ function eaiInk(opts) {
         } else { var f = smooth(p), l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - f[0]) + Math.abs(l[1] - f[1]) >= 0.35) cur.pts.push(f); }
       });
       if (!cur) return;
+      if (DEBUG) { var dp = pt(ev), sp = null; try { var m = svg.getScreenCTM().inverse(), q0 = svg.createSVGPoint(); q0.x = ev.clientX; q0.y = ev.clientY; q0 = q0.matrixTransform(m); sp = [q0.x, q0.y]; } catch (x) {} debugShow(pg, ev, dp, box, sp); }
       tail = ahead(ev);   // draw ahead to where the pen is about to be, so the line keeps up with the tip
       if (!queued) { queued = true; requestAnimationFrame(frame); }
     }
