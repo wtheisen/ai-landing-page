@@ -99,6 +99,7 @@ function eaiInk(opts) {
     t.textContent = 'pointer ' + ev.pointerType + '  client ' + f(ev.clientX) + ', ' + f(ev.clientY) + '  page ' + f(ev.pageX) + ', ' + f(ev.pageY)
       + '\nink at ' + f(p[0]) + ', ' + f(p[1]) + ' pt' + (svgp ? '   svg says ' + f(svgp[0]) + ', ' + f(svgp[1]) : '')
       + '\nbox ' + f(box.l) + ', ' + f(box.t) + '  k ' + (Math.round(box.k * 1e4) / 1e4) + '  rect ' + f(r.left) + ', ' + f(r.top) + ' w ' + f(r.width) + '  offsetW ' + pg.offsetWidth
+      + '\noverlay ' + (function () { var o = pg.querySelector(':scope > svg.ink'), q = o && o.getBoundingClientRect(); return q ? f(q.left) + ', ' + f(q.top) + ' w ' + f(q.width) + ' h ' + f(q.height) + '  page h ' + f(r.height) + '  viewBox ' + o.getAttribute('viewBox') : '-'; })()
       + '\n--zoom ' + getComputedStyle(document.documentElement).getPropertyValue('--zoom') + '  page zoom ' + getComputedStyle(pg).zoom + '  book transform ' + (book.style.transform || 'none')
       + '\nviewport scale ' + f(v.scale) + '  offset ' + f(v.offsetLeft) + ', ' + f(v.offsetTop) + '  size ' + f(v.width) + ' x ' + f(v.height) + '  window ' + innerWidth + ' x ' + innerHeight
       + '\nscroll book ' + f(book.scrollLeft) + ', ' + f(book.scrollTop) + '  window ' + f(scrollX) + ', ' + f(scrollY) + '  dpr ' + devicePixelRatio;
@@ -126,8 +127,14 @@ function eaiInk(opts) {
   function overlay(pg) {
     var svg = pg.querySelector(':scope > svg.ink');
     if (!svg) { svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'ink'); svg.setAttribute('aria-hidden', 'true'); pg.appendChild(svg); }
-    var W = pgW(pg), r = rectOf(pg), k = W / (r.width || W);
-    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + r1(r.height * k));
+    // The view box is worked out from where the browser really put the overlay, so ink lands where the page says
+    // whatever box the overlay got: on the iPad, zoomed slides drew it smaller than the page and centred (ink 7% off
+    // towards the middle of the slide at 230%, Eric's calibration screenshots, 2026-11-02), while the page's own box and
+    // the Pencil's position were right. Elsewhere this is the page box less its 1px border.
+    var W = pgW(pg), r = rectOf(pg), k = W / (r.width || W), o = rectOf(svg);
+    if (!o.width || !o.height) svg.setAttribute('viewBox', '0 0 ' + W + ' ' + r1(r.height * k));
+    else svg.setAttribute('viewBox', [(o.left - r.left) * k, (o.top - r.top) * k, o.width * k, o.height * k].map(function (v) { return Math.round(v * 100) / 100; }).join(' '));
+    svg.setAttribute('preserveAspectRatio', 'none');
     return svg;
   }
   // Where an element really is on screen, in viewport px. Lecture pages are scaled with CSS zoom, and Safari reports a
@@ -443,7 +450,7 @@ function eaiInk(opts) {
     addEventListener('gestureend', function () { setTimeout(unzoom, 300); });
     function fit() { var pg = book.querySelector('section.page'), W = window.Book && Book.pageW ? Book.pageW(Book.view) : pg ? pgW(pg) : 432; return Math.min(1, (innerWidth - 32) / (W * 4 / 3)); }   // the view's own fit-the-width zoom (view.html)
     window.eaiZoomK = k;
-    function apply() { H.style.setProperty('--zoom', +(fit() * k).toFixed(4)); zoomGen++; }
+    function apply() { H.style.setProperty('--zoom', +(fit() * k).toFixed(4)); zoomGen++; pages().forEach(function (p) { if (p.querySelector(':scope > svg.ink')) overlay(p); }); }
     function pageAt(x, y) {   // the page nearest a point, and where in it the point is (fractions), to keep it under the fingers
       var best = null, bd = Infinity;
       [].forEach.call(book.querySelectorAll('section.page'), function (p) {
