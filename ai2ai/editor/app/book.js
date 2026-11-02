@@ -304,7 +304,7 @@ function loadEqML() {
   }))).then(() => { EqML.addFonts(); }).catch(e => { eqmlP = null; throw e; }));
 }
 class BEq extends HTMLElement {
-  static get observedAttributes() { return ['flush']; }
+  static get observedAttributes() { return ['flush', 'gap']; }
   attributeChangedCallback() { if (this.isConnected && !inThumb(this) && this._key) this.render(); }
   connectedCallback() { if (inThumb(this)) return; lock(this); this.render(); }
   rows() {
@@ -317,7 +317,9 @@ class BEq extends HTMLElement {
     // a note with Ω is drawn with the tall ω since 2026-10-28: the extra 'om' gives those equations a new image
     // flush: no number column, the rows start at the box's left edge (Eric 2026-11-01, so a wide equation draws larger)
     const flush = this.hasAttribute('flush');
-    const key = hash(JSON.stringify([rows, Book.meta.colors || {}, Book.kit].concat(rows.some(r => r[0] === 'eq' && r[2] && r[2].includes('Ω')) ? ['om'] : [], flush ? ['flush'] : [])));
+    // gap: the space between rows in pt at the equation's 16pt size (default 5.6), Eric 2026-11-02
+    const gap = Math.max(0, parseFloat(this.getAttribute('gap')) || 0);
+    const key = hash(JSON.stringify([rows, Book.meta.colors || {}, Book.kit].concat(rows.some(r => r[0] === 'eq' && r[2] && r[2].includes('Ω')) ? ['om'] : [], flush ? ['flush'] : [], gap ? ['gap' + gap] : [])));
     if (key === this._key) return this._done;
     this._key = key;
     const url = Book.url('eq/' + key + '.svg');
@@ -327,13 +329,13 @@ class BEq extends HTMLElement {
       try {
         let ok = (await fetch(url, { method: 'HEAD' })).ok;
         if (!ok && Book.mathml) {   // no TeX on this device: typeset it here (eqml.js), no image needed
-          try { await loadEqML(); if (this._key !== key) return; html = EqML.render(rows, Book.meta.colors || {}, flush); }
+          try { await loadEqML(); if (this._key !== key) return; html = EqML.render(rows, Book.meta.colors || {}, flush, gap); }
           catch (e) { err = 'TeX: ' + String(e.message || e).replace(/^ParseError:\s*/, ''); }
         } else if (!ok && Book.api) {
           const release = await eqSlot();
           try {
             if (this._key !== key) return;
-            const r = await fetch('../api/eq/' + Book.chapter, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key, rows, colors: Book.meta.colors || {}, flush }) });
+            const r = await fetch('../api/eq/' + Book.chapter, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key, rows, colors: Book.meta.colors || {}, flush, gap }) });
             ok = r.ok; if (!ok) err = (await r.json().catch(() => ({}))).error || 'could not render';
           } finally { release(); }
         } else if (!ok) err = 'equation image missing';

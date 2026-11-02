@@ -62,9 +62,9 @@ function one(tex, colors, display) {
     .replace(/<mi>/g, '<mi mathvariant="normal">');   // unicode-math math-style=upright: letters are upright, as in the TeX images
 }
 // rows as BEq.rows() gives them: ['eq', number, note, tex] or ['step', tex]. Returns HTML or throws with TeX's message.
-function render(rows, colors, flush) {
+function render(rows, colors, flush, gap) {
   const cm = texColors(colors);
-  return '<div class="eqml' + (flush ? ' flush' : '') + '" role="math">' + rows.map(r => r[0] === 'eq'
+  return '<div class="eqml' + (flush ? ' flush' : '') + '"' + (gap ? ' style="row-gap:' + (+gap) + 'pt"' : '') + ' role="math">' + rows.map(r => r[0] === 'eq'
     ? `<div class="eqml-n">${r[1] ? '[' + esc(r[1]) + ']' : ''}</div><div class="eqml-e">${r[2] ? `<div class="eqml-note">${esc(r[2]).replace(/Ω/g, '<span class="Om">ω</span>')}</div>` : ''}${one(r[3], cm, true)}</div>`
     : `<div class="eqml-n"></div><div class="eqml-s"><span class="eqml-arrow">↓</span>${one(r[1], cm, false)}</div>`).join('') + '</div>';
 }

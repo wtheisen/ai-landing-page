@@ -1788,6 +1788,12 @@ function eqInspector(el) {
   row.onclick = e => { const k = e.target.dataset.k; if (!k) return; const n = document.createElement(k); n.textContent = k === 'eq-step' ? '\\text{substitute}' : '= x'; const img = el.querySelector(':scope > [data-rt]'); el.insertBefore(n, null); if (img) el.append(...el.querySelectorAll(':scope > [data-rt]')); el.render(); draw(); const tas = list.querySelectorAll('textarea'); tas[tas.length - 1].focus(); tas[tas.length - 1].select(); };
   const fl = add(`<label class="check"><input type="checkbox" ${el.hasAttribute('flush') ? 'checked' : ''}>Flush left (no number column, so it can draw larger)</label>`);
   fl.firstChild.onchange = e => { commit(true); el.toggleAttribute('flush', e.target.checked); commit(true); place(); };
+  // space between the rows, pt at the equation's size (5.6 = the default, stored only when changed; Eric 2026-11-02)
+  const g0 = parseFloat(el.getAttribute('gap')) || 5.6;
+  const gp = add(`<label class="check" style="gap:6px">Row spacing <input type="range" min="0" max="40" step="1" value="${g0}" style="flex:1"><span>${Math.round(g0)} pt</span></label>`);
+  const gr = gp.querySelector('input'), gs = gp.querySelector('span');
+  gr.oninput = () => { gs.textContent = gr.value + ' pt'; };
+  gr.onchange = () => { commit(true); const v = +gr.value; if (Math.abs(v - 5.6) < 0.5) el.removeAttribute('gap'); else el.setAttribute('gap', String(v)); commit(true); place(); };
   add(`<div class="help">LaTeX, rendered by the equation kit${info.tex ? '' : ' (<b style="color:var(--red-text)">no TeX found on this computer: existing equations show, changes need xelatex or tectonic</b>)'}. Symbols in the chapter's colour list are coloured and bolded for you.<br>
 <code>x w\\T</code> transpose · <code>\\yhat</code> ŷ · <code>\\norm{w}</code> ‖w‖ · <code>x\\p</code> prime · <code>\\cd</code> dot<br>
 <code>\\frac{a}{b}</code> · <code>\\tfrac{1}{2}</code> · <code>\\sum_i</code> · <code>\\text{words}</code><br>
