@@ -856,7 +856,7 @@ function clean(node) {
       const tag = n.tagName === 'STRONG' ? 'B' : n.tagName === 'EM' ? 'I' : n.tagName, inner = clean(n);
       if (tag === 'BR') out += ' ';
       else if (tag === 'SPAN' && !/^(key|mono|num|note)$/.test(n.className)) out += inner;
-      else if (KEEP[tag]) { const cls = (tag === 'B' && /^(def|name|take|warn|ex|gray|lead)$/.test(n.className)) || (tag === 'U' && n.className === 'fill') || (tag === 'SPAN' && /^(key|mono|num|note)$/.test(n.className)) ? ` class="${n.className}"` : ''; out += `<${tag.toLowerCase()}${cls}>${inner}</${tag.toLowerCase()}>`; }
+      else if (KEEP[tag]) { const cls = (tag === 'B' && /^(def|name|take|warn|ex|gray|purple|lead)$/.test(n.className)) || (tag === 'U' && n.className === 'fill') || (tag === 'SPAN' && /^(key|mono|num|note)$/.test(n.className)) ? ` class="${n.className}"` : ''; out += `<${tag.toLowerCase()}${cls}>${inner}</${tag.toLowerCase()}>`; }
       else out += inner + (/^(P|DIV|LI|H[1-6]|TR)$/.test(n.tagName) ? ' ' : '');
     }
   }
@@ -1051,7 +1051,7 @@ document.addEventListener('keydown', e => {
     if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyM') { e.preventDefault(); return style('mono'); }
     if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyN') { e.preventDefault(); return style('num'); }
     if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyT') { e.preventDefault(); return style('note'); }
-    if (e.altKey && /^Digit[0-6]$/.test(e.code)) { e.preventDefault(); return style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray'][+e.code.slice(5)]); }
+    if (e.altKey && /^Digit[0-7]$/.test(e.code)) { e.preventDefault(); return style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray', 'purple'][+e.code.slice(5)]); }
     if (e.key === 'Escape') { host.blur(); getSelection().removeAllRanges(); return; }
     if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); return linkPop(); }
     if (!mod && !e.shiftKey && !e.altKey && /^Arrow(Up|Down|Left|Right)$/.test(e.key) && crossBlock(host, e.key)) { e.preventDefault(); return; }
@@ -1334,7 +1334,7 @@ function codeFill() { return codeMark('fill'); }
 // The toolbar's colour circles (Option+1-6) highlight the selected code the same way (marks "line:from-to:colour"):
 // pressing a colour on code already highlighted in that colour removes it, another colour recolours it, Clear removes
 // every highlight (not blanks) in the selection.
-const CODE_COLOUR = { def: 'gold', name: 'blue', take: 'green', warn: 'red', ex: 'teal', gray: 'gray', clear: 'clear' };
+const CODE_COLOUR = { def: 'gold', name: 'blue', take: 'green', warn: 'red', ex: 'teal', gray: 'gray', purple: 'purple', clear: 'clear' };
 function codeMark(kind) {
   const { el, ta } = codeEd, a = ta.selectionStart, b = ta.selectionEnd, isFill = kind === 'fill';
   if (a === b) return toast(isFill ? 'Select the code to blank out first' : 'Select the code to highlight first');
@@ -1409,7 +1409,7 @@ function startCodeEdit(el, ev) {
   ta.oninput = () => { el.setAttribute('data-src', ta.value); codeEditView(el, ta.value); place(); commit(); };
   ta.onkeydown = e => {
     if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.execCommand('insertText', false, '    '); }
-    else if (e.altKey && !e.metaKey && !e.ctrlKey && /^Digit[0-6]$/.test(e.code)) { e.preventDefault(); style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray'][+e.code.slice(5)]); }
+    else if (e.altKey && !e.metaKey && !e.ctrlKey && /^Digit[0-7]$/.test(e.code)) { e.preventDefault(); style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray', 'purple'][+e.code.slice(5)]); }
     else if (e.key === 'Escape') { e.preventDefault(); ta.blur(); }
     else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && run) { e.preventDefault(); run.lastChild.click(); }
     else if (e.key === 'Enter' && !e.shiftKey) {   // keep the indentation of the line above

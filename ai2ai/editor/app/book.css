@@ -59,7 +59,8 @@ b.name { color: var(--navy); }
 b.take { color: var(--green-text); }
 b.warn { color: var(--red-text); }
 b.ex { color: var(--teal-text); }
-b.gray { color: var(--gray-text); }   /* examples and technical spotlights: methods, tools, datasets */
+b.gray { color: var(--gray-text); }
+b.purple { color: var(--purple-text); }   /* Eric 2026-11-01: the network purple (Z), seventh colour circle */   /* examples and technical spotlights: methods, tools, datasets */
 
 /* ---------- math ---------- */
 b-m { font-family: var(--font-math); font-size: 1.04em; white-space: nowrap; word-spacing: -0.3em; font-variant-ligatures: none; }
