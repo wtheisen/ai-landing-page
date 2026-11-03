@@ -358,7 +358,7 @@ html.ink-lecture .ink-sub { box-shadow: inset 0 -2px 0 var(--gold, #DCB439); }
 </style>
 </head>
 <body>
-<nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Support Vector Machines</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#which-line">The widest street</a><a href="#soft">Soft margins</a><a href="#no-line">When no line works</a><a href="#lagrange">The dual</a><a href="#trick">Kernels</a><a href="#python">In practice</a><a href="#practice">Practice</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="on">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="svm-chapter.pdf" download>Reading</a><a href="svm-chapter-slides.pdf" download>Lecture</a><a href="svm-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.print()">This page as shown, with notes</button></div></details></span></nav>
+<nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Support Vector Machines</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#which-line">The widest street</a><a href="#soft">Soft margins</a><a href="#no-line">When no line works</a><a href="#lagrange">The dual</a><a href="#trick">Kernels</a><a href="#python">In practice</a><a href="#practice">Practice</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="on">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="svm-chapter.pdf" download>Reading</a><a href="svm-chapter-slides.pdf" download>Lecture</a><a href="svm-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="slides">
 <section class="page cover" id="cover">
   <b-fig src="fig/cover.svg" class="cover-art"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 305" role="img" aria-label="Two classes separated by the widest street, with its support vectors ringed" font-family="Arial, 'Helvetica Neue', Helvetica, 'Liberation Sans', sans-serif">
@@ -44158,6 +44158,7 @@ function eaiInk(opts) {
   var bar = null, laser = null, last = { t: 'pen', c: PEN[0][0] };
   var SVG = function (d, extra) { return '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"' + (extra || '') + '>' + d + '</svg>'; };
   var I = {
+    pdf: SVG('<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/>'),
     eye: SVG('<path fill="none" stroke="currentColor" stroke-width="1.4" d="M1.2 8s2.5-4.6 6.8-4.6S14.8 8 14.8 8s-2.5 4.6-6.8 4.6S1.2 8 1.2 8z"/><circle cx="8" cy="8" r="2" fill="currentColor"/>'),
     hand: SVG('<path fill="currentColor" d="M3.5 1.8l9 5.2-4 1 2.3 4.3-1.7.9L6.8 8.9 3.9 11.6z"/>'),
     hl: SVG('<path fill="#F1C232" d="M5 10.5l5.6-7.6 2.6 1.9-5.6 7.6H5z"/><path fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" d="M5 10.5l5.6-7.6 2.6 1.9-5.6 7.6H5zM3 14.5h6"/>'),
@@ -44186,7 +44187,7 @@ function eaiInk(opts) {
       + '<span class="grp">' + PEN.map(function (p) { return '<button data-t="pen" data-c="' + p[0] + '" title="' + p[1] + ' pen" class="sw" style="--c:' + p[0] + '"><i></i></button>'; }).join('')
       + '<button data-t="hl" title="highlighter">' + I.hl + '</button><button data-t="erase" title="eraser (your own ink)">' + I.erase + '</button><button data-t="laser" title="laser pointer (not saved)">' + I.laser + '</button></span>'
       + '<span class="grp">' + [1.4, 2.2, 3.6].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
-      + '<span class="grp"><button data-a="undo" title="undo (⌘Z)">' + I.undo + '</button><button data-a="blank" title="add a blank page after this one">' + I.page + '</button></span>'
+      + '<span class="grp"><button data-a="undo" title="undo (⌘Z)">' + I.undo + '</button><button data-a="blank" title="add a blank page after this one">' + I.page + '</button><button data-a="pdf" title="download this view as a PDF with the notes showing">' + I.pdf + '</button></span>'
       + '<span class="spacer"></span><span class="ink-msg"></span><span class="right"></span>';
     head.appendChild(bar);
     bar.addEventListener('click', function (e) {
@@ -44196,6 +44197,7 @@ function eaiInk(opts) {
       if (b.dataset.w) width = +b.dataset.w;
       if (b.dataset.a === 'undo') { ensureTarget(); doUndo(); }
       if (b.dataset.a === 'blank') { ensureTarget(); addBlank(); }
+      if (b.dataset.a === 'pdf') notesPDF();
       if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter (this view)?')) { mine.strokes = []; mine.pages = []; undo = []; store(KEY_MINE, mine); render(); }
       if (b.dataset.a === 'publish') { ensureTarget(); publish(); }
       barState();
@@ -44303,6 +44305,56 @@ function eaiInk(opts) {
     function up(ev) { if (ev.pointerId !== e.pointerId) return; removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', up); }
     addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', up);
   }
+
+  // ---------------------------------------------------------------- PDF with the notes that are showing
+  // The chapter's own PDF for this view (so every page keeps its size: 10 × 7.5 in slides, 6 × 9 pages) with every
+  // stroke showing drawn in as a vector line, and the blank working pages put in where they are. Printing the page
+  // instead gave letter-size pages on the iPad, where Safari ignores @page sizes (Eric, 2026-11-03). If the PDF can't
+  // be had, or no longer matches the page (published before the chapter changed), it falls back to printing.
+  var PDFLIB = '/static/js/pdf-lib-1.17.1.min.js';   // pdf-lib (MIT), kept on the site
+  function pdfURL() {
+    if (opts.pdf) return '/' + SITE_DIR.replace(/^\/|\/$/g, '') + '/' + opts.pdf;
+    var a = [].filter.call(document.querySelectorAll('.pdfmenu a[download]'), function (x) { return x.textContent.trim() === VIEWNAME[VIEW]; })[0];
+    return a ? a.href : null;
+  }
+  function hexRGB(h) { h = (h || '#000').replace('#', ''); return PDFLib.rgb(parseInt(h.slice(0, 2), 16) / 255, parseInt(h.slice(2, 4), 16) / 255, parseInt(h.slice(4, 6), 16) / 255); }
+  function notesPDF() {
+    var url = pdfURL(), fallback = function (why) { msg(why + ' Printing the page instead.'); setTimeout(function () { window.print(); }, 50); };
+    if (!url) return fallback('No PDF for this view.');
+    msg('Making the PDF…');
+    var lib = window.PDFLib ? Promise.resolve() : new Promise(function (ok, no) { var sc = document.createElement('script'); sc.src = PDFLIB; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
+    Promise.all([lib, fetch(url, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('pdf'); return r.arrayBuffer(); })])
+      .then(function (a) { return PDFLib.PDFDocument.load(a[1]); })
+      .then(function (doc) {
+        var pgs = pages(), real = pgs.filter(function (p) { return !p.classList.contains('ink-blank'); });
+        if (real.length !== doc.getPageCount()) throw new Error('count ' + real.length + ' ' + doc.getPageCount());
+        var at = {}, i = 0;
+        pgs.forEach(function (p) {
+          if (p.classList.contains('ink-blank')) { var sz = doc.getPage(Math.max(0, i - 1)).getSize(); at[p.id] = doc.insertPage(i, [sz.width, sz.height]); }
+          else at[p.id] = doc.getPage(i);
+          i++;
+        });
+        var joined = [];
+        [pub, mine].forEach(function (l) {
+          if (l) (l.strokes || []).forEach(function (st) {
+            var page = at[st.p], el = document.getElementById(st.p); if (!page || !el || !st.pts || !st.pts.length) return;
+            if (joined.indexOf(page) < 0) { page.pushOperators(PDFLib.setLineJoin(PDFLib.LineJoinStyle.Round)); joined.push(page); }
+            var size = page.getSize(), k = size.width / pgW(el);
+            page.drawSvgPath(pathD(st.pts), { x: 0, y: size.height, scale: k, borderColor: hexRGB(st.c), borderWidth: (st.o ? st.w : r1(st.w * 1.6)) * k,
+              borderOpacity: st.o || 1, borderLineCap: PDFLib.LineCapStyle.Round });
+          });
+        });
+        return doc.save();
+      })
+      .then(function (bytes) {
+        var name = decodeURIComponent(url.split('/').pop().split('?')[0]).replace(/\.pdf$/i, '') + '-notes.pdf';
+        var link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' })); link.download = name;
+        document.body.appendChild(link); link.click(); setTimeout(function () { URL.revokeObjectURL(link.href); link.remove(); }, 60000);
+        msg('Saved ' + name);
+      })
+      .catch(function (e) { fallback(/count/.test(e && e.message) ? 'The PDF on the site is older than this page.' : 'Couldn\'t build the PDF.'); });
+  }
+  window.eaiNotesPDF = notesPDF;
 
   // ---------------------------------------------------------------- instructor: set up this device, publish
   // Instructor sign-in, once per device: the token is checked with GitHub (it must be able to push to the site's
