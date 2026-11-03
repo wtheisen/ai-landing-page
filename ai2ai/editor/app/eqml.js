@@ -59,7 +59,8 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 function one(tex, colors, display) {
   return G.temml.renderToString(colorize(boldText(tex), colors), { displayMode: false, macros: Object.assign({}, MACROS), trust: true, throwOnError: true, annotate: false, xml: false, wrap: 'none' })
     .replace(/^<math/, display ? '<math display="block" displaystyle="true" style="display:inline-block"' : '<math')
-    .replace(/<mi>/g, '<mi mathvariant="normal">');   // unicode-math math-style=upright: letters are upright, as in the TeX images
+    .replace(/<mi>/g, '<mi mathvariant="normal">')   // unicode-math math-style=upright: letters are upright, as in the TeX images
+    .replace(/(<mi class="mathcal" style="color:[^"]*">)ℒ</g, '$1𝓛<');   // a coloured ℒ is the font's bold script 𝓛 (render.py colorize; Temml ignores \mathbf on it)
 }
 // rows as BEq.rows() gives them: ['eq', number, note, tex] or ['step', tex]. Returns HTML or throws with TeX's message.
 function render(rows, colors, flush, gap) {
