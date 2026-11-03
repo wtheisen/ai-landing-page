@@ -116,7 +116,7 @@ function eaiOutHL(text, cc, hl) {
   text = String(text || '');
   if (/Traceback \(most recent call last\)|^\w*Error\b/m.test(text)) return esc(text);
   var DEF = {}, fams = {
-    red: 'x X x_train X_train X_test x_test input inputs features pts',
+    red: 'x X x_train X_train X_test x_test input inputs features pts loss losses cost',
     blue: 'weight weights W W1 W2 W3 Ω ω coef coef_ coefs_ kernel filters',
     gray: 'bias biases b b1 b2 b3 intercept intercept_ intercepts_',
     purple: 'z Z z1 z2 z_1 z_2 Z1 Z2 logit logits pre-activation pre-activations',
@@ -167,7 +167,16 @@ function eaiOutHL(text, cc, hl) {
     var lab = /^([A-Za-z_][^:\n]{0,48}?:)(?=\s|$)/.exec(line) || /^([A-Za-z_][\w.\[\]']*)(?=\s+(?:tensor|array|Parameter|[\[(]|-?\d))/.exec(line);
     if (!lab) { if (!/^\s/.test(line)) fam = null; return marked(line, fam); }   // a wrapped tensor's next lines keep the family
     fam = famOf(lab[1]);
-    return '<span class="olab' + (fam ? ' f-' + fam : '') + '">' + marked(lab[1], fam, !!fam) + '</span>' + marked(line.slice(lab[1].length), fam);
+    // a later label on the same line that names a family ("… loss: tensor(0.70)") colours what follows it (Eric, 2026-11-03)
+    var rest = line.slice(lab[1].length), out = '<span class="olab' + (fam ? ' f-' + fam : '') + '">' + marked(lab[1], fam, !!fam) + '</span>', MID = /(\s)([A-Za-z_][A-Za-z_ ]{0,30}:)(?=\s)/g, mm, from = 0, f2 = fam;
+    while ((mm = MID.exec(rest))) {
+      var mf = famOf(mm[2]); if (!mf) continue;
+      var at = mm.index + mm[1].length;
+      out += marked(rest.slice(from, at), f2) + '<span class="olab f-' + mf + '">' + marked(mm[2], mf, true) + '</span>';
+      from = at + mm[2].length; f2 = mf;
+    }
+    fam = f2;
+    return out + marked(rest.slice(from), f2);
   }).join('\n');
 }
 window.eaiOutHL = eaiOutHL;
