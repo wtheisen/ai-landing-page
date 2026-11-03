@@ -67,6 +67,8 @@ b-m { font-family: var(--font-math); font-size: 1.04em; white-space: nowrap; wor
 b-m sub, b-m sup { font-size: .68em; line-height: 0; }
 b-m sub { vertical-align: -.32em; } b-m sup { vertical-align: .55em; }
 b-m .c { font-weight: 700; }
+b-m .fr { display: inline-flex; flex-direction: column; vertical-align: middle; font-size: .8em; line-height: 1.08; text-align: center; margin: 0 .12em; }   /* \frac{a}{b} */
+b-m .fr > span { padding: 0 .1em; } b-m .fr > span + span { border-top: .07em solid currentColor; }
 /* Ω in inline math is the weight matrix: ω stretched to capital height, as in the AI2AI Math font (scale from kit/build_math_font.py) */
 b-m .Om { display: inline-block; line-height: 1; transform: scaleY(1.355); transform-origin: 50% 80%; }
 b-m .c .Om { transform: scaleY(1.332); }

@@ -44,8 +44,20 @@ function inlineMath(s) {
     }
     return tok;
   };
+  const group = j => {   // {…} with nested braces, from s[j] === '{'; returns [inside, index after]
+    let d = 0;
+    for (let k = j; k < s.length; k++) { if (s[k] === '{') d++; else if (s[k] === '}' && !--d) return [s.slice(j + 1, k), k + 1]; }
+    return [s.slice(j + 1), s.length];
+  };
   while (i < s.length) {
     const c = s[i];
+    // \frac{a}{b}: a small stacked fraction (Eric, 2026-11-03)
+    const fr = /^\\[dt]?frac\s*(?=\{)/.exec(s.slice(i));
+    if (fr) {
+      const [a, j] = group(i + fr[0].length); let b = '', k = j;
+      if (s[j] === '{') [b, k] = group(j);
+      out.push(`<span class="fr"><span>${inlineMath(a)}</span><span>${inlineMath(b)}</span></span>`); i = k; continue;
+    }
     if (s.startsWith('\\T', i)) { out.push('<sup>T</sup>'); i += 2; continue; }
     const word = WORDS.find(w => s.startsWith(w, i));
     if (word) { out.push(word); i += word.length; continue; }
