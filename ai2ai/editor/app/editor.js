@@ -1503,8 +1503,14 @@ async function runIntoOutput(el, status, btn) {
   btn.disabled = false;
   commit(true);
   let out = el.nextElementSibling;
+  if (!lines.length) {   // nothing printed: no Output cell, just a tick by Run, as in book.js eaiRunCode (Eric, 2026-11-03)
+    if (out && out.tagName === 'B-OUT') out.remove();
+    status.innerHTML = '<b style="color:#38761D">✓</b> Ran';
+    commit(true); Book.refresh(); place();
+    return;
+  }
   if (!out || out.tagName !== 'B-OUT') { out = h('<b-out>\n</b-out>'); el.after(out); prep(); }
-  out.src = lines.join('\n') || '(no output)';
+  out.src = lines.join('\n');
   commit(true); Book.refresh(); place();
 }
 

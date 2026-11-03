@@ -493,17 +493,21 @@ html.lect body { display: flex; flex-direction: column; margin: 0; }
 html.lect .chap-head { flex: none; position: static; }
 html.lect .chap-head .navbar { display: none !important; }
 html.lect .chap-head .ink-sub { padding-top: calc(.3rem + var(--top-clear, 0px)); }
-html.lect #book, html.lect main.book { flex: 1 1 auto; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-x pan-y; align-items: flex-start; }
+html.lect #lect-scroll { flex: 1 1 auto; min-height: 0; overflow: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-x pan-y; }
+/* the zoom is a scale on #book from its corner (ink.js lectureZoom); #lect-size has the scaled size, so the scroll range is right */
+html.lect #lect-size { overflow: hidden; }
+html.lect #book, html.lect main.book { box-sizing: border-box; overflow: visible; transform-origin: 0 0; align-items: flex-start; }
 html.lect #book > section.page, html.lect main.book > section.page { margin-left: auto; margin-right: auto; flex: none; }
 /* no page zoom in Lecture mode: a double tap on the pen bar used to zoom the whole page (and the pen then missed); pinches go to lectureZoom */
 html.lect, html.lect body, html.lect .chap-head, html.lect .chap-head * { touch-action: manipulation; }
 /* presenting (2026-11-01, Eric: zooming and panning were laggy): a pinch scales the pages as a picture until it ends
    (ink.js lectureZoom), and the pen bar stays on top of them meanwhile */
 html.lect .chap-head { position: relative; z-index: 60; }
-html.lect-zooming #book, html.lect-zooming main.book { will-change: transform; overflow: visible; }
+html.lect-zooming #book, html.lect-zooming main.book { will-change: transform; }
+html.lect-zooming #lect-size { overflow: visible; }   /* while pinching, the slides all round show (ink.js soon) */
 /* the space between slides grows and shrinks with them, as in Notability, so the pinch preview (a plain scale) and the real
    zoom it hands over to put every slide in the same place */
-html.lect #book, html.lect main.book { gap: calc(24px * var(--zoom, 1)); padding-top: calc(24px * var(--zoom, 1)); padding-bottom: calc(64px * var(--zoom, 1)); }   /* the preview shows every page, not just the scroll box (ink.js soon) */
+html.lect #book, html.lect main.book { gap: calc(24px * var(--zoom, 1)); padding-top: calc(24px * var(--zoom, 1)); padding-bottom: calc(64px * var(--zoom, 1)); }
 /* (content-visibility: auto on lecture pages, 2026-11-01, was dropped 2026-11-02: suspected of leaving pen strokes half drawn on the iPad) */
 /* Lecture pages are 4:3 slides, 10 × 7.5 in (Eric, 2026-10-29: 16:9 was too wide next to his iPad; 16:9 from 2026-10-26);
    the Reading and the Workbook stay 6 × 9 pages.

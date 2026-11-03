@@ -41,7 +41,7 @@ function eaiInk(opts) {
   // Pencil reads as a second finger, and the "pinch" scaled the slide about a point between palm and pen, so the ink
   // landed off the tip, more so the further from that point; Eric, 2026-11-02). zoomGen goes up whenever the pages are
   // scaled or laid out at a new zoom, so a stroke reads the page's box again instead of trusting the one it started with.
-  var penDown = false, zoomGen = 0, lectZoom = null;
+  var penDown = false, zoomGen = 0, lectZoom = null, lectK = 1, scrollBox = null;   // lectK: the lecture's zoom scale on #book (lectureZoom), scrollBox: the box that scrolls
   var teacher = function () { return !!store(KEY_TOKEN); };
   // iPadOS tells Pencil touches apart (touchType 'stylus'), so fingers keep Safari's own scrolling (with momentum) and
   // only the Pencil is stopped from scrolling. Elsewhere the pages lock touch while writing and fingers scroll by hand.
@@ -102,7 +102,7 @@ function eaiInk(opts) {
       + '\noverlay ' + (function () { var o = pg.querySelector(':scope > svg.ink'), q = o && o.getBoundingClientRect(); return q ? f(q.left) + ', ' + f(q.top) + ' w ' + f(q.width) + ' h ' + f(q.height) + '  page h ' + f(r.height) + '  viewBox ' + o.getAttribute('viewBox') : '-'; })()
       + '\n--zoom ' + getComputedStyle(document.documentElement).getPropertyValue('--zoom') + '  page zoom ' + getComputedStyle(pg).zoom + '  book transform ' + (book.style.transform || 'none')
       + '\nviewport scale ' + f(v.scale) + '  offset ' + f(v.offsetLeft) + ', ' + f(v.offsetTop) + '  size ' + f(v.width) + ' x ' + f(v.height) + '  window ' + innerWidth + ' x ' + innerHeight
-      + '\nscroll book ' + f(book.scrollLeft) + ', ' + f(book.scrollTop) + '  window ' + f(scrollX) + ', ' + f(scrollY) + '  dpr ' + devicePixelRatio;
+      + '\nscroll book ' + f((scrollBox || book).scrollLeft) + ', ' + f((scrollBox || book).scrollTop) + '  window ' + f(scrollX) + ', ' + f(scrollY) + '  dpr ' + devicePixelRatio;
   }
   mine = store(KEY_MINE) || { id: 'mine', title: 'My notes', pages: [], strokes: [] };
 
@@ -147,7 +147,7 @@ function eaiInk(opts) {
     var r = el.getBoundingClientRect(), z = 1;
     for (var e = el; e && e.nodeType === 1; e = e.parentElement) { var v = parseFloat(getComputedStyle(e).zoom); if (v > 0) z *= v; }
     var pg = el.closest && el.closest('section.page');
-    if (Math.abs(z - 1) < 0.001 || !pg || !el.offsetWidth || Math.abs(r.width - el.offsetWidth) > 0.75) return r;
+    if (Math.abs(z - 1) < 0.001 || !pg || !el.offsetWidth || Math.abs(r.width - el.offsetWidth * lectK) > 0.75) return r;   // lectK: Lecture mode's scale, which old WebKit keeps
     return { left: r.left * z, top: r.top * z, width: r.width * z, height: r.height * z, right: r.right * z, bottom: r.bottom * z };
   }
   function pgW(pg) { return window.Book && Book.pageW ? Book.pageW(pg) : (parseFloat(getComputedStyle(pg).width) > 700 ? 720 : 432); }   // the page's width in pt (Lecture pages are 720)
@@ -522,8 +522,28 @@ function eaiInk(opts) {
     if (window.visualViewport) { var ut = 0; visualViewport.addEventListener('resize', function () { clearTimeout(ut); ut = setTimeout(unzoom, 250); }); }
     addEventListener('gestureend', function () { setTimeout(unzoom, 300); });
     function fit() { var pg = book.querySelector('section.page'), W = window.Book && Book.pageW ? Book.pageW(Book.view) : pg ? pgW(pg) : 432; return Math.min(1, (innerWidth - 32) / (W * 4 / 3)); }   // the view's own fit-the-width zoom (view.html)
-    window.eaiZoomK = k;
-    function apply() { H.style.setProperty('--zoom', +(fit() * k).toFixed(4)); zoomGen++; pages().forEach(function (p) { if (p.querySelector(':scope > svg.ink')) overlay(p); }); }
+    // The zoom is a scale, not a new layout (Eric, 2026-11-03: smooth as Notability). The pages are laid out once at the
+    // fit-the-width size (CSS --zoom, which re-wraps text, changes only when the window does) and the presenter's zoom k
+    // is a transform on #book, so zooming only redraws. #book sits in #lect-size (the scaled size, which gives the
+    // scroll box its range) inside #lect-scroll (the box that scrolls).
+    window.eaiZoomK = 1;   // view.html's resize keeps --zoom at the fit size
+    var scroller = document.createElement('div'), sizer = document.createElement('div');
+    scroller.id = 'lect-scroll'; sizer.id = 'lect-size';
+    book.parentNode.insertBefore(scroller, book); scroller.appendChild(sizer); sizer.appendChild(book); scrollBox = scroller;
+    function firstPage() { return book.querySelector('section.page:not(.cover)') || book.querySelector('section.page'); }
+    function pagePx() { var pg = firstPage(); return pg ? pgW(pg) * 4 / 3 * fit() : 0; }   // a page's width in #book's own px
+    var bw = 0;   // #book's own (unscaled) width
+    function size() {   // the sizer = #book's box after the scale
+      sizer.style.width = (bw * k) + 'px'; sizer.style.height = (book.offsetHeight * k) + 'px';
+    }
+    function apply() {
+      H.style.setProperty('--zoom', +fit().toFixed(4));
+      bw = Math.max(scroller.clientWidth / k, pagePx() + 32);   // wide enough to centre the pages when they fit, never narrower than one
+      book.style.width = bw + 'px'; book.style.transform = 'scale(' + k + ')'; lectK = k;
+      size(); zoomGen++;
+      pages().forEach(function (p) { if (p.querySelector(':scope > svg.ink')) overlay(p); });
+    }
+    if (window.ResizeObserver) new ResizeObserver(function () { if (!live) apply(); }).observe(book);   // pictures loading, pages patched in
     function pageAt(x, y) {   // the page nearest a point, and where in it the point is (fractions), to keep it under the fingers
       var best = null, bd = Infinity;
       [].forEach.call(book.querySelectorAll('section.page'), function (p) {
@@ -532,55 +552,62 @@ function eaiInk(opts) {
       });
       return best;
     }
+    function anchor(a, x, y) { if (a) { var r = rectOf(a.p); scroller.scrollLeft += r.left + a.fx * r.width - x; scroller.scrollTop += r.top + a.fy * r.height - y; } }
+    function save() { clearTimeout(save.t); save.t = setTimeout(function () { try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }, 300); }
     function zoomTo(nk, x, y) {
       nk = Math.max(0.4, Math.min(4, nk)); if (Math.abs(nk - k) < 0.002) return;
-      var a = pageAt(x, y); k = nk; window.eaiZoomK = k; apply();
-      if (a) { var r = rectOf(a.p); book.scrollLeft += r.left + a.fx * r.width - x; book.scrollTop += r.top + a.fy * r.height - y; }
-      clearTimeout(zoomTo.t); zoomTo.t = setTimeout(function () { try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }, 300);
+      var a = pageAt(x, y); k = nk; apply(); anchor(a, x, y); save();
     }
-    // While the fingers move, the pages are only scaled as a picture (a transform the GPU does, nothing is laid out
-    // again); the real zoom, which lays every page out at the new size, happens once when the pinch ends, with the point
-    // under the fingers kept under them (2026-11-01, Eric: zooming and panning in the presenting view were laggy).
-    // The preview scales the pages' whole column, not the scroll box: at the start of a pinch #book stops clipping
-    // (html.lect-zooming: overflow visible, its scroll turned into a translate), so zooming out shows the slides above,
-    // below and beside the ones on screen instead of a shrinking box with blank all round it (Eric, 2026-11-03). When
-    // the pages will fit the width at the new zoom, they shrink towards the middle of the window (where the real zoom
-    // centres them), so nothing jumps sideways on release.
+    // While the fingers move, #book's scale follows them about the point under them, held to where the release can put
+    // it (centred when the slides fit the width, never past the scroll box's edges). #lect-size stops clipping meanwhile, so zooming out
+    // shows the slides all round. The scale runs on the GPU as a picture (will-change), which keeps it smooth but lets
+    // text go soft as the scale drifts from the one it was drawn at, so it is drawn again at the current scale whenever
+    // the scale has moved 25% from the last drawing or the fingers rest for a moment (2A, Eric, 2026-11-03).
     var raf = 0, live = null;
-    function live0page() { var a = book.querySelector('section.page:not(.cover)'); return a || book.querySelector('section.page'); }
     function frame() {
       raf = 0; if (!live) return;
-      var L = live, s = L.nk / k, ox = L.ox, oy = L.oy, tx = -L.sl, ty = -L.st;
+      var L = live, s = L.nk / k, ks = L.nk;
+      var tx = L.fx * (1 - s), ty = L.fy * (1 - s);   // keeps the content point under the fingers where it was
       if (L.slide) { tx += L.x - L.x0; ty += L.y - L.y0; }
-      if (L.pw * s <= L.cw && Math.abs(1 - s) > 1e-3) ox = (L.mid - L.cx * s - tx) / (1 - s);
-      book.style.transformOrigin = ox + 'px ' + oy + 'px';
-      book.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + s + ')'; zoomGen++;
+      // keep the preview where the real zoom can put it: once released, the scroll box can't scroll past its edges, and
+      // slides that fit the width are centred (an iPad scroll view rubber-bands the same way)
+      var cw = scroller.clientWidth, bw2 = Math.max(cw / ks, L.pp + 32), maxL = Math.max(0, bw2 * ks - cw), left = ks * (bw2 - L.pp) / 2;
+      var X = -L.sl + tx + ks * (L.cx - L.pp / 2); X = Math.min(left, Math.max(left - maxL, X)); tx = X + L.sl - ks * (L.cx - L.pp / 2);
+      var maxT = Math.max(0, book.offsetHeight * ks - scroller.clientHeight), Y = -L.st + ty; Y = Math.min(0, Math.max(-maxT, Y)); ty = Y + L.st;
+      book.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + ks + ')'; lectK = ks; zoomGen++;
+      if (Math.abs(Math.log(ks / L.drawn)) > 0.223) sharpen();
+      clearTimeout(L.rest); L.rest = setTimeout(sharpen, 120);
+    }
+    function sharpen() {   // let the browser paint the pages again at the scale they are shown at, then go back to a picture
+      if (!live || live.sharp) return;
+      var L = live; L.sharp = true; L.drawn = L.nk; book.style.willChange = 'auto';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { L.sharp = false; if (live === L) book.style.willChange = ''; }); });
     }
     function soon(nk, x, y, slide) {
       nk = Math.max(0.4, Math.min(4, nk));
       if (!live) {
-        var r = book.getBoundingClientRect(), pg = live0page(), pr = pg ? rectOf(pg) : null;
-        live = { x0: x, y0: y, a: pageAt(x, y), sl: book.scrollLeft, st: book.scrollTop,
-          ox: x - r.left + book.scrollLeft, oy: y - r.top + book.scrollTop,   // the content point under the fingers
-          cw: book.clientWidth - 32, mid: book.clientWidth / 2,
-          cx: pr ? pr.left - r.left + book.scrollLeft + pr.width / 2 : book.clientWidth / 2,   // the pages' centre line
-          pw: pr ? pr.width : 0 };
+        var r = scroller.getBoundingClientRect(), pg = firstPage(), pr = pg ? rectOf(pg) : null;
+        var fx = x - r.left + scroller.scrollLeft, fy = y - r.top + scroller.scrollTop;   // the point under the fingers, in the scrolled content
+        live = { x0: x, y0: y, a: pageAt(x, y), sl: scroller.scrollLeft, st: scroller.scrollTop, fx: fx, fy: fy, drawn: k,
+          cx: pr ? (pr.left - r.left + scroller.scrollLeft + pr.width / 2) / k : bw / 2,   // the pages' centre line, in #book's px
+          pp: pagePx() };
         H.classList.add('lect-zooming');
       }
       live.nk = nk; live.x = x; live.y = y; live.slide = !!slide;
-      if (!raf) { if (!live.started) { live.started = true; frame(); } else raf = requestAnimationFrame(frame); }   // the first frame at once: no frame of unscrolled pages
+      if (!raf) { if (!live.started) { live.started = true; frame(); } else raf = requestAnimationFrame(frame); }
       clearTimeout(soon.t); soon.t = setTimeout(commit, 200);   // a trackpad or ctrl+wheel pinch has no end event
     }
-    function unpreview(L) {   // back to a clipped, scrolled box where it was
-      book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming'); zoomGen++;
-      book.scrollLeft = L.sl; book.scrollTop = L.st;
+    function unpreview(L) {   // back to the plain scale, scrolled where it was
+      clearTimeout(L.rest); book.style.willChange = '';
+      H.classList.remove('lect-zooming'); book.style.transform = 'scale(' + k + ')'; lectK = k; zoomGen++;
+      scroller.scrollLeft = L.sl; scroller.scrollTop = L.st;
     }
     function commit() {
       clearTimeout(soon.t); if (!live) return;
       var L = live; live = null; if (raf) { cancelAnimationFrame(raf); raf = 0; }
       unpreview(L);
-      if (Math.abs(L.nk - k) >= 0.002) { k = L.nk; window.eaiZoomK = k; apply(); try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }
-      if (L.a) { var r = rectOf(L.a.p); book.scrollLeft += r.left + L.a.fx * r.width - L.x; book.scrollTop += r.top + L.a.fy * r.height - L.y; }
+      if (Math.abs(L.nk - k) >= 0.002) { k = L.nk; apply(); save(); }
+      anchor(L.a, L.x, L.y);
     }
     // the pen came down: a pinch under way was a palm, not a zoom, so put the pages back as they were, and ignore the
     // rest of that gesture (and any gesture while the pen is down)
@@ -607,7 +634,7 @@ function eaiInk(opts) {
     addEventListener('wheel', function (e) { if (!e.ctrlKey) return; e.preventDefault(); soon((live ? live.nk : k) * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY); }, { passive: false });   // trackpad pinch in Chrome, ctrl+wheel
     addEventListener('keydown', function (e) {
       if (!(e.metaKey || e.ctrlKey) || !/^(=|\+|-|0)$/.test(e.key)) return; e.preventDefault();
-      var r = book.getBoundingClientRect();
+      var r = scroller.getBoundingClientRect();
       zoomTo(e.key === '0' ? 1 : k * (e.key === '-' ? 1 / 1.15 : 1.15), r.left + r.width / 2, r.top + r.height / 2);
     });
     addEventListener('resize', function () { zoomGen++; setTimeout(apply, 0); });   // after the view's own resize handler
