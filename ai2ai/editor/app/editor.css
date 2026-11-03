@@ -145,6 +145,9 @@ body.ed-tool #book, body.ed-tool #book * { cursor: crosshair !important; }
 #drawh .hd.bend { background: #fff2cc; border-color: var(--gold); cursor: move; }
 #drawh .hd:not(.round) { cursor: move; }
 #drawh .box.hover { border: 2px solid var(--gold); }
+#drawh .sites { left: 0; top: 0; pointer-events: none; }   /* connection points while a line end is dragged (draw.js showSites) */
+#drawh .sites > i { position: absolute; width: 8px; height: 8px; margin: -5px 0 0 -5px; border-radius: 50%; background: #fff; border: 1.5px solid #1a73e8; box-shadow: 0 0 0 2px rgba(255,255,255,.7); }
+#drawh .sites > i.on { background: #1a73e8; transform: scale(1.35); }
 #drawh input.lbl { pointer-events: auto; border: 1.5px solid #1a73e8; border-radius: 3px; background: #fff; padding: 0 4px; outline: none; line-height: 1; z-index: 7; }
 .ed svg.draw [data-ed-hide] { opacity: 0; }
 .ed svg.draw [data-lock] { cursor: default; }

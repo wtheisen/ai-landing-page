@@ -166,19 +166,51 @@ function reconnect(svg) {
     if (!ta && el.hasAttribute('data-a')) el.removeAttribute('data-a'); if (!tb && el.hasAttribute('data-b')) el.removeAttribute('data-b');
     const centre = t => { const b = box(t); return [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2]; };
     const q = el.localName === 'path' ? qp(el.getAttribute('d')) : null, bend = q ? [q[2], q[3]] : null;   // a curve leaves each shape toward its bend
-    if (ta) { const p = edgePoint(ta, bend || (tb ? centre(tb) : e[1])); if (Math.hypot(p[0] - e[0][0], p[1] - e[0][1]) > 0.05) setEnd(el, 0, p[0], p[1]); }
-    if (tb) { const p = edgePoint(tb, bend || (ta ? centre(ta) : e[0])); if (Math.hypot(p[0] - e[1][0], p[1] - e[1][1]) > 0.05) setEnd(el, 1, p[0], p[1]); }
+    const at = (t, key, toward) => siteAt(t, el.getAttribute(key + '-at')) || edgePoint(t, toward);   // fixed to a connection point, else facing the other end
+    if (ta) { const p = at(ta, 'data-a', bend || (tb ? centre(tb) : e[1])); if (Math.hypot(p[0] - e[0][0], p[1] - e[0][1]) > 0.05) setEnd(el, 0, p[0], p[1]); }
+    if (tb) { const p = at(tb, 'data-b', bend || (ta ? centre(ta) : e[0])); if (Math.hypot(p[0] - e[1][0], p[1] - e[1][1]) > 0.05) setEnd(el, 1, p[0], p[1]); }
   });
 }
-function attach(el, i, cx, cy) {   // end i of a line/curve was dropped at this screen point: stick it to the closed shape there, if any
+// Connection points (Eric, 2026-11-03, "the little attachment dots like google slides has"): while a line end is dragged
+// (or a new line drawn) the shape under the pointer shows a dot in the middle of each side; near one, the end snaps to it
+// and stays fixed to that side (data-a-at / data-b-at = t r b l). Dropped anywhere else on the shape it attaches as before,
+// sliding round the edge to face the other end.
+const SITE_PX = 12;   // how close to a dot (screen px) the pointer must be to snap to it
+function siteAt(t, k) {   // a connection point of shape t, just outside its edge (like edgePoint's small gap)
+  if (!t || !/^[trbl]$/.test(k || '')) return null;
+  const b = box(t), cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2;
+  return { t: [cx, b.y0 - 2], r: [b.x1 + 2, cy], b: [cx, b.y1 + 2], l: [b.x0 - 2, cy] }[k];
+}
+const inR = (r, x, y, pad) => x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
+function targetAt(el, i, cx, cy, pad, alone) {   // the shape an end of el dropped here would attach to: the topmost closed shape under the point,
+  // but never one that also holds the other end (a background panel behind the graph, not what the arrow points at)
+  const svg = el.ownerSVGElement, e = !alone && ends(el), o = e && toClient(svg, e[1 - i][0], e[1 - i][1]);
+  return kids(svg).reverse().find(s => s !== el && /^(rect|ellipse|circle|polygon|text|g)$/.test(s.localName) && !s.hasAttribute('data-lock') &&
+    (r => inR(r, cx, cy, pad) && !(o && inR(r, o[0], o[1], 0)))(s.getBoundingClientRect())) || null;
+}
+let siteBox = null;
+function showSites(svg, t, near) {   // the dots on shape t, the one near the pointer filled in
+  if (!siteBox || !siteBox.isConnected) { siteBox = document.createElement('div'); siteBox.className = 'sites'; hbox.append(siteBox); }
+  siteBox.replaceChildren(...(t ? 'trbl'.split('') : []).map(k => { const [x, y] = E.deskXY({ left: toClient(svg, ...siteAt(t, k))[0], top: toClient(svg, ...siteAt(t, k))[1] }); const d = document.createElement('i'); d.className = k === near ? 'on' : ''; d.style.left = x + 'px'; d.style.top = y + 'px'; return d; }));
+}
+function hideSites() { if (siteBox) siteBox.replaceChildren(); }
+function snapEnd(el, i, cx, cy, alone) {   // dragging end i of el at this screen point: show the dots of the shape under it; near one, snap there
+  const svg = el.ownerSVGElement, t = targetAt(el, i, cx, cy, SITE_PX, alone);
+  if (!t) { hideSites(); return null; }
+  let best = null, bd = SITE_PX;
+  for (const k of 'trbl') { const q = toClient(svg, ...siteAt(t, k)), d = Math.hypot(q[0] - cx, q[1] - cy); if (d < bd) { bd = d; best = k; } }
+  showSites(svg, t, best);
+  return best ? { t, site: best, p: siteAt(t, best) } : null;
+}
+function attach(el, i, cx, cy, site) {   // end i of a line/curve was dropped at this screen point: stick it to the closed shape there, if any
   const svg = el.ownerSVGElement, key = i ? 'data-b' : 'data-a';
-  // a shape that also holds the other end is a background (a panel behind the graph), not where the arrow points: attaching
-  // there pinned the end to the panel's edge, so arrows jumped to the full width or height of their box (Eric, 2026-11-03)
-  const e = ends(el), o = e && toClient(svg, e[1 - i][0], e[1 - i][1]), inR = (r, x, y) => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-  const t = kids(svg).reverse().find(s => s !== el && /^(rect|ellipse|circle|polygon|text|g)$/.test(s.localName) && !s.hasAttribute('data-lock') && (r => inR(r, cx, cy) && !(o && inR(r, o[0], o[1])))(s.getBoundingClientRect()));
-  if (!t) return el.removeAttribute(key);
+  hideSites();
+  const t = site ? site.t : targetAt(el, i, cx, cy, 0);
+  if (!t) { el.removeAttribute(key); el.removeAttribute(key + '-at'); return; }
   if (!t.id) t.id = 's' + Math.random().toString(36).slice(2, 7);
-  el.setAttribute(key, t.id); reconnect(svg);
+  el.setAttribute(key, t.id);
+  if (site) el.setAttribute(key + '-at', site.site); else el.removeAttribute(key + '-at');
+  reconnect(svg);
 }
 
 // ---------------------------------------------------------------- selection + handles
@@ -188,7 +220,7 @@ function setShapes(list, svg, keepMode) {
   drawHandles(); E.renderInspector();
 }
 function drawHandles() {
-  hbox.querySelectorAll(':scope > :not(input)').forEach(n => n.remove());
+  hbox.querySelectorAll(':scope > :not(input):not(.sites)').forEach(n => n.remove());
   shapes = shapes.filter(s => s.isConnected);
   if (layer) reconnect(layer);
   if (!shapes.length) return;
@@ -290,9 +322,10 @@ function create(e, pg) {
   const flow = e.target.closest && e.target.closest('svg.draw:not(.overlay)');
   const svg = flow || overlayOf(pg, true);
   const gd = flow ? { v: [], h: [] } : E.guides(), gs = (v, arr, ev) => { if (ev.metaKey || ev.ctrlKey) return v; for (const g of arr) if (Math.abs(v - g) * unit(svg) < 5) return g; return v; };   // new shapes on the page catch the guides
-  const at = ev => { const [x, y] = toSvg(svg, ev.clientX, ev.clientY); return [gs(x, gd.v, ev), gs(y, gd.h, ev)]; }, [x0, y0] = at(e);
+  const at = ev => { const [x, y] = toSvg(svg, ev.clientX, ev.clientY); return [gs(x, gd.v, ev), gs(y, gd.h, ev)]; };
+  let [x0, y0] = at(e);
   const line = tool === 'line' || tool === 'arrow' || tool === 'curve';
-  let el;
+  let el, site0 = null, site1 = null;
   if (tool === 'text') {
     el = svgEl('text', { x: r1(x0), y: r1(y0), 'font-size': 11, fill: '#000000' }); el.textContent = 'Label'; svg.append(el);
     const keep = locked ? tool : null;
@@ -306,6 +339,11 @@ function create(e, pg) {
   else el = svgEl('line', { x1: r1(x0), y1: r1(y0), x2: r1(x0), y2: r1(y0), stroke: '#000000', 'stroke-width': 1.5 });
   svg.append(el);
   if (tool === 'arrow' || tool === 'curve') setHeads(el, 2);
+  if (line && !(e.metaKey || e.ctrlKey)) {   // starting on a connection point: the line starts there
+    site0 = snapEnd(el, 0, e.clientX, e.clientY, true);   // the other end is still here too
+    if (site0) { [x0, y0] = site0.p; setEnd(el, 0, x0, y0); setEnd(el, 1, x0, y0); }
+    hideSites();
+  }
   const kind = tool; let moved = false;
   const shape = (x, y, shift) => {
     if (line) {
@@ -321,10 +359,13 @@ function create(e, pg) {
     else el.setAttribute('points', `${r1(ax + bw / 2)},${r1(ay)} ${r1(ax + bw)},${r1(ay + bh)} ${r1(ax)},${r1(ay + bh)}`);
   };
   shapes = [el]; layer = svg;
-  dragLoop(ev => { const [x, y] = at(ev); if (Math.hypot(x - x0, y - y0) > 2) moved = true; shape(x, y, ev.shiftKey); },
+  dragLoop(ev => { let [x, y] = at(ev); if (Math.hypot(x - x0, y - y0) > 2) moved = true;
+      if (line) { site1 = ev.shiftKey || ev.metaKey || ev.ctrlKey ? (hideSites(), null) : snapEnd(el, 1, ev.clientX, ev.clientY); if (site1) { [x, y] = site1.p; return shape(x, y, false); } }
+      shape(x, y, ev.shiftKey); },
     ev => {
       if (!moved) { if (line) shape(x0 + 80, y0, false); else shape(x0 + (kind === 'rect' ? 90 : 60), y0 + (kind === 'rect' ? 50 : 60), false); }
-      else if (line) { attach(el, 0, e.clientX, e.clientY); attach(el, 1, ev.clientX, ev.clientY); }
+      else if (line) { attach(el, 0, e.clientX, e.clientY, site0); attach(el, 1, ev.clientX, ev.clientY, site1); }
+      hideSites();
       doneTool(el, svg);
     });
 }
@@ -396,14 +437,16 @@ hbox.addEventListener('pointerdown', e => {
     if (name === 'p1' || name === 'p2') {
       const other = endsOf(o.tag, a => o[a])[name === 'p1' ? 1 : 0];
       if (ev.shiftKey) { const a = Math.round(Math.atan2(y - other[1], x - other[0]) / (Math.PI / 4)) * Math.PI / 4, l = Math.hypot(x - other[0], y - other[1]); x = other[0] + l * Math.cos(a); y = other[1] + l * Math.sin(a); }
-      s.removeAttribute(name === 'p1' ? 'data-a' : 'data-b'); setEnd(s, name === 'p1' ? 0 : 1, x, y); return;
+      const i = name === 'p1' ? 0 : 1, sn = ev.shiftKey ? (hideSites(), null) : snapEnd(s, i, ev.clientX, ev.clientY); s._site = sn;
+      if (sn) [x, y] = sn.p;
+      s.removeAttribute(i ? 'data-b' : 'data-a'); s.removeAttribute(i ? 'data-b-at' : 'data-a-at'); setEnd(s, i, x, y); return;
     }
     if (o.rot) [x, y] = rotP(x, y, o.rot, -1);   // work in the shape's own, unrotated frame
     const to = Object.assign({}, from);
     if (name.includes('w')) to.x0 = x; if (name.includes('e')) to.x1 = x; if (name.includes('n')) to.y0 = y; if (name.includes('s')) to.y1 = y;
     if (ev.shiftKey && name.length === 2) { const k = Math.max(Math.abs(to.x1 - to.x0) / (from.x1 - from.x0 || 1), Math.abs(to.y1 - to.y0) / (from.y1 - from.y0 || 1)); const w = (from.x1 - from.x0) * k, hh = (from.y1 - from.y0) * k; if (name.includes('w')) to.x0 = to.x1 - w; else to.x1 = to.x0 + w; if (name.includes('n')) to.y0 = to.y1 - hh; else to.y1 = to.y0 + hh; }
     resizeTo(s, o, from, to);
-  }, ev => { if (name === 'p1' || name === 'p2') attach(s, name === 'p1' ? 0 : 1, ev.clientX, ev.clientY); });
+  }, ev => { if (name === 'p1' || name === 'p2') { attach(s, name === 'p1' ? 0 : 1, ev.clientX, ev.clientY, s._site); delete s._site; } });
 });
 
 // pointer on the pages: draw with a tool, or pick shapes with the select tool
@@ -505,7 +548,7 @@ function remove() {
   if (svg && svg.isConnected && fit(svg, true)) E.toast('Canvas trimmed to what is left', 'Undo', E.doUndo);
 }
 function duplicate(list, into, d) {
-  const out = list.map(s => { const c = s.cloneNode(true); into.append(c); c.removeAttribute('id'); c.removeAttribute('data-a'); c.removeAttribute('data-b'); moveTo(c, snapshot(c), d, d);
+  const out = list.map(s => { const c = s.cloneNode(true); into.append(c); c.removeAttribute('id'); for (const k of ['data-a', 'data-b', 'data-a-at', 'data-b-at']) c.removeAttribute(k); moveTo(c, snapshot(c), d, d);
     for (const n of [c, ...c.querySelectorAll('*')]) for (const a of ['marker-start', 'marker-end']) if (n.getAttribute(a)) n.setAttribute(a, marker(into, n.getAttribute('stroke') || '#000000')); return c; });
   setShapes(out, into); E.commit(true);
 }
@@ -587,7 +630,7 @@ function inspect(insp) {
     w.onchange = () => { each(s => s.setAttribute('stroke-width', w.value), true); if (closed) last.sw = +w.value; };
     dash.onchange = () => each(s => dash.value ? s.setAttribute('stroke-dasharray', dash.value) : s.removeAttribute('stroke-dasharray'), true);
     if (isLine) { add(`<label>Arrowheads</label>`); const a = add(`<select data-k="heads"><option value="0">none</option><option value="2">at the end</option><option value="1">at the start</option><option value="3">both ends</option></select>`); a.value = String(heads(s0)); a.onchange = () => { each(s => setHeads(s, +a.value), true); E.renderInspector(); }; }
-    if (n === 1 && ends(shapes[0]) && (shapes[0].hasAttribute('data-a') || shapes[0].hasAttribute('data-b'))) { const d = add(`<div class="row"><span class="help" style="margin:0">Attached to ${[shapes[0].hasAttribute('data-a') && 'a shape at its start', shapes[0].hasAttribute('data-b') && 'a shape at its end'].filter(Boolean).join(' and ')}; it follows when they move.</span><button>Detach</button></div>`); d.querySelector('button').onclick = () => { E.commit(true); shapes[0].removeAttribute('data-a'); shapes[0].removeAttribute('data-b'); drawHandles(); E.commit(true); E.renderInspector(); }; }
+    if (n === 1 && ends(shapes[0]) && (shapes[0].hasAttribute('data-a') || shapes[0].hasAttribute('data-b'))) { const d = add(`<div class="row"><span class="help" style="margin:0">Attached to ${[shapes[0].hasAttribute('data-a') && 'a shape at its start', shapes[0].hasAttribute('data-b') && 'a shape at its end'].filter(Boolean).join(' and ')}; it follows when they move.</span><button>Detach</button></div>`); d.querySelector('button').onclick = () => { E.commit(true); for (const k of ['data-a', 'data-b', 'data-a-at', 'data-b-at']) shapes[0].removeAttribute(k); drawHandles(); E.commit(true); E.renderInspector(); }; }
     if (all(/^(polygon|polyline)$/)) { const c = add(`<label class="check"><input type="checkbox" ${s0.localName === 'polygon' ? 'checked' : ''}>Closed shape</label>`); c.firstChild.onchange = e => { E.commit(true); const out = shapes.map(s => { const nn = svgEl(e.target.checked ? 'polygon' : 'polyline'); for (const a of s.attributes) nn.setAttribute(a.name, a.value); if (!e.target.checked) nn.setAttribute('fill', 'none'); s.replaceWith(nn); return nn; }); setShapes(out, layer); E.commit(true); }; }
     if (all(/^rect$/)) { add(`<label>Corners</label>`); const c = add(`<select><option value="0">square</option><option value="3">slightly round</option><option value="6">round</option></select>`); c.value = String(parseFloat(s0.getAttribute('rx')) || 0); c.onchange = () => each(s => +c.value ? s.setAttribute('rx', c.value) : s.removeAttribute('rx'), true); }
   }
