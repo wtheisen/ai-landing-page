@@ -256,6 +256,10 @@ u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { cursor: pointer; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown { color: var(--navy); } .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown * { color: inherit !important; }
 u.fill.blank { display: inline-block; vertical-align: baseline; }
+/* Blanks are 20% larger than the text around them in the Lecture and Workbook, so the space they keep fits handwriting
+   (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in code, where columns must line up. */
+.book:is([data-view="slides"], [data-view="workbook"]) u.fill:not(b-code u.fill, b-out u.fill) { font-size: 1.2em; }
+.book:is([data-view="slides"], [data-view="workbook"]) u.fill u.fill { font-size: 1em; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] > * { visibility: hidden; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown > * { visibility: visible; }
