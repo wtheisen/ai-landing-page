@@ -488,7 +488,7 @@ body.ed-xdrag .gcol iframe { pointer-events: none; }   /* while dragging a block
 body.panes #desk:has(> #gsizer > #gworld > #book.dual) { display: flex; flex-direction: column; overflow: hidden; }
 body.panes #desk:has(#book.dual) > #gsizer { flex: 1 1 0; min-height: 0; }
 body.panes #desk:has(#book.dual) #gworld { height: 100%; }
-.ed .dpane { flex: 1 1 0; min-width: 0; overflow: auto; position: relative; align-content: flex-start; padding: 50vh 12px; }
+.ed .dpane { flex: 1 1 0; min-width: 0; overflow: auto; position: relative; align-content: flex-start; padding: calc(50vh - 60px) 12px; }   /* room to scroll any page level with one in the other pane, but less than the pane is tall: a 50vh padding made it a full window tall, its bottom 91px below the window, and a drag couldn't reach its bottom edge to scroll (Eric, 2026-11-03) */
 .ed .dpane[data-doc="reading"] { order: 0; } .ed .dpane[data-doc="lecture"] { order: 1; border-left: 1px solid var(--border); }
 .ed .dpane > #drop2 { position: absolute; height: 3px; background: #1a73e8; border-radius: 2px; z-index: 6; pointer-events: none; }
 .ed .dpane > #drop2[hidden] { display: none; }

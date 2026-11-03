@@ -511,7 +511,8 @@ function startDrag(e, el, copyMode, autoPin) {   // copyMode: a copy follows the
   const auto = setInterval(() => {   // scroll the desk while dragging near its top or bottom edge
     if (!moved || !last) return;
     const sc = dual && xpane ? xpane.page.parentElement : desk;   // over the other document's pane: that one scrolls
-    const d = sc.getBoundingClientRect(), v = last.clientY < d.top + 45 ? -16 : last.clientY > d.bottom - 45 ? 16 : 0;
+    const d = sc.getBoundingClientRect(), vv = window.visualViewport, top = Math.max(d.top, vv ? vv.offsetTop : 0), bot = Math.min(d.bottom, vv ? vv.offsetTop + vv.height : innerHeight);   // the part on screen: a pane taller than the window has its edge out of reach
+    const v = last.clientY < top + 45 ? -16 : last.clientY > bot - 45 ? 16 : 0;
     if (v) { sc.scrollTop += v; move(last); }
   }, 30);
   const origin = [el.style.left, el.style.top];
