@@ -260,12 +260,12 @@ b-fig .crop { display: block; }
 u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { color: transparent; border-bottom: 1pt solid var(--ink); }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill * { color: transparent !important; }
-.book[data-view="slides"] u.fill { cursor: pointer; }
-.book[data-view="slides"] u.fill.shown { color: var(--navy); } .book[data-view="slides"] u.fill.shown * { color: inherit !important; }
+.book:is([data-view="slides"], [data-view="workbook"]) u.fill { cursor: pointer; }
+.book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown { color: var(--navy); } .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown * { color: inherit !important; }
 u.fill.blank { display: inline-block; vertical-align: baseline; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] > * { visibility: hidden; }
-.book[data-view="slides"] [data-fill].shown { color: inherit; } .book[data-view="slides"] [data-fill].shown > * { visibility: visible; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown > * { visibility: visible; }
 .fillbox { border: 1pt dashed var(--border-strong); border-radius: 4px; }
 
 /* key sentences: <span class="key">…</span> inside a paragraph marks what Slides and Workbook show of it.
@@ -3676,7 +3676,7 @@ function eaiInk(opts) {
   // the instructor's crib: in the Lecture view every blank, worked equation and quick-check answer shows in faint ink
   // to trace over (screen only; never for students, never printed)
   // the editor's preview columns (grid=1) always show them: Present is for the room, not for editing
-  function ghost() { document.documentElement.classList.toggle('ink-ghost', /[?&]grid=1/.test(location.search) || (teacher() && VIEW === 'slides' && !/[?&]lecture=1/.test(location.search))); }   // ?lecture=1 (the editor home's Lecture button): presenting, so hidden
+  function ghost() { document.documentElement.classList.toggle('ink-ghost', /[?&]grid=1/.test(location.search) || (teacher() && VIEW === 'slides' && /[?&]lecture=answers\b/.test(location.search))); }   // ?lecture=1 (the editor home's Lecture button): presenting, so hidden
 
   // ---------------------------------------------------------------- writing
   var bar = null, laser = null, last = { t: 'pen', c: PEN[0][0] };

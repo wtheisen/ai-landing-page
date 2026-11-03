@@ -1094,7 +1094,7 @@ Book.webExtras = () => {
   Book.freezeGaps = true; Book.liveOn = true;
   Book.root.querySelectorAll('b-fig[live]').forEach(Book.initLive);
   Book.runCode();
-  if (Book.view === 'slides') Book.root.addEventListener('click', e => { const f = e.target.closest && e.target.closest('u.fill, [data-fill]'); if (f) f.classList.toggle('shown'); });
+  if (Book.view === 'slides' || Book.view === 'workbook') Book.root.addEventListener('click', e => { const f = e.target.closest && e.target.closest('u.fill, [data-fill]'); if (f) f.classList.toggle('shown'); });
   Book.root.querySelectorAll('.qc > .ans').forEach(a => {
     if (a.nextElementSibling && a.nextElementSibling.tagName === 'DETAILS') return;
     const d = document.createElement('details'); d.className = 'web-only'; d.setAttribute('data-rt', '');
@@ -1138,7 +1138,8 @@ Book.snapshot = async () => {
   }
   const m = Book.meta, css = await (await fetch('../app/book.css')).text(), liveJs = await (await fetch('../app/live.js')).text(), inkJs = await (await fetch('../app/ink.js')).text();
   const frames = FIT + "(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-frame]'));if(!fs.length)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.src=e.target.getAttribute('data-frame');io.unobserve(e.target)}})},{rootMargin:'600px'});fs.forEach(function(f){io.observe(f)})})();" + LIVEFIG + ";[].forEach.call(document.querySelectorAll('b-fig[viz]'),eaiLiveFig);";
-  const reveal = view === 'slides' ? "document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill]');if(f)f.classList.toggle('shown')});" : '';
+  // tap a blank to see its answer: in the Lecture while presenting, and in the Workbook to practise (Eric, 2026-11-03)
+  const reveal = view === 'slides' || view === 'workbook' ? "document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill]');if(f)f.classList.toggle('shown')});" : '';
   const faces = (await Promise.all([['Inconsolata-LGC.ttf', 400], ['Inconsolata-LGC-Bold.ttf', 700]].map(async ([f, w]) =>
     `@font-face{font-family:'Inconsolata LGC';src:url(data:font/ttf;base64,${await b64('../kit/fonts/' + f)}) format('truetype');font-weight:${w}}`))).join('') + `@font-face{font-family:'AI2AI Omega';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Omega.ttf')}) format('truetype');unicode-range:U+03A9}`;
   const nav = Book.pages().filter(p => p.dataset.part && Book.inView(p, view)).map(p => `<a href="#${p.id}">${esc(p.dataset.part)}</a>`).join('');

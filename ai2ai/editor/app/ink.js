@@ -204,7 +204,9 @@ function eaiInk(opts) {
   // the instructor's crib: in the Lecture view every blank, worked equation and quick-check answer shows in faint ink
   // to trace over (screen only; never for students, never printed)
   // the editor's preview columns (grid=1) always show them: Present is for the room, not for editing
-  function ghost() { document.documentElement.classList.toggle('ink-ghost', /[?&]grid=1/.test(location.search) || (teacher() && VIEW === 'slides' && !/[?&]lecture=1/.test(location.search))); }   // ?lecture=1 (the editor home's Lecture button): presenting, so hidden
+  // Only the answers link (?lecture=answers, signed in) and the editor's previews show them: on the plain Lecture page
+  // they sat under the instructor's own published ink and the two overlapped (Eric, 2026-11-03).
+  function ghost() { document.documentElement.classList.toggle('ink-ghost', /[?&]grid=1/.test(location.search) || (teacher() && VIEW === 'slides' && /[?&]lecture=answers\b/.test(location.search))); }
 
   // ---------------------------------------------------------------- writing
   var bar = null, laser = null, last = { t: 'pen', c: PEN[0][0] };
