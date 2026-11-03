@@ -296,7 +296,7 @@ function create(e, pg) {
     setTool('select'); setShapes([el], svg); E.commit(true);
     return editLabel(el, true, keep);
   }
-  if (tool === 'rect') el = svgEl('rect', { x: r1(x0), y: r1(y0), width: 0, height: 0, fill: last.fill, stroke: last.stroke, 'stroke-width': last.sw });
+  if (tool === 'rect') el = svgEl('rect', { x: r1(x0), y: r1(y0), width: 0, height: 0, rx: 6, fill: last.fill, stroke: last.stroke, 'stroke-width': last.sw });   // new rectangles start with round corners (Eric, 2026-11-03); Corners in the inspector still sets square
   else if (tool === 'ellipse') el = svgEl('ellipse', { cx: r1(x0), cy: r1(y0), rx: 0, ry: 0, fill: last.fill, stroke: last.stroke, 'stroke-width': last.sw });
   else if (tool === 'tri') el = svgEl('polygon', { points: `${r1(x0)},${r1(y0)}`, fill: last.fill, stroke: last.stroke, 'stroke-width': last.sw, 'stroke-linejoin': 'round' });
   else if (tool === 'curve') el = svgEl('path', { d: qd([x0, y0, x0, y0, x0, y0]), fill: 'none', stroke: '#000000', 'stroke-width': 1.5 });
