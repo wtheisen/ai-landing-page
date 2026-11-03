@@ -585,7 +585,9 @@ window.addEventListener('keydown', e => {
 }, true);
 
 // ---------------------------------------------------------------- side panel for the selected shapes
-const FILLS = ['none', '#FFFFFF', '#C9DAF8', '#FFF2CC', '#D9D2E9', '#D9EAD3', '#F4CCCC', '#F5F5F5', '#6D9EEB', '#FFD966', '#8E7CC3', '#93C47D', '#E06666', '#002B5B', '#DCB439', '#674EA7', '#38761D', '#CC0000', '#000000'];
+// the network colours' families (fill, then line tone): blue, yellow, purple, green, red and the bias grey (#CCCCCC / #666666,
+// added 2026-11-03: Eric's diagrams use it for b and the editor didn't offer it)
+const FILLS = ['none', '#FFFFFF', '#C9DAF8', '#FFF2CC', '#D9D2E9', '#D9EAD3', '#F4CCCC', '#CCCCCC', '#F5F5F5', '#6D9EEB', '#FFD966', '#8E7CC3', '#93C47D', '#E06666', '#666666', '#002B5B', '#DCB439', '#674EA7', '#38761D', '#CC0000', '#000000'];
 const LINES = ['none', '#000000', '#666666', '#DDDDDD', '#002B5B', '#DCB439', '#674EA7', '#38761D', '#CC0000', '#6D9EEB', '#FFD966', '#8E7CC3', '#93C47D', '#E06666'];
 const same = (a, b) => (a || '').toLowerCase() === (b || '').toLowerCase();
 const NAMES = { rect: 'Rectangle', ellipse: 'Ellipse', circle: 'Circle', polygon: 'Polygon', polyline: 'Bent line', text: 'Label', g: 'Group', path: 'Path' };
