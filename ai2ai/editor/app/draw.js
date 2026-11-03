@@ -172,7 +172,10 @@ function reconnect(svg) {
 }
 function attach(el, i, cx, cy) {   // end i of a line/curve was dropped at this screen point: stick it to the closed shape there, if any
   const svg = el.ownerSVGElement, key = i ? 'data-b' : 'data-a';
-  const t = kids(svg).reverse().find(s => s !== el && /^(rect|ellipse|circle|polygon|text|g)$/.test(s.localName) && !s.hasAttribute('data-lock') && (r => cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom)(s.getBoundingClientRect()));
+  // a shape that also holds the other end is a background (a panel behind the graph), not where the arrow points: attaching
+  // there pinned the end to the panel's edge, so arrows jumped to the full width or height of their box (Eric, 2026-11-03)
+  const e = ends(el), o = e && toClient(svg, e[1 - i][0], e[1 - i][1]), inR = (r, x, y) => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+  const t = kids(svg).reverse().find(s => s !== el && /^(rect|ellipse|circle|polygon|text|g)$/.test(s.localName) && !s.hasAttribute('data-lock') && (r => inR(r, cx, cy) && !(o && inR(r, o[0], o[1])))(s.getBoundingClientRect()));
   if (!t) return el.removeAttribute(key);
   if (!t.id) t.id = 's' + Math.random().toString(36).slice(2, 7);
   el.setAttribute(key, t.id); reconnect(svg);
