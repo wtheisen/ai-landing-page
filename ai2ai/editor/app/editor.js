@@ -756,7 +756,7 @@ function openPop(el, html) {
   return p;
 }
 function mathPop(m) {
-  const p = openPop(m, `<input type="text" spellcheck="false"><div class="hint"><code>x_i</code> subscript · <code>^2</code> power · <code>x_{ij}</code> group · <code>\\T</code> transpose · <code>\\sig \\alpha \\Omega \\ge \\sum \\norm \\half \\yhat</code> become σ α Ω ≥ Σ ‖ ½ ŷ · <code>'</code> prime. Symbols in the chapter's colour list are coloured automatically. Enter to finish.</div>`);
+  const p = openPop(m, `<input type="text" spellcheck="false"><div class="hint"><code>x_i</code> subscript · <code>^2</code> power · <code>x_{ij}</code> group · <code>\\T</code> transpose · <code>\\sig \\alpha \\Omega \\L \\partial \\ge \\sum \\norm \\half \\yhat</code> become σ α Ω ℒ ∂ ≥ Σ ‖ ½ ŷ · <code>'</code> prime. Symbols in the chapter's colour list are coloured automatically. Enter to finish.</div>`);
   const inp = p.querySelector('input'); inp.value = m.getAttribute('tex') || ''; inp.focus(); inp.select();
   inp.oninput = () => { const a = inp.selectionStart, before = inp.value, v = mathNorm(before); if (v !== before) { inp.value = v; const pos = Math.max(0, a - (before.length - v.length)); inp.setSelectionRange(pos, pos); } m.setAttribute('tex', v); place(); };
   inp.onkeydown = e => { if (e.key === 'Enter' || e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); e.stopPropagation(); m.setAttribute('tex', mathNorm(inp.value, true).trim()); const keep = m.getAttribute('tex'); closePop(); if (keep) caretAfter(m); commit(true); } };
@@ -1781,7 +1781,12 @@ function eqInspector(el) {
       const box = h(`<div class="eqrow"><div class="top"><select class="kind"><option value="eq-row">Equation</option><option value="eq-step">Step ↓</option></select>${isEq ? `<select class="mode" title="Numbered equations get the next number automatically"><option value="none">no number</option><option value="num">numbered</option><option value="same">repeats…</option></select><span class="numtag">${shown ? '[' + esc(shown) + ']' : ''}</span>` : ''}<span class="sp"></span><button data-a="up" title="Move up">↑</button><button data-a="down" title="Move down">↓</button><button data-a="del" title="Remove row">✕</button></div>${mode === 'num' ? `<input type="text" class="label" placeholder="name used by references" title="Name of this equation: references point at it, so they survive renumbering" value="${esc(row.getAttribute('label') || '')}" style="margin-bottom:4px" spellcheck="false">` : ''}${mode === 'same' ? `<select class="same" style="margin-bottom:4px">${labels.map(([l, n]) => `<option value="${esc(l)}"${l === row.getAttribute('same') ? ' selected' : ''}>[${esc(n)}] ${esc(l)}</option>`).join('')}</select>` : ''}${isEq ? `<input type="text" class="note" placeholder="note above the equation (optional)" value="${esc(row.getAttribute('note') || '')}" style="margin-bottom:4px">` : ''}<textarea rows="${Math.max(2, Book.texOf(row).split('\n').length + 1)}" spellcheck="false"></textarea></div>`);
       const kind = box.querySelector('select.kind'), ta = box.querySelector('textarea'), note = box.querySelector('.note'), md = box.querySelector('select.mode'), lab = box.querySelector('.label'), sm = box.querySelector('select.same');
       kind.value = row.localName; ta.value = Book.texOf(row);
-      ta.oninput = () => { row.textContent = ta.value; rerender(); };
+      ta.oninput = () => {   // \L, \loss or \mathcal{L} become ℒ as typed (Eric, 2026-11-03), so the loss takes its colour and bold
+        const v = ta.value, at = ta.selectionStart, fix = t => t.replace(/\\mathcal\s*(?:\{\s*L\s*\}|L(?![A-Za-z]))|\\(?:L|loss)(?=[^A-Za-z])/g, 'ℒ');
+        if (fix(v) !== v) { const head = fix(v.slice(0, at)); ta.value = head + fix(v.slice(at)); ta.selectionStart = ta.selectionEnd = head.length; }
+        row.textContent = ta.value; rerender();
+      };
+      ta.onchange = () => { const f = ta.value.replace(/\\(?:L|loss)$/, 'ℒ'); if (f !== ta.value) { ta.value = f; row.textContent = f; rerender(); } };   // \L left at the very end
       if (md) { md.value = mode; md.onchange = () => {
         commit(true); row.removeAttribute('same'); row.removeAttribute('num');
         if (md.value === 'num') { if (!row.getAttribute('label')) row.setAttribute('label', freshLabel(row.getAttribute('note') || 'eq')); }
