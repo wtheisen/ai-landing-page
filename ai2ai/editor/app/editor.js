@@ -152,7 +152,7 @@ let commitT = 0, saveT = 0;
 // Edit either copy and the other follows on the next commit; each keeps its own layout (size, class, blanks).
 var poolLast;   // pool id -> its content as of the last sync
 // per copy: layout, and how a code copy runs (a hoisted function, so poolKey can use it before this line is reached)
-function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'data-align', 'setup', 'chain', 'norun', 'cw', 'out', 'contenteditable', 'spellcheck', 'draggable']; }
+function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'data-align', 'setup', 'chain', 'norun', 'cw', 'out', 'data-push', 'contenteditable', 'spellcheck', 'draggable']; }
 const POOL_LAYOUT = poolLayoutAttrs();
 // the content two copies share: everything but the per-copy attributes (built from POOL_LAYOUT, so a new per-copy
 // attribute can't make the copies look different forever: cw did, and every commit swapped the copies, 2026-10-27)
@@ -1674,6 +1674,11 @@ function renderOneInspector() {
   }
   if ((/^(P|DIV|UL|OL)$/.test(el.tagName) && el.isContentEditable && !el.querySelector(':scope > div, :scope > dl')) || /^(UL|OL)$/.test(el.tagName) || el.classList.contains('colrow')) columnsControl(el, add);
   add('<hr>');
+  if (!Book.isPinned(el) && el.parentElement && el.parentElement.matches('section.page:not(.cover)')) {   // Push to bottom (book.js refresh, span.pushgap)
+    const pu = add(`<label class="check"><input type="checkbox" ${el.hasAttribute('data-push') ? 'checked' : ''}>Push to bottom (this and what follows sit at the bottom of the page)</label>`);
+    pu.firstChild.onchange = e => { commit(true); el.toggleAttribute('data-push', e.target.checked); commit(true); Book.refresh(); place(); };
+    if (el.hasAttribute('data-push')) add(`<div class="help">The room left on the page opens up above this block, in every view (a slide in the Lecture, the 6 × 9 page in the Workbook), for writing or drawing in. It closes up as the page fills.</div>`);
+  }
   if (Book.isPinned(el)) {
     add(`<label>Pinned position (pt from the page's top-left; the page is ${Book.pageW(el)} × ${Book.pageH(el)})</label>`);
     const row = add(`<div class="row">x <input type="number" step="1" style="width:64px" data-p="left"> y <input type="number" step="1" style="width:64px" data-p="top"> w <input type="number" step="1" style="width:64px" data-p="width"></div>`);

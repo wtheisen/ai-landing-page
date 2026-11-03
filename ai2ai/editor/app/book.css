@@ -449,6 +449,7 @@ html.ink-lecture .ink-sub { box-shadow: inset 0 -2px 0 var(--gold, #DCB439); }
 
 /* text wrap around a pinned block with class "wrap": invisible floats at the start of each text block beside it (book.js wrapText) */
 span.wrapf { display: block; pointer-events: none; -webkit-user-select: none; user-select: none; }
+.pushgap { flex: none; grid-column: 1 / -1; margin: 0; pointer-events: none; -webkit-user-select: none; user-select: none; }   /* Push to bottom: the room above a data-push block (book.js refresh) */
 .page > [data-ed-wl] > li { display: flow-root; }   /* list items step clear of a left picture, bullets included */
 
 /* equations typeset in the browser (eqml.js): laid out like the TeX images (kit/preamble_mathfont.tex) */

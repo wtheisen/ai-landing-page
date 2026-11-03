@@ -667,6 +667,16 @@ Book.refresh = () => {
   pages.forEach((pg, k) => {
     if (pg.classList.contains('cover')) return;
     const r = pg.getBoundingClientRect(); if (!r.width) return;
+    // Push to bottom (Eric, 2026-11-03: room in the middle of a slide to draw on): a block with data-push and everything after it
+    // sit against the bottom of the page. The room goes into span.pushgap before it (data-rt, never saved), not into the gaps.
+    const push = [...pg.children].find(el => el.hasAttribute('data-push') && !el.hasAttribute('data-rt') && !Book.isPinned(el) && Book.inView(el) && el.getBoundingClientRect().height);
+    let pgap = pg.querySelector(':scope > .pushgap');
+    if (!push && pgap) { pgap.remove(); pgap = null; }
+    if (push) {
+      if (!pgap) { pgap = document.createElement('div'); pgap.className = 'pushgap'; pgap.setAttribute('data-rt', ''); pgap.setAttribute('contenteditable', 'false'); pgap.setAttribute('aria-hidden', 'true'); pgap.style.height = '0pt'; }
+      if (pgap.nextElementSibling !== push) push.before(pgap);
+      if (pg.style.getPropertyValue('--gap')) pg.style.removeProperty('--gap');   // the spare room goes into the gap, not between the blocks
+    }
     const s = r.width / Book.pageW(pg), cur = parseFloat(pg.style.getPropertyValue('--gap')) || 10, PW = Book.pageW(pg), PH = Book.pageH(pg);
     const wraps = Book.wrapText(pg);
     let bottom = 0, right = 0, n = 0, joined = 0, pinBottom = 0;
@@ -678,9 +688,15 @@ Book.refresh = () => {
       bottom = Math.max(bottom, (q.bottom - r.top) / s); n++;
       if (el.tagName === 'B-CODE' && el.nextElementSibling && el.nextElementSibling.tagName === 'B-OUT') joined++;
     }
+    const pushH = pgap ? parseFloat(pgap.style.height) || 0 : 0;
+    if (pgap) {   // the gap fills what's left of the page (PH - 44, as the spacing below), or goes if there's nothing left
+      const room = +(PH - 44 - (bottom - pushH)).toFixed(1);
+      if (room <= 0) { pgap.remove(); pgap = null; bottom -= pushH; }
+      else if (Math.abs(room - pushH) > 0.05) { pgap.style.height = room + 'pt'; bottom += room - pushH; if (wraps) Book.wrapText(pg); }
+    }
     const gaps = Math.max(0, n - 1 - joined), base = bottom - gaps * (cur - 10), free = PH - 44 - base;
     let gap = cur;
-    if (!Book.freezeGaps) {
+    if (!Book.freezeGaps && !push) {
       gap = free > 6 && gaps > 0 ? +(10 + Math.min(free / gaps, 12)).toFixed(1) : 10;
       if (Math.abs(gap - cur) > 0.05) { if (gap === 10) pg.style.removeProperty('--gap'); else pg.style.setProperty('--gap', gap + 'pt'); if (wraps) Book.wrapText(pg); }   // blocks moved: re-place the wrap floats
     }
