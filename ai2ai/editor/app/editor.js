@@ -1390,13 +1390,22 @@ function startCodeEdit(el, ev) {
   const isOut = el.tagName === 'B-OUT', area = isOut ? el.querySelector('pre') : el.querySelector('.src');
   const ta = document.createElement('textarea');
   ta.setAttribute('data-ed', ''); ta.className = 'ed-code'; ta.spellcheck = false; ta.wrap = 'off'; ta.value = el.src;
-  ta.style.top = area.offsetTop + 'px'; ta.style.left = area.offsetLeft + 'px';
+  // Kept level with the drawn code on every keystroke (Eric, 2026-11-03: the caret drifted a character either way while
+  // typing): the line-number gutter widens when the cell reaches 10 (or 100) lines, which moves the drawn code right by a
+  // digit, and a line longer than the box made the textarea scroll its own text sideways under the drawn code.
+  const fit = () => {
+    const a = isOut ? el.querySelector('pre') : el.querySelector('.src');
+    ta.style.top = a.offsetTop + 'px'; ta.style.left = a.offsetLeft + 'px';
+    ta.style.right = 'auto'; ta.style.width = Math.max(el.clientWidth - a.offsetLeft, a.scrollWidth) + 'px';
+    ta.scrollLeft = 0; ta.scrollTop = 0;
+  };
   // the typing layer must match the drawn code exactly: its size (8.6pt on tight slides, outputs beside code) and its
   // line height (each .ln is at least 1.42em, a little more than the 1.4 line height); a mismatch offset selections
   const acs = getComputedStyle(area), ln = !isOut && area.querySelector('.ln'), lcs = ln && getComputedStyle(ln);
   ta.style.fontSize = acs.fontSize;
   ta.style.lineHeight = Math.max(parseFloat(acs.lineHeight) || 0, lcs ? parseFloat(lcs.minHeight) || 0 : 0) + 'px';
-  el.append(ta);
+  el.append(ta); fit();
+  ta.addEventListener('scroll', () => { if (ta.scrollLeft || ta.scrollTop) { ta.scrollLeft = 0; ta.scrollTop = 0; } });
   let run = null;
   if (!isOut && el.getAttribute('lang') === 'python') {
     run = document.createElement('div'); run.setAttribute('data-ed', ''); run.className = 'ed-coderun';
@@ -1405,8 +1414,8 @@ function startCodeEdit(el, ev) {
     run.lastChild.onclick = () => runIntoOutput(el, run.firstChild, run.lastChild);
     el.append(run);
   }
-  codeEd = { el, ta, run };
-  ta.oninput = () => { el.setAttribute('data-src', ta.value); codeEditView(el, ta.value); place(); commit(); };
+  codeEd = { el, ta, run, fit };
+  ta.oninput = () => { el.setAttribute('data-src', ta.value); codeEditView(el, ta.value); fit(); place(); commit(); };
   ta.onkeydown = e => {
     if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.execCommand('insertText', false, '    '); }
     else if (e.altKey && !e.metaKey && !e.ctrlKey && /^Digit[0-7]$/.test(e.code)) { e.preventDefault(); style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray', 'purple'][+e.code.slice(5)]); }
