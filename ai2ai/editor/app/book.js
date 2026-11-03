@@ -312,6 +312,7 @@ function loadEqML() {
     const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('could not load ' + src)); document.head.appendChild(s);
   }))).then(() => { EqML.addFonts(); }).catch(e => { eqmlP = null; throw e; }));
 }
+const EQ_UC = 'αβγδεθλμσφηρτωΩξŷ';   // the symbols server.py TEX spells as commands
 class BEq extends HTMLElement {
   static get observedAttributes() { return ['flush', 'gap']; }
   attributeChangedCallback() { if (this.isConnected && !inThumb(this) && this._key) this.render(); }
@@ -328,7 +329,10 @@ class BEq extends HTMLElement {
     const flush = this.hasAttribute('flush');
     // gap: the space between rows in pt at the equation's 16pt size (default 5.6), Eric 2026-11-02
     const gap = Math.max(0, parseFloat(this.getAttribute('gap')) || 0);
-    const key = hash(JSON.stringify([rows, Book.meta.colors || {}, Book.kit].concat(rows.some(r => r[0] === 'eq' && r[2] && r[2].includes('Ω')) ? ['om'] : [], flush ? ['flush'] : [], gap ? ['gap' + gap] : [])));
+    // a coloured symbol typed as itself (ω, σ, ŷ …, not \omega) takes its colour since 2026-11-03 (server.py
+    // texcolors): the extra 'uc' gives those equations a new image
+    const cols = Book.meta.colors || {}, uc = rows.some(r => [...(r[0] === 'eq' ? r[3] : r[1]) || ''].some(c => EQ_UC.includes(c) && cols[c]));
+    const key = hash(JSON.stringify([rows, cols, Book.kit].concat(rows.some(r => r[0] === 'eq' && r[2] && r[2].includes('Ω')) ? ['om'] : [], flush ? ['flush'] : [], gap ? ['gap' + gap] : [], uc ? ['uc'] : [])));
     if (key === this._key) return this._done;
     this._key = key;
     const url = Book.url('eq/' + key + '.svg');
