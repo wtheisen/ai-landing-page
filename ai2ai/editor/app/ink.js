@@ -541,26 +541,44 @@ function eaiInk(opts) {
     // While the fingers move, the pages are only scaled as a picture (a transform the GPU does, nothing is laid out
     // again); the real zoom, which lays every page out at the new size, happens once when the pinch ends, with the point
     // under the fingers kept under them (2026-11-01, Eric: zooming and panning in the presenting view were laggy).
+    // The preview scales the pages' whole column, not the scroll box: at the start of a pinch #book stops clipping
+    // (html.lect-zooming: overflow visible, its scroll turned into a translate), so zooming out shows the slides above,
+    // below and beside the ones on screen instead of a shrinking box with blank all round it (Eric, 2026-11-03). When
+    // the pages will fit the width at the new zoom, they shrink towards the middle of the window (where the real zoom
+    // centres them), so nothing jumps sideways on release.
     var raf = 0, live = null;
+    function live0page() { var a = book.querySelector('section.page:not(.cover)'); return a || book.querySelector('section.page'); }
+    function frame() {
+      raf = 0; if (!live) return;
+      var L = live, s = L.nk / k, ox = L.ox, oy = L.oy, tx = -L.sl, ty = -L.st;
+      if (L.slide) { tx += L.x - L.x0; ty += L.y - L.y0; }
+      if (L.pw * s <= L.cw && Math.abs(1 - s) > 1e-3) ox = (L.mid - L.cx * s - tx) / (1 - s);
+      book.style.transformOrigin = ox + 'px ' + oy + 'px';
+      book.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + s + ')'; zoomGen++;
+    }
     function soon(nk, x, y, slide) {
       nk = Math.max(0.4, Math.min(4, nk));
       if (!live) {
-        var r = book.getBoundingClientRect();
-        live = { x0: x, y0: y, a: pageAt(x, y) }; H.classList.add('lect-zooming');
-        book.style.transformOrigin = (x - r.left) + 'px ' + (y - r.top) + 'px';
+        var r = book.getBoundingClientRect(), pg = live0page(), pr = pg ? rectOf(pg) : null;
+        live = { x0: x, y0: y, a: pageAt(x, y), sl: book.scrollLeft, st: book.scrollTop,
+          ox: x - r.left + book.scrollLeft, oy: y - r.top + book.scrollTop,   // the content point under the fingers
+          cw: book.clientWidth - 32, mid: book.clientWidth / 2,
+          cx: pr ? pr.left - r.left + book.scrollLeft + pr.width / 2 : book.clientWidth / 2,   // the pages' centre line
+          pw: pr ? pr.width : 0 };
+        H.classList.add('lect-zooming');
       }
       live.nk = nk; live.x = x; live.y = y; live.slide = !!slide;
-      if (!raf) raf = requestAnimationFrame(function () {
-        raf = 0; if (!live) return;
-        var tx = live.slide ? live.x - live.x0 : 0, ty = live.slide ? live.y - live.y0 : 0;
-        book.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + (live.nk / k) + ')'; zoomGen++;
-      });
+      if (!raf) { if (!live.started) { live.started = true; frame(); } else raf = requestAnimationFrame(frame); }   // the first frame at once: no frame of unscrolled pages
       clearTimeout(soon.t); soon.t = setTimeout(commit, 200);   // a trackpad or ctrl+wheel pinch has no end event
+    }
+    function unpreview(L) {   // back to a clipped, scrolled box where it was
+      book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming'); zoomGen++;
+      book.scrollLeft = L.sl; book.scrollTop = L.st;
     }
     function commit() {
       clearTimeout(soon.t); if (!live) return;
       var L = live; live = null; if (raf) { cancelAnimationFrame(raf); raf = 0; }
-      book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming'); zoomGen++;
+      unpreview(L);
       if (Math.abs(L.nk - k) >= 0.002) { k = L.nk; window.eaiZoomK = k; apply(); try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }
       if (L.a) { var r = rectOf(L.a.p); book.scrollLeft += r.left + L.a.fx * r.width - L.x; book.scrollTop += r.top + L.a.fy * r.height - L.y; }
     }
@@ -569,7 +587,7 @@ function eaiInk(opts) {
     var blocked = false;
     function cancel() {
       clearTimeout(soon.t); if (raf) { cancelAnimationFrame(raf); raf = 0; }
-      if (live) { live = null; book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming'); zoomGen++; }
+      if (live) { var L = live; live = null; unpreview(L); }
       blocked = true; t0 = null;
     }
     lectZoom = { cancel: cancel };
