@@ -5059,12 +5059,12 @@ function eaiInk(opts) {
     return a ? a.href : null;
   }
   function hexRGB(h) { h = (h || '#000').replace('#', ''); return PDFLib.rgb(parseInt(h.slice(0, 2), 16) / 255, parseInt(h.slice(2, 4), 16) / 255, parseInt(h.slice(4, 6), 16) / 255); }
-  function notesPDF() {
-    var url = pdfURL(), fallback = function (why) { msg(why + ' Printing the page instead.'); setTimeout(function () { window.print(); }, 50); };
-    if (!url) return fallback('No PDF for this view.');
-    msg('Making the PDF…');
+  // buildPDF(list): the view's PDF with the strokes of the given layers drawn in; resolves to { bytes, name }, or
+  // rejects (Error 'nopdf', 'count …' when the PDF is older than the page, anything else when it can't be built).
+  function buildPDF(list) {
+    var url = pdfURL(); if (!url) return Promise.reject(new Error('nopdf'));
     var lib = window.PDFLib ? Promise.resolve() : new Promise(function (ok, no) { var sc = document.createElement('script'); sc.src = PDFLIB; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); });
-    Promise.all([lib, fetch(url, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('pdf'); return r.arrayBuffer(); })])
+    return Promise.all([lib, fetch(url, { cache: 'no-cache' }).then(function (r) { if (!r.ok) throw new Error('pdf'); return r.arrayBuffer(); })])
       .then(function (a) { return PDFLib.PDFDocument.load(a[1]); })
       .then(function (doc) {
         var pgs = pages(), real = pgs.filter(function (p) { return !p.classList.contains('ink-blank'); });
@@ -5076,7 +5076,7 @@ function eaiInk(opts) {
           i++;
         });
         var joined = [];
-        [pub, mine].forEach(function (l) {
+        list.forEach(function (l) {
           if (l) (l.strokes || []).forEach(function (st) {
             var page = at[st.p], el = document.getElementById(st.p); if (!page || !el || !st.pts || !st.pts.length) return;
             if (joined.indexOf(page) < 0) { page.pushOperators(PDFLib.setLineJoin(PDFLib.LineJoinStyle.Round)); joined.push(page); }
@@ -5087,13 +5087,17 @@ function eaiInk(opts) {
         });
         return doc.save();
       })
-      .then(function (bytes) {
-        var name = decodeURIComponent(url.split('/').pop().split('?')[0]).replace(/\.pdf$/i, '') + '-notes.pdf';
-        var link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' })); link.download = name;
+      .then(function (bytes) { return { bytes: bytes, name: decodeURIComponent(url.split('/').pop().split('?')[0]).replace(/\.pdf$/i, '') + '-notes.pdf' }; });
+  }
+  function notesPDF() {
+    var fallback = function (why) { msg(why + ' Printing the page instead.'); setTimeout(function () { window.print(); }, 50); };
+    msg('Making the PDF…');
+    buildPDF([pub, mine]).then(function (r) {
+        var link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([r.bytes], { type: 'application/pdf' })); link.download = r.name;
         document.body.appendChild(link); link.click(); setTimeout(function () { URL.revokeObjectURL(link.href); link.remove(); }, 60000);
-        msg('Saved ' + name);
+        msg('Saved ' + r.name);
       })
-      .catch(function (e) { fallback(/count/.test(e && e.message) ? 'The PDF on the site is older than this page.' : 'Couldn\'t build the PDF.'); });
+      .catch(function (e) { var m = e && e.message || ''; fallback(m === 'nopdf' ? 'No PDF for this view.' : /count/.test(m) ? 'The PDF on the site is older than this page.' : 'Couldn\'t build the PDF.'); });
   }
   window.eaiNotesPDF = notesPDF;
 
@@ -5110,14 +5114,15 @@ function eaiInk(opts) {
         store(KEY_TOKEN, t); var was = editing; stop(); target = null; ghost(); navbar(); if (was) start(); msg('Signed in. On this device the pen now writes lecture notes you can publish, on every chapter.'); return true;
       }, function () { msg('Could not reach GitHub.'); return false; });
   }
+  function bytes64(u8) { var s = '', i; for (i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
   function setupTeacher() { return teacher() ? Promise.resolve(true) : signIn(); }
   function b64(s) { return btoa(unescape(encodeURIComponent(s))); }
-  function gh(path, token, body) {
+  function gh(path, token, body, raw) {   // raw: body is already base64 (a PDF)
     var url = 'https://api.github.com/repos/' + REPO + '/contents/' + path;
     return fetch(url + '?ref=' + BRANCH, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (cur) {
-        var data = { message: 'Lecture notes: ' + path, content: b64(body), branch: BRANCH }; if (cur && cur.sha) data.sha = cur.sha;
+        var data = { message: 'Lecture notes: ' + path, content: raw ? body : b64(body), branch: BRANCH }; if (cur && cur.sha) data.sha = cur.sha;
         return fetch(url, { method: 'PUT', headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
       })
       .then(function (r) { if (!r.ok) return r.json().then(function (j) { var e = new Error(j.message || ('GitHub said ' + r.status)); e.status = r.status; throw e; }); return r.json(); });
@@ -5131,8 +5136,20 @@ function eaiInk(opts) {
     var ix = layers.filter(function (l) { return l.id !== target.id; }).concat([{ id: target.id, title: target.title, view: VIEW }]).sort(function (a, b) { return a.id < b.id ? -1 : 1; });
     gh(dir + '/ink/' + target.id + '.json', token, JSON.stringify(target))
       .then(function () { return gh(dir + '/ink/index.json', token, JSON.stringify({ layers: ix }, null, 1)); })
-      .then(function () { layers = ix.slice().reverse(); msg('Published. Students see it in a minute or two.'); },
-            function (err) { if (err.status === 401) store(KEY_TOKEN, ''); msg('Not published: ' + err.message); });
+      .then(function () {
+        layers = ix.slice().reverse();
+        // and the view's PDF with these notes drawn in, at a fixed name next to the chapter's PDFs (<pdf>-notes.pdf), so a
+        // course page can link the notes as a plain PDF and the link stays right after every Publish (Eric, 2026-11-03)
+        msg('Notes published. Making the PDF…');
+        return buildPDF([target]).then(function (r) {
+          return gh(dir + '/' + r.name, token, bytes64(r.bytes), true).then(function () {
+            msg('Published, with ' + r.name + '. Students see both in a minute or two.');
+          }, function (e) { msg('Notes published, but the PDF didn\'t upload: ' + e.message); });
+        }, function (e) {
+          msg('Notes published, but no PDF: ' + (/count/.test(e && e.message) ? 'the PDF on the site is older than this page.' : 'it couldn\'t be built.'));
+        });
+      })
+      .catch(function (err) { if (err.status === 401) store(KEY_TOKEN, ''); msg('Not published: ' + err.message); });
   }
 
   // Lecture mode (?lecture=…, the editor home's Lecture and answers links): no navbar, just the pen bar at the top, and
