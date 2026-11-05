@@ -1300,7 +1300,7 @@ let pyBoot = null, torchBoot = null;
 // same PyTorch as the web edition (see eaiRunCode in book.js), loaded when the code imports torch
 function editorTorch(py) {
   if (torchBoot) return torchBoot;
-  const url = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-c803442.tar.gz';
+  const url = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-39291ff.tar.gz';
   torchBoot = py.loadPackage('numpy').then(() => fetch(url)).then(r => { if (!r.ok) throw new Error('could not fetch PyTorch for the browser'); return r.arrayBuffer(); })
     .then(b => { py.unpackArchive(b, 'gztar'); });
   torchBoot.catch(() => { torchBoot = null; });

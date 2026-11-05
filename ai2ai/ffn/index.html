@@ -11222,7 +11222,7 @@ function eaiRunCode() {
   var PY = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
   // PyTorch in the browser: our fork of torch-pyodide (github.com/wtheisen/torch-pyodide, branch ai2ai), numpy backend,
   // published to the site as one tarball. Loaded only when a block imports torch. window.EAI_TORCH_URL overrides it.
-  var TORCH = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-eaf5a6c.tar.gz';
+  var TORCH = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-39291ff.tar.gz';
   var boot = null, torchBoot = null;
   function torch(py) {
     if (torchBoot) return torchBoot;
