@@ -28,10 +28,10 @@ const isAlpha = c => /\p{L}/u.test(c);
 // e.g. typed before the editor knew the name, still renders the symbol: Eric 2026-11-01, \sig showed as text)
 Book.MATH_ALIAS = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', theta: 'θ', lambda: 'λ', mu: 'μ', sigma: 'σ', sig: 'σ', phi: 'φ', varphi: 'φ', eta: 'η', rho: 'ρ', tau: 'τ', omega: 'ω', xi: 'ξ',
   Sigma: 'Σ', sum: 'Σ', Omega: 'Ω', Delta: 'Δ', Gamma: 'Γ', Theta: 'Θ', Lambda: 'Λ', Phi: 'Φ', Pi: 'Π', Psi: 'Ψ', pi: 'π', psi: 'ψ', kappa: 'κ', nu: 'ν', zeta: 'ζ', chi: 'χ', nabla: '∇', ge: '≥', geq: '≥', le: '≤', leq: '≤', ne: '≠', neq: '≠', cdot: '·', times: '×', pm: '±', in: '∈', approx: '≈', infty: '∞', sqrt: '√', norm: '‖', half: '½', prime: '′', yhat: 'ŷ', to: '→', partial: '∂', L: 'ℒ', loss: 'ℒ' };   // \L = the loss ℒ (Eric, 2026-11-03)
-function inlineMath(s) {
+function inlineMath(s, plain) {   // plain: no colours (the subscripts of a coloured symbol take its colour, as in equations)
   s = String(s).replace(/\\([A-Za-z]+)(?![A-Za-z])/g, (m, w) => w !== 'T' && Book.MATH_ALIAS[w] ? Book.MATH_ALIAS[w] : m);
   const out = []; let i = 0;
-  const colors = Book.meta.colors || {};
+  const colors = plain ? {} : Book.meta.colors || {};
   const script = i => {
     if (s[i] === '{') { let j = s.indexOf('}', i); if (j < 0) j = s.length; return [s.slice(i + 1, j), j + 1]; }
     const m = /^(\d+|[\s\S])/.exec(s.slice(i)); return m ? [m[0], i + m[0].length] : ['', i + 1];
@@ -40,7 +40,7 @@ function inlineMath(s) {
     while (i < s.length && (s[i] === '_' || s[i] === '^' || s.startsWith('\\T', i))) {
       if (s.startsWith('\\T', i)) { tok += '<sup>T</sup>'; i += 2; continue; }
       const tag = s[i] === '_' ? 'sub' : 'sup', [sub, i2] = script(i + 1);
-      tok += `<${tag}>${inlineMath(sub)}</${tag}>`; i = i2;
+      tok += `<${tag}>${inlineMath(sub, plain)}</${tag}>`; i = i2;
     }
     return tok;
   };
@@ -56,7 +56,7 @@ function inlineMath(s) {
     if (fr) {
       const [a, j] = group(i + fr[0].length); let b = '', k = j;
       if (s[j] === '{') [b, k] = group(j);
-      out.push(`<span class="fr"><span>${inlineMath(a)}</span><span>${inlineMath(b)}</span></span>`); i = k; continue;
+      out.push(`<span class="fr"><span>${inlineMath(a, plain)}</span><span>${inlineMath(b, plain)}</span></span>`); i = k; continue;
     }
     if (s.startsWith('\\T', i)) { out.push('<sup>T</sup>'); i += 2; continue; }
     const word = WORDS.find(w => s.startsWith(w, i));
@@ -64,18 +64,18 @@ function inlineMath(s) {
     if (isAlpha(c)) {
       i++;
       let tok = c === 'Ω' ? '<span class="Om">ω</span>' : esc(c);   // Ω = the weight-matrix ω, drawn as a tall ω (like the equation font)
+      const f = colors[c];
       while (i < s.length && (s[i] === '_' || s[i] === '^')) {
         const tag = s[i] === '_' ? 'sub' : 'sup', [sub, i2] = script(i + 1);
-        tok += `<${tag}>${inlineMath(sub)}</${tag}>`; i = i2;
+        tok += `<${tag}>${inlineMath(sub, plain || (tag === 'sub' && !!f))}</${tag}>`; i = i2;   // Ω_{ax}: the ax is Ω's blue (Eric's equations), not a gold a and a red x
       }
       if (s[i] === '′') { i++; tok = scripts(tok + '<span class="pr">′</span>'); }
-      const f = colors[c];
       out.push(f ? `<span class="c ${f}">${tok}</span>` : tok);
       continue;
     }
     if (c === '^' || c === '_') {
       const tag = c === '_' ? 'sub' : 'sup', [sub, i2] = script(i + 1);
-      out.push(`<${tag}>${inlineMath(sub)}</${tag}>`); i = i2; continue;
+      out.push(`<${tag}>${inlineMath(sub, plain)}</${tag}>`); i = i2; continue;
     }
     out.push(c === '-' ? '−' : esc(c)); i++;
   }
