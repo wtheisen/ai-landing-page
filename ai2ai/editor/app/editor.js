@@ -1814,6 +1814,9 @@ function eqInspector(el) {
   row.onclick = e => { const k = e.target.dataset.k; if (!k) return; const n = document.createElement(k); n.textContent = k === 'eq-step' ? '\\text{substitute}' : '= x'; const img = el.querySelector(':scope > [data-rt]'); el.insertBefore(n, null); if (img) el.append(...el.querySelectorAll(':scope > [data-rt]')); el.render(); draw(); const tas = list.querySelectorAll('textarea'); tas[tas.length - 1].focus(); tas[tas.length - 1].select(); };
   const fl = add(`<label class="check"><input type="checkbox" ${el.hasAttribute('flush') ? 'checked' : ''}>Flush left (no number column, so it can draw larger)</label>`);
   fl.firstChild.onchange = e => { commit(true); el.toggleAttribute('flush', e.target.checked); commit(true); place(); };
+  // write-in answer box: plain thin black border, square corners, like the boxes on Eric's exams (Eric 2026-11-06)
+  const ab = add(`<label class="check"><input type="checkbox" ${el.classList.contains('answer') ? 'checked' : ''}>Answer box (plain black border, like the exam's)</label>`);
+  ab.firstChild.onchange = e => { commit(true); el.classList.toggle('answer', e.target.checked); if (!el.classList.length) el.removeAttribute('class'); commit(true); place(); };
   // space between the rows, pt at the equation's size (5.6 = the default, stored only when changed; Eric 2026-11-02)
   const g0 = parseFloat(el.getAttribute('gap')) || 5.6;
   const gp = add(`<label class="check" style="gap:6px">Row spacing <input type="range" min="0" max="40" step="1" value="${g0}" style="flex:1"><span>${Math.round(g0)} pt</span></label>`);

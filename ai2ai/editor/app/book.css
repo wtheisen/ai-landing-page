@@ -76,6 +76,7 @@ b-m .c .Om { transform: scaleY(1.332); }
 .c.blue { color: var(--blue-text); } .c.gold { color: var(--yellow-text); } .c.purple { color: var(--purple-text); }
 .c.green { color: var(--green-text); } .c.red { color: var(--red-text); } .c.gray { color: #666666; } .c.wblue { color: #1155CC; }
 b-eq { display: block; border: 1px solid var(--border); border-radius: 4px; background: #fff; padding: 5pt 4pt; text-align: left; }
+b-eq.answer { border: 1px solid #000; border-radius: 0; }
 b-eq img { display: inline-block; vertical-align: middle; max-width: 100%; height: auto; }
 .eqref { font-family: var(--font-math); color: var(--ink-muted); text-decoration: none; }
 .pageref { color: inherit; text-decoration: none; }
