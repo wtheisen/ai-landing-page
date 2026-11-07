@@ -90,13 +90,22 @@ const CTL = set('if elif else for while break continue return yield try except f
 const TY = set('int float str list dict set tuple bool object type deque defaultdict Counter SVC');
 const BI = set('print len range enumerate zip sorted reversed min max sum abs isinstance map filter open super iter next any all round');
 const NUMC = set('None True False');
-function highlight(line) {
-  const TOK = /(#.*$)|("[^"]*"|'[^']*')|(\b\d+(?:\.\d+)?(?:[eE][-+]?\d+)?\b)|([A-Za-z_]\w*)|([\s\S])/g;
+// st carries a triple-quoted string across lines (Eric, 2026-11-07: a """ docstring/text block only coloured its quotes):
+// pass the same object for every line of a block, in order. st.tq is the open quote ('"""' or "'''") or null.
+function highlight(line, st) {
+  st = st || {};
+  let out = '';
+  if (st.tq) {   // still inside a triple-quoted string from an earlier line
+    const end = line.indexOf(st.tq);
+    if (end < 0) return line ? `<span class="st">${esc(line)}</span>` : '';
+    out = `<span class="st">${esc(line.slice(0, end + 3))}</span>`; line = line.slice(end + 3); st.tq = null;
+  }
+  const TOK = /(#.*$)|((?:\b[rRbBfFuU]{1,2})?(?:"""[\s\S]*?"""|'''[\s\S]*?'''|"""[\s\S]*$|'''[\s\S]*$|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))|(\b\d+(?:\.\d+)?(?:[eE][-+]?\d+)?\b)|([A-Za-z_]\w*)|([\s\S])/g;
   const types = new Set([...TY, ...(Book.meta.types || [])]);
   // meta.codeColors {name: family}: variables coloured by what they are (inputs red, weights blue, ...), like the
   // figures and equations. Chapters that use it show plain numbers in grey, so red only means an input.
   const concept = Book.meta.codeColors || {}, nuCls = Book.meta.codeColors ? 'nu nn' : 'nu';
-  let out = '', prev = null, m;
+  let prev = null, m;
   while ((m = TOK.exec(line))) {
     const t = m[0], e = esc(t);
     if (m[4] !== undefined) {
@@ -105,7 +114,11 @@ function highlight(line) {
         : concept[t] ? 'cc ' + concept[t] : null;
       out += cls ? `<span class="${cls}">${e}</span>` : e; prev = t;
     } else if (m[1] !== undefined) out += `<span class="cm">${e}</span>`;
-    else if (m[2] !== undefined) out += `<span class="st">${e}</span>`;
+    else if (m[2] !== undefined) {
+      out += `<span class="st">${e}</span>`;
+      const b = t.replace(/^[rRbBfFuU]+/, ''), q = b.slice(0, 3);   // a triple quote left open runs on into the next line
+      if ((q === '"""' || q === "'''") && !(b.length >= 6 && b.endsWith(q))) st.tq = q;
+    }
     else if (m[3] !== undefined) out += `<span class="${nuCls}">${e}</span>`;
     else { out += e; if (!/\s/.test(t)) prev = null; }
   }
@@ -395,7 +408,9 @@ class BEq extends HTMLElement {
 // and Workbook (u.fill, like blanks in text: faint for the signed-in instructor, a real gap in the exported Workbook).
 function codeMarks(attr, lang) {
   // lang="text" (prompts, data, plain output in a code box: BaLLM's evals chapter) gets no Python colouring
-  const hl = lang && !/^(python|py)$/i.test(lang) ? l => l.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) : highlight;
+  // one st per block: the returned function is called line by line in order, so a triple-quoted string carries over
+  const st = {};
+  const hl = lang && !/^(python|py)$/i.test(lang) ? l => l.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])) : l => highlight(l, st);
   const marks = {};
   (attr || '').split(/[\s;]+/).forEach(m => { const q = /^(\d+):(\d+)-(\d+)(?::(\w+))?$/.exec(m); if (q) (marks[q[1] - 1] = marks[q[1] - 1] || []).push([+q[2], +q[3], q[4] || 'gold']); });
   return (l, k) => {
