@@ -3780,7 +3780,7 @@ if (phone) {
     const toks = Book.tokenize(vn, text);
     if (!toks.length) return toast('Nothing in the selection is a token of ' + v.title);
     let added = 0;
-    if (v.kind !== 'bpe') for (const k of toks) if (!v._byT.has(k.t)) { const tok = { t: k.t, id: nextId(v) }; v.tokens.push(tok); v._byT.set(k.t, tok); added++; }
+    if (v.kind !== 'bpe' && !v.partial) for (const k of toks) if (!v._byT.has(k.t)) { const tok = { t: k.t, id: nextId(v) }; v.tokens.push(tok); v._byT.set(k.t, tok); added++; }
     const words = v.kind === 'bpe' ? null : text.trim().split(/\s+/);
     const frag = document.createDocumentFragment();
     if (lead) frag.append(lead);
@@ -3914,7 +3914,7 @@ if (phone) {
   setInterval(() => { if (!on) return; const n = book.querySelectorAll('b-tok').length; if (curPage !== lastPage || n !== lastN) { lastPage = curPage; lastN = n; if (!panel.contains(document.activeElement)) render(); } }, 400);
   // for the drawing tools (draw.js): the vocabulary in use here, and adding a word list's new words (saved)
   async function ensure(vn, list) {
-    const v = Book.vocabs && Book.vocabs[vn]; if (!v || v.kind === 'bpe') return 0;
+    const v = Book.vocabs && Book.vocabs[vn]; if (!v || v.kind === 'bpe' || v.partial) return 0;   // a partial vocabulary (real ids, only some listed) can't make up ids
     let added = 0; for (const t of list) if (!v._byT.has(t)) { const tok = { t, id: nextId(v) }; v.tokens.push(tok); v._byT.set(t, tok); added++; }
     if (added) await saveVocabs('Added ' + added + ' new token' + (added > 1 ? 's' : '') + ' to ' + v.title);
     return added;
