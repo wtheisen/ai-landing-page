@@ -217,7 +217,7 @@ class BM extends HTMLElement {
   attributeChangedCallback() { if (this.firstChild && inThumb(this)) return; this.innerHTML = inlineMath(this.getAttribute('tex') || ''); }
 }
 // ---------------------------------------------------------------- token tiles (Eric, 2026-11-07: "token mode")
-// <b-tok v="irishqwen" t=" her">·her</b-tok> is one token of a named vocabulary, drawn as a rounded tile. The
+// <b-tok v="irishqwen" t=" her"> her</b-tok> is one token of a named vocabulary, drawn as a rounded tile. The
 // vocabularies live in one file shared by every chapter of both books, chapters/vocab/vocabs.json:
 //   kind "list": tokens [{t, id, c?}] with the ids you give them (normalize "word": lowercase, letters only)
 //   kind "bpe":  a byte-level BPE tokenizer (pattern, special, merges: irishQwen's format), ids from its merges
@@ -275,7 +275,7 @@ Book.loadVocabs = force => {
   });
   return vocabLoad;
 };
-Book.tokLabel = t => String(t).replace(/ /g, '·').replace(/\r?\n/g, '↵').replace(/\t/g, '→');
+Book.tokLabel = t => String(t).replace(/\r?\n/g, '↵').replace(/\t/g, '→');   // spaces stay spaces (Eric, 2026-11-07: no dots); the tile keeps them visible (white-space: pre)
 Book.tokNorm = (v, w) => v && v.normalize === 'word' ? w.toLowerCase().replace(/[^\p{L}\p{N}']/gu, '') : w;
 // {id, fam, known}: where token t of vocabulary v sits (id null and fam "gray" when the vocabulary doesn't have it)
 Book.tokInfo = (vn, t) => {
