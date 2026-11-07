@@ -136,7 +136,9 @@ Book.highlight = highlight;   // the editor's in-place code editing redraws the 
 // Pre-registered: hl="gold y_hat (predictions):\nred loss" on the b-out, one rule per line (colour, a space, the exact
 // text): every occurrence of that text gets a highlight box like the code's, so it survives reruns. Tracebacks stay plain.
 // Self-contained on purpose: Book.snapshot() copies it into the published page, where Run uses it on live output.
-function eaiOutHL(text, cc, hl) {
+function eaiOutHL(text, cc, hl, tok) {
+  // tok (token tiles in outputs, Eric 2026-11-07): {map: {token: [id, family]}, n, ids}: a quoted string that is a token
+  // of the vocabulary becomes a tile, and a bracketed list of whole numbers that are all its IDs takes the tokens' colours
   function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
   text = String(text || '');
   if (/Traceback \(most recent call last\)|^\w*Error\b/m.test(text)) return esc(text);
@@ -169,7 +171,26 @@ function eaiOutHL(text, cc, hl) {
     }
     return null;
   }
-  function auto(seg, fam) {
+  function unq(q) {   // a Python string repr's text
+    var body = q.slice(1, -1);
+    return body.replace(/\\(n|t|r|'|"|\\)/g, function (_, c) { return c === 'n' ? '\n' : c === 't' ? '\t' : c === 'r' ? '\r' : c; });
+  }
+  function tile(t, f) { return '<span class="otk" data-f="' + f + '">' + esc(t.replace(/\n/g, '\u21b5').replace(/\t/g, '\u2192')) + '</span>'; }
+  function auto(seg, fam, noTok) {
+    if (tok && tok.map && !noTok) {   // tokens first: quoted strings and ID lists
+      var TT = /((?:\bb)?(?:'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"))|(\[\s*\d+(?:\s*,\s*\d+)*\s*,?\s*\])/g, o = '', last = 0, q;   // b'…': a bytes repr
+      while ((q = TT.exec(seg))) {
+        var piece = null;
+        if (q[1] !== undefined) { var t = unq(q[1].replace(/^b/, '')), hit = Object.prototype.hasOwnProperty.call(tok.map, t) ? tok.map[t] : null; if (hit) piece = tile(t, hit[1]); }
+        else if (tok.ids !== false && !/(Size|shape)\($/.test(seg.slice(0, q.index))) {   // not torch.Size([64, 10])
+          var nums = q[2].match(/\d+/g), ok = nums.length > 1 && nums.every(function (d) { return +d < tok.n && tok.byId[+d]; });
+          if (ok) piece = q[2].replace(/\d+/g, function (d) { return '<span class="otid" data-f="' + tok.byId[+d] + '">' + d + '</span>'; }).replace(/[\[\],]/g, function (c) { return esc(c); });
+        }
+        if (piece === null) continue;
+        o += auto(seg.slice(last, q.index), fam, true) + piece; last = q.index + q[0].length;
+      }
+      return o + auto(seg.slice(last), fam, true);
+    }
     var TOK = /(-?\b\d+(?:\.\d*)?(?:[eE][-+]?\d+)?|-?\.\d+)|([A-Za-z_][\w.]*\w|[A-Za-z_])|([\s\S])/g, out = '', m;
     while ((m = TOK.exec(seg))) {
       var e = esc(m[0]);
@@ -205,6 +226,17 @@ function eaiOutHL(text, cc, hl) {
   }).join('\n');
 }
 window.eaiOutHL = eaiOutHL;
+// the token table an Output uses (tok="march" on the b-out, else book-meta outTok; "off" for none), for eaiOutHL.
+// Self-contained like eaiOutHL: a published page has no Book and reads EAI_TOK / EAI_TOKDEF instead.
+function eaiOutTok(out) {
+  var v = out.getAttribute('tok');
+  if (v === null) v = typeof EAI_TOKDEF !== 'undefined' ? EAI_TOKDEF : (window.Book && window.Book.meta ? window.Book.meta.outTok : null);
+  if (!v || v === 'off') return null;
+  var T = window.Book && window.Book.tokTable ? window.Book.tokTable(v) : (typeof EAI_TOK !== 'undefined' && EAI_TOK ? EAI_TOK[v] : null);
+  if (!T) return null;
+  return { map: T.map, byId: T.byId, n: T.n, ids: out.getAttribute('tokids') !== 'off' };
+}
+window.eaiOutTok = eaiOutTok;
 
 // ---------------------------------------------------------------- custom elements
 const inThumb = el => !!el.closest('[data-thumb]');   // copies shown in the page list: already rendered, must not load or renumber anything
@@ -257,7 +289,19 @@ Book.makeBPE = makeBPE;
 Book.vocabs = null;   // {name: vocabulary as stored, plus ._bpe / ._byT}
 Book.vocabFile = null;   // the whole file as loaded (the Tokens panel edits and saves it)
 let vocabLoad = null;
+const tokTables = {};
+// every token of vocabulary vn as {map: {text: [id, family]}, byId: [family], n}: what eaiOutHL needs to draw tiles in outputs
+Book.tokTable = vn => {
+  const v = Book.vocabs && Book.vocabs[vn]; if (!v) return null;
+  if (tokTables[vn]) return tokTables[vn];
+  const map = {}, byId = [], list = v.kind === 'bpe' ? v._bpe.ids().map(id => ({ t: v._bpe.text(id), id })) : (v.tokens || []);
+  for (const k of list) { const f = Book.tokInfo(vn, k.t).fam; if (!(k.t in map)) map[k.t] = [k.id, f]; byId[k.id] = f; }
+  return (tokTables[vn] = { map, byId, n: byId.length });
+};
+// redraw the Outputs that show tokens (after the vocabularies load or change)
+Book.renderOuts = () => { if (Book.root) Book.root.querySelectorAll('b-out').forEach(o => { const pre = o.querySelector('pre'); if (pre && o.src != null && !o._ran && eaiOutTok(o)) pre.innerHTML = eaiOutHL(o.src, Book.meta.codeColors, o.getAttribute('hl'), eaiOutTok(o)); }); };
 Book.prepVocab = v => {
+  for (const k in tokTables) delete tokTables[k];   // colours or IDs may have changed
   Object.defineProperty(v, '_byT', { value: new Map(), writable: true, configurable: true });
   if (v.kind === 'bpe') Object.defineProperty(v, '_bpe', { value: makeBPE(v), writable: true, configurable: true });
   else for (const k of v.tokens || []) v._byT.set(k.t, k);
@@ -270,6 +314,7 @@ Book.loadVocabs = force => {
     Book.vocabFile = f; Book.vocabs = f.vocabs || (f.vocabs = {});
     for (const v of Object.values(Book.vocabs)) Book.prepVocab(v);
     if (Book.root) Book.root.querySelectorAll('b-tok').forEach(t => t.render && t.render());
+    Book.renderOuts();
     Book.refreshSoon();
     return Book.vocabs;
   });
@@ -585,7 +630,7 @@ class BMatmul extends HTMLElement {
   attributeChangedCallback() { if (this.isConnected && window.eaiMatmulOne && !inThumb(this)) { this._mm = 1; window.eaiMatmulOne(this); Book.refreshSoon(); } }
 }
 class BOut extends BCode {
-  render() { this.innerHTML = `<div class="label">Output</div><pre>${eaiOutHL(this.src, Book.meta.codeColors, this.getAttribute('hl'))}</pre>`; }
+  render() { this.innerHTML = `<div class="label">Output</div><pre>${eaiOutHL(this.src, Book.meta.codeColors, this.getAttribute('hl'), eaiOutTok(this))}</pre>`; }
 }
 // <b-embed src="https://…/pca.html" title="PCA visualizer" height="640" poster="fig/x.svg"></b-embed>
 // An interactive page from elsewhere. The web page shows it in a frame, wider than the text column when there is room;
@@ -788,7 +833,7 @@ Book.packWorkbook = () => {
 Book.refreshSoon = () => { if (!soon) soon = setTimeout(() => { soon = 0; if (Book.root) Book.refresh(); }, 60); };
 Book.refresh = () => {
   if (Book.root) Book.root.classList.toggle('tokids', !!Book.meta.tokIds);   // token tiles show their IDs everywhere (book-meta tokIds)
-  if (Book.root) { if (Book.vocabs) Book.drawToks(Book.root); else if (Book.root.querySelector('svg.draw g[data-tok]')) Book.loadVocabs(); }   // token tiles in drawings
+  if (Book.root) { if (Book.vocabs) Book.drawToks(Book.root); else if (Book.root.querySelector('svg.draw g[data-tok], b-out[tok]') || Book.meta.outTok) Book.loadVocabs(); }   // token tiles in drawings
   const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();
   if (panes.length) root.removeAttribute('data-view'); else if (root.dataset.view !== Book.view) root.dataset.view = Book.view;
   Book.hasKeys = !Book.meta.split && !!root.querySelector('.page > p .key'); root.classList.toggle('keys', Book.hasKeys);   // key sentences: the old shared-page model only
@@ -1252,8 +1297,9 @@ function eaiRunCode() {
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
     function show(text, err, figs) {
+      out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
       out.classList.toggle('run-new', !printed && !text && !(figs && figs.length));
-      var pre = out.querySelector('pre'); if (!err && typeof eaiOutHL === 'function') pre.innerHTML = eaiOutHL(text, window.EAI_CC || (window.Book && window.Book.meta && window.Book.meta.codeColors), out.getAttribute('hl')); else pre.textContent = text; pre.classList.toggle('run-err', !!err);
+      var pre = out.querySelector('pre'); if (!err && typeof eaiOutHL === 'function') pre.innerHTML = eaiOutHL(text, window.EAI_CC || (window.Book && window.Book.meta && window.Book.meta.codeColors), out.getAttribute('hl'), typeof eaiOutTok === 'function' ? eaiOutTok(out) : null); else pre.textContent = text; pre.classList.toggle('run-err', !!err);
       var old = out.querySelector('.run-figs'); if (old) old.remove();
       if (figs && figs.length) { var d = document.createElement('div'); d.className = 'run-figs'; figs.forEach(function (b) { var im = document.createElement('img'); im.src = 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; d.appendChild(im); }); out.appendChild(d); }
     }
@@ -1307,6 +1353,12 @@ Book.webExtras = () => {
   });
 };
 const b64 = async url => { const buf = new Uint8Array(await (await fetch(url)).arrayBuffer()); let s = ''; for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000)); return btoa(s); };
+// the token tables a published page needs for live runs (only the vocabularies its Outputs use)
+function outTables(clone, m) {
+  const names = new Set([m.outTok, ...[...clone.querySelectorAll('b-out[tok]')].map(o => o.getAttribute('tok'))].filter(v => v && v !== 'off'));
+  const out = {}; for (const v of names) { const T = Book.tokTable(v); if (T) out[v] = T; }
+  return out;
+}
 Book.snapshot = async () => {
   const view = Book.view, live = [...Book.root.querySelectorAll('u.fill, [data-fill]')];
   if (view === 'workbook') live.forEach(el => { const pg = el.closest('.page'), k = pg ? pg.getBoundingClientRect().width / Book.pageW(pg) : 1, r = el.getBoundingClientRect(); el.setAttribute('data-box', (r.width / k).toFixed(1) + ' ' + (r.height / k).toFixed(1)); });
@@ -1378,7 +1430,10 @@ ${clone.innerHTML}
 <script>${zoom}${navjs}${reveal}${frames}
 ${liveJs}
 var EAI_CC = ${JSON.stringify(m.codeColors || null).replace(/</g, '\\u003c')};
+var EAI_TOKDEF = ${JSON.stringify(m.outTok || null)};
+var EAI_TOK = ${JSON.stringify(outTables(clone, m)).replace(/</g, '\\u003c')};
 ${eaiOutHL.toString()}
+${eaiOutTok.toString()}
 ${eaiRunCode.toString()}
 eaiRunCode();
 ${eaiMatmul.toString()}

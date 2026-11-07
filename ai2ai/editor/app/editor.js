@@ -1277,6 +1277,15 @@ function codeInspector(el, add) {
   if (el.tagName === 'B-CODE' && el.nextElementSibling && el.nextElementSibling.tagName === 'B-OUT') {
     const cur = el.getAttribute('cw');
     // beside (the default) or below (out="below"; Eric, 2026-11-01): where the output goes on a slide
+    // token tiles in the output (2026-11-07): the chapter's setting (Tokens panel), this vocabulary, or none
+    { const o = el.nextElementSibling, cur = o.getAttribute('tok'), vs = Object.entries(Book.vocabs || {});
+      add(`<label>Tokens in the output</label>`);
+      const ts = add(`<select><option value="">${Book.meta.outTok ? 'As the chapter (' + ((Book.vocabs || {})[Book.meta.outTok] || {}).title + ')' : 'As the chapter (none)'}</option>${vs.map(([k, x]) => `<option value="${k}">${x.title || k}</option>`).join('')}<option value="off">None</option></select>`);
+      ts.value = cur || '';
+      ts.onchange = () => { commit(true); if (ts.value) o.setAttribute('tok', ts.value); else o.removeAttribute('tok'); o.render(); commit(true); renderInspector(); };
+      if (eaiOutTok(o)) { const ci = add(`<label class="check"><input type="checkbox" ${o.getAttribute('tokids') === 'off' ? '' : 'checked'}>Colour lists of token IDs too</label>`);
+        ci.firstChild.onchange = e => { commit(true); if (e.target.checked) o.removeAttribute('tokids'); else o.setAttribute('tokids', 'off'); o.render(); commit(true); }; }
+      add(`<div class="help">Quoted tokens in the output become tiles, and a list of whole numbers that are all token IDs takes their colours.</div>`); }
     add(`<label>Output on a slide</label>`);
     const ob = add(`<div class="seg"><button data-o="">Beside the code</button><button data-o="below">Below the code</button></div>`);
     ob.querySelectorAll('button').forEach(b => { b.classList.toggle('on', (el.getAttribute('out') || '') === b.dataset.o);
@@ -1326,7 +1335,7 @@ function editorPython() {
 let codeEd = null;
 function codeEditView(el, text) {
   const lines = text.split('\n');
-  if (el.tagName === 'B-OUT') { el.querySelector('pre').innerHTML = eaiOutHL(text, Book.meta.codeColors, el.getAttribute('hl')); return; }
+  if (el.tagName === 'B-OUT') { el.querySelector('pre').innerHTML = eaiOutHL(text, Book.meta.codeColors, el.getAttribute('hl'), eaiOutTok(el)); return; }
   el.querySelector('.gutter').innerHTML = lines.map((_, k) => `<div>${k + 1}</div>`).join('');
   const line = Book.codeMarks(el.getAttribute('marks'), el.getAttribute('lang'));
   el.querySelector('.src').innerHTML = lines.map((l, k) => `<div class="ln">${line(l, k)}</div>`).join('');
@@ -3743,7 +3752,7 @@ if (phone) {
       .catch(() => toast('Could not save the token table (restart the editor to get token mode on this machine)'));
     for (const v of Object.values(Book.vocabs)) Book.prepVocab(v);
     book.querySelectorAll('b-tok').forEach(t => t.render());
-    Book.refresh(); render();
+    Book.renderOuts(); Book.refresh(); render();
     return saving;
   }
   const nextId = v => (v.tokens || []).reduce((m, k) => Math.max(m, k.id + 1), 0);
@@ -3835,6 +3844,7 @@ if (phone) {
       <div class="help qp-how">Select text and press <b>Token</b> (Option+K)${v && v.kind === 'bpe' ? ': it is split the way the tokenizer splits it, with its real IDs' : ': each word becomes a tile, new words get the next ID'}. Press it again on tiles to undo.</div>
       <label class="qp-un"><input type="checkbox" data-o="page" ${pageIds === 'on' || (pageIds === null && false) ? 'checked' : ''} ${pg ? '' : 'disabled'}> IDs under the tiles on this page</label>
       <label class="qp-un"><input type="checkbox" data-o="all" ${Book.meta.tokIds ? 'checked' : ''}> IDs under the tiles in the whole chapter</label>
+      <label class="qp-un"><input type="checkbox" data-o="outs" ${Book.meta.outTok === vn ? 'checked' : ''}> Tiles in code outputs in this chapter${Book.meta.outTok && Book.meta.outTok !== vn ? ' (now: ' + hesc((Book.vocabs[Book.meta.outTok] || {}).title || Book.meta.outTok) + ')' : ''}</label>
       <input type="search" class="qp-q tk-q" placeholder="Find a token or an ID" value="${hesc(filt.q)}" spellcheck="false">
       <label class="qp-un"><input type="checkbox" data-o="used" ${filt.used ? 'checked' : ''}> Only tokens this chapter uses</label>
       <div class="tk-list">${v ? list.map(k => row(vn, v, k, u.get(vn + '\u0000' + k.t) || 0)).join('') || '<div class="help">' + (filt.used ? 'No tiles of this vocabulary in the chapter yet.' : 'No tokens match.') + '</div>' : ''}</div>`;
@@ -3874,6 +3884,7 @@ if (phone) {
         const el = e.target, vn = curVocab(), v = Book.vocabs[vn];
         if (el.matches('.tk-v')) return setVocab(el.value);
         if (el.dataset.o === 'used') { filt.used = el.checked; return render(); }
+        if (el.dataset.o === 'outs') { if (el.checked) Book.meta.outTok = curVocab(); else delete Book.meta.outTok; book.querySelectorAll('b-out').forEach(o => o.render && o.render()); Book.refresh(); commit(true); return render(); }
         if (el.dataset.o === 'all') { if (el.checked) Book.meta.tokIds = true; else delete Book.meta.tokIds; Book.refresh(); commit(true); return render(); }
         if (el.dataset.o === 'page' && curPage) { if (el.checked) curPage.setAttribute('data-tokids', 'on'); else if (Book.meta.tokIds) curPage.setAttribute('data-tokids', 'off'); else curPage.removeAttribute('data-tokids'); Book.refresh(); commit(true); return render(); }
         if (el.matches('.tk-c')) {
