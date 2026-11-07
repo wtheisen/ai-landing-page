@@ -608,3 +608,10 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 b-matmul .mm-fig { width: 100%; }
 b-matmul .mm-fig img { display: block; width: 100%; height: auto; }
 .book[data-view="slides"] b-matmul .mm-fig img { width: auto; max-width: 100%; max-height: var(--fig-h, 300pt); margin: 0 auto; }
+/* a paragraph that is rows of token tiles (class tiles): room between the rows, more when the IDs show */
+p.tiles { line-height: 2; }
+p.tiles.tokids { line-height: 2.7; }
+/* on a 6 x 9 page a row of tiles is drawn smaller so a line of the song keeps to one row */
+.book:is([data-view="reading"], [data-view="workbook"]) p.tiles { font-size: .78em; }
+/* a word split into tiles in running text stays on one line */
+.tkw { white-space: nowrap; }
