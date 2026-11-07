@@ -300,6 +300,53 @@ Book.tokenize = (vn, text) => {
   }
   return out;
 };
+// Token tiles in drawings (Eric, 2026-11-07: "shouldn't we update the drawing tool then?"): a tile in an <svg class="draw">
+// is a group <g data-tok="vocabulary" data-t="token" id> holding a <rect> and a <text> (and, when the IDs show, a
+// <text class="tk-idl">). Like <b-tok>, its colours, label, width and ID come from the vocabulary each time the page
+// is laid out, so changing a token's colour or ID changes it in every drawing too. The group keeps its centre; its
+// size follows the label's font size. IDs show where the drawing has class tokids, the page data-tokids="on" or the
+// chapter tokIds (data-tokids="off" on the page hides them).
+const TOK_COLS = { purple: ['#D9D2E9', '#8E7CC3', '#674EA7'], green: ['#D9EAD3', '#93C47D', '#38761D'], yellow: ['#FFF2CC', '#DCB439', '#B8920F'],
+  red: ['#F4CCCC', '#E06666', '#CC0000'], blue: ['#C9DAF8', '#6D9EEB', '#1155CC'], gray: ['#EEEEEE', '#999999', '#666666'] };
+Book.TOK_COLS = TOK_COLS;
+const setA = (el, k, v) => { v = String(v); if (el.getAttribute(k) !== v) el.setAttribute(k, v); };
+const rn = v => +(+v).toFixed(1);
+Book.drawTok = g => {
+  if (!Book.vocabs) return false;
+  const NS = 'http://www.w3.org/2000/svg';
+  let rect = g.querySelector(':scope > rect'), lab = g.querySelector(':scope > text:not(.tk-idl)'), idl = g.querySelector(':scope > text.tk-idl');
+  if (!rect) { rect = document.createElementNS(NS, 'rect'); rect.setAttribute('x', 0); rect.setAttribute('y', 0); rect.setAttribute('width', 20); rect.setAttribute('height', 15); g.prepend(rect); }
+  if (!lab) { lab = document.createElementNS(NS, 'text'); lab.setAttribute('font-size', 9); rect.after(lab); }
+  const t = g.getAttribute('data-t') || '', info = Book.tokInfo(g.getAttribute('data-tok'), t), col = TOK_COLS[info.fam] || TOK_COLS.gray;
+  const pg = g.closest('section.page'), svg = g.closest('svg'), off = pg && pg.getAttribute('data-tokids') === 'off';
+  const ids = !off && !!((svg && svg.classList.contains('tokids')) || (pg && pg.hasAttribute('data-tokids')) || Book.meta.tokIds);
+  const fs = parseFloat(lab.getAttribute('font-size')) || 9;
+  const x = parseFloat(rect.getAttribute('x')) || 0, y = parseFloat(rect.getAttribute('y')) || 0, w0 = parseFloat(rect.getAttribute('width')) || 0, h0 = parseFloat(rect.getAttribute('height')) || 0;
+  const cx = x + w0 / 2, cy = y + h0 / 2;
+  setA(rect, 'fill', col[0]); setA(rect, 'stroke', col[1]); if (!rect.getAttribute('stroke-width')) rect.setAttribute('stroke-width', '1.2');
+  setA(rect, 'rx', rn(fs * 0.4));
+  if (info.known) rect.removeAttribute('stroke-dasharray'); else setA(rect, 'stroke-dasharray', '3 2');
+  const label = Book.tokLabel(t);
+  if (lab.textContent !== label) lab.textContent = label;
+  for (const [k, v] of [['fill', '#000000'], ['font-family', 'Arial, Helvetica, sans-serif'], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(lab, k, v);
+  if (lab.style.whiteSpace !== 'pre') lab.style.whiteSpace = 'pre';
+  let len = 0; try { len = lab.getComputedTextLength(); } catch (e) {}
+  const w = len ? Math.max(len + fs * 0.9, fs * 1.3) : w0, h = ids ? fs * 2.3 : fs * 1.65;
+  setA(rect, 'x', rn(cx - w / 2)); setA(rect, 'width', rn(w)); setA(rect, 'y', rn(cy - h / 2)); setA(rect, 'height', rn(h));
+  setA(lab, 'x', rn(cx)); setA(lab, 'y', rn(ids ? cy - fs * 0.08 : cy + fs * 0.35));
+  if (ids) {
+    if (!idl) { idl = document.createElementNS(NS, 'text'); idl.setAttribute('class', 'tk-idl'); g.append(idl); }
+    for (const [k, v] of [['x', rn(cx)], ['y', rn(cy + fs * 0.82)], ['font-size', rn(fs * 0.66)], ['fill', col[2]], ['font-family', "Consolas, 'Inconsolata LGC', monospace"], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(idl, k, v);
+    const s = info.known ? String(info.id) : '?'; if (idl.textContent !== s) idl.textContent = s;
+  } else if (idl) idl.remove();
+  return Math.abs(w - w0) > 0.05 || Math.abs(h - h0) > 0.05;
+};
+Book.drawToks = (root, then) => {
+  const changed = new Set();
+  (root || Book.root || document).querySelectorAll('svg.draw g[data-tok]').forEach(g => { if (Book.drawTok(g)) changed.add(g.closest('svg')); });
+  if (changed.size && window.Draw && Draw.reconnect) changed.forEach(svg => Draw.reconnect(svg));   // arrows attached to a tile that changed width follow it
+  return changed.size;
+};
 class BTok extends HTMLElement {
   static get observedAttributes() { return ['v', 't']; }
   connectedCallback() { if (inThumb(this)) return; lock(this); if (!this.hasAttribute('t')) this.setAttribute('t', this.textContent); else this.render(); if (!Book.vocabs) Book.loadVocabs(); }
@@ -737,6 +784,7 @@ Book.packWorkbook = () => {
 Book.refreshSoon = () => { if (!soon) soon = setTimeout(() => { soon = 0; if (Book.root) Book.refresh(); }, 60); };
 Book.refresh = () => {
   if (Book.root) Book.root.classList.toggle('tokids', !!Book.meta.tokIds);   // token tiles show their IDs everywhere (book-meta tokIds)
+  if (Book.root) { if (Book.vocabs) Book.drawToks(Book.root); else if (Book.root.querySelector('svg.draw g[data-tok]')) Book.loadVocabs(); }   // token tiles in drawings
   const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();
   if (panes.length) root.removeAttribute('data-view'); else if (root.dataset.view !== Book.view) root.dataset.view = Book.view;
   Book.hasKeys = !Book.meta.split && !!root.querySelector('.page > p .key'); root.classList.toggle('keys', Book.hasKeys);   // key sentences: the old shared-page model only

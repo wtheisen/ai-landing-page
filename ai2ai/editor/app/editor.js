@@ -3813,7 +3813,7 @@ if (phone) {
   book.addEventListener('click', e => { const t = e.target.closest && e.target.closest('b-tok'); if (t && book.contains(t)) { e.preventDefault(); e.stopPropagation(); tilePop(t); } }, true);
 
   // ---------------------------------------------------------------- the table
-  function usesHere() { const m = new Map(); book.querySelectorAll('b-tok').forEach(t => { const k = t.getAttribute('v') + '\u0000' + t.getAttribute('t'); m.set(k, (m.get(k) || 0) + 1); }); return m; }
+  function usesHere() { const m = new Map(); book.querySelectorAll('b-tok, svg.draw g[data-tok]').forEach(t => { const k = (t.getAttribute('v') || t.getAttribute('data-tok')) + '\u0000' + (t.getAttribute('t') || t.getAttribute('data-t') || ''); m.set(k, (m.get(k) || 0) + 1); }); return m; }
   function rows(vn, v, u) {
     let list;
     if (v.kind === 'bpe') list = v._bpe.ids().map(id => ({ t: v._bpe.text(id), id }));
@@ -3867,7 +3867,7 @@ if (phone) {
           return saveVocabs('New vocabulary: ' + title);
         }
         const r = b.closest('.tk-r'), t = r && r.dataset.t; if (t == null) return;
-        if (b.dataset.a === 'go') { const all = [...book.querySelectorAll('b-tok')].filter(x => x.getAttribute('v') === vn && x.getAttribute('t') === t), i = (+b.dataset.i || 0) % all.length, el = all[i]; b.dataset.i = i + 1; if (el) { const pn = el.closest('.dpane'); if (pn && typeof activatePane === 'function') activatePane(pn); setPage(el.closest('section.page')); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('ed-flash'); setTimeout(() => el.classList.remove('ed-flash'), 1200); } }
+        if (b.dataset.a === 'go') { const all = [...book.querySelectorAll('b-tok, svg.draw g[data-tok]')].filter(x => (x.getAttribute('v') || x.getAttribute('data-tok')) === vn && (x.getAttribute('t') ?? x.getAttribute('data-t')) === t), i = (+b.dataset.i || 0) % all.length, el = all[i]; b.dataset.i = i + 1; if (el) { const pn = el.closest('.dpane'); if (pn && typeof activatePane === 'function') activatePane(pn); setPage(el.closest('section.page')); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('ed-flash'); setTimeout(() => el.classList.remove('ed-flash'), 1200); } }
         if (b.dataset.a === 'del' && v.kind !== 'bpe') { v.tokens = v.tokens.filter(k => k.t !== t); saveVocabs('Removed ' + JSON.stringify(t)); }
       });
       panel.addEventListener('change', async e => {
@@ -3901,7 +3901,14 @@ if (phone) {
   ($('#x-qpool') || $('#x-review') || $('#x-cmts')).after(btn);
   let lastPage = null, lastN = -1;
   setInterval(() => { if (!on) return; const n = book.querySelectorAll('b-tok').length; if (curPage !== lastPage || n !== lastN) { lastPage = curPage; lastN = n; if (!panel.contains(document.activeElement)) render(); } }, 400);
-  window.Tokens = { make: tokens, open: () => setOn(true), close: () => setOn(false), render };
+  // for the drawing tools (draw.js): the vocabulary in use here, and adding a word list's new words (saved)
+  async function ensure(vn, list) {
+    const v = Book.vocabs && Book.vocabs[vn]; if (!v || v.kind === 'bpe') return 0;
+    let added = 0; for (const t of list) if (!v._byT.has(t)) { const tok = { t, id: nextId(v) }; v.tokens.push(tok); v._byT.set(t, tok); added++; }
+    if (added) await saveVocabs('Added ' + added + ' new token' + (added > 1 ? 's' : '') + ' to ' + v.title);
+    return added;
+  }
+  window.Tokens = { make: tokens, open: () => setOn(true), close: () => setOn(false), render, cur: curVocab, ensure };
   Book.loadVocabs();
 })();
 // another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)

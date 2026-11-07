@@ -316,6 +316,74 @@ function penDraw(e, pg) {   // freehand: the stroke is kept as an open polygon, 
   dragLoop(ev => { const q = toSvg(svg, ev.clientX, ev.clientY), l = p[p.length - 1]; if (Math.hypot(q[0] - l[0], q[1] - l[1]) * unit(svg) < 1.5) return; p.push(q); el.setAttribute('points', ptStr(p)); },
     () => { const out = thin(p, 0.6); if (out.length < 2 || (out.length === 2 && Math.hypot(out[1][0] - out[0][0], out[1][1] - out[0][1]) < 2)) { el.remove(); return setShapes([]); } el.setAttribute('points', ptStr(out)); doneTool(el, svg); });
 }
+// ---------------------------------------------------------------- token tiles (Eric, 2026-11-07)
+// A token in a drawing is <g data-tok="vocabulary" data-t="token" id> with a rect and a label; book.js Book.drawTok gives
+// it the vocabulary's colour, its width and (where IDs show) its ID, every time the page is laid out. The Token tool:
+// click, type, Enter, and what you typed is split with the vocabulary (irishQwen as its tokenizer does, a word list
+// word by word, new words added), one tile per token in a row. Double-click a tile to retype it.
+const isTok = s => !!(s && s.matches && s.matches('g[data-tok]'));
+const tokId = () => 'tk-' + Math.random().toString(36).slice(2, 8);
+const tokLab = g => g.querySelector(':scope > text:not(.tk-idl)');
+const tokFs = g => parseFloat((tokLab(g) || g).getAttribute('font-size')) || 9;
+function newTok(svg, cx, cy, vn, t, fs) {
+  fs = fs || 9;
+  const g = svgEl('g', { 'data-tok': vn, 'data-t': t, id: tokId() });
+  g.append(svgEl('rect', { x: r1(cx - 10), y: r1(cy - fs * 0.82), width: 20, height: r1(fs * 1.65), 'stroke-width': 1.2 }), svgEl('text', { 'font-size': fs }));
+  svg.append(g); Book.drawTok(g);
+  return g;
+}
+function shiftTok(g, dx, dy) { const r = g.querySelector(':scope > rect'); r.setAttribute('x', r1(num(r, 'x') + dx)); r.setAttribute('y', r1(num(r, 'y') + dy)); Book.drawTok(g); }
+async function retok(g, text) {   // the tile now reads `text`: split it into tokens, a row of tiles from g's left edge
+  const svg = g.ownerSVGElement, vn = g.getAttribute('data-tok');
+  await Book.loadVocabs();
+  const v = Book.vocabs[vn];
+  let toks = text.trim() || / /.test(text) ? Book.tokenize(vn, text).map(k => k.t) : [];
+  if (!toks.length && text.trim()) toks = [text];   // nothing the vocabulary can split: keep it as typed (shown as unknown)
+  if (!toks.length) { g.remove(); setShapes([]); E.commit(true); return []; }
+  if (window.Tokens) await Tokens.ensure(vn, toks);
+  const left = lbox(g.querySelector(':scope > rect')).x0;
+  g.setAttribute('data-t', toks[0]); Book.drawTok(g); if (toks.length > 1) shiftTok(g, left - lbox(g.querySelector(':scope > rect')).x0, 0);   // one tile keeps its centre, a row starts at its left edge
+  const gap = (v && v.kind === 'bpe' ? 0.2 : 0.5) * tokFs(g), out = [g];
+  for (const t of toks.slice(1)) {
+    const prev = out[out.length - 1], c = g.cloneNode(true); c.id = tokId();
+    c.setAttribute('data-t', t); prev.after(c); Book.drawTok(c);
+    shiftTok(c, lbox(prev.querySelector(':scope > rect')).x1 + gap - lbox(c.querySelector(':scope > rect')).x0, 0);
+    out.push(c);
+  }
+  reconnect(svg); setShapes(out, svg); E.commit(true); E.renderInspector();
+  return out;
+}
+async function makeTokens(list) {   // ordinary tiles (a box and its label, grouped) become token tiles, keeping their ids so arrows stay attached
+  await Book.loadVocabs();
+  const vn = window.Tokens && Tokens.cur(); if (!vn) return E.toast('No token vocabulary yet: open Tokens and make one');
+  E.commit(true);
+  const out = [];
+  for (const s of list) {
+    if (isTok(s)) { out.push(s); continue; }
+    const r = s.querySelector(':scope > rect'), t = s.querySelector(':scope > text'); if (!r || !t) continue;
+    const text = t.textContent.trim();
+    [...s.children].filter(c => c !== r && c !== t).forEach(c => c.remove());
+    if (!s.id) s.id = tokId();
+    s.setAttribute('data-tok', vn); s.setAttribute('data-t', '');
+    const made = await retok(s, text); out.push(...made);
+  }
+  setShapes(out, layer); E.commit(true); E.renderInspector();
+}
+function tokInspect(add) {
+  const svg = layer, list = shapes, vn = list[0].getAttribute('data-tok'), v = Book.vocabs && Book.vocabs[vn];
+  const tiles = list.slice(0, 14).map(g => `<b-tok v="${esc(g.getAttribute('data-tok'))}" t="${esc(g.getAttribute('data-t') || '').replace(/"/g, '&quot;')}" class="tk-show"></b-tok>`).join(' ');
+  const one = list.length === 1 ? Book.tokInfo(vn, list[0].getAttribute('data-t') || '') : null;
+  add(`<div class="row" style="flex-wrap:wrap;gap:4px">${tiles}${list.length > 14 ? ' …' : ''}</div>`);
+  add(`<div class="help">${esc(v ? v.title : vn)}${one ? (one.known ? ' · ID <b class="mono">' + one.id + '</b>' : ' · not in this vocabulary') : ''}. Its colour and ID come from the token table, the same everywhere. Double-click a tile to retype it.</div>`);
+  const ids = add(`<label class="check"><input type="checkbox" ${svg.classList.contains('tokids') ? 'checked' : ''}>IDs under the tiles in this drawing</label>`);
+  ids.firstChild.onchange = e => { E.commit(true); svg.classList.toggle('tokids', e.target.checked); Book.drawToks(svg.parentNode); drawHandles(); E.commit(true); };
+  const sz = add(`<div class="row">Size <input type="number" min="5" max="40" step="0.5" style="width:60px" value="${tokFs(list[0])}"></div>`);
+  sz.querySelector('input').onchange = e => { E.commit(true); list.forEach(g => { tokLab(g).setAttribute('font-size', +e.target.value || 9); Book.drawTok(g); }); reconnect(svg); drawHandles(); E.commit(true); };
+  const b = add(`<div class="row"><button data-a="table">Tokens table</button><button data-a="plain" title="Keep the boxes and labels as they are now, without the token table">Back to plain boxes</button></div>`);
+  b.onclick = e => { const a = e.target.dataset.a; if (!a) return;
+    if (a === 'table') return window.Tokens && Tokens.open();
+    E.commit(true); list.forEach(g => { g.removeAttribute('data-tok'); g.removeAttribute('data-t'); const l = tokLab(g); if (l) l.style.removeProperty('white-space'); }); E.commit(true); E.renderInspector(); };
+}
 function create(e, pg) {
   if (tool === 'poly' || tool === 'pline') return polyClick(e, pg);
   if (tool === 'pen') return penDraw(e, pg);
@@ -326,6 +394,16 @@ function create(e, pg) {
   let [x0, y0] = at(e);
   const line = tool === 'line' || tool === 'arrow' || tool === 'curve';
   let el, site0 = null, site1 = null;
+  if (tool === 'tok') {
+    const keep = locked ? tool : null;
+    Book.loadVocabs().then(() => {
+      const vn = window.Tokens && Tokens.cur(); if (!vn) return E.toast('No token vocabulary yet: open Tokens and make one');
+      const g = newTok(svg, x0, y0, vn, '');
+      setTool('select'); setShapes([g], svg); E.commit(true);
+      editLabel(tokLab(g), true, keep);
+    });
+    return;
+  }
   if (tool === 'text') {
     el = svgEl('text', { x: r1(x0), y: r1(y0), 'font-size': 11, fill: '#000000' }); el.textContent = 'Label'; svg.append(el);
     const keep = locked ? tool : null;
@@ -492,9 +570,11 @@ function marquee(e, svg) {   // drag on empty canvas of the selected drawing: se
 }
 book.addEventListener('dblclick', e => {
   if (draft) { e.preventDefault(); return finishPoly(); }
+  if (shapes.length > 1 && layer) { const h = hit(layer, e.clientX, e.clientY); if (h && shapes.includes(h)) setShapes([h], layer); }   // a double-click on one of several selected shapes: that one
   if (shapes.length !== 1) return;
   if (/^(polygon|polyline)$/.test(shapes[0].localName) && hit(layer, e.clientX, e.clientY) === shapes[0]) { ptMode = !ptMode; return drawHandles(); }
   if (shapes[0].localName === 'text') { e.preventDefault(); editLabel(shapes[0]); }
+  else if (isTok(shapes[0])) { e.preventDefault(); editLabel(tokLab(shapes[0])); }
   else if (shapes[0].localName === 'g') {   // a tile (box + label grouped): edit the label under the pointer, the group stays (2026-10-29)
     const t = [...shapes[0].querySelectorAll('text')].reverse().find(n => { const r = n.getBoundingClientRect(); return e.clientX >= r.left - 3 && e.clientX <= r.right + 3 && e.clientY >= r.top - 3 && e.clientY <= r.bottom + 3; })
       || (shapes[0].querySelectorAll('text').length === 1 ? shapes[0].querySelector('text') : null);
@@ -515,7 +595,8 @@ function editLabel(el, fresh, thenTool) {
   const target = leaf(el); if (!target) return E.toast('This label mixes several styles; change its words in chapter.html');
   if (editing) endLabel(true);
   const svg = el.ownerSVGElement, r = el.getBoundingClientRect(), cs = getComputedStyle(el), anchor = el.getAttribute('text-anchor') || 'start';
-  const inp = document.createElement('input'); inp.className = 'lbl'; inp.value = target.textContent; inp.spellcheck = false;
+  const tg = el.parentNode && isTok(el.parentNode) ? el.parentNode : null;
+  const inp = document.createElement('input'); inp.className = 'lbl'; inp.value = tg ? tg.getAttribute('data-t') || '' : target.textContent; inp.spellcheck = false;
   const size = Math.max(9, r.height * 0.82);
   const place = () => {
     const w = Math.max(60, inp.value.length * size * 0.62 + 24), b = el.getBoundingClientRect(), base = b.width ? b : r;
@@ -523,7 +604,7 @@ function editLabel(el, fresh, thenTool) {
     const [x, y] = E.deskXY({ left, top: r.top - 4 });
     Object.assign(inp.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: r.height + 8 + 'px', fontSize: size + 'px', fontFamily: cs.fontFamily, fontWeight: cs.fontWeight, color: el.getAttribute('fill') || '#000', textAlign: anchor === 'middle' ? 'center' : anchor === 'end' ? 'right' : 'left' });
   };
-  editing = { el, target, inp, before: target.textContent, fresh, thenTool };
+  editing = { el, target, inp, before: target.textContent, fresh, thenTool, tg };
   el.setAttribute('data-ed-hide', ''); hbox.append(inp); place(); drawHandles();
   inp.oninput = () => { target.textContent = inp.value || ' '; place(); };
   inp.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); endLabel(true); } else if (e.key === 'Escape') { e.preventDefault(); endLabel(false); } };
@@ -534,6 +615,13 @@ function editLabel(el, fresh, thenTool) {
 function endLabel(keep) {
   const ed = editing; if (!ed) return; editing = null;
   ed.inp.onblur = null; ed.inp.remove(); ed.el.removeAttribute('data-ed-hide');
+  if (ed.tg) {   // a token tile: what was typed is split into tokens (Escape keeps the token it had)
+    const typed = ed.inp.value;
+    if (!keep) { if (ed.fresh) { ed.tg.remove(); setShapes([]); E.commit(true); } else Book.drawTok(ed.tg); }
+    else retok(ed.tg, typed);
+    if (ed.thenTool) setTool(ed.thenTool, true);
+    return;
+  }
   if (!keep) ed.target.textContent = ed.before;
   if ((!keep && ed.fresh) || !ed.target.textContent.trim()) { ed.el.remove(); setShapes([]); } else { drawHandles(); E.renderInspector(); }
   E.commit(true);
@@ -548,7 +636,7 @@ function remove() {
   if (svg && svg.isConnected && fit(svg, true)) E.toast('Canvas trimmed to what is left', 'Undo', E.doUndo);
 }
 function duplicate(list, into, d) {
-  const out = list.map(s => { const c = s.cloneNode(true); into.append(c); c.removeAttribute('id'); for (const k of ['data-a', 'data-b', 'data-a-at', 'data-b-at']) c.removeAttribute(k); moveTo(c, snapshot(c), d, d);
+  const out = list.map(s => { const c = s.cloneNode(true); into.append(c); c.removeAttribute('id'); c.querySelectorAll('g[data-tok]').forEach(t => { t.id = tokId(); }); if (isTok(c)) c.id = tokId(); for (const k of ['data-a', 'data-b', 'data-a-at', 'data-b-at']) c.removeAttribute(k); moveTo(c, snapshot(c), d, d);
     for (const n of [c, ...c.querySelectorAll('*')]) for (const a of ['marker-start', 'marker-end']) if (n.getAttribute(a)) n.setAttribute(a, marker(into, n.getAttribute('stroke') || '#000000')); return c; });
   setShapes(out, into); E.commit(true);
 }
@@ -600,6 +688,7 @@ function inspect(insp) {
   const add = adder(insp);
   const each = (fn, now) => { E.commit(true); lv.forEach(fn); drawHandles(); E.commit(!!now); };
   add(`<h4>${n > 1 ? n + ' shapes' : nameOf(shapes[0])}</h4>`);
+  if (shapes.every(isTok)) tokInspect(add); else {
   const isText = all(/^text$/), isLine = lv.every(s => /^(line|polyline)$/.test(s.localName) || isCurve(s)), closed = lv.some(s => /^(rect|ellipse|circle|polygon|path)$/.test(s.localName) && !isCurve(s));
   const swatches = (label, list, attr) => {
     add(`<label>${label}</label>`);
@@ -636,6 +725,11 @@ function inspect(insp) {
     if (all(/^(polygon|polyline)$/)) { const c = add(`<label class="check"><input type="checkbox" ${s0.localName === 'polygon' ? 'checked' : ''}>Closed shape</label>`); c.firstChild.onchange = e => { E.commit(true); const out = shapes.map(s => { const nn = svgEl(e.target.checked ? 'polygon' : 'polyline'); for (const a of s.attributes) nn.setAttribute(a.name, a.value); if (!e.target.checked) nn.setAttribute('fill', 'none'); s.replaceWith(nn); return nn; }); setShapes(out, layer); E.commit(true); }; }
     if (all(/^rect$/)) { add(`<label>Corners</label>`); const c = add(`<select><option value="0">square</option><option value="3">slightly round</option><option value="6">round</option></select>`); c.value = String(parseFloat(s0.getAttribute('rx')) || 0); c.onchange = () => each(s => +c.value ? s.setAttribute('rx', c.value) : s.removeAttribute('rx'), true); }
   }
+  if (shapes.every(s => s.localName === 'g' && s.querySelector(':scope > rect') && s.querySelector(':scope > text'))) {
+    const mk = add(`<div class="row"><button title="Turn these boxes into token tiles of the current vocabulary: colours and IDs from the token table">Make token tiles</button></div>`);
+    mk.querySelector('button').onclick = () => makeTokens([...shapes]);
+  }
+  }
   add('<hr>');
   if (n === 1 && plain(shapes[0]) && !ends(shapes[0])) {
     const s = shapes[0], b = lbox(s), noSize = s.localName === 'text', canRot = /^(rect|ellipse|text)$/.test(s.localName);
@@ -664,6 +758,7 @@ function inspect(insp) {
 
 // ---------------------------------------------------------------- layers: every shape of the current drawing, front first
 function describe(s) {
+  if (isTok(s)) return 'Token “' + (s.getAttribute('data-t') || '') + '”';
   if (s.localName === 'text') return '“' + s.textContent.trim().slice(0, 22) + '”';
   if (s.localName === 'g') return `Group of ${s.childElementCount}`;
   return nameOf(s);
@@ -741,6 +836,6 @@ function fit(svg, quiet) {
   drawHandles(); E.commit(true); Book.refresh(); E.place();
   return true;
 }
-window.Draw = { inspect, layers, convertFigure, fit, clearClip() { clip = null; }, onBlockSelect(el) { if (shapes.length && layer !== el) { shapes = []; layer = null; drawHandles(); } }, get shapes() { return shapes; }, get tool() { return tool; }, get locked() { return locked; }, setTool };
+window.Draw = { inspect, layers, convertFigure, fit, reconnect, clearClip() { clip = null; }, onBlockSelect(el) { if (shapes.length && layer !== el) { shapes = []; layer = null; drawHandles(); } }, get shapes() { return shapes; }, get tool() { return tool; }, get locked() { return locked; }, setTool };
 E.renderInspector();
 });
