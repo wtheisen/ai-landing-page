@@ -591,3 +591,37 @@ body.qp-drag, body.qp-drag * { cursor: grabbing !important; }
 /* the gap between a slide's code and its output drags the code's width (editor.js codeGapAt) */
 #book.ed-cwhover, #book.ed-cwhover * { cursor: col-resize !important; }
 .ed-cwtip { position: fixed; z-index: 100; pointer-events: none; background: #002b5b; color: #fff; font: 11px/1.2 var(--font-mono, monospace); padding: 3px 6px; border-radius: 3px; }
+
+/* token mode: the Tokens panel (like the question pool) and the tile pop-up */
+#tokpanel { display: none; width: 340px; flex: none; background: #fff; border-left: 1px solid var(--border); overflow: hidden; padding: 10px 10px 0; font-size: 13px; flex-direction: column; }
+body.tokpanel #tokpanel { display: flex; }
+body.tokpanel #insp, body.tokpanel #tg-insp, body.review #tokpanel, body.tokpanel #qpool { display: none; }
+#tokpanel .qp-top { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+#tokpanel .qp-top b { color: var(--navy); text-transform: uppercase; letter-spacing: .5px; font-size: 13px; }
+#tokpanel .qp-n { font-size: 11px; color: var(--ink-muted); }
+#tokpanel .sp { flex: 1; }
+#tokpanel .qp-f { display: flex; gap: 4px; margin-bottom: 4px; }
+#tokpanel .qp-f select { flex: 1; min-width: 0; }
+#tokpanel .qp-q { width: 100%; padding: 4px 6px; border: 1px solid var(--border-strong); border-radius: 4px; margin: 6px 0 2px; box-sizing: border-box; }
+#tokpanel .qp-un { display: block; font-size: 12px; margin: 2px 0; }
+#tokpanel .help { font-size: 11.5px; color: var(--ink-muted); margin: 2px 0 4px; }
+#tokpanel .tk-list { flex: 1; overflow: auto; margin: 4px -10px 0; padding: 0 10px 10px; border-top: 1px solid var(--border); }
+#tokpanel .tk-r { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+#tokpanel .tk-r b-tok { font-size: 13px; }
+#tokpanel .tk-idc { width: 44px; text-align: right; font-size: 12px; color: var(--ink-muted); border: 1px solid transparent; border-radius: 3px; padding: 1px 3px; background: none; flex: none; }
+#tokpanel input.tk-idc:hover, #tokpanel input.tk-idc:focus { border-color: var(--border-strong); background: #fff; color: var(--ink); }
+#tokpanel .tk-n { font-size: 11px; color: var(--ink-muted); min-width: 24px; }
+#tokpanel .tk-c { font-size: 11px; max-width: 120px; }
+#tokpanel .tk-r button { padding: 0 6px; font-size: 11px; }
+#pop .tk-pop .tk-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+#pop .tk-pop b-tok.tk-big { font-size: 18px; }
+#pop .tk-pop b-tok.tk-show .tk-id { display: block; }
+#pop .tk-sw button { width: 22px; height: 22px; padding: 0; border-radius: 5px; border: 1.5px solid var(--tk-line); background: var(--tk-fill); }
+#pop .tk-sw button[data-f="auto"] { width: auto; padding: 0 6px; border-color: var(--border-strong); background: #fff; font-size: 11px; }
+#pop .tk-sw button.on { outline: 2px solid var(--navy); outline-offset: 1px; }
+#pop .tk-sw button[data-f="purple"] { --tk-fill: #D9D2E9; --tk-line: #8E7CC3; } #pop .tk-sw button[data-f="green"] { --tk-fill: #D9EAD3; --tk-line: #93C47D; }
+#pop .tk-sw button[data-f="yellow"] { --tk-fill: #FFF2CC; --tk-line: #DCB439; } #pop .tk-sw button[data-f="red"] { --tk-fill: #F4CCCC; --tk-line: #E06666; }
+#pop .tk-sw button[data-f="blue"] { --tk-fill: #C9DAF8; --tk-line: #6D9EEB; } #pop .tk-sw button[data-f="gray"] { --tk-fill: #EEEEEE; --tk-line: #999999; }
+#styles .tokb { font-weight: 700; border-radius: 6px; background: #D9D2E9; }
+#book b-tok { cursor: pointer; }
+#book b-tok.ed-flash { outline: 3px solid var(--gold, #DCB439); outline-offset: 1px; }

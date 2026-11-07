@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = '969510c367', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = 'a244203f10', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/
@@ -77,6 +77,11 @@ const stamp = f => String(f.rev);   // the editor's "mtime": changes on every sa
 async function api(req, u, parts) {
   const kind = parts[1], ch = parts[2], q = u.searchParams, post = req.method === 'POST' || req.method === 'PUT';
   if (kind === 'info') return json(200, { kit: KIT, tex: null, chapters: await chapters(), browser: false, offline: true, version: VERSION });
+  if (kind === 'vocab' && post) {   // the token vocabularies every chapter shares (token mode, editor.js)
+    const text = await req.text(); try { JSON.parse(text); } catch (e) { return json(400, { error: 'not JSON' }); }
+    await Files.put('chapters/vocab/vocabs.json', text); soon();
+    return json(200, { ok: true, local: true });
+  }
   if (!ch || !NAME.test(ch)) return json(404, { error: 'no such chapter' });
   const cf = await Sync.file(chapterPath(ch));
   if (!cf) return json(404, { error: 'no such chapter on this device' });

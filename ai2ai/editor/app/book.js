@@ -216,6 +216,101 @@ class BM extends HTMLElement {
   connectedCallback() { lock(this); if (!this.hasAttribute('tex')) this.setAttribute('tex', this.textContent.trim()); }
   attributeChangedCallback() { if (this.firstChild && inThumb(this)) return; this.innerHTML = inlineMath(this.getAttribute('tex') || ''); }
 }
+// ---------------------------------------------------------------- token tiles (Eric, 2026-11-07: "token mode")
+// <b-tok v="irishqwen" t=" her">·her</b-tok> is one token of a named vocabulary, drawn as a rounded tile. The
+// vocabularies live in one file shared by every chapter of both books, chapters/vocab/vocabs.json:
+//   kind "list": tokens [{t, id, c?}] with the ids you give them (normalize "word": lowercase, letters only)
+//   kind "bpe":  a byte-level BPE tokenizer (pattern, special, merges: irishQwen's format), ids from its merges
+// A tile's ID and colour come from its vocabulary, never from the chapter, so a token looks the same everywhere:
+// colour by ID (the five tile families in turn, like OpenAI's tokenizer page) unless the vocabulary names one
+// (list token c, or colors {t: family}). The text inside is only a readable copy for the source file. IDs show under
+// the word where the page asks for them (data-tokids) or the whole chapter does (book-meta tokIds).
+const TOK_FAMS = ['purple', 'green', 'yellow', 'red', 'blue'];
+Book.TOK_FAMS = TOK_FAMS;
+// irishQwen's GPT-4 split pattern without its possessive quantifiers (JS has none); same tokens on 300,000 characters
+// of Shakespeare as the Python tokenizer
+const TOK_SPLIT = /'(?:[sS]|[dD]|[mM]|[tT]|[lL][lL]|[vV][eE]|[rR][eE])|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]|\s+(?!\S)|\s+/gu;
+function makeBPE(spec) {
+  const rank = new Map(), bytes = new Map(), dec = new TextDecoder(), enc = new TextEncoder();
+  for (let i = 0; i < 256; i++) bytes.set(i, [i]);
+  for (const [s, i] of Object.entries(spec.special || {})) bytes.set(i, [...enc.encode(s)]);
+  const merges = Object.entries(spec.merges || {}).map(([k, v]) => [k.split(',').map(Number), v]).sort((a, b) => a[1] - b[1]);
+  for (const [[a, b], v] of merges) { rank.set(a + ',' + b, v); bytes.set(v, bytes.get(a).concat(bytes.get(b))); }
+  const chunk = bs => {
+    let ids = [...bs];
+    while (ids.length > 1) {
+      let at = -1, best = Infinity;
+      for (let i = 0; i + 1 < ids.length; i++) { const r = rank.get(ids[i] + ',' + ids[i + 1]); if (r !== undefined && r < best) { best = r; at = i; } }
+      if (at < 0) break;
+      const a = ids[at], b = ids[at + 1], out = [];
+      for (let i = 0; i < ids.length; i++) { if (i + 1 < ids.length && ids[i] === a && ids[i + 1] === b) { out.push(best); i++; } else out.push(ids[i]); }
+      ids = out;
+    }
+    return ids;
+  };
+  const text = id => bytes.has(id) ? dec.decode(new Uint8Array(bytes.get(id))) : '';
+  const byText = new Map();
+  for (const id of [...bytes.keys()].sort((a, b) => a - b)) { const t = text(id); if (!byText.has(t)) byText.set(t, id); }
+  return { encode: s => (s.match(TOK_SPLIT) || []).flatMap(c => chunk(enc.encode(c))), text, id: t => byText.get(t), ids: () => [...bytes.keys()].sort((a, b) => a - b) };
+}
+Book.makeBPE = makeBPE;
+Book.vocabs = null;   // {name: vocabulary as stored, plus ._bpe / ._byT}
+Book.vocabFile = null;   // the whole file as loaded (the Tokens panel edits and saves it)
+let vocabLoad = null;
+Book.prepVocab = v => {
+  Object.defineProperty(v, '_byT', { value: new Map(), writable: true, configurable: true });
+  if (v.kind === 'bpe') Object.defineProperty(v, '_bpe', { value: makeBPE(v), writable: true, configurable: true });
+  else for (const k of v.tokens || []) v._byT.set(k.t, k);
+  return v;
+};
+Book.loadVocabs = force => {
+  if (Book.vocabs && !force) return Promise.resolve(Book.vocabs);
+  if (vocabLoad && !force) return vocabLoad;
+  vocabLoad = fetch(Book.url('../vocab/vocabs.json'), { cache: 'no-store' }).then(r => r.ok ? r.json() : { vocabs: {} }).catch(() => ({ vocabs: {} })).then(f => {
+    Book.vocabFile = f; Book.vocabs = f.vocabs || (f.vocabs = {});
+    for (const v of Object.values(Book.vocabs)) Book.prepVocab(v);
+    if (Book.root) Book.root.querySelectorAll('b-tok').forEach(t => t.render && t.render());
+    Book.refreshSoon();
+    return Book.vocabs;
+  });
+  return vocabLoad;
+};
+Book.tokLabel = t => String(t).replace(/ /g, '·').replace(/\r?\n/g, '↵').replace(/\t/g, '→');
+Book.tokNorm = (v, w) => v && v.normalize === 'word' ? w.toLowerCase().replace(/[^\p{L}\p{N}']/gu, '') : w;
+// {id, fam, known}: where token t of vocabulary v sits (id null and fam "gray" when the vocabulary doesn't have it)
+Book.tokInfo = (vn, t) => {
+  const v = Book.vocabs && Book.vocabs[vn];
+  if (!v) return { id: null, fam: 'gray', known: false };
+  let id = null, c = null;
+  if (v.kind === 'bpe') { id = v._bpe.id(t); if (id === undefined) id = null; }
+  else { const k = v._byT.get(t); if (k) { id = k.id; c = k.c; } }
+  c = c || (v.colors && v.colors[t]) || (id === null ? 'gray' : TOK_FAMS[((id % 5) + 5) % 5]);
+  return { id, fam: c, known: id !== null };
+};
+// split text into tokens of vocabulary vn: [{t, gap}] (gap: the text to keep between this token and the one before,
+// for word lists, whose tiles sit apart; BPE tokens carry their own spaces)
+Book.tokenize = (vn, text) => {
+  const v = Book.vocabs && Book.vocabs[vn]; if (!v) return [];
+  if (v.kind === 'bpe') return v._bpe.encode(text).map(id => ({ t: v._bpe.text(id), gap: '' }));
+  const out = []; let gap = '';
+  for (const m of text.match(/\s+|\S+/g) || []) {
+    if (/^\s+$/.test(m)) { gap += m; continue; }
+    const t = Book.tokNorm(v, m); if (t) out.push({ t, gap: out.length ? gap : '' });
+    gap = '';
+  }
+  return out;
+};
+class BTok extends HTMLElement {
+  static get observedAttributes() { return ['v', 't']; }
+  connectedCallback() { if (inThumb(this)) return; lock(this); if (!this.hasAttribute('t')) this.setAttribute('t', this.textContent); else this.render(); if (!Book.vocabs) Book.loadVocabs(); }
+  attributeChangedCallback() { if (this.isConnected && !inThumb(this)) this.render(); }
+  render() {
+    const t = this.getAttribute('t') || '', info = Book.tokInfo(this.getAttribute('v'), t);
+    this.dataset.f = info.fam; this.classList.toggle('tk-unknown', !!Book.vocabs && !info.known);
+    this.title = (Book.vocabs && Book.vocabs[this.getAttribute('v')] ? Book.vocabs[this.getAttribute('v')].title + ': ' : '') + JSON.stringify(t) + (info.known ? ' = ' + info.id : ' (not in the vocabulary)');
+    this.innerHTML = `<span class="tk-t">${esc(Book.tokLabel(t))}</span><span class="tk-id">${info.known ? info.id : '?'}</span>`;
+  }
+}
 class BRef extends HTMLElement {
   connectedCallback() { if (inThumb(this)) return; lock(this); if (!this.firstChild) this.textContent = '…'; Book.refreshSoon(); }
 }
@@ -477,7 +572,7 @@ Book.goLive = fig => { if (Book.web && !Book.exporting && fig.hasAttribute('viz'
 class BToc extends HTMLElement { connectedCallback() { if (inThumb(this)) return; lock(this); Book.refreshSoon(); } }
 class BAnswers extends HTMLElement { connectedCallback() { if (inThumb(this)) return; lock(this); Book.refreshSoon(); } }
 Book.define = () => {
-  for (const [n, c] of [['b-m', BM], ['b-ref', BRef], ['b-fig', BFig], ['b-eq', BEq], ['b-code', BCode], ['b-out', BOut], ['b-matmul', BMatmul], ['b-answers', BAnswers], ['b-toc', BToc], ['b-embed', BEmbed]])
+  for (const [n, c] of [['b-m', BM], ['b-tok', BTok], ['b-ref', BRef], ['b-fig', BFig], ['b-eq', BEq], ['b-code', BCode], ['b-out', BOut], ['b-matmul', BMatmul], ['b-answers', BAnswers], ['b-toc', BToc], ['b-embed', BEmbed]])
     if (!customElements.get(n)) customElements.define(n, c);
 };
 
@@ -641,6 +736,7 @@ Book.packWorkbook = () => {
 };
 Book.refreshSoon = () => { if (!soon) soon = setTimeout(() => { soon = 0; if (Book.root) Book.refresh(); }, 60); };
 Book.refresh = () => {
+  if (Book.root) Book.root.classList.toggle('tokids', !!Book.meta.tokIds);   // token tiles show their IDs everywhere (book-meta tokIds)
   const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();
   if (panes.length) root.removeAttribute('data-view'); else if (root.dataset.view !== Book.view) root.dataset.view = Book.view;
   Book.hasKeys = !Book.meta.split && !!root.querySelector('.page > p .key'); root.classList.toggle('keys', Book.hasKeys);   // key sentences: the old shared-page model only
@@ -769,6 +865,7 @@ function inline(node, parentStruct) {
   if (node.nodeType !== 1 || skip(node)) return '';
   let tag = node.localName;
   if (tag === 'b-m') return `<b-m>${esc(node.getAttribute('tex') || '')}</b-m>`;
+  if (tag === 'b-tok') return `<b-tok v="${escAttr(node.getAttribute('v') || '')}" t="${escAttr(node.getAttribute('t') || '').replace(/\n/g, '&#10;').replace(/\t/g, '&#9;')}">${esc(Book.tokLabel(node.getAttribute('t') || ''))}</b-tok>`;
   if (tag === 'b-ref' || tag === 'b-fig' || tag === 'b-answers' || tag === 'b-toc' || tag === 'b-embed' || tag === 'b-matmul') return `<${tag}${attrs(node)}></${tag}>`;   // b-matmul: only its spec is source, the drawn step isn't (2026-10-29: stepping through one changed the file)
   if (tag === 'b-code' || tag === 'b-out') return `<${tag}${attrs(node)}>\n${esc(node.getAttribute('data-src') || '')}\n</${tag}>`;
   if (tag === 'eq-row' || tag === 'eq-step') return `<${tag}${attrs(node)}>${esc(texOf(node))}</${tag}>`;
@@ -1223,7 +1320,7 @@ ${css}${view === 'slides' ? '\n@page { size: 10in 7.5in; margin: 0; }' : ''}</st
 </head>
 <body>
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="${escAttr(m.toc || '/ai2ai/')}" title="All chapters">${esc(m.book || '')}</a><span class="crumb">${esc(m.title || '')}</span>${toc}<span class="spacer"></span>${viewbar}<span class="tools">${pdfmenu}</span></nav>
-<main class="book view" data-view="${view}">
+<main class="book view${m.tokIds ? ' tokids' : ''}" data-view="${view}">
 ${clone.innerHTML}
 </main>
 <script>${zoom}${navjs}${reveal}${frames}

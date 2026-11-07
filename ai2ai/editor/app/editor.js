@@ -808,6 +808,7 @@ function style(k) {
   if (k === 'mono') return wrapSel('span', 'mono');
   if (k === 'num') return wrapSel('span', 'num');
   if (k === 'note') return wrapSel('span', 'note');
+  if (k === 'tok') return window.Tokens && Tokens.make();
   if (k === 'b') return wrapSel('b', ''); if (k === 'i') return wrapSel('i', ''); if (k === 'code') return wrapSel('code', '');
   wrapSel('b', k);
 }
@@ -1052,6 +1053,7 @@ document.addEventListener('keydown', e => {
     if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyM') { e.preventDefault(); return style('mono'); }
     if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyN') { e.preventDefault(); return style('num'); }
     if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyT') { e.preventDefault(); return style('note'); }
+    if (e.altKey && !e.metaKey && !e.ctrlKey && e.code === 'KeyK') { e.preventDefault(); return style('tok'); }
     if (e.altKey && /^Digit[0-7]$/.test(e.code)) { e.preventDefault(); return style(['clear', 'def', 'name', 'take', 'warn', 'ex', 'gray', 'purple'][+e.code.slice(5)]); }
     if (e.key === 'Escape') { host.blur(); getSelection().removeAllRanges(); return; }
     if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); return linkPop(); }
@@ -1758,7 +1760,7 @@ function pageInspector() {
   insp.append(h('<div>' + HELP + '</div>'));
 }
 const HELP = `<hr><div class="help"><b>Text</b>: click and type. Enter starts a new paragraph, Shift+Enter a line break.<br>
-<b>Emphasis</b>: select text, then a colour circle, or Option+1 gold, +2 navy, +3 green, +4 red, +5 teal, +6 dark grey, +0 clear; Option+M Consolas; Option+N number (bold Consolas, dark grey); Option+T note (smaller, light grey); Cmd+B bold.<br>
+<b>Emphasis</b>: select text, then a colour circle, or Option+1 gold, +2 navy, +3 green, +4 red, +5 teal, +6 dark grey, +0 clear; Option+M Consolas; Option+N number (bold Consolas, dark grey); Option+T note (smaller, light grey); Option+K token tiles; Cmd+B bold.<br>
 <b>Inline math</b>: type <code>$x_i$</code>, or Cmd+E. Click math to edit it.<br>
 <b>Blocks</b>: the blue bar moves, copies, pins and deletes the selected block; drag ⠿ to reorder, also across pages. Equations, figures and code drag by their body.<br>
 <b>Undo</b>: Cmd+Z, as far back as this session goes. Saving is automatic.</div>`;
@@ -2082,7 +2084,7 @@ try { if (localStorage.getItem('book-margins') === '1') $('#x-margins').click();
 book.addEventListener('book-refresh', () => { const n = (Book.report || []).length, b = $('#x-over'); b.hidden = !n; b.textContent = n + (n === 1 ? ' page over' : ' pages over'); });
 $('#x-over').onclick = () => { const list = Book.report || []; if (!list.length) return; const pages = Book.pages(), at = curPage ? pages.indexOf(curPage) + 1 : 0; const next = list.find(r => r.page > at) || list[0]; const pg = pages[next.page - 1]; select(null); setPage(pg); renderInspector(); pg.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
 // keyboard shortcuts
-const KEYS = [['Writing'], ['Enter', 'new line in the same block (in a list: next item)'], ['Cmd+Enter', 'new paragraph block below (in a column box: the next box)'], ['1. or * then space', 'at the start of a paragraph: a numbered or bulleted list'], ['Enter on an empty last item', 'end the list'], ['/', 'in an empty paragraph: insert menu'], ['$x_i$', 'inline math (or Cmd+E)'], ['Option+1 … 6', 'gold, navy, green, red, teal, dark grey (bold)'], ['Option+N', 'number: bold Consolas in dark grey'], ['Option+M', 'Consolas on or off (numbers, technical bits)'], ['Option+T', 'note: smaller text in light grey (again: back to normal)'], ['Cmd+Shift+E', 'centre the block (again: back to the left)'], ['Option+0', 'clear emphasis'], ['Cmd+B / Cmd+I', 'bold / italic'], ['Cmd+K', 'link'], ['Tab / Shift+Tab', 'next cell in a table; nest / un-nest in a list'], ['Arrow keys', 'walk into the next block'], ['Cmd+F', 'find and replace'],
+const KEYS = [['Writing'], ['Enter', 'new line in the same block (in a list: next item)'], ['Cmd+Enter', 'new paragraph block below (in a column box: the next box)'], ['1. or * then space', 'at the start of a paragraph: a numbered or bulleted list'], ['Enter on an empty last item', 'end the list'], ['/', 'in an empty paragraph: insert menu'], ['$x_i$', 'inline math (or Cmd+E)'], ['Option+1 … 6', 'gold, navy, green, red, teal, dark grey (bold)'], ['Option+N', 'number: bold Consolas in dark grey'], ['Option+M', 'Consolas on or off (numbers, technical bits)'], ['Option+T', 'note: smaller text in light grey (again: back to normal)'], ['Option+K', 'token tiles of the current vocabulary (again on tiles: back to text)'], ['Cmd+Shift+E', 'centre the block (again: back to the left)'], ['Option+0', 'clear emphasis'], ['Cmd+B / Cmd+I', 'bold / italic'], ['Cmd+K', 'link'], ['Tab / Shift+Tab', 'next cell in a table; nest / un-nest in a list'], ['Arrow keys', 'walk into the next block'], ['Cmd+F', 'find and replace'],
   ['Blocks'], ['Esc', 'stop typing, keep the block selected'], ['Shift-click', 'select several blocks'], ['Cmd+A', 'every block on the page (when not typing)'], ['Cmd+C / X / V', 'copy, cut, paste blocks (also to another page)'], ['Cmd+D', 'duplicate'], ['Backspace', 'delete the selected block'], ['Option+↑ ↓', 'move the block up or down'], ['Arrows', 'nudge a pinned block (Shift: by 10)'],
   ['Page list'], ['click / Shift-click / Cmd-click', 'select a page, a range, add or drop one'], ['Delete or Backspace', 'delete the selected pages (Cmd+Z undoes)'], ['↑ ↓', 'previous / next page (Shift: extend the selection)'], ['Cmd+A', 'select every page'],
   ['Drawing'], ['double-click a tool', 'keep drawing with it (Esc stops)'], ['Shift while drawing', 'square, circle, 45° line'], ['Option-drag', 'leave a copy'], ['Cmd while dragging', 'no snapping'], ['double-click', 'polygon: move corners; label: retype'], ['Cmd+G / Shift+Cmd+G', 'group / ungroup'],
@@ -3397,7 +3399,7 @@ function toggleCenter() {
 // run of digits (with thousands commas, a decimal part, a leading minus or a trailing %), not touching a letter: so
 // "2012", "−6.7", "9,553", "82%" and the 8 in "degree-8" count, but "3D" and "x2" don't.
 const NUM_RE = /(?<![\p{L}\p{N}_.,])[−-]?\d{1,3}(?:,\d{3})+(?:\.\d+)?%?(?![\p{L}\p{N}_])|(?<![\p{L}\p{N}_.,])[−-]?\d+(?:\.\d+)?%?(?![\p{L}\p{N}_]|[.,]\d)/gu;
-const NUM_SKIP = 'b-m, b-eq, b-code, b-out, b-fig, b-matmul, b-answers, b-ref, b-toc, b-embed, svg, code, pre, h1, h2, h3, h4, b, strong, a, u, sup, sub, td, th, .cmt, .foot, [data-rt], span.num, span.mono, span.note, .cover-text';   // tables keep their own look
+const NUM_SKIP = 'b-m, b-tok, b-eq, b-code, b-out, b-fig, b-matmul, b-answers, b-ref, b-toc, b-embed, svg, code, pre, h1, h2, h3, h4, b, strong, a, u, sup, sub, td, th, .cmt, .foot, [data-rt], span.num, span.mono, span.note, .cover-text';   // tables keep their own look
 function formatNumbers(root) {
   const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => n.parentElement.closest(NUM_SKIP) ? 2 : 1 });
   const nodes = []; let n; while ((n = w.nextNode())) if (/\d/.test(n.nodeValue)) nodes.push(n);
@@ -3677,6 +3679,7 @@ if (phone) {
     if (v === on) return;
     on = v; document.body.classList.toggle('qpool', on);
     if (on && window.Suggest) Suggest.close();
+    if (on && window.Tokens) Tokens.close();
     if (on && typeof revOn !== 'undefined' && revOn) setReview(false);
     if (!panel) {
       panel = document.createElement('aside'); panel.id = 'qpool'; $('#insp').after(panel);
@@ -3708,6 +3711,198 @@ if (phone) {
   let lastPage = null, lastN = -1;
   setInterval(() => { if (!on) return; const n = book.querySelectorAll('aside.qc[data-qsrc]').length; if (curPage !== lastPage || n !== lastN) { lastPage = curPage; lastN = n; soon(); } }, 400);
   window.QPool = { open: () => setOn(true), close: () => setOn(false), reload: () => load(true).then(render), get pool() { return pool; } };
+})();
+// ---------------------------------------------------------------- token mode
+// Token tiles (Eric, 2026-11-07: a "token mode" that keeps a running table of the tokens made in the text, with
+// coloured boxes, consistent colours and numbers everywhere, usable across chapters; "especially for BaLLM").
+// Select text and press Token (Option+K): it becomes <b-tok> tiles of the current vocabulary (book.js): a BPE
+// vocabulary (irishQwen) splits the selection the way the real tokenizer would, with its real IDs; a word list
+// splits on spaces and adds any word it doesn't have yet with the next ID. Press it again on tiles to turn them back
+// into text. Click a tile for its ID and colour. The Tokens button opens the table (right-hand panel): pick the
+// vocabulary, see every token with its ID and colour and how often this chapter uses it, change colours and IDs,
+// and show the IDs under the tiles on this page or in the whole chapter. Every chapter shares
+// chapters/vocab/vocabs.json, so a change there changes the token everywhere.
+(function () {
+  const LS = 'ai2ai-vocab-' + ch;
+  const FAM_LABEL = { purple: 'Purple', green: 'Green', yellow: 'Yellow', red: 'Red', blue: 'Blue', gray: 'Grey' };
+  let on = false, panel = null, filt = { q: '', used: true };
+  const hesc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function curVocab() {
+    const vs = Book.vocabs || {}, saved = (() => { try { return localStorage.getItem(LS); } catch (e) { return null; } })();
+    for (const k of [saved, Book.meta.vocab, /^ballm-/.test(ch) ? 'irishqwen' : 'march']) if (k && vs[k]) return k;
+    return Object.keys(vs)[0] || null;
+  }
+  function setVocab(k) { try { localStorage.setItem(LS, k); } catch (e) {} render(); }
+  let saving = null;
+  async function saveVocabs(msg) {   // the whole file: it's small, and the last save wins like any other side file
+    const f = Book.vocabFile; if (!f) return;
+    const plain = JSON.parse(JSON.stringify(f));   // ._bpe/._byT are not enumerable, so they stay out
+    const text = JSON.stringify(plain, null, 1) + '\n';
+    saving = fetch('../api/vocab/vocabs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: text })
+      .then(r => { if (!r.ok) throw new Error(r.status); if (msg) toast(msg); })
+      .catch(() => toast('Could not save the token table (restart the editor to get token mode on this machine)'));
+    for (const v of Object.values(Book.vocabs)) Book.prepVocab(v);
+    book.querySelectorAll('b-tok').forEach(t => t.render());
+    Book.refresh(); render();
+    return saving;
+  }
+  const nextId = v => (v.tokens || []).reduce((m, k) => Math.max(m, k.id + 1), 0);
+
+  // ---------------------------------------------------------------- making and unmaking tiles
+  function untile(list) {
+    for (const t of list) { const v = Book.vocabs && Book.vocabs[t.getAttribute('v')]; t.replaceWith(document.createTextNode(t.getAttribute('o') || t.getAttribute('t') || '')); }
+  }
+  async function tokens() {
+    const host = editHost(); if (!host) return toast('Click into some text first');
+    const s = getSelection(); if (!s.rangeCount) return;
+    const r = s.getRangeAt(0);
+    const anc = r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement;
+    const inTile = anc.closest('b-tok'), hits = inTile ? [inTile] : [...host.querySelectorAll('b-tok')].filter(t => r.intersectsNode(t));
+    if (hits.length) { untile(hits); host.normalize(); commit(true); render(); return toast(hits.length === 1 ? 'Back to text' : hits.length + ' tiles back to text'); }
+    if (r.collapsed) return toast('Select the words to turn into tokens');
+    await Book.loadVocabs();
+    const vn = curVocab(), v = vn && Book.vocabs[vn];
+    if (!v) return toast('No token vocabulary yet: open Tokens and make one');
+    // a BPE token carries the space before the word, as the tokenizer would see it in the sentence
+    if (v.kind === 'bpe' && r.startContainer.nodeType === 3 && r.startOffset > 0 && /[  ]/.test(r.startContainer.nodeValue[r.startOffset - 1]) && !/^\s/.test(r.toString())) r.setStart(r.startContainer, r.startOffset - 1);
+    const text = r.toString().replace(/ /g, ' ');
+    if (!text.trim()) return toast('Select some words, not just spaces');
+    const lead = v.kind === 'bpe' ? '' : text.match(/^\s*/)[0], trail = v.kind === 'bpe' ? '' : text.match(/\s*$/)[0];
+    const toks = Book.tokenize(vn, text);
+    if (!toks.length) return toast('Nothing in the selection is a token of ' + v.title);
+    let added = 0;
+    if (v.kind !== 'bpe') for (const k of toks) if (!v._byT.has(k.t)) { const tok = { t: k.t, id: nextId(v) }; v.tokens.push(tok); v._byT.set(k.t, tok); added++; }
+    const words = v.kind === 'bpe' ? null : text.trim().split(/\s+/);
+    const frag = document.createDocumentFragment();
+    if (lead) frag.append(lead);
+    toks.forEach((k, i) => {
+      if (k.gap) frag.append(k.gap);
+      const el = document.createElement('b-tok'); el.setAttribute('v', vn); el.setAttribute('t', k.t);
+      if (words && words[i] && words[i] !== k.t) el.setAttribute('o', words[i]);   // the word as written, so turning it back into text keeps it
+      frag.append(el);
+    });
+    if (trail) frag.append(trail);
+    r.deleteContents(); r.insertNode(frag); host.normalize();
+    commit(true);
+    if (added) await saveVocabs('Added ' + added + ' new token' + (added > 1 ? 's' : '') + ' to ' + v.title);
+    else render();
+  }
+
+  // ---------------------------------------------------------------- a tile's own pop-up
+  function tilePop(el) {
+    const vn = el.getAttribute('v'), t = el.getAttribute('t') || '', v = Book.vocabs && Book.vocabs[vn], info = Book.tokInfo(vn, t);
+    const own = v ? (v.kind === 'bpe' ? (v.colors || {})[t] : ((v._byT.get(t) || {}).c)) : null;
+    const p = openPop(el, `<div class="tk-pop"><div><b>${hesc(v ? v.title : vn)}</b></div>
+      <div class="tk-row"><b-tok v="${hesc(vn)}" t="${hesc(t)}" class="tk-big"></b-tok><span>${info.known ? 'ID <b class="mono">' + info.id + '</b>' : 'not in this vocabulary'}</span></div>
+      <div class="tk-row tk-sw">${['auto', ...Book.TOK_FAMS, 'gray'].map(f => `<button data-f="${f}" class="${(own || 'auto') === f ? 'on' : ''}" title="${f === 'auto' ? 'By ID (the default)' : FAM_LABEL[f]}">${f === 'auto' ? 'Auto' : ''}</button>`).join('')}</div>
+      <div class="help">The colour is the token's, everywhere it appears.</div>
+      <div class="tk-row"><button data-a="text">Back to text</button><button data-a="table">Tokens table</button></div></div>`);
+    p.querySelector('.tk-big').classList.add('tk-show');
+    p.onclick = async e => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.f && v) {
+        const f = b.dataset.f === 'auto' ? null : b.dataset.f;
+        if (v.kind === 'bpe') { v.colors = v.colors || {}; if (f) v.colors[t] = f; else delete v.colors[t]; }
+        else { const k = v._byT.get(t); if (k) { if (f) k.c = f; else delete k.c; } }
+        closePop(); await saveVocabs(); return;
+      }
+      if (b.dataset.a === 'text') { closePop(); const host = el.closest('[contenteditable=true]'); untile([el]); if (host) host.normalize(); commit(true); render(); }
+      if (b.dataset.a === 'table') { closePop(); setOn(true); }
+    };
+  }
+  book.addEventListener('click', e => { const t = e.target.closest && e.target.closest('b-tok'); if (t && book.contains(t)) { e.preventDefault(); e.stopPropagation(); tilePop(t); } }, true);
+
+  // ---------------------------------------------------------------- the table
+  function usesHere() { const m = new Map(); book.querySelectorAll('b-tok').forEach(t => { const k = t.getAttribute('v') + '\u0000' + t.getAttribute('t'); m.set(k, (m.get(k) || 0) + 1); }); return m; }
+  function rows(vn, v, u) {
+    let list;
+    if (v.kind === 'bpe') list = v._bpe.ids().map(id => ({ t: v._bpe.text(id), id }));
+    else list = (v.tokens || []).slice().sort((a, b) => a.id - b.id);
+    const q = filt.q.toLowerCase();
+    return list.filter(k => (!filt.used || u.has(vn + '\u0000' + k.t)) && (!q || k.t.toLowerCase().includes(q) || String(k.id) === q));
+  }
+  function render() {
+    if (!panel || !on) return;
+    if (!Book.vocabs) { panel.innerHTML = '<div class="qp-top"><b>Tokens</b></div><div class="help">Loading…</div>'; Book.loadVocabs().then(render); return; }
+    const vn = curVocab(), v = vn && Book.vocabs[vn], u = usesHere(), pg = curPage;
+    const pageIds = pg ? pg.getAttribute('data-tokids') : null;
+    const list = v ? rows(vn, v, u) : [];
+    const focus = document.activeElement && document.activeElement.matches('.tk-q') ? document.activeElement.selectionStart : null;
+    const scroll = panel.querySelector('.tk-list') ? panel.querySelector('.tk-list').scrollTop : 0;
+    panel.innerHTML = `<div class="qp-top"><b>Tokens</b><span class="qp-n">${v ? list.length + ' shown' : ''}</span><span class="sp"></span><button data-a="close">Done</button></div>
+      <div class="qp-f"><select class="tk-v" title="Vocabulary: new tiles use this one">${Object.entries(Book.vocabs).map(([k, x]) => `<option value="${hesc(k)}"${k === vn ? ' selected' : ''}>${hesc(x.title || k)}</option>`).join('')}</select><button data-a="new" title="A new word-list vocabulary">New…</button></div>
+      ${v && v.note ? `<div class="help">${hesc(v.note)}</div>` : ''}
+      <div class="help qp-how">Select text and press <b>Token</b> (Option+K)${v && v.kind === 'bpe' ? ': it is split the way the tokenizer splits it, with its real IDs' : ': each word becomes a tile, new words get the next ID'}. Press it again on tiles to undo.</div>
+      <label class="qp-un"><input type="checkbox" data-o="page" ${pageIds === 'on' || (pageIds === null && false) ? 'checked' : ''} ${pg ? '' : 'disabled'}> IDs under the tiles on this page</label>
+      <label class="qp-un"><input type="checkbox" data-o="all" ${Book.meta.tokIds ? 'checked' : ''}> IDs under the tiles in the whole chapter</label>
+      <input type="search" class="qp-q tk-q" placeholder="Find a token or an ID" value="${hesc(filt.q)}" spellcheck="false">
+      <label class="qp-un"><input type="checkbox" data-o="used" ${filt.used ? 'checked' : ''}> Only tokens this chapter uses</label>
+      <div class="tk-list">${v ? list.map(k => row(vn, v, k, u.get(vn + '\u0000' + k.t) || 0)).join('') || '<div class="help">' + (filt.used ? 'No tiles of this vocabulary in the chapter yet.' : 'No tokens match.') + '</div>' : ''}</div>`;
+    const l = panel.querySelector('.tk-list'); if (l) l.scrollTop = scroll;
+    if (focus !== null) { const i = panel.querySelector('.tk-q'); i.focus(); i.setSelectionRange(focus, focus); }
+  }
+  function row(vn, v, k, n) {
+    const info = Book.tokInfo(vn, k.t);
+    const idCell = v.kind === 'bpe' ? `<span class="mono tk-idc">${k.id}</span>` : `<input class="mono tk-idc" data-t="${hesc(k.t)}" value="${k.id}" title="ID (Enter to change it everywhere)" inputmode="numeric">`;
+    return `<div class="tk-r" data-t="${hesc(k.t)}">${idCell}<b-tok v="${hesc(vn)}" t="${hesc(k.t)}"></b-tok><span class="tk-n" title="Tiles in this chapter">${n ? '×' + n : ''}</span><span class="sp"></span>
+      <select data-c title="Colour" class="tk-c">${['auto', ...Book.TOK_FAMS, 'gray'].map(f => `<option value="${f}"${((v.kind === 'bpe' ? (v.colors || {})[k.t] : k.c) || 'auto') === f ? ' selected' : ''}>${f === 'auto' ? 'By ID (' + FAM_LABEL[info.fam] + ')' : FAM_LABEL[f]}</option>`).join('')}</select>
+      ${n ? '<button data-a="go" title="Go to it in the chapter">Go</button>' : ''}${v.kind !== 'bpe' && !n ? '<button data-a="del" title="Remove from the vocabulary">✕</button>' : ''}</div>`;
+  }
+  function setOn(x) {
+    if (x === on) return;
+    on = x; document.body.classList.toggle('tokpanel', on);
+    if (on && window.QPool) QPool.close();
+    if (on && window.Suggest) Suggest.close();
+    if (!panel) {
+      panel = document.createElement('aside'); panel.id = 'tokpanel'; $('#insp').after(panel);
+      panel.addEventListener('click', async e => {
+        const b = e.target.closest('button'); if (!b) return;
+        const vn = curVocab(), v = Book.vocabs[vn];
+        if (b.dataset.a === 'close') return setOn(false);
+        if (b.dataset.a === 'new') {
+          const title = prompt('Name of the new vocabulary (a word list: each word gets the next ID)'); if (!title) return;
+          let key = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'vocab'; while (Book.vocabs[key]) key += '-2';
+          Book.vocabs[key] = Book.prepVocab({ title, kind: 'list', normalize: 'word', tokens: [] });
+          try { localStorage.setItem(LS, key); } catch (x) {}
+          return saveVocabs('New vocabulary: ' + title);
+        }
+        const r = b.closest('.tk-r'), t = r && r.dataset.t; if (t == null) return;
+        if (b.dataset.a === 'go') { const all = [...book.querySelectorAll('b-tok')].filter(x => x.getAttribute('v') === vn && x.getAttribute('t') === t), i = (+b.dataset.i || 0) % all.length, el = all[i]; b.dataset.i = i + 1; if (el) { const pn = el.closest('.dpane'); if (pn && typeof activatePane === 'function') activatePane(pn); setPage(el.closest('section.page')); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('ed-flash'); setTimeout(() => el.classList.remove('ed-flash'), 1200); } }
+        if (b.dataset.a === 'del' && v.kind !== 'bpe') { v.tokens = v.tokens.filter(k => k.t !== t); saveVocabs('Removed ' + JSON.stringify(t)); }
+      });
+      panel.addEventListener('change', async e => {
+        const el = e.target, vn = curVocab(), v = Book.vocabs[vn];
+        if (el.matches('.tk-v')) return setVocab(el.value);
+        if (el.dataset.o === 'used') { filt.used = el.checked; return render(); }
+        if (el.dataset.o === 'all') { if (el.checked) Book.meta.tokIds = true; else delete Book.meta.tokIds; Book.refresh(); commit(true); return render(); }
+        if (el.dataset.o === 'page' && curPage) { if (el.checked) curPage.setAttribute('data-tokids', 'on'); else if (Book.meta.tokIds) curPage.setAttribute('data-tokids', 'off'); else curPage.removeAttribute('data-tokids'); Book.refresh(); commit(true); return render(); }
+        if (el.matches('.tk-c')) {
+          const t = el.closest('.tk-r').dataset.t, f = el.value === 'auto' ? null : el.value;
+          if (v.kind === 'bpe') { v.colors = v.colors || {}; if (f) v.colors[t] = f; else delete v.colors[t]; } else { const k = v._byT.get(t); if (k) { if (f) k.c = f; else delete k.c; } }
+          return saveVocabs();
+        }
+        if (el.matches('input.tk-idc')) {
+          const t = el.dataset.t, id = parseInt(el.value, 10), k = v._byT.get(t);
+          if (!k || !(id >= 0)) return render();
+          const clash = v.tokens.find(x => x.id === id && x !== k);
+          if (clash) clash.id = k.id;   // swap, so IDs stay unique
+          k.id = id; return saveVocabs(clash ? 'Swapped IDs with ' + JSON.stringify(clash.t) : null);
+        }
+      });
+      panel.addEventListener('input', e => { if (e.target.matches('.tk-q')) { filt.q = e.target.value; render(); } });
+    }
+    if (on) $('#main').append(panel);
+    const b = $('#x-tok'); if (b) b.classList.toggle('on', on);
+    if (on) Book.loadVocabs(true).then(render); else renderInspector();
+  }
+  const btn = document.createElement('button'); btn.id = 'x-tok'; btn.textContent = 'Tokens';
+  btn.title = 'Token table: every token tile, with its ID and colour, shared by every chapter. Select text and press Token (Option+K) to make tiles.';
+  btn.onclick = () => setOn(!on);
+  ($('#x-qpool') || $('#x-review') || $('#x-cmts')).after(btn);
+  let lastPage = null, lastN = -1;
+  setInterval(() => { if (!on) return; const n = book.querySelectorAll('b-tok').length; if (curPage !== lastPage || n !== lastN) { lastPage = curPage; lastN = n; if (!panel.contains(document.activeElement)) render(); } }, 400);
+  window.Tokens = { make: tokens, open: () => setOn(true), close: () => setOn(false), render };
+  Book.loadVocabs();
 })();
 // another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)
 (() => {
