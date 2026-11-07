@@ -314,7 +314,7 @@ const rn = v => +(+v).toFixed(1);
 Book.drawTok = g => {
   if (!Book.vocabs) return false;
   const NS = 'http://www.w3.org/2000/svg';
-  let rect = g.querySelector(':scope > rect'), lab = g.querySelector(':scope > text:not(.tk-idl)'), idl = g.querySelector(':scope > text.tk-idl');
+  let rect = g.querySelector(':scope > rect'), lab = g.querySelector(':scope > text:not(.tk-idl):not(.tk-sub)'), idl = g.querySelector(':scope > text.tk-idl'), sub = g.querySelector(':scope > text.tk-sub');
   if (!rect) { rect = document.createElementNS(NS, 'rect'); rect.setAttribute('x', 0); rect.setAttribute('y', 0); rect.setAttribute('width', 20); rect.setAttribute('height', 15); g.prepend(rect); }
   if (!lab) { lab = document.createElementNS(NS, 'text'); lab.setAttribute('font-size', 9); rect.after(lab); }
   const t = g.getAttribute('data-t') || '', info = Book.tokInfo(g.getAttribute('data-tok'), t), col = TOK_COLS[info.fam] || TOK_COLS.gray;
@@ -330,13 +330,17 @@ Book.drawTok = g => {
   if (lab.textContent !== label) lab.textContent = label;
   for (const [k, v] of [['fill', '#000000'], ['font-family', 'Arial, Helvetica, sans-serif'], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(lab, k, v);
   if (lab.style.whiteSpace !== 'pre') lab.style.whiteSpace = 'pre';
-  let len = 0; try { len = lab.getComputedTextLength(); } catch (e) {}
-  const w = len ? Math.max(len + fs * 0.9, fs * 1.3) : w0, h = ids ? fs * 2.3 : fs * 1.65;
-  setA(rect, 'x', rn(cx - w / 2)); setA(rect, 'width', rn(w)); setA(rect, 'y', rn(cy - h / 2)); setA(rect, 'height', rn(h));
-  setA(lab, 'x', rn(cx)); setA(lab, 'y', rn(ids ? cy - fs * 0.08 : cy + fs * 0.35));
+  // a second line (text.tk-sub: a count, an embedding) sits under the label, the ID under both
+  const sfs = sub ? parseFloat(sub.getAttribute('font-size')) || fs * 0.8 : 0;
+  let len = 0, slen = 0; try { len = lab.getComputedTextLength(); if (sub) slen = sub.getComputedTextLength(); } catch (e) {}
+  const w = len ? Math.max(Math.max(len, slen) + fs * 0.9, fs * 1.3) : w0, h = fs * 1.65 + (sub ? sfs * 1.2 : 0) + (ids ? fs * 0.65 : 0), top = cy - h / 2;
+  setA(rect, 'x', rn(cx - w / 2)); setA(rect, 'width', rn(w)); setA(rect, 'y', rn(top)); setA(rect, 'height', rn(h));
+  let base = top + fs * 1.15;
+  setA(lab, 'x', rn(cx)); setA(lab, 'y', rn(base));
+  if (sub) { base += sfs * 1.2; setA(sub, 'x', rn(cx)); setA(sub, 'y', rn(base)); setA(sub, 'text-anchor', 'middle'); }
   if (ids) {
     if (!idl) { idl = document.createElementNS(NS, 'text'); idl.setAttribute('class', 'tk-idl'); g.append(idl); }
-    for (const [k, v] of [['x', rn(cx)], ['y', rn(cy + fs * 0.82)], ['font-size', rn(fs * 0.66)], ['fill', col[2]], ['font-family', "Consolas, 'Inconsolata LGC', monospace"], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(idl, k, v);
+    for (const [k, v] of [['x', rn(cx)], ['y', rn(base + fs * 0.75)], ['font-size', rn(fs * 0.66)], ['fill', col[2]], ['font-family', "Consolas, 'Inconsolata LGC', monospace"], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(idl, k, v);
     const s = info.known ? String(info.id) : '?'; if (idl.textContent !== s) idl.textContent = s;
   } else if (idl) idl.remove();
   return Math.abs(w - w0) > 0.05 || Math.abs(h - h0) > 0.05;

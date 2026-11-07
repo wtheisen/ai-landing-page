@@ -323,7 +323,7 @@ function penDraw(e, pg) {   // freehand: the stroke is kept as an open polygon, 
 // word by word, new words added), one tile per token in a row. Double-click a tile to retype it.
 const isTok = s => !!(s && s.matches && s.matches('g[data-tok]'));
 const tokId = () => 'tk-' + Math.random().toString(36).slice(2, 8);
-const tokLab = g => g.querySelector(':scope > text:not(.tk-idl)');
+const tokLab = g => g.querySelector(':scope > text:not(.tk-idl):not(.tk-sub)');
 const tokFs = g => parseFloat((tokLab(g) || g).getAttribute('font-size')) || 9;
 function newTok(svg, cx, cy, vn, t, fs) {
   fs = fs || 9;
@@ -361,13 +361,15 @@ async function makeTokens(list) {   // ordinary tiles (a box and its label, grou
   for (const s of list) {
     if (isTok(s)) { out.push(s); continue; }
     const r = s.querySelector(':scope > rect'), t = s.querySelector(':scope > text'); if (!r || !t) continue;
-    const text = t.textContent.trim();
-    [...s.children].filter(c => c !== r && c !== t).forEach(c => c.remove());
+    const text = t.textContent.trim(), more = [...s.querySelectorAll(':scope > text')].filter(c => c !== t);
+    if (more.length) { more[0].classList.add('tk-sub'); if (!more[0].getAttribute('font-size')) more[0].setAttribute('font-size', r1(tokFs(s) * 0.8)); }   // a second label (a count, numbers) stays as the tile's second line
+    [...s.children].filter(c => c !== r && c !== t && c !== more[0]).forEach(c => c.remove());
     if (!s.id) s.id = tokId();
     s.setAttribute('data-tok', vn); s.setAttribute('data-t', '');
     const made = await retok(s, text); out.push(...made);
   }
   setShapes(out, layer); E.commit(true); E.renderInspector();
+  return out;
 }
 function tokInspect(add) {
   const svg = layer, list = shapes, vn = list[0].getAttribute('data-tok'), v = Book.vocabs && Book.vocabs[vn];
@@ -377,6 +379,14 @@ function tokInspect(add) {
   add(`<div class="help">${esc(v ? v.title : vn)}${one ? (one.known ? ' · ID <b class="mono">' + one.id + '</b>' : ' · not in this vocabulary') : ''}. Its colour and ID come from the token table, the same everywhere. Double-click a tile to retype it.</div>`);
   const ids = add(`<label class="check"><input type="checkbox" ${svg.classList.contains('tokids') ? 'checked' : ''}>IDs under the tiles in this drawing</label>`);
   ids.firstChild.onchange = e => { E.commit(true); svg.classList.toggle('tokids', e.target.checked); Book.drawToks(svg.parentNode); drawHandles(); E.commit(true); };
+  if (list.length === 1) {
+    const sb = list[0].querySelector(':scope > text.tk-sub');
+    add(`<label>Second line (under the token: a count, numbers; empty for none)</label>`);
+    const si = add(`<input type="text" value="${esc(sb ? sb.textContent : '').replace(/"/g, '&quot;')}">`);
+    si.onchange = () => { E.commit(true); const g = list[0]; let t = g.querySelector(':scope > text.tk-sub');
+      if (!si.value) { if (t) t.remove(); } else { if (!t) { t = svgEl('text', { class: 'tk-sub', 'font-size': r1(tokFs(g) * 0.8), fill: '#000000', 'font-family': 'Arial, Helvetica, sans-serif' }); tokLab(g).after(t); } t.textContent = si.value; }
+      Book.drawTok(g); reconnect(svg); drawHandles(); E.commit(true); };
+  }
   const sz = add(`<div class="row">Size <input type="number" min="5" max="40" step="0.5" style="width:60px" value="${tokFs(list[0])}"></div>`);
   sz.querySelector('input').onchange = e => { E.commit(true); list.forEach(g => { tokLab(g).setAttribute('font-size', +e.target.value || 9); Book.drawTok(g); }); reconnect(svg); drawHandles(); E.commit(true); };
   const b = add(`<div class="row"><button data-a="table">Tokens table</button><button data-a="plain" title="Keep the boxes and labels as they are now, without the token table">Back to plain boxes</button></div>`);
@@ -836,6 +846,6 @@ function fit(svg, quiet) {
   drawHandles(); E.commit(true); Book.refresh(); E.place();
   return true;
 }
-window.Draw = { inspect, layers, convertFigure, fit, reconnect, clearClip() { clip = null; }, onBlockSelect(el) { if (shapes.length && layer !== el) { shapes = []; layer = null; drawHandles(); } }, get shapes() { return shapes; }, get tool() { return tool; }, get locked() { return locked; }, setTool };
+window.Draw = { inspect, layers, convertFigure, fit, reconnect, makeTokens, clearClip() { clip = null; }, onBlockSelect(el) { if (shapes.length && layer !== el) { shapes = []; layer = null; drawHandles(); } }, get shapes() { return shapes; }, get tool() { return tool; }, get locked() { return locked; }, setTool };
 E.renderInspector();
 });
