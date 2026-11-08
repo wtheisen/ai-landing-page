@@ -1287,9 +1287,11 @@ function codeInspector(el, add) {
     fl.value = (el.getAttribute('files') || '').split(/\s+/).filter(Boolean).join('\n');
     fl.onchange = () => attr('files', fl.value.split(/\s+/).filter(Boolean).join(' '));
     add(`<div class="help">Each file is downloaded before the code runs and saved under its own name, so <code>pd.read_csv("nd_football.csv")</code> works. The address must be public (the site's <code>static/data/</code> folder is).</div>`);
-    const run = add(`<div class="row"><button data-a="run">Run and fill in Output</button><button data-a="all">Fill every Output in this chapter</button><span class="help" style="margin:0"></span></div>`);
+    const run = add(`<div class="row"><button data-a="run">Run and fill in Output</button><button data-a="prior" title="Start Python over and run every cell above this one first">Run prior and fill in</button><button data-a="all">Fill every Output in this chapter</button><span class="help" style="margin:0"></span></div>`);
     run.querySelector('[data-a=run]').onclick = e => runIntoOutput(el, run.lastChild, e.target);
+    run.querySelector('[data-a=prior]').onclick = e => runPrior(el, run.lastChild, e.target);
     run.querySelector('[data-a=all]').onclick = async e => {
+      pyNS.clear();   // start every document's notebook over
       const blocks = [...book.querySelectorAll('b-code[lang="python"]:not([norun])')];
       for (let k = 0; k < blocks.length; k++) { await runIntoOutput(blocks[k], run.lastChild, e.target); if (/error|Could not/.test(run.lastChild.textContent)) return; }
       run.lastChild.textContent = `Filled ${blocks.length} Output block${blocks.length === 1 ? '' : 's'}.`;
@@ -1442,9 +1444,11 @@ function startCodeEdit(el, ev) {
   let run = null;
   if (!isOut && el.getAttribute('lang') === 'python') {
     run = document.createElement('div'); run.setAttribute('data-ed', ''); run.className = 'ed-coderun';
-    run.innerHTML = '<span></span><button title="Run this code and write what it prints into the Output below">Run ▸</button>';
+    const first = codeCells(el).indexOf(el) < 1;
+    run.innerHTML = '<span></span>' + (first ? '' : '<button data-a="prior" title="Start Python over, run every code cell above this one (filling in their Outputs), then this one">Run prior ▸▸</button>') + '<button data-a="run" title="Run this code and write what it prints into the Output below. Every cell in this document shares one Python session, like a notebook">Run ▸</button>';
     run.addEventListener('mousedown', e => e.preventDefault());   // keep typing focus
     run.lastChild.onclick = () => runIntoOutput(el, run.firstChild, run.lastChild);
+    if (!first) run.querySelector('[data-a=prior]').onclick = e => runPrior(el, run.firstChild, e.target);
     el.append(run);
   }
   codeEd = { el, ta, run, fit };
@@ -1491,9 +1495,23 @@ book.addEventListener('click', e => {
   startCodeEdit(c, e);
 });
 
-// the program a block runs (book.js eaiRunCode prelude): its hidden setup, the blocks it continues (chain), then itself
-function codeProgram(el) {
-  const list = [...(el.closest('.book') || book).querySelectorAll('b-code[lang="python"]')].filter(b => { const pg = b.closest('section.page'); return !pg || Book.inView(pg); });
+// Code cells run like one notebook per document (Eric, 2026-11-08): every python cell of the Reading shares one
+// Python namespace, every cell of the Lecture another (pyNS, keyed by codeDoc). Run prior starts it over.
+const pyNS = new Map();
+function codeDoc(el) {
+  const pg = el.closest('section.page'); if (!pg) return 'all';
+  const r = Book.inView(pg, 'reading'), l = Book.inView(pg, 'slides') || Book.inView(pg, 'workbook');
+  return r && !l ? 'reading' : l && !r ? 'lecture' : 'all';
+}
+function codeCells(el) {
+  const d = codeDoc(el);
+  return [...book.querySelectorAll('b-code[lang="python"]')].filter(b => !b.hasAttribute('norun') && codeDoc(b) === d);
+}
+// the program a block runs (book.js eaiRunCode prelude): its hidden setup, the blocks it continues (chain), then itself.
+// The chain is only added while the cell it continues hasn't run in the current namespace (ns).
+function codeProgram(el, ns) {
+  const list = codeCells(el), k0 = list.indexOf(el);
+  if (ns && el.hasAttribute('chain') && k0 > 0 && list[k0 - 1]._edRan === ns) { const pre = el.getAttribute('setup') || ''; return { code: pre ? pre + '\n' + el.src : el.src, off: pre ? pre.split('\n').length : 0 }; }
   const parts = []; let b = el;
   for (;;) {
     if (b !== el) parts.unshift(b.src);
@@ -1507,20 +1525,22 @@ function codeProgram(el) {
 async function runIntoOutput(el, status, btn) {
   btn.disabled = true; status.textContent = 'Starting Python (the first run takes a few seconds)…';
   const lines = [];
-  let py, off = 0;
-  try { py = await editorPython(); } catch (e) { btn.disabled = false; status.textContent = 'Could not start Python here (is this computer online?). The Output was left as it was.'; return; }
+  let py, off = 0, ok = true;
+  try { py = await editorPython(); } catch (e) { btn.disabled = false; status.textContent = 'Could not start Python here (is this computer online?). The Output was left as it was.'; return false; }
   try {
     for (const u of (el.getAttribute('files') || '').split(/\s+/).filter(Boolean)) {
       status.textContent = 'Fetching ' + u.split('/').pop() + '…';
       const r = await fetch(u); if (!r.ok) throw new Error('could not fetch ' + u);
       py.FS.writeFile(u.split('/').pop().split('?')[0], new Uint8Array(await r.arrayBuffer()));
     }
-    const prog = codeProgram(el); off = prog.off;
+    const key = codeDoc(el); if (!pyNS.has(key)) pyNS.set(key, py.toPy({}));
+    const ns = pyNS.get(key), prog = codeProgram(el, ns); off = prog.off;
     if (/^\s*(import|from)\s+torch(vision)?\b/m.test(prog.code)) { status.textContent = 'Loading PyTorch…'; await editorTorch(py); }
     status.textContent = 'Running…';
     await py.loadPackagesFromImports(prog.code);
     py.setStdout({ batched: t => lines.push(t) }); py.setStderr({ batched: t => lines.push(t) });
-    const r = await py.runPythonAsync(prog.code, { globals: py.toPy({}) });
+    const r = await py.runPythonAsync(prog.code, { globals: ns });
+    el._edRan = ns;
     if (r !== undefined && r !== null) {   // like a notebook: a last line that is an expression shows its value
       const B = py.pyimport('builtins');
       if (typeof r === 'object') { try { if (!/^matplotlib/.test(String(B.getattr(B.type(r), '__module__', '')))) lines.push(B.repr(r)); } finally { if (r.destroy) r.destroy(); } }
@@ -1529,6 +1549,7 @@ async function runIntoOutput(el, status, btn) {
     try { py.runPython("import sys\nif 'matplotlib.pyplot' in sys.modules:\n    import matplotlib.pyplot as _p\n    _p.close('all')"); } catch (e) {}
     status.textContent = 'Done.';
   } catch (e) {
+    ok = false;
     const m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, (x, a, n) => +n > off ? a + (n - off) : a + n + ' (setup)').split('\n'), k = m.findIndex(l => l.includes('File "<exec>"'));
     lines.push(...(k >= 0 ? ['Traceback (most recent call last):', ...m.slice(k)] : m.slice(-4)));
     status.textContent = 'The code raised an error; the Output shows it.';
@@ -1540,11 +1561,23 @@ async function runIntoOutput(el, status, btn) {
     if (out && out.tagName === 'B-OUT') out.remove();
     status.innerHTML = '<b style="color:#38761D">✓</b> Ran';
     commit(true); Book.refresh(); place();
-    return;
+    return ok;
   }
   if (!out || out.tagName !== 'B-OUT') { out = h('<b-out>\n</b-out>'); el.after(out); prep(); }
   out.src = lines.join('\n');
   commit(true); Book.refresh(); place();
+  return ok;
+}
+// Run prior: a fresh namespace for this document, every python cell above this one in order (each fills its Output),
+// then this one; stops at the first error. Like a notebook's restart and run above.
+async function runPrior(el, status, btn) {
+  const list = codeCells(el), k = list.indexOf(el), key = codeDoc(el);
+  pyNS.delete(key);
+  for (let i = 0; i < k; i++) {
+    if (!(await runIntoOutput(list[i], status, btn))) { status.textContent = `Stopped: cell ${i + 1} of ${k + 1} raised an error (its Output shows it).`; return false; }
+    status.textContent = `Ran cell ${i + 1} of ${k + 1}…`;
+  }
+  return runIntoOutput(el, status, btn);
 }
 
 function renderInspector() {
