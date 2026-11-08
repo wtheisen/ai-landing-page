@@ -64,6 +64,7 @@ function inlineMath(s, plain) {   // plain: no colours (the subscripts of a colo
     if (isAlpha(c)) {
       i++;
       let tok = c === 'Ω' ? '<span class="Om">ω</span>' : esc(c);   // Ω = the weight-matrix ω, drawn as a tall ω (like the equation font)
+      while (i < s.length && /[\u0300-\u036f]/.test(s[i])) tok += s[i++];   // c̃: a combining mark stays on its letter, not on the subscript
       const f = colors[c];
       while (i < s.length && (s[i] === '_' || s[i] === '^')) {
         const tag = s[i] === '_' ? 'sub' : 'sup', [sub, i2] = script(i + 1);
