@@ -1295,7 +1295,7 @@ function eaiRunCode() {
     // making code runnable never adds height to a page; it opens once the code has run
     if (!out) { out = document.createElement('b-out'); out.className = 'run-new'; out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
-    bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
+    bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
     function show(text, err, figs) {
@@ -1318,7 +1318,10 @@ function eaiRunCode() {
     // g: a globals dict shared with the cells run before this one (Run prior); then the cell runs alone, without the
     // blocks it chains to (they have just run in g). Resolves true when the cell ran without an error.
     function run(g) {
-      var own = editor ? editor.value : original, pre = g ? (block.getAttribute('setup') || '') : prelude(block), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
+      // like one notebook: every cell in a document shares one Python namespace (bk._eaiG). A chained cell whose
+      // earlier cells haven't run yet in this namespace runs them first (its prelude); once they have, it runs alone.
+      var chainNeeded = !g && block.hasAttribute('chain') && !(block._eaiPrevRan && block._eaiPrevRan());
+      var own = editor ? editor.value : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
       return pyodide().then(function (py) {
@@ -1331,9 +1334,10 @@ function eaiRunCode() {
           .then(function () {
             status.textContent = 'Running…';
             py.setStdout({ batched: function (t) { lines.push(t); } }); py.setStderr({ batched: function (t) { lines.push(t); } });
-            return py.runPythonAsync(code, { globals: g || py.globals.get('dict')() });
+            var home = bk || document; if (g) home._eaiG = g; else if (!home._eaiG) home._eaiG = py.globals.get('dict')();
+            return py.runPythonAsync(code, { globals: home._eaiG });
           })
-          .then(function (r) { ok = true; var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed) { show(''); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
+          .then(function (r) { ok = true; block._eaiRan = (bk || document)._eaiG; var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed) { show(''); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
           show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; },
                 function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); show((lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), true, figures(window._eaiPy)); out.classList.add('shown'); status.textContent = 'Error'; });
       }, function (e) { status.textContent = String(e.message || e); })
@@ -1346,7 +1350,8 @@ function eaiRunCode() {
       if (bar.classList.contains('busy')) return;
       bar.classList.add('busy'); status.textContent = boot ? 'Running the cells above…' : 'Loading Python (the first run takes a little while)…';
       pyodide().then(function (py) {
-        var g = py.globals.get('dict')(), i = 0;
+        var home = bk || document, g = py.globals.get('dict')(), i = 0;   // restart: a fresh namespace for the whole document
+        if (home._eaiG) { try { home._eaiG.destroy(); } catch (e) {} } home._eaiG = g;
         function next() {
           if (i < before.length) {
             var b = before[i++]; status.textContent = 'Running cell ' + i + ' of ' + (before.length + 1) + '…';
@@ -1354,10 +1359,12 @@ function eaiRunCode() {
           }
           bar.classList.remove('busy'); return run(g);
         }
-        return next().then(function () { try { g.destroy(); } catch (e) {} });
+        return next();
       }, function (e) { status.textContent = String(e.message || e); })
         .then(function () { bar.classList.remove('busy'); });
     }
+    // has the cell this one chains to run in the current namespace? (then a chained Run needn't repeat it)
+    block._eaiPrevRan = function () { var list = pyBlocks(bk || document), k = list.indexOf(block); if (k < 1) return false; var p = list[k - 1], G = (bk || document)._eaiG; return !!G && p._eaiRan === G; };
     block._eaiRun = run; block._eaiBar = bar;
     bar.addEventListener('click', function (e) { var a = e.target.getAttribute && e.target.getAttribute('data-a'); if (a === 'run') run(); else if (a === 'prior') runPrior(); else if (a === 'edit') edit(); else if (a === 'reset') reset(); });
   });
