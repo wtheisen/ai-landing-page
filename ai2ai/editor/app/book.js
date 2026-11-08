@@ -1295,7 +1295,7 @@ function eaiRunCode() {
     // making code runnable never adds height to a page; it opens once the code has run
     if (!out) { out = document.createElement('b-out'); out.className = 'run-new'; out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
-    bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="run">\u25b6 Run</button>';
+    bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
     function show(text, err, figs) {
@@ -1315,11 +1315,13 @@ function eaiRunCode() {
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
     function reset() { if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed); out.classList.remove('shown'); status.textContent = ''; }
-    function run() {
-      var own = editor ? editor.value : original, pre = prelude(block), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [];
+    // g: a globals dict shared with the cells run before this one (Run prior); then the cell runs alone, without the
+    // blocks it chains to (they have just run in g). Resolves true when the cell ran without an error.
+    function run(g) {
+      var own = editor ? editor.value : original, pre = g ? (block.getAttribute('setup') || '') : prelude(block), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
-      pyodide().then(function (py) {
+      return pyodide().then(function (py) {
         window._eaiPy = py;
         status.textContent = 'Loading packages…';
         var files = (block.getAttribute('files') || '').split(/\s+/).filter(Boolean);
@@ -1329,15 +1331,40 @@ function eaiRunCode() {
           .then(function () {
             status.textContent = 'Running…';
             py.setStdout({ batched: function (t) { lines.push(t); } }); py.setStderr({ batched: function (t) { lines.push(t); } });
-            return py.runPythonAsync(code, { globals: py.globals.get('dict')() });
+            return py.runPythonAsync(code, { globals: g || py.globals.get('dict')() });
           })
-          .then(function (r) { var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed) { show(''); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
+          .then(function (r) { ok = true; var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed) { show(''); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
           show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; },
                 function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); show((lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), true, figures(window._eaiPy)); out.classList.add('shown'); status.textContent = 'Error'; });
       }, function (e) { status.textContent = String(e.message || e); })
+        .then(function () { bar.classList.remove('busy'); return ok; });
+    }
+    // Run prior: every runnable python cell above this one in this document, in order, in one program (shared
+    // variables, like running a notebook from the top), then this one. Stops at the first error.
+    function runPrior() {
+      var list = pyBlocks(bk || document), k = list.indexOf(block), before = list.slice(0, k < 0 ? 0 : k).filter(function (b) { return b._eaiRun; });
+      if (bar.classList.contains('busy')) return;
+      bar.classList.add('busy'); status.textContent = boot ? 'Running the cells above…' : 'Loading Python (the first run takes a little while)…';
+      pyodide().then(function (py) {
+        var g = py.globals.get('dict')(), i = 0;
+        function next() {
+          if (i < before.length) {
+            var b = before[i++]; status.textContent = 'Running cell ' + i + ' of ' + (before.length + 1) + '…';
+            return b._eaiRun(g).then(function (fine) { if (fine) return next(); status.textContent = 'Stopped: the cell above (' + i + ' of ' + (before.length + 1) + ') has an error'; b.scrollIntoView({ block: 'center' }); return false; });
+          }
+          bar.classList.remove('busy'); return run(g);
+        }
+        return next().then(function () { try { g.destroy(); } catch (e) {} });
+      }, function (e) { status.textContent = String(e.message || e); })
         .then(function () { bar.classList.remove('busy'); });
     }
-    bar.addEventListener('click', function (e) { var a = e.target.getAttribute && e.target.getAttribute('data-a'); if (a === 'run') run(); else if (a === 'edit') edit(); else if (a === 'reset') reset(); });
+    block._eaiRun = run; block._eaiBar = bar;
+    bar.addEventListener('click', function (e) { var a = e.target.getAttribute && e.target.getAttribute('data-a'); if (a === 'run') run(); else if (a === 'prior') runPrior(); else if (a === 'edit') edit(); else if (a === 'reset') reset(); });
+  });
+  // Run prior only where some runnable cell comes before this one in its document
+  var books = document.querySelectorAll('.book'); [].forEach.call(books.length ? books : [document], function (bk) {
+    var seen = false;
+    pyBlocks(bk).forEach(function (b) { if (!b._eaiBar) return; var p = b._eaiBar.querySelector('[data-a="prior"]'); if (p) p.hidden = !seen; seen = true; });
   });
 }
 Book.runCode = () => { if (Book.web && !Book.exporting) eaiRunCode(); };
