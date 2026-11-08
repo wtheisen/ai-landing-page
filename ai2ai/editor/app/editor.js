@@ -76,6 +76,12 @@ function prep() {   // make text blocks editable; equations, figures and code ar
     if (first) host.before(b); else host.after(b);
     b.removeAttribute('contenteditable'); b.removeAttribute('spellcheck');
   });
+  // a comment between a code block and its output splits them (the output then drops below as a separate box, Eric
+  // 2026-11-08): comments on the code go after the output
+  book.querySelectorAll('b-code').forEach(c => {
+    const t = []; let n = c.nextElementSibling; while (n && n.classList.contains('cmt')) { t.push(n); n = n.nextElementSibling; }
+    if (t.length && n && n.tagName === 'B-OUT') n.after(...t);
+  });
   for (const pg of Book.pages()) for (const el of Book.blocks(pg)) {
     if (NOEDIT.test(el.tagName) || (el.tagName === 'DIV' && !el.firstChild && el.className === 'rule')) continue;
     if (el.classList.contains('colrow')) { el.removeAttribute('contenteditable'); for (const b of el.querySelectorAll(':scope > .colbox')) if (b.getAttribute('contenteditable') !== 'true') { b.setAttribute('contenteditable', 'true'); b.setAttribute('spellcheck', 'true'); } continue; }
@@ -704,14 +710,17 @@ function wrapSel(tag, cls) {
   const host = editHost(); if (!host) return toast('Click into some text first');
   const s = getSelection(), r = s.getRangeAt(0);
   const anc = r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement;
-  const inside = anc.closest(tag);
+  // spans are separate styles that nest (a Consolas word inside a note, Eric 2026-11-08): only a span of the same
+  // style counts as "inside" (toggle off), and wrapping keeps the other spans within the selection
+  const same = tag === 'span' ? 'span.' + cls : tag;
+  const inside = anc.closest(same);
   if (inside && host.contains(inside) && inside !== host) {
     if ((inside.className || '') === (cls || '')) unwrap(inside); else inside.className = cls || '';
     return commit(true);
   }
   if (r.collapsed) return toast('Select some text first');
   const frag = r.extractContents();
-  frag.querySelectorAll(tag).forEach(unwrap);
+  frag.querySelectorAll(same).forEach(unwrap);
   const el = document.createElement(tag); if (cls) el.className = cls; el.append(frag);
   r.insertNode(el); s.selectAllChildren(el); commit(true);
 }
@@ -1638,7 +1647,9 @@ function renderOneInspector() {
     hh.oninput = () => { el.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.width} ${Math.max(20, +hh.value || 20)}`); place(); commit(); };
     // where it sits (Eric, 2026-11-01): in the flow, a width and Left / Centre / Right like a figure; pinned, centre it on the page
     if (!Book.isPinned(el)) {
-      const w0 = Math.round(parseFloat(el.style.width) || 100);
+      // a width stored in pt (todraw, a drawing that was pinned) is shown as the % of the column it comes to, so the
+      // slider starts where the drawing is (it read 500pt as 500% and sat at the far end, Eric 2026-11-08)
+      const ws = el.style.width || '', w0 = /pt$/.test(ws) ? Math.round(parseFloat(ws) / (Book.pageW(el) - 48) * 100) : Math.round(parseFloat(ws) || 100);
       add(`<label>Width: <span id="d-wv">${w0}</span>% of the text column</label>`);
       const dr = add(`<input type="range" min="15" max="100" value="${Math.min(100, w0)}">`);
       dr.oninput = () => { el.style.width = dr.value + '%'; insp.querySelector('#d-wv').textContent = dr.value; place(); commit(); };
@@ -2316,6 +2327,7 @@ function addComment(block, text) {
   if (document.body.classList.contains('no-insp') && !text) togglePanel('no-insp', false);
   commit(true);
   const c = document.createElement('div'); c.className = 'cmt'; c.dataset.by = me; c.dataset.when = stamp(); c.dataset.id = 'c-' + uid().slice(2); c.textContent = text || '';
+  if (block && block.tagName === 'B-CODE') { const o = lastOf(block).nextElementSibling; if (o && o.tagName === 'B-OUT') block = o; }   // never between code and its output
   if (block) lastOf(block).after(c); else { let first = pg.firstElementChild; while (first && first.classList.contains('cmt')) first = first.nextElementSibling; pg.insertBefore(c, first); }
   commit(true); renderInspector(); placeMarkers();
   if (!text) openCommentPanel(true);

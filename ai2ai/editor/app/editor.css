@@ -73,7 +73,9 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 /* quick-check answers take no room in print, so in the editor they hang below the box while it is selected */
 .ed .qc:not([style*="absolute"]) { position: relative; }
 .ed .qc .ans { display: none; }
-.ed .qc.ed-sel .ans { display: block; position: absolute; left: 0; right: 0; top: 100%; margin-top: 3pt; background: #fff; border: 1px solid var(--yellow-line); border-radius: 4px; padding: 5pt 10pt; z-index: 4; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+/* the answer shows under a selected exam question on Lecture and Workbook pages too (book.css hides answers there with
+   !important; Eric 2026-11-08: "why aren't the answer boxes appearing") */
+.ed .qc.ed-sel .ans { display: block !important; position: absolute; left: 0; right: 0; top: 100%; margin-top: 3pt; background: #fff; border: 1px solid var(--yellow-line); border-radius: 4px; padding: 5pt 10pt; z-index: 4; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
 .ed .ed-dragging { opacity: .45; }
 .ed .web-only { outline: 1px dotted #9ab; }
 .ed b-answers:empty::before { content: "Quick-check answers appear here"; color: #bbb; }

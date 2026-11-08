@@ -157,6 +157,9 @@ b-toc a span:last-child { font-variant-numeric: tabular-nums; color: var(--navy)
 .tbl th { text-align: left; font-size: 12pt; color: var(--navy); padding: 3pt 4pt; border-bottom: 1pt solid var(--navy); }
 .tbl td { padding: 5pt 4pt; border-bottom: 1pt solid var(--border); }
 .tbl.small { font-size: 12pt; } .tbl.small td { padding: 4pt 4pt; }
+/* a row of token tiles under a table row, showing that row's tokens (RNN, Tokenization Levels, Eric 2026-11-08) */
+.tbl tr:has(+ tr.toks) td { border-bottom: none; padding-bottom: 1pt; }
+.tbl tr.toks td { padding-top: 0; } .tbl tr.toks p.tiles { margin: 0; }
 .tbl.num td:not(:first-child), .tbl.num th:not(:first-child) { text-align: right; }
 
 /* figures */
@@ -285,6 +288,9 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    text instead (Eric, same day), and not in code, where columns must line up. */
 .book[data-view="slides"] u.fill:not(b-code u.fill, b-out u.fill) { font-size: 1.2em; }
 .book[data-view="slides"] u.fill u.fill { font-size: 1em; }
+/* in a table the text is smaller than the slide's, so a blank there is as large as a blank in the text around it
+   (Eric, 2026-11-08: "fills in a table are also enlarged") */
+.book[data-view="slides"] :is(td, th) u.fill:not(b-code u.fill, b-out u.fill, u.fill u.fill) { font-size: max(1.2em, 21.6pt); }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] > * { visibility: hidden; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown > * { visibility: visible; }
@@ -575,6 +581,10 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { overflow: hidden; }
+/* class "side" on a block puts it beside the block before it on a slide (right column; the one before takes the left),
+   e.g. the vocabulary table beside the token IDs (Eric, 2026-11-08). Other views stack them as usual. */
+.book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ .side), :has(+ .cmt + .side), :has(+ .cmt + .cmt + .side)) { grid-column: 1; align-self: center; min-width: 0; }
+.book[data-view="slides"] .page:not(.cover) > * + .side { grid-column: 2; align-self: center; min-width: 0; }
 /* out="below" on a b-code puts its output under it on a slide too, across the full width (Eric, 2026-11-01) */
 .book[data-view="slides"] .page:not(.cover) > b-code[out="below"]:has(+ b-out:not(.run-new)) { grid-column: 1 / -1 !important; border-radius: 4px 4px 0 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code[out="below"] + b-out:not(.run-new) { grid-column: 1 / -1 !important; margin-left: 0 !important; margin-top: calc(-1 * var(--gap, 10pt)) !important; border-top: 0; border-radius: 0 0 4px 4px; }
@@ -621,3 +631,6 @@ p.tiles.tokids { line-height: 2.7; }
 .book:is([data-view="reading"], [data-view="workbook"]) p.tiles { font-size: .78em; }
 /* a word split into tiles in running text stays on one line */
 .tkw { white-space: nowrap; }
+/* a vocabulary table set beside its tiles on a slide stacks under them on a 6 x 9 page: tighter rows there */
+.book:not([data-view="slides"]) table.tbl.vocab td { padding-top: 1pt; padding-bottom: 1pt; }
+.book:not([data-view="slides"]) table.tbl.vocab { font-size: 10pt; }
