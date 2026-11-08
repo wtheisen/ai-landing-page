@@ -83,6 +83,7 @@ function prep() {   // make text blocks editable; equations, figures and code ar
     if (t.length && n && n.tagName === 'B-OUT') n.after(...t);
   });
   for (const pg of Book.pages()) for (const el of Book.blocks(pg)) {
+    if (el.tagName === 'DIV' && el.classList.contains('wbox')) { el.removeAttribute('contenteditable'); el.removeAttribute('spellcheck'); continue; }   // an empty write-in box: sized, never typed in
     if (NOEDIT.test(el.tagName) || (el.tagName === 'DIV' && !el.firstChild && el.className === 'rule')) continue;
     if (el.classList.contains('colrow')) { el.removeAttribute('contenteditable'); for (const b of el.querySelectorAll(':scope > .colbox')) if (b.getAttribute('contenteditable') !== 'true') { b.setAttribute('contenteditable', 'true'); b.setAttribute('spellcheck', 'true'); } continue; }
     if (el.getAttribute('contenteditable') !== 'true') { el.setAttribute('contenteditable', 'true'); el.setAttribute('spellcheck', 'true'); }
@@ -370,7 +371,7 @@ function place() {
   const sizable = Book.isPinned(sel) || sel.tagName === 'B-FIG' || sel.localName === 'svg';
   rsz.hidden = !sizable;
   if (sizable) { rsz.style.left = (x + r.width - 3) + 'px'; rsz.style.top = (y + r.height / 2 - 13) + 'px'; }
-  const canvas = sel.localName === 'svg' && !extra.length; $('#rszb').hidden = !canvas;
+  const canvas = (sel.localName === 'svg' || sel.classList.contains('wbox')) && !extra.length; $('#rszb').hidden = !canvas;
   if (canvas) { $('#rszb').style.left = (x + r.width / 2 - 13) + 'px'; $('#rszb').style.top = (y + r.height - 5) + 'px'; }
   placeCrop(); placeMarkers(); placeRulers();
   if (typeof placeFigCode === 'function') placeFigCode();
@@ -425,6 +426,7 @@ function insert(kind) {
   if (kind === 'viz') { const f = insertAfter(h('<b-fig src="" viz=""></b-fig>'), sel); select(f); return setupViz(f, true); }
   if (kind === 'code') { const c = insertAfter(h('<b-code lang="python">\nprint("hello")\n</b-code>'), sel); c.after(h('<b-out>\nhello\n</b-out>')); select(c); commit(true); return; }
   const n = insertAfter(h(TEMPLATES[kind]), sel);
+  if (kind === 'qc') { n.after(h('<div class="wbox" style="height: 90pt"></div>')); prep(); commit(true); }   // an exam question comes with its write-in box
   if (n.isContentEditable) { focusIn(n.tagName === 'UL' ? n.firstElementChild : n, kind === 'p'); if (kind !== 'p') getSelection().selectAllChildren(n.tagName === 'UL' ? n.firstElementChild : n); }
   if (kind === 'eq') { const ta = insp.querySelector('textarea'); if (ta) { ta.focus(); ta.select(); } }
 }
@@ -1219,7 +1221,7 @@ document.addEventListener('selectionchange', () => { const n = getSelection().an
 
 // ---------------------------------------------------------------- side panel
 const KIND = el => el.localName === 'svg' ? 'Drawing' : el.tagName === 'B-EQ' ? 'Equation' : el.tagName === 'B-FIG' ? 'Figure' : el.tagName === 'B-CODE' ? 'Code' : el.tagName === 'B-OUT' ? 'Code output' : el.tagName === 'TABLE' ? 'Table'
-  : /^(UL|OL)$/.test(el.tagName) ? 'List' : el.classList.contains('qc') ? 'Exam question' : /^H\d$/.test(el.tagName) ? 'Heading' : el.tagName === 'B-ANSWERS' ? 'Quick-check answers' : el.tagName === 'B-TOC' ? 'Contents' : el.tagName === 'B-EMBED' ? 'Interactive' : 'Text';
+  : /^(UL|OL)$/.test(el.tagName) ? 'List' : el.classList.contains('qc') ? 'Exam question' : el.classList.contains('wbox') ? 'Write-in box' : /^H\d$/.test(el.tagName) ? 'Heading' : el.tagName === 'B-ANSWERS' ? 'Quick-check answers' : el.tagName === 'B-TOC' ? 'Contents' : el.tagName === 'B-EMBED' ? 'Interactive' : 'Text';
 const TEXT_TYPES = [['p', '', 'Paragraph'], ['h2', '', 'Page title'], ['h3', '', 'Subheading'], ['p', 'aside', 'Note (small grey)'], ['div', 'callout', 'Callout']];
 function userClass(el) { return [...el.classList].filter(c => !c.startsWith('ed-') && !['over', 'busy', 'bad', 'live-on'].includes(c)).join(' '); }
 // ---------------------------------------------------------------- code blocks
@@ -1692,7 +1694,17 @@ function renderOneInspector() {
     lt.onchange = () => { commit(true); const n = document.createElement(lt.value); for (const a of el.attributes) if (a.name !== 'contenteditable' && a.name !== 'spellcheck') n.setAttribute(a.name, a.value); while (el.firstChild) n.append(el.firstChild); el.replaceWith(n); prep(); select(n); commit(true); Book.refresh(); };
     add(`<div class="help">Tab nests an item under the one above; Shift+Tab lifts it back out.</div>`);
     add(`<div class="help">Enter adds an item. The classes below change the look: <code>cases</code> normal, <code>tight</code> small, <code>problems</code> numbered practice problems, <code>roadmap</code> the numbered road map.</div>`);
+  } else if (el.classList.contains('wbox')) {
+    add(`<label>Height (pt): the room to write in</label>`);
+    const hh = add(`<input type="number" min="18" step="10" value="${Math.round(parseFloat(el.style.height) || 90)}">`);
+    hh.oninput = () => { el.style.height = Math.max(18, +hh.value || 18) + 'pt'; place(); commit(); };
+    add(`<div class="help">An empty box for answers, shown in the Lecture and the Workbook. Drag its bottom edge (the handle under it) to make it taller or shorter.</div>`);
   } else if (el.classList.contains('qc')) {
+    { let n = el.nextElementSibling; while (n && n.classList.contains('cmt')) n = n.nextElementSibling;
+      if (!(n && n.classList.contains('wbox'))) {
+        const ab = add(`<div class="row"><button title="An empty box under the question to write the answer in">Add a write-in box</button></div>`);
+        ab.firstChild.onclick = () => { commit(true); const b = document.createElement('div'); b.className = 'wbox'; b.style.height = '90pt'; lastOf(el).after(b); prep(); Book.refresh(); commit(true); select(b); };
+      } }
     add(`<div class="help">The answer line shows here only. In the web edition it sits behind “Show answer”; in print it is listed on the answers page (wherever the chapter has a quick-check answers block).</div>`);
   }
   if ((/^(P|DIV|UL|OL)$/.test(el.tagName) && el.isContentEditable && !el.querySelector(':scope > div, :scope > dl')) || /^(UL|OL)$/.test(el.tagName) || el.classList.contains('colrow')) columnsControl(el, add);
@@ -2252,6 +2264,14 @@ $('#croph').addEventListener('pointerdown', e => {
   window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true);
 });
 $('#rszb').addEventListener('pointerdown', e => {
+  if (sel && sel.classList.contains('wbox') && !extra.length) {   // a write-in box: its height, in pt
+    e.preventDefault(); commit(true); held++;
+    const el = sel, pg = el.parentElement, h0 = el.getBoundingClientRect().height / ptScale(pg), y0 = e.clientY;
+    const move = ev => { el.style.height = Math.max(18, Math.round(h0 + (ev.clientY - y0) / ptScale(pg))) + 'pt'; place(); };
+    const up = () => { window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true); held = Math.max(0, held - 1); commit(true); Book.refresh(); renderInspector(); };
+    window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true);
+    return;
+  }
   if (!sel || sel.localName !== 'svg') return; e.preventDefault(); commit(true); held++;
   const el = sel, v = el.viewBox.baseVal, h0 = v.height, y0 = e.clientY, k = el.getBoundingClientRect().width / v.width;
   const move = ev => { el.setAttribute('viewBox', `${v.x} ${v.y} ${v.width} ${Math.max(20, Math.round(h0 + (ev.clientY - y0) / k))}`); place(); };
@@ -3616,6 +3636,7 @@ if (phone) {
     first.prepend(num, ' ');
     return document.importNode(t, true);
   }
+  function wbox() { const b = document.createElement('div'); b.className = 'wbox'; b.style.height = '90pt'; return b; }
   function okPage(pg) {
     if (!pg || pg.classList.contains('cover')) return false;
     const v = pg.getAttribute('data-view'); return !v || /\b(slides|workbook)\b/.test(v);
@@ -3623,8 +3644,9 @@ if (phone) {
   function insert(q, pg, before) {
     if (!okPage(pg)) { toast('Questions only show in the Lecture and the Workbook: drop it on a Lecture page'); return; }
     commit(true);
-    const t = copyOf(q, pg);
+    const t = copyOf(q, pg), box = wbox();
     if (before) before.before(t); else pg.insertBefore(t, pg.querySelector(':scope > svg.overlay, :scope > .foot'));
+    t.after(box);   // every exam question comes with a write-in box (Eric, 2026-11-08); drag its bottom edge to size it
     prep(); Book.refresh(); commit(true); select(t);
     toast('Added ' + (q.src || q.id), 'Undo', doUndo);
     render();

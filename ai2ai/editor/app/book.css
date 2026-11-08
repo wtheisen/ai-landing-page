@@ -634,3 +634,10 @@ p.tiles.tokids { line-height: 2.7; }
 /* a vocabulary table set beside its tiles on a slide stacks under them on a 6 x 9 page: tighter rows there */
 .book:not([data-view="slides"]) table.tbl.vocab td { padding-top: 1pt; padding-bottom: 1pt; }
 .book:not([data-view="slides"]) table.tbl.vocab { font-size: 10pt; }
+
+/* Write-in box under an exam question (Eric, 2026-11-08): empty, plain 1px black border, square corners, like the
+   boxes on his exams. Its height is the space to write in (style="height: Npt", dragged in the editor). Lecture and
+   Workbook only, like the questions. */
+div.wbox { border: 1px solid #000; border-radius: 0; background: #fff; min-height: 18pt; box-sizing: border-box; flex: none; }
+.book[data-view="reading"] div.wbox:not([data-view~="reading"]) { display: none !important; }
+.page > aside.qc + div.wbox, .page > aside.qc + .cmt + div.wbox, .page > aside.qc + .cmt + .cmt + div.wbox { margin-top: calc(6pt - var(--gap, 10pt)); }   /* the box sits right under its question */

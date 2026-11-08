@@ -733,7 +733,7 @@ Book.inView = (el, v) => {
   v = v || Book.viewOf(el);
   if (el.classList && el.classList.contains('wb-packed')) return false;   // a Workbook page whose blocks went onto the page before it
   if (el.hasAttribute('data-view')) return el.getAttribute('data-view').split(/\s+/).includes(v);
-  if (v === 'reading') return !(el.localName === 'aside' && el.classList.contains('qc'));   // questions belong to the lecture and the workbook; Reading is just reading
+  if (v === 'reading') return !(el.classList && (el.classList.contains('wbox') || (el.localName === 'aside' && el.classList.contains('qc'))));   // write-in boxes too   // questions belong to the lecture and the workbook; Reading is just reading
   if (el.classList.contains('aside') || el.localName === 'b-answers') return false;          // notes and the answer list are for reading
   const top = el.parentElement && el.parentElement.classList.contains('page');
   if (Book.hasKeys && top && el.tagName === 'P' && !el.querySelector('.key')) return false;   // in a chapter with key sentences, a paragraph without one is reading only
@@ -1374,7 +1374,7 @@ Book.snapshot = async () => {
       const keys = [...pp.querySelectorAll('.key')]; if (!keys.length) return pp.remove();
       pp.replaceChildren(...keys.flatMap((k, i) => i ? [document.createTextNode(' '), k] : [k]));
     });
-  } else clone.querySelectorAll('[data-view], aside.qc').forEach(n => { if (!Book.inView(n, view)) n.remove(); });   // (quick checks: not in Reading unless tagged)
+  } else clone.querySelectorAll('[data-view], aside.qc, div.wbox').forEach(n => { if (!Book.inView(n, view)) n.remove(); });   // (quick checks: not in Reading unless tagged)
   if (view === 'workbook') clone.querySelectorAll('[data-box]').forEach(el => {   // the workbook carries blanks, not hidden answers
     const [w, h] = el.getAttribute('data-box').split(' ').map(Number);
     if (el.matches('u.fill')) { const u = document.createElement('u'); u.className = 'fill blank'; u.style.width = w + 'pt'; u.innerHTML = '&nbsp;'; el.replaceWith(u); }
