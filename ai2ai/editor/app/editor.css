@@ -18,7 +18,8 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 
 /* fixed + opaque + full width at the top edge: what makes iOS 26 skip its blur over an installed app's top edge (sticky
    isn't enough here, because the page itself never scrolls). #bar-space keeps its place in the layout. */
-#bar { position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 4px; background: var(--navy); color: #fff; padding: calc(5px + var(--top-clear)) calc(10px + env(safe-area-inset-right)) 5px calc(10px + env(safe-area-inset-left)); }
+#bar { position: fixed; top: 0; left: 0; right: 0; z-index: 48;   /* above the column labels (40) and gutter grips (45), so the Insert / Draw / More menus are never covered (Eric, 2026-11-08); toast, modal, phone panels stay above */
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 4px; background: var(--navy); color: #fff; padding: calc(5px + var(--top-clear)) calc(10px + env(safe-area-inset-right)) 5px calc(10px + env(safe-area-inset-left)); }
 #bar .title { font-weight: 700; font-size: 15px; margin-right: 8px; }
 #bar .grp { display: flex; align-items: center; gap: 3px; padding: 0 8px; border-left: 1px solid rgba(255,255,255,.25); }
 #bar .lbl { font-size: 11px; opacity: .75; margin-right: 2px; }
@@ -192,7 +193,7 @@ body.ed-tool #book, body.ed-tool #book * { cursor: crosshair !important; }
 #book.ed-margins .page:not(.cover)::before { content: ""; position: absolute; left: 24pt; right: 24pt; top: 20pt; height: calc(var(--page-h) - 46pt); border: 1px dashed rgba(26,115,232,.45); border-bottom-color: rgba(204,0,0,.5); pointer-events: none; z-index: 3; }
 #x-over { background: var(--red-text) !important; color: #fff !important; border-color: var(--red-text) !important; font-weight: 700; }
 #x-over[hidden] { display: none; }
-#x-menu { position: fixed; background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 3px 12px rgba(0,0,0,.2); padding: 4px; z-index: 40; min-width: 200px; max-height: 320px; overflow-y: auto; }
+#x-menu { position: fixed; background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 3px 12px rgba(0,0,0,.2); padding: 4px; z-index: 49; min-width: 200px; max-height: 320px; overflow-y: auto; }   /* above the header bar (48): the Columns submenus open over it */
 #x-menu[hidden] { display: none; }
 #x-menu div { padding: 4px 8px; border-radius: 4px; cursor: pointer; display: flex; justify-content: space-between; gap: 14px; }
 #x-menu div small { color: var(--ink-muted); }

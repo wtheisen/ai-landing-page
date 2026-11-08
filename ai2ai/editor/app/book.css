@@ -290,7 +290,7 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
 .book[data-view="slides"] u.fill u.fill { font-size: 1em; }
 /* in a table the text is smaller than the slide's, so a blank there is as large as a blank in the text around it
    (Eric, 2026-11-08: "fills in a table are also enlarged") */
-.book[data-view="slides"] :is(td, th) u.fill:not(b-code u.fill, b-out u.fill, u.fill u.fill) { font-size: max(1.2em, 21.6pt); }
+.book[data-view="slides"] :is(td, th) u.fill:not(b-code u.fill, b-out u.fill, u.fill u.fill) { font-size: max(1.2em, calc(1.2 * var(--fs, 18pt))); }   /* 1.2 x the slide's own text size (smaller on s-tight) */
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] > * { visibility: hidden; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown > * { visibility: visible; }

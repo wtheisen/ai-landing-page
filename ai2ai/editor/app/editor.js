@@ -312,7 +312,12 @@ const ptScale = pg => pg.getBoundingClientRect().width / Book.pageW(pg);   // sc
 const pageById = id => id ? book.querySelector(':scope > section.page#' + CSS.escape(id) + ', :scope > .dpane > section.page#' + CSS.escape(id)) : null;
 const deskPages = () => dual ? Book.pages().filter(p => p.parentElement === desk) : Book.pages();   // the pages in the scroller being edited
 // review comments sit right after the block they are about (<div class="cmt">); they move, and go, with it
-const tail = el => { const out = []; let n = el && el.nextElementSibling; while (n && n.classList.contains('cmt')) { out.push(n); n = n.nextElementSibling; } return out; };
+// an exam question's write-in box (div.wbox right after it, comments between allowed) belongs to the question too: it
+// moves, copies and goes with it (Eric, 2026-11-08), and nothing is dropped between them
+const qBox = b => { if (!b || !b.classList || !b.classList.contains('wbox')) return null; let p = b.previousElementSibling; while (p && p.classList.contains('cmt')) p = p.previousElementSibling; return p && p.matches('aside.qc') ? p : null; };
+const tail = el => { const out = []; let n = el && el.nextElementSibling; while (n && n.classList.contains('cmt')) { out.push(n); n = n.nextElementSibling; }
+  if (el && el.matches && el.matches('aside.qc') && n && n.classList.contains('wbox')) { out.push(n); n = n.nextElementSibling; while (n && n.classList.contains('cmt')) { out.push(n); n = n.nextElementSibling; } }
+  return out; };
 const lastOf = el => tail(el).pop() || el;
 const carry = (el, t) => { let at = el; t.forEach(c => { at.after(c); at = c; }); };
 const uid = () => 'p-' + Math.random().toString(36).slice(2, 7);
@@ -434,7 +439,7 @@ $('#insert').addEventListener('mousedown', e => e.preventDefault());
 $('#insert').addEventListener('click', e => { const k = e.target.dataset && e.target.dataset.ins; if (k) insert(k); });
 
 function removeAll() { const list = allSel(); if (list.length < 2) return removeBlock(sel); commit(true); select(null); list.forEach(b => { tail(b).forEach(c => c.remove()); b.remove(); }); commit(true); Book.refresh(); }
-function duplicateAll() { const list = inOrder(allSel()); if (list.length < 2) return duplicate(sel); commit(true); const last = list[list.length - 1]; const copies = list.map(b => unpool(h(Book.serializeBlock(b)))); let at = last; copies.forEach(c => { at.after(c); at = c; }); prep(); selectMany(copies); commit(true); Book.refresh(); }
+function duplicateAll() { const list = inOrder(allSel()); if (list.length < 2) return duplicate(sel); commit(true); const last = list[list.length - 1]; const copies = list.flatMap(b => [b, ...tail(b).filter(n => n.classList.contains('wbox') && !list.includes(n))].map(n => unpool(h(Book.serializeBlock(n))))); let at = lastOf(last); copies.forEach(c => { at.after(c); at = c; }); prep(); selectMany(copies); commit(true); Book.refresh(); }
 function selectMany(list) { select(null, true); if (!list.length) return renderInspector(); select(list[0], true); list.slice(1).forEach(b => select(b, true, true)); place(); renderInspector(); }
 function moveAll(d) { const list = inOrder(allSel()); if (list.length < 2) return moveBy(sel, d); const pg = list[0].parentElement; if (list.some(b => b.parentElement !== pg)) return; const flow = Book.blocks(pg), idx = list.map(b => flow.indexOf(b)); const other = d < 0 ? flow[Math.min(...idx) - 1] : flow[Math.max(...idx) + 1]; if (!other) return; commit(true); const ot = tail(other); if (d < 0) lastOf(list[list.length - 1]).after(other); else list[0].before(other); carry(other, ot); commit(true); Book.refresh(); place(); }
 function copyBlocks(cut) { const list = inOrder(allSel()); if (!list.length) return; blockClip = list.map(b => Book.serializeBlock(b)); if (window.Draw) Draw.clearClip(); toast(`${list.length} block${list.length > 1 ? 's' : ''} copied: Cmd+V pastes after the selected block, on any page`); if (cut) removeAll(); }
@@ -472,7 +477,11 @@ function splitPage(el) {
 }
 // a copy is its own block: never linked to what it was copied from (Eric, 2026-10-26: editing a copy changed the original)
 function unpool(n) { if (n && n.removeAttribute) { n.removeAttribute('data-pool'); n.querySelectorAll('[data-pool]').forEach(x => x.removeAttribute('data-pool')); } return n; }
-function duplicate(el) { commit(true); const c = unpool(h(Book.serializeBlock(el))); el.after(c); prep(); select(c); commit(true); Book.refresh(); }
+function duplicate(el) {
+  el = qBox(el) || el;   // a write-in box is duplicated with its question
+  commit(true); const c = unpool(h(Book.serializeBlock(el))); const box = tail(el).find(n => n.classList.contains('wbox'));
+  lastOf(el).after(c); if (box) c.after(unpool(h(Book.serializeBlock(box)))); prep(); select(c); commit(true); Book.refresh();
+}
 // a figure resized by hand on a slide keeps the size it was given: the slide cap (book.css: at most --fig-h tall) stops applying to it
 // (Eric, 2026-10-29: "many images that I can't actually scale larger")
 function uncap(el) { if (el && el.matches('b-fig') && !el.classList.contains('cover-art') && Book.viewOf(el.parentElement) === 'slides') el.style.setProperty('--fig-h', 'none'); }
@@ -488,7 +497,8 @@ function togglePin(el) {
   commit(true); Book.refresh(); select(el);
 }
 function moveBy(el, d) {
-  const flow = Book.blocks(el.parentElement), k = flow.indexOf(el), other = flow[k + d];
+  el = qBox(el) || el;   // a write-in box moves with its question
+  const flow = Book.blocks(el.parentElement).filter(b => !qBox(b)), k = flow.indexOf(el), other = flow[k + d];
   if (!other) return;
   commit(true); const t = tail(el); if (d < 0) other.before(el); else lastOf(other).after(el); carry(el, t); commit(true); Book.refresh(); place();
 }
@@ -585,7 +595,7 @@ function startDrag(e, el, copyMode, autoPin) {   // copyMode: a copy follows the
       place(); return;
     }
     if (!under) { drop.hidden = true; target = null; return; }
-    const flow = Book.blocks(under).filter(b => !group.includes(b) && !Book.isPinned(b));
+    const flow = Book.blocks(under).filter(b => !group.includes(b) && !Book.isPinned(b) && !qBox(b));
     const before = flow.find(b => { const r = b.getBoundingClientRect(); return ev.clientY < r.top + r.height / 2; }) || null;
     target = { page: under, before };
     const q = under.getBoundingClientRect(), s = q.width / Book.pageW(under);
@@ -827,11 +837,11 @@ $('#styles').addEventListener('mousedown', e => e.preventDefault());
 $('#styles').addEventListener('click', e => { const b = e.target.closest('button'); if (b && b.dataset.style) style(b.dataset.style); });
 
 // typing "/" in an empty paragraph offers the Insert list; keep typing to filter it
-const SLASH = [['p', 'Text', ''], ['h3', 'Heading', 'subheading'], ['eq', 'Equation', 'LaTeX'], ['fig', 'Figure', 'from a file'], ['draw', 'Drawing', 'canvas'], ['table', 'Table', ''], ['ul', 'List', 'bullets'], ['code', 'Code', 'with output'], ['aside', 'Note', 'small grey'], ['qc', 'Quick check', 'with answer'], ['toc', 'Contents', 'list of sections'], ['embed', 'Interactive', 'a web page in a frame']];
+const SLASH = [['p', 'Text', ''], ['h3', 'Heading', 'subheading'], ['eq', 'Equation', 'LaTeX'], ['fig', 'Image', 'upload a picture'], ['draw', 'Drawing', 'canvas'], ['table', 'Table', ''], ['ul', 'List', 'bullets'], ['code', 'Code', 'with output'], ['aside', 'Note', 'small grey'], ['qc', 'Quick check', 'with answer'], ['toc', 'Contents', 'list of sections'], ['embed', 'Interactive', 'a web page in a frame']];
 function slashMenu(host) {
   const t = host.textContent;
   if (host.tagName !== 'P' || !/^\/[a-z ]{0,14}$/i.test(t) || host.children.length) { if (!menu.hidden && menuPick === slashPick) closeMenu(); return; }
-  const q = t.slice(1).toLowerCase(), items = SLASH.filter(i => (i[1] + ' ' + i[2]).toLowerCase().includes(q)); if (!items.length) return closeMenu();
+  const q = t.slice(1).toLowerCase(), items = SLASH.filter(i => (i[1] + ' ' + i[2] + (i[0] === 'fig' ? ' figure' : '')).toLowerCase().includes(q));   // /fig still finds Image if (!items.length) return closeMenu();
   const r = host.getBoundingClientRect(); slashHost = host; openMenu(r.left, r.bottom + 4, items, slashPick);
 }
 let slashHost = null;
@@ -1220,7 +1230,7 @@ let lastCell = null;
 document.addEventListener('selectionchange', () => { const n = getSelection().anchorNode; const c = n && (n.nodeType === 1 ? n : n.parentElement); const cell = c && c.closest && c.closest('td,th'); if (cell && book.contains(cell)) lastCell = cell; });
 
 // ---------------------------------------------------------------- side panel
-const KIND = el => el.localName === 'svg' ? 'Drawing' : el.tagName === 'B-EQ' ? 'Equation' : el.tagName === 'B-FIG' ? 'Figure' : el.tagName === 'B-CODE' ? 'Code' : el.tagName === 'B-OUT' ? 'Code output' : el.tagName === 'TABLE' ? 'Table'
+const KIND = el => el.localName === 'svg' ? 'Drawing' : el.tagName === 'B-EQ' ? 'Equation' : el.tagName === 'B-FIG' ? 'Image' : el.tagName === 'B-CODE' ? 'Code' : el.tagName === 'B-OUT' ? 'Code output' : el.tagName === 'TABLE' ? 'Table'
   : /^(UL|OL)$/.test(el.tagName) ? 'List' : el.classList.contains('qc') ? 'Exam question' : el.classList.contains('wbox') ? 'Write-in box' : /^H\d$/.test(el.tagName) ? 'Heading' : el.tagName === 'B-ANSWERS' ? 'Quick-check answers' : el.tagName === 'B-TOC' ? 'Contents' : el.tagName === 'B-EMBED' ? 'Interactive' : 'Text';
 const TEXT_TYPES = [['p', '', 'Paragraph'], ['h2', '', 'Page title'], ['h3', '', 'Subheading'], ['p', 'aside', 'Note (small grey)'], ['div', 'callout', 'Callout']];
 function userClass(el) { return [...el.classList].filter(c => !c.startsWith('ed-') && !['over', 'busy', 'bad', 'live-on'].includes(c)).join(' '); }
@@ -2471,7 +2481,7 @@ setRulers(rulersOn); placeMarkers();
 try { const v = localStorage.getItem('book-view-' + ch); if (v && v !== 'reading') setMode(v); } catch (x) {}
 mo.takeRecords();
 if (normalized) status.title = 'The file will be rewritten in the editor\'s fixed layout on the first save.';
-window.Editor = { onDeskScroll, renderPages, guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
+window.Editor = { moveBy, duplicate, removeBlock, onDeskScroll, renderPages, guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
 document.dispatchEvent(new Event('editor-ready'));
 document.documentElement.dataset.ready = '1';
 
@@ -3154,7 +3164,7 @@ function fromFrame(d) {
   xbadge.hidden = false; xbadge.textContent = 'Copy here'; xbadge.style.left = (cx + 12) + 'px'; xbadge.style.top = (cy + 12) + 'px';
   const under = document.elementsFromPoint(cx, cy).find(n => n.matches && n.matches('section.page') && topPage(n) && (!dual || n.parentElement === desk || (ext && Object.values(dpanes).includes(n.parentElement))));   // from another chapter: either document
   if (!under) { drop.hidden = true; fromAt = null; return; }
-  const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b));
+  const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b) && !qBox(b));
   const before = flow.find(b => { const q = b.getBoundingClientRect(); return cy < q.top + q.height / 2; }) || null;
   fromAt = { page: under, before };
   const q = under.getBoundingClientRect(), s = q.width / Book.pageW(under);
@@ -3667,7 +3677,7 @@ if (phone) {
   function dropTarget(cx, cy) {
     const under = document.elementsFromPoint(cx, cy).find(n => n.matches && n.matches('section.page') && topPage(n) && (!dual || n.parentElement === desk));
     if (!under || !okPage(under)) return null;
-    const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b));
+    const flow = Book.blocks(under).filter(b => !Book.isPinned(b) && Book.inView(b) && !qBox(b));
     const before = flow.find(b => { const r = b.getBoundingClientRect(); return cy < r.top + r.height / 2; }) || null;
     return { page: under, before, flow };
   }

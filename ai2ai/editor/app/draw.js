@@ -627,6 +627,14 @@ function editLabel(el, fresh, thenTool) {
   inp.onpointerdown = e => e.stopPropagation();
   setTimeout(() => { inp.focus(); inp.select(); }, 0);
 }
+// Ω and ℒ in a label are drawn with the book's glyphs (the tall ω, the equations' bold script L): the 'AI2AI Omega'
+// family holds only those two (unicode-range), so it goes first in the label's font-family and everything else falls
+// through (Eric, 2026-11-08: a ℒ typed here was the thin fallback letter)
+function symFont(t) {
+  if (!t || !/[Ωℒ]/.test(t.textContent)) return;
+  const ff = t.getAttribute('font-family') || getComputedStyle(t).fontFamily;
+  if (!/AI2AI Omega/.test(ff)) t.setAttribute('font-family', "'AI2AI Omega', " + ff);
+}
 function endLabel(keep) {
   const ed = editing; if (!ed) return; editing = null;
   ed.inp.onblur = null; ed.inp.remove(); ed.el.removeAttribute('data-ed-hide');
@@ -637,7 +645,7 @@ function endLabel(keep) {
     if (ed.thenTool) setTool(ed.thenTool, true);
     return;
   }
-  if (!keep) ed.target.textContent = ed.before;
+  if (!keep) ed.target.textContent = ed.before; else symFont(ed.el);
   if ((!keep && ed.fresh) || !ed.target.textContent.trim()) { ed.el.remove(); setShapes([]); } else { drawHandles(); E.renderInspector(); }
   E.commit(true);
   if (ed.thenTool) setTool(ed.thenTool, true);
@@ -716,7 +724,7 @@ function inspect(insp) {
   if (isText) {
     const editable = lv.every(leaf);
     add(`<label>Text (double-click the label to type on the canvas)</label>`); const t = add(`<input type="text" data-k="text" ${editable ? '' : 'readonly title="This label mixes several styles; change its words in chapter.html"'} value="${esc(s0.textContent).replace(/"/g, '&quot;')}">`);
-    t.oninput = () => { if (!editable) return; lv.forEach(s => { leaf(s).textContent = t.value; }); drawHandles(); };
+    t.oninput = () => { if (!editable) return; lv.forEach(s => { leaf(s).textContent = t.value; symFont(s); }); drawHandles(); };
     t.onkeydown = e => { if (e.key === 'Enter' || e.key === 'Escape') t.blur(); };
     const row = add(`<div class="row">Size <input type="number" min="5" max="60" step="0.5" style="width:60px" value="${parseFloat(s0.getAttribute('font-size')) || 11}">
       <select style="width:auto"><option value="start">left</option><option value="middle">centred</option><option value="end">right</option></select></div>`);
