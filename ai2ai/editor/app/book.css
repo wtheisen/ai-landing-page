@@ -641,3 +641,7 @@ p.tiles.tokids { line-height: 2.7; }
 div.wbox { border: 2px solid #000; border-radius: 0; background: #fff; min-height: 18pt; box-sizing: border-box; flex: none; }
 .book[data-view="reading"] div.wbox:not([data-view~="reading"]) { display: none !important; }
 .page > aside.qc + div.wbox, .page > aside.qc + .cmt + div.wbox, .page > aside.qc + .cmt + .cmt + div.wbox { margin-top: calc(6pt - var(--gap, 10pt)); }   /* the box sits right under its question */
+/* wrap="" on a b-out (Eric, 2026-11-08): long lines wrap instead of scrolling sideways; a token tile never splits */
+b-out[wrap] pre, .book[data-view] b-out[wrap] pre { white-space: pre-wrap !important; overflow-x: hidden !important; overflow-wrap: break-word; }
+b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
+

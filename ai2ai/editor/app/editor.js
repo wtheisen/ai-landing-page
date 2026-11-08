@@ -1309,6 +1309,8 @@ function codeInspector(el, add) {
       if (eaiOutTok(o)) { const ci = add(`<label class="check"><input type="checkbox" ${o.getAttribute('tokids') === 'off' ? '' : 'checked'}>Colour lists of token IDs too</label>`);
         ci.firstChild.onchange = e => { commit(true); if (e.target.checked) o.removeAttribute('tokids'); else o.setAttribute('tokids', 'off'); o.render(); commit(true); }; }
       add(`<div class="help">Quoted tokens in the output become tiles, and a list of whole numbers that are all token IDs takes their colours.</div>`); }
+    { const o = el.nextElementSibling, w = add(`<label class="check"><input type="checkbox" ${o.hasAttribute('wrap') ? 'checked' : ''}>Wrap long output lines (no sideways scrolling)</label>`);
+      w.firstChild.onchange = e => { commit(true); o.toggleAttribute('wrap', e.target.checked); commit(true); place(); Book.refreshSoon(); }; }
     add(`<label>Output on a slide</label>`);
     const ob = add(`<div class="seg"><button data-o="">Beside the code</button><button data-o="below">Below the code</button></div>`);
     ob.querySelectorAll('button').forEach(b => { b.classList.toggle('on', (el.getAttribute('out') || '') === b.dataset.o);
