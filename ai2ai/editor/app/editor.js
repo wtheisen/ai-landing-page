@@ -1527,7 +1527,7 @@ function codeProgram(el, ns) {
 async function runIntoOutput(el, status, btn) {
   btn.disabled = true; status.textContent = 'Starting Python (the first run takes a few seconds)…';
   const lines = [];
-  let py, off = 0, ok = true;
+  let py, off = 0, ok = true, figs = [];
   try { py = await editorPython(); } catch (e) { btn.disabled = false; status.textContent = 'Could not start Python here (is this computer online?). The Output was left as it was.'; return false; }
   try {
     for (const u of (el.getAttribute('files') || '').split(/\s+/).filter(Boolean)) {
@@ -1548,18 +1548,19 @@ async function runIntoOutput(el, status, btn) {
       if (typeof r === 'object') { try { if (!/^matplotlib/.test(String(B.getattr(B.type(r), '__module__', '')))) lines.push(B.repr(r)); } finally { if (r.destroy) r.destroy(); } }
       else lines.push(typeof r === 'string' ? "'" + r.replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'" : typeof r === 'boolean' ? (r ? 'True' : 'False') : String(r));
     }
-    try { py.runPython("import sys\nif 'matplotlib.pyplot' in sys.modules:\n    import matplotlib.pyplot as _p\n    _p.close('all')"); } catch (e) {}
+    figs = editorFigures(py);
     status.textContent = 'Done.';
   } catch (e) {
     ok = false;
     const m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, (x, a, n) => +n > off ? a + (n - off) : a + n + ' (setup)').split('\n'), k = m.findIndex(l => l.includes('File "<exec>"'));
     lines.push(...(k >= 0 ? ['Traceback (most recent call last):', ...m.slice(k)] : m.slice(-4)));
+    if (py) figs = editorFigures(py);
     status.textContent = 'The code raised an error; the Output shows it.';
   }
   btn.disabled = false;
   commit(true);
   let out = el.nextElementSibling;
-  if (!lines.length) {   // nothing printed: no Output cell, just a tick by Run, as in book.js eaiRunCode (Eric, 2026-11-03)
+  if (!lines.length && !figs.length) {   // nothing printed: no Output cell, just a tick by Run, as in book.js eaiRunCode (Eric, 2026-11-03)
     if (out && out.tagName === 'B-OUT') out.remove();
     status.innerHTML = '<b style="color:#38761D">✓</b> Ran';
     commit(true); Book.refresh(); place();
@@ -1567,8 +1568,25 @@ async function runIntoOutput(el, status, btn) {
   }
   if (!out || out.tagName !== 'B-OUT') { out = h('<b-out>\n</b-out>'); el.after(out); prep(); }
   out.src = lines.join('\n');
+  showFigures(out, figs);
   commit(true); Book.refresh(); place();
   return ok;
+}
+// plots (Eric, 2026-11-08: "it doesn't appear that PLT is working"): every open matplotlib figure becomes a PNG shown
+// under the cell's Output, like the published page's Run does. They are shown only (data-ed: never saved).
+function editorFigures(py) {
+  try {
+    const r = py.runPython("import sys\n_figs = []\nif 'matplotlib.pyplot' in sys.modules:\n    import io, base64\n    import matplotlib.pyplot as _p\n    for _n in _p.get_fignums():\n        _b = io.BytesIO()\n        _p.figure(_n).savefig(_b, format='png', dpi=120, bbox_inches='tight')\n        _figs.append(base64.b64encode(_b.getvalue()).decode())\n    _p.close('all')\n_figs");
+    const a = r.toJs(); r.destroy(); return a;
+  } catch (e) { return []; }
+}
+function showFigures(out, figs) {
+  out.querySelectorAll(':scope > .ed-figs').forEach(d => d.remove());
+  if (!figs || !figs.length) return;
+  const d = document.createElement('div'); d.className = 'ed-figs run-figs'; d.setAttribute('data-ed', ''); d.contentEditable = 'false';
+  d.title = 'Plot from the last run (shown here only, not saved: the published page draws it when the code is run)';
+  figs.forEach(b => { const im = document.createElement('img'); im.src = 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; im.style.cssText = 'display:block;max-width:100%;margin:4pt auto'; d.append(im); });
+  out.append(d);
 }
 // Run prior: a fresh namespace for this document, every python cell above this one in order (each fills its Output),
 // then this one; stops at the first error. Like a notebook's restart and run above.
