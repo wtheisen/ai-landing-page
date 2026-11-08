@@ -916,7 +916,7 @@ Book.refresh = () => {
     const pushH = pgap ? parseFloat(pgap.style.height) || 0 : 0;
     if (pgap) {   // the gap fills what's left of the page (PH - 44, as the spacing below), or goes if there's nothing left
       const room = +(PH - 44 - (bottom - pushH)).toFixed(1);
-      if (room <= 0) { pgap.remove(); pgap = null; bottom -= pushH; }
+      if (room <= 0) { pgap.remove(); pgap = null; bottom -= pushH + cur; }   // the gap also took a row gap of its own (2026-11-08: lec-chain read 10pt over once it was gone)
       else if (Math.abs(room - pushH) > 0.05) { pgap.style.height = room + 'pt'; bottom += room - pushH; if (wraps) Book.wrapText(pg); }
     }
     const gaps = Math.max(0, n - 1 - joined), base = bottom - gaps * (cur - 10), free = PH - 44 - base;
