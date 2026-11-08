@@ -1399,7 +1399,7 @@ Book.snapshot = async () => {
   // tap a blank to see its answer: in the Lecture while presenting, and in the Workbook to practise (Eric, 2026-11-03)
   const reveal = view === 'slides' || view === 'workbook' ? "document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill]');if(f)f.classList.toggle('shown')});" : '';
   const faces = (await Promise.all([['Inconsolata-LGC.ttf', 400], ['Inconsolata-LGC-Bold.ttf', 700]].map(async ([f, w]) =>
-    `@font-face{font-family:'Inconsolata LGC';src:url(data:font/ttf;base64,${await b64('../kit/fonts/' + f)}) format('truetype');font-weight:${w}}`))).join('') + `@font-face{font-family:'AI2AI Omega';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Omega.ttf')}) format('truetype');unicode-range:U+03A9}`;
+    `@font-face{font-family:'Inconsolata LGC';src:url(data:font/ttf;base64,${await b64('../kit/fonts/' + f)}) format('truetype');font-weight:${w}}`))).join('') + `@font-face{font-family:'AI2AI Omega';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Omega.ttf')}) format('truetype');unicode-range:U+03A9}@font-face{font-family:'AI2AI Omega';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Loss.ttf')}) format('truetype');unicode-range:U+2112}`;
   const nav = Book.pages().filter(p => p.dataset.part && Book.inView(p, view)).map(p => `<a href="#${p.id}">${esc(p.dataset.part)}</a>`).join('');
   // the published chapter is three pages (one per view) that link to each other; Export PDF offers each view's PDF
   // or prints this page as it stands (so lecture notes that are showing go into the PDF too)
