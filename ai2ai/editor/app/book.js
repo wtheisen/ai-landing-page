@@ -364,7 +364,8 @@ Book.drawTok = g => {
   if (!lab) { lab = document.createElementNS(NS, 'text'); lab.setAttribute('font-size', 9); rect.after(lab); }
   const t = g.getAttribute('data-t') || '', info = Book.tokInfo(g.getAttribute('data-tok'), t), col = TOK_COLS[info.fam] || TOK_COLS.gray;
   const pg = g.closest('section.page'), svg = g.closest('svg'), off = pg && pg.getAttribute('data-tokids') === 'off';
-  const ids = !off && !!((svg && svg.classList.contains('tokids')) || (pg && pg.hasAttribute('data-tokids')) || Book.meta.tokIds);
+  const own = g.getAttribute('data-ids');   // this tile's own choice (on / off) wins over the drawing, page and chapter
+  const ids = own === 'on' ? true : own === 'off' ? false : !off && !!((svg && svg.classList.contains('tokids')) || (pg && pg.hasAttribute('data-tokids')) || Book.meta.tokIds);
   const fs = parseFloat(lab.getAttribute('font-size')) || 9;
   const x = parseFloat(rect.getAttribute('x')) || 0, y = parseFloat(rect.getAttribute('y')) || 0, w0 = parseFloat(rect.getAttribute('width')) || 0, h0 = parseFloat(rect.getAttribute('height')) || 0;
   const cx = x + w0 / 2, cy = y + h0 / 2;
@@ -962,7 +963,7 @@ function inline(node, parentStruct) {
   if (node.nodeType !== 1 || skip(node)) return '';
   let tag = node.localName;
   if (tag === 'b-m') return `<b-m>${esc(node.getAttribute('tex') || '')}</b-m>`;
-  if (tag === 'b-tok') return `<b-tok v="${escAttr(node.getAttribute('v') || '')}" t="${escAttr(node.getAttribute('t') || '').replace(/\n/g, '&#10;').replace(/\t/g, '&#9;')}">${esc(Book.tokLabel(node.getAttribute('t') || ''))}</b-tok>`;
+  if (tag === 'b-tok') return `<b-tok v="${escAttr(node.getAttribute('v') || '')}" t="${escAttr(node.getAttribute('t') || '').replace(/\n/g, '&#10;').replace(/\t/g, '&#9;')}"${node.hasAttribute('o') ? ` o="${escAttr(node.getAttribute('o'))}"` : ''}${/^(on|off)$/.test(node.getAttribute('ids') || '') ? ` ids="${node.getAttribute('ids')}"` : ''}>${esc(Book.tokLabel(node.getAttribute('t') || ''))}</b-tok>`;
   if (tag === 'b-ref' || tag === 'b-fig' || tag === 'b-answers' || tag === 'b-toc' || tag === 'b-embed' || tag === 'b-matmul') return `<${tag}${attrs(node)}></${tag}>`;   // b-matmul: only its spec is source, the drawn step isn't (2026-10-29: stepping through one changed the file)
   if (tag === 'b-code' || tag === 'b-out') return `<${tag}${attrs(node)}>\n${esc(node.getAttribute('data-src') || '')}\n</${tag}>`;
   if (tag === 'eq-row' || tag === 'eq-step') return `<${tag}${attrs(node)}>${esc(texOf(node))}</${tag}>`;

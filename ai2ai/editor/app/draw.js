@@ -378,7 +378,7 @@ function tokInspect(add) {
   add(`<div class="row" style="flex-wrap:wrap;gap:4px">${tiles}${list.length > 14 ? ' …' : ''}</div>`);
   add(`<div class="help">${esc(v ? v.title : vn)}${one ? (one.known ? ' · ID <b class="mono">' + one.id + '</b>' : ' · not in this vocabulary') : ''}. Its colour and ID come from the token table, the same everywhere. Double-click a tile to retype it.</div>`);
   const ids = add(`<label class="check"><input type="checkbox" ${svg.classList.contains('tokids') ? 'checked' : ''}>IDs under the tiles in this drawing</label>`);
-  ids.firstChild.onchange = e => { E.commit(true); svg.classList.toggle('tokids', e.target.checked); Book.drawToks(svg.parentNode); drawHandles(); E.commit(true); };
+  ids.firstChild.onchange = e => { E.commit(true); svg.classList.toggle('tokids', e.target.checked); Book.drawToks(svg.parentNode); drawHandles(); E.commit(true); E.renderInspector(); };
   if (list.length === 1) {
     const sb = list[0].querySelector(':scope > text.tk-sub');
     add(`<label>Second line (under the token: a count, numbers; empty for none)</label>`);
@@ -387,6 +387,11 @@ function tokInspect(add) {
       if (!si.value) { if (t) t.remove(); } else { if (!t) { t = svgEl('text', { class: 'tk-sub', 'font-size': r1(tokFs(g) * 0.8), fill: '#000000', 'font-family': 'Arial, Helvetica, sans-serif' }); tokLab(g).after(t); } t.textContent = si.value; }
       Book.drawTok(g); reconnect(svg); drawHandles(); E.commit(true); };
   }
+  { const shown = list.every(g => !!g.querySelector(':scope > text.tk-idl'));
+    const ti = add(`<label class="check"><input type="checkbox" ${shown ? 'checked' : ''}>Show ${list.length > 1 ? 'their IDs' : 'its ID'} (${list.length > 1 ? 'these tiles' : 'this tile'})</label>`);
+    ti.firstChild.onchange = e => { E.commit(true);
+      list.forEach(g => { g.removeAttribute('data-ids'); Book.drawTok(g); const inh = !!g.querySelector(':scope > text.tk-idl'); if (e.target.checked !== inh) { g.setAttribute('data-ids', e.target.checked ? 'on' : 'off'); Book.drawTok(g); } });
+      reconnect(svg); drawHandles(); E.commit(true); }; }
   const sz = add(`<div class="row">Size <input type="number" min="5" max="40" step="0.5" style="width:60px" value="${tokFs(list[0])}"></div>`);
   sz.querySelector('input').onchange = e => { E.commit(true); list.forEach(g => { tokLab(g).setAttribute('font-size', +e.target.value || 9); Book.drawTok(g); }); reconnect(svg); drawHandles(); E.commit(true); };
   const b = add(`<div class="row"><button data-a="table">Tokens table</button><button data-a="plain" title="Keep the boxes and labels as they are now, without the token table">Back to plain boxes</button></div>`);

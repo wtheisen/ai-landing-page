@@ -70,6 +70,9 @@ b-tok .tk-t { display: block; }
 b-tok .tk-id { display: none; font-family: Consolas, 'Inconsolata LGC', monospace; font-size: .66em; font-weight: 700; line-height: 1.05; padding-bottom: .08em; color: var(--tk-ink, var(--tk-line)); }
 .tokids b-tok .tk-id, section.page[data-tokids] b-tok .tk-id { display: block; }
 section.page[data-tokids="off"] b-tok .tk-id { display: none; }
+/* one tile's own choice (ids="on" / "off", from its pop-up) wins over the page and the chapter */
+b-tok[ids="on"] .tk-id { display: block !important; }
+b-tok[ids="off"] .tk-id { display: none !important; }
 /* token tiles in code outputs (eaiOutHL): .otk a quoted token, .otid an ID in a list of token IDs */
 b-out .otk { white-space: pre; font-weight: 700; color: #000; padding: 0 .2em; margin: 0 .03em; border: 1px solid var(--tk-line, #999999); border-radius: .3em; background: var(--tk-fill, #EEEEEE); }
 b-out .otid { font-weight: 700; color: var(--tk-ink, #666666); }

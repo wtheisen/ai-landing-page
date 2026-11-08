@@ -625,3 +625,4 @@ body.tokpanel #insp, body.tokpanel #tg-insp, body.review #tokpanel, body.tokpane
 #styles .tokb { font-weight: 700; border-radius: 6px; background: #D9D2E9; }
 #book b-tok { cursor: pointer; }
 #book b-tok.ed-flash { outline: 3px solid var(--gold, #DCB439); outline-offset: 1px; }
+#pop .tk-pop label.tk-ids { display: flex; gap: 6px; align-items: center; font-size: 12px; margin: 6px 0; cursor: pointer; }

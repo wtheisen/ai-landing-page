@@ -3805,8 +3805,15 @@ if (phone) {
       <div class="tk-row"><b-tok v="${hesc(vn)}" t="${hesc(t)}" class="tk-big"></b-tok><span>${info.known ? 'ID <b class="mono">' + info.id + '</b>' : 'not in this vocabulary'}</span></div>
       <div class="tk-row tk-sw">${['auto', ...Book.TOK_FAMS, 'gray'].map(f => `<button data-f="${f}" class="${(own || 'auto') === f ? 'on' : ''}" title="${f === 'auto' ? 'By ID (the default)' : FAM_LABEL[f]}">${f === 'auto' ? 'Auto' : ''}</button>`).join('')}</div>
       <div class="help">The colour is the token's, everywhere it appears.</div>
+      <label class="check tk-ids"><input type="checkbox" ${getComputedStyle(el.querySelector('.tk-id') || el).display !== 'none' ? 'checked' : ''}> Show its ID under it (this tile)</label>
       <div class="tk-row"><button data-a="text">Back to text</button><button data-a="table">Tokens table</button></div></div>`);
     p.querySelector('.tk-big').classList.add('tk-show');
+    p.querySelector('.tk-ids input').onchange = e => {   // per tile: set it explicitly, or drop the setting when it matches what the page/chapter would show anyway
+      el.removeAttribute('ids');
+      const inherited = getComputedStyle(el.querySelector('.tk-id')).display !== 'none';
+      if (e.target.checked !== inherited) el.setAttribute('ids', e.target.checked ? 'on' : 'off');
+      commit(true); Book.refreshSoon();
+    };
     p.onclick = async e => {
       const b = e.target.closest('button'); if (!b) return;
       if (b.dataset.f && v) {
