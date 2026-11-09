@@ -2002,6 +2002,7 @@ function renderPages() { clearTimeout(pagesT); pagesT = setTimeout(() => {
   });
   for (const [id, li] of rowOf) if (!live.has(id)) { seen.unobserve(li); li.remove(); rowOf.delete(id); thumbSrc.delete(li); }
   if (curPage && curPage !== lastRevealed) { lastRevealed = curPage; revealPageRow(); }   // the list was rebuilt: bring the current row into view once
+  markInView(true);
 }, 150); }
 var lastRevealed = null;
 $('#pg-thumbs').onclick = () => { thumbs = !thumbs; try { localStorage.setItem('book-thumbs', thumbs ? '1' : '0'); } catch (x) {} $('#pg-thumbs').classList.toggle('on', thumbs); renderPages(); setTimeout(() => rowOf.forEach(li => { if (li._vis) paintThumb(li); }), 250); };
@@ -3051,6 +3052,60 @@ function followScroll() {
   followQuiet = true; try { setPage(best); } finally { followQuiet = false; }
   if (!sel) renderInspector();
 }
+
+// the page list follows the scroll (its row for the page in view is marked and kept in sight), and the page in view is
+// remembered per chapter and edition (localStorage book-at-<chapter>-<view>: page id + how far its top sits from the
+// scroller's top), so a reload comes back to it. Works for the lone desk and for each pane of the two documents.
+var atT = 0, atBusy = false, atRestored = new Set();
+const atViewOf = sc => (sc.classList && sc.classList.contains('dpane')) ? sc.dataset.view : Book.view;
+function pageAt(sc) {
+  const d = sc.getBoundingClientRect(), y = d.top + d.height * 0.35;
+  let best = null, bd = Infinity;
+  for (const pg of Book.pages()) {
+    if (!sc.contains(pg) || pg.classList.contains('wb-packed')) continue;
+    const r = pg.getBoundingClientRect(); if (!r.height) continue;
+    const dd = r.top <= y && r.bottom >= y ? 0 : Math.min(Math.abs(r.top - y), Math.abs(r.bottom - y));
+    if (dd < bd) { bd = dd; best = pg; }
+  }
+  return best;
+}
+function markInView(noScroll) {
+  const pg = pageAt(desk), ol = $('#pages'); if (!ol) return;
+  ol.querySelectorAll(':scope > li.vis').forEach(li => { if (!pg || li.dataset.id !== pg.id) li.classList.remove('vis'); });
+  const li = pg && ol.querySelector(':scope > li[data-id="' + CSS.escape(pg.id) + '"]'); if (!li) return;
+  li.classList.add('vis'); if (noScroll) return;
+  const r = li.getBoundingClientRect(), b = ol.getBoundingClientRect();
+  if (ol.clientHeight && (r.top < b.top || r.bottom > b.bottom)) ol.scrollTo({ top: ol.scrollTop + (r.top - b.top) - (b.height - r.height) / 2 });
+}
+function saveAt(sc) {
+  const pg = pageAt(sc); if (!pg) return;
+  const off = Math.round(pg.getBoundingClientRect().top - sc.getBoundingClientRect().top);
+  try { localStorage.setItem('book-at-' + ch + '-' + atViewOf(sc), JSON.stringify({ id: pg.id, off })); } catch (x) {}
+}
+function restoreAt(sc) {
+  let at = null; try { at = JSON.parse(localStorage.getItem('book-at-' + ch + '-' + atViewOf(sc)) || 'null'); } catch (x) {}
+  const pg = at && document.getElementById(at.id); if (!pg || !sc.contains(pg)) return false;
+  atBusy = true; sc.scrollTop += pg.getBoundingClientRect().top - sc.getBoundingClientRect().top - (at.off || 0);
+  setTimeout(() => { atBusy = false; }, 60); return true;
+}
+// only a scroll the user made counts (wheel, touch, keys, scrollbar): the editor's own layout scrolls while a chapter opens
+// would otherwise overwrite the saved place before it is restored
+var atInput = 0, atLoad = Date.now();
+['wheel', 'touchmove', 'keydown', 'pointerdown'].forEach(t => deskBox.addEventListener(t, () => { atInput = Date.now(); }, { capture: true, passive: true }));
+deskBox.addEventListener('scroll', e => {
+  const sc = e.target; if (!(sc === desk || (sc.classList && sc.classList.contains('dpane')))) return;
+  const user = !atBusy && Date.now() - atInput < 1500;
+  if (user) atRestored.add(atViewOf(sc));   // the user scrolled: later restores leave this one alone
+  clearTimeout(atT); atT = setTimeout(() => { if (sc === desk) markInView(); if (user || Date.now() - atLoad > 3500) saveAt(sc); }, 120);
+}, { capture: true, passive: true });
+// put each scroller back where it was; again a little later, since equations, fonts and pictures can still change heights
+function restoreAll() {
+  const scs = dual ? [...book.querySelectorAll(':scope > .dpane')] : [desk];
+  scs.forEach(sc => { if (!atRestored.has(atViewOf(sc))) restoreAt(sc); });
+  markInView();
+}
+setTimeout(restoreAll, 250); setTimeout(restoreAll, 1200); setTimeout(() => { restoreAll(); ['reading', 'slides', 'workbook'].forEach(v => atRestored.add(v)); }, 3000);
+window.addEventListener('pagehide', () => { (dual ? [...book.querySelectorAll(':scope > .dpane')] : [desk]).forEach(saveAt); });
 
 // ---------------------------------------------------------------- + buttons above and below the selected page
 var padd;   // no initializer: placeAdders() can run (and create it) before this line does

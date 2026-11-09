@@ -46,6 +46,7 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 #pages > li .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 #pages > li.part { border-top: 1px solid var(--border); }
 #pages > li.cur { background: var(--surface-sunken); border-left-color: var(--gold); }
+#pages > li.vis:not(.cur) { border-left-color: #9aa7b8; }   /* the page in view in the column being edited */
 #pages:focus { outline: none; }
 #pages > li.sel { background: #e3ebf6; }
 #pages:focus > li.cur, #pages:focus > li.sel.cur { background: #d3e0f2; }   /* the list has the keyboard: Delete removes these */
