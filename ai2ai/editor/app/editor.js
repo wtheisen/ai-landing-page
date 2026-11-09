@@ -485,7 +485,7 @@ function duplicate(el) {
 }
 // a figure resized by hand on a slide keeps the size it was given: the slide cap (book.css: at most --fig-h tall) stops applying to it
 // (Eric, 2026-10-29: "many images that I can't actually scale larger")
-function uncap(el) { if (el && el.matches('b-fig') && !el.classList.contains('cover-art') && Book.viewOf(el.parentElement) === 'slides') el.style.setProperty('--fig-h', 'none'); }
+function uncap(el) { if (el && el.matches('b-fig') && !el.classList.contains('cover-art') && Book.viewOf(el.parentElement) === 'slides') { el.style.setProperty('--fig-h', 'none'); el.classList.remove('s-sm', 's-xs'); } }   // sized by hand: the shrink classes (s-sm 72% !important) would hold it back
 function togglePin(el) {
   commit(true);
   if (Book.isPinned(el)) { for (const p of ['position', 'left', 'top', 'width', 'z-index']) el.style.removeProperty(p); if (!el.getAttribute('style')) el.removeAttribute('style'); el.classList.remove('wrap'); }
