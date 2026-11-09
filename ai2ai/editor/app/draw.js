@@ -715,11 +715,15 @@ function inspect(insp) {
   add(`<h4>${n > 1 ? n + ' shapes' : nameOf(shapes[0])}</h4>`);
   if (shapes.every(isTok)) tokInspect(add); else {
   const isText = all(/^text$/), isLine = lv.every(s => /^(line|polyline)$/.test(s.localName) || isCurve(s)), closed = lv.some(s => /^(rect|ellipse|circle|polygon|path)$/.test(s.localName) && !isCurve(s));
-  const swatches = (label, list, attr) => {
+  // a group (a tile) holds a box and its labels: Fill and Outline colour the shapes only, the labels keep their colour
+  // and get their own Text swatch (2026-11-09, Eric: recolouring a box turned its text pale or outlined it)
+  const txts = lv.filter(s => s.localName === 'text'), boxes = lv.filter(s => s.localName !== 'text');
+  const swatches = (label, list, attr, only) => {
+    const on = only || (isText ? lv : boxes), first = on[0] || s0;
     add(`<label>${label}</label>`);
-    const row = add(`<div class="sw">${list.map(c => `<button data-c="${c}" title="${c === 'none' ? 'none' : c}" class="${c === 'none' ? 'none ' : ''}${same(s0.getAttribute(attr) || (attr === 'fill' ? '#000000' : 'none'), c) ? 'cur' : ''}" style="${c === 'none' ? '' : 'background:' + c}"></button>`).join('')}</div>`);
+    const row = add(`<div class="sw">${list.map(c => `<button data-c="${c}" title="${c === 'none' ? 'none' : c}" class="${c === 'none' ? 'none ' : ''}${same(first.getAttribute(attr) || (attr === 'fill' ? '#000000' : 'none'), c) ? 'cur' : ''}" style="${c === 'none' ? '' : 'background:' + c}"></button>`).join('')}</div>`);
     row.onclick = e => { const c = e.target.dataset.c; if (!c) return;
-      each(s => { s.setAttribute(attr, c); if (attr === 'stroke' && heads(s) && c !== 'none') setHeads(s, heads(s)); }, true);
+      E.commit(true); on.forEach(s => { s.setAttribute(attr, c); if (attr === 'stroke' && heads(s) && c !== 'none') setHeads(s, heads(s)); }); drawHandles(); E.commit(true);
       if (attr === 'fill' && !isText && c !== 'none') last.fill = c; if (attr === 'stroke' && closed && c !== 'none') last.stroke = c;
       E.renderInspector(); };
   };
@@ -737,6 +741,7 @@ function inspect(insp) {
     swatches('Colour', FILLS.filter(c => c !== 'none'), 'fill');
   } else {
     if (!isLine) swatches('Fill', FILLS, 'fill');
+    if (txts.length && boxes.length) swatches('Text', FILLS.filter(c => c !== 'none'), 'fill', txts);
     if (!isLine && closed) { add(`<label>Fill opacity</label>`); const o = add(`<select>${[100, 80, 60, 40, 20].map(v => `<option value="${v / 100}">${v}%</option>`).join('')}</select>`); o.value = String(+(s0.getAttribute('fill-opacity') || 1)); o.onchange = () => each(s => +o.value === 1 ? s.removeAttribute('fill-opacity') : s.setAttribute('fill-opacity', o.value), true); }
     swatches(isLine ? 'Colour' : 'Outline', isLine ? LINES.filter(c => c !== 'none') : LINES, 'stroke');
     const row = add(`<div class="row">Width <select style="width:64px">${[0.5, 0.8, 1, 1.2, 1.5, 2, 3, 4].map(v => `<option>${v}</option>`).join('')}</select> <select style="width:auto"><option value="">solid</option><option value="4.5 3">dashed</option><option value="1.5 3">dotted</option></select></div>`);
