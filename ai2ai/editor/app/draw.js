@@ -236,7 +236,7 @@ function drawHandles() {
   if (shapes.length > 1 || t === 'g') {   // several shapes, or a group: handles on the box around all of them scale the lot
     const rs = shapes.map(x => x.getBoundingClientRect()), L = Math.min(...rs.map(r => r.left)), R = Math.max(...rs.map(r => r.right)), T = Math.min(...rs.map(r => r.top)), B = Math.max(...rs.map(r => r.bottom));
     if (R - L < 4 && B - T < 4) return;
-    const g = (cx, cy, name) => { const [x, y] = E.deskXY({ left: cx, top: cy }); const d = document.createElement('div'); d.className = 'hd grp'; d.dataset.h = 'g-' + name; d.title = 'Drag to resize them together (Shift keeps the proportions)'; d.style.left = x + 'px'; d.style.top = y + 'px'; hbox.append(d); };
+    const g = (cx, cy, name) => { const [x, y] = E.deskXY({ left: cx, top: cy }); const d = document.createElement('div'); d.className = 'hd grp'; d.dataset.h = 'g-' + name; d.title = name.length === 2 ? 'Drag to scale them like a picture, labels too (Shift stretches freely)' : 'Drag to stretch the boxes (labels keep their size)'; d.style.left = x + 'px'; d.style.top = y + 'px'; hbox.append(d); };
     g(L, T, 'nw'); g(R, T, 'ne'); g(R, B, 'se'); g(L, B, 'sw');
     if (R - L > 40) { g((L + R) / 2, T, 'n'); g((L + R) / 2, B, 's'); } if (B - T > 40) { g(L, (T + B) / 2, 'w'); g(R, (T + B) / 2, 'e'); }
     return;
@@ -497,22 +497,34 @@ function offsetOf(el) {   // how far the groups around a shape shift it; null wh
   for (let n = el.parentNode; n && n.localName !== 'svg'; n = n.parentNode) { const t = n.getAttribute('transform'); if (!t) continue; const m = /^\s*translate\(\s*([-\d.e]+)[ ,]*([-\d.e]+)?\s*\)\s*$/.exec(t); if (!m) return null; tx += +m[1]; ty += +(m[2] || 0); }
   return [tx, ty];
 }
-function groupResize(e, name) {
+function groupResize(e, name) {   // corners scale the lot like a picture (labels grow too, proportions kept unless Shift); edges stretch the boxes, labels keep their size
   e.preventDefault(); e.stopPropagation();
-  const svg = layer, U = union(shapes), W = U.x1 - U.x0 || 1, H = U.y1 - U.y0 || 1;
-  const lv = leaves(shapes).map(s => ({ s, o: snapshot(s), from: lbox(s), b: box(s), off: offsetOf(s) })).filter(l => l.off);
+  const svg = layer, U = union(shapes), W = U.x1 - U.x0 || 1, H = U.y1 - U.y0 || 1, corner = name.length === 2;
+  const fsOf = n => { const v = n.getAttribute('font-size'); return v && !/%|em/.test(v) ? parseFloat(v) : null; };
+  const lv = leaves(shapes).map(s => ({ s, o: snapshot(s), from: lbox(s), b: box(s), off: offsetOf(s),
+    fs: s.localName === 'text' ? [s, ...s.querySelectorAll('tspan')].map(n => [n, fsOf(n)]).filter(q => q[1]) : [] })).filter(l => l.off);
+  const toks = shapes.flatMap(s => [...(s.matches('g[data-tok]') ? [s] : []), ...s.querySelectorAll('g[data-tok]')]);
   dragLoop(ev => {
     const [x, y] = toSvg(svg, ev.clientX, ev.clientY), to = Object.assign({}, U);
     if (name.includes('w')) to.x0 = Math.min(x, U.x1 - 3); if (name.includes('e')) to.x1 = Math.max(x, U.x0 + 3);
     if (name.includes('n')) to.y0 = Math.min(y, U.y1 - 3); if (name.includes('s')) to.y1 = Math.max(y, U.y0 + 3);
-    if (ev.shiftKey && name.length === 2) { const k = Math.max((to.x1 - to.x0) / W, (to.y1 - to.y0) / H); if (name.includes('w')) to.x0 = to.x1 - W * k; else to.x1 = to.x0 + W * k; if (name.includes('n')) to.y0 = to.y1 - H * k; else to.y1 = to.y0 + H * k; }
+    if (corner && !ev.shiftKey) { const k = Math.max((to.x1 - to.x0) / W, (to.y1 - to.y0) / H); if (name.includes('w')) to.x0 = to.x1 - W * k; else to.x1 = to.x0 + W * k; if (name.includes('n')) to.y0 = to.y1 - H * k; else to.y1 = to.y0 + H * k; }
     const sx = (to.x1 - to.x0) / W, sy = (to.y1 - to.y0) / H, mx = X => to.x0 + (X - U.x0) * sx, my = Y => to.y0 + (Y - U.y0) * sy;
+    const kt = corner ? Math.min(sx, sy) : 1;   // labels grow with a corner drag, never past the box they sit in
     for (const l of lv) {
       const [tx, ty] = l.off, f = l.from;
       if (!l.o.plain) { const cx = (l.b.x0 + l.b.x1) / 2, cy = (l.b.y0 + l.b.y1) / 2; moveTo(l.s, l.o, mx(cx) - cx, my(cy) - cy); }   // shapes we cannot reshape keep their size and follow along
-      else if (l.o.rot || l.s.localName === 'text') { const cx = (f.x0 + f.x1) / 2, cy = (f.y0 + f.y1) / 2; moveTo(l.s, l.o, mx(cx + tx) - tx - cx, my(cy + ty) - ty - cy); }
+      else if (l.o.rot || l.s.localName === 'text') {
+        const cx = (f.x0 + f.x1) / 2, cy = (f.y0 + f.y1) / 2;
+        if (l.fs.length) {   // new size at the old place, then centre it where the old centre went
+          moveTo(l.s, l.o, 0, 0); l.fs.forEach(([n, v]) => n.setAttribute('font-size', r1(v * kt)));
+          const g = lbox(l.s), gx = (g.x0 + g.x1) / 2, gy = (g.y0 + g.y1) / 2;
+          moveTo(l.s, l.o, mx(cx + tx) - tx - gx, my(cy + ty) - ty - gy);
+        } else moveTo(l.s, l.o, mx(cx + tx) - tx - cx, my(cy + ty) - ty - cy);
+      }
       else resizeTo(l.s, l.o, f, { x0: mx(f.x0 + tx) - tx, y0: my(f.y0 + ty) - ty, x1: mx(f.x1 + tx) - tx, y1: my(f.y1 + ty) - ty });
     }
+    toks.forEach(g => Book.drawTok(g));   // token tiles fit themselves round their (now bigger) label
   });
 }
 hbox.addEventListener('pointerdown', e => {
