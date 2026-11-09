@@ -628,10 +628,15 @@ function codeMarks(attr, lang) {
 }
 Book.codeMarks = codeMarks;
 class BCode extends HTMLElement {
-  connectedCallback() { if (inThumb(this)) return; lock(this); if (!this.hasAttribute('data-src')) this.setAttribute('data-src', rawText(this)); this.render(); }
+  // Moving a rendered block (presenting mode wraps #book in its scroll boxes) calls this again: drawing it afresh then
+  // threw away the Run bar eaiRunCode had added and any live output, so no cell could run while presenting (Eric,
+  // 2026-11-09). Only draw when the source differs from what was last drawn.
+  connectedCallback() { if (inThumb(this)) return; lock(this); if (!this.hasAttribute('data-src')) this.setAttribute('data-src', rawText(this)); if (this._drawn === this.drawKey() && this.firstElementChild) return; this.render(); }
+  drawKey() { return [this.src, this.getAttribute('marks'), this.getAttribute('hl'), this.getAttribute('tok'), this.getAttribute('lang')].join('\u0000'); }
   get src() { return this.getAttribute('data-src') || ''; }
   set src(v) { this.setAttribute('data-src', v); this.render(); Book.refreshSoon(); }
   render() {
+    this._drawn = this.drawKey();
     const lines = this.src.split('\n'), line = codeMarks(this.getAttribute('marks'), this.getAttribute('lang'));
     // "#~ name" at the end of a line links it to the piece of the paired equation marked \lk{name}{…} (hidden here)
     const lk = lines.map(l => /\s*#~\s*([\w-]+(?:[\s,]+[\w-]+)*)\s*$/.exec(l));
@@ -645,7 +650,7 @@ class BMatmul extends HTMLElement {
   attributeChangedCallback() { if (this.isConnected && window.eaiMatmulOne && !inThumb(this)) { this._mm = 1; window.eaiMatmulOne(this); Book.refreshSoon(); } }
 }
 class BOut extends BCode {
-  render() { this.innerHTML = `<div class="label">Output</div><pre>${eaiOutHL(this.src, Book.meta.codeColors, this.getAttribute('hl'), eaiOutTok(this))}</pre>`; }
+  render() { this._drawn = this.drawKey(); this.innerHTML = `<div class="label">Output</div><pre>${eaiOutHL(this.src, Book.meta.codeColors, this.getAttribute('hl'), eaiOutTok(this))}</pre>`; }
 }
 // <b-embed src="https://…/pca.html" title="PCA visualizer" height="640" poster="fig/x.svg"></b-embed>
 // An interactive page from elsewhere. The web page shows it in a frame, wider than the text column when there is room;
