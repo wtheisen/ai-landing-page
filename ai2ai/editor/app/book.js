@@ -546,7 +546,11 @@ class BEq extends HTMLElement {
     const rows = this.rows();
     // a note with Ω is drawn with the tall ω since 2026-10-28: the extra 'om' gives those equations a new image
     // flush: no number column, the rows start at the box's left edge (Eric 2026-11-01, so a wide equation draws larger)
-    const flush = this.hasAttribute('flush');
+    // on Lecture pages an equation with no numbered row is flush too (Eric, 2026-11-09: the empty number column pushed
+    // un-numbered slide equations in, so they never looked centred); Reading equations keep the column to line up
+    const pgEl = this.closest('section.page'), pgv = (pgEl && pgEl.getAttribute('data-view')) || '';
+    const lecture = /\bslides\b/.test(pgv) && !/\breading\b/.test(pgv);
+    const flush = this.hasAttribute('flush') || (lecture && !rows.some(r => r[0] === 'eq' && r[1]));
     // gap: the space between rows in pt at the equation's 16pt size (default 5.6), Eric 2026-11-02
     const gap = Math.max(0, parseFloat(this.getAttribute('gap')) || 0);
     // a coloured symbol typed as itself (ω, σ, ŷ …, not \omega) takes its colour since 2026-11-03 (server.py
