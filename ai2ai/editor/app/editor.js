@@ -485,6 +485,8 @@ function duplicate(el) {
 }
 // a figure resized by hand on a slide keeps the size it was given: the slide cap (book.css: at most --fig-h tall) stops applying to it
 // (Eric, 2026-10-29: "many images that I can't actually scale larger")
+// how wide a flow block may get, in % of the text column: a drawing on a slide may run into the side margins, to 4pt from the edge (Eric, 2026-11-09)
+function maxPct(el) { return el && el.localName === 'svg' && Book.viewOf(el.parentElement) === 'slides' ? Math.floor((Book.pageW(el) - 8) / (Book.pageW(el) - 48) * 100) : 100; }
 function uncap(el) { if (el && el.matches('b-fig') && !el.classList.contains('cover-art') && Book.viewOf(el.parentElement) === 'slides') { el.style.setProperty('--fig-h', 'none'); el.classList.remove('s-sm', 's-xs'); } }   // sized by hand: the shrink classes (s-sm 72% !important) would hold it back
 function togglePin(el) {
   commit(true);
@@ -709,7 +711,7 @@ $('#rsz').addEventListener('pointerdown', e => {
   const move = ev => {
     const s = ptScale(pg), r = el.getBoundingClientRect();
     if (pinned) el.style.width = Math.max(30, (ev.clientX - r.left) / s).toFixed(1) + 'pt';
-    else { const c = r.left + r.width / 2; let pct = Math.round(2 * Math.abs(ev.clientX - c) / ((Book.pageW(pg) - 48) * s) * 100); pct = Math.max(15, Math.min(100, pct)); el.style.width = pct + '%'; uncap(el); }
+    else { const c = r.left + r.width / 2; let pct = Math.round(2 * Math.abs(ev.clientX - c) / ((Book.pageW(pg) - 48) * s) * 100); pct = Math.max(15, Math.min(maxPct(el), pct)); el.style.width = pct + '%'; uncap(el); }
     place();
   };
   const up = () => { window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true); commit(true); Book.refresh(); renderInspector(); };
@@ -1717,7 +1719,7 @@ function renderOneInspector() {
       // slider starts where the drawing is (it read 500pt as 500% and sat at the far end, Eric 2026-11-08)
       const ws = el.style.width || '', w0 = /pt$/.test(ws) ? Math.round(parseFloat(ws) / (Book.pageW(el) - 48) * 100) : Math.round(parseFloat(ws) || 100);
       add(`<label>Width: <span id="d-wv">${w0}</span>% of the text column</label>`);
-      const dr = add(`<input type="range" min="15" max="100" value="${Math.min(100, w0)}">`);
+      const dr = add(`<input type="range" min="15" max="${maxPct(el)}" value="${Math.min(maxPct(el), w0)}">`);
       dr.oninput = () => { el.style.width = dr.value + '%'; insp.querySelector('#d-wv').textContent = dr.value; place(); commit(); };
       const cur = el.getAttribute('data-align') === 'left' || el.getAttribute('data-align') === 'right' ? el.getAttribute('data-align') : 'center';
       const al = add(`<div class="row seg">Align ${[['left', 'Left'], ['center', 'Centre'], ['right', 'Right']].map(([v, l]) => `<button data-al="${v}" class="${v === cur ? 'on' : ''}">${l}</button>`).join('')}</div>`);

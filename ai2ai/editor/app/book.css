@@ -556,7 +556,9 @@ html.lect #book, html.lect main.book { gap: calc(24px * var(--zoom, 1)); padding
    book.js), and it sits in the middle of the column. s-sm / s-xs make it smaller still. */
 .book[data-view="slides"] .page > b-fig:not(.cover-art):not([style*="absolute"]) { max-width: calc(var(--fig-h, 300pt) * var(--ar, 1.6)); margin-left: auto; margin-right: auto; }
 /* a drawing on a slide centres like a figure (slides are a grid, so align-self alone doesn't; Eric 2026-11-01) */
-.book[data-view="slides"] .page > svg.draw:not(.overlay):not([style*="absolute"]) { margin-left: auto; margin-right: auto; }
+/* ... and may run past the text column into the slide's side margins, up to 4pt from the edge (Eric, 2026-11-09: "try that"):
+   justify-self keeps a drawing wider than the column centred on the slide (auto margins would push it all to the right) */
+.book[data-view="slides"] .page > svg.draw:not(.overlay):not([style*="absolute"]) { max-width: calc(100% + 40pt); justify-self: unsafe center; margin-left: 0; margin-right: 0; }
 .book[data-view="slides"] .page > b-fig.s-sm:not([style*="absolute"]) { --fig-h: 240pt; }
 .book[data-view="slides"] .page > b-fig.s-xs:not([style*="absolute"]) { --fig-h: 185pt; }
 
