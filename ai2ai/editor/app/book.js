@@ -370,7 +370,9 @@ Book.drawTok = g => {
   const fs = parseFloat(lab.getAttribute('font-size')) || 9;
   const x = parseFloat(rect.getAttribute('x')) || 0, y = parseFloat(rect.getAttribute('y')) || 0, w0 = parseFloat(rect.getAttribute('width')) || 0, h0 = parseFloat(rect.getAttribute('height')) || 0;
   const cx = x + w0 / 2, cy = y + h0 / 2;
-  setA(rect, 'fill', col[0]); setA(rect, 'stroke', col[1]); if (!rect.getAttribute('stroke-width')) rect.setAttribute('stroke-width', '1.2');
+  setA(rect, 'fill', col[0]); setA(rect, 'stroke', col[1]);
+  // outline in proportion to the label, like a <b-tok>'s .1em border, so tiles weigh the same in text, outputs and drawings; data-em doubles it
+  setA(rect, 'stroke-width', rn(fs * (g.hasAttribute('data-em') ? 0.2 : 0.1)));
   setA(rect, 'rx', rn(fs * 0.4));
   if (info.known) rect.removeAttribute('stroke-dasharray'); else setA(rect, 'stroke-dasharray', '3 2');
   const label = Book.tokLabel(t);

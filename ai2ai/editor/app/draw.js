@@ -392,6 +392,8 @@ function tokInspect(add) {
     ti.firstChild.onchange = e => { E.commit(true);
       list.forEach(g => { g.removeAttribute('data-ids'); Book.drawTok(g); const inh = !!g.querySelector(':scope > text.tk-idl'); if (e.target.checked !== inh) { g.setAttribute('data-ids', e.target.checked ? 'on' : 'off'); Book.drawTok(g); } });
       reconnect(svg); drawHandles(); E.commit(true); }; }
+  { const em = add(`<label class="check"><input type="checkbox" ${list.every(g => g.hasAttribute('data-em')) ? 'checked' : ''}>Heavy outline (to pick ${list.length > 1 ? 'these' : 'it'} out)</label>`);
+    em.firstChild.onchange = e => { E.commit(true); list.forEach(g => { g.toggleAttribute('data-em', e.target.checked); Book.drawTok(g); }); drawHandles(); E.commit(true); }; }
   const sz = add(`<div class="row">Size <input type="number" min="5" max="40" step="0.5" style="width:60px" value="${tokFs(list[0])}"></div>`);
   sz.querySelector('input').onchange = e => { E.commit(true); list.forEach(g => { tokLab(g).setAttribute('font-size', +e.target.value || 9); Book.drawTok(g); }); reconnect(svg); drawHandles(); E.commit(true); };
   const b = add(`<div class="row"><button data-a="table">Tokens table</button><button data-a="plain" title="Keep the boxes and labels as they are now, without the token table">Back to plain boxes</button></div>`);

@@ -65,7 +65,7 @@ b.purple { color: var(--purple-text); }   /* Eric 2026-11-01: the network purple
 /* ---------- math ---------- */
 /* token tiles (<b-tok>): one token of a vocabulary as a rounded tile in its family's fill and line tone; the ID sits under
    the word when the page (data-tokids) or the chapter (.tokids, book-meta tokIds) shows IDs */
-b-tok { display: inline-flex; flex-direction: column; align-items: center; vertical-align: baseline; white-space: pre; font-family: var(--font-sans, Arial, Helvetica, sans-serif); font-weight: 700; font-size: .9em; line-height: 1.2; padding: 0 .28em; margin: 0 .05em; border: 1.2px solid var(--tk-line, #666666); border-radius: .32em; background: var(--tk-fill, #EEEEEE); color: #000; text-indent: 0; }
+b-tok { display: inline-flex; flex-direction: column; align-items: center; vertical-align: baseline; white-space: pre; font-family: var(--font-sans, Arial, Helvetica, sans-serif); font-weight: 700; font-size: .9em; line-height: 1.2; padding: 0 .28em; margin: 0 .05em; border: 0; box-shadow: inset 0 0 0 .1em var(--tk-line, #666666); border-radius: .32em; background: var(--tk-fill, #EEEEEE); color: #000; text-indent: 0; }
 b-tok .tk-t { display: block; }
 b-tok .tk-id { display: none; font-family: Consolas, 'Inconsolata LGC', monospace; font-size: .66em; font-weight: 700; line-height: 1.05; padding-bottom: .08em; color: var(--tk-ink, var(--tk-line)); }
 .tokids b-tok .tk-id, section.page[data-tokids] b-tok .tk-id { display: block; }
@@ -74,7 +74,7 @@ section.page[data-tokids="off"] b-tok .tk-id { display: none; }
 b-tok[ids="on"] .tk-id { display: block !important; }
 b-tok[ids="off"] .tk-id { display: none !important; }
 /* token tiles in code outputs (eaiOutHL): .otk a quoted token, .otid an ID in a list of token IDs */
-b-out .otk { white-space: pre; font-weight: 700; color: #000; padding: 0 .2em; margin: 0 .03em; border: 1px solid var(--tk-line, #999999); border-radius: .3em; background: var(--tk-fill, #EEEEEE); }
+b-out .otk { white-space: pre; font-weight: 700; color: #000; padding: 0 .2em; margin: 0 .03em; border: 0; box-shadow: inset 0 0 0 .1em var(--tk-line, #999999); border-radius: .3em; background: var(--tk-fill, #EEEEEE); }
 b-out .otid { font-weight: 700; color: var(--tk-ink, #666666); }
 b-tok[data-f="purple"], b-out [data-f="purple"] { --tk-fill: #D9D2E9; --tk-line: #8E7CC3; --tk-ink: #674EA7; }
 b-tok[data-f="green"], b-out [data-f="green"] { --tk-fill: #D9EAD3; --tk-line: #93C47D; --tk-ink: #38761D; }
@@ -82,7 +82,7 @@ b-tok[data-f="yellow"], b-out [data-f="yellow"] { --tk-fill: #FFF2CC; --tk-line:
 b-tok[data-f="red"], b-out [data-f="red"] { --tk-fill: #F4CCCC; --tk-line: #E06666; --tk-ink: #CC0000; }
 b-tok[data-f="blue"], b-out [data-f="blue"] { --tk-fill: #C9DAF8; --tk-line: #6D9EEB; --tk-ink: #1155CC; }
 b-tok[data-f="gray"], b-out [data-f="gray"] { --tk-fill: #EEEEEE; --tk-line: #999999; --tk-ink: #666666; }
-b-tok.tk-unknown { border-style: dashed; }
+b-tok.tk-unknown { border: .1em dashed var(--tk-line, #999999); box-shadow: none; }
 b-tok + b-tok { margin-left: .1em; }
 b-m { font-family: var(--font-math); font-size: 1.04em; white-space: nowrap; word-spacing: -0.3em; font-variant-ligatures: none; }
 b-m sub, b-m sup { font-size: .68em; line-height: 0; }
