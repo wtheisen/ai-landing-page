@@ -39,6 +39,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
   }
   Book.chapter = ch; Book.base = '../c/' + ch + '/'; Book.web = !grid; Book.exporting = exporting; if (exporting) document.documentElement.dataset.exporting = '1';
   const wanted = new URLSearchParams(location.search).get('view'); if (Book.views.includes(wanted)) Book.view = wanted; zoom();
+  await Book.swReady();
   const info = await (await fetch('../api/info')).json(); Book.kit = info.kit; Book.mathml = !!info.offline;
   const version = new URLSearchParams(location.search).get('version');
   const d = await (await fetch(version ? '../api/history/' + ch + '?name=' + encodeURIComponent(version) : '../api/chapter/' + ch)).json();

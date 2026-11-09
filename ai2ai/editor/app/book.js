@@ -714,6 +714,17 @@ Book.panes = () => Book.root ? [...Book.root.querySelectorAll(':scope > .dpane')
 // Page sizes in pt: the Reading and the Workbook are 6 × 9 in book pages, the Lecture is a 4:3 slide (10 × 7.5 in;
 // Eric, 2026-10-29, closer to his iPad; 16:9 at 10 × 5.625 in from 2026-10-26). book.css sets --page-w/--page-h per edition; these say the same in JS.
 // Text column: 24pt margins either side; content must end 26pt above the bottom (the footer line).
+// A hard reload (Cmd+Shift+R) loads the page past the hosted editor's service worker, and then ../api/… (the chapters,
+// answered by that worker from this device's store) isn't there. Ask the worker to take the page over (clients.claim),
+// or failing that reload once normally. On the Mac's server.py there is no worker and this does nothing.
+Book.swReady = async () => {
+  const sw = navigator.serviceWorker; if (!sw || sw.controller) return;
+  const reg = await sw.getRegistration().catch(() => null); if (!reg || !reg.active) return;
+  await new Promise(res => { const t = setTimeout(res, 1500); sw.addEventListener('controllerchange', () => { clearTimeout(t); res(); }, { once: true }); reg.active.postMessage({ type: 'claim' }); });
+  let tried = false; try { tried = sessionStorage.getItem('ai2ai-claim-reload') === '1'; } catch (x) {}
+  if (sw.controller) { try { sessionStorage.removeItem('ai2ai-claim-reload'); } catch (x) {} return; }
+  if (!tried) { try { sessionStorage.setItem('ai2ai-claim-reload', '1'); } catch (x) {} location.reload(); await new Promise(() => {}); }
+};
 Book.SIZES = { reading: { w: 432, h: 648 }, slides: { w: 720, h: 540 }, workbook: { w: 432, h: 648 } };   // the Workbook prints like the Reading (6 × 9 in), for paper and tablets
 Book.size = el => Book.SIZES[el && el.nodeType ? Book.viewOf(el) : (el || Book.view)] || Book.SIZES.reading;
 Book.pageW = el => Book.size(el).w;

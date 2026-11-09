@@ -9,7 +9,7 @@ const params = new URLSearchParams(location.search);
 let swReady = Promise.resolve();
 if ('serviceWorker' in navigator) {
   swReady = navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(() => {
-    if (!navigator.serviceWorker.controller) return new Promise(res => navigator.serviceWorker.addEventListener('controllerchange', res, { once: true }));
+    if (!navigator.serviceWorker.controller) return new Promise(res => { navigator.serviceWorker.addEventListener('controllerchange', res, { once: true }); navigator.serviceWorker.ready.then(r => r.active && r.active.postMessage({ type: 'claim' })); });   // after a hard reload the worker is running but doesn't control the page: ask it to
   });
 }
 // ask the browser to keep this site's storage (iOS Safari only honours it for a home-screen app)

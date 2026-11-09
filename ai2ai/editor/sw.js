@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = '3ea083387e', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = '337a9f9510', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/
@@ -214,5 +214,6 @@ async function runSync() {
 self.addEventListener('message', e => {
   const d = e.data || {};
   if (d.type === 'sync') e.waitUntil(runSync().then(s => e.source && e.source.postMessage(Object.assign({ type: 'sync', reply: true }, s))));
+  if (d.type === 'claim') e.waitUntil(self.clients.claim());   // a page loaded by a hard reload asks to be taken over (book.js Book.swReady)
   if (d.type === 'sync-state' && e.source) e.source.postMessage(Object.assign({ type: 'sync', reply: true }, syncState));
 });
