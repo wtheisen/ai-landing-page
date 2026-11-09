@@ -167,8 +167,8 @@ function reconnect(svg) {
     const centre = t => { const b = box(t); return [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2]; };
     const q = el.localName === 'path' ? qp(el.getAttribute('d')) : null, bend = q ? [q[2], q[3]] : null;   // a curve leaves each shape toward its bend
     const at = (t, key, toward) => siteAt(t, el.getAttribute(key + '-at')) || edgePoint(t, toward);   // fixed to a connection point, else facing the other end
-    if (ta) { const p = at(ta, 'data-a', bend || (tb ? centre(tb) : e[1])); if (Math.hypot(p[0] - e[0][0], p[1] - e[0][1]) > 0.05) setEnd(el, 0, p[0], p[1]); }
-    if (tb) { const p = at(tb, 'data-b', bend || (ta ? centre(ta) : e[0])); if (Math.hypot(p[0] - e[1][0], p[1] - e[1][1]) > 0.05) setEnd(el, 1, p[0], p[1]); }
+    if (ta) { const p = at(ta, 'data-a', bend || (tb ? centre(tb) : e[1])); if (Math.hypot(p[0] - e[0][0], p[1] - e[0][1]) > 0.25) setEnd(el, 0, p[0], p[1]); }
+    if (tb) { const p = at(tb, 'data-b', bend || (ta ? centre(ta) : e[0])); if (Math.hypot(p[0] - e[1][0], p[1] - e[1][1]) > 0.25) setEnd(el, 1, p[0], p[1]); }
   });
 }
 // Connection points (Eric, 2026-11-03, "the little attachment dots like google slides has"): while a line end is dragged
@@ -176,10 +176,13 @@ function reconnect(svg) {
 // and stays fixed to that side (data-a-at / data-b-at = t r b l). Dropped anywhere else on the shape it attaches as before,
 // sliding round the edge to face the other end.
 const SITE_PX = 12;   // how close to a dot (screen px) the pointer must be to snap to it
-function siteAt(t, k) {   // a connection point of shape t, just outside its edge (like edgePoint's small gap)
-  if (!t || !/^[trbl]$/.test(k || '')) return null;
-  const b = box(t), cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2;
-  return { t: [cx, b.y0 - 2], r: [b.x1 + 2, cy], b: [cx, b.y1 + 2], l: [b.x0 - 2, cy] }[k];
+function siteAt(t, k) {   // a connection point of shape t, just outside its edge (like edgePoint's small gap). "l" is the middle of
+  // the left side, "l:0.25" a quarter of the way down it (t/b count from the left): an arrow a script laid out (tools/todraw.py)
+  // keeps the spot it was drawn at instead of swinging round to face the other shape's centre (Eric, 2026-11-09)
+  const m = /^([trbl])(?::(-?[\d.]+))?(?::(-?[\d.]+))?$/.exec(k || ''); if (!t || !m) return null;
+  const b = box(t), f = m[2] == null ? 0.5 : Math.min(1, Math.max(0, +m[2])), x = b.x0 + (b.x1 - b.x0) * f, y = b.y0 + (b.y1 - b.y0) * f;
+  const g = m[2] == null ? 2 : +(m[3] || 0);   // a dot sits just outside the edge; a drawn spot keeps its own distance from it ("r:0.500:-2": 2 short)
+  return { t: [x, b.y0 - g], r: [b.x1 + g, y], b: [x, b.y1 + g], l: [b.x0 - g, y] }[m[1]];
 }
 const inR = (r, x, y, pad) => x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
 function targetAt(el, i, cx, cy, pad, alone) {   // the shape an end of el dropped here would attach to: the topmost closed shape under the point,
