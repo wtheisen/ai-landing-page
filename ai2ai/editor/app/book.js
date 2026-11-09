@@ -182,7 +182,14 @@ function eaiOutHL(text, cc, hl, tok) {
       var TT = /((?:\bb)?(?:'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"))|(\[\s*\d+(?:\s*,\s*\d+)*\s*,?\s*\])/g, o = '', last = 0, q;   // b'…': a bytes repr
       while ((q = TT.exec(seg))) {
         var piece = null;
-        if (q[1] !== undefined) { var t = unq(q[1].replace(/^b/, '')), hit = Object.prototype.hasOwnProperty.call(tok.map, t) ? tok.map[t] : null; if (hit) piece = tile(t, hit[1]); }
+        if (q[1] !== undefined) {
+          var t = unq(q[1].replace(/^b/, '')), hit = Object.prototype.hasOwnProperty.call(tok.map, t) ? tok.map[t] : null;
+          if (hit) piece = tile(t, hit[1]);
+          else if (tok.ids !== false && /^0x[0-9a-fA-F]+$|^0b[01]+$/.test(t)) {   // hex(b) / bin(b) of an ID: coloured like the ID
+            var v = parseInt(t.slice(2), t[1] === 'x' ? 16 : 2);
+            if (v < tok.n && tok.byId[v]) piece = '<span class="otid" data-f="' + tok.byId[v] + '">' + esc(q[1]) + '</span>';
+          }
+        }
         else if (tok.ids !== false && !/(Size|shape)\($/.test(seg.slice(0, q.index))) {   // not torch.Size([64, 10])
           var nums = q[2].match(/\d+/g), ok = nums.length > 1 && nums.every(function (d) { return +d < tok.n && tok.byId[+d]; });
           if (ok) piece = q[2].replace(/\d+/g, function (d) { return '<span class="otid" data-f="' + tok.byId[+d] + '">' + d + '</span>'; }).replace(/[\[\],]/g, function (c) { return esc(c); });
