@@ -70,6 +70,7 @@ body.dragging .cv { cursor: grabbing; }
 .book .acts .lect { grid-column: 1 / -1; background: #002B5B; border-color: #002B5B; color: #fff; }
 .book .acts .ans { grid-column: 1 / -1; text-align: center; font-size: 12px; color: #667; margin-top: -2px; }
 .book .acts .pub { grid-column: 1 / -1; text-align: center; font-size: 12px; color: #38761D; font-weight: 700; margin-top: -4px; }
+#pubst.bad { color: #CC0000; font-weight: 700; } #pubst a { color: inherit; }
 .book .acts .pub.busy { color: #8a6a00; pointer-events: none; }
 @media (max-width: 520px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
 .off { font-size: 12px; color: var(--muted); }
@@ -99,7 +100,7 @@ progress { width: 100%; height: 6px; }
 
   <section class="card" id="sync" hidden>
     <div class="row" style="justify-content:space-between">
-      <div><b id="where"></b><div class="note" id="when"></div></div>
+      <div><b id="where"></b><div class="note" id="when"></div><div class="note" id="pubst"></div></div>
       <div class="row"><button id="pull" class="primary">Sync now</button><button id="all">Make all available offline</button></div>
     </div>
     <progress id="prog" hidden></progress>

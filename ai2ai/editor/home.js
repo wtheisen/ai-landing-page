@@ -204,6 +204,23 @@ async function gh(path, opt = {}) {
   return r.json();
 }
 const b64 = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+// "Last publish" line under the sync status: the site's .book-published.json `_last` (written by tools/publish.py,
+// or by the workflow's failure step), so a failed nightly run or pages running over show here, not only in Actions.
+async function siteStatus() {
+  const el = $('#pubst'); if (!el || !cfg || cfg.kind !== 'github' || !navigator.onLine) return;
+  let rec; try { const f = await gh(SITE_REPO + '/contents/.book-published.json'); rec = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(f.content.replace(/\s/g, '')), c => c.charCodeAt(0)))); } catch (x) { return; }
+  const l = rec._last; if (!l) return;
+  const when = new Date(l.at).toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+  const runs = 'https://github.com/' + cfg.repo + '/actions' + (l.run ? '/runs/' + l.run : '');
+  const over = Object.entries(l.over || {}).map(([c, p]) => c + ' (' + p.length + ')');
+  const bad = l.error || (l.failed || []).length;
+  el.classList.toggle('bad', !!bad);
+  el.innerHTML = 'Last publish to the site: ' + esc(when) + (l.event === 'schedule' ? ' (nightly)' : '') + ' · '
+    + (l.error ? 'the run failed' : (l.failed || []).length ? 'failed: ' + esc(l.failed.join(', ')) : (l.ok || []).length ? (l.ok.length === 1 ? esc(l.ok[0]) : l.ok.length + ' chapters') + ' ✓' : 'nothing had changed ✓')
+    + (over.length ? ' · pages running over: ' + esc(over.join(', ')) : '')
+    + (bad || over.length ? ' · <a href="' + runs + '" target="_blank" rel="noopener">details</a>' : '');
+}
+
 async function publish(slug, a) {
   if (!navigator.onLine) return msg('Offline: publishing needs the internet.');
   const t = a.closest('.book') && a.closest('.book').querySelector('.cv-title'), title = (t && t.textContent) || slug;
@@ -227,7 +244,7 @@ async function publish(slug, a) {
     catch (x) { /* this token may not read the site repo: say it was asked for and stop watching */
       a.classList.remove('busy'); return say('Asked for: on the site in about 10 minutes'); }
     const s = seen(rec);
-    if (s === 'ok') { a.classList.remove('busy'); return say('On the site ✓ (live in a minute or two)'); }
+    if (s === 'ok') { a.classList.remove('busy'); siteStatus(); return say('On the site ✓ (live in a minute or two)'); }
     if (s === 'failed') { a.classList.remove('busy'); return say('Publishing failed: see Actions in ' + cfg.repo); }
     if (Date.now() - t0 > 45 * 60e3) { a.classList.remove('busy'); return say('Still not done after 45 minutes: see Actions in ' + cfg.repo); }
     setTimeout(tick, 30e3);
@@ -383,7 +400,7 @@ function installHint() {
 // service worker knows: the site's 404 page sends it here as ?open=edit/<slug>, and we go back once it's running.
 const reopen = params.get('open');
 if (reopen && /^(edit|view)\/[\w.-]+([?#].*)?$/.test(reopen)) { msg('Opening the chapter…'); await swReady; location.replace(reopen); await new Promise(() => {}); }
-show(); installHint(); await chips(); await when(); await list();
+show(); installHint(); await chips(); await when(); await list(); siteStatus();
 if ('serviceWorker' in navigator) {   // a new version: reload this page to use it; and say which version is running
   let had = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (had) location.reload(); had = true; });
