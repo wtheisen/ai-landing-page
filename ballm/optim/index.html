@@ -23107,7 +23107,7 @@ L 342.665313 33.584863
   <p data-b="rxjlr">Unfortunately the right learning rate depends on the model and the data, so in practice people try a few and watch the loss. irishQwen's training script even suggests a different starting value for each of its optimizers, which is about as honest as it gets.</p>
 <div class="foot" data-rt=""><span>Optimization · Gradient Descent</span><span>10</span></div></section>
 
-<section class="page" id="composite" data-view="reading" data-topic="computation-graph" data-part="Backpropagation" style="--gap: 14.9pt;">
+<section class="page" id="composite" data-view="reading" data-topic="computation-graph" data-part="Backpropagation" style="--gap: 15pt;">
   <h2 data-b="l7q1t">Neural Networks as Composite Functions</h2>
   <p data-b="gc495">Nudging works, but every partial derivative costs one more run of the whole model: <span class="num">6</span> extra runs per step for us, <span class="num">7,850</span> for the digit classifier and <span class="num">3.4</span> million for our small irishQwen. We need the gradient without the nudging.</p>
   <p data-b="ipg8t">The way in is to notice that our model is really three functions, one inside the next. <b-m tex="h">h</b-m> makes the scores from the games and the parameters, <b-m tex="g">g</b-m> turns the scores into probabilities and <b-m tex="f">f</b-m> compares the probabilities with what happened:</p>
