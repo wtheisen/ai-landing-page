@@ -171,7 +171,7 @@ async function list() {
       <a class="cv" href="edit/${href}" draggable="false">${c.art ? `<span class="cv-art" data-art="chapters/${esc(it.slug)}/${esc(c.art)}"><img alt="" draggable="false"${arts[`chapters/${it.slug}/${c.art}`] ? ` src="${arts[`chapters/${it.slug}/${c.art}`]}"` : ''}></span>` : '<span class="cv-art none"></span>'}
         <span class="cv-text"><span class="kicker">${esc(num)}</span><span class="cv-title">${esc(c.title)}</span><span class="rule"></span></span></a>
       <div class="meta">${c.dirty ? '<span class="edited">Edited here</span>' : ''}<span class="off ${full ? 'full' : ''}">${full ? 'Offline ✓' : need ? `<a href="#" data-dl="${esc(it.slug)}">Download</a> ${have}/${need}` : ''}</span></div>
-      <div class="acts"><a class="btn" href="view/${href}">Read</a><a class="btn" href="edit/${href}">Edit</a><a class="btn lect" href="view/${href}?view=slides&lecture=1" title="Teach from this device: the Lecture with the pen in hand and the faint answers hidden (safe to mirror to the projector)">Lecture</a><a class="ans" href="view/${href}?view=slides&lecture=answers" title="For a second screen: the Lecture with the faint answers showing">answers</a></div></div>`;
+      <div class="acts"><a class="btn" href="view/${href}">Read</a><a class="btn" href="edit/${href}">Edit</a><a class="btn lect" href="view/${href}?view=slides&lecture=1" title="Teach from this device: the Lecture with the pen in hand and the faint answers hidden (safe to mirror to the projector)">Lecture</a><a class="ans" href="view/${href}?view=slides&lecture=answers" title="For a second screen: the Lecture with the faint answers showing">answers</a>${cfg && cfg.kind === 'github' ? `<a class="pub" href="#" data-pub="${esc(it.slug)}" title="Put this chapter's current version on the website (pages and PDFs). Every chapter edited since its last publish also goes up each night.">Publish to the site</a>` : ''}</div></div>`;
   };
   for (const u of units) {
     html += `<div class="unit"><span class="un">${esc(u.n)}</span>${esc(u.title)}</div><div class="grid" data-unit="${esc(u.n)}">`;
@@ -186,11 +186,53 @@ async function list() {
   $('#list').innerHTML = html; wire();
   covers();
   if ($('#tg-planned')) $('#tg-planned').onclick = () => { showPlanned = !showPlanned; try { localStorage.setItem('ai2ai-planned', showPlanned ? '1' : '0'); } catch (e) { /* no storage */ } list(); };
+  $('#list').querySelectorAll('[data-pub]').forEach(a => a.onclick = e => { e.preventDefault(); e.stopPropagation(); publish(a.dataset.pub, a); });
   $('#list').querySelectorAll('[data-dl]').forEach(a => a.onclick = async e => {
     e.preventDefault(); e.stopPropagation(); const s = a.dataset.dl; a.textContent = 'Downloading…';
     try { await Sync.chapter(s, prog); } catch (x) { msg(x.message); }
     prog(0, 0); await list(); await chips();
   });
+}
+
+// Publish to the site: sync, then ask the "Publish chapters" workflow in the book repo (.github/workflows/publish.yml)
+// by writing publish/request.json; it exports the chapter and commits it to the site. Then watch the site's
+// .book-published.json (written by tools/publish.py) to say when it's done.
+async function gh(path, opt = {}) {
+  const r = await fetch((cfg.api || 'https://api.github.com') + '/repos/' + path, { cache: 'no-store', ...opt,
+    headers: { Authorization: 'Bearer ' + cfg.token, Accept: 'application/vnd.github+json', ...(opt.headers || {}) } });
+  if (!r.ok) throw new Error('GitHub ' + r.status + ' on ' + path.split('/contents/')[1]);
+  return r.json();
+}
+const b64 = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+async function publish(slug, a) {
+  if (!navigator.onLine) return msg('Offline: publishing needs the internet.');
+  const t = a.closest('.book') && a.closest('.book').querySelector('.cv-title'), title = (t && t.textContent) || slug;
+  if (!confirm('Put "' + title + '" on the website now? It takes about 10 minutes.')) return;
+  const say = w => { a.textContent = w; msg(title + ': ' + w); };
+  a.classList.add('busy'); say('Syncing…');
+  const at = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+  try {
+    const d = await swSync(); if (d.state === 'error') throw new Error('could not sync: ' + d.error);
+    say('Asking GitHub…');
+    const path = cfg.repo + '/contents/publish/request.json';
+    let sha; try { sha = (await gh(path + '?ref=' + cfg.branch)).sha; } catch (x) { /* first request */ }
+    await gh(path, { method: 'PUT', body: JSON.stringify({ message: 'Publish ' + slug, branch: cfg.branch, sha,
+      content: b64(JSON.stringify({ chapters: [slug], at }, null, 1) + '\n') }) });
+  } catch (x) { a.classList.remove('busy'); a.textContent = 'Publish to the site'; return msg(title + ': not published (' + x.message + ').'); }
+  say('Publishing… (about 10 minutes)');
+  const t0 = Date.now(), seen = r => r && r[slug] && ((r[slug].at && r[slug].at >= at) ? 'ok' : (r[slug].failed && r[slug].failed >= at) ? 'failed' : '');
+  const tick = async () => {
+    let rec = null;
+    try { const f = await gh(SITE_REPO + '/contents/.book-published.json'); rec = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(f.content.replace(/\s/g, '')), c => c.charCodeAt(0)))); }
+    catch (x) { /* this token may not read the site repo: say it was asked for and stop watching */
+      a.classList.remove('busy'); return say('Asked for: on the site in about 10 minutes'); }
+    const s = seen(rec);
+    if (s === 'ok') { a.classList.remove('busy'); return say('On the site ✓ (live in a minute or two)'); }
+    if (s === 'failed') { a.classList.remove('busy'); return say('Publishing failed: see Actions in ' + cfg.repo); }
+    if (Date.now() - t0 > 45 * 60e3) { a.classList.remove('busy'); return say('Still not done after 45 minutes: see Actions in ' + cfg.repo); }
+    setTimeout(tick, 30e3);
+  };
+  setTimeout(tick, 60e3);
 }
 
 // cover art: read from this device's store, or fetched from GitHub once and kept (Sync.file), shown as a blob URL.

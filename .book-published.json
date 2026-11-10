@@ -1,0 +1,112 @@
+{
+ "backprop": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ai2ai/backprop"
+ },
+ "ballm-attention": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/attention"
+ },
+ "ballm-attnvar": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/attnvar"
+ },
+ "ballm-blocks": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/blocks"
+ },
+ "ballm-bpe": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/bpe"
+ },
+ "ballm-embeddings": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/embeddings"
+ },
+ "ballm-evals": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/evals"
+ },
+ "ballm-hdd": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/hdd"
+ },
+ "ballm-irishqwen": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/irishqwen"
+ },
+ "ballm-loss": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/loss"
+ },
+ "ballm-mha": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/mha"
+ },
+ "ballm-moe": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/moe"
+ },
+ "ballm-optim": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/optim"
+ },
+ "ballm-rnn": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/rnn"
+ },
+ "ballm-tokenization": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ballm/tokenization"
+ },
+ "ffn": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ai2ai/ffn"
+ },
+ "linreg": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ai2ai/linreg"
+ },
+ "optreg": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ai2ai/optreg"
+ },
+ "pca": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ai2ai/pca"
+ },
+ "rnn": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ai2ai/rnn"
+ },
+ "search": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ai2ai/search"
+ },
+ "svm": {
+  "at": "2026-11-10T13:07:51Z",
+  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "web": "ai2ai/svm"
+ }
+}
