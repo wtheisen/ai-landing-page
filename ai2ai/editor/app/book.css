@@ -647,3 +647,6 @@ div.wbox { border: 2px solid #000; border-radius: 0; background: #fff; min-heigh
 b-out[wrap] pre, .book[data-view] b-out[wrap] pre { white-space: pre-wrap !important; overflow-x: hidden !important; overflow-wrap: break-word; }
 b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
 
+/* Saved plots under an Output (b-out figs, 2026-11-10) on a 6 × 9 Workbook page: no taller than 120pt, so a plot
+   saved for a slide doesn't push the page over (rnn p-043pd: 647 of 622 at full column width) */
+.book[data-view="workbook"] b-out > .run-figs img { max-height: 120pt; width: auto; }
