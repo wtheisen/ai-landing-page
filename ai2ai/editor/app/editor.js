@@ -315,10 +315,8 @@ const deskPages = () => dual ? Book.pages().filter(p => p.parentElement === desk
 // review comments sit right after the block they are about (<div class="cmt">); they move, and go, with it
 // an exam question's write-in box (div.wbox right after it, comments between allowed) belongs to the question too: it
 // moves, copies and goes with it (Eric, 2026-11-08), and nothing is dropped between them
-// boxes with a height handle under them: an empty write-in box (height) and an answer-box equation (min-height, so
-// the starter it holds is never cut off; Eric 2026-11-10: he couldn't make backprop's answer boxes taller)
-const isAnsEq = b => !!(b && b.matches && b.matches('b-eq.answer'));
-const tallBox = b => !!(b && b.classList && (b.classList.contains('wbox') || isAnsEq(b)));
+// a write-in box has a height handle under it (it may show a starter equation: data-start, Book.wboxStarts)
+const tallBox = b => !!(b && b.classList && b.classList.contains('wbox'));
 const qBox = b => { if (!b || !b.classList || !b.classList.contains('wbox')) return null; let p = b.previousElementSibling; while (p && p.classList.contains('cmt')) p = p.previousElementSibling; return p && p.matches('aside.qc') ? p : null; };
 const tail = el => { const out = []; let n = el && el.nextElementSibling; while (n && n.classList.contains('cmt')) { out.push(n); n = n.nextElementSibling; }
   if (el && el.matches && el.matches('aside.qc') && n && n.classList.contains('wbox')) { out.push(n); n = n.nextElementSibling; while (n && n.classList.contains('cmt')) { out.push(n); n = n.nextElementSibling; } }
@@ -1784,6 +1782,11 @@ function renderOneInspector() {
     const hh = add(`<input type="number" min="18" step="10" value="${Math.round(parseFloat(el.style.height) || 90)}">`);
     hh.oninput = () => { el.style.height = Math.max(18, +hh.value || 18) + 'pt'; place(); commit(); };
     add(`<div class="help">An empty box for answers, shown in the Lecture and the Workbook. Drag its bottom edge (the handle under it) to make it taller or shorter.</div>`);
+    add(`<label>Starter (TeX, optional): shown in the box's top-left corner, e.g. <code>\\frac{\\partial ℒ}{\\partial b_1} =</code></label>`);
+    const st = add(`<textarea rows="2" spellcheck="false" style="width:100%;font-family:var(--mono, monospace)"></textarea>`);
+    st.value = el.getAttribute('data-start') || '';
+    st.oninput = () => { const v = st.value.replace(/\\(L|loss|mathcal\{L\})(?![a-zA-Z])/g, 'ℒ'); if (v !== st.value) st.value = v; };
+    st.onchange = () => { commit(true); const v = st.value.trim(); if (v) el.setAttribute('data-start', v); else el.removeAttribute('data-start'); Book.refresh(); place(); commit(true); };
   } else if (el.classList.contains('qc')) {
     { let n = el.nextElementSibling; while (n && n.classList.contains('cmt')) n = n.nextElementSibling;
       if (!(n && n.classList.contains('wbox'))) {
@@ -1933,15 +1936,6 @@ function eqInspector(el) {
   row.onclick = e => { const k = e.target.dataset.k; if (!k) return; const n = document.createElement(k); n.textContent = k === 'eq-step' ? '\\text{substitute}' : '= x'; const img = el.querySelector(':scope > [data-rt]'); el.insertBefore(n, null); if (img) el.append(...el.querySelectorAll(':scope > [data-rt]')); el.render(); draw(); const tas = list.querySelectorAll('textarea'); tas[tas.length - 1].focus(); tas[tas.length - 1].select(); };
   const fl = add(`<label class="check"><input type="checkbox" ${el.hasAttribute('flush') ? 'checked' : ''}>Flush left (no number column, so it can draw larger)</label>`);
   fl.firstChild.onchange = e => { commit(true); el.toggleAttribute('flush', e.target.checked); commit(true); place(); };
-  // write-in answer box: plain thin black border, square corners, like the boxes on Eric's exams (Eric 2026-11-06)
-  const ab = add(`<label class="check"><input type="checkbox" ${el.classList.contains('answer') ? 'checked' : ''}>Answer box (plain black border, like the exam's)</label>`);
-  ab.firstChild.onchange = e => { commit(true); el.classList.toggle('answer', e.target.checked); if (!el.classList.length) el.removeAttribute('class'); if (!e.target.checked) { el.style.minHeight = ''; if (!el.getAttribute('style')) el.removeAttribute('style'); } commit(true); place(); renderInspector(); };
-  if (el.classList.contains('answer')) {   // the room to write in (pt); empty = just fits the starter
-    add(`<label>Height (pt): the room to write in (empty = fit what's in it)</label>`);
-    const ah = add(`<input type="number" min="18" step="10" value="${parseFloat(el.style.minHeight) ? Math.round(parseFloat(el.style.minHeight)) : ''}">`);
-    ah.oninput = () => { el.style.minHeight = +ah.value ? Math.max(18, +ah.value) + 'pt' : ''; if (!el.getAttribute('style')) el.removeAttribute('style'); place(); commit(); };
-    add(`<div class="help">Drag the handle under the box to make it taller or shorter.</div>`);
-  }
   // space between the rows, pt at the equation's size (5.6 = the default, stored only when changed; Eric 2026-11-02)
   const g0 = parseFloat(el.getAttribute('gap')) || 5.6;
   const gp = add(`<label class="check" style="gap:6px">Row spacing <input type="range" min="0" max="40" step="1" value="${g0}" style="flex:1"><span>${Math.round(g0)} pt</span></label>`);
@@ -2355,10 +2349,10 @@ $('#croph').addEventListener('pointerdown', e => {
   window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true);
 });
 $('#rszb').addEventListener('pointerdown', e => {
-  if (sel && tallBox(sel) && !extra.length) {   // a write-in box (height) or an answer-box equation (min-height), in pt
+  if (sel && tallBox(sel) && !extra.length) {   // a write-in box: its height, in pt
     e.preventDefault(); commit(true); held++;
-    const el = sel, pg = el.closest('section.page') || el.parentElement, h0 = el.getBoundingClientRect().height / ptScale(pg), y0 = e.clientY, prop = isAnsEq(el) ? 'minHeight' : 'height';
-    const move = ev => { el.style[prop] = Math.max(18, Math.round(h0 + (ev.clientY - y0) / ptScale(pg))) + 'pt'; place(); };
+    const el = sel, pg = el.closest('section.page') || el.parentElement, h0 = el.getBoundingClientRect().height / ptScale(pg), y0 = e.clientY;
+    const move = ev => { el.style.height = Math.max(18, Math.round(h0 + (ev.clientY - y0) / ptScale(pg))) + 'pt'; place(); };
     const up = () => { window.removeEventListener('pointermove', move, true); window.removeEventListener('pointerup', up, true); held = Math.max(0, held - 1); commit(true); Book.refresh(); renderInspector(); };
     window.addEventListener('pointermove', move, true); window.addEventListener('pointerup', up, true);
     return;

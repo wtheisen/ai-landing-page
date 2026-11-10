@@ -869,7 +869,20 @@ Book.packWorkbook = () => {
   return packed > 0;
 };
 Book.refreshSoon = () => { if (!soon) soon = setTimeout(() => { soon = 0; if (Book.root) Book.refresh(); }, 60); };
+// a write-in box's starter (Eric, 2026-11-10: one kind of answer box, not two): div.wbox data-start="TeX" shows that
+// TeX in its top-left corner (∂ℒ/∂b₁ =) as a flush equation, runtime only (data-rt, never saved); the box keeps its height
+Book.wboxStarts = root => {
+  for (const b of root.querySelectorAll('div.wbox')) {
+    const t = b.getAttribute('data-start') || '', cur = b.querySelector(':scope > b-eq.wstart');
+    if (cur && t && cur._t === t) continue;
+    if (cur) cur.remove();
+    if (!t) continue;
+    const e = document.createElement('b-eq'); e.className = 'wstart'; e.setAttribute('data-rt', ''); e.setAttribute('flush', ''); e.setAttribute('contenteditable', 'false');
+    const r = document.createElement('eq-row'); r.textContent = t; e.append(r); e._t = t; b.prepend(e);
+  }
+};
 Book.refresh = () => {
+  if (Book.root) Book.wboxStarts(Book.root);
   if (Book.root) Book.root.classList.toggle('tokids', !!Book.meta.tokIds);   // token tiles show their IDs everywhere (book-meta tokIds)
   if (Book.root) { if (Book.vocabs) Book.drawToks(Book.root); else if (Book.root.querySelector('svg.draw g[data-tok], b-out[tok]') || Book.meta.outTok) Book.loadVocabs(); }   // token tiles in drawings
   const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();

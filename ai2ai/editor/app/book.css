@@ -640,7 +640,9 @@ p.tiles.tokids { line-height: 2.7; }
 /* Write-in box under an exam question (Eric, 2026-11-08): empty, plain 1px black border, square corners, like the
    boxes on his exams. Its height is the space to write in (style="height: Npt", dragged in the editor). Lecture and
    Workbook only, like the questions. */
-div.wbox { border: 2px solid #000; border-radius: 0; background: #fff; min-height: 18pt; box-sizing: border-box; flex: none; }
+div.wbox { border: 2px solid #000; border-radius: 0; background: #fff; min-height: 18pt; box-sizing: border-box; flex: none; position: relative; overflow: hidden; }
+/* its starter (data-start, drawn by Book.wboxStarts): an equation with no frame of its own, in the box's top-left corner */
+div.wbox > b-eq.wstart { position: absolute; top: 0; left: 0; border: 0; background: none; border-radius: 0; padding: 5pt 4pt; margin: 0; pointer-events: none; }
 .book[data-view="reading"] div.wbox:not([data-view~="reading"]) { display: none !important; }
 .page > aside.qc + div.wbox, .page > aside.qc + .cmt + div.wbox, .page > aside.qc + .cmt + .cmt + div.wbox { margin-top: calc(6pt - var(--gap, 10pt)); }   /* the box sits right under its question */
 /* wrap="" on a b-out (Eric, 2026-11-08): long lines wrap instead of scrolling sideways; a token tile never splits */
