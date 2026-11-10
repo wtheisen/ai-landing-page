@@ -5033,8 +5033,37 @@ function eaiInk(opts) {
     for (var i = 1; i < p.length - 1; i++) d += ' Q' + p[i][0] + ' ' + p[i][1] + ' ' + r1((p[i][0] + p[i + 1][0]) / 2) + ' ' + r1((p[i][1] + p[i + 1][1]) / 2);
     return d + ' L' + p[p.length - 1][0] + ' ' + p[p.length - 1][1];
   }
+  // Safari on the iPad hands some pen samples over twice (a pointermove's coalesced events repeat ones already seen),
+  // so a stroke stepped forward, jumped a point or two back and replayed the same stretch: drawn as tiny reversals,
+  // which Preview shows as a jagged line with white slivers (Eric, 2026-11-10, a notes PDF of Nov 2 strokes). move()
+  // now skips samples it has had; tidy() drops such short back-steps from strokes already saved, wherever one is drawn.
+  // A real sharp turn is kept: only a short step that turns back (over 120°) onto ink already laid, or under 1.2 pt, goes.
+  function tidy(p) {
+    if (p.length < 3) return p;
+    var out = [p[0]];
+    function nearPath(c) {   // within 0.8 pt of the stroke drawn so far (its last 24 points, not the newest segment)
+      for (var j = Math.max(1, out.length - 24); j < out.length - 1; j++) {
+        var a = out[j - 1], b = out[j], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy;
+        var t = L ? Math.max(0, Math.min(1, ((c[0] - a[0]) * dx + (c[1] - a[1]) * dy) / L)) : 0, ex = a[0] + t * dx - c[0], ey = a[1] + t * dy - c[1];
+        if (ex * ex + ey * ey <= 0.64) return true;
+      }
+      return false;
+    }
+    for (var i = 1; i < p.length; i++) {
+      var c = p[i], b = out[out.length - 1], vx = c[0] - b[0], vy = c[1] - b[1], lv = Math.sqrt(vx * vx + vy * vy);
+      if (lv < 0.3) continue;
+      if (out.length > 1 && lv < 3) {   // turning back over a short step onto ink already laid: a replayed sample
+        var a = out[out.length - 2], ux = b[0] - a[0], uy = b[1] - a[1], lu = Math.sqrt(ux * ux + uy * uy);
+        if (lu > 0 && (ux * vx + uy * vy) / (lu * lv) < -0.5 && nearPath(c)) continue;
+        if (lu > 0 && (ux * vx + uy * vy) / (lu * lv) < -0.5 && lv < 1.2) continue;
+      }
+      out.push(c);
+    }
+    return out;
+  }
   function paint(el, s, tail) {
-    el.setAttribute('d', pathD(tail ? s.pts.concat([tail]) : s.pts));
+    var pts = tidy(s.pts);
+    el.setAttribute('d', pathD(tail ? pts.concat([tail]) : pts));
     el.setAttribute('fill', 'none'); el.setAttribute('stroke', s.c); el.setAttribute('stroke-width', s.o ? s.w : r1(s.w * 1.6));
   }
 
@@ -5322,6 +5351,7 @@ function eaiInk(opts) {
       var es = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [ev]; if (!es.length) es = [ev];
       if (tool === 'laser') { laser.style.left = ev.clientX + 'px'; laser.style.top = ev.clientY + 'px'; return; }
       es.forEach(function (q) {
+        var qt = q.timeStamp || ev.timeStamp; if (last && qt <= last.t && es.length > 1) return;   // a sample we already have
         var p = pt(q);
         prev = last; last = { p: p, t: q.timeStamp || ev.timeStamp };
         if (tool === 'erase') {   // only your own strokes can be erased
@@ -5404,7 +5434,7 @@ function eaiInk(opts) {
             var page = at[st.p], el = document.getElementById(st.p); if (!page || !el || !st.pts || !st.pts.length) return;
             if (joined.indexOf(page) < 0) { page.pushOperators(PDFLib.setLineJoin(PDFLib.LineJoinStyle.Round)); joined.push(page); }
             var size = page.getSize(), k = size.width / pgW(el);
-            page.drawSvgPath(pathD(st.pts), { x: 0, y: size.height, scale: k, borderColor: hexRGB(st.c), borderWidth: (st.o ? st.w : r1(st.w * 1.6)) * k,
+            page.drawSvgPath(pathD(tidy(st.pts)), { x: 0, y: size.height, scale: k, borderColor: hexRGB(st.c), borderWidth: (st.o ? st.w : r1(st.w * 1.6)) * k,
               borderOpacity: st.o || 1, borderLineCap: PDFLib.LineCapStyle.Round });
           });
         });
