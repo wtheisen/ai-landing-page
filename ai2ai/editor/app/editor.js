@@ -383,6 +383,7 @@ function place() {
   if (canvas) { $('#rszb').style.left = (x + r.width / 2 - 13) + 'px'; $('#rszb').style.top = (y + r.height - 5) + 'px'; }
   placeCrop(); placeMarkers(); placeRulers();
   if (typeof placeFigCode === 'function') placeFigCode();
+  placeEqEd();
 }
 onDeskScroll(place);
 window.addEventListener('resize', place);
@@ -395,7 +396,13 @@ book.addEventListener('mousedown', e => {
   if (b) { if (b !== sel || extra.length) select(b); }
   else { const pg = pageOf(e.target); if (document.activeElement && book.contains(document.activeElement)) document.activeElement.blur(); select(null); setPage(pg); renderInspector(); }
 });
-book.addEventListener('dblclick', e => { const q = e.target.closest && e.target.closest('b-eq'); if (q && blockOf(q) === q) { const ta = insp.querySelector('.eqrow textarea'); if (ta) { ta.focus(); ta.select(); } } });
+// equations are edited on the page (Eric, 2026-11-10: "I almost always have [the side panel] collapsed"): double-click an
+// equation or a write-in box, or tap one that is already selected (iPad), and its TeX opens in a box right under it
+const eqTarget = t => { const q = t && t.closest && t.closest('b-eq, div.wbox'); if (!q) return null; const w = q.closest('div.wbox'); const b = w || q; return blockOf(b) === b ? b : null; };
+let eqTapSel = null;
+book.addEventListener('pointerdown', e => { eqTapSel = sel; }, true);
+book.addEventListener('click', e => { const q = eqTarget(e.target); if (q && q === eqTapSel && q === sel && !extra.length && !e.shiftKey && !e.metaKey) startEqEdit(q); });
+book.addEventListener('dblclick', e => { const q = eqTarget(e.target); if (q) { if (sel !== q) select(q); startEqEdit(q); } });
 book.addEventListener('focusin', e => { const b = blockOf(e.target); if (b && b !== sel && !extra.includes(b)) select(b); });
 book.addEventListener('click', e => {
   const m = e.target.closest && e.target.closest('b-m');
@@ -436,7 +443,7 @@ function insert(kind) {
   const n = insertAfter(h(TEMPLATES[kind]), sel);
   if (kind === 'qc') { n.after(h('<div class="wbox" style="height: 90pt"></div>')); prep(); commit(true); }   // an exam question comes with its write-in box
   if (n.isContentEditable) { focusIn(n.tagName === 'UL' ? n.firstElementChild : n, kind === 'p'); if (kind !== 'p') getSelection().selectAllChildren(n.tagName === 'UL' ? n.firstElementChild : n); }
-  if (kind === 'eq') { const ta = insp.querySelector('textarea'); if (ta) { ta.focus(); ta.select(); } }
+  if (kind === 'eq') setTimeout(() => startEqEdit(n, true), 0);
 }
 $('#insert').addEventListener('mousedown', e => e.preventDefault());
 $('#insert').addEventListener('click', e => { const k = e.target.dataset && e.target.dataset.ins; if (k) insert(k); });
@@ -1887,6 +1894,66 @@ const HELP = `<hr><div class="help"><b>Text</b>: click and type. Enter starts a 
 
 const slug = t => String(t).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 function freshLabel(base) { const b = slug(base) || 'eq'; let l = b, k = 2; while (book.querySelector(`eq-row[label="${l}"]`)) l = b + '-' + k++; return l; }
+// ---------------------------------------------------------------- equations edited on the page
+// One TeX box per row of the equation (a write-in box: its starter), under it; the equation redraws as you type.
+// Enter or clicking elsewhere keeps it, Shift+Enter is a new line inside a row, Esc puts it back as it was.
+let eqEd = null;
+const fixLoss = t => t.replace(/\\mathcal\s*(?:\{\s*L\s*\}|L(?![A-Za-z]))|\\(?:L|loss)(?=[^A-Za-z])/g, 'ℒ');
+function startEqEdit(el, fresh) {
+  if (!el || !el.isConnected) return;
+  if (eqEd && eqEd.el === el) return;
+  endEqEdit(true); endCodeEdit && endCodeEdit();
+  commit(true);
+  const box = el.classList.contains('wbox');
+  const pop = document.createElement('div'); pop.id = 'eqpop'; pop.setAttribute('data-ed', ''); pop.setAttribute('data-ed-ui', '');
+  pop.innerHTML = `<div class="ep-rows"></div><div class="ep-err"></div><div class="ep-bar">${box ? '' : '<button data-a="row" title="Add a row below">+ Row</button>'}<span class="ep-hint">Enter: done · Shift+Enter: new line · Esc: cancel</span><span class="sp"></span><button data-a="done">Done</button></div>`;
+  const rowsEl = pop.querySelector('.ep-rows'), err = pop.querySelector('.ep-err');
+  eqEd = { el, pop, before: Book.serializeBlock(el), fresh: !!fresh };
+  let t = 0;
+  const redraw = () => { clearTimeout(t); t = setTimeout(() => { if (box) Book.wboxStarts(el.parentElement); else el.render(); }, 250); };
+  const fit = ta => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+  const rowsOf = () => [...el.children].filter(c => /^EQ-(ROW|STEP)$/.test(c.tagName));
+  const addTa = (get, set, focus) => {
+    const ta = document.createElement('textarea'); ta.spellcheck = false; ta.rows = 1; ta.value = get();
+    ta.oninput = () => { const v = ta.value, at = ta.selectionStart; if (fixLoss(v) !== v) { const head = fixLoss(v.slice(0, at)); ta.value = head + fixLoss(v.slice(at)); ta.selectionStart = ta.selectionEnd = head.length; } set(ta.value); fit(ta); redraw(); };
+    ta.onchange = () => { const f = ta.value.replace(/\\(?:L|loss)$/, 'ℒ'); if (f !== ta.value) { ta.value = f; set(f); redraw(); } };
+    rowsEl.append(ta); requestAnimationFrame(() => fit(ta));
+    if (focus) setTimeout(() => { ta.focus(); ta.select(); }, 0);
+    return ta;
+  };
+  if (box) addTa(() => el.getAttribute('data-start') || '', v => { if (v.trim()) el.setAttribute('data-start', v.trim()); else el.removeAttribute('data-start'); }, true);
+  else rowsOf().forEach((r, k) => addTa(() => Book.texOf(r), v => { r.textContent = v; }, k === 0));
+  const onErr = () => { err.textContent = el.error || ''; placeEqEd(); };
+  if (!box) el.addEventListener('eq-rendered', onErr); eqEd.off = () => { if (!box) el.removeEventListener('eq-rendered', onErr); };
+  pop.addEventListener('mousedown', e => e.stopPropagation()); pop.addEventListener('pointerdown', e => e.stopPropagation());
+  pop.addEventListener('click', e => {
+    const a = e.target.closest('button') && e.target.closest('button').dataset.a;
+    if (a === 'done') endEqEdit(true);
+    else if (a === 'row') { const n = document.createElement('eq-row'); n.textContent = ''; el.append(...[n], ...el.querySelectorAll(':scope > [data-rt]')); addTa(() => '', v => { n.textContent = v; }, true); redraw(); }
+  });
+  pop.addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Escape') { e.preventDefault(); endEqEdit(false); }
+    else if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); endEqEdit(true); }
+  });
+  el.classList.add('ed-editing');
+  desk.append(pop); placeEqEd();
+}
+function placeEqEd() {
+  if (!eqEd) return;
+  const { el, pop } = eqEd; if (!el.isConnected) return endEqEdit(true);
+  const r = el.getBoundingClientRect(), [x, y] = deskXY(r);
+  pop.style.left = Math.max(4, x) + 'px'; pop.style.top = (y + r.height + 4) + 'px'; pop.style.width = Math.max(340, Math.min(r.width, 720)) + 'px';
+}
+function endEqEdit(keep) {
+  if (!eqEd) return;
+  const { el, pop, before, off } = eqEd; eqEd = null; off && off(); pop.remove(); el.classList.remove('ed-editing');
+  if (!keep && el.isConnected) { const n = h(before); el.replaceWith(n); prep(); Book.refresh(); select(n); commit(true); return; }
+  if (el.tagName === 'B-EQ') { el.querySelectorAll(':scope > eq-row, :scope > eq-step').forEach(r => { if (!r.textContent.trim() && el.querySelectorAll(':scope > eq-row, :scope > eq-step').length > 1) r.remove(); }); el.render(); }
+  commit(true); Book.refresh(); renderInspector();
+}
+document.addEventListener('pointerdown', e => { if (eqEd && !eqEd.pop.contains(e.target) && !eqEd.el.contains(e.target)) endEqEdit(true); }, true);
+
 function eqInspector(el) {
   const add = html => { const n = h(html); insp.append(n); return n; };
   const list = add('<div></div>'), err = add('<div class="err"></div>');

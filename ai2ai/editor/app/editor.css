@@ -629,3 +629,16 @@ body.tokpanel #insp, body.tokpanel #tg-insp, body.review #tokpanel, body.tokpane
 #book b-tok { cursor: pointer; }
 #book b-tok.ed-flash { outline: 3px solid var(--gold, #DCB439); outline-offset: 1px; }
 #pop .tk-pop label.tk-ids { display: flex; gap: 6px; align-items: center; font-size: 12px; margin: 6px 0; cursor: pointer; }
+
+/* equations edited on the page (editor.js startEqEdit): the TeX of each row in a box under the equation */
+.ed b-eq.ed-editing, .ed div.wbox.ed-editing { box-shadow: 0 0 0 2px var(--blue-text, #1155cc); }
+#eqpop { position: absolute; z-index: 41; background: #fff; border: 1px solid #b9c3d1; border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,.18); padding: 6px; display: flex; flex-direction: column; gap: 4px; font: 12px system-ui, sans-serif; }
+#eqpop textarea { width: 100%; box-sizing: border-box; resize: none; overflow: hidden; font: 13px/1.4 Menlo, Consolas, monospace; padding: 4px 6px; border: 1px solid #d4dbe5; border-radius: 4px; }
+#eqpop textarea:focus { outline: 2px solid #1155cc; outline-offset: -1px; }
+#eqpop .ep-rows { display: flex; flex-direction: column; gap: 4px; }
+#eqpop .ep-err { color: #c00; white-space: pre-wrap; font: 11px Menlo, monospace; }
+#eqpop .ep-err:empty { display: none; }
+#eqpop .ep-bar { display: flex; align-items: center; gap: 6px; }
+#eqpop .ep-bar .sp { flex: 1; }
+#eqpop .ep-hint { color: #8a94a3; font-size: 11px; }
+#eqpop button { font: 12px system-ui, sans-serif; padding: 2px 8px; }
