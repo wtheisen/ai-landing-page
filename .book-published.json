@@ -95,8 +95,8 @@
   "web": "ai2ai/pca"
  },
  "rnn": {
-  "at": "2026-11-10T13:07:51Z",
-  "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
+  "at": "2026-11-10T13:13:51Z",
+  "commit": "f705c3bd3047570af552d2de4dbef00fe6dbdf49",
   "web": "ai2ai/rnn"
  },
  "search": {
