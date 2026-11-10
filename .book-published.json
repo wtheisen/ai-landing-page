@@ -74,6 +74,21 @@
   "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
   "web": "ballm/tokenization"
  },
+ "bptt": {
+  "at": "2026-11-10T13:30:02Z",
+  "commit": "00b2cd5343d73ab6dad303202c836efffecbdfc1",
+  "web": "ai2ai/bptt"
+ },
+ "cnn": {
+  "at": "2026-11-10T13:29:49Z",
+  "commit": "00b2cd5343d73ab6dad303202c836efffecbdfc1",
+  "web": "ai2ai/cnn"
+ },
+ "eval": {
+  "at": "2026-11-10T13:29:41Z",
+  "commit": "00b2cd5343d73ab6dad303202c836efffecbdfc1",
+  "web": "ai2ai/eval"
+ },
  "ffn": {
   "at": "2026-11-10T13:07:51Z",
   "commit": "527276cb0c9fadcb2662d3c0d553c7e9ca1b6b26",
