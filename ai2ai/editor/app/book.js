@@ -632,7 +632,7 @@ class BCode extends HTMLElement {
   // threw away the Run bar eaiRunCode had added and any live output, so no cell could run while presenting (Eric,
   // 2026-11-09). Only draw when the source differs from what was last drawn.
   connectedCallback() { if (inThumb(this)) return; lock(this); if (!this.hasAttribute('data-src')) this.setAttribute('data-src', rawText(this)); if (this._drawn === this.drawKey() && this.firstElementChild) return; this.render(); }
-  drawKey() { return [this.src, this.getAttribute('marks'), this.getAttribute('hl'), this.getAttribute('tok'), this.getAttribute('lang')].join('\u0000'); }
+  drawKey() { return [this.src, this.getAttribute('marks'), this.getAttribute('hl'), this.getAttribute('tok'), this.getAttribute('lang'), this.getAttribute('figs')].join('\u0000'); }
   get src() { return this.getAttribute('data-src') || ''; }
   set src(v) { this.setAttribute('data-src', v); this.render(); Book.refreshSoon(); }
   render() {
@@ -650,7 +650,14 @@ class BMatmul extends HTMLElement {
   attributeChangedCallback() { if (this.isConnected && window.eaiMatmulOne && !inThumb(this)) { this._mm = 1; window.eaiMatmulOne(this); Book.refreshSoon(); } }
 }
 class BOut extends BCode {
-  render() { this._drawn = this.drawKey(); this.innerHTML = `<div class="label">Output</div><pre>${eaiOutHL(this.src, Book.meta.codeColors, this.getAttribute('hl'), eaiOutTok(this))}</pre>`; }
+  // figs="fig/out-….png …": plots saved with the Output by the editor's Run and fill in Output (Eric, 2026-11-10), drawn
+  // under the text like a live run's (the published page inlines them, so they print and survive without Python)
+  render() {
+    this._drawn = this.drawKey();
+    const figs = (this.getAttribute('figs') || '').split(/\s+/).filter(Boolean);
+    this.innerHTML = `<div class="label">Output</div><pre>${eaiOutHL(this.src, Book.meta.codeColors, this.getAttribute('hl'), eaiOutTok(this))}</pre>`
+      + (figs.length ? `<div class="run-figs">${figs.map(f => `<img src="${Book.url(f)}" alt="Plot from the code above">`).join('')}</div>` : '');
+  }
 }
 // <b-embed src="https://…/pca.html" title="PCA visualizer" height="640" poster="fig/x.svg"></b-embed>
 // An interactive page from elsewhere. The web page shows it in a frame, wider than the text column when there is room;
@@ -1320,6 +1327,8 @@ function eaiRunCode() {
     if (block._run) return; block._run = true;
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
+    // a plot saved with the Output (b-out figs=…, drawn by BOut.render, inlined in the published page) comes back on Reset
+    var storedFigs = out && out.querySelector(':scope > .run-figs') ? out.querySelector(':scope > .run-figs').cloneNode(true) : null;
     // a block with no printed output gets a collapsed one (just the Run bar, over the code's bottom right corner), so
     // making code runnable never adds height to a page; it opens once the code has run
     if (!out) { out = document.createElement('b-out'); out.className = 'run-new'; out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
@@ -1329,21 +1338,39 @@ function eaiRunCode() {
     var status = bar.querySelector('.run-status'), editor = null;
     function show(text, err, figs) {
       out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
-      out.classList.toggle('run-new', !printed && !text && !(figs && figs.length));
+      out.classList.toggle('run-new', !printed && !storedFigs && !text && !(figs && figs.length));
       var pre = out.querySelector('pre'); if (!err && typeof eaiOutHL === 'function') pre.innerHTML = eaiOutHL(text, window.EAI_CC || (window.Book && window.Book.meta && window.Book.meta.codeColors), out.getAttribute('hl'), typeof eaiOutTok === 'function' ? eaiOutTok(out) : null); else pre.textContent = text; pre.classList.toggle('run-err', !!err);
       var old = out.querySelector('.run-figs'); if (old) old.remove();
-      if (figs && figs.length) { var d = document.createElement('div'); d.className = 'run-figs'; figs.forEach(function (b) { var im = document.createElement('img'); im.src = 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; d.appendChild(im); }); out.appendChild(d); }
+      if (figs && figs.length) { var d = document.createElement('div'); d.className = 'run-figs'; figs.forEach(function (b) { var im = document.createElement('img'); im.src = /^(data:|https?:|\/)/.test(b) ? b : 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; d.appendChild(im); }); out.appendChild(d); }
     }
     // matplotlib draws off screen (Agg); after a run every open figure is turned into a PNG and closed
     var FIGS = "import sys\n_figs = []\nif 'matplotlib.pyplot' in sys.modules:\n    import io, base64\n    import matplotlib.pyplot as _plt\n    for _n in _plt.get_fignums():\n        _b = io.BytesIO()\n        _plt.figure(_n).savefig(_b, format='png', dpi=120, bbox_inches='tight')\n        _figs.append(base64.b64encode(_b.getvalue()).decode())\n    _plt.close('all')\n_figs";
     function figures(py) { try { var r = py.runPython(FIGS), a = r.toJs(); r.destroy(); return a; } catch (e) { return []; } }
-    function edit() {
+    // what happens to a cell (a run, its result, an edit, a reset) is announced as an 'eai-run' event, so the
+    // instructor's lecture notes (ink.js) can keep it and publish it with the ink (Eric, 2026-11-10)
+    function tell(d) { d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
+    function edit(quiet) {
       if (editor) return;
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = source(block);
-      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; editor.focus();
+      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet) editor.focus();
+      var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
-    function reset() { if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed); out.classList.remove('shown'); status.textContent = ''; }
+    function reset(quiet) {
+      if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
+      if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
+      out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
+      if (!quiet) tell({ reset: true });
+    }
+    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?} or null for the stored cell
+    block._eaiLive = function (d) {
+      if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
+      block._eaiShowing = true;
+      if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
+      else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+      if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
+      status.textContent = 'As run in lecture';
+    };
     // g: a globals dict shared with the cells run before this one (Run prior); then the cell runs alone, without the
     // blocks it chains to (they have just run in g). Resolves true when the cell ran without an error.
     function run(g) {
@@ -1366,9 +1393,9 @@ function eaiRunCode() {
             var home = bk || document; if (g) home._eaiG = g; else if (!home._eaiG) home._eaiG = py.globals.get('dict')();
             return py.runPythonAsync(code, { globals: home._eaiG });
           })
-          .then(function (r) { ok = true; block._eaiRan = (bk || document)._eaiG; var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed) { show(''); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
-          show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; },
-                function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); show((lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), true, figures(window._eaiPy)); out.classList.add('shown'); status.textContent = 'Error'; });
+          .then(function (r) { ok = true; block._eaiRan = (bk || document)._eaiG; var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed && !storedFigs) { show(''); tell({ src: own, out: '', figs: [] }); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
+          var txt = lines.join('\n') || (f.length ? '' : '(no output)'); show(txt, false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; tell({ src: own, out: txt, figs: f }); },
+                function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); var etxt = (lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), ef = figures(window._eaiPy); show(etxt, true, ef); out.classList.add('shown'); status.textContent = 'Error'; tell({ src: own, out: etxt, err: true, figs: ef }); });
       }, function (e) { status.textContent = String(e.message || e); })
         .then(function () { bar.classList.remove('busy'); return ok; });
     }
@@ -1402,6 +1429,7 @@ function eaiRunCode() {
     var seen = false;
     pyBlocks(bk).forEach(function (b) { if (!b._eaiBar) return; var p = b._eaiBar.querySelector('[data-a="prior"]'); if (p) p.hidden = !seen; seen = true; });
   });
+  document.dispatchEvent(new Event('eai-run-ready'));   // lecture notes (ink.js) can now put their runs back
 }
 Book.runCode = () => { if (Book.web && !Book.exporting) eaiRunCode(); };
 

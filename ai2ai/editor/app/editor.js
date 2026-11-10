@@ -1570,13 +1570,28 @@ async function runIntoOutput(el, status, btn) {
     return ok;
   }
   if (!out || out.tagName !== 'B-OUT') { out = h('<b-out>\n</b-out>'); el.after(out); prep(); }
+  let saved = true;
+  try { await saveFigures(out, figs); } catch (e) { saved = false; }
   out.src = lines.join('\n');
-  showFigures(out, figs);
+  if (!saved) showFigures(out, figs);   // couldn't keep them: shown for now, as before
   commit(true); Book.refresh(); place();
   return ok;
 }
-// plots (Eric, 2026-11-08: "it doesn't appear that PLT is working"): every open matplotlib figure becomes a PNG shown
-// under the cell's Output, like the published page's Run does. They are shown only (data-ed: never saved).
+// Plots are kept with the Output (Eric, 2026-11-10: "plt plot images aren't cached or saved"): each PNG goes into the
+// chapter's fig/ as out-<hash>.png (named by its content, so a rerun that draws the same picture reuses the file and a
+// different one never shows a cached old image), and the b-out lists them in figs="…" (BOut.render draws them).
+async function saveFigures(out, figs) {
+  const srcs = [];
+  for (const b of figs || []) {
+    const bytes = Uint8Array.from(atob(b), c => c.charCodeAt(0));
+    const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-1', bytes))].slice(0, 6).map(x => x.toString(16).padStart(2, '0')).join('');
+    srcs.push(await uploadFigure(new File([bytes], `out-${hash}.png`, { type: 'image/png' })));
+  }
+  out.querySelectorAll(':scope > .ed-figs').forEach(d => d.remove());
+  if (srcs.length) out.setAttribute('figs', srcs.join(' ')); else out.removeAttribute('figs');
+}
+// plots (Eric, 2026-11-08: "it doesn't appear that PLT is working"): every open matplotlib figure becomes a PNG.
+// Since 2026-11-10 they are saved with the Output (saveFigures); showFigures is only the fallback when that fails.
 function editorFigures(py) {
   try {
     const r = py.runPython("import sys\n_figs = []\nif 'matplotlib.pyplot' in sys.modules:\n    import io, base64\n    import matplotlib.pyplot as _p\n    for _n in _p.get_fignums():\n        _b = io.BytesIO()\n        _p.figure(_n).savefig(_b, format='png', dpi=120, bbox_inches='tight')\n        _figs.append(base64.b64encode(_b.getvalue()).decode())\n    _p.close('all')\n_figs");
@@ -2537,7 +2552,7 @@ setRulers(rulersOn); placeMarkers();
 try { const v = localStorage.getItem('book-view-' + ch); if (v && v !== 'reading') setMode(v); } catch (x) {}
 mo.takeRecords();
 if (normalized) status.title = 'The file will be rewritten in the editor\'s fixed layout on the first save.';
-window.Editor = { moveBy, duplicate, removeBlock, onDeskScroll, renderPages, guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
+window.Editor = { moveBy, duplicate, removeBlock, runIntoOutput, onDeskScroll, renderPages, guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
 document.dispatchEvent(new Event('editor-ready'));
 document.documentElement.dataset.ready = '1';
 

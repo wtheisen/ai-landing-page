@@ -31372,34 +31372,60 @@ function eaiRunCode() {
     if (block._run) return; block._run = true;
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
+    // a plot saved with the Output (b-out figs=…, drawn by BOut.render, inlined in the published page) comes back on Reset
+    var storedFigs = out && out.querySelector(':scope > .run-figs') ? out.querySelector(':scope > .run-figs').cloneNode(true) : null;
     // a block with no printed output gets a collapsed one (just the Run bar, over the code's bottom right corner), so
     // making code runnable never adds height to a page; it opens once the code has run
     if (!out) { out = document.createElement('b-out'); out.className = 'run-new'; out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
-    bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="run">\u25b6 Run</button>';
+    bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
     function show(text, err, figs) {
-      out.classList.toggle('run-new', !printed && !text && !(figs && figs.length));
-      var pre = out.querySelector('pre'); pre.textContent = text; pre.classList.toggle('run-err', !!err);
+      out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
+      out.classList.toggle('run-new', !printed && !storedFigs && !text && !(figs && figs.length));
+      var pre = out.querySelector('pre'); if (!err && typeof eaiOutHL === 'function') pre.innerHTML = eaiOutHL(text, window.EAI_CC || (window.Book && window.Book.meta && window.Book.meta.codeColors), out.getAttribute('hl'), typeof eaiOutTok === 'function' ? eaiOutTok(out) : null); else pre.textContent = text; pre.classList.toggle('run-err', !!err);
       var old = out.querySelector('.run-figs'); if (old) old.remove();
-      if (figs && figs.length) { var d = document.createElement('div'); d.className = 'run-figs'; figs.forEach(function (b) { var im = document.createElement('img'); im.src = 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; d.appendChild(im); }); out.appendChild(d); }
+      if (figs && figs.length) { var d = document.createElement('div'); d.className = 'run-figs'; figs.forEach(function (b) { var im = document.createElement('img'); im.src = /^(data:|https?:|\/)/.test(b) ? b : 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; d.appendChild(im); }); out.appendChild(d); }
     }
     // matplotlib draws off screen (Agg); after a run every open figure is turned into a PNG and closed
     var FIGS = "import sys\n_figs = []\nif 'matplotlib.pyplot' in sys.modules:\n    import io, base64\n    import matplotlib.pyplot as _plt\n    for _n in _plt.get_fignums():\n        _b = io.BytesIO()\n        _plt.figure(_n).savefig(_b, format='png', dpi=120, bbox_inches='tight')\n        _figs.append(base64.b64encode(_b.getvalue()).decode())\n    _plt.close('all')\n_figs";
     function figures(py) { try { var r = py.runPython(FIGS), a = r.toJs(); r.destroy(); return a; } catch (e) { return []; } }
-    function edit() {
+    // what happens to a cell (a run, its result, an edit, a reset) is announced as an 'eai-run' event, so the
+    // instructor's lecture notes (ink.js) can keep it and publish it with the ink (Eric, 2026-11-10)
+    function tell(d) { d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
+    function edit(quiet) {
       if (editor) return;
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = source(block);
-      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; editor.focus();
+      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet) editor.focus();
+      var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
-    function reset() { if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed); out.classList.remove('shown'); status.textContent = ''; }
-    function run() {
-      var own = editor ? editor.value : original, pre = prelude(block), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [];
+    function reset(quiet) {
+      if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
+      if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
+      out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
+      if (!quiet) tell({ reset: true });
+    }
+    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?} or null for the stored cell
+    block._eaiLive = function (d) {
+      if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
+      block._eaiShowing = true;
+      if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
+      else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+      if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
+      status.textContent = 'As run in lecture';
+    };
+    // g: a globals dict shared with the cells run before this one (Run prior); then the cell runs alone, without the
+    // blocks it chains to (they have just run in g). Resolves true when the cell ran without an error.
+    function run(g) {
+      // like one notebook: every cell in a document shares one Python namespace (bk._eaiG). A chained cell whose
+      // earlier cells haven't run yet in this namespace runs them first (its prelude); once they have, it runs alone.
+      var chainNeeded = !g && block.hasAttribute('chain') && !(block._eaiPrevRan && block._eaiPrevRan());
+      var own = editor ? editor.value : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
-      pyodide().then(function (py) {
+      return pyodide().then(function (py) {
         window._eaiPy = py;
         status.textContent = 'Loading packages…';
         var files = (block.getAttribute('files') || '').split(/\s+/).filter(Boolean);
@@ -31409,15 +31435,46 @@ function eaiRunCode() {
           .then(function () {
             status.textContent = 'Running…';
             py.setStdout({ batched: function (t) { lines.push(t); } }); py.setStderr({ batched: function (t) { lines.push(t); } });
-            return py.runPythonAsync(code, { globals: py.globals.get('dict')() });
+            var home = bk || document; if (g) home._eaiG = g; else if (!home._eaiG) home._eaiG = py.globals.get('dict')();
+            return py.runPythonAsync(code, { globals: home._eaiG });
           })
-          .then(function (r) { var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed) { show(''); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; } show(lines.join('\n') || (f.length ? '' : '(no output)'), false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; },
-                function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); show((lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), true, figures(window._eaiPy)); out.classList.add('shown'); status.textContent = 'Error'; });
+          .then(function (r) { ok = true; block._eaiRan = (bk || document)._eaiG; var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed && !storedFigs) { show(''); tell({ src: own, out: '', figs: [] }); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
+          var txt = lines.join('\n') || (f.length ? '' : '(no output)'); show(txt, false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; tell({ src: own, out: txt, figs: f }); },
+                function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); var etxt = (lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), ef = figures(window._eaiPy); show(etxt, true, ef); out.classList.add('shown'); status.textContent = 'Error'; tell({ src: own, out: etxt, err: true, figs: ef }); });
+      }, function (e) { status.textContent = String(e.message || e); })
+        .then(function () { bar.classList.remove('busy'); return ok; });
+    }
+    // Run prior: every runnable python cell above this one in this document, in order, in one program (shared
+    // variables, like running a notebook from the top), then this one. Stops at the first error.
+    function runPrior() {
+      var list = pyBlocks(bk || document), k = list.indexOf(block), before = list.slice(0, k < 0 ? 0 : k).filter(function (b) { return b._eaiRun; });
+      if (bar.classList.contains('busy')) return;
+      bar.classList.add('busy'); status.textContent = boot ? 'Running the cells above…' : 'Loading Python (the first run takes a little while)…';
+      pyodide().then(function (py) {
+        var home = bk || document, g = py.globals.get('dict')(), i = 0;   // restart: a fresh namespace for the whole document
+        if (home._eaiG) { try { home._eaiG.destroy(); } catch (e) {} } home._eaiG = g;
+        function next() {
+          if (i < before.length) {
+            var b = before[i++]; status.textContent = 'Running cell ' + i + ' of ' + (before.length + 1) + '…';
+            return b._eaiRun(g).then(function (fine) { if (fine) return next(); status.textContent = 'Stopped: the cell above (' + i + ' of ' + (before.length + 1) + ') has an error'; b.scrollIntoView({ block: 'center' }); return false; });
+          }
+          bar.classList.remove('busy'); return run(g);
+        }
+        return next();
       }, function (e) { status.textContent = String(e.message || e); })
         .then(function () { bar.classList.remove('busy'); });
     }
-    bar.addEventListener('click', function (e) { var a = e.target.getAttribute && e.target.getAttribute('data-a'); if (a === 'run') run(); else if (a === 'edit') edit(); else if (a === 'reset') reset(); });
+    // has the cell this one chains to run in the current namespace? (then a chained Run needn't repeat it)
+    block._eaiPrevRan = function () { var list = pyBlocks(bk || document), k = list.indexOf(block); if (k < 1) return false; var p = list[k - 1], G = (bk || document)._eaiG; return !!G && p._eaiRan === G; };
+    block._eaiRun = run; block._eaiBar = bar;
+    bar.addEventListener('click', function (e) { var a = e.target.getAttribute && e.target.getAttribute('data-a'); if (a === 'run') run(); else if (a === 'prior') runPrior(); else if (a === 'edit') edit(); else if (a === 'reset') reset(); });
   });
+  // Run prior only where some runnable cell comes before this one in its document
+  var books = document.querySelectorAll('.book'); [].forEach.call(books.length ? books : [document], function (bk) {
+    var seen = false;
+    pyBlocks(bk).forEach(function (b) { if (!b._eaiBar) return; var p = b._eaiBar.querySelector('[data-a="prior"]'); if (p) p.hidden = !seen; seen = true; });
+  });
+  document.dispatchEvent(new Event('eai-run-ready'));   // lecture notes (ink.js) can now put their runs back
 }
 eaiRunCode();
 function eaiMatmul() {
@@ -31640,7 +31697,10 @@ eaiDual();
 //   Input        Pencil and mouse write; fingers scroll.
 //
 // A layer: {"id","title","pages":[{"after":"page-id","id":"wb-…"}],"strokes":[{"p":"page-id","c":"#hex","w":2.2,
-// "o":0.35?,"pts":[[x,y,pressure],…]}]}, coordinates in points from the page's top-left (a page is 432 pt wide).
+// "o":0.35?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
+// coordinates in points from the page's top-left (a page is 432 pt wide). "code" holds what the instructor ran in
+// lecture (an edited cell's source, its output, its plots: base64 PNGs in the draft, site paths once published), put
+// back on the page with the notes and drawn into the notes PDF (Eric, 2026-11-10).
 // Self-contained on purpose: the published page gets this file's source verbatim.
 function eaiInk(opts) {
   'use strict';
@@ -31648,14 +31708,18 @@ function eaiInk(opts) {
   var NS = 'http://www.w3.org/2000/svg';
   var REPO = opts.repo || 'wtheisen/ai-landing-page', BRANCH = opts.branch || 'main', SITE_DIR = opts.dir || '';
   var book = document.querySelector('main.book, #book'); if (!book) return;
-  var PEN = [['#002B5B', 'navy'], ['#CC0000', 'red'], ['#38761D', 'green'], ['#674EA7', 'purple']];
+  var PEN = [['#1155CC', 'blue'], ['#CC0000', 'red'], ['#38761D', 'green'], ['#674EA7', 'purple'], ['#DCB439', 'gold']];
   var HL = '#F1C232';
   // Ink sits in page coordinates and the three views lay pages out differently (the Lecture view has bigger type), so a
   // set of notes belongs to the view it was drawn in. Other views list it in the picker and switch to that view.
   var VIEW = book.getAttribute('data-view') || 'reading', FILES = { reading: 'index.html', slides: 'index-slides.html', workbook: 'index-workbook.html' };
   var VIEWNAME = { reading: 'Reading', slides: 'Lecture', workbook: 'Workbook' };
   var DIR = location.pathname.replace(/[^/]*$/, '');
-  var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR + VIEW, KEY_DRAFT = 'eai-ink-draft:' + DIR + VIEW + ':';
+  // The draft is kept per chapter: the editor's Lecture view (/ai2ai/editor/view/<slug>) has the same DIR for every
+  // chapter, so two chapters lectured on one day shared a draft. SITE_DIR names the chapter; on the published page it
+  // gives the same key as before.
+  var HOME = SITE_DIR ? '/' + SITE_DIR.replace(/^\/|\/$/g, '') + '/' : DIR;
+  var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR + VIEW, KEY_DRAFT = 'eai-ink-draft:' + HOME + VIEW + ':', KEY_OLD = 'eai-ink-draft:' + DIR + VIEW + ':';
   var viewOf = function (l) { return l.view || 'slides'; };
   var pub = null, layers = [], mine = null, target = null, editing = false, tool = 'hand', color = PEN[0][0], width = 2.2, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
@@ -31664,11 +31728,69 @@ function eaiInk(opts) {
   // Pencil reads as a second finger, and the "pinch" scaled the slide about a point between palm and pen, so the ink
   // landed off the tip, more so the further from that point; Eric, 2026-11-02). zoomGen goes up whenever the pages are
   // scaled or laid out at a new zoom, so a stroke reads the page's box again instead of trusting the one it started with.
-  var penDown = false, zoomGen = 0, lectZoom = null;
+  var penDown = false, zoomGen = 0, lectZoom = null, lectK = 1, scrollBox = null;   // lectK: the lecture's zoom scale on #book (lectureZoom), scrollBox: the box that scrolls
   var teacher = function () { return !!store(KEY_TOKEN); };
   // iPadOS tells Pencil touches apart (touchType 'stylus'), so fingers keep Safari's own scrolling (with momentum) and
   // only the Pencil is stopped from scrolling. Elsewhere the pages lock touch while writing and fingers scroll by hand.
   var IOS = navigator.maxTouchPoints > 1 && /iPad|iPhone|Macintosh/.test(navigator.userAgent);
+  // ?inkdebug (or #inkdebug): a red crosshair where the browser says the pen is, and the numbers the pen works from,
+  // to find out on the iPad why ink can land off the tip (Eric, 2026-11-02; nothing like it reproduces in WebKit or
+  // Chrome on a desktop). Screen only, never saved.
+  var DEBUG = /[?&#]inkdebug\b/.test(location.search + location.hash), dbg = null;
+  // Calibration (inkdebug): nine targets fixed on the screen; touch the centre of each with the Pencil and the box
+  // lists where Safari said the touch was, plus the straight-line fit reported = a * target + b on each axis. That
+  // measures the input error directly (a screenshot can't show where the Pencil tip was).
+  if (DEBUG) (function () {
+    var T = [], hits = [], box = null;
+    function place() {
+      T.forEach(function (t) { t.el.remove(); }); T = [];
+      [0.12, 0.5, 0.88].forEach(function (fy) { [0.1, 0.5, 0.9].forEach(function (fx) {
+        var x = Math.round(innerWidth * fx), y = Math.round(innerHeight * (0.18 + fy * 0.62)), el = document.createElement('div');
+        el.style.cssText = 'position:fixed;left:' + (x - 14) + 'px;top:' + (y - 14) + 'px;width:28px;height:28px;border:2px solid #0a0;border-radius:50%;pointer-events:none;z-index:9998;background:radial-gradient(circle,#0a0 0 2px,transparent 3px)';
+        document.body.appendChild(el); T.push({ x: x, y: y, el: el });
+      }); });
+    }
+    function fit(k) {
+      var n = hits.length; if (n < 2) return '-';
+      var mx = 0, my = 0; hits.forEach(function (h) { mx += h.t[k]; my += h.r[k]; }); mx /= n; my /= n;
+      var sxy = 0, sxx = 0; hits.forEach(function (h) { sxy += (h.t[k] - mx) * (h.r[k] - my); sxx += (h.t[k] - mx) * (h.t[k] - mx); });
+      var A = sxx ? sxy / sxx : 1, B = my - A * mx; return 'a ' + A.toFixed(4) + ' b ' + B.toFixed(1) + (Math.abs(A - 1) > 1e-3 ? ' (fixed point ' + (B / (1 - A)).toFixed(0) + ')' : '');
+    }
+    function show() {
+      if (!box) { box = document.createElement('pre'); box.style.cssText = 'position:fixed;right:6px;bottom:6px;margin:0;padding:6px 8px;z-index:9999;pointer-events:none;font:11px/1.35 Menlo,monospace;background:rgba(255,255,255,.92);border:1px solid #0a0;color:#000'; document.body.appendChild(box); }
+      box.textContent = 'touch the centre of each green target\n--zoom ' + getComputedStyle(document.documentElement).getPropertyValue('--zoom') + '  window ' + innerWidth + ' x ' + innerHeight + '\n'
+        + hits.slice(-9).map(function (h) { return 'target ' + h.t[0] + ', ' + h.t[1] + '  said ' + h.r[0].toFixed(1) + ', ' + h.r[1].toFixed(1) + '  off ' + (h.r[0] - h.t[0]).toFixed(1) + ', ' + (h.r[1] - h.t[1]).toFixed(1) + '  ' + h.z; }).join('\n')
+        + '\nx: ' + fit(0) + '\ny: ' + fit(1);
+    }
+    addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'touch') return;
+      var best = null, bd = 1e9; T.forEach(function (t) { var d = Math.hypot(t.x - e.clientX, t.y - e.clientY); if (d < bd) { bd = d; best = t; } });
+      if (!best || bd > 150) return;
+      var z = getComputedStyle(document.documentElement).getPropertyValue('--zoom').trim();
+      if (hits.length && hits[0].z !== z) hits = [];   // a new zoom starts a new fit
+      hits.push({ t: [best.x, best.y], r: [e.clientX, e.clientY], z: z }); show();
+    }, true);
+    addEventListener('resize', place);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function () { place(); show(); }); else { place(); show(); }
+  })();
+  function debugShow(pg, ev, p, box, svgp) {
+    if (!dbg) {
+      dbg = document.createElement('div');
+      dbg.innerHTML = '<div style="position:fixed;width:30px;height:30px;margin:-15px 0 0 -15px;pointer-events:none;z-index:9999;background:linear-gradient(red,red) center/1.5px 100% no-repeat,linear-gradient(red,red) center/100% 1.5px no-repeat"></div>'
+        + '<pre style="position:fixed;left:6px;bottom:6px;margin:0;padding:6px 8px;z-index:9999;pointer-events:none;font:11px/1.35 Menlo,monospace;background:rgba(255,255,255,.92);border:1px solid #c00;color:#000;white-space:pre"></pre>';
+      document.body.appendChild(dbg);
+    }
+    var x = dbg.firstChild, t = dbg.lastChild, r = pg.getBoundingClientRect(), v = window.visualViewport || {};
+    x.style.left = ev.clientX + 'px'; x.style.top = ev.clientY + 'px';
+    var f = function (n) { return n == null ? '-' : Math.round(n * 10) / 10; };
+    t.textContent = 'pointer ' + ev.pointerType + '  client ' + f(ev.clientX) + ', ' + f(ev.clientY) + '  page ' + f(ev.pageX) + ', ' + f(ev.pageY)
+      + '\nink at ' + f(p[0]) + ', ' + f(p[1]) + ' pt' + (svgp ? '   svg says ' + f(svgp[0]) + ', ' + f(svgp[1]) : '')
+      + '\nbox ' + f(box.l) + ', ' + f(box.t) + '  k ' + (Math.round(box.k * 1e4) / 1e4) + '  rect ' + f(r.left) + ', ' + f(r.top) + ' w ' + f(r.width) + '  offsetW ' + pg.offsetWidth
+      + '\noverlay ' + (function () { var o = pg.querySelector(':scope > svg.ink'), q = o && o.getBoundingClientRect(); return q ? f(q.left) + ', ' + f(q.top) + ' w ' + f(q.width) + ' h ' + f(q.height) + '  page h ' + f(r.height) + '  viewBox ' + o.getAttribute('viewBox') : '-'; })()
+      + '\n--zoom ' + getComputedStyle(document.documentElement).getPropertyValue('--zoom') + '  page zoom ' + getComputedStyle(pg).zoom + '  book transform ' + (book.style.transform || 'none')
+      + '\nviewport scale ' + f(v.scale) + '  offset ' + f(v.offsetLeft) + ', ' + f(v.offsetTop) + '  size ' + f(v.width) + ' x ' + f(v.height) + '  window ' + innerWidth + ' x ' + innerHeight
+      + '\nscroll book ' + f((scrollBox || book).scrollLeft) + ', ' + f((scrollBox || book).scrollTop) + '  window ' + f(scrollX) + ', ' + f(scrollY) + '  dpr ' + devicePixelRatio;
+  }
   mine = store(KEY_MINE) || { id: 'mine', title: 'My notes', pages: [], strokes: [] };
 
   // Even-width ink (pressure is ignored), so a stroke is a plain round-capped SVG line: crisp at any zoom and cheap to
@@ -31688,7 +31810,9 @@ function eaiInk(opts) {
   }
 
   // ---------------------------------------------------------------- pages and overlays
-  function pages() { return [].slice.call(book.querySelectorAll('section.page')); }
+  // the pages this view shows: the editor's viewer (view.html) holds every page of the chapter and hides the other
+  // editions', so counting them all never matched the view's PDF there (notes PDFs from the Lecture button failed)
+  function pages() { return [].slice.call(book.querySelectorAll('section.page')).filter(function (p) { return p.classList.contains('ink-blank') || getComputedStyle(p).display !== 'none'; }); }
   function overlay(pg) {
     var svg = pg.querySelector(':scope > svg.ink');
     if (!svg) { svg = document.createElementNS(NS, 'svg'); svg.setAttribute('class', 'ink'); svg.setAttribute('aria-hidden', 'true'); pg.appendChild(svg); }
@@ -31712,7 +31836,7 @@ function eaiInk(opts) {
     var r = el.getBoundingClientRect(), z = 1;
     for (var e = el; e && e.nodeType === 1; e = e.parentElement) { var v = parseFloat(getComputedStyle(e).zoom); if (v > 0) z *= v; }
     var pg = el.closest && el.closest('section.page');
-    if (Math.abs(z - 1) < 0.001 || !pg || !el.offsetWidth || Math.abs(r.width - el.offsetWidth) > 0.75) return r;
+    if (Math.abs(z - 1) < 0.001 || !pg || !el.offsetWidth || Math.abs(r.width - el.offsetWidth * lectK) > 0.75) return r;   // lectK: Lecture mode's scale, which old WebKit keeps
     return { left: r.left * z, top: r.top * z, width: r.width * z, height: r.height * z, right: r.right * z, bottom: r.bottom * z };
   }
   function pgW(pg) { return window.Book && Book.pageW ? Book.pageW(pg) : (parseFloat(getComputedStyle(pg).width) > 700 ? 720 : 432); }   // the page's width in pt (Lecture pages are 720)
@@ -31735,6 +31859,7 @@ function eaiInk(opts) {
     [pub, mine].forEach(function (l) { if (l) (l.pages || []).forEach(blankPage); });
     [pub, mine].forEach(function (l) { if (l) (l.strokes || []).forEach(drawStroke); });
     pages().forEach(overlay);
+    applyCode();
   }
   addEventListener('resize', function () { pages().forEach(function (p) { if (p.querySelector(':scope > svg.ink')) overlay(p); }); });
 
@@ -31769,7 +31894,9 @@ function eaiInk(opts) {
   // the instructor's crib: in the Lecture view every blank, worked equation and quick-check answer shows in faint ink
   // to trace over (screen only; never for students, never printed)
   // the editor's preview columns (grid=1) always show them: Present is for the room, not for editing
-  function ghost() { document.documentElement.classList.toggle('ink-ghost', /[?&]grid=1/.test(location.search) || (teacher() && VIEW === 'slides' && /[?&]lecture=answers\b/.test(location.search))); }   // ?lecture=1 (the editor home's Lecture button): presenting, so hidden
+  // Only the answers link (?lecture=answers, signed in) and the editor's previews show them: on the plain Lecture page
+  // they sat under the instructor's own published ink and the two overlapped (Eric, 2026-11-03).
+  function ghost() { document.documentElement.classList.toggle('ink-ghost', /[?&]grid=1/.test(location.search) || (teacher() && VIEW === 'slides' && /[?&]lecture=answers\b/.test(location.search))); }
 
   // ---------------------------------------------------------------- writing
   var bar = null, laser = null, last = { t: 'pen', c: PEN[0][0] };
@@ -31784,7 +31911,12 @@ function eaiInk(opts) {
     undo: SVG('<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.5 3.5l-3 3 3 3M2.5 6.5H10a3.5 3.5 0 010 7H7"/>'),
     page: SVG('<path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M3.5 1.5h6l3 3v10h-9z"/><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 7v5M5.5 9.5h5"/>') };
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
-  function save() { clearTimeout(saveSoon.t); if (target === mine) store(KEY_MINE, mine); else if (target) store(KEY_DRAFT + target.id, target); }
+  function save() {
+    clearTimeout(saveSoon.t);
+    var k = target === mine ? KEY_MINE : target ? KEY_DRAFT + target.id : null, v = target === mine ? mine : target; if (!k) return;
+    try { localStorage.setItem(k, JSON.stringify(v)); }
+    catch (e) { msg('This device is out of room for these notes (plots take space): publish soon, or the newest strokes and runs may be lost.'); }
+  }
   // after a stroke: written to this browser's storage a moment later (the notes are one JSON blob, and writing it as
   // the pen lifts made the start of the next stroke stutter); leaving the page writes it at once
   function saveSoon() { clearTimeout(saveSoon.t); saveSoon.t = setTimeout(save, 600); }
@@ -31795,10 +31927,57 @@ function eaiInk(opts) {
     if (target && (target === mine) === !teacher()) return;
     if (teacher()) {
       var id = today() + (VIEW === 'slides' ? '' : '-' + VIEW), title = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      target = store(KEY_DRAFT + id) || { id: id, title: title, view: VIEW, pages: [], strokes: [] };
+      target = store(KEY_DRAFT + id) || oldDraft(id) || { id: id, title: title, view: VIEW, pages: [], strokes: [] };
       pub = target; render();
     } else target = mine;
   }
+  // a draft kept under the old key (before drafts were per chapter): only what belongs to this chapter's pages
+  function oldDraft(id) {
+    if (KEY_OLD === KEY_DRAFT) return null;
+    var d = store(KEY_OLD + id); if (!d) return null;
+    var here = function (pid) { return !!document.getElementById(pid); };
+    d.strokes = (d.strokes || []).filter(function (s) { return here(s.p); }); d.pages = (d.pages || []).filter(function (b) { return here(b.after); });
+    return d.strokes.length || d.pages.length ? d : null;
+  }
+
+  // ---------------------------------------------------------------- code run in lecture
+  // In Lecture mode (?lecture=…) the signed-in instructor's runs go into today's notes: what the cell held when it ran
+  // (if edited), what it printed and drew. A run that gives back exactly the stored cell drops out again, and so does
+  // Reset. They are published with the ink and put back on the page wherever these notes are shown.
+  function codeKey(block) {
+    var b = block.getAttribute('data-b'); if (b) return b;
+    var pg = block.closest('section.page'), all = pg ? [].slice.call(pg.querySelectorAll('b-code')) : [];
+    return (pg ? pg.id : '') + ':' + all.indexOf(block);
+  }
+  function blockFor(key) {
+    var hit = null; [].some.call(book.querySelectorAll('b-code'), function (b) { if (codeKey(b) === key) { hit = b; return true; } }); return hit;
+  }
+  book.addEventListener('eai-run', function (e) {
+    if (!LECT || !teacher()) return;
+    var block = e.target.closest && e.target.closest('b-code'), d = e.detail || {}; if (!block) return;
+    var pg = block.closest('section.page'); if (!pg) return;
+    ensureTarget(); if (!target || target === mine) return;
+    var code = target.code || (target.code = {}), key = codeKey(block), c = code[key] || { p: pg.id };
+    if (d.reset) delete code[key];
+    else {
+      if (d.src != null) { if (d.src !== d.original) c.src = d.src; else delete c.src; }
+      if (!d.edit) { c.out = d.out || ''; if (d.err) c.err = true; else delete c.err; if (d.figs && d.figs.length) c.figs = d.figs.slice(); else delete c.figs; }
+      // nothing to keep: the cell's own source and either no run yet or a run that printed just what the page has
+      var outSame = c.out == null || (!c.err && !c.figs && !d.stored && c.out === (d.printed || ''));
+      if (c.src == null && outSame) delete code[key]; else code[key] = c;
+    }
+    applied[key] = !!code[key];
+    save(); barState();
+  });
+  // put a layer's runs on the page (pub: the notes being shown; the instructor's draft while drafting)
+  var applied = {};
+  function applyCode() {
+    var code = (pub && pub.code) || {};
+    Object.keys(applied).forEach(function (k) { if (!code[k]) { var b = blockFor(k); if (b && b._eaiLive) b._eaiLive(null); delete applied[k]; } });
+    Object.keys(code).forEach(function (k) { var b = blockFor(k); if (b && b._eaiLive) { b._eaiLive(code[k]); applied[k] = true; } });
+  }
+  document.addEventListener('eai-run-ready', function () { applyCode(); });
+
   // the pen bar: a second row under the navbar, always there. The arrow uses the page normally; any pen starts writing.
   function buildBar() {
     if (!nav || bar) return;
@@ -31891,7 +32070,8 @@ function eaiInk(opts) {
       var dx = p[0] - sm[0], dy = p[1] - sm[1], a = Math.min(1, 0.35 + Math.sqrt(dx * dx + dy * dy) / 4);
       sm[0] += a * dx; sm[1] += a * dy; return [r1(sm[0]), r1(sm[1]), p[2]];
     }
-    // One path for the whole stroke, rewritten each frame (the chained short paths left only the end on the iPad, 2026-11-02).
+    // One path for the whole stroke, rewritten each frame. (2026-11-01 to 11-02 a long stroke was drawn as a chain of
+    // short paths joined on lift: on the iPad only the end of each stroke was left on screen, Eric 2026-11-02.)
     function frame() { queued = false; if (el) paint(el, cur, tail); }
     // where the pen will be a frame from now: the browser's guess if it has one (Chrome), else ours from the last speed
     var last = null, prev = null;
@@ -31923,6 +32103,7 @@ function eaiInk(opts) {
         } else { var f = smooth(p), l = cur.pts[cur.pts.length - 1]; if (Math.abs(l[0] - f[0]) + Math.abs(l[1] - f[1]) >= 0.35) cur.pts.push(f); }
       });
       if (!cur) return;
+      if (DEBUG) { var dp = pt(ev), sp = null; try { var m = svg.getScreenCTM().inverse(), q0 = svg.createSVGPoint(); q0.x = ev.clientX; q0.y = ev.clientY; q0 = q0.matrixTransform(m); sp = [q0.x, q0.y]; } catch (x) {} debugShow(pg, ev, dp, box, sp); }
       tail = ahead(ev);   // draw ahead to where the pen is about to be, so the line keeps up with the tip
       if (!queued) { queued = true; requestAnimationFrame(frame); }
     }
@@ -31984,7 +32165,11 @@ function eaiInk(opts) {
           else at[p.id] = doc.getPage(i);
           i++;
         });
-        var joined = [];
+        doc._eaiAt = at;
+        return drawCode(doc, at, list.filter(function (l) { return l && l.code && Object.keys(l.code).length; })[0]).then(function () { return doc; });
+      })
+      .then(function (doc) {
+        var at = doc._eaiAt, joined = [];
         list.forEach(function (l) {
           if (l) (l.strokes || []).forEach(function (st) {
             var page = at[st.p], el = document.getElementById(st.p); if (!page || !el || !st.pts || !st.pts.length) return;
@@ -31997,6 +32182,150 @@ function eaiInk(opts) {
         return doc.save();
       })
       .then(function (bytes) { return { bytes: bytes, name: decodeURIComponent(url.split('/').pop().split('?')[0]).replace(/\.pdf$/i, '') + '-notes.pdf' }; });
+  }
+
+  // Code run in lecture, drawn into the notes PDF (Eric, 2026-11-10). The PDF has the cell as stored; where a cell was
+  // edited or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
+  // and plots drawn in, shrunk to fit if need be. What won't fit there at a readable size (a long output, plots under
+  // a cell that had no output box) goes on a page of its own right after the slide, "Run in lecture: <title>". Ink
+  // is drawn after, so notes written over an output stay on top of it.
+  var FONTKIT = '/static/js/fontkit-1.1.1.min.js', FONTS = '/ai2ai/editor/kit/fonts/', pngCache = {};
+  function script(src) { return new Promise(function (ok, no) { var sc = document.createElement('script'); sc.src = src; sc.onload = ok; sc.onerror = no; document.head.appendChild(sc); }); }
+  function pdfFonts(doc) {
+    return (window.fontkit ? Promise.resolve() : script(FONTKIT)).then(function () {
+      doc.registerFontkit(window.fontkit);
+      return Promise.all(['Inconsolata-LGC.ttf', 'Inconsolata-LGC-Bold.ttf', 'AI2AI-Math.ttf'].map(function (f, i) {
+        return fetch(FONTS + f).then(function (r) { if (!r.ok) throw new Error('font'); return r.arrayBuffer(); }).then(function (b) { return doc.embedFont(b, { subset: true }); })
+          .catch(function (e) { if (i < 2) throw e; return null; });   // the symbol font is a nice-to-have
+      }));
+    }).then(function (a) { return { r: a[0], b: a[1], sym: a[2], has: a[0].getCharacterSet ? new Set(a[0].getCharacterSet()) : null, adv: 0.6, uni: true }; }, function () {
+      return Promise.all([doc.embedFont(PDFLib.StandardFonts.Courier), doc.embedFont(PDFLib.StandardFonts.CourierBold)]).then(function (a) { return { r: a[0], b: a[1], adv: 0.6, uni: false }; });
+    });
+  }
+  function pngBytes(f) {
+    f = pngCache[f] || f;
+    if (/^(\/|https?:)/.test(f)) return fetch(f).then(function (r) { if (!r.ok) throw new Error('plot'); return r.arrayBuffer(); });
+    var b = atob(f.replace(/^data:[^,]*,/, '')), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return Promise.resolve(u);
+  }
+  function cssRGB(v, dflt) {
+    var m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?/.exec(v || '');
+    if (!m || m[4] === '0') return dflt; return PDFLib.rgb(+m[1] / 255, +m[2] / 255, +m[3] / 255);
+  }
+  // lines of coloured runs from a rendered output (<pre>), or plain lines of code
+  function runsOf(pre) {
+    var lines = [[]];
+    (function walk(n) {
+      if (n.nodeType === 3) {
+        var st = getComputedStyle(n.parentNode), c = cssRGB(st.color, PDFLib.rgb(0.2, 0.2, 0.2)), b = (parseInt(st.fontWeight, 10) || 400) >= 600;
+        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push({ t: t, c: c, b: b }); });
+      } else if (n.nodeType === 1 && !/^(BUTTON|SCRIPT|STYLE)$/.test(n.tagName)) [].forEach.call(n.childNodes, walk);
+    })(pre);
+    while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
+    return lines;
+  }
+  function plainRuns(src) { var ink = PDFLib.rgb(0.13, 0.13, 0.13); return src.replace(/\t/g, '    ').replace(/\s+$/, '').split('\n').map(function (t) { return t ? [{ t: t, c: ink, b: false }] : []; }); }
+  function widest(lines) { return lines.reduce(function (m, l) { return Math.max(m, l.reduce(function (n, r) { return n + r.t.length; }, 0)); }, 1); }
+  function drawCode(doc, at, layer) {
+    var code = layer && layer.code, keys = code ? Object.keys(code) : [];
+    var jobs = keys.map(function (k) { var b = blockFor(k); return b && at[code[k].p] && b.closest('section.page') && b.closest('section.page').id === code[k].p ? { k: k, b: b, c: code[k] } : null; }).filter(Boolean);
+    if (!jobs.length) return Promise.resolve();
+    // what each cell shows now (the lecture's version), then the boxes it has in the PDF (the stored version)
+    jobs.forEach(function (j) {
+      var out = j.b.nextElementSibling; while (out && out.tagName === 'TEXTAREA') out = out.nextElementSibling;   // (an edited cell's editor sits between)
+      if (out && out.tagName !== 'B-OUT') out = null; var pre = out && out.querySelector('pre');
+      if (j.b._eaiLive) j.b._eaiLive(j.c);
+      j.code = j.c.src != null ? plainRuns(j.c.src) : null;
+      j.out = j.c.out != null && pre ? runsOf(pre) : j.c.out != null ? plainRuns(j.c.out) : null;
+      if (j.out && j.out.length === 1 && !j.out[0].length) j.out = null;
+      j.figs = j.c.figs || [];
+      var lnEl = j.b.querySelector('.ln') || j.b; j.fsCode = parseFloat(getComputedStyle(lnEl).fontSize) * 0.75 || 10;
+      j.fsOut = pre ? parseFloat(getComputedStyle(pre).fontSize) * 0.75 || 9 : 9;
+      j.bgCode = cssRGB(getComputedStyle(j.b).backgroundColor, PDFLib.rgb(1, 1, 1));
+      j.bgOut = out ? cssRGB(getComputedStyle(out).backgroundColor, PDFLib.rgb(1, 1, 1)) : PDFLib.rgb(1, 1, 1);
+      j.outEl = out;
+    });
+    jobs.forEach(function (j) { if (j.b._eaiLive) j.b._eaiLive(null); });
+    jobs.forEach(function (j) {
+      var pg = document.getElementById(j.c.p), r = rectOf(pg), k = pgW(pg) / r.width;
+      var box = function (el) { if (!el) return null; var q = rectOf(el); return q.height < 2 ? null : { x: (q.left - r.left) * k, y: (q.top - r.top) * k, w: q.width * k, h: q.height * k }; };
+      var g = j.b.querySelector('.gutter'), src = j.b.querySelector('.src');
+      j.codeBox = box(j.b); j.codeX = box(g || src); j.codeTop = box(j.b.querySelector('.ln'));
+      var out = j.outEl, pre = out && !out.classList.contains('run-new') ? out.querySelector('pre') : null;
+      j.outBox = out && !out.classList.contains('run-new') ? box(out) : null;
+      j.outTop = pre && box(pre) ? box(pre) : null;
+      if (j.outBox && !j.outTop) { var lab = box(out.querySelector('.label')); j.outTop = lab ? { x: j.outBox.x, y: lab.y + lab.h, w: j.outBox.w, h: 0 } : null; }
+    });
+    applyCode();
+    return Promise.all([pdfFonts(doc), Promise.all(jobs.map(function (j) {
+      return Promise.all(j.figs.map(function (f) { return pngBytes(f).then(function (u) { return doc.embedPng(u); }, function () { return null; }); }))
+        .then(function (ims) { j.ims = ims.filter(Boolean); });
+    }))]).then(function (a) {
+      var F = a[0], clean = function (t) { return F.uni ? t : t.replace(/[^\x20-\x7e\xa0-\xff]/g, '?'); };
+      function line(page, kp, runs, x, y, fs) {   // y: top of the line in page pt; one column per character, like the screen
+        var H = page.getSize().height, cx = x;
+        runs.forEach(function (rn) {
+          var t = clean(rn.t), font = rn.b ? F.b : F.r, piece = '', pieceFont = font;
+          var flush = function () { if (piece) page.drawText(piece, { x: cx * kp, y: H - (y + fs * 0.95) * kp, size: fs * kp, font: pieceFont, color: rn.c }); cx += (pieceFont.widthOfTextAtSize ? pieceFont.widthOfTextAtSize(piece, fs) : piece.length * F.adv * fs); piece = ''; };
+          Array.from(t).forEach(function (ch) {
+            var f = F.has && F.sym && !F.has.has(ch.codePointAt(0)) ? F.sym : font;
+            if (f !== pieceFont) { flush(); pieceFont = f; } piece += ch;
+          });
+          flush();
+        });
+      }
+      function lines(page, kp, ls, x, y, fs, lh) { ls.forEach(function (l, i) { line(page, kp, l, x, y + i * lh, fs); }); return ls.length * lh; }
+      function cover(page, kp, b, col) { var H = page.getSize().height; page.drawRectangle({ x: b.x * kp, y: H - (b.y + b.h) * kp, width: b.w * kp, height: b.h * kp, color: col }); }
+      var spill = {};   // page id → the cells that go on a page of their own
+      jobs.forEach(function (j) {
+        var page = at[j.c.p], el = document.getElementById(j.c.p), kp = page.getSize().width / pgW(el), PAD = 3, lead = 1.32;
+        var place = { code: !j.code, out: !j.out && !j.ims.length };
+        if (j.code && j.codeBox) {   // the edited code in the code box, if it fits at 60% or more of its size
+          var cb = j.codeBox, x0 = (j.codeX ? j.codeX.x : cb.x) + PAD, y0 = (j.codeTop ? j.codeTop.y : cb.y + PAD), w = cb.x + cb.w - x0 - PAD, h = cb.y + cb.h - y0 - PAD;
+          var s = Math.min(1, w / (widest(j.code) * F.adv * j.fsCode), h / (j.code.length * j.fsCode * lead));
+          if (s >= 0.6) { cover(page, kp, { x: cb.x + 1, y: cb.y + 1, w: cb.w - 2, h: cb.h - 2 }, j.bgCode); lines(page, kp, j.code, x0, y0, j.fsCode * s, j.fsCode * s * lead); place.code = true; }
+        }
+        var grey = PDFLib.rgb(0.45, 0.45, 0.45), place2 = { text: !j.out, ims: !j.ims.length };
+        if (!place.code && j.codeBox) {   // the code didn't fit: say where it went, over the stored code
+          var cb2 = j.codeBox; cover(page, kp, { x: cb2.x + 1, y: cb2.y + 1, w: cb2.w - 2, h: cb2.h - 2 }, j.bgCode);
+          line(page, kp, [{ t: 'Edited in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
+        }
+        if ((j.out || j.ims.length) && j.outBox && j.outTop) {   // the lecture's output (and plots) in the output box
+          var ob = j.outBox, ox = ob.x + PAD + 2, oy = j.outTop.y + 1, ow = ob.w - 2 * PAD - 4, oh = ob.y + ob.h - oy - PAD;
+          var ol = j.out || [], ts = ol.length ? Math.min(1, ow / (widest(ol) * F.adv * j.fsOut)) : 1, th = ol.length * j.fsOut * ts * lead;
+          if (th > oh || ts < 0.6) { ts = Math.min(ts, oh / (ol.length * j.fsOut * lead)); th = ol.length * j.fsOut * ts * lead; }
+          var natural = j.ims.map(function (im) { var w2 = Math.min(ow, im.width * 0.75); return { im: im, w: w2, h: w2 * im.height / im.width }; });
+          var ih = natural.reduce(function (n, q) { return n + q.h + 3; }, 0), room = oh - th, is = ih ? Math.min(1, room / ih) : 1;
+          place2.text = !ol.length || ts >= 0.6; place2.ims = !ih || (place2.text && is >= 0.45);
+          cover(page, kp, { x: ob.x + 1, y: oy - 1, w: ob.w - 2, h: ob.y + ob.h - oy }, j.bgOut);
+          var yy = oy, H = page.getSize().height;
+          if (place2.text) yy += lines(page, kp, ol, ox, oy, j.fsOut * ts, j.fsOut * ts * lead) + 2;
+          if (place2.ims) natural.forEach(function (q) { var w2 = q.w * is, h2 = q.h * is; page.drawImage(q.im, { x: (ox + (ow - w2) / 2) * kp, y: H - (yy + h2) * kp, width: w2 * kp, height: h2 * kp }); yy += h2 + 3; });
+          var note = !place2.text ? 'Run in lecture: the output is on the next page.' : !place2.ims ? '(the plot is on the next page)' : '';
+          if (note && yy + j.fsOut * lead <= ob.y + ob.h) line(page, kp, [{ t: note, c: grey, b: false }], ox, yy, Math.min(j.fsOut, 10));
+        }
+        place.out = place2.text && place2.ims;
+        if (!place.code || !place.out) (spill[j.c.p] = spill[j.c.p] || []).push({ j: j, code: !place.code, text: !place2.text, ims: !place2.ims });
+      });
+      Object.keys(spill).forEach(function (pid) {   // a page of its own after the slide, for what didn't fit
+        var after = at[pid], idx = doc.getPages().indexOf(after), sz = after.getSize(), el = document.getElementById(pid), W = pgW(el), kp = sz.width / W, Hpt = sz.height / kp;
+        var page = doc.insertPage(idx + 1, [sz.width, sz.height]), M = 36, y = M, avail = Hpt - 2 * M - 26, cw = W - 2 * M;
+        var head = el.querySelector('h1, h2, h3'), title = 'Run in lecture' + (head ? ': ' + head.textContent.replace(/\s+/g, ' ').trim() : '');
+        line(page, kp, [{ t: title, c: PDFLib.rgb(0, 0.169, 0.357), b: true }], M, y, 15); y += 26;
+        var items = [];   // [kind, lines | image, size]
+        spill[pid].forEach(function (e) {
+          if (e.code && e.j.code) items.push(['code', e.j.code, Math.min(11, cw / (widest(e.j.code) * F.adv))]);
+          if (e.text && e.j.out) items.push(['out', e.j.out, Math.min(11, cw / (widest(e.j.out) * F.adv))]);
+          if (e.ims) e.j.ims.forEach(function (im) { var w2 = Math.min(cw, im.width * 0.75); items.push(['img', im, w2, w2 * im.height / im.width]); });
+        });
+        var need = items.reduce(function (n, it) { return n + (it[0] === 'img' ? it[3] : it[1].length * it[2] * 1.32) + 8; }, 0), s = Math.max(0.3, Math.min(1, avail / need));
+        items.forEach(function (it) {
+          if (it[0] === 'img') { var w2 = it[2] * s, h2 = it[3] * s; page.drawImage(it[1], { x: (M + (cw - w2) / 2) * kp, y: sz.height - (y + h2) * kp, width: w2 * kp, height: h2 * kp }); y += h2 + 8; return; }
+          var fs = it[2] * s, hh = it[1].length * fs * 1.32;
+          if (it[0] === 'code') cover(page, kp, { x: M - 4, y: y - 3, w: cw + 8, h: hh + 6 }, PDFLib.rgb(0.96, 0.96, 0.96));
+          y += lines(page, kp, it[1], M, y, fs, fs * 1.32) + 8;
+        });
+      });
+    });
   }
   function notesPDF() {
     var fallback = function (why) { msg(why + ' Printing the page instead.'); setTimeout(function () { window.print(); }, 50); };
@@ -32043,7 +32372,18 @@ function eaiInk(opts) {
     var t = prompt('Title for these notes', target.title || target.id); if (t === null) return; target.title = t || target.id; save();
     msg('Publishing…');
     var ix = layers.filter(function (l) { return l.id !== target.id; }).concat([{ id: target.id, title: target.title, view: VIEW }]).sort(function (a, b) { return a.id < b.id ? -1 : 1; });
-    gh(dir + '/ink/' + target.id + '.json', token, JSON.stringify(target))
+    // plots from lecture runs go up as PNG files beside the notes (ink/<notes id>-<cell>-<n>.png), and the notes keep
+    // their site paths, so the notes file stays small and the plots show wherever the notes are shown
+    var ups = [];
+    Object.keys(target.code || {}).forEach(function (k) {
+      var c = target.code[k]; (c.figs || []).forEach(function (f, i) {
+        if (/^(\/|https?:)/.test(f)) return;
+        var name = target.id + '-' + k.replace(/[^\w-]+/g, '_') + '-' + (i + 1) + '.png';
+        ups.push(function () { return gh(dir + '/ink/' + name, token, f.replace(/^data:[^,]*,/, ''), true).then(function () { var path = '/' + dir.replace(/^\/|\/$/g, '') + '/ink/' + name; pngCache[path] = f; c.figs[i] = path; }); });
+      });
+    });
+    ups.reduce(function (p, f) { return p.then(f); }, Promise.resolve())
+      .then(function () { save(); return gh(dir + '/ink/' + target.id + '.json', token, JSON.stringify(target)); })
       .then(function () { return gh(dir + '/ink/index.json', token, JSON.stringify({ layers: ix }, null, 1)); })
       .then(function () {
         layers = ix.slice().reverse();
@@ -32083,8 +32423,28 @@ function eaiInk(opts) {
     if (window.visualViewport) { var ut = 0; visualViewport.addEventListener('resize', function () { clearTimeout(ut); ut = setTimeout(unzoom, 250); }); }
     addEventListener('gestureend', function () { setTimeout(unzoom, 300); });
     function fit() { var pg = book.querySelector('section.page'), W = window.Book && Book.pageW ? Book.pageW(Book.view) : pg ? pgW(pg) : 432; return Math.min(1, (innerWidth - 32) / (W * 4 / 3)); }   // the view's own fit-the-width zoom (view.html)
-    window.eaiZoomK = k;
-    function apply() { H.style.setProperty('--zoom', +(fit() * k).toFixed(4)); zoomGen++; pages().forEach(function (p) { if (p.querySelector(':scope > svg.ink')) overlay(p); }); }
+    // The zoom is a scale, not a new layout (Eric, 2026-11-03: smooth as Notability). The pages are laid out once at the
+    // fit-the-width size (CSS --zoom, which re-wraps text, changes only when the window does) and the presenter's zoom k
+    // is a transform on #book, so zooming only redraws. #book sits in #lect-size (the scaled size, which gives the
+    // scroll box its range) inside #lect-scroll (the box that scrolls).
+    window.eaiZoomK = 1;   // view.html's resize keeps --zoom at the fit size
+    var scroller = document.createElement('div'), sizer = document.createElement('div');
+    scroller.id = 'lect-scroll'; sizer.id = 'lect-size';
+    book.parentNode.insertBefore(scroller, book); scroller.appendChild(sizer); sizer.appendChild(book); scrollBox = scroller;
+    function firstPage() { return book.querySelector('section.page:not(.cover)') || book.querySelector('section.page'); }
+    function pagePx() { var pg = firstPage(); return pg ? pgW(pg) * 4 / 3 * fit() : 0; }   // a page's width in #book's own px
+    var bw = 0;   // #book's own (unscaled) width
+    function size() {   // the sizer = #book's box after the scale
+      sizer.style.width = (bw * k) + 'px'; sizer.style.height = (book.offsetHeight * k) + 'px';
+    }
+    function apply() {
+      H.style.setProperty('--zoom', +fit().toFixed(4));
+      bw = Math.max(scroller.clientWidth / k, pagePx() + 32);   // wide enough to centre the pages when they fit, never narrower than one
+      book.style.width = bw + 'px'; book.style.transform = 'scale(' + k + ')'; lectK = k;
+      size(); zoomGen++;
+      pages().forEach(function (p) { if (p.querySelector(':scope > svg.ink')) overlay(p); });
+    }
+    if (window.ResizeObserver) new ResizeObserver(function () { if (!live) apply(); }).observe(book);   // pictures loading, pages patched in
     function pageAt(x, y) {   // the page nearest a point, and where in it the point is (fractions), to keep it under the fingers
       var best = null, bd = Infinity;
       [].forEach.call(book.querySelectorAll('section.page'), function (p) {
@@ -32093,44 +32453,69 @@ function eaiInk(opts) {
       });
       return best;
     }
+    function anchor(a, x, y) { if (a) { var r = rectOf(a.p); scroller.scrollLeft += r.left + a.fx * r.width - x; scroller.scrollTop += r.top + a.fy * r.height - y; } }
+    function save() { clearTimeout(save.t); save.t = setTimeout(function () { try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }, 300); }
     function zoomTo(nk, x, y) {
       nk = Math.max(0.4, Math.min(4, nk)); if (Math.abs(nk - k) < 0.002) return;
-      var a = pageAt(x, y); k = nk; window.eaiZoomK = k; apply();
-      if (a) { var r = rectOf(a.p); book.scrollLeft += r.left + a.fx * r.width - x; book.scrollTop += r.top + a.fy * r.height - y; }
-      clearTimeout(zoomTo.t); zoomTo.t = setTimeout(function () { try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }, 300);
+      var a = pageAt(x, y); k = nk; apply(); anchor(a, x, y); save();
     }
-    // While the fingers move, the pages are only scaled as a picture (a transform the GPU does, nothing is laid out
-    // again); the real zoom, which lays every page out at the new size, happens once when the pinch ends, with the point
-    // under the fingers kept under them (2026-11-01, Eric: zooming and panning in the presenting view were laggy).
+    // While the fingers move, #book's scale follows them about the point under them, held to where the release can put
+    // it (centred when the slides fit the width, never past the scroll box's edges). #lect-size stops clipping meanwhile, so zooming out
+    // shows the slides all round. The scale runs on the GPU as a picture (will-change), which keeps it smooth but lets
+    // text go soft as the scale drifts from the one it was drawn at, so it is drawn again at the current scale whenever
+    // the scale has moved 25% from the last drawing or the fingers rest for a moment (2A, Eric, 2026-11-03).
     var raf = 0, live = null;
+    function frame() {
+      raf = 0; if (!live) return;
+      var L = live, s = L.nk / k, ks = L.nk;
+      var tx = L.fx * (1 - s), ty = L.fy * (1 - s);   // keeps the content point under the fingers where it was
+      if (L.slide) { tx += L.x - L.x0; ty += L.y - L.y0; }
+      // keep the preview where the real zoom can put it: once released, the scroll box can't scroll past its edges, and
+      // slides that fit the width are centred (an iPad scroll view rubber-bands the same way)
+      var cw = scroller.clientWidth, bw2 = Math.max(cw / ks, L.pp + 32), maxL = Math.max(0, bw2 * ks - cw), left = ks * (bw2 - L.pp) / 2;
+      var X = -L.sl + tx + ks * (L.cx - L.pp / 2); X = Math.min(left, Math.max(left - maxL, X)); tx = X + L.sl - ks * (L.cx - L.pp / 2);
+      var maxT = Math.max(0, book.offsetHeight * ks - scroller.clientHeight), Y = -L.st + ty; Y = Math.min(0, Math.max(-maxT, Y)); ty = Y + L.st;
+      book.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + ks + ')'; lectK = ks; zoomGen++;
+      if (Math.abs(Math.log(ks / L.drawn)) > 0.223) sharpen();
+      clearTimeout(L.rest); L.rest = setTimeout(sharpen, 120);
+    }
+    function sharpen() {   // let the browser paint the pages again at the scale they are shown at, then go back to a picture
+      if (!live || live.sharp) return;
+      var L = live; L.sharp = true; L.drawn = L.nk; book.style.willChange = 'auto';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { L.sharp = false; if (live === L) book.style.willChange = ''; }); });
+    }
     function soon(nk, x, y, slide) {
       nk = Math.max(0.4, Math.min(4, nk));
       if (!live) {
-        var r = book.getBoundingClientRect();
-        live = { x0: x, y0: y, a: pageAt(x, y) }; H.classList.add('lect-zooming');
-        book.style.transformOrigin = (x - r.left) + 'px ' + (y - r.top) + 'px';
+        var r = scroller.getBoundingClientRect(), pg = firstPage(), pr = pg ? rectOf(pg) : null;
+        var fx = x - r.left + scroller.scrollLeft, fy = y - r.top + scroller.scrollTop;   // the point under the fingers, in the scrolled content
+        live = { x0: x, y0: y, a: pageAt(x, y), sl: scroller.scrollLeft, st: scroller.scrollTop, fx: fx, fy: fy, drawn: k,
+          cx: pr ? (pr.left - r.left + scroller.scrollLeft + pr.width / 2) / k : bw / 2,   // the pages' centre line, in #book's px
+          pp: pagePx() };
+        H.classList.add('lect-zooming');
       }
       live.nk = nk; live.x = x; live.y = y; live.slide = !!slide;
-      if (!raf) raf = requestAnimationFrame(function () {
-        raf = 0; if (!live) return;
-        var tx = live.slide ? live.x - live.x0 : 0, ty = live.slide ? live.y - live.y0 : 0;
-        book.style.transform = 'translate(' + tx + 'px, ' + ty + 'px) scale(' + (live.nk / k) + ')'; zoomGen++;
-      });
+      if (!raf) { if (!live.started) { live.started = true; frame(); } else raf = requestAnimationFrame(frame); }
       clearTimeout(soon.t); soon.t = setTimeout(commit, 200);   // a trackpad or ctrl+wheel pinch has no end event
+    }
+    function unpreview(L) {   // back to the plain scale, scrolled where it was
+      clearTimeout(L.rest); book.style.willChange = '';
+      H.classList.remove('lect-zooming'); book.style.transform = 'scale(' + k + ')'; lectK = k; zoomGen++;
+      scroller.scrollLeft = L.sl; scroller.scrollTop = L.st;
     }
     function commit() {
       clearTimeout(soon.t); if (!live) return;
       var L = live; live = null; if (raf) { cancelAnimationFrame(raf); raf = 0; }
-      book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming'); zoomGen++;
-      if (Math.abs(L.nk - k) >= 0.002) { k = L.nk; window.eaiZoomK = k; apply(); try { localStorage.setItem(KEY, String(+k.toFixed(3))); } catch (x) {} }
-      if (L.a) { var r = rectOf(L.a.p); book.scrollLeft += r.left + L.a.fx * r.width - L.x; book.scrollTop += r.top + L.a.fy * r.height - L.y; }
+      unpreview(L);
+      if (Math.abs(L.nk - k) >= 0.002) { k = L.nk; apply(); save(); }
+      anchor(L.a, L.x, L.y);
     }
     // the pen came down: a pinch under way was a palm, not a zoom, so put the pages back as they were, and ignore the
     // rest of that gesture (and any gesture while the pen is down)
     var blocked = false;
     function cancel() {
       clearTimeout(soon.t); if (raf) { cancelAnimationFrame(raf); raf = 0; }
-      if (live) { live = null; book.style.transform = ''; book.style.transformOrigin = ''; H.classList.remove('lect-zooming'); zoomGen++; }
+      if (live) { var L = live; live = null; unpreview(L); }
       blocked = true; t0 = null;
     }
     lectZoom = { cancel: cancel };
@@ -32150,7 +32535,7 @@ function eaiInk(opts) {
     addEventListener('wheel', function (e) { if (!e.ctrlKey) return; e.preventDefault(); soon((live ? live.nk : k) * Math.exp(-e.deltaY * 0.01), e.clientX, e.clientY); }, { passive: false });   // trackpad pinch in Chrome, ctrl+wheel
     addEventListener('keydown', function (e) {
       if (!(e.metaKey || e.ctrlKey) || !/^(=|\+|-|0)$/.test(e.key)) return; e.preventDefault();
-      var r = book.getBoundingClientRect();
+      var r = scroller.getBoundingClientRect();
       zoomTo(e.key === '0' ? 1 : k * (e.key === '-' ? 1 / 1.15 : 1.15), r.left + r.width / 2, r.top + r.height / 2);
     });
     addEventListener('resize', function () { zoomGen++; setTimeout(apply, 0); });   // after the view's own resize handler
@@ -32186,7 +32571,6 @@ function eaiInk(opts) {
   });
   addEventListener('hashchange', function () { if (/(^|[#&])teach\b/.test(location.hash)) { start(); setupTeacher(); } });
 }
-
 eaiInk({"dir":"ai2ai/ffn"});</script>
 </body>
 </html>
