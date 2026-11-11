@@ -373,6 +373,7 @@ function place() {
   if (phone) { const bw = bar.offsetWidth || 300, bh = bar.offsetHeight || 40; bar.style.left = Math.max(desk.scrollLeft + 4, Math.min(x, desk.scrollLeft + desk.clientWidth - bw - 4)) + 'px'; bar.style.top = Math.max(desk.scrollTop + 4, y - bh - 6) + 'px'; }
   else { bar.style.left = Math.max(2, x - 34) + 'px'; bar.style.top = y + 'px'; }
   bar.querySelector('[data-act=pin]').classList.toggle('on', Book.isPinned(sel));
+  { const pb = bar.querySelector('[data-act=push]'); if (pb) { pb.classList.toggle('on', sel.hasAttribute('data-push')); pb.hidden = Book.isPinned(sel) || !(sel.parentElement && sel.parentElement.matches('section.page:not(.cover)')); } }
   bar.querySelector('[data-act=code]').hidden = sel.tagName !== 'B-FIG' || !!extra.length;
   bar.querySelector('[data-act=center]').classList.toggle('on', isCentred(sel));
   bar.querySelector('[data-act=center]').hidden = sel.tagName === 'B-CODE' || sel.tagName === 'B-OUT';
@@ -521,6 +522,7 @@ $('#blockbar').addEventListener('click', e => {
   if (a === 'code') return flipFig(sel);
   if (a === 'center') return toggleCenter();
   if (a === 'split') return splitPage(sel);
+  if (a === 'push') { if (Book.isPinned(sel) || !sel.parentElement.matches('section.page:not(.cover)')) return toast('Only a block in the flow of a page can be pushed to the bottom'); commit(true); sel.toggleAttribute('data-push'); commit(true); Book.refresh(); place(); renderInspector(); return; }   // the block bar's push-to-bottom toggle (Eric, 2026-11-10: replaces Split page here, still Shift+Cmd+Enter)
   if (a === 'up') moveAll(-1); else if (a === 'down') moveAll(1); else if (a === 'dup') duplicateAll(); else if (a === 'pin') { const list = allSel(), on = !Book.isPinned(sel); list.forEach(b => { if (Book.isPinned(b) !== on) togglePin(b); }); if (list.length > 1) selectMany(list); } else if (a === 'del') removeAll();
 });
 
