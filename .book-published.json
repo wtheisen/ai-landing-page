@@ -1,65 +1,12 @@
 {
  "_last": {
-  "at": "2026-11-11T15:58:48Z",
-  "event": "manual",
+  "at": "2026-11-11T16:14:07Z",
+  "error": true,
+  "event": "push",
   "failed": [],
-  "ok": [
-   "backprop",
-   "ballm-attention",
-   "ballm-attnvar",
-   "ballm-blocks",
-   "ballm-bpe",
-   "ballm-embeddings",
-   "ballm-evals",
-   "ballm-hdd",
-   "ballm-irishqwen",
-   "ballm-loss",
-   "ballm-mha",
-   "ballm-moe",
-   "ballm-optim",
-   "ballm-rnn",
-   "ballm-tokenization",
-   "bptt",
-   "cnn",
-   "eval",
-   "ffn",
-   "linreg",
-   "optreg",
-   "pca",
-   "rnn",
-   "search",
-   "svm"
-  ],
-  "over": {
-   "backprop": [
-    "lec-p-224uu"
-   ],
-   "eval": [
-    "accuracy-vs-precision",
-    "k-fold",
-    "residual-plots"
-   ],
-   "ffn": [
-    "p-qhx95"
-   ],
-   "search": [
-    "a-puzzle-made-of-states",
-    "what-can-happen-next",
-    "draw-the-exploration",
-    "breadth-first-traversal",
-    "depth-first-traversal",
-    "now-ask-for-a-solution",
-    "represent-the-picture",
-    "bfs-searches-the-puzzle",
-    "remember-how-we-got-here",
-    "dfs-can-go-the-wrong-way",
-    "why-put-a-limit-on-depth",
-    "found-exhausted-or-cut-off",
-    "run-the-same-puzzle",
-    "what-uninformed-search-ignores"
-   ]
-  },
-  "run": ""
+  "ok": [],
+  "over": {},
+  "run": "43051615348"
  },
  "backprop": {
   "at": "2026-11-11T15:58:58Z",
