@@ -1283,7 +1283,7 @@ function eaiRunCode() {
   var PY = 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/';
   // PyTorch in the browser: our fork of torch-pyodide (github.com/wtheisen/torch-pyodide, branch ai2ai), numpy backend,
   // published to the site as one tarball. Loaded only when a block imports torch. window.EAI_TORCH_URL overrides it.
-  var TORCH = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-f5c8317.tar.gz';
+  var TORCH = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-c0b2344.tar.gz';
   var boot = null, torchBoot = null;
   function torch(py) {
     if (torchBoot) return torchBoot;
@@ -1316,6 +1316,11 @@ function eaiRunCode() {
   // block marked chain, the blocks it continues (the python blocks before it in this document, back to the first one
   // not marked chain, each with its own setup), so a function split across pages or a fit used on the next slide runs.
   function pyBlocks(bk) { return [].filter.call(bk.querySelectorAll('b-code[lang="python"]'), function (b) { var s = b.closest('section'); return !s || s.getClientRects().length > 0; }); }
+  // A continuation (2026-11-11): a chained cell whose first line is indented is the rest of a class, function or
+  // call shown on the slide before (Pyodide dedents code, so run alone it silently became something else: cnn's
+  // ConvLayer lost its forward). It always runs with the cells it continues; the cell it continues says so on Run.
+  function frag(b) { if (!b || !b.hasAttribute('chain')) return false; var l = source(b).split('\n').filter(function (x) { return x.trim(); })[0] || ''; return /^[ \t]/.test(l); }
+  function continued(block) { var list = pyBlocks(block.closest('.book') || document), k = list.indexOf(block); return k >= 0 && frag(list[k + 1]); }
   function prelude(block) {
     var parts = [], b = block, list = null;
     for (;;) {
@@ -1389,7 +1394,11 @@ function eaiRunCode() {
     function run(g) {
       // like one notebook: every cell in a document shares one Python namespace (bk._eaiG). A chained cell whose
       // earlier cells haven't run yet in this namespace runs them first (its prelude); once they have, it runs alone.
-      var chainNeeded = !g && block.hasAttribute('chain') && !(block._eaiPrevRan && block._eaiPrevRan());
+      if (!editor && continued(block)) {   // half of a class or call: the next cell runs it whole
+        status.textContent = 'Continues on the next slide: run it there'; tell({ src: original, out: printed, skipped: true });
+        return Promise.resolve(true);
+      }
+      var chainNeeded = block.hasAttribute('chain') && (frag(block) || (!g && !(block._eaiPrevRan && block._eaiPrevRan())));
       var own = editor ? editor.value : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
@@ -1398,7 +1407,7 @@ function eaiRunCode() {
         status.textContent = 'Loading packages…';
         var files = (block.getAttribute('files') || '').split(/\s+/).filter(Boolean);
         return Promise.all(files.map(function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('could not fetch ' + u); return r.arrayBuffer(); }).then(function (b) { py.FS.writeFile(u.split('/').pop().split('?')[0], new Uint8Array(b)); }); }))
-          .then(function () { return /^\s*(import|from)\s+torch(vision)?\b/m.test(code) ? torch(py) : null; })
+          .then(function () { return /^[ \t]*(import[ \t][^\n#]*\btorch(vision)?\b|from[ \t]+torch(vision)?\b)/m.test(code) ? torch(py) : null; })   // also `import re, torch`
           .then(function () { return py.loadPackagesFromImports(code); })
           .then(function () {
             status.textContent = 'Running…';

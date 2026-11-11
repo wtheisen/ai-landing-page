@@ -1350,7 +1350,7 @@ let pyBoot = null, torchBoot = null;
 // same PyTorch as the web edition (see eaiRunCode in book.js), loaded when the code imports torch
 function editorTorch(py) {
   if (torchBoot) return torchBoot;
-  const url = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-f5c8317.tar.gz';
+  const url = window.EAI_TORCH_URL || 'https://ai.williamtheisen.com/static/py/torch-ai2ai-c0b2344.tar.gz';
   torchBoot = py.loadPackage('numpy').then(() => fetch(url)).then(r => { if (!r.ok) throw new Error('could not fetch PyTorch for the browser'); return r.arrayBuffer(); })
     .then(b => { py.unpackArchive(b, 'gztar'); });
   torchBoot.catch(() => { torchBoot = null; });
@@ -1525,9 +1525,12 @@ function codeCells(el) {
 }
 // the program a block runs (book.js eaiRunCode prelude): its hidden setup, the blocks it continues (chain), then itself.
 // The chain is only added while the cell it continues hasn't run in the current namespace (ns).
+// a continuation (a chained cell whose first line is indented: the rest of a class or call from the slide before)
+// always runs with what it continues, as on the published page (book.js frag)
+const codeFrag = el => !!el && el.hasAttribute('chain') && /^[ \t]/.test(((el.src || '').split('\n').filter(l => l.trim())[0]) || '');
 function codeProgram(el, ns) {
   const list = codeCells(el), k0 = list.indexOf(el);
-  if (ns && el.hasAttribute('chain') && k0 > 0 && list[k0 - 1]._edRan === ns) { const pre = el.getAttribute('setup') || ''; return { code: pre ? pre + '\n' + el.src : el.src, off: pre ? pre.split('\n').length : 0 }; }
+  if (ns && el.hasAttribute('chain') && !codeFrag(el) && k0 > 0 && list[k0 - 1]._edRan === ns) { const pre = el.getAttribute('setup') || ''; return { code: pre ? pre + '\n' + el.src : el.src, off: pre ? pre.split('\n').length : 0 }; }
   const parts = []; let b = el;
   for (;;) {
     if (b !== el) parts.unshift(b.src);
@@ -1539,6 +1542,7 @@ function codeProgram(el, ns) {
   return { code: pre ? pre + '\n' + el.src : el.src, off: pre ? pre.split('\n').length : 0 };
 }
 async function runIntoOutput(el, status, btn) {
+  { const list = codeCells(el), k = list.indexOf(el); if (k >= 0 && codeFrag(list[k + 1])) { status.textContent = 'Continues in the next cell: run that one (it runs this part too).'; return true; } }
   btn.disabled = true; status.textContent = 'Starting Python (the first run takes a few seconds)…';
   const lines = [];
   let py, off = 0, ok = true, figs = [];
@@ -1551,7 +1555,7 @@ async function runIntoOutput(el, status, btn) {
     }
     const key = codeDoc(el); if (!pyNS.has(key)) pyNS.set(key, py.toPy({}));
     const ns = pyNS.get(key), prog = codeProgram(el, ns); off = prog.off;
-    if (/^\s*(import|from)\s+torch(vision)?\b/m.test(prog.code)) { status.textContent = 'Loading PyTorch…'; await editorTorch(py); }
+    if (/^[ \t]*(import[ \t][^\n#]*\btorch(vision)?\b|from[ \t]+torch(vision)?\b)/m.test(prog.code)) { status.textContent = 'Loading PyTorch…'; await editorTorch(py); }
     status.textContent = 'Running…';
     await py.loadPackagesFromImports(prog.code);
     py.setStdout({ batched: t => lines.push(t) }); py.setStderr({ batched: t => lines.push(t) });
