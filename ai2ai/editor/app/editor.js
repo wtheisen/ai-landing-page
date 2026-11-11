@@ -2083,8 +2083,9 @@ function renderPages() { clearTimeout(pagesT); pagesT = setTimeout(() => {
     if (!li) { li = document.createElement('li'); li.draggable = true; li.dataset.id = p.id; li.innerHTML = '<div class="row1"><span class="n"></span><span class="t"></span></div>'; rowOf.set(p.id, li); seen.observe(li); }
     live.add(p.id);
     const stale = p.getAttribute('data-ed-stale');
-    li.className = (p.classList.contains('over') ? 'over ' : '') + (p === curPage ? 'cur ' : '') + (p.dataset.part ? 'part ' : '') + (stale ? 'stale ' : '') + (pageSel.has(p.id) ? 'sel' : '');
-    li.title = p.classList.contains('over') ? 'Content runs past the page' : stale ? 'The Lecture changed since this page was last brought in step (' + stale + ')' : '';
+    const byClaude = p.getAttribute('data-ed-chg');
+    li.className = (p.classList.contains('over') ? 'over ' : '') + (p === curPage ? 'cur ' : '') + (p.dataset.part ? 'part ' : '') + (stale ? 'stale ' : '') + (byClaude ? 'claude ' : '') + (pageSel.has(p.id) ? 'sel' : '');
+    li.title = p.classList.contains('over') ? 'Content runs past the page' : stale ? 'The Lecture changed since this page was last brought in step (' + stale + ')' : byClaude ? 'Changed by Claude: ' + byClaude : '';
     const n = String(k + 1), t = p.classList.contains('cover') ? 'Cover' : ((p.querySelector('h2') || {}).textContent || '(untitled)');
     if (li.querySelector('.n').textContent !== n) li.querySelector('.n').textContent = n;
     if (li.querySelector('.t').textContent !== t) li.querySelector('.t').textContent = t;
@@ -2521,7 +2522,7 @@ function askWaiting(c) {
 function commentItem(c, withWhere) {
   const done = c.hasAttribute('data-done'), d = h(`<div class="cmt-item ${done ? 'done' : ''}"><div class="meta"><b>${esc(c.dataset.by || '')}</b>${c.dataset.verdict ? `<span class="vd">${esc(c.dataset.verdict)}</span>` : ''}${c.dataset.re ? '<span>↳ reply</span>' : ''}<span>${esc(c.dataset.when || '')}</span><span class="sp"></span><button data-a="done">${done ? 'Reopen' : 'Resolve'}</button><button data-a="del">Delete</button></div><div class="txt" contenteditable="plaintext-only" spellcheck="true"></div></div>`);
   const txt = d.querySelector('.txt'); txt.textContent = c.textContent;
-  if (askWaiting(c)) d.querySelector('.meta').append(h('<span class="ask-wait" title="A scheduled Claude session answers comments within the hour (7am to 11pm)">waiting for Claude</span>'));
+  if (askWaiting(c)) d.querySelector('.meta').append(h('<span class="ask-wait" title="Claude does it the next time you ask in a session (\'address my comments\'); ai2ai brief lists it">waiting for Claude</span>'));
   if (c.dataset.sugs && c.dataset.by === 'Claude') { const b = h('<button class="ask-sugs">Suggestions</button>'); b.onclick = () => { if (window.Suggest) Suggest.open(); }; d.append(b); }
   txt.addEventListener('input', () => { const w = d.querySelector('.ask-wait'), on = askWaiting(c); if (on && !w) d.querySelector('.meta').append(h('<span class="ask-wait">will go to Claude</span>')); else if (!on && w) w.remove(); });
   txt.oninput = () => { c.textContent = txt.textContent; };
@@ -4176,5 +4177,75 @@ if (phone) {
   if (!s) try { s = JSON.parse(localStorage.getItem('book-side-' + ch) || 'null'); } catch (x) {}
   if (s && s.slug && gridOn && !phone && (info.chapters || []).includes(s.slug)) xOpen(s.slug, s.view);
   if (q.has('side')) history.replaceState(null, '', location.pathname);
+})();
+// ---------------------------------------------------------------- working with Claude (2026-11-11)
+// Pages Claude changed since Eric last looked: `ai2ai push` writes chapters/<slug>/changes.json (page id → changed
+// block ids); here those pages get a blue dot in the page list and the blocks a blue bar (data-ed-chg, never saved),
+// until Eric presses "Seen" above the page list. And More ▸ Report a problem: a page comment for Claude with this
+// device's details (data-kind="report", data-diag), the same kind the viewer's pen bar Report writes.
+(() => {
+  let data = { items: [] }, last = '';
+  const open = () => data.items.filter(i => (i.status || 'open') === 'open');
+  const btn = h('<button id="pg-claude" hidden title="Pages Claude changed since you last looked (blue dots). Click to mark them all seen.">Seen</button>');
+  $('#pg-thumbs').parentElement.prepend(btn);
+  async function load() {
+    try {
+      const r = await fetch(Book.base + 'changes.json', { cache: 'no-store' });
+      const t = r.ok ? await r.text() : '{"items": []}';
+      if (t === last) return; last = t; data = JSON.parse(t); if (!Array.isArray(data.items)) data.items = [];
+    } catch (e) { return; }
+    mark();
+  }
+  function mark() {
+    book.querySelectorAll('[data-ed-chg]').forEach(n => n.removeAttribute('data-ed-chg'));
+    const per = new Map();
+    for (const it of open()) for (const [pid, bids] of Object.entries(it.pages || {})) {
+      if (!per.has(pid)) per.set(pid, { msgs: new Set(), bids: new Set() });
+      per.get(pid).msgs.add((it.when || '').slice(5, 16).replace('T', ' ') + ' ' + (it.msg || '')); bids.forEach(b => per.get(pid).bids.add(b));
+    }
+    let n = 0;
+    for (const [pid, x] of per) {
+      const p = [...book.querySelectorAll('section.page')].find(s => s.id === pid); if (!p) continue;
+      n++; p.setAttribute('data-ed-chg', [...x.msgs].join(' · ').slice(0, 300));
+      for (const b of x.bids) { const el = p.querySelector(`:scope > [data-b="${CSS.escape(b)}"]`); if (el) el.setAttribute('data-ed-chg', ''); }
+    }
+    btn.hidden = !n; btn.textContent = 'Seen (' + n + ')';
+    renderPages();
+  }
+  btn.onclick = async () => {
+    const at = new Date().toISOString();
+    for (const it of open()) { it.status = 'seen'; it.resolved = { when: at }; }
+    const text = JSON.stringify(data, null, 1) + '\n'; last = text; mark();
+    try { const r = await fetch('../api/file/' + ch + '?name=changes.json', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: text }); if (!r.ok) toast('Could not save: ' + r.status); }
+    catch (e) { toast('Could not save the seen marks'); }
+  };
+  load(); setInterval(() => { if (!document.hidden) load(); }, 60000);
+  if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', e => { if ((e.data || {}).type === 'sync' && e.data.state === 'synced') load(); });
+  window.EditorChanges = { load, mark };
+
+  const errs = [];
+  addEventListener('error', e => { errs.push(String(e.message || e)); if (errs.length > 10) errs.shift(); });
+  addEventListener('unhandledrejection', e => { errs.push('promise: ' + String(e.reason && e.reason.message || e.reason)); if (errs.length > 10) errs.shift(); });
+  const more = $('#dd-more .ddp'), rb = h('<button id="x-report" title="Tell Claude something is wrong: your note, the page you are on and this device\'s details go in as a comment Claude reads">Report a problem…</button>');
+  more.insertBefore(rb, $('#x-help'));
+  rb.onclick = () => {
+    $('#dd-more').open = false;
+    const pg = curPage; if (!pg) return toast('Click a page first');
+    const box = modal(`<h3>Report to Claude</h3><p class="note">It goes in as a comment on page ${esc(pg.id)}, with this device's details.</p><textarea id="rp-t" rows="5" style="width:100%" placeholder="What went wrong? What did you do, what did you expect?"></textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button id="rp-x">Cancel</button><button id="rp-go" class="primary">Send</button></div>`);
+    box.querySelector('#rp-t').focus();
+    box.querySelector('#rp-x').onclick = () => { $('#modal').hidden = true; };
+    box.querySelector('#rp-go').onclick = () => {
+      const text = box.querySelector('#rp-t').value.trim(); if (!text) return;
+      const vv = window.visualViewport;
+      const d = { at: new Date().toISOString(), ua: navigator.userAgent, url: location.pathname + location.search, page: pg.id, view: Book.view, version: info.version || '',
+        screen: innerWidth + 'x' + innerHeight + '@' + devicePixelRatio, vv: vv ? { scale: +vv.scale.toFixed(3) } : null, sel: sel ? (sel.dataset.b || sel.tagName) : null, errors: errs.slice() };
+      commit(true);
+      const c = document.createElement('div'); c.className = 'cmt'; c.dataset.by = me; c.dataset.when = stamp(); c.dataset.id = 'c-' + uid().slice(2);
+      c.dataset.kind = 'report'; c.setAttribute('data-diag', JSON.stringify(d)); c.textContent = 'Report: ' + text;
+      let first = pg.firstElementChild; while (first && first.classList.contains('cmt')) first = first.nextElementSibling; pg.insertBefore(c, first);
+      commit(true); renderInspector(); placeMarkers();
+      $('#modal').hidden = true; toast('Sent: Claude sees it as a comment on this page');
+    };
+  };
 })();
 })();

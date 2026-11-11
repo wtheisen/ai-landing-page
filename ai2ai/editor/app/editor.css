@@ -642,3 +642,8 @@ body.tokpanel #insp, body.tokpanel #tg-insp, body.review #tokpanel, body.tokpane
 #eqpop .ep-bar .sp { flex: 1; }
 #eqpop .ep-hint { color: #8a94a3; font-size: 11px; }
 #eqpop button { font: 12px system-ui, sans-serif; padding: 2px 8px; }
+
+/* pages and blocks Claude changed since Eric last looked (harness, 2026-11-11; data-ed-chg is never saved) */
+#pages li.claude .t::before { content: '● '; color: #1a73e8; font-size: 9px; vertical-align: 1px; }
+#pg-claude { color: #1a73e8; font-weight: 600; }
+section.page > [data-ed-chg] { box-shadow: -5px 0 0 -2px #8ab4f8; }

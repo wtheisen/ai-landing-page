@@ -163,6 +163,7 @@ async function list() {
   const planned = units.reduce((k, u) => k + u.items.filter(i => !i.slug).length, 0);
   let html = tabs + `<div class="shelf-bar"><span class="note">Drag a cover to reorder${matchMedia('(pointer: coarse)').matches ? ' (press and hold first)' : ''}.</span>`
     + (planned ? `<button class="mini" id="tg-planned">${showPlanned ? 'Hide' : 'Show'} planned (${planned})</button>` : '') + '</div>';
+  const side = await sideState();
   const card = async (it, u, num) => {
     if (!it.slug) return showPlanned ? `<div class="book planned" data-key="${esc(it.key)}"><div class="cv"><div class="cv-text"><div class="kicker">${esc(num)}</div><div class="cv-title">${esc(it.title)}</div><div class="rule"></div></div><div class="cv-plan">Planned</div></div></div>` : '';
     const c = chapters[it.slug], [have, need] = await Sync.coverage(it.slug), full = need && have >= need;
@@ -170,7 +171,7 @@ async function list() {
     return `<div class="book" data-key="${esc(it.key)}" data-slug="${esc(it.slug)}">
       <a class="cv" href="edit/${href}" draggable="false">${c.art ? `<span class="cv-art" data-art="chapters/${esc(it.slug)}/${esc(c.art)}"><img alt="" draggable="false"${arts[`chapters/${it.slug}/${c.art}`] ? ` src="${arts[`chapters/${it.slug}/${c.art}`]}"` : ''}></span>` : '<span class="cv-art none"></span>'}
         <span class="cv-text"><span class="kicker">${esc(num)}</span><span class="cv-title">${esc(c.title)}</span><span class="rule"></span></span></a>
-      <div class="meta">${c.dirty ? '<span class="edited">Edited here</span>' : ''}<span class="off ${full ? 'full' : ''}">${full ? 'Offline ✓' : need ? `<a href="#" data-dl="${esc(it.slug)}">Download</a> ${have}/${need}` : ''}</span></div>
+      <div class="meta">${side.claims[it.slug] ? `<span class="claim" title="A Claude session is working on this chapter: ${esc(side.claims[it.slug].what || '')} (until ${esc((side.claims[it.slug].expires || '').slice(11, 16))})">Claude working</span>` : ''}${side.changed[it.slug] ? `<span class="chg" title="Pages Claude changed since you last looked (blue dots in the editor's page list)">● ${side.changed[it.slug]} changed</span>` : ''}${c.dirty ? '<span class="edited">Edited here</span>' : ''}<span class="off ${full ? 'full' : ''}">${full ? 'Offline ✓' : need ? `<a href="#" data-dl="${esc(it.slug)}">Download</a> ${have}/${need}` : ''}</span></div>
       <div class="acts"><a class="btn" href="view/${href}">Read</a><a class="btn" href="edit/${href}">Edit</a><a class="btn lect" href="view/${href}?view=slides&lecture=1" title="Teach from this device: the Lecture with the pen in hand and the faint answers hidden (safe to mirror to the projector)">Lecture</a><a class="ans" href="view/${href}?view=slides&lecture=answers" title="For a second screen: the Lecture with the faint answers showing">answers</a>${cfg && cfg.kind === 'github' ? `<a class="pub" href="#" data-pub="${esc(it.slug)}" title="Put this chapter's current version on the website (pages and PDFs). Every chapter edited since its last publish also goes up each night.">Publish to the site</a>` : ''}</div></div>`;
   };
   for (const u of units) {
@@ -219,6 +220,43 @@ async function siteStatus() {
     + (l.error ? 'the run failed' : (l.failed || []).length ? 'failed: ' + esc(l.failed.join(', ')) : (l.ok || []).length ? (l.ok.length === 1 ? esc(l.ok[0]) : l.ok.length + ' chapters') + ' ✓' : 'nothing had changed ✓')
     + (over.length ? ' · pages running over: ' + esc(over.join(', ')) : '')
     + (bad || over.length ? ' · <a href="' + runs + '" target="_blank" rel="noopener">details</a>' : '');
+}
+
+// Working with Claude (2026-11-11, tools/agent/harness.py): claims.json says which chapters a Claude session is working
+// on, <slug>/changes.json which pages Claude changed since Eric last looked, decisions.json the questions Claude has
+// for him. All three sync like any chapter file; answering a question here writes decisions.json and syncs.
+async function readJSON(path) { const f = await Files.get(path); try { return f && typeof f.data === 'string' ? JSON.parse(f.data) : { items: [] }; } catch (e) { return { items: [] }; } }
+async function sideState() {
+  const claims = {}, changed = {}, now = new Date();
+  for (const it of (await readJSON('chapters/claims.json')).items || []) if ((it.status || 'open') === 'open' && new Date(it.expires) > now) claims[it.slug] = it;
+  for (const f of await Files.under('chapters/')) {
+    const m = /^chapters\/([^/]+)\/changes\.json$/.exec(f.path); if (!m) continue;
+    let d; try { d = JSON.parse(f.data); } catch (e) { continue; }
+    const pages = new Set(); for (const it of d.items || []) if ((it.status || 'open') === 'open') Object.keys(it.pages || {}).forEach(p => pages.add(p));
+    if (pages.size) changed[m[1]] = pages.size;
+  }
+  asks();
+  return { claims, changed };
+}
+async function asks() {
+  const box = $('#asks'); if (!box) return;
+  const d = await readJSON('chapters/decisions.json'), open = (d.items || []).filter(i => (i.status || 'open') === 'open');
+  box.hidden = !open.length; if (!open.length) return;
+  box.innerHTML = `<h2>Claude has ${open.length === 1 ? 'a question' : open.length + ' questions'} for you</h2>` + open.map(i => `<div class="q" data-id="${esc(i.id)}">
+    <div class="where">${esc(i.slug)}${i.page ? ' · page ' + esc(i.page) : ''} · ${esc((i.when || '').slice(0, 16).replace('T', ' '))}</div>
+    <div>${esc(i.q)}</div>${i.note ? `<div class="note">${esc(i.note)}</div>` : ''}
+    <div class="opts">${(i.options || []).map(o => `<button data-ans="${esc(o)}">${esc(o)}</button>`).join('')}<input placeholder="Or write your own answer" data-own><button data-own-go>Send</button></div></div>`).join('');
+  box.querySelectorAll('.q').forEach(q => {
+    const answer = async a => {
+      if (!a) return;
+      const cur = await readJSON('chapters/decisions.json'), it = (cur.items || []).find(x => x.id === q.dataset.id); if (!it) return;
+      Object.assign(it, { status: 'answered', answer: a, resolved: { when: new Date().toISOString(), by: 'Eric' } });
+      await Files.put('chapters/decisions.json', JSON.stringify(cur, null, 1) + '\n');
+      q.remove(); msg('Answer saved; Claude files it in the decisions log.'); swSync(); asks();
+    };
+    q.querySelectorAll('[data-ans]').forEach(b => b.onclick = () => answer(b.dataset.ans));
+    q.querySelector('[data-own-go]').onclick = () => answer(q.querySelector('[data-own]').value.trim());
+  });
 }
 
 async function publish(slug, a) {

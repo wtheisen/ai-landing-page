@@ -200,6 +200,44 @@ function splitBlocks(lines) {
   }
   return { head: head.join('\n'), tail: tail.join('\n'), order: blocks.map(x => x[0]), map: new Map(blocks.map(([k, l]) => [k, l.join('\n')])) };
 }
+// The same drawing changed on both sides (2026-11-11): merge it shape by shape, a shape keyed by its exact text (an
+// edited shape = the old one gone plus a new one). Still a clash: the drawing's own tag changed on both sides, or a
+// shape both sides removed while both added others (most likely both edited it). Same as drive_sync.py merge_draw.
+function splitDraw(s) {
+  const lines = s.split('\n');
+  if (lines.length < 3 || !/^\s*<svg\b[^>]*\bclass="draw/.test(lines[0]) || lines[lines.length - 1].trim() !== '</svg>') return null;
+  const inner = lines.slice(1, -1), kids = [], ind = /^\s*/.exec(inner[0])[0];
+  for (const ln of inner) {
+    const c = ln.slice(ind.length, ind.length + 1);
+    if (ln.startsWith(ind) && c !== ' ' && c !== '\t' && c !== '' && !ln.slice(ind.length).startsWith('</')) kids.push([ln]);
+    else if (kids.length) kids[kids.length - 1].push(ln); else return null;
+  }
+  return [lines[0], kids.map(k => k.join('\n')), lines[lines.length - 1]];
+}
+function mergeDraw(b, m, t) {
+  if (b === undefined) return null;
+  const B = splitDraw(b), M = splitDraw(m), T = splitDraw(t);
+  if (!B || !M || !T) return null;
+  const head = M[0] === T[0] ? M[0] : M[0] === B[0] ? T[0] : T[0] === B[0] ? M[0] : null;
+  if (head === null) return null;
+  const count = l => { const c = new Map(); for (const k of l) c.set(k, (c.get(k) || 0) + 1); return c; };
+  const minus = (x, y) => { const r = new Map(); for (const [k, n] of x) { const d = n - (y.get(k) || 0); if (d > 0) r.set(k, d); } return r; };
+  const cb = count(B[1]), cm = count(M[1]), ct = count(T[1]);
+  const goneM = minus(cb, cm), goneT = minus(cb, ct), addM = minus(cm, cb), addT = minus(ct, cb);
+  if ([...goneM.keys()].some(k => goneT.has(k)) && addM.size && addT.size) return null;
+  const out = [], drop = new Map(goneT);
+  for (const k of M[1]) { if ((drop.get(k) || 0) > 0 && cb.has(k)) { drop.set(k, drop.get(k) - 1); continue; } out.push(k); }
+  const already = new Map(addM);
+  T[1].forEach((k, i) => {
+    if (!(addT.get(k) > 0)) return;
+    addT.set(k, addT.get(k) - 1);
+    if (already.get(k) > 0) { already.set(k, already.get(k) - 1); return; }
+    let at = -1;
+    for (let j = i - 1; j >= 0; j--) if (out.includes(T[1][j])) { at = out.lastIndexOf(T[1][j]); break; }
+    out.splice(at + 1, 0, k);
+  });
+  return [head, ...out, M[2]].join('\n');
+}
 function mergeBlocks(cb, cm, ct) {
   const B = splitBlocks(cb), M = splitBlocks(cm), T = splitBlocks(ct);
   if ([B, M, T].some(x => x.order.some(k => k[0] === '?'))) return null;   // a block without data-b: no stable key
@@ -212,6 +250,7 @@ function mergeBlocks(cb, cm, ct) {
     const b = B.map.get(k), m = M.map.get(k), t = T.map.get(k);
     if (m === t) return m; if (m === b) return t; if (t === b) return m;
     if (m === undefined) return t; if (t === undefined) return m;
+    const d = mergeDraw(b, m, t); if (d !== null) return d;
     ok = false; return m;
   };
   // the order: kept by whichever side didn't reorder the blocks both still have
@@ -303,7 +342,7 @@ function mergeItems(mine, theirs) {
 
 // ---------------------------------------------------------------- sync
 const OFFLINE_SKIP = /(^|\/)(markup|dist|\.history)\/|\.pdf$/;   // never needed to edit a chapter
-const CORE = p => /^chapters\/[^/]+\/(chapter\.html|suggestions\.json|tasks\.json)$/.test(p) || /^chapters\/(toc[\w-]*|books)\.json$/.test(p) || p === 'chapters/vocab/vocabs.json';   // always kept on the device (every book's contents file)
+const CORE = p => /^chapters\/[^/]+\/(chapter\.html|suggestions\.json|tasks\.json|changes\.json)$/.test(p) || /^chapters\/(toc[\w-]*|books|claims|decisions)\.json$/.test(p) || p === 'chapters/vocab/vocabs.json';   // always kept on the device (every book's contents file)
 let running = null;
 const stamp = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
 const Sync = {
@@ -346,7 +385,7 @@ const Sync = {
       const cur = await Store.get('files', l.path);
       let data, clash;
       if (/chapter\.html$/.test(l.path) && typeof cur.data === 'string') { const m = mergeChapter(base, cur.data, theirs, stamp()); data = m.text; clash = m.clashes.length ? m.clashes : null; }
-      else if (/\/(suggestions|tasks)\.json$/.test(l.path) && typeof cur.data === 'string' && typeof theirs === 'string' && mergeItems(cur.data, theirs)) { data = mergeItems(cur.data, theirs); clash = null; }
+      else if (/\/(suggestions|tasks|changes|claims|decisions)\.json$/.test(l.path) && typeof cur.data === 'string' && typeof theirs === 'string' && mergeItems(cur.data, theirs)) { data = mergeItems(cur.data, theirs); clash = null; }
       else { const m = mergeOther(base, cur.data, theirs); data = m.data; clash = m.clash ? ['whole file'] : null; }
       const still = typeof data === 'string' && typeof theirs === 'string' ? data !== theirs : true;
       await Store.put('files', Object.assign(cur, { data, sha, dirty: still, rev: cur.rev + 1, t: Date.now() }));
@@ -403,5 +442,5 @@ const Sync = {
   },
 };
 
-G.AI2AI = { Store, Files, Sync, remote, config, blobSha, mimeOf, isText, OFFLINE_SKIP, mergeChapter, mergeItems };
+G.AI2AI = { Store, Files, Sync, remote, config, blobSha, mimeOf, isText, OFFLINE_SKIP, mergeChapter, mergeItems, mergeDraw };
 })(typeof self !== 'undefined' ? self : window);

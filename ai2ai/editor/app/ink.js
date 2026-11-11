@@ -350,6 +350,7 @@ function eaiInk(opts) {
       if (b.dataset.a === 'pdf') notesPDF();
       if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter (this view)?')) { mine.strokes = []; mine.pages = []; undo = []; store(KEY_MINE, mine); render(); }
       if (b.dataset.a === 'publish') { ensureTarget(); publish(); }
+      if (b.dataset.a === 'report') report();
       barState();
     });
     bar.addEventListener('change', function (e) {
@@ -368,10 +369,41 @@ function eaiInk(opts) {
     var right = bar.querySelector('.right'), h = '';
     if (layers.length) h += '<select id="ink-pick" title="Lecture notes"' + (editing && target !== mine ? ' disabled' : '') + '><option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '"' + (pub && pub.id === l.id ? ' selected' : '') + '>Notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ')') + '</option>'; }).join('') + '</select>';
     if (teacher() && VIEW === 'slides' && /[?&]lecture=1/.test(location.search)) h += '<span class="pres" title="Opened from the Lecture button: the faint answers are hidden, safe to mirror to the projector">Presenting</span>';
+    if (EDITOR_VIEW) h += '<button data-a="report" class="quiet" title="Tell Claude something is wrong on this page: your note plus this device\'s details go in as a comment on the page">Report</button>';
     h += teacher() ? '<button data-a="publish" class="act" title="publish today\'s notes for students">Publish</button>'
                    : '<button data-a="clear" class="quiet" title="erase all of my notes on this view">Clear mine</button>';
     right.innerHTML = h;
     msg(editing ? (target === mine ? 'My notes · this device only' : 'Lecture notes · ' + target.title + ' (draft)') : '');
+  }
+  // Report (2026-11-11): only in the editor's viewer (/view/<slug>, which has the editor's api): a note to Claude
+  // with what Claude can't see from here (device, zoom, the page, the last errors), saved as a comment on the page.
+  var EDITOR_VIEW = /\/view\/[\w-]+\/?$/.test(location.pathname), ERRS = [];
+  addEventListener('error', function (e) { ERRS.push(String(e.message || e)); if (ERRS.length > 10) ERRS.shift(); });
+  addEventListener('unhandledrejection', function (e) { ERRS.push('promise: ' + String(e.reason && e.reason.message || e.reason)); if (ERRS.length > 10) ERRS.shift(); });
+  function diag() {
+    var vv = window.visualViewport, pg = currentPage();
+    return { at: new Date().toISOString(), ua: navigator.userAgent, url: location.pathname + location.search, page: pg && pg.id,
+      view: VIEW, lecture: LECT || '', screen: innerWidth + 'x' + innerHeight + '@' + devicePixelRatio, vv: vv ? { scale: +vv.scale.toFixed(3), x: Math.round(vv.offsetLeft), y: Math.round(vv.offsetTop) } : null,
+      zoom: getComputedStyle(document.documentElement).getPropertyValue('--zoom').trim(), lectK: window.eaiLectK || null, tool: tool, errors: ERRS.slice() };
+  }
+  function report() {
+    var old = document.getElementById('ink-report'); if (old) return old.remove();
+    var pg = currentPage(), box = document.createElement('div'); box.id = 'ink-report'; box.className = 'ink-report';
+    box.style.cssText = 'position:fixed;z-index:80;right:12px;top:52px;width:min(360px,90vw);background:#fff;border:1px solid #bbb;border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,.2);padding:10px;font:14px Arial,sans-serif';
+    box.innerHTML = '<div style="margin-bottom:6px"><b>Report to Claude</b> <span style="color:#777">page ' + (pg ? pg.id : '?') + '</span></div>'
+      + '<textarea rows="4" style="width:100%;box-sizing:border-box;font:14px Arial,sans-serif" placeholder="What went wrong? (what you did, what you expected)"></textarea>'
+      + '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px"><button data-r="x">Cancel</button><button data-r="go" style="font-weight:bold">Send</button></div>';
+    document.body.appendChild(box); box.querySelector('textarea').focus();
+    box.onclick = function (e) {
+      var r = e.target.dataset && e.target.dataset.r; if (!r) return;
+      if (r === 'x') return box.remove();
+      var text = box.querySelector('textarea').value.trim(); if (!text) return;
+      var slug = location.pathname.replace(/\/$/, '').split('/').pop();
+      e.target.disabled = true; e.target.textContent = 'Sending…';
+      fetch('../api/report/' + slug, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ page: pg && pg.id, text: text, diag: diag() }) })
+        .then(function (x) { return x.json().then(function (j) { if (!x.ok) throw new Error(j.error || x.status); }); })
+        .then(function () { box.remove(); msg('Sent: Claude sees it as a comment on this page.'); }, function (err) { e.target.disabled = false; e.target.textContent = 'Send'; msg('Not sent: ' + err.message); });
+    };
   }
   function start() {
     if (editing) return barState(); editing = true; undo = [];

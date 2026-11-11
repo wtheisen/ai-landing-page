@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = 'a73db657f2', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = '3af8e8691a', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/
@@ -142,9 +142,17 @@ async function api(req, u, parts) {
   }
   if (kind === 'file') {   // suggestions.json / tasks.json beside the chapter (tools/agent)
     const name = q.get('name') || '';
-    if (!['suggestions.json', 'tasks.json'].includes(name)) return json(400, { error: 'not a file the editor writes' });
+    if (!['suggestions.json', 'tasks.json', 'changes.json'].includes(name)) return json(400, { error: 'not a file the editor writes' });
     const text = await req.text(); try { JSON.parse(text); } catch (e) { return json(400, { error: 'not JSON' }); }
     await Files.put('chapters/' + ch + '/' + name, text); soon();
+    return json(200, { ok: true, local: true });
+  }
+  if (kind === 'report') {   // a Report from the viewer's pen bar: a comment on the page (ink.js report, server.py the same)
+    const d = await req.json().catch(() => ({}));
+    const out = addReport(cf.data, d, stamp2());
+    if (!out) return json(400, { error: 'no such page' });
+    await snapshot(ch, cf, false);
+    await Files.put(chapterPath(ch), out); soon();
     return json(200, { ok: true, local: true });
   }
   if (kind === 'eq') return json(422, { error: 'New equations can\'t be drawn on this device yet (coming soon). It will draw when the chapter is next opened on the Mac.' });
@@ -153,6 +161,19 @@ async function api(req, u, parts) {
   return json(404, { error: 'not found' });
 }
 
+// A page-level comment from a Report, put first on the page (after any comments already there). Same text as
+// server.py add_report: Eric's words, plus the device details as data-diag for Claude (tools/agent/tasks.py shows them).
+const stamp2 = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`; };
+function addReport(html, d, when) {
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const page = String(d.page || ''), text = String(d.text || '').trim(); if (!text) return null;
+  const m = page ? new RegExp('<section\\b[^>]*\\bid="' + page.replace(/[^\w-]/g, '') + '"[^>]*>').exec(html) : null;
+  if (!m) return null;
+  const id = 'c-' + Math.random().toString(36).slice(2, 7);
+  const div = `\n  <div class="cmt" data-by="Eric" data-when="${when}" data-id="${id}" data-kind="report" data-diag="${esc(JSON.stringify(d.diag || {}))}">Report: ${esc(text)}</div>`;
+  const at = m.index + m[0].length;
+  return html.slice(0, at) + div + html.slice(at);
+}
 async function same(a, b) {
   if (typeof a === 'string' && typeof b === 'string') return a === b;
   const bytes = async x => new Uint8Array(typeof x === 'string' ? new TextEncoder().encode(x) : await x.arrayBuffer());
