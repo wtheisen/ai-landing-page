@@ -425,6 +425,7 @@ const SYM_COLS = {
   gray: ['#CCCCCC', '#666666', '#666666'] };
 Book.SYM_COLS = SYM_COLS;
 Book.SYM_FAMS = Object.keys(SYM_COLS);
+if (typeof document !== 'undefined' && document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (Book.root) Book.drawSyms(Book.root); });   // tiles measured before the Ω font arrived fit again
 const LEGACY_FAM = { wblue: 'blue', blue: 'blue', red: 'red', gray: 'gray', grey: 'gray', gold: 'gold', green: 'green', purple: 'purple', navy: 'navy', teal: 'teal', orange: 'orange' };
 // 'Ω_zx^T' / 'c_{t−1}' / 'c̃_t' → { base, sub, sup }: '_' and '^' take a {…} group or the rest of the word
 Book.symParse = s => {
@@ -511,9 +512,40 @@ Book.drawSym = g => {
   if (sub) { setA(sub, 'x', rn(cx)); setA(sub, 'y', rn(base + sfs * 1.45)); }
   return Math.abs(w - w0) > 0.05 || Math.abs(h - h0) > 0.05;
 };
+// a row of symbol tiles and operator labels (g[data-row]: an equation box, or a row the Symbol tool made) is laid
+// out again every time, so it stays evenly spaced when a tile changes width (retyped, a late font); a box (the row's
+// own rect) is sized round the row and keeps its centre, a row without a box keeps its left edge
+Book.layRow = g => {
+  const r = g.querySelector(':scope > rect'), items = [...g.children].filter(c => c.matches('g[data-sym]') || c.localName === 'text');
+  if (!items.length) return false;
+  const lab = el => el.localName === 'g' ? el.querySelector(':scope > text:not(.tk-sub)') : el, fs = parseFloat(lab(items[0]).getAttribute('font-size')) || 9, gap = fs * 0.28;
+  const num = (el, k) => parseFloat(el.getAttribute(k)) || 0;
+  const ws = items.map(el => { if (el.localName === 'g') return num(el.querySelector(':scope > rect'), 'width'); try { return el.getComputedTextLength(); } catch (e) { return 0; } });
+  if (ws.some(w => !w)) return false;   // not laid out yet (a hidden page)
+  const tot = ws.reduce((a, b) => a + b, 0) + gap * (items.length - 1), t0 = items.find(el => el.localName === 'g');
+  const tr = t0 && t0.querySelector(':scope > rect');
+  let x0, cy;
+  if (r) { cy = num(r, 'y') + num(r, 'height') / 2; x0 = num(r, 'x') + num(r, 'width') / 2 - tot / 2; }
+  else { cy = tr ? num(tr, 'y') + num(tr, 'height') / 2 : num(items[0], 'y') - fs * 0.36; x0 = items[0].localName === 'g' ? num(items[0].querySelector(':scope > rect'), 'x') : num(items[0], 'x'); }
+  let x = x0, changed = false;
+  items.forEach((el, i) => {
+    if (el.localName === 'g') {
+      const rr = el.querySelector(':scope > rect'), y = cy - num(rr, 'height') / 2;
+      if (Math.abs(num(rr, 'x') - x) > 0.05 || Math.abs(num(rr, 'y') - y) > 0.05) { setA(rr, 'x', rn(x)); setA(rr, 'y', rn(y)); Book.drawSym(el); changed = true; }
+    } else { setA(el, 'x', rn(x)); setA(el, 'y', rn(cy + fs * 0.36)); }
+    x += ws[i] + gap;
+  });
+  if (r) {
+    const cx = num(r, 'x') + num(r, 'width') / 2, w = tot + fs * 1.2, th = Math.max(...items.filter(el => el.localName === 'g').map(el => num(el.querySelector(':scope > rect'), 'height')), fs) + fs * 0.7;
+    if (Math.abs(num(r, 'width') - w) > 0.05) { setA(r, 'x', rn(cx - w / 2)); setA(r, 'width', rn(w)); changed = true; }
+    if (num(r, 'height') < th - 0.05) { setA(r, 'y', rn(cy - th / 2)); setA(r, 'height', rn(th)); changed = true; }
+  }
+  return changed;
+};
 Book.drawSyms = root => {
   const changed = new Set();
   (root || Book.root || document).querySelectorAll('svg.draw g[data-sym]').forEach(g => { if (Book.drawSym(g)) changed.add(g.closest('svg')); });
+  (root || Book.root || document).querySelectorAll('svg.draw g[data-row]').forEach(g => { if (Book.layRow(g)) changed.add(g.closest('svg')); });
   if (changed.size && window.Draw && Draw.reconnect) changed.forEach(svg => Draw.reconnect(svg));
   return changed.size;
 };

@@ -444,23 +444,19 @@ function resym(g, text) {   // the tile now reads `text`: one symbol, or an equa
   const svg = g.ownerSVGElement, items = Book.symSplit(text);
   if (!items.some(i => i.sym)) { g.remove(); setShapes([]); E.commit(true); return []; }
   const fs = symFs(g), rb = lbox(g.querySelector(':scope > rect')), cy = (rb.y0 + rb.y1) / 2;
-  if (items.length === 1) { g.setAttribute('data-sym', items[0].sym); Book.drawSym(g); symColour([g]); reconnect(svg); setShapes([g], svg); E.commit(true); E.renderInspector(); return [g]; }
-  const out = [], gap = fs * 0.3; let x = rb.x0, prev = null, used = false;
+  if (items.length === 1) { g.setAttribute('data-sym', items[0].sym); Book.drawSym(g); symColour([g]); Book.drawSyms(svg.parentNode); reconnect(svg); setShapes([g], svg); E.commit(true); E.renderInspector(); return [g]; }
+  const inRow = g.parentNode && g.parentNode.matches && g.parentNode.matches('g[data-row]'), out = [];
+  let prev = null, used = false;
   for (const it of items) {
     let el;
-    if (it.sym) {
-      el = used ? newSymG(cy, fs) : g; if (used) prev.after(el); used = true;
-      el.setAttribute('data-sym', it.sym); Book.drawSym(el);
-      shiftSym(el, x - lbox(el.querySelector(':scope > rect')).x0, 0);
-      x = lbox(el.querySelector(':scope > rect')).x1 + gap;
-    } else {
-      el = svgEl('text', { x: r1(x), y: r1(cy + fs * 0.36), 'font-size': fs, fill: '#000000', 'font-family': OP_FONT, 'font-weight': 'bold' });
-      el.textContent = it.op; if (prev) prev.after(el); else g.before(el); symFont(el);
-      let w = 0; try { w = el.getComputedTextLength(); } catch (e) {} x += (w || it.op.length * fs * 0.55) + gap;
-    }
+    if (it.sym) { el = used ? newSymG(cy, fs) : g; if (used) prev.after(el); used = true; el.setAttribute('data-sym', it.sym); Book.drawSym(el); }
+    else { el = svgEl('text', { x: r1(rb.x0), y: r1(cy + fs * 0.36), 'font-size': fs, fill: '#000000', 'font-family': OP_FONT, 'font-weight': 'bold' }); el.textContent = it.op; if (prev) prev.after(el); else g.before(el); symFont(el); }
     out.push(el); prev = el;
   }
-  symColour(out.filter(isSym)); reconnect(svg); setShapes(out, svg); E.commit(true); E.renderInspector();
+  let row = inRow ? g.parentNode : null;
+  if (!row) { row = svgEl('g', { 'data-row': '', id: symId() }); out[0].before(row); out.forEach(el => row.append(el)); if (out[0].localName === 'g') { const r0 = out[0].querySelector(':scope > rect'); r0.setAttribute('x', r1(rb.x0)); } else out[0].setAttribute('x', r1(rb.x0)); }
+  Book.layRow(row);
+  symColour(out.filter(isSym)); Book.layRow(row); reconnect(svg); setShapes([row], svg); E.commit(true); E.renderInspector();
   return out;
 }
 // a plain tile's label as symbol markup: 'cₜ₋₁' → 'c_{t−1}', 'Ωᵀ' → 'Ω^T'; small raised/lowered tspans count too
@@ -478,14 +474,47 @@ function labelToSym(t) {
   const wrap = x => x.length > 1 ? '{' + x + '}' : x;
   return base.trim() + (sub ? '_' + wrap(sub) : '') + (sup ? '^' + wrap(sup) : '');
 }
+// a whole equation label as Symbol-tool text: 'zₜ = σ(xₜΩ…' with tspans → 'z_{t} = σ(x_{t}Ω_{zx}^{T} + …'
+function labelToEq(t) {
+  let out = '';
+  const put = (str, where) => { for (const ch of str) { if (UNSUB[ch]) out += '_{' + UNSUB[ch] + '}'; else if (UNSUP[ch]) out += '^{' + UNSUP[ch] + '}'; else if (where) out += (where === 'sub' ? '_{' : '^{') + ch + '}'; else out += ch; } };
+  const walk = n => { for (const c of n.childNodes) {
+    if (c.nodeType === 3) { put(c.nodeValue, null); continue; }
+    if (c.nodeType !== 1) continue;
+    const bs = c.getAttribute('baseline-shift') || '', bn = parseFloat(bs) || 0, dy = parseFloat(c.getAttribute('dy')) || 0;
+    const w = /super/.test(bs) || bn > 0 || dy < 0 ? 'sup' : /sub/.test(bs) || bn < 0 || dy > 0 ? 'sub' : null;
+    if (w) { const v = c.textContent; out += (w === 'sub' ? '_{' : '^{') + [...v].map(ch => UNSUB[ch] || UNSUP[ch] || ch).join('') + '}'; } else walk(c);
+  } };
+  walk(t);
+  return out.replace(/\}_\{/g, '').replace(/\}\^\{/g, '}^{');   // runs split over several tspans join up
+}
+// an equation box (a box and one label holding a whole equation): the label becomes a row of symbol tiles and
+// operators inside the box, centred; the box grows if the row needs it. The box keeps its id, so arrows stay.
+function tileBox(g) {
+  const r = g.querySelector(':scope > rect'), t = g.querySelector(':scope > text'), eq = labelToEq(t), items = Book.symSplit(eq);
+  if (!items.some(i => i.sym)) return [];
+  const fs = parseFloat(t.getAttribute('font-size')) || 9, rb = lbox(r), cy = (rb.y0 + rb.y1) / 2;
+  t.remove();
+  const els = [];
+  for (const it of items) {
+    let el;
+    if (it.sym) { el = newSymG(cy, fs, it.sym); g.append(el); Book.drawSym(el); }
+    else { el = svgEl('text', { x: 0, y: r1(cy + fs * 0.36), 'font-size': fs, fill: '#000000', 'font-family': OP_FONT, 'font-weight': 'bold' }); el.textContent = it.op; g.append(el); symFont(el); }
+    els.push(el);
+  }
+  g.setAttribute('data-row', '');
+  if (/^#FFF2CC$/i.test(r.getAttribute('fill') || '')) r.setAttribute('fill', '#FFFFFF');   // a tinted box would hide tiles of its own colour
+  Book.layRow(g);
+  return els.filter(isSym);
+}
 function makeSyms(list) {   // ordinary tiles (a box and its label, grouped) become symbol tiles, keeping their ids so arrows stay attached
   E.commit(true);
-  const out = []; let skipped = 0;
+  const out = []; let skipped = 0, boxes = 0;
   for (const s of list) {
     if (isSym(s)) { out.push(s); continue; }
     const r = s.querySelector(':scope > rect'), t = s.querySelector(':scope > text'); if (!r || !t) continue;
     const sym = labelToSym(t), more = [...s.querySelectorAll(':scope > text')].filter(c => c !== t);
-    if (/[\s=+⊙(),]/.test(sym) || Book.symSplit(sym).length > 1) { skipped++; continue; }   // an equation box, not one symbol: it stays (retype it with the Symbol tool to tile it)
+    if (/[\s=+⊙(),]/.test(sym) || Book.symSplit(sym).length > 1) { const made = tileBox(s); if (made.length) { out.push(...made); boxes++; } else skipped++; continue; }   // an equation box: tiled in place
     if (more.length) { const m = /^\s*[<⟨]\s*([^>⟩]+?)\s*[>⟩]\s*$/.exec(more[0].textContent); if (m) { s.setAttribute('data-dims', m[1].replace(/\s+/g, '')); more[0].remove(); } else { more[0].classList.add('tk-sub'); more.shift(); } }
     [...s.children].filter(c => c !== r && c !== t && !c.classList.contains('tk-sub')).forEach(c => c.remove());
     t.textContent = ''; t.removeAttribute('data-sl');
@@ -493,7 +522,8 @@ function makeSyms(list) {   // ordinary tiles (a box and its label, grouped) bec
     s.setAttribute('data-sym', sym); Book.drawSym(s); out.push(s);
   }
   symColour(out); if (layer) reconnect(layer);
-  if (skipped) E.toast(skipped + ' equation box' + (skipped > 1 ? 'es stay' : ' stays') + ' as ' + (skipped > 1 ? 'they are' : 'it is') + ': only single symbols become tiles');
+  if (skipped) E.toast(skipped + ' box' + (skipped > 1 ? 'es' : '') + ' with no symbol in ' + (skipped > 1 ? 'them stay' : 'it stays') + ' as ' + (skipped > 1 ? 'they are' : 'it is'));
+  else if (boxes) E.toast(boxes + ' equation box' + (boxes > 1 ? 'es' : '') + ' tiled in place');
   setShapes(out, layer); E.commit(true); E.renderInspector();
   return out;
 }
@@ -518,7 +548,7 @@ function symInspect(add) {
     if (one) {
       add(`<label>Symbol (x_t, Ω_zx^T, c_{t−1}, c̃_t)</label>`);
       const si = add(`<input type="text" class="mono" value="${esc(s).replace(/"/g, '&quot;')}">`);
-      si.onchange = () => { E.commit(true); one.setAttribute('data-sym', si.value.trim()); symLab(one).removeAttribute('data-sl'); Book.drawSym(one); symColour([one]); reconnect(svg); drawHandles(); E.commit(true); E.renderInspector(); };
+      si.onchange = () => { E.commit(true); one.setAttribute('data-sym', si.value.trim()); symLab(one).removeAttribute('data-sl'); Book.drawSym(one); symColour([one]); Book.drawSyms(svg.parentNode); reconnect(svg); drawHandles(); E.commit(true); E.renderInspector(); };
     }
     add(`<label>Colour of ${info.group ? 'every ' + esc(p.base) + ' (the ' + esc(info.id) + ' group)' : esc(info.key)}, everywhere in this chapter</label>`);
     const sw = add(`<div class="row sym-sw">${Book.SYM_FAMS.map(f => `<button data-f="${f}" title="${f}" class="${f === info.fam ? 'on' : ''}" style="background:${Book.SYM_COLS[f][0]};border-color:${Book.SYM_COLS[f][1]}"></button>`).join('')}</div>`);
@@ -768,6 +798,10 @@ book.addEventListener('dblclick', e => {
   if (shapes[0].localName === 'text') { e.preventDefault(); editLabel(shapes[0]); }
   else if (isTok(shapes[0])) { e.preventDefault(); editLabel(tokLab(shapes[0])); }
   else if (isSym(shapes[0])) { e.preventDefault(); editLabel(symLab(shapes[0])); }
+  else if (shapes[0].localName === 'g' && [...shapes[0].querySelectorAll('g[data-sym]')].some(n => { const r = n.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; })) {   // a symbol tile inside an equation box: retype it
+    e.preventDefault(); const n = [...shapes[0].querySelectorAll('g[data-sym]')].find(n => { const r = n.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; });
+    setShapes([n], layer); editLabel(symLab(n));
+  }
   else if (shapes[0].localName === 'g') {   // a tile (box + label grouped): edit the label under the pointer, the group stays (2026-10-29)
     const t = [...shapes[0].querySelectorAll('text')].reverse().find(n => { const r = n.getBoundingClientRect(); return e.clientX >= r.left - 3 && e.clientX <= r.right + 3 && e.clientY >= r.top - 3 && e.clientY <= r.bottom + 3; })
       || (shapes[0].querySelectorAll('text').length === 1 ? shapes[0].querySelector('text') : null);
