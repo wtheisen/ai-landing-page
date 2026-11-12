@@ -4210,13 +4210,15 @@ if (phone) {
       const opts = [...(own ? [] : [`<option value="" selected>${i.legacy ? 'Letter colour (' + NAME(i.fam) + ')' : 'None yet'}</option>`]), ...Book.SYM_FAMS.map(f => `<option value="${f}"${own === f ? ' selected' : ''}>${NAME(f)}</option>`)];
       const u = uses.get(k) || 0;
       return `<div class="nt-r" data-k="${hesc(k)}">${chip(s)}<span class="nt-k">${grp ? hesc(k) + ' group' : hesc(k)}</span><span class="nt-n" title="Tiles in this chapter">${u ? '×' + u : ''}</span><span class="sp"></span>
+        <input class="nt-sh mono" value="${hesc(((Book.meta.shapes || {})[k]) || '')}" placeholder="shape" title="Shape (rows,columns: 1,h or h,d); a transpose flips it">
         <select data-c title="Colour, everywhere in this chapter">${opts.join('')}</select>${u ? '<button data-a="go" title="Go to it">Go</button>' : ''}${own && !u ? '<button data-a="del" title="Remove from the table">✕</button>' : ''}</div>`;
     };
     const dims = Book.meta.dims ? Object.entries(Book.meta.dims).map(([a, b]) => a + '=' + b).join(' ') : '';
     panel.innerHTML = `<div class="qp-top"><b>Notation</b><span class="qp-n">${keys.length} quantities</span><span class="sp"></span><button data-a="close">Done</button></div>
       <div class="help">Every quantity in this chapter's drawings has its own colour, the same in every drawing. A key ending in * is a group sharing one colour (Ω* = every weight matrix). Time steps don't count: c_t and c_{t−1} are one quantity, c̃_t is another. New symbols get a free colour; change it here. Draw them with the Symbol tool.</div>
       ${cl.map((c, j) => `<div class="nt-err" data-j="${j}">Same colour (${NAME(c.fam)}) for ${c.syms.map(chip).join(' ')} in one drawing <button data-a="gocl">Go</button></div>`).join('')}
-      <label class="help" style="display:block">Sizes in this chapter, for the shape lines (h=10 d=784)</label><input class="nt-dims" value="${hesc(dims)}" spellcheck="false">
+      <label class="qp-un" style="display:block;font-size:12px;margin:2px 0"><input type="checkbox" data-o="sd" ${Book.meta.symDims ? 'checked' : ''}> Shapes under the tiles in the whole chapter</label>
+      <label class="help" style="display:block">Sizes in this chapter, for the shape lines (h=10 d=784; letters without a size show as letters)</label><input class="nt-dims" value="${hesc(dims)}" spellcheck="false">
       <div class="nt-list">${keys.map(row).join('') || '<div class="help">No symbol tiles yet.</div>'}</div>`;
     panel._cl = cl;
     const l = panel.querySelector('.nt-list'); if (l) l.scrollTop = scroll;
@@ -4242,6 +4244,8 @@ if (phone) {
       panel.addEventListener('change', e => {
         const el = e.target;
         if (el.matches('select[data-c]')) { const k = el.closest('.nt-r').dataset.k; commit(true); Book.meta.notation = Book.meta.notation || {}; if (el.value) Book.meta.notation[k] = el.value; else delete Book.meta.notation[k]; return redraw(); }
+        if (el.dataset.o === 'sd') { commit(true); if (el.checked) Book.meta.symDims = true; else delete Book.meta.symDims; return redraw(); }
+        if (el.matches('.nt-sh')) { const k = el.closest('.nt-r').dataset.k, v = el.value.replace(/[<>⟨⟩\s]/g, ''); commit(true); const sh = Book.meta.shapes = Book.meta.shapes || {}; if (v) sh[k] = v; else delete sh[k]; if (!Object.keys(sh).length) delete Book.meta.shapes; return redraw(); }
         if (el.matches('.nt-dims')) { commit(true); const d = {}; el.value.split(/[\s,;]+/).forEach(kv => { const m = /^([^=]+)=(.+)$/.exec(kv); if (m) d[m[1]] = /^\d+$/.test(m[2]) ? +m[2] : m[2]; }); if (Object.keys(d).length) Book.meta.dims = d; else delete Book.meta.dims; return redraw(); }
       });
     }

@@ -670,3 +670,4 @@ body.notepanel #insp, body.notepanel #tg-insp, body.review #notepanel, body.note
 #notepanel .nt-r button, #notepanel .nt-err button { padding: 0 6px; font-size: 11px; }
 #notepanel .nt-err { font-size: 12px; color: #CC0000; padding: 4px 0; border-bottom: 1px solid #f5dede; }
 #notepanel .nt-dims { width: 100%; box-sizing: border-box; padding: 3px 6px; border: 1px solid var(--border-strong); border-radius: 4px; font: 12px Consolas, monospace; }
+#notepanel .nt-sh { width: 46px; font-size: 11px; padding: 1px 3px; border: 1px solid var(--border); border-radius: 3px; }

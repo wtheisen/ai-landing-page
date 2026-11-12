@@ -570,7 +570,20 @@ function symInspect(add) {
     const cl = new Set(); list.forEach(g => symClashes(svg, g).forEach(x => cl.add(x)));
     if (cl.size) add(`<div class="help sym-warn">Some of these share a colour with another quantity in this drawing. Select one tile to fix it.</div>`);
   }
-  add(`<label>Shape under ${one ? 'it' : 'them'} (rows,columns: 1,h or 10,784; empty for none)</label>`);
+  { const sd = add(`<label class="check"><input type="checkbox" ${svg.classList.contains('symdims') ? 'checked' : ''}>Shapes under the tiles in this drawing</label>`);
+    sd.firstChild.onchange = e => { E.commit(true); svg.classList.toggle('symdims', e.target.checked); Book.drawSyms(svg.parentNode); drawHandles(); E.commit(true); E.renderInspector(); };
+    const shown = list.every(g => !!g.querySelector(':scope > text.tk-sub[data-auto]'));
+    const ti = add(`<label class="check"><input type="checkbox" ${shown ? 'checked' : ''}>Show ${list.length > 1 ? 'their shapes' : 'its shape'} (${list.length > 1 ? 'these tiles' : 'this tile'})</label>`);
+    ti.firstChild.onchange = e => { E.commit(true);
+      list.forEach(g => { g.removeAttribute('data-showdims'); Book.drawSym(g); const inh = !!g.querySelector(':scope > text.tk-sub[data-auto]'); if (e.target.checked !== inh) { g.setAttribute('data-showdims', e.target.checked ? 'on' : 'off'); Book.drawSym(g); } });
+      Book.drawSyms(svg.parentNode); drawHandles(); E.commit(true); }; }
+  if (keys.length === 1) {
+    const info = Book.symInfo(keys[0]), sk = (Book.meta.shapes || {})[info.key] !== undefined ? info.key : (Book.meta.shapes || {})[Book.symParse(keys[0]).base + '*'] !== undefined ? Book.symParse(keys[0]).base + '*' : info.key;
+    add(`<label>Shape of ${esc(sk)} everywhere in this chapter (rows,columns: 1,h or h,d; a transpose flips it)</label>`);
+    const qi = add(`<input type="text" class="mono" value="${esc((Book.meta.shapes || {})[sk] || '')}">`);
+    qi.onchange = () => { E.commit(true); const v = qi.value.replace(/[<>⟨⟩\s]/g, ''), sh = Book.meta.shapes = Book.meta.shapes || {}; if (v) sh[sk] = v; else delete sh[sk]; if (!Object.keys(sh).length) delete Book.meta.shapes; Book.drawSyms(Book.root); if (window.Notation) Notation.render(); drawHandles(); E.commit(true); };
+  }
+  add(`<label>Own shape under ${one ? 'it' : 'them'} (overrides the chapter's; empty for none)</label>`);
   const di = add(`<input type="text" class="mono" value="${esc(list.every(g => g.getAttribute('data-dims') === list[0].getAttribute('data-dims')) ? list[0].getAttribute('data-dims') || '' : '')}">`);
   di.onchange = () => { E.commit(true); list.forEach(g => { const v = di.value.replace(/[<>⟨⟩\s]/g, ''); if (v) g.setAttribute('data-dims', v); else g.removeAttribute('data-dims'); Book.drawSym(g); }); reconnect(svg); drawHandles(); E.commit(true); };
   add(`<label>Sizes in this drawing (h=2 d=784; letters not set here come from the chapter's sizes in Notation)</label>`);
@@ -584,7 +597,7 @@ function symInspect(add) {
   b.onclick = e => { const a = e.target.dataset.a; if (!a) return;
     if (a === 'table') return window.Notation && Notation.open();
     E.commit(true); list.forEach(g => { g.removeAttribute('data-sym'); g.removeAttribute('data-dims'); const t = g.querySelector('text.tk-sub'); if (t) { t.classList.remove('tk-sub'); t.removeAttribute('data-auto'); } const l = symLab(g); if (l) l.removeAttribute('data-sl'); }); E.commit(true); E.renderInspector(); };
-  add(`<div class="help">Its colour comes from the chapter's notation table, the same in every drawing. Double-click a tile to retype it; type a whole equation to get a row.</div>`);
+  add(`<div class="help">Its colour and shape come from the chapter's notation table, the same in every drawing. Double-click a tile to retype it; type a whole equation to get a row.</div>`);
 }
 function create(e, pg) {
   if (tool === 'poly' || tool === 'pline') return polyClick(e, pg);

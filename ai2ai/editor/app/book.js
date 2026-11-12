@@ -465,7 +465,22 @@ Book.symDims = (g, d) => {
   const svg = g && g.closest && g.closest('svg'), vars = {};
   Object.assign(vars, (Book.meta && Book.meta.dims) || {});
   String((svg && svg.getAttribute('data-vars')) || '').split(/[\s,;]+/).forEach(kv => { const m = /^([^=]+)=(.+)$/.exec(kv); if (m) vars[m[1]] = m[2]; });
-  return '<' + String(d).split(',').map(x => x.trim()).filter(Boolean).map(x => x in vars ? vars[x] : x).join(', ') + '>';
+  return '<' + String(d).split(',').map(x => x.trim()).filter(Boolean).map(x => x in vars ? vars[x] : x).join(',') + '>';
+};
+// a tile's shape: its own (data-dims), else its quantity's (book-meta shapes {key: '1,h'}, or its group's), with the
+// two flipped for a transpose (Ω_zx is h,d, so Ω_zx^T shows <d, h>). Shown like token IDs: a tile's own data-dims always,
+// the table's where the tile (data-showdims on), the drawing (class symdims), the page (data-symdims) or the chapter
+// (book-meta symDims) asks; data-showdims="off" hides it
+Book.symShape = g => {
+  const own = g.getAttribute('data-dims'), s = g.getAttribute('data-sym') || '', p = Book.symParse(s), sh = (Book.meta && Book.meta.shapes) || {};
+  const pg = g.closest && g.closest('section.page'), svg = g.closest && g.closest('svg'), show = g.getAttribute('data-showdims');
+  if (show === 'off') return null;
+  if (own) return own;
+  const on = show === 'on' || !!((svg && svg.classList.contains('symdims')) || (pg && pg.getAttribute('data-symdims') === 'on') || (Book.meta && Book.meta.symDims && !(pg && pg.getAttribute('data-symdims') === 'off')));
+  if (!on) return null;
+  const k = Book.symKey(s), d = sh[k] || sh[p.base + '*'];
+  if (!d) return null;
+  return p.sup === 'T' ? d.split(',').reverse().join(',') : d;
 };
 Book.symFontFamily = t => (/[Ωℒ]/.test(t) ? "'AI2AI Omega', " : '') + "Consolas, 'Inconsolata LGC', monospace";
 // the label's content: base, then the subscript and the superscript as tspans (the superscript stacked over the
@@ -496,16 +511,16 @@ Book.drawSym = g => {
   Book.symLabel(lab, s, fs);
   for (const [k, v] of [['fill', col[2]], ['font-family', Book.symFontFamily(s)], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(lab, k, v);
   // the shape (data-dims) is the second line; without it a typed second line (text.tk-sub) stays as it is
-  const dims = g.getAttribute('data-dims');
+  const dims = Book.symShape(g);
   if (dims) {
     if (!sub) { sub = document.createElementNS(NS, 'text'); sub.setAttribute('class', 'tk-sub'); lab.after(sub); }
     const t = Book.symDims(g, dims); if (sub.textContent !== t) sub.textContent = t;
-    for (const [k, v] of [['font-size', rn(fs * 0.55)], ['fill', col[2]], ['font-family', "Consolas, 'Inconsolata LGC', monospace"], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(sub, k, v);
+    for (const [k, v] of [['font-size', rn(fs * 0.48)], ['fill', col[2]], ['font-family', "Consolas, 'Inconsolata LGC', monospace"], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(sub, k, v);
   } else if (sub && sub.hasAttribute('data-auto')) { sub.remove(); sub = null; }
   if (sub && dims) sub.setAttribute('data-auto', '');
-  const sfs = sub ? parseFloat(sub.getAttribute('font-size')) || fs * 0.55 : 0;
+  const sfs = sub ? parseFloat(sub.getAttribute('font-size')) || fs * 0.48 : 0;
   let len = 0, slen = 0; try { len = lab.getComputedTextLength(); if (sub) slen = sub.getComputedTextLength(); } catch (e) {}
-  const w = len ? Math.max(Math.max(len, slen) + fs * 1.0, fs * 1.6) : w0, h = fs * 1.75 + (sub ? sfs * 1.35 : 0), top = cy - h / 2;
+  const w = len ? Math.max(len + fs * 1.0, slen + fs * 0.6, fs * 1.6) : w0, h = fs * 1.75 + (sub ? sfs * 1.3 : 0), top = cy - h / 2;
   setA(rect, 'x', rn(cx - w / 2)); setA(rect, 'width', rn(w)); setA(rect, 'y', rn(top)); setA(rect, 'height', rn(h));
   const base = top + fs * 1.18;
   setA(lab, 'x', rn(cx)); setA(lab, 'y', rn(base));
