@@ -229,7 +229,12 @@ b-eq.busy img { opacity: .35; }
 b-code:has(+ b-out) { margin-bottom: calc(-1 * var(--gap, 10pt)) !important; border-radius: 4px 4px 0 0; }
 b-code + b-out { border-top: 0; }
 b-out:not(b-code + b-out) { border-radius: 4px; }
-.run-bar { float: right; display: inline-flex; align-items: center; gap: 4pt; margin-top: -1pt; letter-spacing: 0; text-transform: none; }
+/* the Run bar sits in the output's label row, at its right, and wraps onto a row of its own inside the label when the label is narrow.
+   It used to float right: in a narrow output (a slide's right column, Safari's wider monospace fallback) the float dropped below
+   the label and Safari laid the output text in the sliver beside it (Eric, 2026-11-12, bptt lec-bp-run while presenting). */
+b-out .label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6pt; row-gap: 3pt; }
+.run-bar { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4pt; margin-left: auto; order: 1; letter-spacing: 0; text-transform: none; }   /* order: after the label's own text and the presenting hint (::after) */
+.run-bar button, .run-bar .run-status { white-space: nowrap; }
 .run-bar button { font: 700 7.5pt var(--font-mono); padding: 0 5pt; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); color: var(--ink-muted); cursor: pointer; }
 .run-bar button[data-a="run"] { color: var(--blue-text); border-color: var(--blue-text); }
 .run-bar.busy button[data-a="run"] { opacity: .5; pointer-events: none; }
