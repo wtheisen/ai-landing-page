@@ -595,6 +595,11 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { overflow: hidden; }
+/* an output beside its code keeps its Run bar in the gutter above the box, out of the flow, like the editor's (Eric,
+   2026-11-12: "why not have them just sit in the gutter like we do in the editor?"); in the label row the bar took the
+   narrow column's width and squeezed the output. Outputs under their code (out="below", Reading, Workbook) keep it in the label row. */
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) { position: relative; }
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) > .label > .run-bar { position: absolute; right: 0; bottom: calc(100% + 2pt); margin: 0; flex-wrap: nowrap; }
 /* class "side" on a block puts it beside the block before it on a slide (right column; the one before takes the left),
    e.g. the vocabulary table beside the token IDs (Eric, 2026-11-08). Other views stack them as usual. */
 .book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ .side), :has(+ .cmt + .side), :has(+ .cmt + .cmt + .side)) { grid-column: 1; align-self: center; min-width: 0; }
@@ -2084,8 +2089,6 @@ z
 
 
 
-
-
 <section class="page" id="unrolled" data-part="Backpropagation Through Time" data-view="reading" data-topic="unrolling" style="--gap: 19pt;">
   <h2 data-b="lfv3a">Training an RNN</h2>
   <p data-b="tbrwd">Last chapter's <b class="name">recurrent neural network</b> read the Victory March one word at a time, mixing each word with a hidden state carried over from the word before:</p>
@@ -3184,7 +3187,7 @@ L 63.24 61.766
   <p data-b="yd132">The two "dame"s get exactly the same input, so the only way to tell them apart is what the cell remembers. In this unit <b class="take">the cell state is <span class="num">−0.38</span> at the first "dame" and <span class="num">−6.33</span> at the second</b>, and the hidden state passes that on as <span class="num">−0.36</span> and <span class="num">−1.00</span>. Notice the forget gate, <span class="num">0.97</span> on the second "old" and "notre", keeping almost all of the old cell state each word.</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · LSTMs and GRUs</span><span>16</span></div></section>
 
-<section class="page" id="cell-memory" data-view="reading" data-topic="lstm vanishing" style="--gap: 19.4pt;">
+<section class="page" id="cell-memory" data-view="reading" data-topic="lstm vanishing" style="--gap: 19.5pt;">
   <h2 data-b="zmqco">Memory in the Cell State</h2>
   <p data-b="ha4xy">Pictured below is the same unit across the whole chorus. The cell state wanders well outside <span class="num">−1</span> to <span class="num">1</span>, while the hidden state, squashed by its tanh, never does:</p>
   <b-fig src="fig/lstm-memory.svg" data-pool="lstm-memory" alt="One unit of the trained LSTM across the 50 words: its cell state (navy) climbs to about 2.7 by word 12 and sinks steadily to about -8 at word 35, its hidden state (gold) stays between -1 and 1. The two dames are marked." data-b="mgka3" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">

@@ -595,6 +595,11 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { overflow: hidden; }
+/* an output beside its code keeps its Run bar in the gutter above the box, out of the flow, like the editor's (Eric,
+   2026-11-12: "why not have them just sit in the gutter like we do in the editor?"); in the label row the bar took the
+   narrow column's width and squeezed the output. Outputs under their code (out="below", Reading, Workbook) keep it in the label row. */
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) { position: relative; }
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) > .label > .run-bar { position: absolute; right: 0; bottom: calc(100% + 2pt); margin: 0; flex-wrap: nowrap; }
 /* class "side" on a block puts it beside the block before it on a slide (right column; the one before takes the left),
    e.g. the vocabulary table beside the token IDs (Eric, 2026-11-08). Other views stack them as usual. */
 .book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ .side), :has(+ .cmt + .side), :has(+ .cmt + .cmt + .side)) { grid-column: 1; align-self: center; min-width: 0; }
@@ -4034,7 +4039,7 @@ L 380.16 86.4
 </svg>
 </b-fig>
   <p data-align="center" data-b="zzwwn">After <b-tok v="march" t="wake" data-f="purple" title="Victory March words: &quot;wake&quot; = 5"><span class="tk-t">wake</span><span class="tk-id">5</span></b-tok> <b-tok v="march" t="up" data-f="green" title="Victory March words: &quot;up&quot; = 6"><span class="tk-t">up</span><span class="tk-id">6</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok>: <b-tok v="march" t="echoes" data-f="red" title="Victory March words: &quot;echoes&quot; = 8"><span class="tk-t">echoes</span><span class="tk-id">8</span></b-tok> gets <span class="num">0.090</span></p>
-  <div class="pushgap" data-rt="" aria-hidden="true" style="height: 152.9pt;"></div><p data-push="" data-align="center" data-b="dh3m9">This is identical to how an <b class="ex"><span class="mono">LLM</span></b> like <b class="name">ChatGPT</b> or <b class="name">Claude</b> creates output too!</p>
+  <div class="pushgap" data-rt="" aria-hidden="true" style="height: 152.8pt;"></div><p data-push="" data-align="center" data-b="dh3m9">This is identical to how an <b class="ex"><span class="mono">LLM</span></b> like <b class="name">ChatGPT</b> or <b class="name">Claude</b> creates output too!</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Sequence Data</span><span>08</span></div></section>
 
 <section class="page" id="lec-p-8g3f8" data-view="slides workbook" data-topic="rnn-equations" style="--gap: 22pt;">
@@ -7917,11 +7922,12 @@ L 380.16 62.4
  </defs>
 </svg>
 </b-fig>
+  
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Toward Attention</span><span>33</span></div></section>
 
 <section class="page" id="lec-rnn-attention" data-view="slides workbook" data-topic="attention" style="--gap: 22pt;">
   <h2 data-b="ezozb">Attention</h2>
-  <p data-b="lyzn6">Bahdanau, Cho and Bengio (<span class="num">2014</span>): before each word it writes, the decoder <u class="fill blank" style="width: 351.2pt;">&nbsp;</u></p>
+  <p data-b="lyzn6">Bahdanau, Cho and Bengio (<span class="num">2014</span>): before each token it writes, the decoder <u class="fill blank" style="width: 351.2pt;">&nbsp;</u></p>
   <svg class="draw" viewBox="0 0 380 192" style="width: 82%" role="img" aria-label="Attention, step by step: the encoder reads from, the, sky and keeps a hidden state c 1, c 2, c 3 for each word. The decoder state s is scored against each of them (s dot c j), a softmax turns the scores e into weights alpha, and the context v is the weighted sum of the c j. v goes into the decoder, which writes cielo." data-b="qby87">
     <defs>
       <marker id="ah666666-qby87" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
@@ -8835,93 +8841,8 @@ L 380.16 105
     <polyline points="282.0,147.0 282.0,130.0 332.0,130.0 332.0,147.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-k612a)"></polyline>
     <text x="204.0" y="92.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">one step from every word</text>
   </svg>
+  
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Toward Attention</span><span>36</span></div></section>
-
-<section class="page" id="lec-comeback" data-view="slides workbook" data-topic="rnn-comeback" style="--gap: 22pt;">
-  <h2 data-b="wvkz4">RNN Comeback? (Feb. 2026)</h2>
-  <p data-b="y5usy">Memory Caching (Behrouz and others, Google Research): an RNN that saves its hidden state at the end of every segment, so later words can <u class="fill blank" style="width: 382.3pt;">&nbsp;</u></p>
-  <svg class="draw" viewBox="0 0 384 140" style="width: 670.5pt" role="img" aria-label="Ten small gold boxes in a row joined by arrows, in three segments of three and then the word being read now. The last box of each segment sends a copy up to a saved box, and all three saved boxes send arrows back down to the current word." data-b="qnz5r">
-    <defs>
-      <marker id="ah000000-qnz5r" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-        <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
-      </marker>
-      <marker id="ahDCB439-qnz5r" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-        <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
-      </marker>
-    </defs>
-    <g id="memory-caching-qnz5r-s1">
-      <rect x="31.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="40.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <g id="memory-caching-qnz5r-s2">
-      <rect x="61.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="70.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <g id="memory-caching-qnz5r-s3">
-      <rect x="91.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="100.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <g id="memory-caching-qnz5r-s4">
-      <rect x="139.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="148.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <g id="memory-caching-qnz5r-s5">
-      <rect x="169.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="178.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <g id="memory-caching-qnz5r-s6">
-      <rect x="199.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="208.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <g id="memory-caching-qnz5r-s7">
-      <rect x="247.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="256.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <g id="memory-caching-qnz5r-s8">
-      <rect x="277.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="286.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <g id="memory-caching-qnz5r-s9">
-      <rect x="307.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="316.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <g id="memory-caching-qnz5r-s10">
-      <rect x="355.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="364.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
-    </g>
-    <line x1="49.0" y1="104.0" x2="61.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qnz5r)" data-a="memory-caching-qnz5r-s1" data-b="memory-caching-qnz5r-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="79.0" y1="104.0" x2="91.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qnz5r)" data-a="memory-caching-qnz5r-s2" data-b="memory-caching-qnz5r-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="109.0" y1="104.0" x2="139.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qnz5r)" data-a="memory-caching-qnz5r-s3" data-b="memory-caching-qnz5r-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="157.0" y1="104.0" x2="169.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qnz5r)" data-a="memory-caching-qnz5r-s4" data-b="memory-caching-qnz5r-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="187.0" y1="104.0" x2="199.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qnz5r)" data-a="memory-caching-qnz5r-s5" data-b="memory-caching-qnz5r-s6" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="217.0" y1="104.0" x2="247.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qnz5r)" data-a="memory-caching-qnz5r-s6" data-b="memory-caching-qnz5r-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="265.0" y1="104.0" x2="277.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qnz5r)" data-a="memory-caching-qnz5r-s7" data-b="memory-caching-qnz5r-s8" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="295.0" y1="104.0" x2="307.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qnz5r)" data-a="memory-caching-qnz5r-s8" data-b="memory-caching-qnz5r-s9" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="325.0" y1="104.0" x2="355.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qnz5r)" data-a="memory-caching-qnz5r-s9" data-b="memory-caching-qnz5r-s10" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <g id="memory-caching-qnz5r-s11">
-      <rect x="76.0" y="33.6" width="48.0" height="12.8" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <text x="100.0" y="42.7" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">saved 1</text>
-    </g>
-    <line x1="100.0" y1="96.0" x2="100.0" y2="46.4" stroke="#000000" stroke-width="1.00" stroke-dasharray="3 2" marker-end="url(#ah000000-qnz5r)" data-a="memory-caching-qnz5r-s3" data-b="memory-caching-qnz5r-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <text x="70.0" y="128.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">segment 1</text>
-    <g id="memory-caching-qnz5r-s12">
-      <rect x="184.0" y="33.6" width="48.0" height="12.8" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <text x="208.0" y="42.7" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">saved 2</text>
-    </g>
-    <line x1="208.0" y1="96.0" x2="208.0" y2="46.4" stroke="#000000" stroke-width="1.00" stroke-dasharray="3 2" marker-end="url(#ah000000-qnz5r)" data-a="memory-caching-qnz5r-s6" data-b="memory-caching-qnz5r-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <text x="178.0" y="128.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">segment 2</text>
-    <g id="memory-caching-qnz5r-s13">
-      <rect x="292.0" y="33.6" width="48.0" height="12.8" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <text x="316.0" y="42.7" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">saved 3</text>
-    </g>
-    <line x1="316.0" y1="96.0" x2="316.0" y2="46.4" stroke="#000000" stroke-width="1.00" stroke-dasharray="3 2" marker-end="url(#ah000000-qnz5r)" data-a="memory-caching-qnz5r-s9" data-b="memory-caching-qnz5r-s13" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <text x="286.0" y="128.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">segment 3</text>
-    <polyline points="100.0,33.6 100.0,8.0 370.0,8.0 370.0,96.0" fill="none" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-qnz5r)"></polyline>
-    <polyline points="208.0,33.6 208.0,14.0 364.0,14.0 364.0,96.0" fill="none" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-qnz5r)"></polyline>
-    <polyline points="316.0,33.6 316.0,20.0 358.0,20.0 358.0,96.0" fill="none" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-qnz5r)"></polyline>
-    <text x="364.0" y="128.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">now</text>
-  </svg>
-<div class="foot" data-rt=""><span>Backpropagation Through Time · Toward Attention</span><span>37</span></div></section>
 
 
 
