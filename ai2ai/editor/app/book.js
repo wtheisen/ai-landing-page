@@ -407,6 +407,132 @@ Book.drawToks = (root, then) => {
   if (changed.size && window.Draw && Draw.reconnect) changed.forEach(svg => Draw.reconnect(svg));   // arrows attached to a tile that changed width follow it
   return changed.size;
 };
+// ---------------------------------------------------------------- symbol tiles (Eric, 2026-11-12)
+// A maths symbol in a drawing is <g data-sym="Ω_zx^T" [data-dims="1,h"] id> holding a <rect> and a <text>. Its colour
+// comes from the chapter's notation table, book-meta notation {key: family}: every quantity gets its own colour, so two
+// different things never look alike ("the output from both gates are different things"), and a key ending in * is a
+// group sharing one colour (Ω* = every weight matrix). A quantity is the letter with its accent and its subscript, minus
+// a time or step index: c_t, c_{t−1} and c_2 are one quantity c, c̃_t is another; Z_z and Z_c̃ are two (both in Z* if
+// that group exists). Superscripts (ᵀ, layer marks) don't count. A symbol not in the table falls back to book-meta
+// colors by letter (what the equations use), then a grey dashed tile. Book.drawSym lays it out like a token tile:
+// colours, label with real sub/superscripts, the shape line (data-dims, letters from the drawing's data-vars or
+// book-meta dims), width round the label, outline a tenth of the font (a fifth with data-em).
+const SYM_COLS = {
+  red: ['#F4CCCC', '#E06666', '#CC0000'], pink: ['#F4D3E3', '#D47EA8', '#A64D79'], orange: ['#FCE5CD', '#E69138', '#B45F06'],
+  gold: ['#FFF2CC', '#DCB439', '#B8920F'], brown: ['#EFE2D2', '#B07D4F', '#783F04'], olive: ['#EDEFCF', '#A8A845', '#6B6B00'],
+  green: ['#D9EAD3', '#93C47D', '#38761D'], teal: ['#D0E0E3', '#76A5AF', '#134F5C'], blue: ['#C9DAF8', '#6D9EEB', '#1155CC'],
+  navy: ['#D3DCE8', '#5B7393', '#002B5B'], purple: ['#D9D2E9', '#8E7CC3', '#674EA7'], magenta: ['#F1D2EE', '#C267B5', '#8E2C80'],
+  gray: ['#CCCCCC', '#666666', '#666666'] };
+Book.SYM_COLS = SYM_COLS;
+Book.SYM_FAMS = Object.keys(SYM_COLS);
+const LEGACY_FAM = { wblue: 'blue', blue: 'blue', red: 'red', gray: 'gray', grey: 'gray', gold: 'gold', green: 'green', purple: 'purple', navy: 'navy', teal: 'teal', orange: 'orange' };
+// 'Ω_zx^T' / 'c_{t−1}' / 'c̃_t' → { base, sub, sup }: '_' and '^' take a {…} group or the rest of the word
+Book.symParse = s => {
+  s = String(s || '').trim();
+  const m = /^([^_^]*)(?:_(\{[^}]*\}|[^^]*))?(?:\^(\{[^}]*\}|.*))?$/.exec(s) || [s, s, '', ''];
+  const un = x => (x || '').replace(/^\{|\}$/g, '').replace(/-/g, '−');
+  return { base: m[1] || '', sub: un(m[2]), sup: un(m[3]) };
+};
+const SYM_INDEX = /^(?:t|T|\d+)(?:\s*[+−]\s*\d+)?$/;   // a time or step index: t, t−1, t+1, 2, T
+Book.symKey = s => { const p = Book.symParse(s); return p.base + (p.sub && !SYM_INDEX.test(p.sub) ? '_' + p.sub : ''); };
+Book.symInfo = s => {
+  const n = (Book.meta && Book.meta.notation) || {}, p = Book.symParse(s), key = Book.symKey(s);
+  if (!p.base) return { key, id: key, fam: 'gray', known: false, entry: null };
+  // id: what counts as one thing for colours (a group key, or the quantity); weights, biases and pre-activations
+  // coloured by their letter count as one group (Ω_zx and Ω_zc are both just "weights" until the table says otherwise)
+  const hint = SYM_HINT.find(([re]) => re.test(p.base)), gid = hint && hint[2] ? p.base + '*' : key;
+  if (n[key] && SYM_COLS[n[key]]) return { key, id: key, fam: n[key], known: true, entry: key };
+  if (n[p.base + '*'] && SYM_COLS[n[p.base + '*']]) return { key, id: p.base + '*', fam: n[p.base + '*'], known: true, entry: p.base + '*', group: true };
+  const c = (Book.meta && Book.meta.colors) || {}, lf = LEGACY_FAM[c[p.base]];   // the letter's colour (accents count: c̃ is not c)
+  if (lf) return { key, id: gid, fam: lf, known: true, entry: null, legacy: true, group: gid !== key };
+  return { key, id: key, fam: 'gray', known: false, entry: null };
+};
+// a colour for a new symbol: its role's usual family (Ω weights blue, b grey, Z purple: groups), else the first family
+// no other entry in the table, and nothing else in this drawing, already has
+const SYM_HINT = [[/^[ΩωW]/, ['blue'], true], [/^b/, ['gray'], true], [/^Z/, ['purple'], true], [/^[xX]/, ['red', 'pink']], [/^ŷ/, ['gold', 'orange']], [/^y/, ['green', 'olive']], [/^[Lℒ]/, ['red']]];
+const SYM_ORDER = ['gold', 'orange', 'teal', 'magenta', 'brown', 'olive', 'pink', 'navy', 'green', 'purple', 'red', 'blue'];
+Book.symSuggest = (s, taken) => {
+  const p = Book.symParse(s), n = (Book.meta && Book.meta.notation) || {}, c = (Book.meta && Book.meta.colors) || {};
+  const used = new Set([...Object.values(n), ...Object.values(c).map(f => LEGACY_FAM[f]).filter(Boolean), ...(taken || [])]);   // the letters' colours count as taken too
+  const h = SYM_HINT.find(([re]) => re.test(p.base));
+  if (h && h[2]) return { key: p.base + '*', fam: h[1][0] };
+  const pref = h ? [...h[1], ...SYM_ORDER] : SYM_ORDER;
+  return { key: Book.symKey(s), fam: pref.find(f => !used.has(f)) || pref[0] };
+};
+// the shape line: '1,h' with h from the drawing (data-vars "h=2 d=784") or the chapter (book-meta dims) → '<1, 2>'
+Book.symDims = (g, d) => {
+  const svg = g && g.closest && g.closest('svg'), vars = {};
+  Object.assign(vars, (Book.meta && Book.meta.dims) || {});
+  String((svg && svg.getAttribute('data-vars')) || '').split(/[\s,;]+/).forEach(kv => { const m = /^([^=]+)=(.+)$/.exec(kv); if (m) vars[m[1]] = m[2]; });
+  return '<' + String(d).split(',').map(x => x.trim()).filter(Boolean).map(x => x in vars ? vars[x] : x).join(', ') + '>';
+};
+Book.symFontFamily = t => (/[Ωℒ]/.test(t) ? "'AI2AI Omega', " : '') + "Consolas, 'Inconsolata LGC', monospace";
+// the label's content: base, then the subscript and the superscript as tspans (the superscript stacked over the
+// subscript), the way the figure scripts' tiles draw Ω_1^T
+Book.symLabel = (lab, s, fs) => {
+  const NS = 'http://www.w3.org/2000/svg', p = Book.symParse(s), sig = s + '|' + fs;
+  if (lab.getAttribute('data-sl') === sig && lab.childNodes.length) return;
+  lab.textContent = p.base || ' ';
+  const ts = (t, a) => { const e = document.createElementNS(NS, 'tspan'); for (const k in a) e.setAttribute(k, a[k]); e.textContent = t; lab.append(e); };
+  const sup = p.sup === 'T' ? 'T' : p.sup;
+  if (p.sub) ts(p.sub, { 'font-size': rn(fs * 0.62), dy: rn(fs * 0.28) });
+  if (sup) ts(sup, p.sub ? { 'font-size': rn(fs * 0.62), dx: rn(-fs * 0.62 * 0.58 * [...p.sub].length), dy: rn(-fs * 0.73) } : { 'font-size': rn(fs * 0.62), dy: rn(-fs * 0.45) });
+  lab.setAttribute('data-sl', sig);
+};
+Book.drawSym = g => {
+  const NS = 'http://www.w3.org/2000/svg';
+  let rect = g.querySelector(':scope > rect'), lab = g.querySelector(':scope > text:not(.tk-sub)'), sub = g.querySelector(':scope > text.tk-sub');
+  if (!rect) { rect = document.createElementNS(NS, 'rect'); rect.setAttribute('x', 0); rect.setAttribute('y', 0); rect.setAttribute('width', 20); rect.setAttribute('height', 18); g.prepend(rect); }
+  if (!lab) { lab = document.createElementNS(NS, 'text'); lab.setAttribute('font-size', 11); rect.after(lab); }
+  const s = g.getAttribute('data-sym') || '', info = Book.symInfo(s), col = SYM_COLS[info.fam] || SYM_COLS.gray;
+  const fs = parseFloat(lab.getAttribute('font-size')) || 11;
+  const x = parseFloat(rect.getAttribute('x')) || 0, y = parseFloat(rect.getAttribute('y')) || 0, w0 = parseFloat(rect.getAttribute('width')) || 0, h0 = parseFloat(rect.getAttribute('height')) || 0;
+  const cx = x + w0 / 2, cy = y + h0 / 2;
+  setA(rect, 'fill', col[0]); setA(rect, 'stroke', col[1]);
+  setA(rect, 'stroke-width', rn(fs * (g.hasAttribute('data-em') ? 0.2 : 0.1)));
+  setA(rect, 'rx', rn(fs * 0.4));
+  if (info.known) rect.removeAttribute('stroke-dasharray'); else setA(rect, 'stroke-dasharray', '3 2');
+  Book.symLabel(lab, s, fs);
+  for (const [k, v] of [['fill', col[2]], ['font-family', Book.symFontFamily(s)], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(lab, k, v);
+  // the shape (data-dims) is the second line; without it a typed second line (text.tk-sub) stays as it is
+  const dims = g.getAttribute('data-dims');
+  if (dims) {
+    if (!sub) { sub = document.createElementNS(NS, 'text'); sub.setAttribute('class', 'tk-sub'); lab.after(sub); }
+    const t = Book.symDims(g, dims); if (sub.textContent !== t) sub.textContent = t;
+    for (const [k, v] of [['font-size', rn(fs * 0.55)], ['fill', col[2]], ['font-family', "Consolas, 'Inconsolata LGC', monospace"], ['font-weight', 'bold'], ['text-anchor', 'middle']]) setA(sub, k, v);
+  } else if (sub && sub.hasAttribute('data-auto')) { sub.remove(); sub = null; }
+  if (sub && dims) sub.setAttribute('data-auto', '');
+  const sfs = sub ? parseFloat(sub.getAttribute('font-size')) || fs * 0.55 : 0;
+  let len = 0, slen = 0; try { len = lab.getComputedTextLength(); if (sub) slen = sub.getComputedTextLength(); } catch (e) {}
+  const w = len ? Math.max(Math.max(len, slen) + fs * 1.0, fs * 1.6) : w0, h = fs * 1.75 + (sub ? sfs * 1.35 : 0), top = cy - h / 2;
+  setA(rect, 'x', rn(cx - w / 2)); setA(rect, 'width', rn(w)); setA(rect, 'y', rn(top)); setA(rect, 'height', rn(h));
+  const base = top + fs * 1.18;
+  setA(lab, 'x', rn(cx)); setA(lab, 'y', rn(base));
+  if (sub) { setA(sub, 'x', rn(cx)); setA(sub, 'y', rn(base + sfs * 1.45)); }
+  return Math.abs(w - w0) > 0.05 || Math.abs(h - h0) > 0.05;
+};
+Book.drawSyms = root => {
+  const changed = new Set();
+  (root || Book.root || document).querySelectorAll('svg.draw g[data-sym]').forEach(g => { if (Book.drawSym(g)) changed.add(g.closest('svg')); });
+  if (changed.size && window.Draw && Draw.reconnect) changed.forEach(svg => Draw.reconnect(svg));
+  return changed.size;
+};
+// what was typed in the Symbol tool → [{sym: 'Z_z'}, {op: '='}, {sym: 'x_t'}, …]: symbols are a letter (with its
+// accent) and an optional _sub / ^sup; function names (σ, tanh, softmax …), numbers and operators stay plain text
+const SYM_FUNCS = new Set(['σ', 'tanh', 'softmax', 'relu', 'ReLU', 'exp', 'log', 'sigmoid', 'max', 'min', 'sum', 'mean', 'CE', 'MSE']);
+Book.symSplit = text => {
+  const out = [], put = (k, v) => { const l = out[out.length - 1]; if (k === 'op' && l && l.op !== undefined) l.op += v; else out.push(k === 'op' ? { op: v } : { sym: v }); };
+  const L = /[A-Za-zΑ-Ωα-ωℒŷ]/u, re = /^([A-Za-zΑ-Ωα-ωℒ][̀-ͯ]*|ŷ|ỹ)(_(?:\{[^}]*\}|[A-Za-z0-9̀-ͯα-ω̃]+(?:[−-]\d+)?))?(\^(?:\{[^}]*\}|[A-Za-z0-9⊤ᵀ]+))?/u;
+  let i = 0; const s = String(text || '');
+  while (i < s.length) {
+    const rest = s.slice(i), w = /^[A-Za-z]{2,}/.exec(rest);
+    if (w && SYM_FUNCS.has(w[0])) { put('op', w[0]); i += w[0].length; continue; }
+    if (rest[0] === 'σ') { put('op', 'σ'); i++; continue; }
+    if (L.test(rest[0])) { const m = re.exec(rest); if (m) { put('sym', m[0].replace(/ᵀ|⊤/g, 'T')); i += m[0].length; continue; } }
+    put('op', rest[0]); i++;
+  }
+  return out.map(x => x.op !== undefined ? { op: x.op.replace(/\s+/g, ' ').trim() } : x).filter(x => x.sym || x.op);
+};
 class BTok extends HTMLElement {
   static get observedAttributes() { return ['v', 't']; }
   connectedCallback() { if (inThumb(this)) return; lock(this); if (!this.hasAttribute('t')) this.setAttribute('t', this.textContent); else this.render(); if (!Book.vocabs) Book.loadVocabs(); }
@@ -884,6 +1010,7 @@ Book.wboxStarts = root => {
 Book.refresh = () => {
   if (Book.root) Book.wboxStarts(Book.root);
   if (Book.root) Book.root.classList.toggle('tokids', !!Book.meta.tokIds);   // token tiles show their IDs everywhere (book-meta tokIds)
+  if (Book.root) Book.drawSyms(Book.root);   // symbol tiles in drawings (notation table)
   if (Book.root) { if (Book.vocabs) Book.drawToks(Book.root); else if (Book.root.querySelector('svg.draw g[data-tok], b-out[tok]') || Book.meta.outTok) Book.loadVocabs(); }   // token tiles in drawings
   const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();
   if (panes.length) root.removeAttribute('data-view'); else if (root.dataset.view !== Book.view) root.dataset.view = Book.view;

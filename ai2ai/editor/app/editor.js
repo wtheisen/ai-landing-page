@@ -3935,6 +3935,7 @@ if (phone) {
     on = v; document.body.classList.toggle('qpool', on);
     if (on && window.Suggest) Suggest.close();
     if (on && window.Tokens) Tokens.close();
+    if (on && window.Notation) Notation.close();
     if (on && typeof revOn !== 'undefined' && revOn) setReview(false);
     if (!panel) {
       panel = document.createElement('aside'); panel.id = 'qpool'; $('#insp').after(panel);
@@ -4115,6 +4116,7 @@ if (phone) {
     if (x === on) return;
     on = x; document.body.classList.toggle('tokpanel', on);
     if (on && window.QPool) QPool.close();
+    if (on && window.Notation) Notation.close();
     if (on && window.Suggest) Suggest.close();
     if (!panel) {
       panel = document.createElement('aside'); panel.id = 'tokpanel'; $('#insp').after(panel);
@@ -4174,6 +4176,86 @@ if (phone) {
   }
   window.Tokens = { make: tokens, open: () => setOn(true), close: () => setOn(false), render, cur: curVocab, ensure };
   Book.loadVocabs();
+})();
+// ---------------------------------------------------------------- Notation panel (Eric, 2026-11-12)
+// The chapter's notation table (book-meta notation {key: family}) that colours symbol tiles in drawings (draw.js
+// Symbol tool, Book.drawSym): one row per quantity used or listed, its colour, uses and Go; a key ending in * is a group
+// sharing one colour. At the top, every drawing where two different quantities wear the same colour ("the output from
+// both gates are different things": they must not look alike). Sizes (book-meta dims, h=10 d=784) fill the shape lines.
+(() => {
+  let on = false, panel = null;
+  const hesc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const NAME = f => f[0].toUpperCase() + f.slice(1);
+  const tiles = () => [...book.querySelectorAll('svg.draw g[data-sym]')].filter(g => !g.closest('[data-thumb]'));
+  const rowKey = s => Book.symInfo(s).id;
+  function clashes() {
+    const out = [];
+    for (const svg of new Set(tiles().map(g => g.closest('svg')))) {
+      const by = new Map();
+      for (const g of svg.querySelectorAll('g[data-sym]')) { const s = g.getAttribute('data-sym') || '', i = Book.symInfo(s); if (!i.known) continue; const k = i.id; if (!by.has(i.fam)) by.set(i.fam, new Map()); if (!by.get(i.fam).has(k)) by.get(i.fam).set(k, s); }
+      for (const [fam, m] of by) if (m.size > 1) out.push({ svg, fam, syms: [...m.values()] });
+    }
+    return out;
+  }
+  function render() {
+    if (!panel || !on) return;
+    const n = Book.meta.notation || {}, ts = tiles(), uses = new Map(), sample = new Map();
+    for (const g of ts) { const s = g.getAttribute('data-sym') || ''; if (!Book.symParse(s).base) continue; const k = rowKey(s); uses.set(k, (uses.get(k) || 0) + 1); if (!sample.has(k)) sample.set(k, s); }
+    const keys = [...new Set([...Object.keys(n), ...uses.keys()])].sort((a, b) => a.localeCompare(b));
+    const cl = clashes(), scroll = panel.querySelector('.nt-list') ? panel.querySelector('.nt-list').scrollTop : 0;
+    const chip = s => { const i = Book.symInfo(s), c = Book.SYM_COLS[i.fam] || Book.SYM_COLS.gray, p = Book.symParse(s);
+      return `<span class="sym-chip" style="background:${c[0]};border-color:${c[1]};color:${c[2]}${i.known ? '' : ';border-style:dashed'}">${hesc(p.base)}${p.sub ? '<sub>' + hesc(p.sub) + '</sub>' : ''}${p.sup ? '<sup>' + hesc(p.sup) + '</sup>' : ''}</span>`; };
+    const row = k => {
+      const grp = /\*$/.test(k), s = sample.get(k) || (grp ? k.slice(0, -1) : k), i = Book.symInfo(s), own = n[k];
+      const opts = [...(own ? [] : [`<option value="" selected>${i.legacy ? 'Letter colour (' + NAME(i.fam) + ')' : 'None yet'}</option>`]), ...Book.SYM_FAMS.map(f => `<option value="${f}"${own === f ? ' selected' : ''}>${NAME(f)}</option>`)];
+      const u = uses.get(k) || 0;
+      return `<div class="nt-r" data-k="${hesc(k)}">${chip(s)}<span class="nt-k">${grp ? hesc(k) + ' group' : hesc(k)}</span><span class="nt-n" title="Tiles in this chapter">${u ? '×' + u : ''}</span><span class="sp"></span>
+        <select data-c title="Colour, everywhere in this chapter">${opts.join('')}</select>${u ? '<button data-a="go" title="Go to it">Go</button>' : ''}${own && !u ? '<button data-a="del" title="Remove from the table">✕</button>' : ''}</div>`;
+    };
+    const dims = Book.meta.dims ? Object.entries(Book.meta.dims).map(([a, b]) => a + '=' + b).join(' ') : '';
+    panel.innerHTML = `<div class="qp-top"><b>Notation</b><span class="qp-n">${keys.length} quantities</span><span class="sp"></span><button data-a="close">Done</button></div>
+      <div class="help">Every quantity in this chapter's drawings has its own colour, the same in every drawing. A key ending in * is a group sharing one colour (Ω* = every weight matrix). Time steps don't count: c_t and c_{t−1} are one quantity, c̃_t is another. New symbols get a free colour; change it here. Draw them with the Symbol tool.</div>
+      ${cl.map((c, j) => `<div class="nt-err" data-j="${j}">Same colour (${NAME(c.fam)}) for ${c.syms.map(chip).join(' ')} in one drawing <button data-a="gocl">Go</button></div>`).join('')}
+      <label class="help" style="display:block">Sizes in this chapter, for the shape lines (h=10 d=784)</label><input class="nt-dims" value="${hesc(dims)}" spellcheck="false">
+      <div class="nt-list">${keys.map(row).join('') || '<div class="help">No symbol tiles yet.</div>'}</div>`;
+    panel._cl = cl;
+    const l = panel.querySelector('.nt-list'); if (l) l.scrollTop = scroll;
+  }
+  const go = (el, b) => { if (!el) return; const pn = el.closest('.dpane'); if (pn && typeof activatePane === 'function') activatePane(pn); setPage(el.closest('section.page')); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('ed-flash'); setTimeout(() => el.classList.remove('ed-flash'), 1200); };
+  const redraw = () => { if (Book.meta.notation && !Object.keys(Book.meta.notation).length) delete Book.meta.notation; Book.drawSyms(Book.root); commit(true); render(); renderInspector(); };
+  function setOn(x) {
+    if (x === on) return;
+    on = x; document.body.classList.toggle('notepanel', on);
+    if (on && window.QPool) QPool.close();
+    if (on && window.Suggest) Suggest.close();
+    if (on && window.Tokens) Tokens.close();
+    if (!panel) {
+      panel = document.createElement('aside'); panel.id = 'notepanel'; $('#insp').after(panel);
+      panel.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.dataset.a === 'close') return setOn(false);
+        if (b.dataset.a === 'gocl') { const c = panel._cl[+b.closest('.nt-err').dataset.j]; return go(c && c.svg); }
+        const k = b.closest('.nt-r') && b.closest('.nt-r').dataset.k; if (k == null) return;
+        if (b.dataset.a === 'go') { const all = tiles().filter(g => rowKey(g.getAttribute('data-sym') || '') === k), i = (+b.dataset.i || 0) % all.length; b.dataset.i = i + 1; go(all[i]); }
+        if (b.dataset.a === 'del') { commit(true); delete (Book.meta.notation || {})[k]; redraw(); }
+      });
+      panel.addEventListener('change', e => {
+        const el = e.target;
+        if (el.matches('select[data-c]')) { const k = el.closest('.nt-r').dataset.k; commit(true); Book.meta.notation = Book.meta.notation || {}; if (el.value) Book.meta.notation[k] = el.value; else delete Book.meta.notation[k]; return redraw(); }
+        if (el.matches('.nt-dims')) { commit(true); const d = {}; el.value.split(/[\s,;]+/).forEach(kv => { const m = /^([^=]+)=(.+)$/.exec(kv); if (m) d[m[1]] = /^\d+$/.test(m[2]) ? +m[2] : m[2]; }); if (Object.keys(d).length) Book.meta.dims = d; else delete Book.meta.dims; return redraw(); }
+      });
+    }
+    if (on) $('#main').append(panel);
+    const b = $('#x-note'); if (b) b.classList.toggle('on', on);
+    if (on) render(); else renderInspector();
+  }
+  const btn = document.createElement('button'); btn.id = 'x-note'; btn.textContent = 'Notation';
+  btn.title = "Notation table: the colour of every maths symbol in this chapter's drawings (Symbol tool), one colour per quantity";
+  btn.onclick = () => setOn(!on);
+  ($('#x-tok') || $('#x-qpool') || $('#x-review') || $('#x-cmts')).after(btn);
+  let last = '';
+  setInterval(() => { if (!on) return; const sig = tiles().map(g => g.getAttribute('data-sym')).join('|') + JSON.stringify(Book.meta.notation || {}); if (sig !== last) { last = sig; if (!panel.contains(document.activeElement)) render(); } }, 500);
+  window.Notation = { open: () => setOn(true), close: () => setOn(false), render };
 })();
 // another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)
 (() => {
