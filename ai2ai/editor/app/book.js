@@ -520,11 +520,12 @@ Book.drawSym = g => {
   if (sub && dims) sub.setAttribute('data-auto', '');
   const sfs = sub ? parseFloat(sub.getAttribute('font-size')) || fs * 0.48 : 0;
   let len = 0, slen = 0; try { len = lab.getComputedTextLength(); if (sub) slen = sub.getComputedTextLength(); } catch (e) {}
-  const w = len ? Math.max(len + fs * 1.0, slen + fs * 0.6, fs * 1.6) : w0, h = fs * 1.75 + (sub ? sfs * 1.3 : 0), top = cy - h / 2;
+  const sgap = sub ? fs * 0.2 : 0;   // a little air between the symbol and its shape line (Eric, 2026-11-12)
+  const w = len ? Math.max(len + fs * 1.0, slen + fs * 0.6, fs * 1.6) : w0, h = fs * 1.75 + (sub ? sfs * 1.3 + sgap : 0), top = cy - h / 2;
   setA(rect, 'x', rn(cx - w / 2)); setA(rect, 'width', rn(w)); setA(rect, 'y', rn(top)); setA(rect, 'height', rn(h));
   const base = top + fs * 1.18;
   setA(lab, 'x', rn(cx)); setA(lab, 'y', rn(base));
-  if (sub) { setA(sub, 'x', rn(cx)); setA(sub, 'y', rn(base + sfs * 1.45)); }
+  if (sub) { setA(sub, 'x', rn(cx)); setA(sub, 'y', rn(base + sfs * 1.45 + sgap)); }
   return Math.abs(w - w0) > 0.05 || Math.abs(h - h0) > 0.05;
 };
 // a row of symbol tiles and operator labels (g[data-row]: an equation box, or a row the Symbol tool made) is laid
