@@ -1,13 +1,13 @@
 {
  "_last": {
-  "at": "2026-11-12T12:36:53Z",
-  "event": "push",
+  "at": "2026-11-12T16:49:18Z",
+  "event": "schedule",
   "failed": [],
   "ok": [
    "bptt"
   ],
   "over": {},
-  "run": "43219186967"
+  "run": "43262109360"
  },
  "backprop": {
   "at": "2026-11-11T15:58:58Z",
@@ -85,8 +85,8 @@
   "web": "ballm/tokenization"
  },
  "bptt": {
-  "at": "2026-11-12T12:37:05Z",
-  "commit": "a5c0d2444b2b6418c187ac9564ac67345b1c8b01",
+  "at": "2026-11-12T16:49:32Z",
+  "commit": "5948adcaa67e424a4fd35d76b4fcf360ef21ea07",
   "web": "ai2ai/bptt"
  },
  "cnn": {
