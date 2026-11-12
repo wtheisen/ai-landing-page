@@ -259,6 +259,58 @@ function eaiInk(opts) {
     laser: SVG('<circle cx="8" cy="8" r="3" fill="#ff2a2a"/><circle cx="8" cy="8" r="5.6" fill="none" stroke="#ff2a2a" stroke-opacity=".35" stroke-width="1.5"/>'),
     undo: SVG('<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.5 3.5l-3 3 3 3M2.5 6.5H10a3.5 3.5 0 010 7H7"/>'),
     page: SVG('<path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M3.5 1.5h6l3 3v10h-9z"/><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 7v5M5.5 9.5h5"/>') };
+  // ---------------------------------------------------------------- colour wheel (Lecture mode)
+  // A ring of the pen bar's tools around the pen, so a colour is one tap away without reaching for the bar (Eric,
+  // 2026-11-12). Opened in Lecture mode (?lecture=…) by holding the pen still on a slide for half a second, or in the
+  // iPad presenting app (ios/) by a double tap (or squeeze) of the Pencil, which the app passes in as an 'eai-pencil'
+  // event on window ({detail: {x, y}} in window px when the Pencil knows where it is). A second double tap, a tap
+  // outside, the middle or Escape closes it.
+  var wheel = null, penAt = null;   // penAt: where the pen last was, in window px (the wheel opens there when the event has no place)
+  var NATIVE = !!window.eaiNativeApp;
+  function native(m) { if (NATIVE) try { window.webkit.messageHandlers.eai.postMessage(m); } catch (x) {} }
+  function wheelItems() {
+    return PEN.map(function (p) { return { t: 'pen', c: p[0], name: p[1] + ' pen' }; })
+      .concat([{ t: 'hl', name: 'highlighter', i: I.hl }, { t: 'erase', name: 'eraser', i: I.erase }, { t: 'laser', name: 'laser pointer', i: I.laser }]);
+  }
+  function closeWheel() { if (wheel) { wheel.remove(); wheel = null; } }
+  function openWheel(x, y) {
+    closeWheel();
+    if (x == null || y == null) { x = penAt ? penAt.x : innerWidth / 2; y = penAt ? penAt.y : innerHeight / 2; }
+    var R = 92, R0 = 34, items = wheelItems(), n = items.length, step = 2 * Math.PI / n, pad = R + 10;
+    x = Math.max(pad, Math.min(innerWidth - pad, x)); y = Math.max(pad, Math.min(innerHeight - pad, y));
+    var P = function (a, r) { return (R + r * Math.cos(a)).toFixed(2) + ' ' + (R + r * Math.sin(a)).toFixed(2); };
+    var svg = '', marks = '';
+    items.forEach(function (it, i) {
+      var a0 = -Math.PI / 2 - step / 2 + i * step, a1 = a0 + step, am = a0 + step / 2;
+      var on = editing && it.t === tool && (!it.c || it.c === color);
+      svg += '<path d="M' + P(a0, R0) + 'L' + P(a0, R - 2) + 'A' + (R - 2) + ' ' + (R - 2) + ' 0 0 1 ' + P(a1, R - 2) + 'L' + P(a1, R0) + 'A' + R0 + ' ' + R0 + ' 0 0 0 ' + P(a0, R0) + 'Z"'
+        + ' fill="' + (it.c || '#f4f4f4') + '" stroke="#fff" stroke-width="3"/>';
+      if (on) svg += '<path d="M' + P(a0 + 0.06, R + 4) + 'A' + (R + 4) + ' ' + (R + 4) + ' 0 0 1 ' + P(a1 - 0.06, R + 4) + '" fill="none" stroke="#002B5B" stroke-width="5" stroke-linecap="round"/>';
+      if (it.i) { var c = P(am, (R + R0) / 2).split(' '); marks += '<span style="position:absolute;left:' + (+c[0] - 8) + 'px;top:' + (+c[1] - 8) + 'px;width:16px;height:16px;transform:scale(1.4)">' + it.i + '</span>'; }
+    });
+    svg += '<circle cx="' + R + '" cy="' + R + '" r="' + (R0 - 4) + '" fill="#fff" stroke="#ccc"/><path d="M' + (R - 7) + ' ' + (R - 7) + 'l14 14m0-14l-14 14" stroke="#777" stroke-width="2" stroke-linecap="round"/>';
+    wheel = document.createElement('div'); wheel.className = 'ink-wheel';
+    wheel.style.cssText = 'position:fixed;inset:0;z-index:95;touch-action:none';
+    wheel.innerHTML = '<div style="position:absolute;left:' + (x - R) + 'px;top:' + (y - R) + 'px;width:' + 2 * R + 'px;height:' + 2 * R + 'px;border-radius:50%;box-shadow:0 4px 18px rgba(0,0,0,.25);color:#333">'
+      + '<svg width="' + 2 * R + '" height="' + 2 * R + '" style="display:block;overflow:visible">' + svg + '</svg>' + marks + '</div>';
+    document.body.appendChild(wheel);
+    // a tap on a wedge picks it; anywhere else (outside, the middle) just closes. Decided on pointerdown so the tap
+    // never reaches the slide underneath (no stray dot, no Run button pressed).
+    wheel.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var dx = e.clientX - x, dy = e.clientY - y, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < R0 || d > R + 6) return closeWheel();
+      var i = Math.floor((((Math.atan2(dy, dx) + Math.PI / 2 + step / 2) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / step) % n;
+      pickTool(items[i]);
+    });
+    native({ haptic: 'open' });
+  }
+  function pickTool(it) {
+    tool = it.t; if (it.c) color = it.c; if (tool !== 'laser') last = { t: tool, c: color };
+    closeWheel(); start(); barState(); native({ haptic: 'pick' });
+  }
+  addEventListener('eai-pencil', function (e) { if (!LECT) return; var d = e.detail || {}; if (wheel) closeWheel(); else openWheel(d.x, d.y); });
+  addEventListener('keydown', function (e) { if (wheel && e.key === 'Escape') closeWheel(); });
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function save() {
     clearTimeout(saveSoon.t);
@@ -351,6 +403,7 @@ function eaiInk(opts) {
       if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter (this view)?')) { mine.strokes = []; mine.pages = []; undo = []; store(KEY_MINE, mine); render(); }
       if (b.dataset.a === 'publish') { ensureTarget(); publish(); }
       if (b.dataset.a === 'report') report();
+      if (b.dataset.a === 'home') { save(); native({ home: true }); }
       barState();
     });
     bar.addEventListener('change', function (e) {
@@ -369,6 +422,7 @@ function eaiInk(opts) {
     var right = bar.querySelector('.right'), h = '';
     if (layers.length) h += '<select id="ink-pick" title="Lecture notes"' + (editing && target !== mine ? ' disabled' : '') + '><option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '"' + (pub && pub.id === l.id ? ' selected' : '') + '>Notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ')') + '</option>'; }).join('') + '</select>';
     if (teacher() && VIEW === 'slides' && /[?&]lecture=1/.test(location.search)) h += '<span class="pres" title="Opened from the Lecture button: the faint answers are hidden, safe to mirror to the projector">Presenting</span>';
+    if (NATIVE) h += '<button data-a="home" class="quiet" title="back to the list of chapters">Chapters</button>';
     if (EDITOR_VIEW) h += '<button data-a="report" class="quiet" title="Tell Claude something is wrong on this page: your note plus this device\'s details go in as a comment on the page">Report</button>';
     h += teacher() ? '<button data-a="publish" class="act" title="publish today\'s notes for students">Publish</button>'
                    : '<button data-a="clear" class="quiet" title="erase all of my notes on this view">Clear mine</button>';
@@ -469,8 +523,18 @@ function eaiInk(opts) {
       cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [smooth(pt(e))] }; if (tool === 'hl') cur.o = 0.35;
       el = drawStroke(cur);
     }
+    // Lecture mode: the pen held still for half a second opens the colour wheel there (the dot it made is taken back)
+    penAt = { x: e.clientX, y: e.clientY };
+    var hold = LECT && tool !== 'laser' ? setTimeout(held, 500) : null;
+    function held() {
+      hold = null; detach();
+      if (el) el.remove();
+      erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+      openWheel(penAt.x, penAt.y);
+    }
     function move(ev) {
       if (ev.pointerId !== e.pointerId) return;
+      if (hold && Math.abs(ev.clientX - penAt.x) + Math.abs(ev.clientY - penAt.y) > 6) { clearTimeout(hold); hold = null; }
       var es = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [ev]; if (!es.length) es = [ev];
       if (tool === 'laser') { laser.style.left = ev.clientX + 'px'; laser.style.top = ev.clientY + 'px'; return; }
       es.forEach(function (q) {
@@ -489,10 +553,14 @@ function eaiInk(opts) {
       tail = ahead(ev);   // draw ahead to where the pen is about to be, so the line keeps up with the tip
       if (!queued) { queued = true; requestAnimationFrame(frame); }
     }
-    function up(ev) {
-      if (ev && ev.pointerId !== e.pointerId) return;
+    function detach() {
+      clearTimeout(hold); hold = null;
       pg.removeEventListener('pointermove', move); pg.removeEventListener('pointerup', up); pg.removeEventListener('pointercancel', up);
       removeEventListener('scroll', onScroll, true); penDown = false;
+    }
+    function up(ev) {
+      if (ev && ev.pointerId !== e.pointerId) return;
+      detach(); if (ev) penAt = { x: ev.clientX, y: ev.clientY };
       if (tool === 'laser') { if (laser) laser.remove(); laser = null; return; }
       if (cur && cur.pts.length) {
         var l = cur.pts[cur.pts.length - 1]; if (raw && cur.pts.length > 1 && (raw[0] !== l[0] || raw[1] !== l[1])) cur.pts.push(raw);

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI2AI Present</title>
+<meta name="theme-color" content="#002B5B">
+<link rel="icon" href="icon-192.png">
+<!-- The home screen of the iPad presenting app (ios/, AI2AI Present): every deck as a cover, a tap presents it.
+     Same storage as the editor home (index.html): sign-in, synced chapters, offline copies. -->
+<style>
+:root { --navy: #002B5B; --gold: #DCB439; --green: #38761D; --red: #B3261E; --ink: #1d2433; --muted: #5f6672; --line: #dde1e7; --bg: #f5f6f8; }
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; font: 15px/1.4 Arial, Helvetica, sans-serif; color: var(--ink); background: var(--bg); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+header { position: sticky; top: 0; z-index: 10; background: var(--navy); color: #fff; padding: calc(12px + env(safe-area-inset-top)) 18px 12px; display: flex; align-items: center; gap: 14px; }
+header h1 { margin: 0; font-size: 19px; letter-spacing: .2px; }
+header .sub { font-size: 12.5px; opacity: .75; margin-top: 2px; }
+header .grow { flex: 1 1 auto; min-width: 0; }
+header button { font: 700 14px Arial, sans-serif; border: 0; border-radius: 6px; padding: 8px 14px; background: var(--gold); color: #000; min-height: 36px; cursor: pointer; }
+header button:disabled { opacity: .5; }
+main { max-width: 1100px; margin: 0 auto; padding: 14px 18px calc(28px + env(safe-area-inset-bottom)); }
+.note { font-size: 13px; color: var(--muted); }
+#msg { white-space: pre-wrap; min-height: 18px; margin: 0 2px 6px; }
+progress { width: 100%; height: 6px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+.card h2 { font-size: 15px; margin: 0 0 8px; color: var(--navy); }
+label { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin: 8px 0 3px; }
+input { width: 100%; font: inherit; padding: 9px 10px; border: 1px solid #c3c8d0; border-radius: 6px; background: #fff; -webkit-user-select: text; user-select: text; }
+.card button { font: 700 15px Arial, sans-serif; border: 1px solid var(--gold); border-radius: 6px; padding: 8px 14px; background: var(--gold); margin-top: 10px; min-height: 38px; }
+.books { display: flex; gap: 8px; margin: 4px 0 10px; flex-wrap: wrap; }
+.booktab { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 8px 14px; border: 1px solid #c9ced6; border-radius: 10px; background: #fff; color: var(--navy); cursor: pointer; font: inherit; }
+.booktab b { font-size: 15px; } .booktab span { font-size: 11px; color: #6b6b6b; }
+.booktab.on { background: var(--navy); border-color: var(--navy); color: #fff; } .booktab.on span { color: var(--gold); }
+.unit { display: flex; align-items: baseline; gap: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 18px 2px 8px; }
+.unit .un { font: 700 13px Consolas, 'Inconsolata LGC', monospace; color: var(--navy); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+.deck { container-type: inline-size; display: flex; flex-direction: column; gap: 5px; text-decoration: none; color: inherit; }
+/* a 6x9 cover in miniature, as on the editor home (index.html .cv) */
+.cv { aspect-ratio: 6 / 9; display: flex; flex-direction: column; justify-content: space-between; background: #fff; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.06), 0 3px 10px rgba(0,43,91,.07); padding: 9cqw 6cqw 10cqw; overflow: hidden; transition: transform .12s; }
+.deck:active .cv { transform: scale(.97); }
+.cv-art { display: block; flex: 1 1 auto; min-height: 0; margin-top: 2cqw; }
+.cv-art img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: top center; }
+.cv-art.none { background: linear-gradient(135deg, #eef1f5, #f7f8fa); border-radius: 2px; }
+.cv-art.none img { display: none; }
+.cv-text { display: flex; flex-direction: column; gap: 2.6cqw; margin-top: 6cqw; }
+.cv .kicker { font: 700 6.4cqw Consolas, 'Inconsolata LGC', monospace; color: var(--navy); letter-spacing: .3cqw; }
+.cv-title { font-weight: 700; font-size: 10.5cqw; line-height: 1.04; color: var(--navy); overflow-wrap: anywhere; }
+.cv .rule { width: 19cqw; height: 1.4cqw; min-height: 2px; background: var(--gold); border-radius: 1px; }
+.deck .off { font-size: 12px; color: var(--muted); min-height: 16px; }
+.deck .off.full { color: var(--green); font-weight: 700; }
+@media (max-width: 520px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+</style>
+</head>
+<body>
+<header><div class="grow"><h1>AI2AI Present</h1><div class="sub" id="when">Not synced yet</div></div><button id="pull" hidden>Sync</button></header>
+<main>
+  <section class="card" id="signin" hidden>
+    <h2>Sign in to GitHub</h2>
+    <p class="note">The same fine-grained token as the Book Editor (Contents: Read and write on <b>wtheisen/ai2ai-book</b>, and on <b>wtheisen/ai-landing-page</b> to publish lecture notes). It stays on this device.</p>
+    <label for="repo">Repository</label><input id="repo" value="wtheisen/ai2ai-book" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <label for="token">Token</label><input id="token" type="password" placeholder="github_pat_…" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <button id="go">Sign in</button>
+  </section>
+  <progress id="prog" hidden></progress>
+  <div class="note" id="msg"></div>
+  <div id="list"></div>
+</main>
+<script src="store.js"></script>
+<script src="present.js"></script>
+</body>
+</html>
