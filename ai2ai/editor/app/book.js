@@ -558,11 +558,37 @@ Book.layRow = g => {
   }
   return changed;
 };
+// an arrow attached to a symbol tile takes that quantity's colour (its start's tile, else its end's), arrowheads too
+// (Eric, 2026-11-12: "the Zt arrow should be the same color as the two Zt boxes it's between"); one recoloured by hand
+// (data-fixcol) keeps its colour
+Book.arrowHead = (svg, color) => {
+  const pg = svg.closest && svg.closest('section.page'), own = svg.getAttribute('data-b') || (pg && pg.id ? 'p-' + pg.id : '');
+  const hex = color.replace('#', '').toUpperCase(), id = 'ah' + hex + (own ? '-' + own : ''), NS = 'http://www.w3.org/2000/svg';
+  let defs = svg.querySelector(':scope > defs');
+  if (!defs) { defs = document.createElementNS(NS, 'defs'); svg.prepend(defs); }
+  if (![...defs.children].some(m => m.id === id)) {
+    const m = document.createElementNS(NS, 'marker');
+    for (const [k, v] of Object.entries({ id, viewBox: '0 0 10 10', refX: 8.5, refY: 5, markerWidth: 5, markerHeight: 5, orient: 'auto-start-reverse' })) m.setAttribute(k, v);
+    const pth = document.createElementNS(NS, 'path'); pth.setAttribute('d', 'M0 0 L10 5 L0 10 z'); pth.setAttribute('fill', '#' + hex); m.append(pth); defs.append(m);
+  }
+  return `url(#${id})`;
+};
+Book.symArrows = svg => {
+  const tile = id => { if (!id) return null; try { return svg.querySelector('g[data-sym][id="' + CSS.escape(id) + '"]'); } catch (e) { return null; } };
+  for (const l of svg.querySelectorAll('line[data-a], line[data-b], polyline[data-a], polyline[data-b], path[data-a], path[data-b]')) {
+    if (l.hasAttribute('data-fixcol')) continue;
+    const t = tile(l.getAttribute('data-a')) || tile(l.getAttribute('data-b')); if (!t) continue;
+    const col = (SYM_COLS[Book.symInfo(t.getAttribute('data-sym')).fam] || SYM_COLS.gray)[1];
+    if (l.getAttribute('stroke') !== col) l.setAttribute('stroke', col);
+    for (const a of ['marker-start', 'marker-end']) if (l.getAttribute(a)) { const u = Book.arrowHead(svg, col); if (l.getAttribute(a) !== u) l.setAttribute(a, u); }
+  }
+};
 Book.drawSyms = root => {
   const changed = new Set();
   (root || Book.root || document).querySelectorAll('svg.draw g[data-sym]').forEach(g => { if (Book.drawSym(g)) changed.add(g.closest('svg')); });
   (root || Book.root || document).querySelectorAll('svg.draw g[data-row]').forEach(g => { if (Book.layRow(g)) changed.add(g.closest('svg')); });
   if (changed.size && window.Draw && Draw.reconnect) changed.forEach(svg => Draw.reconnect(svg));
+  new Set([...(root || Book.root || document).querySelectorAll('svg.draw g[data-sym]')].map(g => g.closest('svg'))).forEach(svg => svg && Book.symArrows(svg));
   return changed.size;
 };
 // what was typed in the Symbol tool → [{sym: 'Z_z'}, {op: '='}, {sym: 'x_t'}, …]: symbols are a letter (with its

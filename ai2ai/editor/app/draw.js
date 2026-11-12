@@ -954,7 +954,7 @@ function inspect(insp) {
     add(`<label>${label}</label>`);
     const row = add(`<div class="sw">${list.map(c => `<button data-c="${c}" title="${c === 'none' ? 'none' : c}" class="${c === 'none' ? 'none ' : ''}${same(first.getAttribute(attr) || (attr === 'fill' ? '#000000' : 'none'), c) ? 'cur' : ''}" style="${c === 'none' ? '' : 'background:' + c}"></button>`).join('')}</div>`);
     row.onclick = e => { const c = e.target.dataset.c; if (!c) return;
-      E.commit(true); on.forEach(s => { s.setAttribute(attr, c); if (attr === 'stroke' && heads(s) && c !== 'none') setHeads(s, heads(s)); }); drawHandles(); E.commit(true);
+      E.commit(true); on.forEach(s => { s.setAttribute(attr, c); if (attr === 'stroke' && heads(s) && c !== 'none') setHeads(s, heads(s)); if (attr === 'stroke' && /^(line|polyline|path)$/.test(s.localName) && (s.getAttribute('data-a') || s.getAttribute('data-b'))) s.setAttribute('data-fixcol', ''); }); drawHandles(); E.commit(true);
       if (attr === 'fill' && !isText && c !== 'none') last.fill = c; if (attr === 'stroke' && closed && c !== 'none') last.stroke = c;
       E.renderInspector(); };
   };
@@ -975,6 +975,10 @@ function inspect(insp) {
     if (txts.length && boxes.length) swatches('Text', FILLS.filter(c => c !== 'none'), 'fill', txts);
     if (!isLine && closed) { add(`<label>Fill opacity</label>`); const o = add(`<select>${[100, 80, 60, 40, 20].map(v => `<option value="${v / 100}">${v}%</option>`).join('')}</select>`); o.value = String(+(s0.getAttribute('fill-opacity') || 1)); o.onchange = () => each(s => +o.value === 1 ? s.removeAttribute('fill-opacity') : s.setAttribute('fill-opacity', o.value), true); }
     swatches(isLine ? 'Colour' : 'Outline', isLine ? LINES.filter(c => c !== 'none') : LINES, 'stroke');
+    if (isLine) { const svgL = layer, onSym = l => [l.getAttribute('data-a'), l.getAttribute('data-b')].some(id => id && svgL && [...svgL.querySelectorAll('g[data-sym]')].some(g => g.id === id));
+      const ls = lv.filter(onSym);
+      if (ls.length) { const fc = add(`<label class="check"><input type="checkbox" ${ls.every(l => !l.hasAttribute('data-fixcol')) ? 'checked' : ''}>Colour from ${ls.length > 1 ? 'their symbols' : 'its symbol'} (the quantity it carries)</label>`);
+        fc.firstChild.onchange = e => { E.commit(true); ls.forEach(l => l.toggleAttribute('data-fixcol', !e.target.checked)); Book.symArrows(svgL); drawHandles(); E.commit(true); E.renderInspector(); }; } }
     const row = add(`<div class="row">Width <select style="width:64px">${[0.5, 0.8, 1, 1.2, 1.5, 2, 3, 4].map(v => `<option>${v}</option>`).join('')}</select> <select style="width:auto"><option value="">solid</option><option value="4.5 3">dashed</option><option value="1.5 3">dotted</option></select></div>`);
     const [w, dash] = row.querySelectorAll('select'); const cw = String(parseFloat(s0.getAttribute('stroke-width')) || 1);
     if (![...w.options].some(o => o.value === cw)) w.add(new Option(cw, cw)); w.value = cw; dash.value = s0.getAttribute('stroke-dasharray') || '';
