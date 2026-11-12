@@ -588,6 +588,11 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { overflow: hidden; }
+/* an output beside its code keeps its Run bar in the gutter above the box, out of the flow, like the editor's (Eric,
+   2026-11-12: "why not have them just sit in the gutter like we do in the editor?"); in the label row the bar took the
+   narrow column's width and squeezed the output. Outputs under their code (out="below", Reading, Workbook) keep it in the label row. */
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) { position: relative; }
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) > .label > .run-bar { position: absolute; right: 0; bottom: calc(100% + 2pt); margin: 0; flex-wrap: nowrap; }
 /* class "side" on a block puts it beside the block before it on a slide (right column; the one before takes the left),
    e.g. the vocabulary table beside the token IDs (Eric, 2026-11-08). Other views stack them as usual. */
 .book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ .side), :has(+ .cmt + .side), :has(+ .cmt + .cmt + .side)) { grid-column: 1; align-self: center; min-width: 0; }
