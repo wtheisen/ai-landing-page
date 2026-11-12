@@ -1023,15 +1023,46 @@ function eaiInk(opts) {
     if (window.ResizeObserver) new ResizeObserver(sendBoxes).observe(book);   // pictures loading, blank pages, the fit zoom
     addEventListener('resize', sendBoxes); addEventListener('load', sendBoxes);
     var erasing = [];
+    // PencilKit (app build 3, eaiNativeApp.pk): the app shows all the ink itself, so what's written looks the same from
+    // the first touch on (Eric, 2026-11-12: the live line and the page's line never quite matched, so a stroke changed
+    // a little on lift). The page still keeps the strokes (drafts, Undo, Publish, PDFs) but hides its own drawing of
+    // them, and tells the app which strokes it would draw, with an id each, whenever that changes (inkList).
+    var PK = !!window.eaiNativeApp.pk, ids = new WeakMap(), nid = 1;
+    function idOf(st) { if (!ids.has(st)) ids.set(st, nid++); return ids.get(st); }
+    function list() { return [].map.call(book.querySelectorAll('svg.ink path'), function (el) { return el._s && { id: idOf(el._s), s: el._s }; }).filter(Boolean); }
+    var lt = 0;
+    function sendList() { clearTimeout(lt); lt = setTimeout(function () { native({ inkList: list() }); }, 0); }
+    if (PK) {
+      H.classList.add('native-pk');
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var n = [].concat([].slice.call(ms[i].addedNodes), [].slice.call(ms[i].removedNodes));
+          if (n.some(function (x) { return x.nodeName === 'path' || x.nodeName === 'svg' || (x.querySelector && x.querySelector('svg.ink')); })) return sendList();
+        }
+      }).observe(book, { childList: true, subtree: true });
+    }
     window.eaiNativeInk = {
       boxes: boxes,
+      list: list,
       // a finished stroke from the app
       stroke: function (s) {
         if (!s || !s.p || !document.getElementById(s.p) || !(s.pts && s.pts.length)) return false;
         ensureTarget(); if (!target) return false;
         var st = { p: s.p, c: s.c, w: s.w, pts: s.pts }; if (s.o) st.o = s.o;
         var el = drawStroke(st); target.strokes.push(st); undo.push({ stroke: st, el: el }); saveSoon(); nativeState();
-        return true;
+        return PK ? idOf(st) : true;
+      },
+      // PencilKit's eraser takes whole strokes: these ids (only this draft's or reader's own go; the app is sent the rest
+      // back in the next inkList), then eraseEnd as for erase()
+      eraseIds: function (list) {
+        ensureTarget(); if (!target) return;
+        (list || []).forEach(function (id) {
+          target.strokes.filter(function (s) { return ids.get(s) === id; }).forEach(function (s) {
+            target.strokes.splice(target.strokes.indexOf(s), 1); erasing.push(s);
+            [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
+          });
+        });
+        sendList();
       },
       // the eraser: points (page pt) on one page as the Pencil moves, then eraseEnd (cancel: the wheel opened, put them back)
       erase: function (pid, pts) {
@@ -1063,7 +1094,7 @@ function eaiInk(opts) {
         barState();
       }
     };
-    native({ inkReady: true, pages: boxes() }); nativeState(); sendBoxes();
+    native({ inkReady: true, pk: PK, pages: boxes() }); nativeState(); sendBoxes(); if (PK) sendList();
   }
   // ?lecture=1 (the editor home's Lecture button): teaching from this device: the pen in hand, the faint answers hidden
   // (see ghost). The plain Lecture view (its answers link) shows them to the signed-in instructor.

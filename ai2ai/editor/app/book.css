@@ -553,6 +553,8 @@ html.lect #book, html.lect main.book { gap: calc(24px * var(--zoom, 1)); padding
 /* the iPad app's own pen and scrolling (ios/, ink.js nativeInk): the app's toolbar replaces the pen bar, and the page
    scrolls and pinch-zooms natively, so nothing here scales or scrolls the pages itself */
 html.native-ink .chap-head { display: none !important; }
+/* the iPad app's PencilKit shows the ink (ink.js nativeInk, PK): the page keeps the strokes but doesn't draw them */
+html.native-pk svg.ink { visibility: hidden !important; }
 /* Lecture pages are 4:3 slides, 10 × 7.5 in (Eric, 2026-10-29: 16:9 was too wide next to his iPad; 16:9 from 2026-10-26);
    the Reading and the Workbook stay 6 × 9 pages.
    book.js Book.SIZES says the same for the measuring code; the exported page sets @page to match. */
