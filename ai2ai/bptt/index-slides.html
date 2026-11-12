@@ -236,7 +236,12 @@ b-eq.busy img { opacity: .35; }
 b-code:has(+ b-out) { margin-bottom: calc(-1 * var(--gap, 10pt)) !important; border-radius: 4px 4px 0 0; }
 b-code + b-out { border-top: 0; }
 b-out:not(b-code + b-out) { border-radius: 4px; }
-.run-bar { float: right; display: inline-flex; align-items: center; gap: 4pt; margin-top: -1pt; letter-spacing: 0; text-transform: none; }
+/* the Run bar sits in the output's label row, at its right, and wraps onto a row of its own inside the label when the label is narrow.
+   It used to float right: in a narrow output (a slide's right column, Safari's wider monospace fallback) the float dropped below
+   the label and Safari laid the output text in the sliver beside it (Eric, 2026-11-12, bptt lec-bp-run while presenting). */
+b-out .label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6pt; row-gap: 3pt; }
+.run-bar { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4pt; margin-left: auto; order: 1; letter-spacing: 0; text-transform: none; }   /* order: after the label's own text and the presenting hint (::after) */
+.run-bar button, .run-bar .run-status { white-space: nowrap; }
 .run-bar button { font: 700 7.5pt var(--font-mono); padding: 0 5pt; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); color: var(--ink-muted); cursor: pointer; }
 .run-bar button[data-a="run"] { color: var(--blue-text); border-color: var(--blue-text); }
 .run-bar.busy button[data-a="run"] { opacity: .5; pointer-events: none; }
@@ -5089,7 +5094,7 @@ z
 </b-fig>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Sequence Data</span><span>09</span></div></section>
 
-<section class="page" id="lec-p-992ol" data-view="slides workbook" data-topic="unrolling rnn-equations" style="--gap: 20.3pt;">
+<section class="page" id="lec-p-992ol" data-view="slides workbook" data-topic="unrolling rnn-equations" style="--gap: 20.4pt;">
   <h2 data-b="xv6ry">RNNs (Old Exam Questions)</h2>
   <aside class="qc exam" data-qsrc="pp03-rnn-graph" data-b="lfr44"><b>Old exam question:</b> Draw the computation graph for an <b class="name">RNN</b>, for the sentence "Good Luck", with a word level <b class="def">tokenizer</b>. Only produce output for the final <b class="def">token</b>.<div class="ans ghost-only">Two tokens, <b-m tex="x_{1}"><span class="c red">x<sub>1</sub></span></b-m> = "Good" and <b-m tex="x_{2}"><span class="c red">x<sub>2</sub></span></b-m> = "Luck" (each as its embedding), and two copies of the cell sharing <b-m tex="Ω_x"><span class="c wblue"><span class="Om">ω</span><sub>x</sub></span></b-m>, <b-m tex="Ω_c"><span class="c wblue"><span class="Om">ω</span><sub>c</sub></span></b-m> and <b-m tex="b_c"><span class="c gray">b<sub>c</sub></span></b-m>. Start from <b-m tex="c_{0} = 0"><span class="c gold">c<sub>0</sub></span> = 0</b-m>. Step 1: <b-m tex="c_{1} = g_1(x_{1} Ω_x\T + c_{0} Ω_c\T + b_c)"><span class="c gold">c<sub>1</sub></span> = g<sub>1</sub>(<span class="c red">x<sub>1</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>x</sub></span><sup>T</sup> + <span class="c gold">c<sub>0</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>c</sub></span><sup>T</sup> + <span class="c gray">b<sub>c</sub></span>)</b-m>, no output. Step 2: <b-m tex="c_{2} = g_1(x_{2} Ω_x\T + c_{1} Ω_c\T + b_c)"><span class="c gold">c<sub>2</sub></span> = g<sub>1</sub>(<span class="c red">x<sub>2</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>x</sub></span><sup>T</sup> + <span class="c gold">c<sub>1</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>c</sub></span><sup>T</sup> + <span class="c gray">b<sub>c</sub></span>)</b-m>, then the only output <b-m tex="ŷ = g_2(c_{2} Ω_y\T + b_y)"><span class="c gold">ŷ</span> = g<sub>2</sub>(<span class="c gold">c<sub>2</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>y</sub></span><sup>T</sup> + <span class="c gray">b<sub>y</sub></span>)</b-m>. Drawn: <b-m tex="c_{0}"><span class="c gold">c<sub>0</sub></span></b-m> → cell 1 (with "Good" from below) → <b-m tex="c_{1}"><span class="c gold">c<sub>1</sub></span></b-m> → cell 2 (with "Luck" from below) → <b-m tex="c_{2}"><span class="c gold">c<sub>2</sub></span></b-m> → output layer → <b-m tex="ŷ"><span class="c gold">ŷ</span></b-m>, with the shared weights feeding both cells.</div></aside>
   <div class="wbox" style="height: 358pt" data-b="hu0i5"></div>
