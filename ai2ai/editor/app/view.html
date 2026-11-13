@@ -171,7 +171,7 @@ body .navbar { padding-top: calc(10px + var(--top-clear)); padding-left: calc(15
     const html = await Book.snapshot();
     await fetch('../api/snapshot/' + ch, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ html, report, pages, eqs: [...document.querySelectorAll('b-eq')].map(e => e._key).filter(Boolean) }) });
   }
-  if (!exporting) eaiInk({ dir: Book.meta.web || ('ai2ai/' + ch), pdf: (Book.meta.pdf || ch + '-chapter.pdf').replace(/\.pdf$/, { reading: '', slides: '-slides', workbook: '-workbook' }[Book.view] + '.pdf') });
+  if (!exporting) eaiInk({ dir: Book.meta.web || ('ai2ai/' + ch), chapter: ch, pdf: (Book.meta.pdf || ch + '-chapter.pdf').replace(/\.pdf$/, { reading: '', slides: '-slides', workbook: '-workbook' }[Book.view] + '.pdf') });
   document.documentElement.dataset.ready = '1';
 })();
 </script>
