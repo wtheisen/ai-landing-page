@@ -17,8 +17,9 @@
 //   Input        Pencil and mouse write; fingers scroll.
 //
 // A layer: {"id","title","pages":[{"after":"page-id","id":"wb-…"}],"strokes":[{"p":"page-id","c":"#hex","w":2.2,
-// "o":0.35?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
-// coordinates in points from the page's top-left (a page is 432 pt wide). "code" holds what the instructor ran in
+// "o":0.35?,"f":"<blank>"?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
+// coordinates in points from the page's top-left (a page is 432 pt wide). "f" tags a fill-in blank's handwriting (the iPad
+// app's blank pads: the blank's data-b block and its index there, "bx12#0"). "code" holds what the instructor ran in
 // lecture (an edited cell's source, its output, its plots: base64 PNGs in the draft, site paths once published), put
 // back on the page with the notes and drawn into the notes PDF (Eric, 2026-11-10).
 // Self-contained on purpose: the published page gets this file's source verbatim.
@@ -485,7 +486,13 @@ function eaiInk(opts) {
     if (u.stroke) { target.strokes.splice(target.strokes.indexOf(u.stroke), 1); [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === u.stroke) pp.remove(); }); }
     if (u.erased) u.erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
     if (u.blank) { target.pages.splice(target.pages.indexOf(u.blank), 1); var p = document.getElementById(u.blank.id); if (p) p.remove(); }
+    // a blank's pad (the iPad app's eaiNativeInk.fill): its handwriting as it was before the pad opened
+    if (u.fill) { u.after.forEach(unStroke); u.before.forEach(function (s) { target.strokes.push(s); drawStroke(s); }); }
     save(); nativeState();
+  }
+  function unStroke(s) {
+    var i = target.strokes.indexOf(s); if (i >= 0) target.strokes.splice(i, 1);
+    [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
   }
   function near(s, x, y, r) { for (var i = 0; i < s.pts.length; i++) { var dx = s.pts[i][0] - x, dy = s.pts[i][1] - y; if (dx * dx + dy * dy < r * r) return true; } return false; }
   function down(e) {
@@ -1087,6 +1094,21 @@ function eaiInk(opts) {
         var st = { p: s.p, c: s.c, w: s.w, pts: s.pts }; if (s.o) st.o = s.o;
         var el = drawStroke(st); target.strokes.push(st); undo.push({ stroke: st, el: el }); saveSoon(); nativeState();
         return PK ? idOf(st) : true;
+      },
+      // a fill-in blank's handwriting from the app's pad (ios/ TextPad.swift, docs/blank-pads.md): the strokes tagged
+      // with the blank (f: key) are replaced by these, fitted into the blank. Every change in one opening of the pad
+      // (sess) is one Undo step on the bar, which puts back the blank's handwriting from before the pad opened.
+      fill: function (key, list, sess) {
+        ensureTarget(); if (!target || !key) return false;
+        var old = target.strokes.filter(function (s) { return s.f === key; }); old.forEach(unStroke);
+        var add = (list || []).filter(function (s) { return s && s.p && document.getElementById(s.p) && s.pts && s.pts.length; }).map(function (s) {
+          var st = { p: s.p, c: s.c, w: s.w, pts: s.pts, f: key }; if (s.o) st.o = s.o;
+          drawStroke(st); target.strokes.push(st); return st;
+        });
+        var u = undo[undo.length - 1];
+        if (u && u.fill === key && u.sess === sess) u.after = add;
+        else if (old.length || add.length) undo.push({ fill: key, sess: sess, before: old, after: add });
+        saveSoon(); nativeState(); return true;
       },
       // PencilKit's eraser takes whole strokes: these ids (only this draft's or reader's own go; the app is sent the rest
       // back in the next inkList), then eraseEnd as for erase()
