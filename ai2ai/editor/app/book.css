@@ -311,6 +311,10 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
 /* in a table the text is smaller than the slide's, so a blank there is as large as a blank in the text around it
    (Eric, 2026-11-08: "fills in a table are also enlarged") */
 .book[data-view="slides"] :is(td, th) u.fill:not(b-code u.fill, b-out u.fill, u.fill u.fill) { font-size: max(1.2em, calc(1.2 * var(--fs, 18pt))); }   /* 1.2 x the slide's own text size (smaller on s-tight) */
+/* an equation left empty to work in class is drawn 1.5x in the Lecture, so handwriting traced over its faint answer
+   comes out readable (Eric, 2026-11-13: "really small and condensed"; as text blanks are 1.2em). Its box grows with
+   it; a wide one stops at the column's width (img max-width). Measured: no Lecture slide runs over at 1.5x. */
+.book[data-view="slides"] b-eq[data-fill] > img { zoom: 1.5; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] > * { visibility: hidden; }
 .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown > * { visibility: visible; }
