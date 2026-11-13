@@ -1,15 +1,15 @@
 {
  "_last": {
-  "at": "2026-11-13T16:07:59Z",
+  "at": "2026-11-13T16:14:28Z",
   "failed": {},
   "ok": [
    "ballm-rag-lora"
   ],
-  "run": "43459246556"
+  "run": "43460360818"
  },
  "ballm-rag-lora": {
-  "at": "2026-11-13T16:08:10Z",
-  "commit": "c146d38ac016a1f381844e9e9d79141a09284461",
+  "at": "2026-11-13T16:14:38Z",
+  "commit": "e82f808f60e60e01dba819dd40d5fba31427c933",
   "files": [
    {
     "name": "Solutions_BaLLM_Chapter_2.04_RAG_LoRA_and_Distillation.ipynb",
@@ -24,7 +24,7 @@
     "sha": "5795e3b0bb0c36477150e6123fdce381e9dca2c4"
    }
   ],
-  "tab": "RAG, LoRA, and Distillation",
+  "tab": "Programming Day 10: RAG, LoRA, and Distillation",
   "title": "RAG, LoRA, and Distillation",
   "web": "ballm/rag-lora"
  }
