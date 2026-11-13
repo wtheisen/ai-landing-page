@@ -582,6 +582,25 @@ Book.symArrows = svg => {
     if (l.getAttribute('stroke') !== col) l.setAttribute('stroke', col);
     for (const a of ['marker-start', 'marker-end']) if (l.getAttribute(a)) { const u = Book.arrowHead(svg, col); if (l.getAttribute(a) !== u) l.setAttribute(a, u); }
   }
+  Book.symArrowsOnTop(svg);
+};
+// arrows attached to a tile or a row sit above the rows, so a row's box doesn't hide the end that runs in to its tile
+// (Eric, 2026-11-13: "go over the black boxes around the equations"); order among the arrows is kept, and nothing
+// moves once they are already on top
+Book.symArrowsOnTop = svg => {
+  const inSym = id => { if (!id) return false; let e; try { e = svg.querySelector('[id="' + CSS.escape(id) + '"]'); } catch (x) { return false; } return !!(e && e.closest('g[data-row], g[data-sym]')); };
+  const isBox = e => e.matches && (e.matches('g[data-row], g[data-sym]') || !!e.querySelector('g[data-row], g[data-sym]'));
+  const pars = new Set();
+  for (const l of svg.querySelectorAll('line[data-a], line[data-b], polyline[data-a], polyline[data-b], path[data-a], path[data-b]'))
+    if (!l.closest('g[data-row], g[data-sym]') && (inSym(l.getAttribute('data-a')) || inSym(l.getAttribute('data-b')))) pars.add(l.parentNode);
+  let moved = 0;
+  pars.forEach(par => {
+    const kids = [...par.children], last = kids.map(isBox).lastIndexOf(true); if (last < 0) return;
+    const late = kids.slice(0, last).filter(l => l.matches('line, polyline, path') && (inSym(l.getAttribute('data-a')) || inSym(l.getAttribute('data-b'))));
+    if (!late.length) return;
+    let at = kids[last]; late.forEach(l => { at.after(l); at = l; moved++; });
+  });
+  return moved;
 };
 Book.drawSyms = root => {
   const changed = new Set();
