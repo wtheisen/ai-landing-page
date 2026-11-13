@@ -101,6 +101,11 @@ const endsOf = (tag, get) => tag === 'line' ? [[f(get('x1')), f(get('y1'))], [f(
 const ends = el => endsOf(el.localName, a => el.getAttribute(a));
 function setEnd(el, i, x, y) {
   if (el.localName === 'line') { el.setAttribute(i ? 'x2' : 'x1', r1(x)); el.setAttribute(i ? 'y2' : 'y1', r1(y)); return; }
+  if (el.localName === 'polyline') {   // a routed arrow: its end moves, and the bend next to it keeps that segment straight
+    const P = pts(el); if (P.length < 2) return; const k = i ? P.length - 1 : 0, j = i ? k - 1 : 1;
+    if (P.length > 2) { if (Math.abs(P[k][0] - P[j][0]) < 0.05) P[j][0] = x; else if (Math.abs(P[k][1] - P[j][1]) < 0.05) P[j][1] = y; }
+    P[k] = [x, y]; el.setAttribute('points', ptStr(P)); return;
+  }
   const q = qp(el.getAttribute('d')); if (!q) return; q[i ? 4 : 0] = x; q[i ? 5 : 1] = y; el.setAttribute('d', qd(q));
 }
 const curvePt = (q, t) => [(1 - t) * (1 - t) * q[0] + 2 * t * (1 - t) * q[2] + t * t * q[4], (1 - t) * (1 - t) * q[1] + 2 * t * (1 - t) * q[3] + t * t * q[5]];
@@ -151,22 +156,26 @@ function setHeads(el, h) {
 
 // ---------------------------------------------------------------- connectors: line ends that follow the shape they sit on
 const byId = (svg, id) => id ? [...svg.querySelectorAll('[id]')].find(n => n.id === id && n.ownerSVGElement === svg) : null;
-function edgePoint(target, toward) {   // where the ray from the shape's centre toward a point leaves the shape (plus a small gap)
+function edgePoint(target, toward, gap = 2) {   // where the ray from the shape's centre toward a point leaves the shape (plus a small gap)
   const b = box(target), cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2, hw = (b.x1 - b.x0) / 2 || 0.1, hh = (b.y1 - b.y0) / 2 || 0.1;
   let dx = toward[0] - cx, dy = toward[1] - cy; const l = Math.hypot(dx, dy); if (l < 0.01) return [cx, cy]; dx /= l; dy /= l;
   const round = /^(ellipse|circle)$/.test(target.localName) && !rotOf(target);
   const t = round ? 1 / Math.hypot(dx / hw, dy / hh) : Math.min(dx ? hw / Math.abs(dx) : 1e9, dy ? hh / Math.abs(dy) : 1e9);
-  return [cx + dx * (t + 2), cy + dy * (t + 2)];
+  return [cx + dx * (t + gap), cy + dy * (t + gap)];
 }
 function reconnect(svg) {
   if (!svg || !svg.isConnected) return;
   svg.querySelectorAll('[data-a], [data-b]').forEach(el => {
-    const e = ends(el); if (!e) return;
+    // routed arrows (polylines) follow their shapes too (2026-11-13: they never did, so their ends sat where a script put them)
+    const e = ends(el) || (el.localName === 'polyline' ? (P => P.length > 1 ? [P[0], P[P.length - 1]] : null)(pts(el)) : null); if (!e) return;
     const ta = byId(svg, el.getAttribute('data-a')), tb = byId(svg, el.getAttribute('data-b'));
     if (!ta && el.hasAttribute('data-a')) el.removeAttribute('data-a'); if (!tb && el.hasAttribute('data-b')) el.removeAttribute('data-b');
     const centre = t => { const b = box(t); return [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2]; };
     const q = el.localName === 'path' ? qp(el.getAttribute('d')) : null, bend = q ? [q[2], q[3]] : null;   // a curve leaves each shape toward its bend
-    const at = (t, key, toward) => siteAt(t, el.getAttribute(key + '-at')) || edgePoint(t, toward);   // fixed to a connection point, else facing the other end
+    // an end with no arrowhead on a symbol tile or row touches it (Eric, 2026-11-13: "the start of the arrows aren't
+    // actually connected to the boxes they're coming from"); a head keeps its small gap, and other drawings are as before
+    const touch = (t, key) => !el.getAttribute(key === 'data-a' ? 'marker-start' : 'marker-end') && !!(t.closest && t.closest('g[data-sym], g[data-row]'));
+    const at = (t, key, toward) => { const z = touch(t, key); return siteAt(t, el.getAttribute(key + '-at'), z ? 0 : null) || edgePoint(t, toward, z ? 0 : 2); };   // fixed to a connection point, else facing the other end
     if (ta) { const p = at(ta, 'data-a', bend || (tb ? centre(tb) : e[1])); if (Math.hypot(p[0] - e[0][0], p[1] - e[0][1]) > 0.25) setEnd(el, 0, p[0], p[1]); }
     if (tb) { const p = at(tb, 'data-b', bend || (ta ? centre(ta) : e[0])); if (Math.hypot(p[0] - e[1][0], p[1] - e[1][1]) > 0.25) setEnd(el, 1, p[0], p[1]); }
   });
@@ -176,12 +185,12 @@ function reconnect(svg) {
 // and stays fixed to that side (data-a-at / data-b-at = t r b l). Dropped anywhere else on the shape it attaches as before,
 // sliding round the edge to face the other end.
 const SITE_PX = 12;   // how close to a dot (screen px) the pointer must be to snap to it
-function siteAt(t, k) {   // a connection point of shape t, just outside its edge (like edgePoint's small gap). "l" is the middle of
+function siteAt(t, k, gap = null) {   // a connection point of shape t, just outside its edge (like edgePoint's small gap). "l" is the middle of
   // the left side, "l:0.25" a quarter of the way down it (t/b count from the left): an arrow a script laid out (tools/todraw.py)
   // keeps the spot it was drawn at instead of swinging round to face the other shape's centre (Eric, 2026-11-09)
   const m = /^([trbl])(?::(-?[\d.]+))?(?::(-?[\d.]+))?$/.exec(k || ''); if (!t || !m) return null;
   const b = box(t), f = m[2] == null ? 0.5 : Math.min(1, Math.max(0, +m[2])), x = b.x0 + (b.x1 - b.x0) * f, y = b.y0 + (b.y1 - b.y0) * f;
-  const g = m[2] == null ? 2 : +(m[3] || 0);   // a dot sits just outside the edge; a drawn spot keeps its own distance from it ("r:0.500:-2": 2 short)
+  const g = gap != null ? gap : m[2] == null ? 2 : +(m[3] || 0);   // a dot sits just outside the edge; a drawn spot keeps its own distance from it ("r:0.500:-2": 2 short)
   return { t: [x, b.y0 - g], r: [b.x1 + g, y], b: [x, b.y1 + g], l: [b.x0 - g, y] }[m[1]];
 }
 const inR = (r, x, y, pad) => x >= r.left - pad && x <= r.right + pad && y >= r.top - pad && y <= r.bottom + pad;
