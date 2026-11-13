@@ -241,6 +241,7 @@ b-out:not(b-code + b-out) { border-radius: 4px; }
    the label and Safari laid the output text in the sliver beside it (Eric, 2026-11-12, bptt lec-bp-run while presenting). */
 b-out .label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6pt; row-gap: 3pt; }
 .run-bar { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4pt; margin-left: auto; order: 1; letter-spacing: 0; text-transform: none; }   /* order: after the label's own text and the presenting hint (::after) */
+.run-bar.run-wait [data-a="run"], .run-bar.run-wait [data-a="prior"] { display: none; }   /* a Lecture cell with code blanks: Run once they're filled in (or it's edited) */
 .run-bar button, .run-bar .run-status { white-space: nowrap; }
 .run-bar button { font: 700 7.5pt var(--font-mono); padding: 0 5pt; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); color: var(--ink-muted); cursor: pointer; }
 .run-bar button[data-a="run"] { color: var(--blue-text); border-color: var(--blue-text); }
@@ -295,6 +296,20 @@ u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { cursor: pointer; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown { color: var(--navy); } .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown * { color: inherit !important; }
 u.fill.blank { display: inline-block; vertical-align: baseline; }
+/* a code blank filled in by hand in the Lecture (Book.fillBlank): the writing in place of the answer, underlined green,
+   or red when it isn't the answer */
+.book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
+.book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
+   box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
+.eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
+.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
+.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -560,6 +575,8 @@ html.lect #book, html.lect main.book { gap: calc(24px * var(--zoom, 1)); padding
 /* the iPad app's own pen and scrolling (ios/, ink.js nativeInk): the app's toolbar replaces the pen bar, and the page
    scrolls and pinch-zooms natively, so nothing here scales or scrolls the pages itself */
 html.native-ink .chap-head { display: none !important; }
+/* the iPad app's PencilKit shows the ink (ink.js nativeInk, PK): the page keeps the strokes but doesn't draw them */
+html.native-pk svg.ink { visibility: hidden !important; }
 /* Lecture pages are 4:3 slides, 10 × 7.5 in (Eric, 2026-10-29: 16:9 was too wide next to his iPad; 16:9 from 2026-10-26);
    the Reading and the Workbook stay 6 × 9 pages.
    book.js Book.SIZES says the same for the measuring code; the exported page sets @page to match. */
@@ -6739,82 +6756,230 @@ z
   <h2 data-b="nv8j9">Gates and Computation Graphs</h2>
   <p data-b="igcg0">Add a new component called a <b class="def">gate</b> that allows each step choose how much of the <u class="fill blank" style="width: 153.8pt;">&nbsp;</u> to keep</p>
   
-  <svg class="draw" viewBox="0 0 420 254" style="width: 560pt" role="img" aria-label="One step of an RNN with a gate, read from the bottom up. x t, Omega x, c t minus 1, Omega c and b c feed the box c tilde t = tanh(x t Omega x transposed + c t minus 1 Omega c transposed + b c), the ordinary RNN step, which gives the candidate c tilde t. The gate z t and c t minus 1, by a straight path up the right side with no weights and no tanh, feed the box c t = z t times c t minus 1 plus (1 minus z t) times c tilde t, which gives c t for the next step." data-b="pvxdk">
+  <svg class="draw symdims" viewBox="74.2 57.0 583.9 360.7" style="width: 600pt" role="img" aria-label="One step of an RNN with a single gate, read from the bottom up, in boxes of symbol tiles with their shapes. x t and the last hidden state c t minus 1 feed two pre-activations, Z z = x t Omega z x transposed + c t minus 1 Omega z c transposed + b z and Z c tilde = x t Omega x transposed + c t minus 1 Omega c transposed + b c; the gate z t = sigma(Z z) and the candidate c tilde t = tanh(Z c tilde) feed the update c t = z t times c t minus 1 plus (1 minus z t) times c tilde t. c t goes to the next step and up to Z y = c t Omega y transposed + b y and y hat t = softmax(Z y). The cell (blue outline) holds the update, the gate and the candidate." data-vars="d=2 h=2 V=22" data-b="pvxdk">
     <defs>
-      <marker id="ah6D9EEB-pvxdk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-        <path d="M0 0 L10 5 L0 10 z" fill="#6D9EEB"></path>
-      </marker>
       <marker id="ahDCB439-pvxdk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
-      </marker>
-      <marker id="ah666666-pvxdk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-        <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
       </marker>
       <marker id="ahE06666-pvxdk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
       </marker>
+      <marker id="ah76A5AF-pvxdk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#76A5AF"></path>
+      </marker>
+      <marker id="ahE69138-pvxdk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E69138"></path>
+      </marker>
+      <marker id="ah8E7CC3-pvxdk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
     </defs>
-    <g id="gate-cell-pvxdk-x">
-      <rect x="35.0" y="216.0" width="30.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-      <text x="50.0" y="229.2" font-size="12" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">xₜ</text>
-      <text x="50.0" y="236.8" font-size="4.3" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
+    <rect id="sg-cell" x="126.4" y="167.2" width="406.7" height="172.3" rx="14" fill="none" stroke="#6D9EEB" stroke-width="1.7"></rect>
+    <g data-row="" id="sg-yhat">
+      <rect x="277.5" y="65" width="112" height="29.4" rx="5" fill="#FFFFFF" stroke="#A8A845" stroke-width="1.4"></rect>
+      <g data-sym="ŷ_t" id="sg-yhat-0">
+        <rect x="282.9" y="68.2" width="19.6" height="23.1" fill="#EDEFCF" stroke="#A8A845" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="ŷ_t|9" fill="#6B6B00" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="292.7" y="78.8">ŷ<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#6B6B00" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="292.7" y="86.8">&lt;1,22&gt;</text>
+      </g>
+      <text x="305" y="82.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= softmax(</text>
+      <g data-sym="Z_y" id="sg-yhat-2">
+        <rect x="357" y="68.2" width="19.6" height="23.1" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Z_y|9" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="366.8" y="78.8">Z<tspan font-size="5.6" dy="2.5">y</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="366.8" y="86.8">&lt;1,22&gt;</text>
+      </g>
+      <text x="379.1" y="82.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <g id="gate-cell-pvxdk-wx">
-      <rect x="105.0" y="216.0" width="30.0" height="24.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="120.0" y="229.2" font-size="12" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
-      <text x="120.0" y="236.8" font-size="4.3" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2, 2&gt;</text>
+    <g data-row="" id="sg-zy">
+      <rect x="275.5" y="116.3" width="110.6" height="29.4" rx="5" fill="#FFFFFF" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <g data-sym="Z_y" id="sg-zy-0">
+        <rect x="280.9" y="119.5" width="19.6" height="23.1" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Z_y|9" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="290.7" y="130.1">Z<tspan font-size="5.6" dy="2.5">y</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="290.7" y="138.1">&lt;1,22&gt;</text>
+      </g>
+      <text x="303" y="134.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <g data-sym="c_t" id="sg-zy-2">
+        <rect x="310.5" y="119.5" width="17.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_t|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="319.1" y="130.1">c<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="319.1" y="138.1">&lt;1,2&gt;</text>
+      </g>
+      <g data-sym="Ω_y^T" id="sg-zy-3">
+        <rect x="330.2" y="119.5" width="20.9" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_y^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="340.6" y="130.1">Ω<tspan font-size="5.6" dy="2.5">y</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="340.6" y="138.1">&lt;2,22&gt;</text>
+      </g>
+      <text x="353.6" y="134.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="b_y" id="sg-zy-5">
+        <rect x="361.1" y="119.5" width="19.6" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_y|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="370.9" y="130.1">b<tspan font-size="5.6" dy="2.5">y</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="370.9" y="138.1">&lt;1,22&gt;</text>
+      </g>
     </g>
-    <g id="gate-cell-pvxdk-cp">
-      <rect x="169.6" y="216.0" width="40.8" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="190.0" y="229.2" font-size="12" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ₋₁</text>
-      <text x="190.0" y="236.8" font-size="4.3" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
+    <g data-row="" id="sg-ceq">
+      <rect x="242.7" y="181.2" width="179" height="29.4" rx="5" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.4"></rect>
+      <g data-sym="c_t" id="sg-ceq-0">
+        <rect x="248.1" y="184.3" width="17.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_t|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="256.7" y="194.9">c<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="256.7" y="202.9">&lt;1,2&gt;</text>
+      </g>
+      <text x="267.8" y="199.1" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <g data-sym="z_t" id="sg-ceq-2">
+        <rect x="275.3" y="184.3" width="17.2" height="23.1" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="z_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="283.9" y="194.9">z<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="283.9" y="202.9">&lt;1,2&gt;</text>
+      </g>
+      <text x="295" y="199.1" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">⊙</text>
+      <g data-sym="c_{t−1}" id="sg-ceq-4">
+        <rect x="303.3" y="184.3" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="314.9" y="194.9">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="314.9" y="202.9">&lt;1,2&gt;</text>
+      </g>
+      <text x="329" y="199.1" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+ (1 −</text>
+      <g data-sym="z_t" id="sg-ceq-6">
+        <rect x="361.2" y="184.3" width="17.2" height="23.1" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="z_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="369.8" y="194.9">z<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="369.8" y="202.9">&lt;1,2&gt;</text>
+      </g>
+      <text x="380.9" y="199.1" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">) ⊙</text>
+      <g data-sym="c̃_t" id="sg-ceq-8">
+        <rect x="399.1" y="184.3" width="17.2" height="23.1" fill="#D0E0E3" stroke="#76A5AF" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c̃_t|9" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="407.7" y="194.9">c̃<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="407.7" y="202.9">&lt;1,2&gt;</text>
+      </g>
     </g>
-    <g id="gate-cell-pvxdk-wc">
-      <rect x="245.0" y="216.0" width="30.0" height="24.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="260.0" y="229.2" font-size="12" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
-      <text x="260.0" y="236.8" font-size="4.3" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2, 2&gt;</text>
+    <g data-row="" id="sg-zt">
+      <rect x="183.5" y="246.3" width="77.5" height="29.4" rx="5" fill="#FFFFFF" stroke="#E69138" stroke-width="1.4"></rect>
+      <g data-sym="z_t" id="sg-zt-0">
+        <rect x="188.9" y="249.4" width="17.2" height="23.1" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="z_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="197.5" y="260">z<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="197.5" y="268">&lt;1,2&gt;</text>
+      </g>
+      <text x="208.6" y="264.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= σ(</text>
+      <g data-sym="Z_z" id="sg-zt-2">
+        <rect x="230.9" y="249.4" width="17.2" height="23.1" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Z_z|9" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="239.5" y="260">Z<tspan font-size="5.6" dy="2.5">z</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="239.5" y="268">&lt;1,2&gt;</text>
+      </g>
+      <text x="250.7" y="264.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <g id="gate-cell-pvxdk-bc">
-      <rect x="315.0" y="216.0" width="30.0" height="24.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-      <text x="330.0" y="229.2" font-size="12" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
-      <text x="330.0" y="236.8" font-size="4.3" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2&gt;</text>
+    <g data-row="" id="sg-ctil">
+      <rect x="394.1" y="246.3" width="92.3" height="29.4" rx="5" fill="#FFFFFF" stroke="#76A5AF" stroke-width="1.4"></rect>
+      <g data-sym="c̃_t" id="sg-ctil-0">
+        <rect x="399.5" y="249.4" width="17.2" height="23.1" fill="#D0E0E3" stroke="#76A5AF" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c̃_t|9" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="408.1" y="260">c̃<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="408.1" y="268">&lt;1,2&gt;</text>
+      </g>
+      <text x="419.2" y="264.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= tanh(</text>
+      <g data-sym="Z_c̃" id="sg-ctil-2">
+        <rect x="456.3" y="249.4" width="17.2" height="23.1" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Z_c̃|9" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="464.9" y="260">Z<tspan font-size="5.6" dy="2.5">c̃</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="464.9" y="268">&lt;1,2&gt;</text>
+      </g>
+      <text x="476.1" y="264.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <g id="gate-cell-pvxdk-ceq">
-      <rect x="100.4" y="159.0" width="179.3" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="190.0" y="175.6" font-size="10" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">c̃</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> = tanh(</tspan><tspan fill="#E06666">x</tspan><tspan fill="#E06666" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">x</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t−1</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">c</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#666666">b</tspan><tspan fill="#666666" baseline-shift="-8%" font-size="62%">c</tspan><tspan fill="#000000">)</tspan></text>
+    <g data-row="" id="sg-Zz">
+      <rect x="137.9" y="296.1" width="168.6" height="29.4" rx="5" fill="#FFFFFF" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <g data-sym="Z_z" id="sg-Zz-0">
+        <rect x="143.3" y="299.3" width="17.2" height="23.1" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Z_z|9" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="151.9" y="309.9">Z<tspan font-size="5.6" dy="2.5">z</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="151.9" y="317.9">&lt;1,2&gt;</text>
+      </g>
+      <text x="163" y="314" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <g data-sym="x_t" id="sg-Zz-2">
+        <rect x="170.5" y="299.3" width="17.2" height="23.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="179.1" y="309.9">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="179.1" y="317.9">&lt;1,2&gt;</text>
+      </g>
+      <g data-sym="Ω_zx^T" id="sg-Zz-3">
+        <rect x="190.2" y="299.3" width="24" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_zx^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="202.2" y="309.9">Ω<tspan font-size="5.6" dy="2.5">zx</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="202.2" y="317.9">&lt;2,2&gt;</text>
+      </g>
+      <text x="216.7" y="314" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="c_{t−1}" id="sg-Zz-5">
+        <rect x="224.2" y="299.3" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="235.8" y="309.9">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="235.8" y="317.9">&lt;1,2&gt;</text>
+      </g>
+      <g data-sym="Ω_zc^T" id="sg-Zz-6">
+        <rect x="249.9" y="299.3" width="24" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_zc^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="261.9" y="309.9">Ω<tspan font-size="5.6" dy="2.5">zc</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="261.9" y="317.9">&lt;2,2&gt;</text>
+      </g>
+      <text x="276.4" y="314" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="b_z" id="sg-Zz-8">
+        <rect x="283.9" y="299.3" width="17.2" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_z|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="292.5" y="309.9">b<tspan font-size="5.6" dy="2.5">z</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="292.5" y="317.9">&lt;1,2&gt;</text>
+      </g>
     </g>
-    <polyline points="50.0,214.0 50.0,200.0 108.4,200.0 108.4,187.0" fill="none" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-pvxdk)" data-a="gate-cell-pvxdk-x" data-b="gate-cell-pvxdk-ceq" data-a-at="t:0.500:2" data-b-at="b:0.045:2"></polyline>
-    <line x1="120.0" y1="214.0" x2="120.0" y2="187.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-pvxdk)" data-a="gate-cell-pvxdk-wx" data-b="gate-cell-pvxdk-ceq" data-a-at="t:0.500:2" data-b-at="b:0.110:2"></line>
-    <line x1="190.0" y1="214.0" x2="190.0" y2="187.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-pvxdk)" data-a="gate-cell-pvxdk-cp" data-b="gate-cell-pvxdk-ceq" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="260.0" y1="214.0" x2="260.0" y2="187.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-pvxdk)" data-a="gate-cell-pvxdk-wc" data-b="gate-cell-pvxdk-ceq" data-a-at="t:0.500:2" data-b-at="b:0.890:2"></line>
-    <polyline points="330.0,214.0 330.0,200.0 271.6,200.0 271.6,187.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-pvxdk)" data-a="gate-cell-pvxdk-bc" data-b="gate-cell-pvxdk-ceq" data-a-at="t:0.500:2" data-b-at="b:0.955:2"></polyline>
-    <g id="gate-cell-pvxdk-ct">
-      <rect x="175.0" y="110.0" width="30.0" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="190.0" y="123.2" font-size="12" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c̃ₜ</text>
-      <text x="190.0" y="130.8" font-size="4.3" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
+    <g data-row="" id="sg-Zc">
+      <rect x="359.1" y="296.1" width="162.4" height="29.4" rx="5" fill="#FFFFFF" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <g data-sym="Z_c̃" id="sg-Zc-0">
+        <rect x="364.5" y="299.3" width="17.2" height="23.1" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Z_c̃|9" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="373.1" y="309.9">Z<tspan font-size="5.6" dy="2.5">c̃</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="373.1" y="317.9">&lt;1,2&gt;</text>
+      </g>
+      <text x="384.2" y="314" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <g data-sym="x_t" id="sg-Zc-2">
+        <rect x="391.7" y="299.3" width="17.2" height="23.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="400.3" y="309.9">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="400.3" y="317.9">&lt;1,2&gt;</text>
+      </g>
+      <g data-sym="Ω_x^T" id="sg-Zc-3">
+        <rect x="411.4" y="299.3" width="20.9" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_x^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="421.8" y="309.9">Ω<tspan font-size="5.6" dy="2.5">x</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="421.8" y="317.9">&lt;2,2&gt;</text>
+      </g>
+      <text x="434.8" y="314" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="c_{t−1}" id="sg-Zc-5">
+        <rect x="442.3" y="299.3" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="453.9" y="309.9">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="453.9" y="317.9">&lt;1,2&gt;</text>
+      </g>
+      <g data-sym="Ω_c^T" id="sg-Zc-6">
+        <rect x="468" y="299.3" width="20.9" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_c^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="478.4" y="309.9">Ω<tspan font-size="5.6" dy="2.5">c</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="478.4" y="317.9">&lt;2,2&gt;</text>
+      </g>
+      <text x="491.4" y="314" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="b_c" id="sg-Zc-8">
+        <rect x="498.9" y="299.3" width="17.2" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_c|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="507.5" y="309.9">b<tspan font-size="5.6" dy="2.5">c</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="507.5" y="317.9">&lt;1,2&gt;</text>
+      </g>
     </g>
-    <line x1="190.0" y1="157.0" x2="190.0" y2="136.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-pvxdk)" data-a="gate-cell-pvxdk-ceq" data-b="gate-cell-pvxdk-ct" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <g id="gate-cell-pvxdk-geq">
-      <rect x="102.1" y="59.0" width="175.9" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="190.0" y="75.6" font-size="10" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> = </tspan><tspan fill="#DCB439">z</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> ⊙ </tspan><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t−1</tspan><tspan fill="#000000"> + (1 − </tspan><tspan fill="#DCB439">z</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000">) ⊙ </tspan><tspan fill="#DCB439">c̃</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan></text>
+    <g data-sym="c_{t−1}" id="sg-cp">
+      <rect x="82.2" y="181.7" width="28.2" height="28.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="c_{t−1}|11" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="96.3" y="194.7">c<tspan font-size="6.8" dy="3.1">t−1</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="96.3" y="204.5">&lt;1,2&gt;</text>
     </g>
-    <line x1="190.0" y1="108.0" x2="190.0" y2="87.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-pvxdk)" data-a="gate-cell-pvxdk-ct" data-b="gate-cell-pvxdk-geq" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <g id="gate-cell-pvxdk-z">
-      <rect x="21.0" y="60.0" width="34.0" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="38.0" y="73.2" font-size="12" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">zₜ</text>
-      <text x="38.0" y="80.8" font-size="4.3" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">the gate</text>
+    <g data-sym="c_t" id="sg-c">
+      <rect x="547.7" y="181.7" width="21.1" height="28.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="c_t|11" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="558.3" y="194.7">c<tspan font-size="6.8" dy="3.1">t</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="558.3" y="204.5">&lt;1,2&gt;</text>
     </g>
-    <line x1="57.0" y1="72.0" x2="100.1" y2="72.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-pvxdk)" data-a="gate-cell-pvxdk-z" data-b="gate-cell-pvxdk-geq" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
-    <polyline points="190.0,242.0 190.0,248.0 388.0,248.0 388.0,72.0 279.9,72.0" fill="none" stroke="#DCB439" stroke-width="1.60" marker-end="url(#ahDCB439-pvxdk)" data-a="gate-cell-pvxdk-cp" data-b="gate-cell-pvxdk-geq" data-a-at="b:0.500:2" data-b-at="r:0.500:2"></polyline>
-    <text x="382.0" y="160.0" font-size="7" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">no Ω, no tanh</text>
-    <g id="gate-cell-pvxdk-c">
-      <rect x="175.0" y="8.0" width="30.0" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="190.0" y="21.2" font-size="12" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ</text>
-      <text x="190.0" y="28.8" font-size="4.3" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
+    <g data-sym="x_t" id="sg-x">
+      <rect x="320.2" y="381.4" width="21.1" height="28.3" fill="#F4CCCC" stroke="#E06666" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="x_t|11" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="330.8" y="394.4">x<tspan font-size="6.8" dy="3.1">t</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="330.8" y="404.2">&lt;1,2&gt;</text>
     </g>
-    <line x1="190.0" y1="57.0" x2="190.0" y2="34.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-pvxdk)" data-a="gate-cell-pvxdk-geq" data-b="gate-cell-pvxdk-c" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="207.0" y1="20.0" x2="330.0" y2="20.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-pvxdk)" data-a="gate-cell-pvxdk-c" data-a-at="r:0.500:2"></line>
-    <text x="330.0" y="15.0" font-size="7" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">to the next step</text>
+    <line x1="235.8" y1="351.5" x2="235.8" y2="324.4" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-pvxdk)" data-b="sg-Zz-5" data-b-at="b:0.500:2"></line>
+    <polyline points="96.3,210 96.3,351.5 453.9,351.5 453.9,324.4" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-pvxdk)" data-a="sg-cp" data-a-at="b:0.500:2" data-b="sg-Zc-5" data-b-at="b:0.500:2"></polyline>
+    <polyline points="332.1,365.5 400.7,365.5 400.7,324.4" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-pvxdk)" data-b="sg-Zc-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="332.1,365.5 179.4,365.5 179.4,324.4" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-pvxdk)" data-b="sg-Zz-2" data-b-at="b:0.500:2"></polyline>
+    <line x1="330.8" y1="381.4" x2="332.1" y2="365.5" stroke="#E06666" stroke-width="1.2" data-a="sg-x" data-a-at="t:0.500:2"></line>
+    <line x1="407" y1="249.4" x2="407.1" y2="209.4" stroke="#76A5AF" stroke-width="1.2" marker-end="url(#ah76A5AF-pvxdk)" data-a="sg-ctil-0" data-a-at="t:0.436:2" data-b="sg-ceq-8" data-b-at="b:0.500:2"></line>
+    <polyline points="284.2,224.9 369.6,224.9 369.6,209.4" fill="none" stroke="#E69138" stroke-width="1.2" marker-end="url(#ahE69138-pvxdk)" data-b="sg-ceq-6" data-b-at="b:0.500:2"></polyline>
+    <polyline points="197.5,249.4 197.5,224.9 284.2,224.9 284.2,209.4" fill="none" stroke="#E69138" stroke-width="1.2" marker-end="url(#ahE69138-pvxdk)" data-a="sg-zt-0" data-a-at="t:0.500:2" data-b="sg-ceq-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="373.5,299.3 373.5,285.9 464.7,285.9 464.7,274.5" fill="none" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-pvxdk)" data-a="sg-Zc-0" data-a-at="t:0.500:2" data-b="sg-ctil-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="152.3,299.3 152.3,285.9 239.4,285.9 239.4,274.5" fill="none" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-pvxdk)" data-a="sg-Zz-0" data-a-at="t:0.500:2" data-b="sg-zt-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="291.2,119.5 291.2,105.3 366.5,105.3 366.5,93.3" fill="none" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-pvxdk)" data-a="sg-zy-0" data-a-at="t:0.500:2" data-b="sg-yhat-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="558.5,181.7 558.5,156.4 319.6,156.4 319.6,144.6" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-pvxdk)" data-a="sg-c" data-a-at="t:0.500:2" data-b="sg-zy-2" data-b-at="b:0.500:2"></polyline>
+    <line x1="568.8" y1="195.9" x2="652.1" y2="195.9" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-pvxdk)" data-a="sg-c" data-a-at="r:0.500:2"></line>
+    <line x1="421" y1="195.9" x2="545.9" y2="195.8" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-pvxdk)" data-a="sg-ceq" data-a-at="r:0.500:2" data-b="sg-c" data-b-at="l:0.500:2"></line>
+    <polyline points="110.4,195.8 134.4,195.8 134.4,174.2 314.8,174.2 314.8,182.3" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-pvxdk)" data-a="sg-cp" data-a-at="r:0.500:2" data-b="sg-ceq-4" data-b-at="t:0.500:2"></polyline>
+    <text x="652.1" y="190.9" font-size="7" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="end">to the next step</text>
   </svg>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Vanishing and Exploding Gradients</span><span>27</span></div></section>
 
@@ -7582,147 +7747,305 @@ L 268.637969 23.815527
 <section class="page" id="lec-lstm" data-view="slides workbook" data-topic="lstm" style="--gap: 22pt;">
   <h2 data-b="ko1tc">Long Short-Term Memory units - LSTMs (1997)</h2>
   <p data-b="falsi"><b class="name">LSTMs</b> introduce the idea of <u class="fill blank" style="width: 39.1pt;">&nbsp;</u> to help solve the <u class="fill blank" style="width: 67.6pt;">&nbsp;</u> gradient problem.</p>
-  <svg class="draw" viewBox="0 0 560 300" style="width: 600pt" role="img" aria-label="An LSTM step in the network colours, read from the bottom up. The word x t (red) and the last hidden state c t minus 1 (gold) each run up their own line into four gate boxes. Each gate box has its own weights (blue tiles, left) and bias (grey tile, right): f t = sigma(x t Omega f x transposed + c t minus 1 Omega f c transposed + b f), the forget gate; i t, the input gate; m tilde t = tanh(...), the candidate; o t, the output gate. f t, i t and m tilde t, with the old cell state m t minus 1 from below, feed m t = f t times m t minus 1 plus i t times m tilde t, the new cell state, which goes to the next step and, with o t, into c t = o t times tanh(m t), the new hidden state." data-b="jvvus">
+  <svg class="draw symdims" viewBox="-25.9 29.0 828.7 403.2" style="width: 600pt" role="img" aria-label="An LSTM step in boxes of symbol tiles with their shapes, read from the bottom up. x t and the last hidden state c t minus 1 feed four gates: the forget gate f t = sigma(x t Omega f x transposed + c t minus 1 Omega f c transposed + b f), the input gate i t = sigma(...), the candidate m tilde t = tanh(...) and the output gate o t = sigma(...). The cell state m t = f t times m t minus 1 plus i t times m tilde t (m t minus 1 comes in from the left) goes to the next step, and c t = o t times tanh(m t) goes to the next step and up to y hat t = softmax(c t Omega y transposed + b y). The cell (blue outline) holds the gates and both updates." data-b="jvvus">
     <defs>
-      <marker id="ah6D9EEB-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-        <path d="M0 0 L10 5 L0 10 z" fill="#6D9EEB"></path>
+      <marker id="ahE06666-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
       </marker>
       <marker id="ahDCB439-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
       </marker>
-      <marker id="ah666666-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-        <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
+      <marker id="ah76A5AF-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#76A5AF"></path>
       </marker>
-      <marker id="ahE06666-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
-        <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
+      <marker id="ah5B7393-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#5B7393"></path>
+      </marker>
+      <marker id="ahD47EA8-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#D47EA8"></path>
+      </marker>
+      <marker id="ahB07D4F-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#B07D4F"></path>
+      </marker>
+      <marker id="ahE69138-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E69138"></path>
       </marker>
     </defs>
-    <g id="lstm-eq-jvvus-o">
-      <rect x="151.2" y="44.0" width="153.6" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <text x="228.0" y="59.1" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">o</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> = σ(</tspan><tspan fill="#E06666">x</tspan><tspan fill="#E06666" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">ox</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t−1</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">oc</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#666666">b</tspan><tspan fill="#666666" baseline-shift="-8%" font-size="62%">o</tspan><tspan fill="#000000">)</tspan></text>
+    <rect id="lstm-cell" x="36.4" y="76.6" width="641.3" height="277.4" rx="14" fill="none" stroke="#6D9EEB" stroke-width="1.7"></rect>
+    <g data-row="" id="lstm-yhat">
+      <rect x="281.9" y="37" width="156.4" height="29.4" rx="5" fill="#FFFFFF" stroke="#A8A845" stroke-width="1.4"></rect>
+      <g data-sym="ŷ_t" id="lstm-yhat-0">
+        <rect x="287.3" y="40.2" width="17.1" height="23.1" fill="#EDEFCF" stroke="#A8A845" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="ŷ_t|9" fill="#6B6B00" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="295.9" y="50.8">ŷ<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#6B6B00" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="295.9" y="58.8">&lt;1,V&gt;</text>
+      </g>
+      <text x="306.9" y="54.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= softmax(</text>
+      <g data-sym="c_t" id="lstm-yhat-2">
+        <rect x="358.7" y="40.2" width="17.1" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_t|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="367.3" y="50.8">c<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="367.3" y="58.8">&lt;1,h&gt;</text>
+      </g>
+      <g data-sym="Ω_y^T" id="lstm-yhat-3">
+        <rect x="378.3" y="40.2" width="20" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_y^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="388.3" y="50.8">Ω<tspan font-size="5.6" dy="2.5">y</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="388.3" y="58.8">&lt;h,V&gt;</text>
+      </g>
+      <text x="400.9" y="54.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="b_y" id="lstm-yhat-5">
+        <rect x="408.3" y="40.2" width="17.1" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_y|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="416.9" y="50.8">b<tspan font-size="5.6" dy="2.5">y</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="416.9" y="58.8">&lt;1,V&gt;</text>
+      </g>
+      <text x="428" y="54.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <g id="lstm-eq-jvvus-wo0">
-      <rect x="163.2" y="15.0" width="28.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="177.2" y="28.2" font-size="10" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">ox</tspan></text>
+    <g data-row="" id="lstm-ceq">
+      <rect x="364.3" y="90.6" width="120.7" height="29.4" rx="5" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.4"></rect>
+      <g data-sym="c_t" id="lstm-ceq-0">
+        <rect x="369.7" y="93.8" width="17.1" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_t|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="378.3" y="104.4">c<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="378.3" y="112.4">&lt;1,h&gt;</text>
+      </g>
+      <text x="389.3" y="108.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <g data-sym="o_t" id="lstm-ceq-2">
+        <rect x="396.8" y="93.8" width="17.1" height="23.1" fill="#EFE2D2" stroke="#B07D4F" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="o_t|9" fill="#783F04" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="405.4" y="104.4">o<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#783F04" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="405.4" y="112.4">&lt;1,h&gt;</text>
+      </g>
+      <text x="416.4" y="108.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">⊙ tanh(</text>
+      <g data-sym="m_t" id="lstm-ceq-4">
+        <rect x="455" y="93.8" width="17.1" height="23.1" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="m_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="463.6" y="104.4">m<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="463.6" y="112.4">&lt;1,h&gt;</text>
+      </g>
+      <text x="474.6" y="108.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <line x1="177.2" y1="35.0" x2="177.2" y2="42.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-jvvus)" data-a="lstm-eq-jvvus-wo0" data-b="lstm-eq-jvvus-o" data-a-at="b:0.500:2" data-b-at="t:0.169:2"></line>
-    <g id="lstm-eq-jvvus-wo1">
-      <rect x="201.2" y="15.0" width="28.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="215.2" y="28.2" font-size="10" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">oc</tspan></text>
+    <g data-row="" id="lstm-o">
+      <rect x="152.1" y="162" width="188.8" height="29.4" rx="5" fill="#FFFFFF" stroke="#B07D4F" stroke-width="1.4"></rect>
+      <g data-sym="o_t" id="lstm-o-0">
+        <rect x="157.5" y="165.1" width="17.1" height="23.1" fill="#EFE2D2" stroke="#B07D4F" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="o_t|9" fill="#783F04" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="166.1" y="175.7">o<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#783F04" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="166.1" y="183.7">&lt;1,h&gt;</text>
+      </g>
+      <text x="177.1" y="179.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= σ(</text>
+      <g data-sym="x_t" id="lstm-o-2">
+        <rect x="199.4" y="165.1" width="17.1" height="23.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="208" y="175.7">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="208" y="183.7">&lt;1,d&gt;</text>
+      </g>
+      <g data-sym="Ω_ox^T" id="lstm-o-3">
+        <rect x="219" y="165.1" width="23.1" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_ox^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="230.6" y="175.7">Ω<tspan font-size="5.6" dy="2.5">ox</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="230.6" y="183.7">&lt;d,h&gt;</text>
+      </g>
+      <text x="244.6" y="179.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="c_{t−1}" id="lstm-o-5">
+        <rect x="252.1" y="165.1" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="263.7" y="175.7">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="263.7" y="183.7">&lt;1,h&gt;</text>
+      </g>
+      <g data-sym="Ω_oc^T" id="lstm-o-6">
+        <rect x="277.8" y="165.1" width="23.1" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_oc^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="289.4" y="175.7">Ω<tspan font-size="5.6" dy="2.5">oc</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="289.4" y="183.7">&lt;h,h&gt;</text>
+      </g>
+      <text x="303.4" y="179.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="b_o" id="lstm-o-8">
+        <rect x="310.9" y="165.1" width="17.1" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_o|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="319.4" y="175.7">b<tspan font-size="5.6" dy="2.5">o</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="319.4" y="183.7">&lt;1,h&gt;</text>
+      </g>
+      <text x="330.5" y="179.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <line x1="215.2" y1="35.0" x2="215.2" y2="42.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-jvvus)" data-a="lstm-eq-jvvus-wo1" data-b="lstm-eq-jvvus-o" data-a-at="b:0.500:2" data-b-at="t:0.417:2"></line>
-    <g id="lstm-eq-jvvus-bo">
-      <rect x="270.8" y="15.0" width="24.0" height="18.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-      <text x="282.8" y="28.2" font-size="10" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b<tspan baseline-shift="-8%" font-size="62%">o</tspan></text>
+    <g data-row="" id="lstm-meq">
+      <rect x="378.3" y="238.2" width="145.5" height="29.4" rx="5" fill="#FFFFFF" stroke="#E69138" stroke-width="1.4"></rect>
+      <g data-sym="m_t" id="lstm-meq-0">
+        <rect x="383.7" y="241.3" width="17.1" height="23.1" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="m_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="392.3" y="251.9">m<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="392.3" y="259.9">&lt;1,h&gt;</text>
+      </g>
+      <text x="403.3" y="256.1" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <g data-sym="f_t" id="lstm-meq-2">
+        <rect x="410.8" y="241.3" width="17.1" height="23.1" fill="#F4D3E3" stroke="#D47EA8" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="f_t|9" fill="#A64D79" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="419.4" y="251.9">f<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#A64D79" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="419.4" y="259.9">&lt;1,h&gt;</text>
+      </g>
+      <text x="430.4" y="256.1" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">⊙</text>
+      <g data-sym="m_{t−1}" id="lstm-meq-4">
+        <rect x="439.4" y="241.3" width="23.2" height="23.1" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="m_{t−1}|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="451" y="251.9">m<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="451" y="259.9">&lt;1,h&gt;</text>
+      </g>
+      <text x="465.2" y="256.1" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="i_t" id="lstm-meq-6">
+        <rect x="472.6" y="241.3" width="17.1" height="23.1" fill="#D3DCE8" stroke="#5B7393" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="i_t|9" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="481.2" y="251.9">i<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="481.2" y="259.9">&lt;1,h&gt;</text>
+      </g>
+      <text x="492.3" y="256.1" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">⊙</text>
+      <g data-sym="m̃_t" id="lstm-meq-8">
+        <rect x="501.3" y="241.3" width="17.1" height="23.1" fill="#D0E0E3" stroke="#76A5AF" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="m̃_t|9" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="509.9" y="251.9">m̃<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="509.9" y="259.9">&lt;1,h&gt;</text>
+      </g>
     </g>
-    <line x1="282.8" y1="35.0" x2="282.8" y2="42.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-jvvus)" data-a="lstm-eq-jvvus-bo" data-b="lstm-eq-jvvus-o" data-a-at="b:0.500:2" data-b-at="t:0.857:2"></line>
-    <g id="lstm-eq-jvvus-mt">
-      <rect x="141.0" y="104.0" width="174.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <text x="228.0" y="119.1" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">m̃</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> = tanh(</tspan><tspan fill="#E06666">x</tspan><tspan fill="#E06666" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">gx</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t−1</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">gc</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#666666">b</tspan><tspan fill="#666666" baseline-shift="-8%" font-size="62%">g</tspan><tspan fill="#000000">)</tspan></text>
+    <g data-row="" id="lstm-f">
+      <rect x="49.1" y="310.6" width="188.8" height="29.4" rx="5" fill="#FFFFFF" stroke="#D47EA8" stroke-width="1.4"></rect>
+      <g data-sym="f_t" id="lstm-f-0">
+        <rect x="54.5" y="313.8" width="17.1" height="23.1" fill="#F4D3E3" stroke="#D47EA8" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="f_t|9" fill="#A64D79" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="63" y="324.4">f<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#A64D79" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="63" y="332.4">&lt;1,h&gt;</text>
+      </g>
+      <text x="74.1" y="328.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= σ(</text>
+      <g data-sym="x_t" id="lstm-f-2">
+        <rect x="96.4" y="313.8" width="17.1" height="23.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="105" y="324.4">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="105" y="332.4">&lt;1,d&gt;</text>
+      </g>
+      <g data-sym="Ω_fx^T" id="lstm-f-3">
+        <rect x="116" y="313.8" width="23.1" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_fx^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="127.5" y="324.4">Ω<tspan font-size="5.6" dy="2.5">fx</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="127.5" y="332.4">&lt;d,h&gt;</text>
+      </g>
+      <text x="141.6" y="328.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="c_{t−1}" id="lstm-f-5">
+        <rect x="149.1" y="313.8" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="160.7" y="324.4">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="160.7" y="332.4">&lt;1,h&gt;</text>
+      </g>
+      <g data-sym="Ω_fc^T" id="lstm-f-6">
+        <rect x="174.8" y="313.8" width="23.1" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_fc^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="186.4" y="324.4">Ω<tspan font-size="5.6" dy="2.5">fc</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="186.4" y="332.4">&lt;h,h&gt;</text>
+      </g>
+      <text x="200.4" y="328.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="b_f" id="lstm-f-8">
+        <rect x="207.9" y="313.8" width="17.1" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_f|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="216.5" y="324.4">b<tspan font-size="5.6" dy="2.5">f</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="216.5" y="332.4">&lt;1,h&gt;</text>
+      </g>
+      <text x="227.5" y="328.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <g id="lstm-eq-jvvus-wmt0">
-      <rect x="153.0" y="75.0" width="28.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="167.0" y="88.2" font-size="10" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">gx</tspan></text>
+    <g data-row="" id="lstm-i">
+      <rect x="255.3" y="310.6" width="188.8" height="29.4" rx="5" fill="#FFFFFF" stroke="#5B7393" stroke-width="1.4"></rect>
+      <g data-sym="i_t" id="lstm-i-0">
+        <rect x="260.7" y="313.8" width="17.1" height="23.1" fill="#D3DCE8" stroke="#5B7393" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="i_t|9" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="269.3" y="324.4">i<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="269.3" y="332.4">&lt;1,h&gt;</text>
+      </g>
+      <text x="280.3" y="328.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= σ(</text>
+      <g data-sym="x_t" id="lstm-i-2">
+        <rect x="302.6" y="313.8" width="17.1" height="23.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="311.2" y="324.4">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="311.2" y="332.4">&lt;1,d&gt;</text>
+      </g>
+      <g data-sym="Ω_ix^T" id="lstm-i-3">
+        <rect x="322.2" y="313.8" width="23.1" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_ix^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="333.8" y="324.4">Ω<tspan font-size="5.6" dy="2.5">ix</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="333.8" y="332.4">&lt;d,h&gt;</text>
+      </g>
+      <text x="347.8" y="328.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="c_{t−1}" id="lstm-i-5">
+        <rect x="355.3" y="313.8" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="366.9" y="324.4">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="366.9" y="332.4">&lt;1,h&gt;</text>
+      </g>
+      <g data-sym="Ω_ic^T" id="lstm-i-6">
+        <rect x="381" y="313.8" width="23.1" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_ic^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="392.6" y="324.4">Ω<tspan font-size="5.6" dy="2.5">ic</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="392.6" y="332.4">&lt;h,h&gt;</text>
+      </g>
+      <text x="406.6" y="328.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="b_i" id="lstm-i-8">
+        <rect x="414.1" y="313.8" width="17.1" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_i|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="422.7" y="324.4">b<tspan font-size="5.6" dy="2.5">i</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="422.7" y="332.4">&lt;1,h&gt;</text>
+      </g>
+      <text x="433.7" y="328.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <line x1="167.0" y1="95.0" x2="167.0" y2="102.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-jvvus)" data-a="lstm-eq-jvvus-wmt0" data-b="lstm-eq-jvvus-mt" data-a-at="b:0.500:2" data-b-at="t:0.149:2"></line>
-    <g id="lstm-eq-jvvus-wmt1">
-      <rect x="191.0" y="75.0" width="28.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="205.0" y="88.2" font-size="10" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">gc</tspan></text>
+    <g data-row="" id="lstm-g">
+      <rect x="462.7" y="309" width="203.5" height="29.4" rx="5" fill="#FFFFFF" stroke="#76A5AF" stroke-width="1.4"></rect>
+      <g data-sym="m̃_t" id="lstm-g-0">
+        <rect x="468.1" y="312.1" width="17.1" height="23.1" fill="#D0E0E3" stroke="#76A5AF" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="m̃_t|9" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="476.7" y="322.7">m̃<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="476.7" y="330.7">&lt;1,h&gt;</text>
+      </g>
+      <text x="487.7" y="326.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= tanh(</text>
+      <g data-sym="x_t" id="lstm-g-2">
+        <rect x="524.7" y="312.1" width="17.1" height="23.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="533.3" y="322.7">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="533.3" y="330.7">&lt;1,d&gt;</text>
+      </g>
+      <g data-sym="Ω_gx^T" id="lstm-g-3">
+        <rect x="544.3" y="312.1" width="23.1" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_gx^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="555.8" y="322.7">Ω<tspan font-size="5.6" dy="2.5">gx</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="555.8" y="330.7">&lt;d,h&gt;</text>
+      </g>
+      <text x="570" y="326.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="c_{t−1}" id="lstm-g-5">
+        <rect x="577.4" y="312.1" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="589" y="322.7">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="589" y="330.7">&lt;1,h&gt;</text>
+      </g>
+      <g data-sym="Ω_gc^T" id="lstm-g-6">
+        <rect x="603.2" y="312.1" width="23.1" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_gc^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="614.8" y="322.7">Ω<tspan font-size="5.6" dy="2.5">gc</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="614.8" y="330.7">&lt;h,h&gt;</text>
+      </g>
+      <text x="628.8" y="326.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g data-sym="b_g" id="lstm-g-8">
+        <rect x="636.2" y="312.1" width="17.1" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_g|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="644.8" y="322.7">b<tspan font-size="5.6" dy="2.5">g</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="644.8" y="330.7">&lt;1,h&gt;</text>
+      </g>
+      <text x="655.9" y="326.9" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <line x1="205.0" y1="95.0" x2="205.0" y2="102.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-jvvus)" data-a="lstm-eq-jvvus-wmt1" data-b="lstm-eq-jvvus-mt" data-a-at="b:0.500:2" data-b-at="t:0.368:2"></line>
-    <g id="lstm-eq-jvvus-bmt">
-      <rect x="281.0" y="75.0" width="24.0" height="18.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-      <text x="293.0" y="88.2" font-size="10" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b<tspan baseline-shift="-8%" font-size="62%">g</tspan></text>
+    <g data-sym="c_{t−1}" id="lstm-cp">
+      <rect x="-7.9" y="91.1" width="28.2" height="28.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="c_{t−1}|11" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="6.2" y="104.1">c<tspan font-size="6.8" dy="3.1">t−1</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="6.2" y="113.9">&lt;1,h&gt;</text>
     </g>
-    <line x1="293.0" y1="95.0" x2="293.0" y2="102.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-jvvus)" data-a="lstm-eq-jvvus-bmt" data-b="lstm-eq-jvvus-mt" data-a-at="b:0.500:2" data-b-at="t:0.874:2"></line>
-    <g id="lstm-eq-jvvus-i">
-      <rect x="151.2" y="164.0" width="153.6" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <text x="228.0" y="179.1" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">i</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> = σ(</tspan><tspan fill="#E06666">x</tspan><tspan fill="#E06666" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">ix</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t−1</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">ic</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#666666">b</tspan><tspan fill="#666666" baseline-shift="-8%" font-size="62%">i</tspan><tspan fill="#000000">)</tspan></text>
+    <g data-sym="c_t" id="lstm-c">
+      <rect x="693.7" y="91.1" width="21.1" height="28.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="c_t|11" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="704.3" y="104.1">c<tspan font-size="6.8" dy="3.1">t</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="704.3" y="113.9">&lt;1,h&gt;</text>
     </g>
-    <g id="lstm-eq-jvvus-wi0">
-      <rect x="163.2" y="135.0" width="28.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="177.2" y="148.2" font-size="10" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">ix</tspan></text>
+    <g data-sym="m_{t−1}" id="lstm-mp">
+      <rect x="-7.9" y="238.8" width="28.2" height="28.3" fill="#FCE5CD" stroke="#E69138" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="m_{t−1}|11" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="6.2" y="251.8">m<tspan font-size="6.8" dy="3.1">t−1</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="6.2" y="261.6">&lt;1,h&gt;</text>
     </g>
-    <line x1="177.2" y1="155.0" x2="177.2" y2="162.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-jvvus)" data-a="lstm-eq-jvvus-wi0" data-b="lstm-eq-jvvus-i" data-a-at="b:0.500:2" data-b-at="t:0.169:2"></line>
-    <g id="lstm-eq-jvvus-wi1">
-      <rect x="201.2" y="135.0" width="28.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="215.2" y="148.2" font-size="10" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">ic</tspan></text>
+    <g data-sym="m_t" id="lstm-m">
+      <rect x="693.7" y="238.8" width="21.1" height="28.3" fill="#FCE5CD" stroke="#E69138" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="m_t|11" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="704.3" y="251.8">m<tspan font-size="6.8" dy="3.1">t</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="704.3" y="261.6">&lt;1,h&gt;</text>
     </g>
-    <line x1="215.2" y1="155.0" x2="215.2" y2="162.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-jvvus)" data-a="lstm-eq-jvvus-wi1" data-b="lstm-eq-jvvus-i" data-a-at="b:0.500:2" data-b-at="t:0.417:2"></line>
-    <g id="lstm-eq-jvvus-bi">
-      <rect x="270.8" y="135.0" width="24.0" height="18.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-      <text x="282.8" y="148.2" font-size="10" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b<tspan baseline-shift="-8%" font-size="62%">i</tspan></text>
+    <g data-sym="x_t" id="lstm-x">
+      <rect x="348.9" y="395.9" width="21.1" height="28.3" fill="#F4CCCC" stroke="#E06666" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="x_t|11" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="359.4" y="408.9">x<tspan font-size="6.8" dy="3.1">t</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="359.4" y="418.7">&lt;1,d&gt;</text>
     </g>
-    <line x1="282.8" y1="155.0" x2="282.8" y2="162.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-jvvus)" data-a="lstm-eq-jvvus-bi" data-b="lstm-eq-jvvus-i" data-a-at="b:0.500:2" data-b-at="t:0.857:2"></line>
-    <g id="lstm-eq-jvvus-f">
-      <rect x="151.2" y="224.0" width="153.6" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <text x="228.0" y="239.1" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">f</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> = σ(</tspan><tspan fill="#E06666">x</tspan><tspan fill="#E06666" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">fx</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t−1</tspan><tspan fill="#4A86E8">Ω</tspan><tspan fill="#4A86E8" baseline-shift="-8%" font-size="62%">fc</tspan><tspan fill="#4A86E8">ᵀ</tspan><tspan fill="#000000"> + </tspan><tspan fill="#666666">b</tspan><tspan fill="#666666" baseline-shift="-8%" font-size="62%">f</tspan><tspan fill="#000000">)</tspan></text>
-    </g>
-    <g id="lstm-eq-jvvus-wf0">
-      <rect x="163.2" y="195.0" width="28.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="177.2" y="208.2" font-size="10" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">fx</tspan></text>
-    </g>
-    <line x1="177.2" y1="215.0" x2="177.2" y2="222.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-jvvus)" data-a="lstm-eq-jvvus-wf0" data-b="lstm-eq-jvvus-f" data-a-at="b:0.500:2" data-b-at="t:0.169:2"></line>
-    <g id="lstm-eq-jvvus-wf1">
-      <rect x="201.2" y="195.0" width="28.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-      <text x="215.2" y="208.2" font-size="10" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">fc</tspan></text>
-    </g>
-    <line x1="215.2" y1="215.0" x2="215.2" y2="222.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-jvvus)" data-a="lstm-eq-jvvus-wf1" data-b="lstm-eq-jvvus-f" data-a-at="b:0.500:2" data-b-at="t:0.417:2"></line>
-    <g id="lstm-eq-jvvus-bf">
-      <rect x="270.8" y="195.0" width="24.0" height="18.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-      <text x="282.8" y="208.2" font-size="10" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b<tspan baseline-shift="-8%" font-size="62%">f</tspan></text>
-    </g>
-    <line x1="282.8" y1="215.0" x2="282.8" y2="222.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-jvvus)" data-a="lstm-eq-jvvus-bf" data-b="lstm-eq-jvvus-f" data-a-at="b:0.500:2" data-b-at="t:0.857:2"></line>
-    <g id="lstm-eq-jvvus-x">
-      <rect x="7.0" y="274.0" width="30.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-      <text x="22.0" y="288.2" font-size="11" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">xₜ</text>
-    </g>
-    <g id="lstm-eq-jvvus-cp">
-      <rect x="43.0" y="274.0" width="38.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="62.0" y="288.2" font-size="11" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ₋₁</text>
-    </g>
-    <line x1="22.0" y1="272.0" x2="22.0" y2="51.0" stroke="#E06666" stroke-width="1.00" data-a="lstm-eq-jvvus-x" data-a-at="t:0.500:2"></line>
-    <line x1="62.0" y1="272.0" x2="62.0" y2="61.0" stroke="#DCB439" stroke-width="1.00" data-a="lstm-eq-jvvus-cp" data-a-at="t:0.500:2"></line>
-    <line x1="22.0" y1="51.0" x2="149.2" y2="51.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-jvvus)" data-b="lstm-eq-jvvus-o" data-b-at="l:0.290:2"></line>
-    <line x1="62.0" y1="61.0" x2="149.2" y2="61.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-b="lstm-eq-jvvus-o" data-b-at="l:0.710:2"></line>
-    <line x1="22.0" y1="111.0" x2="139.0" y2="111.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-jvvus)" data-b="lstm-eq-jvvus-mt" data-b-at="l:0.290:2"></line>
-    <line x1="62.0" y1="121.0" x2="139.0" y2="121.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-b="lstm-eq-jvvus-mt" data-b-at="l:0.710:2"></line>
-    <line x1="22.0" y1="171.0" x2="149.2" y2="171.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-jvvus)" data-b="lstm-eq-jvvus-i" data-b-at="l:0.290:2"></line>
-    <line x1="62.0" y1="181.0" x2="149.2" y2="181.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-b="lstm-eq-jvvus-i" data-b-at="l:0.710:2"></line>
-    <line x1="22.0" y1="231.0" x2="149.2" y2="231.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-jvvus)" data-b="lstm-eq-jvvus-f" data-b-at="l:0.290:2"></line>
-    <line x1="62.0" y1="241.0" x2="149.2" y2="241.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-b="lstm-eq-jvvus-f" data-b-at="l:0.710:2"></line>
-    <g id="lstm-eq-jvvus-meq">
-      <rect x="389.0" y="164.0" width="133.9" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="456.0" y="179.1" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">m</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> = </tspan><tspan fill="#DCB439">f</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> ⊙ </tspan><tspan fill="#DCB439">m</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t−1</tspan><tspan fill="#000000"> + </tspan><tspan fill="#DCB439">i</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> ⊙ </tspan><tspan fill="#DCB439">m̃</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan></text>
-    </g>
-    <polyline points="317.0,116.0 367.0,116.0 367.0,170.0 387.0,170.0" fill="none" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-mt" data-b="lstm-eq-jvvus-meq" data-a-at="r:0.500:2" data-b-at="l:0.250:2"></polyline>
-    <line x1="306.8" y1="176.0" x2="387.0" y2="176.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-i" data-b="lstm-eq-jvvus-meq" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
-    <polyline points="306.8,236.0 377.0,236.0 377.0,182.0 387.0,182.0" fill="none" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-f" data-b="lstm-eq-jvvus-meq" data-a-at="r:0.500:2" data-b-at="l:0.750:2"></polyline>
-    <g id="lstm-eq-jvvus-mp">
-      <rect x="437.0" y="242.0" width="38.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="456.0" y="256.2" font-size="11" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">mₜ₋₁</text>
-    </g>
-    <line x1="456.0" y1="240.0" x2="456.0" y2="190.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-mp" data-b="lstm-eq-jvvus-meq" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <g id="lstm-eq-jvvus-m">
-      <rect x="441.0" y="106.0" width="30.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="456.0" y="120.2" font-size="11" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">mₜ</text>
-    </g>
-    <line x1="456.0" y1="162.0" x2="456.0" y2="128.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-meq" data-b="lstm-eq-jvvus-m" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="473.0" y1="116.0" x2="552.0" y2="116.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-m" data-a-at="r:0.500:2"></line>
-    <text x="552.0" y="111.0" font-size="6.5" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">to the next step</text>
-    <g id="lstm-eq-jvvus-ceq">
-      <rect x="403.0" y="44.0" width="106.0" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="456.0" y="59.1" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> = </tspan><tspan fill="#DCB439">o</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000"> ⊙ tanh(</tspan><tspan fill="#DCB439">m</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">t</tspan><tspan fill="#000000">)</tspan></text>
-    </g>
-    <line x1="456.0" y1="104.0" x2="456.0" y2="70.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-m" data-b="lstm-eq-jvvus-ceq" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="306.8" y1="56.0" x2="401.0" y2="56.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-o" data-b="lstm-eq-jvvus-ceq" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
-    <g id="lstm-eq-jvvus-c">
-      <rect x="441.0" y="4.0" width="30.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-      <text x="456.0" y="18.2" font-size="11" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ</text>
-    </g>
-    <line x1="456.0" y1="42.0" x2="456.0" y2="26.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-ceq" data-b="lstm-eq-jvvus-c" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="473.0" y1="14.0" x2="552.0" y2="14.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-eq-jvvus-c" data-a-at="r:0.500:2"></line>
-    <text x="552.0" y="9.0" font-size="6.5" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">to the next step</text>
+    <polyline points="359.4,380 246.6,380 246.6,203.4 207.6,203.4 207.6,190.2" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-jvvus)" data-b="lstm-o-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="359.4,380 532.8,380 532.8,337.2" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-jvvus)" data-b="lstm-g-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="359.4,380 310.8,380 310.8,338.9" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-jvvus)" data-b="lstm-i-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="359.4,380 104.6,380 104.6,338.9" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-jvvus)" data-b="lstm-f-2" data-b-at="b:0.500:2"></polyline>
+    <line x1="359.5" y1="395.9" x2="359.4" y2="380.0" stroke="#E06666" stroke-width="1.2" data-a="lstm-x" data-a-at="t:0.500:2"></line>
+    <line x1="366.9" y1="366.0" x2="366.9" y2="338.9" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-jvvus)" data-b="lstm-i-5" data-b-at="b:0.500:2"></line>
+    <line x1="160.7" y1="366.0" x2="160.7" y2="338.9" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-jvvus)" data-b="lstm-f-5" data-b-at="b:0.500:2"></line>
+    <polyline points="-7.9,105.3 -17.9,105.3 -17.9,366 588.8,366 588.8,337.2" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-cp" data-a-at="l:0.500:2" data-b="lstm-g-5" data-b-at="b:0.500:2"></polyline>
+    <polyline points="20.3,105.3 263.7,105.3 263.7,163.1" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-cp" data-a-at="r:0.500:2" data-b="lstm-o-5" data-b-at="t:0.500:2"></polyline>
+    <polyline points="476,312.1 476,302.1 508.6,302.1 508.6,266.4" fill="none" stroke="#76A5AF" stroke-width="1.2" marker-end="url(#ah76A5AF-jvvus)" data-a="lstm-g-0" data-a-at="t:0.500:2" data-b="lstm-meq-8" data-b-at="b:0.500:2"></polyline>
+    <polyline points="268.9,313.8 268.9,294.1 481.2,294.1 481.2,266.4" fill="none" stroke="#5B7393" stroke-width="1.2" marker-end="url(#ah5B7393-jvvus)" data-a="lstm-i-0" data-a-at="t:0.500:2" data-b="lstm-meq-6" data-b-at="b:0.500:2"></polyline>
+    <polyline points="62.7,313.8 62.7,286.1 420.4,286.1 420.4,266.4" fill="none" stroke="#D47EA8" stroke-width="1.2" marker-end="url(#ahD47EA8-jvvus)" data-a="lstm-f-0" data-a-at="t:0.500:2" data-b="lstm-meq-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="165.7,165.1 165.7,145 405.9,145 405.9,118.9" fill="none" stroke="#B07D4F" stroke-width="1.2" marker-end="url(#ahB07D4F-jvvus)" data-a="lstm-o-0" data-a-at="t:0.500:2" data-b="lstm-ceq-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="704.3,91.1 704.3,71.5 367.2,71.5 367.2,65.3" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-c" data-a-at="t:0.500:2" data-b="lstm-yhat-2" data-b-at="b:0.500:2"></polyline>
+    <line x1="714.9" y1="105.3" x2="796.8" y2="105.2" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-c" data-a-at="r:0.500:2"></line>
+    <line x1="484.6" y1="105.3" x2="691.7" y2="105.2" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-jvvus)" data-a="lstm-ceq" data-a-at="r:0.500:2" data-b="lstm-c" data-b-at="l:0.500:2"></line>
+    <polyline points="704.3,238.8 704.3,129 463,129 463,118.8" fill="none" stroke="#E69138" stroke-width="1.2" marker-end="url(#ahE69138-jvvus)" data-a="lstm-m" data-a-at="t:0.500:2" data-b="lstm-ceq-4" data-b-at="b:0.500:2"></polyline>
+    <line x1="714.9" y1="253" x2="796.8" y2="253.0" stroke="#E69138" stroke-width="1.2" marker-end="url(#ahE69138-jvvus)" data-a="lstm-m" data-a-at="r:0.500:2"></line>
+    <line x1="522.8" y1="252.9" x2="691.7" y2="253.0" stroke="#E69138" stroke-width="1.2" marker-end="url(#ahE69138-jvvus)" data-a="lstm-meq" data-a-at="r:0.500:2" data-b="lstm-m" data-b-at="l:0.500:2"></line>
+    <polyline points="20.3,253 44.4,253 44.4,231.2 451,231.2 451,239.3" fill="none" stroke="#E69138" stroke-width="1.2" marker-end="url(#ahE69138-jvvus)" data-a="lstm-mp" data-a-at="r:0.500:2" data-b="lstm-meq-4" data-b-at="t:0.500:2"></polyline>
+    <text x="796.8" y="100.2" font-size="7" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="end">to the next step</text>
+    <text x="796.8" y="248.0" font-size="7" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="end">to the next step</text>
   </svg>
   
 <div class="foot" data-rt=""><span>Backpropagation Through Time · LSTMs and GRUs</span><span>29</span></div></section>
@@ -7764,214 +8087,223 @@ L 268.637969 23.815527
       <marker id="ahE06666-e8lyu" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
       </marker>
+      <marker id="ahC267B5-e8lyu" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#C267B5"></path>
+      </marker>
+      <marker id="ah76A5AF-e8lyu" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#76A5AF"></path>
+      </marker>
+      <marker id="ahE69138-e8lyu" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E69138"></path>
+      </marker>
     </defs>
     <rect id="gru-cell" x="118.4" y="101.8" width="475.8" height="196.7" rx="14" fill="none" stroke="#6D9EEB" stroke-width="1.7"></rect>
-    <line x1="242.5" y1="318.0" x2="242.5" y2="221.2" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-b="gru-z-5" data-b-at="b:0.500:2"></line>
-    <polyline points="88.3,145.4 88.3,318.0 504.5,318.0 504.5,282.6" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-cp" data-a-at="b:0.500:2" data-b="gru-r-5" data-b-at="b:0.500:2"></polyline>
-    <polyline points="359.9,340.0 384.4,340.0 384.4,231.1 409.6,231.1 409.6,221.2" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-e8lyu)" data-b="gru-ct-2" data-b-at="b:0.500:2"></polyline>
-    <polyline points="359.9,340.0 448.2,340.0 448.2,282.6" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-e8lyu)" data-b="gru-r-2" data-b-at="b:0.500:2"></polyline>
-    <polyline points="359.9,340.0 186.2,340.0 186.2,221.2" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-e8lyu)" data-b="gru-z-2" data-b-at="b:0.500:2"></polyline>
-    <line x1="359.9" y1="352.1" x2="359.9" y2="340.0" stroke="#E06666" stroke-width="1.2" data-a="gru-x" data-a-at="t:0.500:2"></line>
-    <polyline points="406.3,257.3 406.3,247.4 469.6,247.4 469.6,221.2" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-r-0" data-a-at="t:0.500:2" data-b="gru-ct-5" data-b-at="b:0.500:2"></polyline>
-    <polyline points="353.0,195.9 353.0,173.5 434.7,173.5 434.7,143.0" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-ct-0" data-a-at="t:0.500:2" data-b="gru-ceq-8" data-b-at="b:0.500:2"></polyline>
-    <polyline points="311.9,164.5 397.3,164.5 397.3,143.0" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-b="gru-ceq-6" data-b-at="b:0.500:2"></polyline>
-    <polyline points="144.3,195.9 144.3,164.5 311.9,164.5 311.9,143.0" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-z-0" data-a-at="t:0.500:2" data-b="gru-ceq-2" data-b-at="b:0.500:2"></polyline>
-    <polyline points="620.7,115.3 620.7,84.3 366.9,84.3 366.9,64.9" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-c" data-a-at="t:0.500:2" data-b="gru-yhat-2" data-b-at="b:0.500:2"></polyline>
-    <line x1="633.3" y1="130.4" x2="713.3" y2="130.4" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-c" data-a-at="r:0.500:2"></line>
-    <line x1="450.6" y1="130.3" x2="608.2" y2="130.4" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-ceq" data-a-at="r:0.500:2" data-b="gru-c" data-b-at="l:0.500:2"></line>
-    <polyline points="342.5,108.8 500.1,108.8 500.1,195.9" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-b="gru-ct-7" data-b-at="t:0.500:2"></polyline>
-    <polyline points="104.4,130.4 126.4,130.4 126.4,108.8 342.5,108.8 342.5,117.7" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-cp" data-a-at="r:0.500:2" data-b="gru-ceq-4" data-b-at="t:0.500:2"></polyline>
     <g data-row="" id="gru-yhat">
-      <rect x="280.7" y="37.7" width="158.4" height="29.1" rx="5" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <rect x="280.7" y="37.5" width="158.4" height="29.4" rx="5" fill="#FFFFFF" stroke="#A8A845" stroke-width="1.4"></rect>
       <g data-sym="ŷ_t" id="gru-yhat-0">
-        <rect x="286.1" y="41.6" width="17.2" height="21.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="ŷ_t|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="294.7" y="52.2">ŷ<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="294.7" y="58.4">&lt;1,V&gt;</text>
+        <rect x="286.1" y="40.7" width="17.2" height="23.1" fill="#EDEFCF" stroke="#A8A845" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="ŷ_t|9" fill="#6B6B00" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="294.7" y="51.3">ŷ<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#6B6B00" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="294.7" y="59.3">&lt;1,V&gt;</text>
       </g>
-      <text x="305.8" y="55.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= softmax(</text>
+      <text x="305.8" y="55.4" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= softmax(</text>
       <g data-sym="c_t" id="gru-yhat-2">
-        <rect x="357.7" y="41.6" width="17.2" height="21.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="c_t|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="366.3" y="52.2">c<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="366.3" y="58.4">&lt;1,h&gt;</text>
+        <rect x="357.7" y="40.7" width="17.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_t|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="366.3" y="51.3">c<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="366.3" y="59.3">&lt;1,h&gt;</text>
       </g>
       <g data-sym="Ω_y^T" id="gru-yhat-3">
-        <rect x="377.5" y="41.6" width="21.6" height="21.3" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="Ω_y^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="388.3" y="52.2">Ω<tspan font-size="5.6" dy="2.5">y</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="388.3" y="58.4">&lt;h,V&gt;</text>
+        <rect x="377.5" y="40.7" width="21.6" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_y^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="388.3" y="51.3">Ω<tspan font-size="5.6" dy="2.5">y</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="388.3" y="59.3">&lt;h,V&gt;</text>
       </g>
-      <text x="401.6" y="55.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <text x="401.6" y="55.4" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
       <g data-sym="b_y" id="gru-yhat-5">
-        <rect x="409" y="41.6" width="17.2" height="21.3" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="b_y|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="417.6" y="52.2">b<tspan font-size="5.6" dy="2.5">y</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="417.6" y="58.4">&lt;1,V&gt;</text>
+        <rect x="409" y="40.7" width="17.2" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_y|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="417.6" y="51.3">b<tspan font-size="5.6" dy="2.5">y</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="417.6" y="59.3">&lt;1,V&gt;</text>
       </g>
-      <text x="428.8" y="55.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
+      <text x="428.8" y="55.4" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
     <g data-row="" id="gru-ceq">
-      <rect x="270.9" y="115.8" width="177.7" height="29.1" rx="5" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.4"></rect>
+      <rect x="272.6" y="115.6" width="177.7" height="29.4" rx="5" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.4"></rect>
       <g data-sym="c_t" id="gru-ceq-0">
-        <rect x="276.3" y="119.7" width="17.2" height="21.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="c_t|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="284.9" y="130.3">c<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="284.9" y="136.5">&lt;1,h&gt;</text>
+        <rect x="278" y="118.7" width="17.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_t|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="286.6" y="129.3">c<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="286.6" y="137.3">&lt;1,h&gt;</text>
       </g>
-      <text x="296" y="133.6" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="297.7" y="133.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
       <g data-sym="z_t" id="gru-ceq-2">
-        <rect x="303.5" y="119.7" width="17.2" height="21.3" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="z_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="312.1" y="130.3">z<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="312.1" y="136.5">&lt;1,h&gt;</text>
+        <rect x="305.2" y="118.7" width="17.2" height="23.1" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="z_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="313.8" y="129.3">z<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="313.8" y="137.3">&lt;1,h&gt;</text>
       </g>
-      <text x="323.2" y="133.6" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">⊙</text>
+      <text x="324.9" y="133.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">⊙</text>
       <g data-sym="c_{t−1}" id="gru-ceq-4">
-        <rect x="330.9" y="119.7" width="23.2" height="21.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="342.5" y="130.3">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="342.5" y="136.5">&lt;1,h&gt;</text>
+        <rect x="332.6" y="118.7" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="344.2" y="129.3">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="344.2" y="137.3">&lt;1,h&gt;</text>
       </g>
-      <text x="356.6" y="133.6" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+ (1 −</text>
+      <text x="358.3" y="133.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+ (1 −</text>
       <g data-sym="z_t" id="gru-ceq-6">
-        <rect x="388.7" y="119.7" width="17.2" height="21.3" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="z_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="397.3" y="130.3">z<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="397.3" y="136.5">&lt;1,h&gt;</text>
+        <rect x="390.4" y="118.7" width="17.2" height="23.1" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="z_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="399" y="129.3">z<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="399" y="137.3">&lt;1,h&gt;</text>
       </g>
-      <text x="408.5" y="133.6" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">) ⊙</text>
+      <text x="410.2" y="133.5" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">) ⊙</text>
       <g data-sym="c̃_t" id="gru-ceq-8">
-        <rect x="426" y="119.7" width="17.2" height="21.3" fill="#D0E0E3" stroke="#76A5AF" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="c̃_t|9" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="434.6" y="130.3">c̃<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="434.6" y="136.5">&lt;1,h&gt;</text>
+        <rect x="427.7" y="118.7" width="17.2" height="23.1" fill="#D0E0E3" stroke="#76A5AF" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c̃_t|9" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="436.3" y="129.3">c̃<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="436.3" y="137.3">&lt;1,h&gt;</text>
       </g>
     </g>
     <g data-row="" id="gru-z">
-      <rect x="129.3" y="194.0" width="192.1" height="29.1" rx="5" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <rect x="129.2" y="193.9" width="192.1" height="29.4" rx="5" fill="#FFFFFF" stroke="#E69138" stroke-width="1.4"></rect>
       <g data-sym="z_t" id="gru-z-0">
-        <rect x="134.7" y="197.9" width="17.2" height="21.3" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="z_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="143.3" y="208.5">z<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="143.3" y="214.7">&lt;1,h&gt;</text>
+        <rect x="134.6" y="197" width="17.2" height="23.1" fill="#FCE5CD" stroke="#E69138" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="z_t|9" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="143.2" y="207.6">z<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B45F06" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="143.2" y="215.6">&lt;1,h&gt;</text>
       </g>
-      <text x="154.4" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= σ(</text>
+      <text x="154.3" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= σ(</text>
       <g data-sym="x_t" id="gru-z-2">
-        <rect x="176.7" y="197.9" width="17.2" height="21.3" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="185.3" y="208.5">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="185.3" y="214.7">&lt;1,d&gt;</text>
+        <rect x="176.6" y="197" width="17.2" height="23.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="185.2" y="207.6">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="185.2" y="215.6">&lt;1,d&gt;</text>
       </g>
       <g data-sym="Ω_zx^T" id="gru-z-3">
-        <rect x="196.4" y="197.9" width="24.6" height="21.3" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="Ω_zx^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="208.7" y="208.5">Ω<tspan font-size="5.6" dy="2.5">zx</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="208.7" y="214.7">&lt;d,h&gt;</text>
+        <rect x="196.3" y="197" width="24.6" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_zx^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="208.6" y="207.6">Ω<tspan font-size="5.6" dy="2.5">zx</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="208.6" y="215.6">&lt;d,h&gt;</text>
       </g>
-      <text x="223.6" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <text x="223.5" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
       <g data-sym="c_{t−1}" id="gru-z-5">
-        <rect x="231" y="197.9" width="23.2" height="21.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="242.6" y="208.5">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="242.6" y="214.7">&lt;1,h&gt;</text>
+        <rect x="230.9" y="197" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="242.5" y="207.6">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="242.5" y="215.6">&lt;1,h&gt;</text>
       </g>
       <g data-sym="Ω_zc^T" id="gru-z-6">
-        <rect x="256.7" y="197.9" width="24.6" height="21.3" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="Ω_zc^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="269" y="208.5">Ω<tspan font-size="5.6" dy="2.5">zc</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="269" y="214.7">&lt;h,h&gt;</text>
+        <rect x="256.6" y="197" width="24.6" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_zc^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="268.9" y="207.6">Ω<tspan font-size="5.6" dy="2.5">zc</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="268.9" y="215.6">&lt;h,h&gt;</text>
       </g>
-      <text x="283.9" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <text x="283.8" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
       <g data-sym="b_z" id="gru-z-8">
-        <rect x="291.3" y="197.9" width="17.2" height="21.3" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="b_z|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="299.9" y="208.5">b<tspan font-size="5.6" dy="2.5">z</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="299.9" y="214.7">&lt;1,h&gt;</text>
+        <rect x="291.2" y="197" width="17.2" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_z|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="299.8" y="207.6">b<tspan font-size="5.6" dy="2.5">z</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="299.8" y="215.6">&lt;1,h&gt;</text>
       </g>
-      <text x="311" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
+      <text x="310.9" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
     <g data-row="" id="gru-ct">
-      <rect x="337.7" y="194.0" width="245.6" height="29.1" rx="5" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <rect x="337.7" y="193.9" width="245.6" height="29.4" rx="5" fill="#FFFFFF" stroke="#76A5AF" stroke-width="1.4"></rect>
       <g data-sym="c̃_t" id="gru-ct-0">
-        <rect x="343.1" y="197.9" width="17.2" height="21.3" fill="#D0E0E3" stroke="#76A5AF" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="c̃_t|9" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="351.7" y="208.5">c̃<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="351.7" y="214.7">&lt;1,h&gt;</text>
+        <rect x="343.1" y="197" width="17.2" height="23.1" fill="#D0E0E3" stroke="#76A5AF" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c̃_t|9" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="351.7" y="207.6">c̃<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#134F5C" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="351.7" y="215.6">&lt;1,h&gt;</text>
       </g>
       <text x="362.8" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= tanh(</text>
       <g data-sym="x_t" id="gru-ct-2">
-        <rect x="399.9" y="197.9" width="17.2" height="21.3" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="408.5" y="208.5">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="408.5" y="214.7">&lt;1,d&gt;</text>
+        <rect x="399.9" y="197" width="17.2" height="23.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="408.5" y="207.6">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="408.5" y="215.6">&lt;1,d&gt;</text>
       </g>
       <g data-sym="Ω_x^T" id="gru-ct-3">
-        <rect x="419.6" y="197.9" width="21.6" height="21.3" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="Ω_x^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="430.4" y="208.5">Ω<tspan font-size="5.6" dy="2.5">x</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="430.4" y="214.7">&lt;d,h&gt;</text>
+        <rect x="419.6" y="197" width="21.6" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_x^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="430.4" y="207.6">Ω<tspan font-size="5.6" dy="2.5">x</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="430.4" y="215.6">&lt;d,h&gt;</text>
       </g>
       <text x="443.8" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+ (</text>
       <g data-sym="r_t" id="gru-ct-5">
-        <rect x="461.1" y="197.9" width="17.2" height="21.3" fill="#F1D2EE" stroke="#C267B5" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="r_t|9" fill="#8E2C80" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="469.7" y="208.5">r<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#8E2C80" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="469.7" y="214.7">&lt;1,h&gt;</text>
+        <rect x="461.1" y="197" width="17.2" height="23.1" fill="#F1D2EE" stroke="#C267B5" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="r_t|9" fill="#8E2C80" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="469.7" y="207.6">r<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#8E2C80" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="469.7" y="215.6">&lt;1,h&gt;</text>
       </g>
       <text x="480.8" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">⊙</text>
       <g data-sym="c_{t−1}" id="gru-ct-7">
-        <rect x="488.5" y="197.9" width="23.2" height="21.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="500.1" y="208.5">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="500.1" y="214.7">&lt;1,h&gt;</text>
+        <rect x="488.5" y="197" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="500.1" y="207.6">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="500.1" y="215.6">&lt;1,h&gt;</text>
       </g>
       <text x="514.2" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
       <g data-sym="Ω_c^T" id="gru-ct-9">
-        <rect x="521.7" y="197.9" width="21.6" height="21.3" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="Ω_c^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="532.5" y="208.5">Ω<tspan font-size="5.6" dy="2.5">c</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="532.5" y="214.7">&lt;h,h&gt;</text>
+        <rect x="521.7" y="197" width="21.6" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_c^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="532.5" y="207.6">Ω<tspan font-size="5.6" dy="2.5">c</tspan><tspan font-size="5.6" dx="-3.2" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="532.5" y="215.6">&lt;h,h&gt;</text>
       </g>
       <text x="545.8" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
       <g data-sym="b_c" id="gru-ct-11">
-        <rect x="553.2" y="197.9" width="17.2" height="21.3" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="b_c|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="561.8" y="208.5">b<tspan font-size="5.6" dy="2.5">c</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="561.8" y="214.7">&lt;1,h&gt;</text>
+        <rect x="553.2" y="197" width="17.2" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_c|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="561.8" y="207.6">b<tspan font-size="5.6" dy="2.5">c</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="561.8" y="215.6">&lt;1,h&gt;</text>
       </g>
       <text x="573" y="211.8" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
     <g data-row="" id="gru-r">
-      <rect x="391.3" y="255.4" width="192.1" height="29.1" rx="5" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <rect x="391.2" y="255.3" width="192.1" height="29.4" rx="5" fill="#FFFFFF" stroke="#C267B5" stroke-width="1.4"></rect>
       <g data-sym="r_t" id="gru-r-0">
-        <rect x="396.7" y="259.3" width="17.2" height="21.3" fill="#F1D2EE" stroke="#C267B5" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="r_t|9" fill="#8E2C80" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="405.3" y="269.9">r<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#8E2C80" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="405.3" y="276.1">&lt;1,h&gt;</text>
+        <rect x="396.6" y="258.4" width="17.2" height="23.1" fill="#F1D2EE" stroke="#C267B5" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="r_t|9" fill="#8E2C80" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="405.2" y="269">r<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#8E2C80" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="405.2" y="277">&lt;1,h&gt;</text>
       </g>
-      <text x="416.4" y="273.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= σ(</text>
+      <text x="416.3" y="273.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">= σ(</text>
       <g data-sym="x_t" id="gru-r-2">
-        <rect x="438.7" y="259.3" width="17.2" height="21.3" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="447.3" y="269.9">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="447.3" y="276.1">&lt;1,d&gt;</text>
+        <rect x="438.6" y="258.4" width="17.2" height="23.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="x_t|9" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="447.2" y="269">x<tspan font-size="5.6" dy="2.5">t</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="447.2" y="277">&lt;1,d&gt;</text>
       </g>
       <g data-sym="Ω_rx^T" id="gru-r-3">
-        <rect x="458.4" y="259.3" width="24.6" height="21.3" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="Ω_rx^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="470.7" y="269.9">Ω<tspan font-size="5.6" dy="2.5">rx</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="470.7" y="276.1">&lt;d,h&gt;</text>
+        <rect x="458.3" y="258.4" width="24.6" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_rx^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="470.6" y="269">Ω<tspan font-size="5.6" dy="2.5">rx</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="470.6" y="277">&lt;d,h&gt;</text>
       </g>
-      <text x="485.6" y="273.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <text x="485.5" y="273.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
       <g data-sym="c_{t−1}" id="gru-r-5">
-        <rect x="493" y="259.3" width="23.2" height="21.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="504.6" y="269.9">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="504.6" y="276.1">&lt;1,h&gt;</text>
+        <rect x="492.9" y="258.4" width="23.2" height="23.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="c_{t−1}|9" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="504.5" y="269">c<tspan font-size="5.6" dy="2.5">t−1</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="504.5" y="277">&lt;1,h&gt;</text>
       </g>
       <g data-sym="Ω_rc^T" id="gru-r-6">
-        <rect x="518.7" y="259.3" width="24.6" height="21.3" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="Ω_rc^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="531" y="269.9">Ω<tspan font-size="5.6" dy="2.5">rc</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="531" y="276.1">&lt;h,h&gt;</text>
+        <rect x="518.6" y="258.4" width="24.6" height="23.1" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="Ω_rc^T|9" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="530.9" y="269">Ω<tspan font-size="5.6" dy="2.5">rc</tspan><tspan font-size="5.6" dx="-6.5" dy="-6.6">T</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="530.9" y="277">&lt;h,h&gt;</text>
       </g>
-      <text x="545.9" y="273.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <text x="545.8" y="273.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
       <g data-sym="b_r" id="gru-r-8">
-        <rect x="553.3" y="259.3" width="17.2" height="21.3" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
-        <text font-size="9" data-sl="b_r|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="561.9" y="269.9">b<tspan font-size="5.6" dy="2.5">r</tspan></text>
-        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="561.9" y="276.1">&lt;1,h&gt;</text>
+        <rect x="553.2" y="258.4" width="17.2" height="23.1" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.6"></rect>
+        <text font-size="9" data-sl="b_r|9" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="561.8" y="269">b<tspan font-size="5.6" dy="2.5">r</tspan></text>
+        <text class="tk-sub" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="561.8" y="277">&lt;1,h&gt;</text>
       </g>
-      <text x="573" y="273.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
+      <text x="572.9" y="273.2" font-size="9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
     <g data-sym="c_{t−1}" id="gru-cp">
-      <rect x="74.2" y="117.3" width="28.2" height="26.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.1" rx="4.4"></rect>
-      <text font-size="11" data-sl="c_{t−1}|11" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="88.3" y="130.3">c<tspan font-size="6.8" dy="3.1">t−1</tspan></text>
-      <text class="tk-sub" font-size="5.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="88.3" y="137.9">&lt;1,h&gt;</text>
+      <rect x="74.2" y="116.2" width="28.2" height="28.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="c_{t−1}|11" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="88.3" y="129.2">c<tspan font-size="6.8" dy="3.1">t−1</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="88.3" y="139">&lt;1,h&gt;</text>
     </g>
     <g data-sym="c_t" id="gru-c">
-      <rect x="610.2" y="117.3" width="21.1" height="26.1" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.1" rx="4.4"></rect>
-      <text font-size="11" data-sl="c_t|11" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="620.8" y="130.3">c<tspan font-size="6.8" dy="3.1">t</tspan></text>
-      <text class="tk-sub" font-size="5.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="620.8" y="137.9">&lt;1,h&gt;</text>
+      <rect x="610.2" y="116.2" width="21.1" height="28.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="c_t|11" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="620.8" y="129.2">c<tspan font-size="6.8" dy="3.1">t</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="620.8" y="139">&lt;1,h&gt;</text>
     </g>
     <g data-sym="x_t" id="gru-x">
-      <rect x="349.4" y="354.1" width="21.1" height="26.1" fill="#F4CCCC" stroke="#E06666" stroke-width="1.1" rx="4.4"></rect>
-      <text font-size="11" data-sl="x_t|11" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="359.9" y="367.1">x<tspan font-size="6.8" dy="3.1">t</tspan></text>
-      <text class="tk-sub" font-size="5.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="359.9" y="374.7">&lt;1,d&gt;</text>
+      <rect x="349.4" y="353" width="21.1" height="28.3" fill="#F4CCCC" stroke="#E06666" stroke-width="1.1" rx="4.4"></rect>
+      <text font-size="11" data-sl="x_t|11" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="359.9" y="366">x<tspan font-size="6.8" dy="3.1">t</tspan></text>
+      <text class="tk-sub" font-size="5.3" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="359.9" y="375.8">&lt;1,d&gt;</text>
     </g>
+    <line x1="242.5" y1="318.0" x2="242.6" y2="222.1" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-b="gru-z-5" data-b-at="b:0.500:2"></line>
+    <polyline points="88.4,144.5 88.4,318 504.5,318 504.5,283.5" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-cp" data-a-at="b:0.500:2" data-b="gru-r-5" data-b-at="b:0.500:2"></polyline>
+    <polyline points="359.9,340 384.4,340 384.4,231.1 409.5,231.1 409.5,222.1" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-e8lyu)" data-b="gru-ct-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="359.9,340 448.2,340 448.2,283.5" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-e8lyu)" data-b="gru-r-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="359.9,340 186.2,340 186.2,222.1" fill="none" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-e8lyu)" data-b="gru-z-2" data-b-at="b:0.500:2"></polyline>
+    <line x1="360" y1="353" x2="359.9" y2="340.0" stroke="#E06666" stroke-width="1.2" data-a="gru-x" data-a-at="t:0.500:2"></line>
+    <polyline points="406.2,258.4 406.2,247.4 469.6,247.4 469.6,222.1" fill="none" stroke="#C267B5" stroke-width="1.2" marker-end="url(#ahC267B5-e8lyu)" data-a="gru-r-0" data-a-at="t:0.500:2" data-b="gru-ct-5" data-b-at="b:0.500:2"></polyline>
+    <polyline points="353,197 353,173.5 436.2,173.5 436.2,143.8" fill="none" stroke="#76A5AF" stroke-width="1.2" marker-end="url(#ah76A5AF-e8lyu)" data-a="gru-ct-0" data-a-at="t:0.500:2" data-b="gru-ceq-8" data-b-at="b:0.500:2"></polyline>
+    <polyline points="311.9,164.5 398.7,164.5 398.7,143.8" fill="none" stroke="#E69138" stroke-width="1.2" marker-end="url(#ahE69138-e8lyu)" data-b="gru-ceq-6" data-b-at="b:0.500:2"></polyline>
+    <polyline points="144.2,197 144.2,164.5 313.5,164.5 313.5,143.8" fill="none" stroke="#E69138" stroke-width="1.2" marker-end="url(#ahE69138-e8lyu)" data-a="gru-z-0" data-a-at="t:0.500:2" data-b="gru-ceq-2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="620.7,116.2 620.7,84.3 366.9,84.3 366.9,65.8" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-c" data-a-at="t:0.500:2" data-b="gru-yhat-2" data-b-at="b:0.500:2"></polyline>
+    <line x1="631.3" y1="130.3" x2="713.3" y2="130.4" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-c" data-a-at="r:0.500:2"></line>
+    <line x1="450.4" y1="130.3" x2="608.2" y2="130.4" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-ceq" data-a-at="r:0.500:2" data-b="gru-c" data-b-at="l:0.500:2"></line>
+    <polyline points="342.5,108.8 500.2,108.8 500.2,195" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-b="gru-ct-7" data-b-at="t:0.500:2"></polyline>
+    <polyline points="102.5,130.3 126.4,130.3 126.4,108.8 344.2,108.8 344.2,116.7" fill="none" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-e8lyu)" data-a="gru-cp" data-a-at="r:0.500:2" data-b="gru-ceq-4" data-b-at="t:0.500:2"></polyline>
     <text x="713.3" y="124.5" font-size="7" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="end">to the next step</text>
   </svg>
   
@@ -9362,8 +9694,11 @@ function eaiRunCode() {
     try { var B = py.pyimport('builtins'), mod = String(B.getattr(B.type(r), '__module__', '')); if (/^matplotlib/.test(mod)) return ''; return B.repr(r); } catch (e) { return ''; } finally { if (r.destroy) r.destroy(); }
   }
   [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
-    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading') return;   // blanks in the Lecture/Workbook: no Run
+    // blanks: no Run in the Workbook; in the Lecture, Run once every blank is filled in (Book.fillBlank: the iPad app's
+    // handwriting) or tapped open, and it runs the code as filled in, wrong answers too (Eric, 2026-11-13)
+    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading' && bv !== 'slides') return;
     if (block._run) return; block._run = true;
+    var fills = bv === 'slides' ? [].slice.call(block.querySelectorAll('u.fill')) : [];
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
     // a plot saved with the Output (b-out figs=…, drawn by BOut.render, inlined in the published page) comes back on Reset
@@ -9375,6 +9710,13 @@ function eaiRunCode() {
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
+    if (fills.length) {
+      // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
+      // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
+      var ready = function () { bar.classList.toggle('run-wait', !editor && !fills.every(function (u) { return u.classList.contains('shown') || u.classList.contains('filled'); })); };
+      block.addEventListener('eai-fill', ready); ready();
+      block.addEventListener('eai-fill', function () { tell({ src: editor ? editor.value : original, edit: true }); });
+    }
     function show(text, err, figs) {
       out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
       out.classList.toggle('run-new', !printed && !storedFigs && !text && !(figs && figs.length));
@@ -9387,28 +9729,50 @@ function eaiRunCode() {
     function figures(py) { try { var r = py.runPython(FIGS), a = r.toJs(); r.destroy(); return a; } catch (e) { return []; } }
     // what happens to a cell (a run, its result, an edit, a reset) is announced as an 'eai-run' event, so the
     // instructor's lecture notes (ink.js) can keep it and publish it with the ink (Eric, 2026-11-10)
-    function tell(d) { d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
+    // what the cell's blanks hold ({index: [text, colour]}) and its editor's colours: kept in the lecture notes with it
+    function filled() { var f = {}, any = false; fills.forEach(function (u, i) { if (u.classList.contains('filled')) { f[i] = [u.textContent, window.eaiCodeColors ? eaiCodeColors.blankColor(u) : null]; any = true; } }); return any ? f : null; }
+    function tell(d) {
+      if (block._eaiApplying) return;   // notes being put back, not something done in class
+      if (fills.length && !editor && d.src === source(block)) d.src = original;   // filled blanks are kept as fills, not as code
+      if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
+      d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
       if (editor) return;
-      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = source(block);
-      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet) editor.focus();
+      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
+      // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
+      var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
+      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
+      editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
+    }
+    // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
+    function blanked() {
+      return [].map.call(block.querySelectorAll('.ln'), function (l) {
+        var c = l.cloneNode(true); [].forEach.call(c.querySelectorAll('u.fill:not(.filled):not(.shown)'), function (u) { u.textContent = '___'; });
+        return c.textContent.replace(/\u00a0/g, ' ');
+      }).join('\n');
     }
     function reset(quiet) {
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
+      if (fills.length) { var was = block._eaiApplying; block._eaiApplying = true; fills.forEach(function (u) { Book.fillBlank(u, null); }); block._eaiApplying = was; ready(); }
       if (!quiet) tell({ reset: true });
     }
-    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?} or null for the stored cell
+    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?, fills?, marks?} or null for the stored cell
     block._eaiLive = function (d) {
-      if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
-      block._eaiShowing = true;
-      if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-      else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
-      if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
-      status.textContent = 'As run in lecture';
+      block._eaiApplying = true;
+      try {
+        if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
+        block._eaiShowing = true;
+        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
+        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
+        if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
+        status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';
+      } finally { block._eaiApplying = false; }
     };
     // g: a globals dict shared with the cells run before this one (Run prior); then the cell runs alone, without the
     // blocks it chains to (they have just run in g). Resolves true when the cell ran without an error.
@@ -9420,7 +9784,7 @@ function eaiRunCode() {
         return Promise.resolve(true);
       }
       var chainNeeded = block.hasAttribute('chain') && (frag(block) || (!g && !(block._eaiPrevRan && block._eaiPrevRan())));
-      var own = editor ? editor.value : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
+      var own = editor ? editor.value : fills.length ? source(block) : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
       return pyodide().then(function (py) {
@@ -9695,8 +10059,9 @@ eaiDual();
 //   Input        Pencil and mouse write; fingers scroll.
 //
 // A layer: {"id","title","pages":[{"after":"page-id","id":"wb-…"}],"strokes":[{"p":"page-id","c":"#hex","w":2.2,
-// "o":0.35?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
-// coordinates in points from the page's top-left (a page is 432 pt wide). "code" holds what the instructor ran in
+// "o":0.35?,"f":"<blank>"?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
+// coordinates in points from the page's top-left (a page is 432 pt wide). "f" tags a fill-in blank's handwriting (the iPad
+// app's blank pads: the blank's data-b block and its index there, "bx12#0"). "code" holds what the instructor ran in
 // lecture (an edited cell's source, its output, its plots: base64 PNGs in the draft, site paths once published), put
 // back on the page with the notes and drawn into the notes PDF (Eric, 2026-11-10).
 // Self-contained on purpose: the published page gets this file's source verbatim.
@@ -10021,8 +10386,8 @@ function eaiInk(opts) {
 
   // ---------------------------------------------------------------- code run in lecture
   // In Lecture mode (?lecture=…) the signed-in instructor's runs go into today's notes: what the cell held when it ran
-  // (if edited), what it printed and drew. A run that gives back exactly the stored cell drops out again, and so does
-  // Reset. They are published with the ink and put back on the page wherever these notes are shown.
+  // (if edited), what it printed and drew, what its code blanks were filled in with and the colours written on it (the
+  // iPad app). A run that gives back exactly the stored cell drops out again, and so does Reset. They are published with the ink and put back on the page wherever these notes are shown.
   function codeKey(block) {
     var b = block.getAttribute('data-b'); if (b) return b;
     var pg = block.closest('section.page'), all = pg ? [].slice.call(pg.querySelectorAll('b-code')) : [];
@@ -10041,9 +10406,12 @@ function eaiInk(opts) {
     else {
       if (d.src != null) { if (d.src !== d.original) c.src = d.src; else delete c.src; }
       if (!d.edit) { c.out = d.out || ''; if (d.err) c.err = true; else delete c.err; if (d.figs && d.figs.length) c.figs = d.figs.slice(); else delete c.figs; }
+      // what its code blanks were filled in with, and the colours written in (book.js: every report has them as they are now)
+      if (d.fills) c.fills = d.fills; else delete c.fills;
+      if (d.marks) c.marks = d.marks; else delete c.marks;
       // nothing to keep: the cell's own source and either no run yet or a run that printed just what the page has
       var outSame = c.out == null || (!c.err && !c.figs && !d.stored && c.out === (d.printed || ''));
-      if (c.src == null && outSame) delete code[key]; else code[key] = c;
+      if (c.src == null && outSame && !c.fills && !c.marks) delete code[key]; else code[key] = c;
     }
     applied[key] = !!code[key];
     save(); barState();
@@ -10160,7 +10528,13 @@ function eaiInk(opts) {
     if (u.stroke) { target.strokes.splice(target.strokes.indexOf(u.stroke), 1); [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === u.stroke) pp.remove(); }); }
     if (u.erased) u.erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
     if (u.blank) { target.pages.splice(target.pages.indexOf(u.blank), 1); var p = document.getElementById(u.blank.id); if (p) p.remove(); }
+    // a blank's pad (the iPad app's eaiNativeInk.fill): its handwriting as it was before the pad opened
+    if (u.fill) { u.after.forEach(unStroke); u.before.forEach(function (s) { target.strokes.push(s); drawStroke(s); }); }
     save(); nativeState();
+  }
+  function unStroke(s) {
+    var i = target.strokes.indexOf(s); if (i >= 0) target.strokes.splice(i, 1);
+    [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
   }
   function near(s, x, y, r) { for (var i = 0; i < s.pts.length; i++) { var dx = s.pts[i][0] - x, dy = s.pts[i][1] - y; if (dx * dx + dy * dy < r * r) return true; } return false; }
   function down(e) {
@@ -10254,7 +10628,9 @@ function eaiInk(opts) {
     pg.addEventListener('pointermove', move); pg.addEventListener('pointerup', up); pg.addEventListener('pointercancel', up);
   }
   function stylusGuard(e) {
-    if (!editing || tool === 'hand') return;
+    // not in the iPad app: it draws the Pencil itself, and a cancelled Pencil touch made WebKit fail PencilKit's
+    // drawing gesture (2026-11-13: the pen drew nothing)
+    if (NATIVE_INK || !editing || tool === 'hand') return;
     var t = e.target, ts = e.changedTouches || [];
     if (!t.closest || !t.closest('section.page') || t.closest('button, a, select, textarea, input, iframe')) return;
     for (var i = 0; i < ts.length; i++) if (ts[i].touchType === 'stylus') { e.preventDefault(); return; }
@@ -10316,7 +10692,7 @@ function eaiInk(opts) {
   }
 
   // Code run in lecture, drawn into the notes PDF (Eric, 2026-11-10). The PDF has the cell as stored; where a cell was
-  // edited or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
+  // edited, filled in (its code blanks, 2026-11-13: with their colours, as are colours written on edited code) or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
   // and plots drawn in, shrunk to fit if need be. What won't fit there at a readable size (a long output, plots under
   // a cell that had no output box) goes on a page of its own right after the slide, "Run in lecture: <title>". Ink
   // is drawn after, so notes written over an output stay on top of it.
@@ -10342,15 +10718,37 @@ function eaiInk(opts) {
     var m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?/.exec(v || '');
     if (!m || m[4] === '0') return dflt; return PDFLib.rgb(+m[1] / 255, +m[2] / 255, +m[3] / 255);
   }
-  // lines of coloured runs from a rendered output (<pre>), or plain lines of code
-  function runsOf(pre) {
+  // lines of coloured runs from a rendered output (<pre>), or plain lines of code; bg: also the boxes behind text
+  // (highlights, a highlighted blank), as rn.bg
+  function runsOf(pre, bg) {
     var lines = [[]];
     (function walk(n) {
       if (n.nodeType === 3) {
         var st = getComputedStyle(n.parentNode), c = cssRGB(st.color, PDFLib.rgb(0.2, 0.2, 0.2)), b = (parseInt(st.fontWeight, 10) || 400) >= 600;
-        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push({ t: t, c: c, b: b }); });
+        var back = bg && n.parentNode !== pre ? cssRGB(st.backgroundColor, null) : null;
+        // (code) a blank not filled in or shown: a gap, not its answer (which the page keeps hidden, or faint on the iPad)
+        if (bg && n.parentNode.closest && n.parentNode.closest('u.fill:not(.filled):not(.shown)')) { lines[lines.length - 1].push({ t: n.nodeValue.replace(/[^\n]/g, ' '), c: c, b: false, ul: true }); return; }
+        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push(back ? { t: t, c: c, b: b, bg: back } : { t: t, c: c, b: b }); });
       } else if (n.nodeType === 1 && !/^(BUTTON|SCRIPT|STYLE)$/.test(n.tagName)) [].forEach.call(n.childNodes, walk);
     })(pre);
+    while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
+    return lines;
+  }
+  // a cell's code as the page shows it (its code blanks filled in, in their colours), line by line
+  function liveRuns(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return runsOf(l, true)[0] || []; }); }
+  // edited code with the colours written on it (book.js eaiCodeColors: [from, to, "t:red" | "h:gold"])
+  var PEN_RGB = { blue: '#1155CC', red: '#CC0000', green: '#38761D', purple: '#674EA7', gold: '#DCB439' }, HL_RGB = { gold: '#FFF2CC' };
+  function markedRuns(src, marks) {
+    var ink = PDFLib.rgb(0.13, 0.13, 0.13), tc = [], hc = [];
+    marks.forEach(function (m) { var p = m[2].split(':'), arr = p[0] === 't' ? tc : hc; for (var i = m[0]; i < m[1]; i++) arr[i] = p[1]; });
+    var lines = [[]], i = 0;
+    while (i < src.length) {
+      if (src[i] === '\n') { lines.push([]); i++; continue; }
+      var j = i; while (j < src.length && src[j] !== '\n' && tc[j] === tc[i] && hc[j] === hc[i]) j++;
+      var rn = { t: src.slice(i, j).replace(/\t/g, '    '), c: tc[i] && PEN_RGB[tc[i]] ? hexRGB(PEN_RGB[tc[i]]) : ink, b: !!(tc[i] && PEN_RGB[tc[i]]) };
+      if (hc[i] && HL_RGB[hc[i]]) rn.bg = hexRGB(HL_RGB[hc[i]]);
+      lines[lines.length - 1].push(rn); i = j;
+    }
     while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
     return lines;
   }
@@ -10365,7 +10763,8 @@ function eaiInk(opts) {
       var out = j.b.nextElementSibling; while (out && out.tagName === 'TEXTAREA') out = out.nextElementSibling;   // (an edited cell's editor sits between)
       if (out && out.tagName !== 'B-OUT') out = null; var pre = out && out.querySelector('pre');
       if (j.b._eaiLive) j.b._eaiLive(j.c);
-      j.code = j.c.src != null ? plainRuns(j.c.src) : null;
+      // edited code (in its colours), or the stored code with its blanks as filled in during the lecture
+      j.code = j.c.src != null ? (j.c.marks ? markedRuns(j.c.src, j.c.marks) : plainRuns(j.c.src)) : j.c.fills ? liveRuns(j.b) : null;
       j.out = j.c.out != null && pre ? runsOf(pre) : j.c.out != null ? plainRuns(j.c.out) : null;
       if (j.out && j.out.length === 1 && !j.out[0].length) j.out = null;
       j.figs = j.c.figs || [];
@@ -10396,6 +10795,14 @@ function eaiInk(opts) {
         var H = page.getSize().height, cx = x;
         runs.forEach(function (rn) {
           var t = clean(rn.t), font = rn.b ? F.b : F.r, piece = '', pieceFont = font;
+          if (rn.bg) {   // a highlight: its box behind the run
+            var rw; try { rw = font.widthOfTextAtSize(t, fs); } catch (e) { rw = t.length * F.adv * fs; }
+            page.drawRectangle({ x: cx * kp, y: H - (y + fs * 1.18) * kp, width: rw * kp, height: fs * 1.25 * kp, color: rn.bg });
+          }
+          if (rn.ul) {   // an empty code blank: its line to write on
+            var uw = t.length * F.adv * fs;
+            page.drawLine({ start: { x: cx * kp, y: H - (y + fs * 1.1) * kp }, end: { x: (cx + uw) * kp, y: H - (y + fs * 1.1) * kp }, thickness: 0.8 * kp, color: PDFLib.rgb(0.13, 0.13, 0.13) });
+          }
           var flush = function () { if (piece) page.drawText(piece, { x: cx * kp, y: H - (y + fs * 0.95) * kp, size: fs * kp, font: pieceFont, color: rn.c }); cx += (pieceFont.widthOfTextAtSize ? pieceFont.widthOfTextAtSize(piece, fs) : piece.length * F.adv * fs); piece = ''; };
           Array.from(t).forEach(function (ch) {
             var f = F.has && F.sym && !F.has.has(ch.codePointAt(0)) ? F.sym : font;
@@ -10418,7 +10825,7 @@ function eaiInk(opts) {
         var grey = PDFLib.rgb(0.45, 0.45, 0.45), place2 = { text: !j.out, ims: !j.ims.length };
         if (!place.code && j.codeBox) {   // the code didn't fit: say where it went, over the stored code
           var cb2 = j.codeBox; cover(page, kp, { x: cb2.x + 1, y: cb2.y + 1, w: cb2.w - 2, h: cb2.h - 2 }, j.bgCode);
-          line(page, kp, [{ t: 'Edited in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
+          line(page, kp, [{ t: (j.c.src != null ? 'Edited' : 'Filled in') + ' in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
         }
         if ((j.out || j.ims.length) && j.outBox && j.outTop) {   // the lecture's output (and plots) in the output box
           var ob = j.outBox, ox = ob.x + PAD + 2, oy = j.outTop.y + 1, ow = ob.w - 2 * PAD - 4, oh = ob.y + ob.h - oy - PAD;
@@ -10701,15 +11108,61 @@ function eaiInk(opts) {
     if (window.ResizeObserver) new ResizeObserver(sendBoxes).observe(book);   // pictures loading, blank pages, the fit zoom
     addEventListener('resize', sendBoxes); addEventListener('load', sendBoxes);
     var erasing = [];
+    // PencilKit (app build 3, eaiNativeApp.pk): the app shows all the ink itself, so what's written looks the same from
+    // the first touch on (Eric, 2026-11-12: the live line and the page's line never quite matched, so a stroke changed
+    // a little on lift). The page still keeps the strokes (drafts, Undo, Publish, PDFs) but hides its own drawing of
+    // them, and tells the app which strokes it would draw, with an id each, whenever that changes (inkList).
+    var PK = !!window.eaiNativeApp.pk, ids = new WeakMap(), nid = 1;
+    function idOf(st) { if (!ids.has(st)) ids.set(st, nid++); return ids.get(st); }
+    function list() { return [].map.call(book.querySelectorAll('svg.ink path'), function (el) { return el._s && { id: idOf(el._s), s: el._s }; }).filter(Boolean); }
+    var lt = 0;
+    function sendList() { clearTimeout(lt); lt = setTimeout(function () { native({ inkList: list() }); }, 0); }
+    if (PK) {
+      H.classList.add('native-pk');
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var n = [].concat([].slice.call(ms[i].addedNodes), [].slice.call(ms[i].removedNodes));
+          if (n.some(function (x) { return x.nodeName === 'path' || x.nodeName === 'svg' || (x.querySelector && x.querySelector('svg.ink')); })) return sendList();
+        }
+      }).observe(book, { childList: true, subtree: true });
+    }
     window.eaiNativeInk = {
       boxes: boxes,
+      list: list,
       // a finished stroke from the app
       stroke: function (s) {
         if (!s || !s.p || !document.getElementById(s.p) || !(s.pts && s.pts.length)) return false;
         ensureTarget(); if (!target) return false;
         var st = { p: s.p, c: s.c, w: s.w, pts: s.pts }; if (s.o) st.o = s.o;
         var el = drawStroke(st); target.strokes.push(st); undo.push({ stroke: st, el: el }); saveSoon(); nativeState();
-        return true;
+        return PK ? idOf(st) : true;
+      },
+      // a fill-in blank's handwriting from the app's pad (ios/ TextPad.swift, docs/blank-pads.md): the strokes tagged
+      // with the blank (f: key) are replaced by these, fitted into the blank. Every change in one opening of the pad
+      // (sess) is one Undo step on the bar, which puts back the blank's handwriting from before the pad opened.
+      fill: function (key, list, sess) {
+        ensureTarget(); if (!target || !key) return false;
+        var old = target.strokes.filter(function (s) { return s.f === key; }); old.forEach(unStroke);
+        var add = (list || []).filter(function (s) { return s && s.p && document.getElementById(s.p) && s.pts && s.pts.length; }).map(function (s) {
+          var st = { p: s.p, c: s.c, w: s.w, pts: s.pts, f: key }; if (s.o) st.o = s.o;
+          drawStroke(st); target.strokes.push(st); return st;
+        });
+        var u = undo[undo.length - 1];
+        if (u && u.fill === key && u.sess === sess) u.after = add;
+        else if (old.length || add.length) undo.push({ fill: key, sess: sess, before: old, after: add });
+        saveSoon(); nativeState(); return true;
+      },
+      // PencilKit's eraser takes whole strokes: these ids (only this draft's or reader's own go; the app is sent the rest
+      // back in the next inkList), then eraseEnd as for erase()
+      eraseIds: function (list) {
+        ensureTarget(); if (!target) return;
+        (list || []).forEach(function (id) {
+          target.strokes.filter(function (s) { return ids.get(s) === id; }).forEach(function (s) {
+            target.strokes.splice(target.strokes.indexOf(s), 1); erasing.push(s);
+            [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
+          });
+        });
+        sendList();
       },
       // the eraser: points (page pt) on one page as the Pencil moves, then eraseEnd (cancel: the wheel opened, put them back)
       erase: function (pid, pts) {
@@ -10741,7 +11194,7 @@ function eaiInk(opts) {
         barState();
       }
     };
-    native({ inkReady: true, pages: boxes() }); nativeState(); sendBoxes();
+    native({ inkReady: true, pk: PK, pages: boxes() }); nativeState(); sendBoxes(); if (PK) sendList();
   }
   // ?lecture=1 (the editor home's Lecture button): teaching from this device: the pen in hand, the faint answers hidden
   // (see ghost). The plain Lecture view (its answers link) shows them to the signed-in instructor.

@@ -236,7 +236,13 @@ b-eq.busy img { opacity: .35; }
 b-code:has(+ b-out) { margin-bottom: calc(-1 * var(--gap, 10pt)) !important; border-radius: 4px 4px 0 0; }
 b-code + b-out { border-top: 0; }
 b-out:not(b-code + b-out) { border-radius: 4px; }
-.run-bar { float: right; display: inline-flex; align-items: center; gap: 4pt; margin-top: -1pt; letter-spacing: 0; text-transform: none; }
+/* the Run bar sits in the output's label row, at its right, and wraps onto a row of its own inside the label when the label is narrow.
+   It used to float right: in a narrow output (a slide's right column, Safari's wider monospace fallback) the float dropped below
+   the label and Safari laid the output text in the sliver beside it (Eric, 2026-11-12, bptt lec-bp-run while presenting). */
+b-out .label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6pt; row-gap: 3pt; }
+.run-bar { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4pt; margin-left: auto; order: 1; letter-spacing: 0; text-transform: none; }   /* order: after the label's own text and the presenting hint (::after) */
+.run-bar.run-wait [data-a="run"], .run-bar.run-wait [data-a="prior"] { display: none; }   /* a Lecture cell with code blanks: Run once they're filled in (or it's edited) */
+.run-bar button, .run-bar .run-status { white-space: nowrap; }
 .run-bar button { font: 700 7.5pt var(--font-mono); padding: 0 5pt; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); color: var(--ink-muted); cursor: pointer; }
 .run-bar button[data-a="run"] { color: var(--blue-text); border-color: var(--blue-text); }
 .run-bar.busy button[data-a="run"] { opacity: .5; pointer-events: none; }
@@ -290,6 +296,20 @@ u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { cursor: pointer; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown { color: var(--navy); } .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown * { color: inherit !important; }
 u.fill.blank { display: inline-block; vertical-align: baseline; }
+/* a code blank filled in by hand in the Lecture (Book.fillBlank): the writing in place of the answer, underlined green,
+   or red when it isn't the answer */
+.book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
+.book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
+   box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
+.eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
+.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
+.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -552,6 +572,11 @@ html.lect-zooming #lect-size { overflow: visible; }   /* while pinching, the sli
    zoom it hands over to put every slide in the same place */
 html.lect #book, html.lect main.book { gap: calc(24px * var(--zoom, 1)); padding-top: calc(24px * var(--zoom, 1)); padding-bottom: calc(64px * var(--zoom, 1)); }
 /* (content-visibility: auto on lecture pages, 2026-11-01, was dropped 2026-11-02: suspected of leaving pen strokes half drawn on the iPad) */
+/* the iPad app's own pen and scrolling (ios/, ink.js nativeInk): the app's toolbar replaces the pen bar, and the page
+   scrolls and pinch-zooms natively, so nothing here scales or scrolls the pages itself */
+html.native-ink .chap-head { display: none !important; }
+/* the iPad app's PencilKit shows the ink (ink.js nativeInk, PK): the page keeps the strokes but doesn't draw them */
+html.native-pk svg.ink { visibility: hidden !important; }
 /* Lecture pages are 4:3 slides, 10 × 7.5 in (Eric, 2026-10-29: 16:9 was too wide next to his iPad; 16:9 from 2026-10-26);
    the Reading and the Workbook stay 6 × 9 pages.
    book.js Book.SIZES says the same for the measuring code; the exported page sets @page to match. */
@@ -590,6 +615,11 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { overflow: hidden; }
+/* an output beside its code keeps its Run bar in the gutter above the box, out of the flow, like the editor's (Eric,
+   2026-11-12: "why not have them just sit in the gutter like we do in the editor?"); in the label row the bar took the
+   narrow column's width and squeezed the output. Outputs under their code (out="below", Reading, Workbook) keep it in the label row. */
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) { position: relative; }
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) > .label > .run-bar { position: absolute; right: 0; bottom: calc(100% + 2pt); margin: 0; flex-wrap: nowrap; }
 /* class "side" on a block puts it beside the block before it on a slide (right column; the one before takes the left),
    e.g. the vocabulary table beside the token IDs (Eric, 2026-11-08). Other views stack them as usual. */
 .book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ .side), :has(+ .cmt + .side), :has(+ .cmt + .cmt + .side)) { grid-column: 1; align-self: center; min-width: 0; }
@@ -3383,7 +3413,7 @@ z
 
 <section class="page" id="p-w3001" data-view="slides workbook" data-topic="chain-rule" style="--gap: 22pt;">
   <h2 data-b="dzcaf">Python Backprop by Hand - Linear Layer</h2>
-  <b-code lang="python" data-b="fc944" marks="10:15-36:purple 13:8-31:teal 14:8-31:teal 18:8-30:gold 19:8-30:gold"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch</div><div class="ln"></div><div class="ln"><span class="kw">class</span> <span class="def">LinearLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_out):</div><div class="ln">        self.W = torch.randn(n_out, n_in) * (<span class="nu nn">2</span>/n_in)**<span class="nu nn">0.5</span></div><div class="ln">        self.b = torch.zeros(n_out)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, <span class="cc red">X</span>):</div><div class="ln">        self.<span class="cc red">X</span> = <span class="cc red">X</span>                  <span class="cm"># keep for backward</span></div><div class="ln">        <span class="ctl">return</span> <mark class="purple"><span class="cc red">X</span> @ self.W.T + self.b</mark></div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">backward</span>(self, dY):</div><div class="ln">        <mark class="teal">self.dW = dY.T @ self.<span class="cc red">X</span></mark>     <span class="cm"># dL/dW</span></div><div class="ln">        <mark class="teal">self.db = dY.sum(dim=<span class="nu nn">0</span>)</mark>     <span class="cm"># dL/db</span></div><div class="ln">        <span class="ctl">return</span> dY @ self.W          <span class="cm"># dL/dX, sent back</span></div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">update</span>(self, lr):</div><div class="ln">        <mark class="gold">self.W -= lr * self.dW</mark></div><div class="ln">        <mark class="gold">self.b -= lr * self.db</mark></div></div></b-code>
+  <b-code lang="python" data-b="fc944" marks="13:8-31:teal 14:8-31:teal 18:8-30:gold 19:8-30:gold 10:15-36:fill" norun=""><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch</div><div class="ln"></div><div class="ln"><span class="kw">class</span> <span class="def">LinearLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_out):</div><div class="ln">        self.W = torch.randn(n_out, n_in) * (<span class="nu nn">2</span>/n_in)**<span class="nu nn">0.5</span></div><div class="ln">        self.b = torch.zeros(n_out)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, <span class="cc red">X</span>):</div><div class="ln">        self.<span class="cc red">X</span> = <span class="cc red">X</span>                  <span class="cm"># keep for backward</span></div><div class="ln">        <span class="ctl">return</span> <u class="fill"><span class="cc red">X</span> @ self.W.T + self.b</u></div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">backward</span>(self, dY):</div><div class="ln">        <mark class="teal">self.dW = dY.T @ self.<span class="cc red">X</span></mark>     <span class="cm"># dL/dW</span></div><div class="ln">        <mark class="teal">self.db = dY.sum(dim=<span class="nu nn">0</span>)</mark>     <span class="cm"># dL/db</span></div><div class="ln">        <span class="ctl">return</span> dY @ self.W          <span class="cm"># dL/dX, sent back</span></div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">update</span>(self, lr):</div><div class="ln">        <mark class="gold">self.W -= lr * self.dW</mark></div><div class="ln">        <mark class="gold">self.b -= lr * self.db</mark></div></div></b-code>
   
 <div class="foot" data-rt=""><span>Backpropagation · Backpropagation</span><span>19</span></div></section>
 
@@ -6005,8 +6035,11 @@ function eaiRunCode() {
     try { var B = py.pyimport('builtins'), mod = String(B.getattr(B.type(r), '__module__', '')); if (/^matplotlib/.test(mod)) return ''; return B.repr(r); } catch (e) { return ''; } finally { if (r.destroy) r.destroy(); }
   }
   [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
-    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading') return;   // blanks in the Lecture/Workbook: no Run
+    // blanks: no Run in the Workbook; in the Lecture, Run once every blank is filled in (Book.fillBlank: the iPad app's
+    // handwriting) or tapped open, and it runs the code as filled in, wrong answers too (Eric, 2026-11-13)
+    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading' && bv !== 'slides') return;
     if (block._run) return; block._run = true;
+    var fills = bv === 'slides' ? [].slice.call(block.querySelectorAll('u.fill')) : [];
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
     // a plot saved with the Output (b-out figs=…, drawn by BOut.render, inlined in the published page) comes back on Reset
@@ -6018,6 +6051,13 @@ function eaiRunCode() {
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
+    if (fills.length) {
+      // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
+      // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
+      var ready = function () { bar.classList.toggle('run-wait', !editor && !fills.every(function (u) { return u.classList.contains('shown') || u.classList.contains('filled'); })); };
+      block.addEventListener('eai-fill', ready); ready();
+      block.addEventListener('eai-fill', function () { tell({ src: editor ? editor.value : original, edit: true }); });
+    }
     function show(text, err, figs) {
       out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
       out.classList.toggle('run-new', !printed && !storedFigs && !text && !(figs && figs.length));
@@ -6030,28 +6070,50 @@ function eaiRunCode() {
     function figures(py) { try { var r = py.runPython(FIGS), a = r.toJs(); r.destroy(); return a; } catch (e) { return []; } }
     // what happens to a cell (a run, its result, an edit, a reset) is announced as an 'eai-run' event, so the
     // instructor's lecture notes (ink.js) can keep it and publish it with the ink (Eric, 2026-11-10)
-    function tell(d) { d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
+    // what the cell's blanks hold ({index: [text, colour]}) and its editor's colours: kept in the lecture notes with it
+    function filled() { var f = {}, any = false; fills.forEach(function (u, i) { if (u.classList.contains('filled')) { f[i] = [u.textContent, window.eaiCodeColors ? eaiCodeColors.blankColor(u) : null]; any = true; } }); return any ? f : null; }
+    function tell(d) {
+      if (block._eaiApplying) return;   // notes being put back, not something done in class
+      if (fills.length && !editor && d.src === source(block)) d.src = original;   // filled blanks are kept as fills, not as code
+      if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
+      d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
       if (editor) return;
-      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = source(block);
-      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet) editor.focus();
+      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
+      // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
+      var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
+      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
+      editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
+    }
+    // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
+    function blanked() {
+      return [].map.call(block.querySelectorAll('.ln'), function (l) {
+        var c = l.cloneNode(true); [].forEach.call(c.querySelectorAll('u.fill:not(.filled):not(.shown)'), function (u) { u.textContent = '___'; });
+        return c.textContent.replace(/\u00a0/g, ' ');
+      }).join('\n');
     }
     function reset(quiet) {
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
+      if (fills.length) { var was = block._eaiApplying; block._eaiApplying = true; fills.forEach(function (u) { Book.fillBlank(u, null); }); block._eaiApplying = was; ready(); }
       if (!quiet) tell({ reset: true });
     }
-    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?} or null for the stored cell
+    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?, fills?, marks?} or null for the stored cell
     block._eaiLive = function (d) {
-      if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
-      block._eaiShowing = true;
-      if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-      else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
-      if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
-      status.textContent = 'As run in lecture';
+      block._eaiApplying = true;
+      try {
+        if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
+        block._eaiShowing = true;
+        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
+        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
+        if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
+        status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';
+      } finally { block._eaiApplying = false; }
     };
     // g: a globals dict shared with the cells run before this one (Run prior); then the cell runs alone, without the
     // blocks it chains to (they have just run in g). Resolves true when the cell ran without an error.
@@ -6063,7 +6125,7 @@ function eaiRunCode() {
         return Promise.resolve(true);
       }
       var chainNeeded = block.hasAttribute('chain') && (frag(block) || (!g && !(block._eaiPrevRan && block._eaiPrevRan())));
-      var own = editor ? editor.value : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
+      var own = editor ? editor.value : fills.length ? source(block) : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
       return pyodide().then(function (py) {
@@ -6338,8 +6400,9 @@ eaiDual();
 //   Input        Pencil and mouse write; fingers scroll.
 //
 // A layer: {"id","title","pages":[{"after":"page-id","id":"wb-…"}],"strokes":[{"p":"page-id","c":"#hex","w":2.2,
-// "o":0.35?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
-// coordinates in points from the page's top-left (a page is 432 pt wide). "code" holds what the instructor ran in
+// "o":0.35?,"f":"<blank>"?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
+// coordinates in points from the page's top-left (a page is 432 pt wide). "f" tags a fill-in blank's handwriting (the iPad
+// app's blank pads: the blank's data-b block and its index there, "bx12#0"). "code" holds what the instructor ran in
 // lecture (an edited cell's source, its output, its plots: base64 PNGs in the draft, site paths once published), put
 // back on the page with the notes and drawn into the notes PDF (Eric, 2026-11-10).
 // Self-contained on purpose: the published page gets this file's source verbatim.
@@ -6580,6 +6643,58 @@ function eaiInk(opts) {
     laser: SVG('<circle cx="8" cy="8" r="3" fill="#ff2a2a"/><circle cx="8" cy="8" r="5.6" fill="none" stroke="#ff2a2a" stroke-opacity=".35" stroke-width="1.5"/>'),
     undo: SVG('<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.5 3.5l-3 3 3 3M2.5 6.5H10a3.5 3.5 0 010 7H7"/>'),
     page: SVG('<path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M3.5 1.5h6l3 3v10h-9z"/><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 7v5M5.5 9.5h5"/>') };
+  // ---------------------------------------------------------------- colour wheel (Lecture mode)
+  // A ring of the pen bar's tools around the pen, so a colour is one tap away without reaching for the bar (Eric,
+  // 2026-11-12). Opened in Lecture mode (?lecture=…) by holding the pen still on a slide for half a second, or in the
+  // iPad presenting app (ios/) by a double tap (or squeeze) of the Pencil, which the app passes in as an 'eai-pencil'
+  // event on window ({detail: {x, y}} in window px when the Pencil knows where it is). A second double tap, a tap
+  // outside, the middle or Escape closes it.
+  var wheel = null, penAt = null;   // penAt: where the pen last was, in window px (the wheel opens there when the event has no place)
+  var NATIVE = !!window.eaiNativeApp, NATIVE_INK = false;   // NATIVE_INK: the app draws the Pencil and scrolls (nativeInk), set at startup
+  function native(m) { if (NATIVE) try { window.webkit.messageHandlers.eai.postMessage(m); } catch (x) {} }
+  function wheelItems() {
+    return PEN.map(function (p) { return { t: 'pen', c: p[0], name: p[1] + ' pen' }; })
+      .concat([{ t: 'hl', name: 'highlighter', i: I.hl }, { t: 'erase', name: 'eraser', i: I.erase }, { t: 'laser', name: 'laser pointer', i: I.laser }]);
+  }
+  function closeWheel() { if (wheel) { wheel.remove(); wheel = null; } }
+  function openWheel(x, y) {
+    closeWheel();
+    if (x == null || y == null) { x = penAt ? penAt.x : innerWidth / 2; y = penAt ? penAt.y : innerHeight / 2; }
+    var R = 92, R0 = 34, items = wheelItems(), n = items.length, step = 2 * Math.PI / n, pad = R + 10;
+    x = Math.max(pad, Math.min(innerWidth - pad, x)); y = Math.max(pad, Math.min(innerHeight - pad, y));
+    var P = function (a, r) { return (R + r * Math.cos(a)).toFixed(2) + ' ' + (R + r * Math.sin(a)).toFixed(2); };
+    var svg = '', marks = '';
+    items.forEach(function (it, i) {
+      var a0 = -Math.PI / 2 - step / 2 + i * step, a1 = a0 + step, am = a0 + step / 2;
+      var on = editing && it.t === tool && (!it.c || it.c === color);
+      svg += '<path d="M' + P(a0, R0) + 'L' + P(a0, R - 2) + 'A' + (R - 2) + ' ' + (R - 2) + ' 0 0 1 ' + P(a1, R - 2) + 'L' + P(a1, R0) + 'A' + R0 + ' ' + R0 + ' 0 0 0 ' + P(a0, R0) + 'Z"'
+        + ' fill="' + (it.c || '#f4f4f4') + '" stroke="#fff" stroke-width="3"/>';
+      if (on) svg += '<path d="M' + P(a0 + 0.06, R + 4) + 'A' + (R + 4) + ' ' + (R + 4) + ' 0 0 1 ' + P(a1 - 0.06, R + 4) + '" fill="none" stroke="#002B5B" stroke-width="5" stroke-linecap="round"/>';
+      if (it.i) { var c = P(am, (R + R0) / 2).split(' '); marks += '<span style="position:absolute;left:' + (+c[0] - 8) + 'px;top:' + (+c[1] - 8) + 'px;width:16px;height:16px;transform:scale(1.4)">' + it.i + '</span>'; }
+    });
+    svg += '<circle cx="' + R + '" cy="' + R + '" r="' + (R0 - 4) + '" fill="#fff" stroke="#ccc"/><path d="M' + (R - 7) + ' ' + (R - 7) + 'l14 14m0-14l-14 14" stroke="#777" stroke-width="2" stroke-linecap="round"/>';
+    wheel = document.createElement('div'); wheel.className = 'ink-wheel';
+    wheel.style.cssText = 'position:fixed;inset:0;z-index:95;touch-action:none';
+    wheel.innerHTML = '<div style="position:absolute;left:' + (x - R) + 'px;top:' + (y - R) + 'px;width:' + 2 * R + 'px;height:' + 2 * R + 'px;border-radius:50%;box-shadow:0 4px 18px rgba(0,0,0,.25);color:#333">'
+      + '<svg width="' + 2 * R + '" height="' + 2 * R + '" style="display:block;overflow:visible">' + svg + '</svg>' + marks + '</div>';
+    document.body.appendChild(wheel);
+    // a tap on a wedge picks it; anywhere else (outside, the middle) just closes. Decided on pointerdown so the tap
+    // never reaches the slide underneath (no stray dot, no Run button pressed).
+    wheel.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var dx = e.clientX - x, dy = e.clientY - y, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < R0 || d > R + 6) return closeWheel();
+      var i = Math.floor((((Math.atan2(dy, dx) + Math.PI / 2 + step / 2) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / step) % n;
+      pickTool(items[i]);
+    });
+    native({ haptic: 'open' });
+  }
+  function pickTool(it) {
+    tool = it.t; if (it.c) color = it.c; if (tool !== 'laser') last = { t: tool, c: color };
+    closeWheel(); start(); barState(); native({ haptic: 'pick' });
+  }
+  addEventListener('eai-pencil', function (e) { if (!LECT || NATIVE_INK) return; var d = e.detail || {}; if (wheel) closeWheel(); else openWheel(d.x, d.y); });
+  addEventListener('keydown', function (e) { if (wheel && e.key === 'Escape') closeWheel(); });
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function save() {
     clearTimeout(saveSoon.t);
@@ -6612,8 +6727,8 @@ function eaiInk(opts) {
 
   // ---------------------------------------------------------------- code run in lecture
   // In Lecture mode (?lecture=…) the signed-in instructor's runs go into today's notes: what the cell held when it ran
-  // (if edited), what it printed and drew. A run that gives back exactly the stored cell drops out again, and so does
-  // Reset. They are published with the ink and put back on the page wherever these notes are shown.
+  // (if edited), what it printed and drew, what its code blanks were filled in with and the colours written on it (the
+  // iPad app). A run that gives back exactly the stored cell drops out again, and so does Reset. They are published with the ink and put back on the page wherever these notes are shown.
   function codeKey(block) {
     var b = block.getAttribute('data-b'); if (b) return b;
     var pg = block.closest('section.page'), all = pg ? [].slice.call(pg.querySelectorAll('b-code')) : [];
@@ -6632,9 +6747,12 @@ function eaiInk(opts) {
     else {
       if (d.src != null) { if (d.src !== d.original) c.src = d.src; else delete c.src; }
       if (!d.edit) { c.out = d.out || ''; if (d.err) c.err = true; else delete c.err; if (d.figs && d.figs.length) c.figs = d.figs.slice(); else delete c.figs; }
+      // what its code blanks were filled in with, and the colours written in (book.js: every report has them as they are now)
+      if (d.fills) c.fills = d.fills; else delete c.fills;
+      if (d.marks) c.marks = d.marks; else delete c.marks;
       // nothing to keep: the cell's own source and either no run yet or a run that printed just what the page has
       var outSame = c.out == null || (!c.err && !c.figs && !d.stored && c.out === (d.printed || ''));
-      if (c.src == null && outSame) delete code[key]; else code[key] = c;
+      if (c.src == null && outSame && !c.fills && !c.marks) delete code[key]; else code[key] = c;
     }
     applied[key] = !!code[key];
     save(); barState();
@@ -6672,6 +6790,7 @@ function eaiInk(opts) {
       if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter (this view)?')) { mine.strokes = []; mine.pages = []; undo = []; store(KEY_MINE, mine); render(); }
       if (b.dataset.a === 'publish') { ensureTarget(); publish(); }
       if (b.dataset.a === 'report') report();
+      if (b.dataset.a === 'home') { save(); native({ home: true }); }
       barState();
     });
     bar.addEventListener('change', function (e) {
@@ -6683,6 +6802,7 @@ function eaiInk(opts) {
     });
   }
   function barState() {
+    nativeState();
     if (!bar) return;
     var cur = editing ? tool : 'hand';
     [].forEach.call(bar.querySelectorAll('[data-t]'), function (x) { x.classList.toggle('on', x.dataset.t === cur && (!x.dataset.c || x.dataset.c === color)); });
@@ -6690,6 +6810,7 @@ function eaiInk(opts) {
     var right = bar.querySelector('.right'), h = '';
     if (layers.length) h += '<select id="ink-pick" title="Lecture notes"' + (editing && target !== mine ? ' disabled' : '') + '><option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '"' + (pub && pub.id === l.id ? ' selected' : '') + '>Notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ')') + '</option>'; }).join('') + '</select>';
     if (teacher() && VIEW === 'slides' && /[?&]lecture=1/.test(location.search)) h += '<span class="pres" title="Opened from the Lecture button: the faint answers are hidden, safe to mirror to the projector">Presenting</span>';
+    if (NATIVE) h += '<button data-a="home" class="quiet" title="back to the list of chapters">Chapters</button>';
     if (EDITOR_VIEW) h += '<button data-a="report" class="quiet" title="Tell Claude something is wrong on this page: your note plus this device\'s details go in as a comment on the page">Report</button>';
     h += teacher() ? '<button data-a="publish" class="act" title="publish today\'s notes for students">Publish</button>'
                    : '<button data-a="clear" class="quiet" title="erase all of my notes on this view">Clear mine</button>';
@@ -6735,22 +6856,30 @@ function eaiInk(opts) {
     barState();
   }
   function stop() { if (!editing) return barState(); editing = false; save(); document.documentElement.classList.remove('ink-lecture', 'ink-lock', 'ink-hand'); book.removeEventListener('pointerdown', down); tool = 'hand'; barState(); }
-  function msg(t) { var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; else if (t && !/…$/.test(t)) alert(t); }
+  function msg(t) { if (NATIVE_INK) native({ msg: t || '' }); var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; else if (t && !NATIVE_INK && !/…$/.test(t)) alert(t); }
   function currentPage() { var best = null, bd = 1e9; pages().forEach(function (p) { var r = rectOf(p), d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = p; } }); return best; }
-  function addBlank() {
-    var pg = currentPage(); if (!pg) return;
+  function addBlank(at) {
+    var pg = (at && document.getElementById(at)) || currentPage(); if (!pg) return;
     var b = { after: pg.id, id: (target === mine ? 'my-' : 'wb-') + Date.now().toString(36) }; target.pages.push(b); blankPage(b); undo.push({ blank: b }); save();
     document.getElementById(b.id).scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function doUndo() {
     var u = undo.pop(); if (!u) return;
-    if (u.stroke) { target.strokes.splice(target.strokes.indexOf(u.stroke), 1); if (u.el) u.el.remove(); }
+    // every path drawing it, not just the one first drawn: an erase undone draws the stroke again as a new path
+    if (u.stroke) { target.strokes.splice(target.strokes.indexOf(u.stroke), 1); [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === u.stroke) pp.remove(); }); }
     if (u.erased) u.erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
     if (u.blank) { target.pages.splice(target.pages.indexOf(u.blank), 1); var p = document.getElementById(u.blank.id); if (p) p.remove(); }
-    save();
+    // a blank's pad (the iPad app's eaiNativeInk.fill): its handwriting as it was before the pad opened
+    if (u.fill) { u.after.forEach(unStroke); u.before.forEach(function (s) { target.strokes.push(s); drawStroke(s); }); }
+    save(); nativeState();
+  }
+  function unStroke(s) {
+    var i = target.strokes.indexOf(s); if (i >= 0) target.strokes.splice(i, 1);
+    [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
   }
   function near(s, x, y, r) { for (var i = 0; i < s.pts.length; i++) { var dx = s.pts[i][0] - x, dy = s.pts[i][1] - y; if (dx * dx + dy * dy < r * r) return true; } return false; }
   function down(e) {
+    if (NATIVE_INK && e.pointerType === 'pen') return;   // the iPad app draws the Pencil itself (nativeInk)
     if (!editing || tool === 'hand' || e.button > 0 || e.target.closest('button, a, select, textarea, input, iframe, .ink-bar')) return;
     var pg = e.target.closest('section.page'); if (!pg) return;
     if (e.pointerType === 'touch') return IOS ? undefined : fingerScroll(e);
@@ -6790,8 +6919,18 @@ function eaiInk(opts) {
       cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [smooth(pt(e))] }; if (tool === 'hl') cur.o = 0.35;
       el = drawStroke(cur);
     }
+    // Lecture mode: the pen held still for half a second opens the colour wheel there (the dot it made is taken back)
+    penAt = { x: e.clientX, y: e.clientY };
+    var hold = LECT && tool !== 'laser' ? setTimeout(held, 500) : null;
+    function held() {
+      hold = null; detach();
+      if (el) el.remove();
+      erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+      openWheel(penAt.x, penAt.y);
+    }
     function move(ev) {
       if (ev.pointerId !== e.pointerId) return;
+      if (hold && Math.abs(ev.clientX - penAt.x) + Math.abs(ev.clientY - penAt.y) > 6) { clearTimeout(hold); hold = null; }
       var es = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [ev]; if (!es.length) es = [ev];
       if (tool === 'laser') { laser.style.left = ev.clientX + 'px'; laser.style.top = ev.clientY + 'px'; return; }
       es.forEach(function (q) {
@@ -6810,10 +6949,14 @@ function eaiInk(opts) {
       tail = ahead(ev);   // draw ahead to where the pen is about to be, so the line keeps up with the tip
       if (!queued) { queued = true; requestAnimationFrame(frame); }
     }
-    function up(ev) {
-      if (ev && ev.pointerId !== e.pointerId) return;
+    function detach() {
+      clearTimeout(hold); hold = null;
       pg.removeEventListener('pointermove', move); pg.removeEventListener('pointerup', up); pg.removeEventListener('pointercancel', up);
       removeEventListener('scroll', onScroll, true); penDown = false;
+    }
+    function up(ev) {
+      if (ev && ev.pointerId !== e.pointerId) return;
+      detach(); if (ev) penAt = { x: ev.clientX, y: ev.clientY };
       if (tool === 'laser') { if (laser) laser.remove(); laser = null; return; }
       if (cur && cur.pts.length) {
         var l = cur.pts[cur.pts.length - 1]; if (raw && cur.pts.length > 1 && (raw[0] !== l[0] || raw[1] !== l[1])) cur.pts.push(raw);
@@ -6826,7 +6969,9 @@ function eaiInk(opts) {
     pg.addEventListener('pointermove', move); pg.addEventListener('pointerup', up); pg.addEventListener('pointercancel', up);
   }
   function stylusGuard(e) {
-    if (!editing || tool === 'hand') return;
+    // not in the iPad app: it draws the Pencil itself, and a cancelled Pencil touch made WebKit fail PencilKit's
+    // drawing gesture (2026-11-13: the pen drew nothing)
+    if (NATIVE_INK || !editing || tool === 'hand') return;
     var t = e.target, ts = e.changedTouches || [];
     if (!t.closest || !t.closest('section.page') || t.closest('button, a, select, textarea, input, iframe')) return;
     for (var i = 0; i < ts.length; i++) if (ts[i].touchType === 'stylus') { e.preventDefault(); return; }
@@ -6888,7 +7033,7 @@ function eaiInk(opts) {
   }
 
   // Code run in lecture, drawn into the notes PDF (Eric, 2026-11-10). The PDF has the cell as stored; where a cell was
-  // edited or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
+  // edited, filled in (its code blanks, 2026-11-13: with their colours, as are colours written on edited code) or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
   // and plots drawn in, shrunk to fit if need be. What won't fit there at a readable size (a long output, plots under
   // a cell that had no output box) goes on a page of its own right after the slide, "Run in lecture: <title>". Ink
   // is drawn after, so notes written over an output stay on top of it.
@@ -6914,15 +7059,37 @@ function eaiInk(opts) {
     var m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?/.exec(v || '');
     if (!m || m[4] === '0') return dflt; return PDFLib.rgb(+m[1] / 255, +m[2] / 255, +m[3] / 255);
   }
-  // lines of coloured runs from a rendered output (<pre>), or plain lines of code
-  function runsOf(pre) {
+  // lines of coloured runs from a rendered output (<pre>), or plain lines of code; bg: also the boxes behind text
+  // (highlights, a highlighted blank), as rn.bg
+  function runsOf(pre, bg) {
     var lines = [[]];
     (function walk(n) {
       if (n.nodeType === 3) {
         var st = getComputedStyle(n.parentNode), c = cssRGB(st.color, PDFLib.rgb(0.2, 0.2, 0.2)), b = (parseInt(st.fontWeight, 10) || 400) >= 600;
-        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push({ t: t, c: c, b: b }); });
+        var back = bg && n.parentNode !== pre ? cssRGB(st.backgroundColor, null) : null;
+        // (code) a blank not filled in or shown: a gap, not its answer (which the page keeps hidden, or faint on the iPad)
+        if (bg && n.parentNode.closest && n.parentNode.closest('u.fill:not(.filled):not(.shown)')) { lines[lines.length - 1].push({ t: n.nodeValue.replace(/[^\n]/g, ' '), c: c, b: false, ul: true }); return; }
+        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push(back ? { t: t, c: c, b: b, bg: back } : { t: t, c: c, b: b }); });
       } else if (n.nodeType === 1 && !/^(BUTTON|SCRIPT|STYLE)$/.test(n.tagName)) [].forEach.call(n.childNodes, walk);
     })(pre);
+    while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
+    return lines;
+  }
+  // a cell's code as the page shows it (its code blanks filled in, in their colours), line by line
+  function liveRuns(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return runsOf(l, true)[0] || []; }); }
+  // edited code with the colours written on it (book.js eaiCodeColors: [from, to, "t:red" | "h:gold"])
+  var PEN_RGB = { blue: '#1155CC', red: '#CC0000', green: '#38761D', purple: '#674EA7', gold: '#DCB439' }, HL_RGB = { gold: '#FFF2CC' };
+  function markedRuns(src, marks) {
+    var ink = PDFLib.rgb(0.13, 0.13, 0.13), tc = [], hc = [];
+    marks.forEach(function (m) { var p = m[2].split(':'), arr = p[0] === 't' ? tc : hc; for (var i = m[0]; i < m[1]; i++) arr[i] = p[1]; });
+    var lines = [[]], i = 0;
+    while (i < src.length) {
+      if (src[i] === '\n') { lines.push([]); i++; continue; }
+      var j = i; while (j < src.length && src[j] !== '\n' && tc[j] === tc[i] && hc[j] === hc[i]) j++;
+      var rn = { t: src.slice(i, j).replace(/\t/g, '    '), c: tc[i] && PEN_RGB[tc[i]] ? hexRGB(PEN_RGB[tc[i]]) : ink, b: !!(tc[i] && PEN_RGB[tc[i]]) };
+      if (hc[i] && HL_RGB[hc[i]]) rn.bg = hexRGB(HL_RGB[hc[i]]);
+      lines[lines.length - 1].push(rn); i = j;
+    }
     while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
     return lines;
   }
@@ -6937,7 +7104,8 @@ function eaiInk(opts) {
       var out = j.b.nextElementSibling; while (out && out.tagName === 'TEXTAREA') out = out.nextElementSibling;   // (an edited cell's editor sits between)
       if (out && out.tagName !== 'B-OUT') out = null; var pre = out && out.querySelector('pre');
       if (j.b._eaiLive) j.b._eaiLive(j.c);
-      j.code = j.c.src != null ? plainRuns(j.c.src) : null;
+      // edited code (in its colours), or the stored code with its blanks as filled in during the lecture
+      j.code = j.c.src != null ? (j.c.marks ? markedRuns(j.c.src, j.c.marks) : plainRuns(j.c.src)) : j.c.fills ? liveRuns(j.b) : null;
       j.out = j.c.out != null && pre ? runsOf(pre) : j.c.out != null ? plainRuns(j.c.out) : null;
       if (j.out && j.out.length === 1 && !j.out[0].length) j.out = null;
       j.figs = j.c.figs || [];
@@ -6968,6 +7136,14 @@ function eaiInk(opts) {
         var H = page.getSize().height, cx = x;
         runs.forEach(function (rn) {
           var t = clean(rn.t), font = rn.b ? F.b : F.r, piece = '', pieceFont = font;
+          if (rn.bg) {   // a highlight: its box behind the run
+            var rw; try { rw = font.widthOfTextAtSize(t, fs); } catch (e) { rw = t.length * F.adv * fs; }
+            page.drawRectangle({ x: cx * kp, y: H - (y + fs * 1.18) * kp, width: rw * kp, height: fs * 1.25 * kp, color: rn.bg });
+          }
+          if (rn.ul) {   // an empty code blank: its line to write on
+            var uw = t.length * F.adv * fs;
+            page.drawLine({ start: { x: cx * kp, y: H - (y + fs * 1.1) * kp }, end: { x: (cx + uw) * kp, y: H - (y + fs * 1.1) * kp }, thickness: 0.8 * kp, color: PDFLib.rgb(0.13, 0.13, 0.13) });
+          }
           var flush = function () { if (piece) page.drawText(piece, { x: cx * kp, y: H - (y + fs * 0.95) * kp, size: fs * kp, font: pieceFont, color: rn.c }); cx += (pieceFont.widthOfTextAtSize ? pieceFont.widthOfTextAtSize(piece, fs) : piece.length * F.adv * fs); piece = ''; };
           Array.from(t).forEach(function (ch) {
             var f = F.has && F.sym && !F.has.has(ch.codePointAt(0)) ? F.sym : font;
@@ -6990,7 +7166,7 @@ function eaiInk(opts) {
         var grey = PDFLib.rgb(0.45, 0.45, 0.45), place2 = { text: !j.out, ims: !j.ims.length };
         if (!place.code && j.codeBox) {   // the code didn't fit: say where it went, over the stored code
           var cb2 = j.codeBox; cover(page, kp, { x: cb2.x + 1, y: cb2.y + 1, w: cb2.w - 2, h: cb2.h - 2 }, j.bgCode);
-          line(page, kp, [{ t: 'Edited in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
+          line(page, kp, [{ t: (j.c.src != null ? 'Edited' : 'Filled in') + ' in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
         }
         if ((j.out || j.ims.length) && j.outBox && j.outTop) {   // the lecture's output (and plots) in the output box
           var ob = j.outBox, ox = ob.x + PAD + 2, oy = j.outTop.y + 1, ow = ob.w - 2 * PAD - 4, oh = ob.y + ob.h - oy - PAD;
@@ -7244,11 +7420,129 @@ function eaiInk(opts) {
     addEventListener('resize', function () { zoomGen++; setTimeout(apply, 0); });   // after the view's own resize handler
     apply(); setTimeout(apply, 0);
   }
+  // ---------------------------------------------------------------- the iPad app's own pen and scrolling
+  // AI2AI Present (ios/) from build 2 draws the Pencil itself, at the Pencil's own rate with Apple's predicted touches, and
+  // lets the web view scroll and pinch-zoom natively; its toolbar replaces the pen bar (Eric, 2026-11-12: native ink
+  // first, keeping the notes as they are). The strokes it draws come back here on lift in the usual form ({p, c, w, o,
+  // pts} in page pt), so saving, Undo, Publish and the notes PDF don't change. The app asks for this with
+  // eaiNativeApp.ink; an older app, or this page anywhere else, gets the web pen as before.
+  // To the app: {inkReady}, {ink: state}, {pages: [page boxes in document px]}, {msg}. From the app: window.eaiNativeInk.
+  function nativeState() {
+    if (!NATIVE_INK) return;
+    native({ ink: { editing: editing, tool: editing ? tool : 'hand', color: color, width: width, teacher: teacher(),
+      drafting: !!(target && target !== mine), undo: undo.length } });
+  }
+  function nativeInk() {
+    var H = document.documentElement; H.classList.add('native-ink');
+    var vp = document.querySelector('meta[name=viewport]');
+    if (!vp) { vp = document.createElement('meta'); vp.name = 'viewport'; document.head.appendChild(vp); }
+    vp.setAttribute('content', 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, viewport-fit=cover');
+    // every page's box in document px (the web view's content at zoom 1), so the app can put a Pencil point on its page
+    // without asking: a box measured against the root element's is the same whatever the scroll and the pinch
+    function boxes() {
+      var o = H.getBoundingClientRect();
+      return pages().map(function (p) { var r = p.getBoundingClientRect(); return { id: p.id, x: r.left - o.left, y: r.top - o.top, w: r.width, h: r.height, W: pgW(p) }; })
+        .filter(function (b) { return b.w > 0 && b.h > 0; });
+    }
+    var bt = 0;
+    function sendBoxes() { clearTimeout(bt); bt = setTimeout(function () { native({ pages: boxes() }); }, 60); }
+    if (window.ResizeObserver) new ResizeObserver(sendBoxes).observe(book);   // pictures loading, blank pages, the fit zoom
+    addEventListener('resize', sendBoxes); addEventListener('load', sendBoxes);
+    var erasing = [];
+    // PencilKit (app build 3, eaiNativeApp.pk): the app shows all the ink itself, so what's written looks the same from
+    // the first touch on (Eric, 2026-11-12: the live line and the page's line never quite matched, so a stroke changed
+    // a little on lift). The page still keeps the strokes (drafts, Undo, Publish, PDFs) but hides its own drawing of
+    // them, and tells the app which strokes it would draw, with an id each, whenever that changes (inkList).
+    var PK = !!window.eaiNativeApp.pk, ids = new WeakMap(), nid = 1;
+    function idOf(st) { if (!ids.has(st)) ids.set(st, nid++); return ids.get(st); }
+    function list() { return [].map.call(book.querySelectorAll('svg.ink path'), function (el) { return el._s && { id: idOf(el._s), s: el._s }; }).filter(Boolean); }
+    var lt = 0;
+    function sendList() { clearTimeout(lt); lt = setTimeout(function () { native({ inkList: list() }); }, 0); }
+    if (PK) {
+      H.classList.add('native-pk');
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var n = [].concat([].slice.call(ms[i].addedNodes), [].slice.call(ms[i].removedNodes));
+          if (n.some(function (x) { return x.nodeName === 'path' || x.nodeName === 'svg' || (x.querySelector && x.querySelector('svg.ink')); })) return sendList();
+        }
+      }).observe(book, { childList: true, subtree: true });
+    }
+    window.eaiNativeInk = {
+      boxes: boxes,
+      list: list,
+      // a finished stroke from the app
+      stroke: function (s) {
+        if (!s || !s.p || !document.getElementById(s.p) || !(s.pts && s.pts.length)) return false;
+        ensureTarget(); if (!target) return false;
+        var st = { p: s.p, c: s.c, w: s.w, pts: s.pts }; if (s.o) st.o = s.o;
+        var el = drawStroke(st); target.strokes.push(st); undo.push({ stroke: st, el: el }); saveSoon(); nativeState();
+        return PK ? idOf(st) : true;
+      },
+      // a fill-in blank's handwriting from the app's pad (ios/ TextPad.swift, docs/blank-pads.md): the strokes tagged
+      // with the blank (f: key) are replaced by these, fitted into the blank. Every change in one opening of the pad
+      // (sess) is one Undo step on the bar, which puts back the blank's handwriting from before the pad opened.
+      fill: function (key, list, sess) {
+        ensureTarget(); if (!target || !key) return false;
+        var old = target.strokes.filter(function (s) { return s.f === key; }); old.forEach(unStroke);
+        var add = (list || []).filter(function (s) { return s && s.p && document.getElementById(s.p) && s.pts && s.pts.length; }).map(function (s) {
+          var st = { p: s.p, c: s.c, w: s.w, pts: s.pts, f: key }; if (s.o) st.o = s.o;
+          drawStroke(st); target.strokes.push(st); return st;
+        });
+        var u = undo[undo.length - 1];
+        if (u && u.fill === key && u.sess === sess) u.after = add;
+        else if (old.length || add.length) undo.push({ fill: key, sess: sess, before: old, after: add });
+        saveSoon(); nativeState(); return true;
+      },
+      // PencilKit's eraser takes whole strokes: these ids (only this draft's or reader's own go; the app is sent the rest
+      // back in the next inkList), then eraseEnd as for erase()
+      eraseIds: function (list) {
+        ensureTarget(); if (!target) return;
+        (list || []).forEach(function (id) {
+          target.strokes.filter(function (s) { return ids.get(s) === id; }).forEach(function (s) {
+            target.strokes.splice(target.strokes.indexOf(s), 1); erasing.push(s);
+            [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
+          });
+        });
+        sendList();
+      },
+      // the eraser: points (page pt) on one page as the Pencil moves, then eraseEnd (cancel: the wheel opened, put them back)
+      erase: function (pid, pts) {
+        var pg = document.getElementById(pid); if (!pg) return; ensureTarget(); if (!target) return;
+        var svg = overlay(pg);
+        (pts || []).forEach(function (q) {
+          target.strokes.filter(function (s) { return s.p === pid && near(s, q[0], q[1], 6); }).forEach(function (s) {
+            target.strokes.splice(target.strokes.indexOf(s), 1); erasing.push(s);
+            [].forEach.call(svg.querySelectorAll('path'), function (pp) { if (pp._s === s) pp.remove(); });
+          });
+        });
+      },
+      eraseEnd: function (cancel) {
+        var e = erasing; erasing = []; if (!e.length) return;
+        if (cancel) e.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+        else undo.push({ erased: e });
+        saveSoon(); nativeState();
+      },
+      // the app's toolbar and wheel
+      cmd: function (c, a, b) {
+        if (c === 'tool') { tool = a; if (b) color = b; if (tool !== 'laser') last = { t: tool, c: color }; start(); }
+        else if (c === 'hand') stop();
+        else if (c === 'width') width = +a;
+        else if (c === 'undo') { ensureTarget(); doUndo(); }
+        else if (c === 'blank') { ensureTarget(); addBlank(a); }
+        else if (c === 'pdf') notesPDF();
+        else if (c === 'publish') { ensureTarget(); publish(); }
+        else if (c === 'save') save();
+        barState();
+      }
+    };
+    native({ inkReady: true, pk: PK, pages: boxes() }); nativeState(); sendBoxes(); if (PK) sendList();
+  }
   // ?lecture=1 (the editor home's Lecture button): teaching from this device: the pen in hand, the faint answers hidden
   // (see ghost). The plain Lecture view (its answers link) shows them to the signed-in instructor.
   var LECT = (location.search.match(/[?&]lecture=(\w+)/) || [])[1];
+  NATIVE_INK = NATIVE && !!window.eaiNativeApp.ink && !!LECT && VIEW === 'slides';
   ghost(); render(); buildBar(); navbar();
-  if (LECT) lectureZoom();
+  if (NATIVE_INK) nativeInk(); else if (LECT) lectureZoom();
   if (LECT === '1') start();
   // one sign-in: a device signed in to the Book Editor (same site) uses that token here too, if it can publish to this repo
   if (!teacher() && window.indexedDB) try {
