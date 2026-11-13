@@ -1823,7 +1823,10 @@ Book.fillBlank = (u, v, kind) => {
   if (v == null) { if (!u.classList.contains('filled')) return; u.innerHTML = u._ansHTML; u.classList.remove('filled', 'wrong', 'shown'); if (cc) cc.blank(u, null); }
   else {
     if (u.classList.contains('filled') && u.textContent === v && was === (kind || null)) return;
-    u.textContent = v; u.classList.add('filled', 'shown'); u.classList.toggle('wrong', v.trim() !== u._ans.trim()); if (cc) cc.blank(u, kind || null);
+    // in code, written text gets the code's own colours (syntax, the chapter's codeColors) unless a pen colour was
+    // picked (Eric, 2026-11-13: "infer them if I don't do them myself")
+    if (u.closest('b-code')) u.innerHTML = highlight(v); else u.textContent = v;
+    u.classList.add('filled', 'shown'); u.classList.toggle('wrong', v.trim() !== u._ans.trim()); if (cc) cc.blank(u, kind || null);
   }
   u.dispatchEvent(new CustomEvent('eai-fill', { bubbles: true }));
 };
