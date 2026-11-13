@@ -162,7 +162,7 @@ async function list() {
   if (!units.length && !other.length) { $('#list').innerHTML = tabs + (cfg ? `<p class="note">${BOOKS.length > 1 ? 'No chapters of this book on this device yet.' : 'No chapters on this device yet.'} Get the latest while online.</p>` : ''); wire(); return; }
   const planned = units.reduce((k, u) => k + u.items.filter(i => !i.slug).length, 0);
   let html = tabs + `<div class="shelf-bar"><span class="note">Drag a cover to reorder${matchMedia('(pointer: coarse)').matches ? ' (press and hold first)' : ''}.</span>`
-    + (planned ? `<button class="mini" id="tg-planned">${showPlanned ? 'Hide' : 'Show'} planned (${planned})</button>` : '') + '</div>';
+    + `<span class="bar-r">${planned ? `<button class="mini" id="tg-planned">${showPlanned ? 'Hide' : 'Show'} planned (${planned})</button>` : ''}<button class="mini" id="newch">New chapter</button></span></div><div id="newform" hidden></div>`;
   const side = await sideState();
   const card = async (it, u, num) => {
     if (!it.slug) return showPlanned ? `<div class="book planned" data-key="${esc(it.key)}"><div class="cv"><div class="cv-text"><div class="kicker">${esc(num)}</div><div class="cv-title">${esc(it.title)}</div><div class="rule"></div></div><div class="cv-plan">Planned</div></div></div>` : '';
@@ -172,7 +172,7 @@ async function list() {
       <a class="cv" href="edit/${href}" draggable="false">${c.art ? `<span class="cv-art" data-art="chapters/${esc(it.slug)}/${esc(c.art)}"><img alt="" draggable="false"${arts[`chapters/${it.slug}/${c.art}`] ? ` src="${arts[`chapters/${it.slug}/${c.art}`]}"` : ''}></span>` : '<span class="cv-art none"></span>'}
         <span class="cv-text"><span class="kicker">${esc(num)}</span><span class="cv-title">${esc(c.title)}</span><span class="rule"></span></span></a>
       <div class="meta">${side.claims[it.slug] ? `<span class="claim" title="A Claude session is working on this chapter: ${esc(side.claims[it.slug].what || '')} (until ${esc((side.claims[it.slug].expires || '').slice(11, 16))})">Claude working</span>` : ''}${side.changed[it.slug] ? `<span class="chg" title="Pages Claude changed since you last looked (blue dots in the editor's page list)">● ${side.changed[it.slug]} changed</span>` : ''}${c.dirty ? '<span class="edited">Edited here</span>' : ''}<span class="off ${full ? 'full' : ''}">${full ? 'Offline ✓' : need ? `<a href="#" data-dl="${esc(it.slug)}">Download</a> ${have}/${need}` : ''}</span></div>
-      <div class="acts"><a class="btn" href="view/${href}">Read</a><a class="btn" href="edit/${href}">Edit</a><a class="btn lect" href="view/${href}?view=slides&lecture=1" title="Teach from this device: the Lecture with the pen in hand and the faint answers hidden (safe to mirror to the projector)">Lecture</a><a class="ans" href="view/${href}?view=slides&lecture=answers" title="For a second screen: the Lecture with the faint answers showing">answers</a>${cfg && cfg.kind === 'github' ? `<a class="pub" href="#" data-pub="${esc(it.slug)}" title="Put this chapter's current version on the website (pages and PDFs). Every chapter edited since its last publish also goes up each night.">Publish to the site</a>` : ''}</div></div>`;
+      <div class="acts"><a class="btn" href="view/${href}">Read</a><a class="btn" href="edit/${href}">Edit</a><a class="btn lect" href="view/${href}?view=slides&lecture=1" title="Teach from this device: the Lecture with the pen in hand and the faint answers hidden (safe to mirror to the projector)">Lecture</a><a class="ans" href="view/${href}?view=slides&lecture=answers" title="For a second screen: the Lecture with the faint answers showing">answers</a>${cfg && cfg.kind === 'github' ? `<a class="pub" href="#" data-pub="${esc(it.slug)}" title="Put this chapter's current version on the website (pages and PDFs). Every chapter edited since its last publish also goes up each night.">Publish to the site</a>` : ''}${cfg && cfg.kind === 'github' && book().id === 'ballm' ? `<a class="pub nbk" href="#" data-nbk="${esc(it.slug)}" title="Make this chapter's CSE 10124 notebooks (student and Solutions, from its Lecture): they go into your Drive Notebooks folder and the course site within about 15 minutes">Make notebook</a>` : ''}</div></div>`;
   };
   for (const u of units) {
     html += `<div class="unit"><span class="un">${esc(u.n)}</span>${esc(u.title)}</div><div class="grid" data-unit="${esc(u.n)}">`;
@@ -186,6 +186,9 @@ async function list() {
   }
   $('#list').innerHTML = html; wire();
   covers();
+  $('#newch').onclick = () => newChapterForm();
+  $('#list').querySelectorAll('[data-nbk]').forEach(a => a.onclick = e => { e.preventDefault(); e.stopPropagation(); makeNotebook(a.dataset.nbk, a); });
+  nbStatus();
   if ($('#tg-planned')) $('#tg-planned').onclick = () => { showPlanned = !showPlanned; try { localStorage.setItem('ai2ai-planned', showPlanned ? '1' : '0'); } catch (e) { /* no storage */ } list(); };
   $('#list').querySelectorAll('[data-pub]').forEach(a => a.onclick = e => { e.preventDefault(); e.stopPropagation(); publish(a.dataset.pub, a); });
   $('#list').querySelectorAll('[data-dl]').forEach(a => a.onclick = async e => {
@@ -288,6 +291,127 @@ async function publish(slug, a) {
     setTimeout(tick, 30e3);
   };
   setTimeout(tick, 60e3);
+}
+
+// CSE 10124 notebooks (Eric, 2026-11-13: "a manual option, from the landing page itself"): sync, then ask the
+// "Make notebooks" workflow (.github/workflows/notebook.yml) by writing publish/notebook-request.json; it builds the
+// chapter's student and Solutions notebooks into the site and lists them in ballm/notebooks.json (tools/notebook_site.py),
+// which the CSE 10124 Resources sheet's Apps Script reads to update the Drive Notebooks folder and the course site.
+const NB_MANIFEST = SITE_REPO + '/contents/ballm/notebooks.json';
+async function siteJSON(path) { const f = await gh(path); return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(f.content.replace(/\s/g, '')), c => c.charCodeAt(0)))); }
+let nbMan = null, nbManAt = 0;
+const nbState = {};   // slug -> {text, busy}: a request under way (or just done) survives the shelf being drawn again
+async function nbStatus() {   // each Make notebook link says when that chapter's notebooks were last made
+  const links = [...$('#list').querySelectorAll('[data-nbk]')];
+  for (const a of links) { const st = nbState[a.dataset.nbk]; if (st) { a.textContent = st.text; a.classList.toggle('busy', st.busy); } }
+  if (!links.length || !navigator.onLine) return;
+  if (!nbMan || Date.now() - nbManAt > 60e3) { try { nbMan = await siteJSON(NB_MANIFEST); nbManAt = Date.now(); } catch (x) { return; } }
+  for (const a of links) {
+    const e = nbMan[a.dataset.nbk]; if (!e || nbState[a.dataset.nbk]) continue;
+    if (e.failed && (!e.at || e.failed > e.at)) { a.textContent = 'Make notebook (last try failed)'; a.title = 'Last try: ' + (e.error || 'failed') + '. Press to try again.'; }
+    else if (e.at) a.textContent = 'Make notebook (made ' + new Date(e.at).toLocaleDateString([], { month: 'short', day: 'numeric' }) + ')';
+  }
+}
+async function makeNotebook(slug, a) {
+  if (!navigator.onLine) return msg('Offline: making notebooks needs the internet.');
+  const t = a.closest('.book') && a.closest('.book').querySelector('.cv-title'), title = (t && t.textContent) || slug;
+  if (!confirm('Make the CSE 10124 notebooks for "' + title + '" from its Lecture now?\n\nAbout 5 minutes on GitHub, then your Drive Notebooks folder and the course site pick them up within 10 minutes (same files, updated in place).')) return;
+  const say = (w, busy = true) => {   // on the link (whichever one is on screen now) and in the message line
+    nbState[slug] = { text: w, busy };
+    const el = $('#list').querySelector(`[data-nbk="${CSS.escape(slug)}"]`) || a; el.textContent = w; el.classList.toggle('busy', busy);
+    msg(title + ': ' + w);
+  };
+  say('Syncing…');
+  const at = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+  try {
+    const d = await swSync(); if (d.state === 'error') throw new Error('could not sync: ' + d.error);
+    say('Asking GitHub…');
+    const path = cfg.repo + '/contents/publish/notebook-request.json';
+    let sha; try { sha = (await gh(path + '?ref=' + cfg.branch)).sha; } catch (x) { /* first request */ }
+    await gh(path, { method: 'PUT', body: JSON.stringify({ message: 'Make notebooks ' + slug, branch: cfg.branch, sha,
+      content: b64(JSON.stringify({ chapters: [slug], at }, null, 1) + '\n') }) });
+  } catch (x) { delete nbState[slug]; say('Make notebook', false); delete nbState[slug]; return msg(title + ': not made (' + x.message + ').'); }
+  say('Making notebooks… (about 5 minutes)');
+  const t0 = Date.now();
+  const tick = async () => {
+    let man = null;
+    try { man = await siteJSON(NB_MANIFEST); } catch (x) { if (Date.now() - t0 > 3 * 60e3) return say('Asked for: in Drive and on the course site in about 15 minutes', false); }
+    const e = man && man[slug];
+    if (e && e.at && e.at >= at) { nbMan = man; nbManAt = Date.now(); return say('Notebooks made ✓ (Drive and the course site within 10 minutes)', false); }
+    if (e && e.failed && e.failed >= at) return say('Not made: ' + (e.error || 'see Actions in ' + cfg.repo), false);
+    if (Date.now() - t0 > 30 * 60e3) return say('Still not done after 30 minutes: see Actions in ' + cfg.repo, false);
+    setTimeout(tick, 20e3);
+  };
+  setTimeout(tick, 60e3);
+}
+
+// New chapter (Eric, 2026-11-13): a title, where it goes in this book's contents (a planned chapter, the end of a
+// unit, or not in the contents yet) and a slug; makes the split chapter's cover like tools/agent/books.py new_chapter
+// (same book-meta, same cover), writes the contents file, and syncs. It shows on the shelf right away.
+const slugify = t => t.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/, '');
+const newId = taken => { for (;;) { const k = 'abcdefghijklmnopqrstuvwxyz'[Math.random() * 26 | 0] + Math.random().toString(36).slice(2, 6); if (k.length === 5 && !taken.has(k)) { taken.add(k); return k; } } };
+function newChapterForm() {
+  const box = $('#newform'); if (!box) return;
+  if (!box.hidden) { box.hidden = true; return; }
+  const b = book(), units = (shelf && shelf.units) || [];
+  const where = [];
+  for (const u of units) {
+    u.items.forEach((it, i) => { if (!it.slug) where.push({ v: 'p:' + u.n + ':' + i, t: 'Unit ' + u.n + ' · ' + it.raw.n + ' ' + it.title + ' (planned)', title: it.title }); });
+    where.push({ v: 'e:' + u.n, t: 'End of Unit ' + u.n + (u.title ? ': ' + u.title : '') });
+  }
+  where.push({ v: 'n', t: 'Not in the contents yet' });
+  box.innerHTML = `<div class="newch"><b>New ${esc(b.short || b.id)} chapter</b>
+    <label>Title <input id="nc-title" placeholder="e.g. Supervised Fine-Tuning"></label>
+    <label>Where <select id="nc-where">${where.map(w => `<option value="${esc(w.v)}">${esc(w.t)}</option>`).join('')}</select></label>
+    <label>Slug <input id="nc-slug" spellcheck="false"></label>
+    <div class="row"><button id="nc-go" class="act">Create</button><button id="nc-x" class="mini">Cancel</button><span id="nc-msg" class="note"></span></div></div>`;
+  box.hidden = false;
+  const ti = $('#nc-title'), wi = $('#nc-where'), si = $('#nc-slug');
+  let typed = false;
+  const auto = () => { if (!typed) si.value = (b.prefix || '') + slugify(ti.value); };
+  ti.oninput = auto; si.oninput = () => { typed = true; };
+  wi.onchange = () => { const w = where.find(x => x.v === wi.value); if (w && w.title && !ti.value.trim()) { ti.value = w.title; auto(); } };
+  $('#nc-x').onclick = () => { box.hidden = true; };
+  $('#nc-go').onclick = async () => {
+    const say = t => { $('#nc-msg').textContent = t; };
+    try { $('#nc-go').disabled = true; const slug = await newChapter(ti.value.trim(), wi.value, si.value.trim()); box.hidden = true;
+      msg(''); $('#msg').innerHTML = `Made <b>${esc(ti.value.trim())}</b> (${esc(slug)}). <a href="edit/${encodeURIComponent(slug)}">Open it</a>`; }
+    catch (x) { say(x.message); } finally { const g = $('#nc-go'); if (g) g.disabled = false; }
+  };
+  ti.focus();
+}
+async function newChapter(title, where, slug) {
+  const b = book();
+  if (!title) throw new Error('Give it a title.');
+  if (!/^[a-z0-9][a-z0-9_-]*$/.test(slug)) throw new Error('Slug: lowercase letters, digits, - and _ only.');
+  if (b.prefix && !slug.startsWith(b.prefix)) throw new Error((b.short || b.id) + ' chapters start with "' + b.prefix + '".');
+  if (await Files.get('chapters/' + slug + '/chapter.html')) throw new Error('There is already a chapter ' + slug + '.');
+  const toc = shelf && shelf.toc;
+  let next = toc ? JSON.parse(JSON.stringify(toc)) : null, unit = '', num = '';
+  if (where !== 'n') {
+    if (!next) throw new Error('This book has no contents file (' + tocPath() + ').');
+    const [k, un, i] = where.split(':'), u = next.units.find(x => String(x.n) === un);
+    if (!u) throw new Error('No unit ' + un + '.');
+    if (k === 'p') { const c = u.chapters[+i]; if (!c || c.slug) throw new Error('That planned chapter is taken.'); c.slug = slug; c.title = title; unit = u.n; num = c.n; }
+    else { num = u.chapters.reduce((m, c) => Math.max(m, c.n || 0), 0) + 1; u.chapters.push({ n: num, title, slug }); unit = u.n; }
+  }
+  const meta = { title, chapter: num !== '' ? num : 0, book: b.title, home: 'https://ai.williamtheisen.com/', toc: '/' + b.web + '/', pdf: slug + '-chapter.pdf',
+    colors: { x: 'red', X: 'red', 'ω': 'wblue', 'Ω': 'wblue', b: 'gray', z: 'purple', y: 'green', 'ŷ': 'gold' },
+    web: b.web + '/' + slug.slice((b.prefix || '').length), split: true };
+  const taken = new Set(), b1 = newId(taken), b2 = newId(taken), p2 = v => typeof v === 'number' ? String(v).padStart(2, '0') : String(v);
+  const text = '<script type="application/json" id="book-meta">\n' + JSON.stringify(meta, null, 1) + '\n</script>\n\n\n'
+    + '<section class="page cover" id="cover">\n'
+    + `  <b-fig src="fig/cover.svg" class="cover-art" alt="" data-b="${b1}"></b-fig>\n`
+    + `  <div class="cover-text" data-b="${b2}">\n`
+    + `    <div class="kicker">Unit ${p2(unit)} · Chapter ${num}</div>\n`
+    + `    <h1>${esc(title)}</h1>\n    <div class="rule"></div>\n`
+    + `    <div class="byline">${esc(b.course || '')}<br>William Theisen · University of Notre Dame</div>\n  </div>\n</section>\n`;
+  await Files.put('chapters/' + slug + '/chapter.html', text);
+  if (where !== 'n') await Files.put(tocPath(), JSON.stringify(next, null, 1) + '\n');
+  await list(); await chips();
+  const sw = navigator.serviceWorker && navigator.serviceWorker.controller;
+  if (sw && cfg && cfg.kind !== 'dev' && navigator.onLine) sw.postMessage({ type: 'sync' });
+  return slug;
 }
 
 // cover art: read from this device's store, or fetched from GitHub once and kept (Sync.file), shown as a blob URL.

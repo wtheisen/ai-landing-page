@@ -1591,7 +1591,9 @@ function eaiRunCode() {
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
     if (fills.length) {
-      var ready = function () { bar.hidden = !fills.every(function (u) { return u.classList.contains('shown') || u.classList.contains('filled'); }); };
+      // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
+      // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
+      var ready = function () { bar.classList.toggle('run-wait', !editor && !fills.every(function (u) { return u.classList.contains('shown') || u.classList.contains('filled'); })); };
       block.addEventListener('eai-fill', ready); ready();
       block.addEventListener('eai-fill', function () { tell({ src: editor ? editor.value : original, edit: true }); });
     }
@@ -1616,17 +1618,26 @@ function eaiRunCode() {
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
       if (editor) return;
-      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = source(block);
-      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet) editor.focus();
+      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
+      // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
+      var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
+      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
+    }
+    // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
+    function blanked() {
+      return [].map.call(block.querySelectorAll('.ln'), function (l) {
+        var c = l.cloneNode(true); [].forEach.call(c.querySelectorAll('u.fill:not(.filled):not(.shown)'), function (u) { u.textContent = '___'; });
+        return c.textContent.replace(/\u00a0/g, ' ');
+      }).join('\n');
     }
     function reset(quiet) {
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
-      if (fills.length) { var was = block._eaiApplying; block._eaiApplying = true; fills.forEach(function (u) { Book.fillBlank(u, null); }); block._eaiApplying = was; }
+      if (fills.length) { var was = block._eaiApplying; block._eaiApplying = true; fills.forEach(function (u) { Book.fillBlank(u, null); }); block._eaiApplying = was; ready(); }
       if (!quiet) tell({ reset: true });
     }
     // lecture notes put back what was run in class: d = {src?, out?, err?, figs?, fills?, marks?} or null for the stored cell

@@ -234,6 +234,7 @@ b-out:not(b-code + b-out) { border-radius: 4px; }
    the label and Safari laid the output text in the sliver beside it (Eric, 2026-11-12, bptt lec-bp-run while presenting). */
 b-out .label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6pt; row-gap: 3pt; }
 .run-bar { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4pt; margin-left: auto; order: 1; letter-spacing: 0; text-transform: none; }   /* order: after the label's own text and the presenting hint (::after) */
+.run-bar.run-wait [data-a="run"], .run-bar.run-wait [data-a="prior"] { display: none; }   /* a Lecture cell with code blanks: Run once they're filled in (or it's edited) */
 .run-bar button, .run-bar .run-status { white-space: nowrap; }
 .run-bar button { font: 700 7.5pt var(--font-mono); padding: 0 5pt; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); color: var(--ink-muted); cursor: pointer; }
 .run-bar button[data-a="run"] { color: var(--blue-text); border-color: var(--blue-text); }
