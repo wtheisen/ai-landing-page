@@ -1,27 +1,27 @@
 {
  "_last": {
-  "at": "2026-11-13T15:51:12Z",
+  "at": "2026-11-13T16:07:59Z",
   "failed": {},
   "ok": [
    "ballm-rag-lora"
   ],
-  "run": "43456466883"
+  "run": "43459246556"
  },
  "ballm-rag-lora": {
-  "at": "2026-11-13T15:51:22Z",
-  "commit": "6a70ccbc6a398d9c08c92b443d05bb05486a8930",
+  "at": "2026-11-13T16:08:10Z",
+  "commit": "c146d38ac016a1f381844e9e9d79141a09284461",
   "files": [
    {
     "name": "Solutions_BaLLM_Chapter_2.04_RAG_LoRA_and_Distillation.ipynb",
     "path": "ballm/rag-lora/Solutions_BaLLM_Chapter_2.04_RAG_LoRA_and_Distillation.ipynb",
     "role": "solutions",
-    "sha": "88e9bae9e1958e95a3121a212c5e78ff689a0a94"
+    "sha": "32d18c32964f638a45e1eed9ee6ee127e4b73ed3"
    },
    {
     "name": "BaLLM_Chapter_2.04_RAG_LoRA_and_Distillation.ipynb",
     "path": "ballm/rag-lora/BaLLM_Chapter_2.04_RAG_LoRA_and_Distillation.ipynb",
     "role": "student",
-    "sha": "7925737ae0f3a072c052bdf78053dd7a384a3b7c"
+    "sha": "5795e3b0bb0c36477150e6123fdce381e9dca2c4"
    }
   ],
   "tab": "RAG, LoRA, and Distillation",
