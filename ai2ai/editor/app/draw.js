@@ -1010,6 +1010,23 @@ function inspect(insp) {
   }
   }
   add('<hr>');
+  // answer parts (docs/blank-pads.md phase 3, Eric 2026-11-13): hidden in the Lecture and Workbook, to fill in in class;
+  // a tap shows it, and the iPad app opens a pad on it. A tile hides its label (the box stays as the slot) or the whole
+  // tile with its arrows; a group or an equation row marks each tile in it; anything else is hidden as it is.
+  if (layer && layer.matches('svg.draw')) {
+    const targets = [...new Set(shapes.flatMap(s => isTile(s) ? [s] : s.localName === 'g' && s.querySelector('g') ? [...s.querySelectorAll('g')].filter(isTile) : [s]))];
+    const tiles = targets.length && targets.every(isTile), cur = targets.map(t => t.getAttribute('data-fill'));
+    const set = v => { E.commit(true); targets.forEach(t => v == null ? t.removeAttribute('data-fill') : t.setAttribute('data-fill', v)); drawHandles(); E.commit(true); E.renderInspector(); };
+    if (tiles) {
+      add(`<label title="Hidden in the Lecture and Workbook, to fill in in class. A tap shows it; on the iPad it opens a pad.">Answer${targets.length > 1 ? ` (${targets.length} tiles)` : ''}</label>`);
+      const sel = add(`<select><option value="">no, always shown</option><option value="label">the label: the box stays empty</option><option value="all">the whole tile, with its arrows</option>${new Set(cur).size > 1 ? '<option value="mixed">(mixed)</option>' : ''}</select>`);
+      sel.value = new Set(cur).size > 1 ? 'mixed' : (cur[0] || '');
+      sel.onchange = () => { if (sel.value !== 'mixed') set(sel.value || null); };
+    } else {
+      const fa = add(`<label class="check" title="Hidden in the Lecture and Workbook, to fill in in class (a lone label leaves a dashed underline). A tap shows it; on the iPad it opens a pad."><input type="checkbox" ${cur.every(v => v != null) ? 'checked' : ''}>Answer: hidden in the Lecture and Workbook</label>`);
+      fa.firstChild.onchange = e => set(e.target.checked ? '' : null);
+    }
+  }
   if (n === 1 && plain(shapes[0]) && !ends(shapes[0])) {
     const s = shapes[0], b = lbox(s), noSize = s.localName === 'text', canRot = /^(rect|ellipse|text)$/.test(s.localName);
     const row = add(`<div class="row">x <input type="number" step="1" style="width:56px" data-g="x" value="${r1(b.x0)}"> y <input type="number" step="1" style="width:56px" data-g="y" value="${r1(b.y0)}">${noSize ? '' : ` w <input type="number" step="1" style="width:56px" data-g="w" value="${r1(b.x1 - b.x0)}"> h <input type="number" step="1" style="width:56px" data-g="h" value="${r1(b.y1 - b.y0)}">`}${canRot ? ` turn <input type="number" step="5" style="width:56px" data-g="a" value="${r1((rotOf(s) || { a: 0 }).a)}">°` : ''}</div>`);
@@ -1036,7 +1053,10 @@ function inspect(insp) {
 }
 
 // ---------------------------------------------------------------- layers: every shape of the current drawing, front first
-function describe(s) {
+// a tile: a box and its label (a symbol or token tile too), not a row or a group of tiles
+const isTile = s => s.localName === 'g' && !s.querySelector(':scope > g') && !!s.querySelector(':scope > :is(rect, ellipse, polygon, path)') && !!s.querySelector(':scope > text');
+function describe(s) { const f = s.getAttribute('data-fill'); return describeShape(s) + (f == null ? '' : f === 'label' ? ' · answer: label' : f === 'all' ? ' · answer: whole' : ' · answer'); }
+function describeShape(s) {
   if (isTok(s)) return 'Token “' + (s.getAttribute('data-t') || '') + '”';
   if (isSym(s)) return 'Symbol ' + (s.getAttribute('data-sym') || '');
   if (s.localName === 'text') return '“' + s.textContent.trim().slice(0, 22) + '”';

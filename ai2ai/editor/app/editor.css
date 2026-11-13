@@ -252,8 +252,10 @@ body.ed-tool #book, body.ed-tool #book * { cursor: crosshair !important; }
 .ed .book[data-view="reading"] .key { box-shadow: inset 0 -0.42em 0 #dbe7fb; }
 .ed u.fill { background: #fff7dd; }
 .ed .book:is([data-view="slides"], [data-view="workbook"]) u.fill, .ed .book:is([data-view="slides"], [data-view="workbook"]) u.fill * { color: #b9b9b9 !important; }
-.ed .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] { color: #c4c4c4; }
-.ed .book:is([data-view="slides"], [data-view="workbook"]) [data-fill] > * { visibility: visible; opacity: .28; }
+.ed .book:is([data-view="slides"], [data-view="workbook"]) [data-fill]:not(svg *) { color: #c4c4c4; }
+.ed .book:is([data-view="slides"], [data-view="workbook"]) [data-fill]:not(svg *) > * { visibility: visible; opacity: .28; }
+/* a drawing's answer parts stay faintly in view in the editor, so they can be found and selected */
+.ed .book:is([data-view="slides"], [data-view="workbook"]) svg.draw :is([data-fill=""], [data-fill="label"] > text, g[data-fill="all"] > *) { opacity: .3 !important; }
 #x-mode { font-weight: 700; }
 .viewrow label { display: inline-flex; gap: 4px; align-items: center; margin: 0 10px 0 0; color: var(--ink); font-size: 12.5px; }
 .ed .book[data-view="reading"] > .page[data-view]:not([data-view~="reading"]),
