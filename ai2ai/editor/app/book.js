@@ -582,7 +582,20 @@ Book.symArrows = svg => {
     if (l.getAttribute('stroke') !== col) l.setAttribute('stroke', col);
     for (const a of ['marker-start', 'marker-end']) if (l.getAttribute(a)) { const u = Book.arrowHead(svg, col); if (l.getAttribute(a) !== u) l.setAttribute(a, u); }
   }
+  Book.symRowBoxes(svg);
   Book.symArrowsOnTop(svg);
+};
+// an equation row's box outline takes the colour of what it computes, the tile left of its '=' (Eric, 2026-11-13:
+// "color the black boxes … respective to the color of their output", like the gold c_t box); a row without '=' or
+// a box recoloured by hand (data-fixcol) keeps its colour
+Book.symRowBoxes = svg => {
+  for (const g of svg.querySelectorAll('g[data-row]')) {
+    const r = g.querySelector(':scope > rect'); if (!r || r.hasAttribute('data-fixcol')) continue;
+    const kids = [...g.children], eq = kids.findIndex(e => e.localName === 'text' && /^\s*=/.test(e.textContent)); if (eq < 1) continue;
+    const out = kids.slice(0, eq).reverse().find(e => e.matches('g[data-sym]')); if (!out) continue;
+    const col = (SYM_COLS[Book.symInfo(out.getAttribute('data-sym')).fam] || SYM_COLS.gray)[1];
+    if (r.getAttribute('stroke') !== col) r.setAttribute('stroke', col);
+  }
 };
 // arrows attached to a tile or a row sit above the rows, so a row's box doesn't hide the end that runs in to its tile
 // (Eric, 2026-11-13: "go over the black boxes around the equations"); order among the arrows is kept, and nothing
@@ -1561,8 +1574,11 @@ function eaiRunCode() {
     try { var B = py.pyimport('builtins'), mod = String(B.getattr(B.type(r), '__module__', '')); if (/^matplotlib/.test(mod)) return ''; return B.repr(r); } catch (e) { return ''; } finally { if (r.destroy) r.destroy(); }
   }
   [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
-    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading') return;   // blanks in the Lecture/Workbook: no Run
+    // blanks: no Run in the Workbook; in the Lecture, Run once every blank is filled in (Book.fillBlank: the iPad app's
+    // handwriting) or tapped open, and it runs the code as filled in, wrong answers too (Eric, 2026-11-13)
+    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading' && bv !== 'slides') return;
     if (block._run) return; block._run = true;
+    var fills = bv === 'slides' ? [].slice.call(block.querySelectorAll('u.fill')) : [];
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
     // a plot saved with the Output (b-out figs=…, drawn by BOut.render, inlined in the published page) comes back on Reset
@@ -1574,6 +1590,11 @@ function eaiRunCode() {
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
+    if (fills.length) {
+      var ready = function () { bar.hidden = !fills.every(function (u) { return u.classList.contains('shown') || u.classList.contains('filled'); }); };
+      block.addEventListener('eai-fill', ready); ready();
+      block.addEventListener('eai-fill', function () { tell({ src: editor ? editor.value : original, edit: true }); });
+    }
     function show(text, err, figs) {
       out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
       out.classList.toggle('run-new', !printed && !storedFigs && !text && !(figs && figs.length));
@@ -1586,11 +1607,18 @@ function eaiRunCode() {
     function figures(py) { try { var r = py.runPython(FIGS), a = r.toJs(); r.destroy(); return a; } catch (e) { return []; } }
     // what happens to a cell (a run, its result, an edit, a reset) is announced as an 'eai-run' event, so the
     // instructor's lecture notes (ink.js) can keep it and publish it with the ink (Eric, 2026-11-10)
-    function tell(d) { d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
+    // what the cell's blanks hold ({index: [text, colour]}) and its editor's colours: kept in the lecture notes with it
+    function filled() { var f = {}, any = false; fills.forEach(function (u, i) { if (u.classList.contains('filled')) { f[i] = [u.textContent, window.eaiCodeColors ? eaiCodeColors.blankColor(u) : null]; any = true; } }); return any ? f : null; }
+    function tell(d) {
+      if (block._eaiApplying) return;   // notes being put back, not something done in class
+      if (fills.length && !editor && d.src === source(block)) d.src = original;   // filled blanks are kept as fills, not as code
+      if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
+      d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
       if (editor) return;
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = source(block);
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet) editor.focus();
+      editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
@@ -1598,16 +1626,22 @@ function eaiRunCode() {
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
+      if (fills.length) { var was = block._eaiApplying; block._eaiApplying = true; fills.forEach(function (u) { Book.fillBlank(u, null); }); block._eaiApplying = was; }
       if (!quiet) tell({ reset: true });
     }
-    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?} or null for the stored cell
+    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?, fills?, marks?} or null for the stored cell
     block._eaiLive = function (d) {
-      if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
-      block._eaiShowing = true;
-      if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-      else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
-      if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
-      status.textContent = 'As run in lecture';
+      block._eaiApplying = true;
+      try {
+        if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
+        block._eaiShowing = true;
+        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
+        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
+        if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
+        status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';
+      } finally { block._eaiApplying = false; }
     };
     // g: a globals dict shared with the cells run before this one (Run prior); then the cell runs alone, without the
     // blocks it chains to (they have just run in g). Resolves true when the cell ran without an error.
@@ -1619,7 +1653,7 @@ function eaiRunCode() {
         return Promise.resolve(true);
       }
       var chainNeeded = block.hasAttribute('chain') && (frag(block) || (!g && !(block._eaiPrevRan && block._eaiPrevRan())));
-      var own = editor ? editor.value : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
+      var own = editor ? editor.value : fills.length ? source(block) : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
       return pyodide().then(function (py) {
@@ -1674,13 +1708,121 @@ function eaiRunCode() {
   document.dispatchEvent(new Event('eai-run-ready'));   // lecture notes (ink.js) can now put their runs back
 }
 Book.runCode = () => { if (Book.web && !Book.exporting) eaiRunCode(); };
+// Colours on code written in a Lecture (the iPad app's handwriting, Eric 2026-11-13): a pen colours the letters ("t:red",
+// bold, as b-code .cc), the highlighter highlights ("h:gold", as marks). An opened editor is a plain textarea, which can't
+// colour part of its text, so while it has colours its text is transparent and a box laid exactly over it draws the text
+// (.eai-cc). Colours are character ranges of the editor's text that follow its edits; a filled code blank takes its
+// colour as a class (pen-red, hl-gold). They go into the lecture notes with the cell (eaiRunCode's tell) and come back
+// with them (_eaiLive), so the notes picker shows and hides them with the ink.
+window.eaiCodeColors || (function () {
+  var T = { blue: '#1155CC', red: '#CC0000', green: '#38761D', purple: '#674EA7', gold: '#DCB439' };   // the pens, as b-code .cc
+  var H = { gold: ['#fff2cc', '#ffd966'] };                                                               // the highlighter, as marks
+  function esc(s) { return s.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+  function ok(kind) { var p = kind.split(':'); return p[0] === 't' ? !!T[p[1]] : p[0] === 'h' ? !!H[p[1]] : false; }
+
+  // the editor's text changed: ranges before it stay, ranges after it move, a range it falls inside takes the new text
+  function adjust(ed) {
+    var o = ed._eaiPrev, n = ed.value; ed._eaiPrev = n;
+    if (o == null || o === n || !ed._eaiMarks) return;
+    var p = 0, L = Math.min(o.length, n.length); while (p < L && o[p] === n[p]) p++;
+    var s = 0; while (s < L - p && o[o.length - 1 - s] === n[n.length - 1 - s]) s++;
+    var oe = o.length - s, ne = n.length - s, d = n.length - o.length;
+    ed._eaiMarks = ed._eaiMarks.map(function (m) {
+      return [m[0] < p ? m[0] : m[0] >= oe ? m[0] + d : p, m[1] <= p ? m[1] : m[1] >= oe ? m[1] + d : ne, m[2]];
+    }).filter(function (m) { return m[1] > m[0]; });
+  }
+  // a..b in kind ("t:red", "h:gold"; "t:" or "h:" alone takes that sort off): replaces ranges of the same sort only
+  function paint(ed, a, b, kind) {
+    var sort = kind.split(':')[0] + ':', out = [];
+    (ed._eaiMarks || []).forEach(function (m) {
+      if (m[2].indexOf(sort) !== 0 || m[1] <= a || m[0] >= b) out.push(m);
+      else { if (m[0] < a) out.push([m[0], a, m[2]]); if (m[1] > b) out.push([b, m[1], m[2]]); }
+    });
+    if (ok(kind) && b > a) out.push([a, b, kind]);
+    ed._eaiMarks = out.sort(function (x, y) { return x[0] - y[0]; });
+  }
+  function render(ed) {
+    var o = ed._eaiCC;
+    if (!ed.isConnected || !ed._eaiMarks || !ed._eaiMarks.length || !ed.offsetParent) {
+      if (o) { o.remove(); ed._eaiCC = null; }
+      if (ed._eaiInk != null) { ed.style.color = ed._eaiInk; ed.style.caretColor = ''; ed._eaiInk = null; }
+      return;
+    }
+    if (ed._eaiInk == null) { ed._eaiInk = ed.style.color || ''; ed._eaiColor = getComputedStyle(ed).color; ed.style.caretColor = ed._eaiColor; ed.style.color = 'transparent'; }
+    var host = ed.offsetParent;
+    if (!o || o.parentNode !== host) { if (o) o.remove(); o = ed._eaiCC = document.createElement('div'); o.className = 'eai-cc'; host.appendChild(o); }
+    var cs = getComputedStyle(ed);
+    ['fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'wordSpacing', 'tabSize', 'textIndent',
+     'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth']
+      .forEach(function (k) { o.style[k] = cs[k]; });
+    o.style.color = ed._eaiColor;
+    o.style.width = ed.offsetWidth + 'px'; o.style.height = ed.offsetHeight + 'px';
+    // exactly over the editor: placed, measured, moved by the difference (in the page's px, however it's scaled)
+    o.style.left = ed.offsetLeft + 'px'; o.style.top = ed.offsetTop + 'px';
+    var er = ed.getBoundingClientRect(), or = o.getBoundingClientRect(), k = or.width / (o.offsetWidth || 1) || 1;
+    o.style.left = (ed.offsetLeft + (er.left - or.left) / k) + 'px'; o.style.top = (ed.offsetTop + (er.top - or.top) / k) + 'px';
+    // each character's letter colour and highlight, then runs of the same
+    var v = ed.value, tc = new Array(v.length), hc = new Array(v.length);
+    ed._eaiMarks.forEach(function (m) { var p = m[2].split(':'), arr = p[0] === 't' ? tc : hc; for (var i = m[0]; i < m[1] && i < v.length; i++) arr[i] = p[1]; });
+    var h = '', i = 0;
+    while (i < v.length) {
+      var j = i; while (j < v.length && tc[j] === tc[i] && hc[j] === hc[i]) j++;
+      var cls = (tc[i] ? 't-' + tc[i] : '') + (hc[i] ? (tc[i] ? ' ' : '') + 'h-' + hc[i] : '');
+      h += cls ? '<span class="' + cls + '">' + esc(v.slice(i, j)) + '</span>' : esc(v.slice(i, j));
+      i = j;
+    }
+    o.innerHTML = h + '\n';
+    o.scrollTop = ed.scrollTop; o.scrollLeft = ed.scrollLeft;
+  }
+  var eds = new Set();
+  function all() { eds.forEach(function (ed) { if (!ed.isConnected) { if (ed._eaiCC) ed._eaiCC.remove(); eds.delete(ed); } else render(ed); }); }
+  document.addEventListener('input', function (e) { var ed = e.target; if (ed && ed._eaiMarks) { adjust(ed); render(ed); } }, true);
+  document.addEventListener('scroll', function (e) { var ed = e.target; if (ed && ed._eaiCC) render(ed); }, true);
+  document.addEventListener('eai-run', function () { setTimeout(all, 0); });
+  addEventListener('resize', all);
+  new ResizeObserver(function () { all(); }).observe(document.documentElement);
+  new MutationObserver(function (ms) {
+    if (ms.some(function (m) { return [].some.call(m.removedNodes, function (n) { return n.nodeType === 1 && (n.tagName === 'TEXTAREA' || n.querySelector('textarea')); }); })) all();
+  }).observe(document.documentElement, { childList: true, subtree: true });
+  window.eaiCodeColors = {
+    // characters a..b of an editor's text: kind "t:red" (letters), "h:gold" (highlight), "t:" / "h:" (that sort off)
+    paint: function (ed, a, b, kind) { eds.add(ed); if (ed._eaiPrev == null) ed._eaiPrev = ed.value; adjust(ed); paint(ed, a, b, kind); render(ed); ed.dispatchEvent(new CustomEvent('eai-colors')); },
+    get: function (ed) { return ed._eaiMarks && ed._eaiMarks.length ? ed._eaiMarks : null; },
+    set: function (ed, m) { eds.add(ed); ed._eaiMarks = m ? m.map(function (x) { return x.slice(); }) : null; ed._eaiPrev = ed.value; render(ed); },
+    // a filled code blank: kind as above (null: plain, no highlight)
+    blank: function (u, kind) {
+      var p = (kind || '').split(':');
+      Object.keys(T).forEach(function (k) { u.classList.toggle('pen-' + k, p[0] === 't' && p[1] === k); });
+      Object.keys(H).forEach(function (k) { u.classList.toggle('hl-' + k, p[0] === 'h' && p[1] === k); });
+    },
+    blankColor: function (u) {
+      var t = Object.keys(T).filter(function (k) { return u.classList.contains('pen-' + k); })[0];
+      var h = Object.keys(H).filter(function (k) { return u.classList.contains('hl-' + k); })[0];
+      return t ? 't:' + t : h ? 'h:' + h : null;
+    },
+    render: all
+  };
+})();
+// A blank filled in with what was written (the iPad app reads handwriting) in colour kind (above; null: plain), or v =
+// null for the blank as it was. A filled blank shows its text (marked .wrong when it isn't the answer); a code cell's
+// Run runs what its blanks say.
+Book.fillBlank = (u, v, kind) => {
+  if (u._ansHTML == null) { u._ansHTML = u.innerHTML; u._ans = u.textContent; }
+  const cc = window.eaiCodeColors, was = cc ? cc.blankColor(u) : null;
+  if (v == null) { if (!u.classList.contains('filled')) return; u.innerHTML = u._ansHTML; u.classList.remove('filled', 'wrong', 'shown'); if (cc) cc.blank(u, null); }
+  else {
+    if (u.classList.contains('filled') && u.textContent === v && was === (kind || null)) return;
+    u.textContent = v; u.classList.add('filled', 'shown'); u.classList.toggle('wrong', v.trim() !== u._ans.trim()); if (cc) cc.blank(u, kind || null);
+  }
+  u.dispatchEvent(new CustomEvent('eai-fill', { bubbles: true }));
+};
 
 // ---------------------------------------------------------------- web extras (after spacing is settled) and the static snapshot
 Book.webExtras = () => {
   Book.freezeGaps = true; Book.liveOn = true;
   Book.root.querySelectorAll('b-fig[live]').forEach(Book.initLive);
   Book.runCode();
-  if (Book.view === 'slides' || Book.view === 'workbook') Book.root.addEventListener('click', e => { const f = e.target.closest && e.target.closest('u.fill, [data-fill]'); if (f) f.classList.toggle('shown'); });
+  if (Book.view === 'slides' || Book.view === 'workbook') Book.root.addEventListener('click', e => { const f = e.target.closest && e.target.closest('u.fill, [data-fill]'); if (f) { f.classList.toggle('shown'); f.dispatchEvent(new CustomEvent('eai-fill', { bubbles: true })); } });
   Book.root.querySelectorAll('.qc > .ans').forEach(a => {
     if (a.nextElementSibling && a.nextElementSibling.tagName === 'DETAILS') return;
     const d = document.createElement('details'); d.className = 'web-only'; d.setAttribute('data-rt', '');

@@ -954,7 +954,7 @@ function inspect(insp) {
     add(`<label>${label}</label>`);
     const row = add(`<div class="sw">${list.map(c => `<button data-c="${c}" title="${c === 'none' ? 'none' : c}" class="${c === 'none' ? 'none ' : ''}${same(first.getAttribute(attr) || (attr === 'fill' ? '#000000' : 'none'), c) ? 'cur' : ''}" style="${c === 'none' ? '' : 'background:' + c}"></button>`).join('')}</div>`);
     row.onclick = e => { const c = e.target.dataset.c; if (!c) return;
-      E.commit(true); on.forEach(s => { s.setAttribute(attr, c); if (attr === 'stroke' && heads(s) && c !== 'none') setHeads(s, heads(s)); if (attr === 'stroke' && /^(line|polyline|path)$/.test(s.localName) && (s.getAttribute('data-a') || s.getAttribute('data-b'))) s.setAttribute('data-fixcol', ''); }); drawHandles(); E.commit(true);
+      E.commit(true); on.forEach(s => { s.setAttribute(attr, c); if (attr === 'stroke' && heads(s) && c !== 'none') setHeads(s, heads(s)); if (attr === 'stroke' && ((/^(line|polyline|path)$/.test(s.localName) && (s.getAttribute('data-a') || s.getAttribute('data-b'))) || (s.localName === 'rect' && s.parentNode.matches && s.parentNode.matches('g[data-row]')))) s.setAttribute('data-fixcol', ''); }); drawHandles(); E.commit(true);
       if (attr === 'fill' && !isText && c !== 'none') last.fill = c; if (attr === 'stroke' && closed && c !== 'none') last.stroke = c;
       E.renderInspector(); };
   };
@@ -979,6 +979,9 @@ function inspect(insp) {
       const ls = lv.filter(onSym);
       if (ls.length) { const fc = add(`<label class="check"><input type="checkbox" ${ls.every(l => !l.hasAttribute('data-fixcol')) ? 'checked' : ''}>Colour from ${ls.length > 1 ? 'their symbols' : 'its symbol'} (the quantity it carries)</label>`);
         fc.firstChild.onchange = e => { E.commit(true); ls.forEach(l => l.toggleAttribute('data-fixcol', !e.target.checked)); Book.symArrows(svgL); drawHandles(); E.commit(true); E.renderInspector(); }; } }
+    { const rb = lv.filter(r => r.localName === 'rect' && r.parentNode.matches && r.parentNode.matches('g[data-row]'));
+      if (rb.length) { const svgR = layer, fr = add(`<label class="check"><input type="checkbox" ${rb.every(r => !r.hasAttribute('data-fixcol')) ? 'checked' : ''}>Outline from what ${rb.length > 1 ? 'each equation computes' : 'the equation computes'} (the tile left of =)</label>`);
+        fr.firstChild.onchange = e => { E.commit(true); rb.forEach(r => r.toggleAttribute('data-fixcol', !e.target.checked)); Book.symArrows(svgR); drawHandles(); E.commit(true); E.renderInspector(); }; } }
     const row = add(`<div class="row">Width <select style="width:64px">${[0.5, 0.8, 1, 1.2, 1.5, 2, 3, 4].map(v => `<option>${v}</option>`).join('')}</select> <select style="width:auto"><option value="">solid</option><option value="4.5 3">dashed</option><option value="1.5 3">dotted</option></select></div>`);
     const [w, dash] = row.querySelectorAll('select'); const cw = String(parseFloat(s0.getAttribute('stroke-width')) || 1);
     if (![...w.options].some(o => o.value === cw)) w.add(new Option(cw, cw)); w.value = cw; dash.value = s0.getAttribute('stroke-dasharray') || '';

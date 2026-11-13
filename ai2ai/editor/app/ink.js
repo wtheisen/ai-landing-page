@@ -343,8 +343,8 @@ function eaiInk(opts) {
 
   // ---------------------------------------------------------------- code run in lecture
   // In Lecture mode (?lecture=…) the signed-in instructor's runs go into today's notes: what the cell held when it ran
-  // (if edited), what it printed and drew. A run that gives back exactly the stored cell drops out again, and so does
-  // Reset. They are published with the ink and put back on the page wherever these notes are shown.
+  // (if edited), what it printed and drew, what its code blanks were filled in with and the colours written on it (the
+  // iPad app). A run that gives back exactly the stored cell drops out again, and so does Reset. They are published with the ink and put back on the page wherever these notes are shown.
   function codeKey(block) {
     var b = block.getAttribute('data-b'); if (b) return b;
     var pg = block.closest('section.page'), all = pg ? [].slice.call(pg.querySelectorAll('b-code')) : [];
@@ -363,9 +363,12 @@ function eaiInk(opts) {
     else {
       if (d.src != null) { if (d.src !== d.original) c.src = d.src; else delete c.src; }
       if (!d.edit) { c.out = d.out || ''; if (d.err) c.err = true; else delete c.err; if (d.figs && d.figs.length) c.figs = d.figs.slice(); else delete c.figs; }
+      // what its code blanks were filled in with, and the colours written in (book.js: every report has them as they are now)
+      if (d.fills) c.fills = d.fills; else delete c.fills;
+      if (d.marks) c.marks = d.marks; else delete c.marks;
       // nothing to keep: the cell's own source and either no run yet or a run that printed just what the page has
       var outSame = c.out == null || (!c.err && !c.figs && !d.stored && c.out === (d.printed || ''));
-      if (c.src == null && outSame) delete code[key]; else code[key] = c;
+      if (c.src == null && outSame && !c.fills && !c.marks) delete code[key]; else code[key] = c;
     }
     applied[key] = !!code[key];
     save(); barState();
@@ -638,7 +641,7 @@ function eaiInk(opts) {
   }
 
   // Code run in lecture, drawn into the notes PDF (Eric, 2026-11-10). The PDF has the cell as stored; where a cell was
-  // edited or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
+  // edited, filled in (its code blanks, 2026-11-13: with their colours, as are colours written on edited code) or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
   // and plots drawn in, shrunk to fit if need be. What won't fit there at a readable size (a long output, plots under
   // a cell that had no output box) goes on a page of its own right after the slide, "Run in lecture: <title>". Ink
   // is drawn after, so notes written over an output stay on top of it.
@@ -664,15 +667,37 @@ function eaiInk(opts) {
     var m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?/.exec(v || '');
     if (!m || m[4] === '0') return dflt; return PDFLib.rgb(+m[1] / 255, +m[2] / 255, +m[3] / 255);
   }
-  // lines of coloured runs from a rendered output (<pre>), or plain lines of code
-  function runsOf(pre) {
+  // lines of coloured runs from a rendered output (<pre>), or plain lines of code; bg: also the boxes behind text
+  // (highlights, a highlighted blank), as rn.bg
+  function runsOf(pre, bg) {
     var lines = [[]];
     (function walk(n) {
       if (n.nodeType === 3) {
         var st = getComputedStyle(n.parentNode), c = cssRGB(st.color, PDFLib.rgb(0.2, 0.2, 0.2)), b = (parseInt(st.fontWeight, 10) || 400) >= 600;
-        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push({ t: t, c: c, b: b }); });
+        var back = bg && n.parentNode !== pre ? cssRGB(st.backgroundColor, null) : null;
+        // (code) a blank not filled in or shown: a gap, not its answer (which the page keeps hidden, or faint on the iPad)
+        if (bg && n.parentNode.closest && n.parentNode.closest('u.fill:not(.filled):not(.shown)')) { lines[lines.length - 1].push({ t: n.nodeValue.replace(/[^\n]/g, ' '), c: c, b: false, ul: true }); return; }
+        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push(back ? { t: t, c: c, b: b, bg: back } : { t: t, c: c, b: b }); });
       } else if (n.nodeType === 1 && !/^(BUTTON|SCRIPT|STYLE)$/.test(n.tagName)) [].forEach.call(n.childNodes, walk);
     })(pre);
+    while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
+    return lines;
+  }
+  // a cell's code as the page shows it (its code blanks filled in, in their colours), line by line
+  function liveRuns(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return runsOf(l, true)[0] || []; }); }
+  // edited code with the colours written on it (book.js eaiCodeColors: [from, to, "t:red" | "h:gold"])
+  var PEN_RGB = { blue: '#1155CC', red: '#CC0000', green: '#38761D', purple: '#674EA7', gold: '#DCB439' }, HL_RGB = { gold: '#FFF2CC' };
+  function markedRuns(src, marks) {
+    var ink = PDFLib.rgb(0.13, 0.13, 0.13), tc = [], hc = [];
+    marks.forEach(function (m) { var p = m[2].split(':'), arr = p[0] === 't' ? tc : hc; for (var i = m[0]; i < m[1]; i++) arr[i] = p[1]; });
+    var lines = [[]], i = 0;
+    while (i < src.length) {
+      if (src[i] === '\n') { lines.push([]); i++; continue; }
+      var j = i; while (j < src.length && src[j] !== '\n' && tc[j] === tc[i] && hc[j] === hc[i]) j++;
+      var rn = { t: src.slice(i, j).replace(/\t/g, '    '), c: tc[i] && PEN_RGB[tc[i]] ? hexRGB(PEN_RGB[tc[i]]) : ink, b: !!(tc[i] && PEN_RGB[tc[i]]) };
+      if (hc[i] && HL_RGB[hc[i]]) rn.bg = hexRGB(HL_RGB[hc[i]]);
+      lines[lines.length - 1].push(rn); i = j;
+    }
     while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
     return lines;
   }
@@ -687,7 +712,8 @@ function eaiInk(opts) {
       var out = j.b.nextElementSibling; while (out && out.tagName === 'TEXTAREA') out = out.nextElementSibling;   // (an edited cell's editor sits between)
       if (out && out.tagName !== 'B-OUT') out = null; var pre = out && out.querySelector('pre');
       if (j.b._eaiLive) j.b._eaiLive(j.c);
-      j.code = j.c.src != null ? plainRuns(j.c.src) : null;
+      // edited code (in its colours), or the stored code with its blanks as filled in during the lecture
+      j.code = j.c.src != null ? (j.c.marks ? markedRuns(j.c.src, j.c.marks) : plainRuns(j.c.src)) : j.c.fills ? liveRuns(j.b) : null;
       j.out = j.c.out != null && pre ? runsOf(pre) : j.c.out != null ? plainRuns(j.c.out) : null;
       if (j.out && j.out.length === 1 && !j.out[0].length) j.out = null;
       j.figs = j.c.figs || [];
@@ -718,6 +744,14 @@ function eaiInk(opts) {
         var H = page.getSize().height, cx = x;
         runs.forEach(function (rn) {
           var t = clean(rn.t), font = rn.b ? F.b : F.r, piece = '', pieceFont = font;
+          if (rn.bg) {   // a highlight: its box behind the run
+            var rw; try { rw = font.widthOfTextAtSize(t, fs); } catch (e) { rw = t.length * F.adv * fs; }
+            page.drawRectangle({ x: cx * kp, y: H - (y + fs * 1.18) * kp, width: rw * kp, height: fs * 1.25 * kp, color: rn.bg });
+          }
+          if (rn.ul) {   // an empty code blank: its line to write on
+            var uw = t.length * F.adv * fs;
+            page.drawLine({ start: { x: cx * kp, y: H - (y + fs * 1.1) * kp }, end: { x: (cx + uw) * kp, y: H - (y + fs * 1.1) * kp }, thickness: 0.8 * kp, color: PDFLib.rgb(0.13, 0.13, 0.13) });
+          }
           var flush = function () { if (piece) page.drawText(piece, { x: cx * kp, y: H - (y + fs * 0.95) * kp, size: fs * kp, font: pieceFont, color: rn.c }); cx += (pieceFont.widthOfTextAtSize ? pieceFont.widthOfTextAtSize(piece, fs) : piece.length * F.adv * fs); piece = ''; };
           Array.from(t).forEach(function (ch) {
             var f = F.has && F.sym && !F.has.has(ch.codePointAt(0)) ? F.sym : font;
@@ -740,7 +774,7 @@ function eaiInk(opts) {
         var grey = PDFLib.rgb(0.45, 0.45, 0.45), place2 = { text: !j.out, ims: !j.ims.length };
         if (!place.code && j.codeBox) {   // the code didn't fit: say where it went, over the stored code
           var cb2 = j.codeBox; cover(page, kp, { x: cb2.x + 1, y: cb2.y + 1, w: cb2.w - 2, h: cb2.h - 2 }, j.bgCode);
-          line(page, kp, [{ t: 'Edited in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
+          line(page, kp, [{ t: (j.c.src != null ? 'Edited' : 'Filled in') + ' in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
         }
         if ((j.out || j.ims.length) && j.outBox && j.outTop) {   // the lecture's output (and plots) in the output box
           var ob = j.outBox, ox = ob.x + PAD + 2, oy = j.outTop.y + 1, ow = ob.w - 2 * PAD - 4, oh = ob.y + ob.h - oy - PAD;
