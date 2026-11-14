@@ -4231,6 +4231,7 @@ if (phone) {
     if (on && window.QPool) QPool.close();
     if (on && window.Suggest) Suggest.close();
     if (on && window.Tokens) Tokens.close();
+    if (on && window.Terms) Terms.close();
     if (!panel) {
       panel = document.createElement('aside'); panel.id = 'notepanel'; $('#insp').after(panel);
       panel.addEventListener('click', e => {
@@ -4260,6 +4261,100 @@ if (phone) {
   let last = '';
   setInterval(() => { if (!on) return; const sig = tiles().map(g => g.getAttribute('data-sym')).join('|') + JSON.stringify(Book.meta.notation || {}); if (sig !== last) { last = sig; if (!panel.contains(document.activeElement)) render(); } }, 500);
   window.Notation = { open: () => setOn(true), close: () => setOn(false), render };
+})();
+// ---------------------------------------------------------------- Key terms panel (Eric, 2026-11-14)
+// The chapter's key-terms table (book-meta terms {term: def|name|take|warn|ex|gray|purple}): each term's colour, the
+// same everywhere in the chapter. "Colour them" wraps every uncoloured mention on Lecture pages and the first on each
+// Reading page, like `ai2ai colour` (tools/agent/craft.py, the same rules); `ai2ai check` flags slides left uncoloured.
+// A term with two capitals (MNIST, ReLU) or a digit matches its case; "a|b" lists spellings of one term.
+(() => {
+  let on = false, panel = null;
+  const EM = ['def', 'name', 'take', 'warn', 'ex', 'gray', 'purple'], NAMES = { def: 'Gold', name: 'Navy', take: 'Green', warn: 'Red', ex: 'Teal', gray: 'Grey', purple: 'Purple' };
+  const SKIP = new Set(['B', 'U', 'A', 'B-M', 'B-EQ', 'B-CODE', 'B-OUT', 'CODE', 'SVG', 'H1', 'H2', 'H3', 'H4', 'SCRIPT', 'STYLE', 'SUB', 'SUP', 'B-FIG', 'B-TOK', 'FIGCAPTION', 'B-MATMUL']);
+  const hesc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const terms = () => Object.fromEntries(Object.entries(Book.meta.terms || {}).filter(([k, v]) => k.trim() && EM.includes(v)));
+  const esc = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+  function termRe(term) {
+    const alts = term.split('|').map(t => t.trim()).filter(Boolean).map(t => /y$/.test(t) ? esc(t.slice(0, -1)) + '(?:y|ies|ys)' : esc(t) + (/[A-Za-z]$/.test(t) ? '(?:s|es)?' : ''));
+    if (!alts.length) return null;
+    const exact = term.split('|').some(t => /[A-Z].*[A-Z]|^[A-Z]{2,}|\d/.test(t.trim()));
+    return new RegExp('(?<![\\w-])(?:' + alts.join('|') + ')(?![\\w-])', exact ? 'g' : 'gi');
+  }
+  const isLecture = pg => { const v = pg.getAttribute('data-view'); return !!v && /\b(slides|workbook)\b/.test(v); };
+  const pages = () => [...book.querySelectorAll('section.page')].filter(pg => !pg.classList.contains('cover') && !pg.closest('[data-thumb]'));
+  // prose text nodes of a page, with the emphasis class around each (null when plain, 'skip' inside maths, code, blanks…)
+  function texts(pg) {
+    const out = [], w = document.createTreeWalker(pg, NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) {
+      let em = null, skip = false;
+      for (let e = n.parentElement; e && e !== pg; e = e.parentElement) {
+        if (e.tagName === 'B') { const c = EM.find(k => e.classList.contains(k)); if (c && !em) em = c; else if (!c) skip = true; continue; }
+        if (SKIP.has(e.tagName) || e.matches('span.mono, span.num, div.cmt, [contenteditable="false"]')) skip = true;
+      }
+      if (!skip || em) out.push({ n, em });
+    }
+    return out;
+  }
+  function scan(wrap) {   // counts (and with wrap, colours) mentions: Lecture every one, Reading the first on each page
+    const T = terms(), regs = Object.keys(T).sort((a, b) => b.length - a.length).map(t => [t, termRe(t)]).filter(x => x[1]);
+    const count = {}; Object.keys(T).forEach(t => count[t] = { lec: 0, unc: 0 }); let n = 0;
+    for (const pg of pages()) {
+      const lec = Book.split && isLecture(pg), seen = new Set();   // an unsplit chapter's pages are book pages: the Reading rule
+      for (const { n: node, em } of texts(pg)) {
+        const txt = node.data, hits = [];
+        for (const [t, r] of regs) { r.lastIndex = 0; let m; while ((m = r.exec(txt))) { if (!hits.some(h => m.index < h[1] && h[0] < m.index + m[0].length)) hits.push([m.index, m.index + m[0].length, t]); } }
+        hits.sort((a, b) => a[0] - b[0]);
+        if (em) { hits.forEach(h => { seen.add(h[2]); if (lec) count[h[2]].lec++; }); continue; }
+        const todo = [];
+        for (const h of hits) { if (lec) { count[h[2]].lec++; count[h[2]].unc++; } if (!lec && seen.has(h[2])) continue; seen.add(h[2]); todo.push(h); }
+        if (!wrap || !todo.length) continue;
+        for (const [a, b, t] of todo.reverse()) {   // from the end, so earlier offsets stay right
+          const tail = node.splitText(a); tail.splitText(b - a);
+          const el = document.createElement('b'); el.className = T[t]; tail.replaceWith(el); el.append(tail); n++;
+        }
+      }
+    }
+    return { count, n };
+  }
+  function render() {
+    if (!panel || !on) return;
+    const T = terms(), { count } = scan(false), keys = Object.keys(T).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+    const unc = keys.reduce((s, k) => s + count[k].unc, 0), list = panel.querySelector('.kt-list'), scroll = list ? list.scrollTop : 0;
+    const dots = (k, v) => EM.map(c => `<button class="kt-dot${c === v ? ' on' : ''}" data-c="${c}" title="${NAMES[c]}"><b class="${c}">●</b></button>`).join('');
+    panel.innerHTML = `<div class="qp-top"><b>Key terms</b><span class="qp-n">${keys.length}</span><span class="sp"></span><button data-a="close">Done</button></div>
+      <div class="help">Each term's colour, the same everywhere in this chapter. <b>Colour them</b> colours every uncoloured mention on Lecture pages and the first on each Reading page. Write a|b for two spellings of one term.</div>
+      <div class="kt-add"><input placeholder="Add a term" spellcheck="false"><button data-a="add">Add</button></div>
+      <div class="kt-go"><button data-a="wrap"${unc || keys.length ? '' : ' disabled'}>Colour them</button><span class="help">${unc ? unc + ' Lecture mention' + (unc === 1 ? '' : 's') + ' not coloured' : keys.length ? 'Every Lecture mention is coloured' : ''}</span></div>
+      <div class="kt-list">${keys.map(k => `<div class="kt-r" data-k="${hesc(k)}"><span class="kt-k"><b class="${T[k]}">${hesc(k)}</b></span><span class="kt-n" title="Lecture mentions not coloured / all">${count[k].unc ? count[k].unc + '/' : ''}${count[k].lec}</span><span class="sp"></span>${dots(k, T[k])}<button data-a="del" title="Remove from the table">✕</button></div>`).join('') || '<div class="help">No key terms yet. Add them here, or ask Claude for <span class="mono">ai2ai terms --seed</span>.</div>'}</div>`;
+    const l = panel.querySelector('.kt-list'); if (l) l.scrollTop = scroll;
+  }
+  const save = f => { commit(true); const t = Object.assign({}, Book.meta.terms || {}); f(t); if (Object.keys(t).length) Book.meta.terms = Object.fromEntries(Object.entries(t).sort((a, b) => a[0].toLowerCase().localeCompare(b[0].toLowerCase()))); else delete Book.meta.terms; commit(true); render(); };
+  function setOn(x) {
+    if (x === on) return;
+    on = x; document.body.classList.toggle('termpanel', on);
+    if (on) ['QPool', 'Suggest', 'Tokens', 'Notation'].forEach(k => window[k] && window[k].close());
+    if (!panel) {
+      panel = document.createElement('aside'); panel.id = 'termpanel'; $('#insp').after(panel);
+      panel.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        if (b.dataset.a === 'close') return setOn(false);
+        if (b.dataset.a === 'add') { const i = panel.querySelector('.kt-add input'), v = i.value.trim().replace(/\s+/g, ' '); if (!v) return; return save(t => { t[v] = t[v] || 'def'; }); }
+        if (b.dataset.a === 'wrap') { commit(true); scan(true); commit(true); return render(); }
+        const k = b.closest('.kt-r') && b.closest('.kt-r').dataset.k; if (k == null) return;
+        if (b.dataset.a === 'del') return save(t => { delete t[k]; });
+        if (b.dataset.c) return save(t => { t[k] = b.dataset.c; });
+      });
+      panel.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.kt-add input')) { e.preventDefault(); panel.querySelector('[data-a="add"]').click(); } });
+    }
+    if (on) $('#main').append(panel);
+    const b = $('#x-terms'); if (b) b.classList.toggle('on', on);
+    if (on) render(); else renderInspector();
+  }
+  const btn = document.createElement('button'); btn.id = 'x-terms'; btn.textContent = 'Terms';
+  btn.title = "Key terms: each term's colour in this chapter, and a button that colours every mention";
+  btn.onclick = () => setOn(!on);
+  ($('#x-note') || $('#x-tok') || $('#x-qpool') || $('#x-review') || $('#x-cmts')).after(btn);
+  window.Terms = { open: () => setOn(true), close: () => setOn(false), render, scan };
 })();
 // another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)
 (() => {

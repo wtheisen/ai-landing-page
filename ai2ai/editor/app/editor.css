@@ -673,3 +673,22 @@ body.notepanel #insp, body.notepanel #tg-insp, body.review #notepanel, body.note
 #notepanel .nt-err { font-size: 12px; color: #CC0000; padding: 4px 0; border-bottom: 1px solid #f5dede; }
 #notepanel .nt-dims { width: 100%; box-sizing: border-box; padding: 3px 6px; border: 1px solid var(--border-strong); border-radius: 4px; font: 12px Consolas, monospace; }
 #notepanel .nt-sh { width: 46px; font-size: 11px; padding: 1px 3px; border: 1px solid var(--border); border-radius: 3px; }
+
+/* Key terms panel (2026-11-14) */
+#termpanel { display: none; width: 340px; flex: none; background: #fff; border-left: 1px solid var(--border); overflow: hidden; padding: 10px 10px 0; font-size: 13px; flex-direction: column; }
+body.termpanel #termpanel { display: flex; }
+body.termpanel #insp, body.termpanel #tg-insp, body.review #termpanel, body.termpanel #qpool, body.termpanel #tokpanel, body.termpanel #notepanel { display: none; }
+#termpanel .qp-top { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+#termpanel .qp-top b { color: var(--navy); text-transform: uppercase; letter-spacing: .5px; font-size: 13px; }
+#termpanel .sp { flex: 1; }
+#termpanel .help { font-size: 11.5px; color: var(--ink-muted); margin: 2px 0 4px; }
+#termpanel .kt-add, #termpanel .kt-go { display: flex; gap: 6px; align-items: center; margin: 4px 0; }
+#termpanel .kt-add input { flex: 1; font-size: 13px; }
+#termpanel .kt-list { flex: 1; overflow: auto; margin: 4px -10px 0; padding: 0 10px 10px; border-top: 1px solid var(--border); }
+#termpanel .kt-r { display: flex; align-items: center; gap: 2px; padding: 3px 0; border-bottom: 1px solid #f0f0f0; }
+#termpanel .kt-k { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
+#termpanel .kt-n { font-size: 11px; color: var(--ink-muted); margin-left: 6px; }
+#termpanel .kt-dot { border: 0; background: none; padding: 0 2px; font-size: 15px; line-height: 1; opacity: .35; cursor: pointer; }
+#termpanel .kt-dot.on { opacity: 1; }
+#termpanel .kt-r > button[data-a="del"] { padding: 0 5px; font-size: 11px; margin-left: 4px; }
+body.phone #termpanel { position: fixed; inset: auto 0 0 0; width: auto; height: 55vh; z-index: 60; border-top: 1px solid var(--border); border-left: 0; box-shadow: 0 -4px 16px #0002; }

@@ -245,7 +245,13 @@ async function asks() {
   const box = $('#asks'); if (!box) return;
   const d = await readJSON('chapters/decisions.json'), open = (d.items || []).filter(i => (i.status || 'open') === 'open');
   box.hidden = !open.length; if (!open.length) return;
-  box.innerHTML = `<h2>Claude has ${open.length === 1 ? 'a question' : open.length + ' questions'} for you</h2>` + open.map(i => `<div class="q" data-id="${esc(i.id)}">
+  // a story outline (ai2ai story, 2026-11-14): the outline itself, editable, then Approve or Send back with a note
+  const story = i => `<div class="q story" data-id="${esc(i.id)}">
+    <div class="where">${esc(i.slug)} · story outline · ${esc((i.when || '').slice(0, 16).replace('T', ' '))}</div>
+    <div>Approve the story before Claude drafts the pages. Edit it here if you like.</div>${i.note ? `<div class="note">${esc(i.note)}</div>` : ''}
+    <textarea data-story spellcheck="true">${esc(i.story || '')}</textarea>
+    <div class="opts"><button data-ans="Approve">Approve</button><input placeholder="What should change?" data-own><button data-own-go>Send back</button></div></div>`;
+  box.innerHTML = `<h2>Claude has ${open.length === 1 ? 'a question' : open.length + ' questions'} for you</h2>` + open.map(i => i.kind === 'story' ? story(i) : `<div class="q" data-id="${esc(i.id)}">
     <div class="where">${esc(i.slug)}${i.page ? ' · page ' + esc(i.page) : ''} · ${esc((i.when || '').slice(0, 16).replace('T', ' '))}</div>
     <div>${esc(i.q)}</div>${i.note ? `<div class="note">${esc(i.note)}</div>` : ''}
     <div class="opts">${(i.options || []).map(o => `<button data-ans="${esc(o)}">${esc(o)}</button>`).join('')}<input placeholder="Or write your own answer" data-own><button data-own-go>Send</button></div></div>`).join('');
@@ -253,6 +259,9 @@ async function asks() {
     const answer = async a => {
       if (!a) return;
       const cur = await readJSON('chapters/decisions.json'), it = (cur.items || []).find(x => x.id === q.dataset.id); if (!it) return;
+      const ta = q.querySelector('[data-story]');
+      if (ta && ta.value.trim() !== (it.story || '').trim()) Object.assign(it, { story: ta.value.trim(), edited: true });
+      if (ta && a !== 'Approve') a = 'Send back: ' + a;
       Object.assign(it, { status: 'answered', answer: a, resolved: { when: new Date().toISOString(), by: 'Eric' } });
       await Files.put('chapters/decisions.json', JSON.stringify(cur, null, 1) + '\n');
       q.remove(); msg('Answer saved; Claude files it in the decisions log.'); swSync(); asks();
