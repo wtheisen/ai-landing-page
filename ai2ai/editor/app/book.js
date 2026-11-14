@@ -1114,9 +1114,10 @@ Book.wboxStarts = root => {
   }
 };
 // A drawing's answer parts (docs/blank-pads.md phase 3, book.css): what CSS alone can't say. The arrows attached to a
-// tile marked "all" go with it (data-rt-fill = the tile's id; they're revealed with it, Book.reveal), and a lone label
-// marked as an answer leaves a dashed underline (a data-rt line after it). Not in the editor, which saves the drawing:
-// there the parts just show faintly (editor.css).
+// tile marked "all" go with it (data-rt-fill = the tile's id; they're revealed with it, Book.reveal), and every part
+// gets a dashed outline round it (a data-rt rect right after it, as an equation's answer box has; Eric, 2026-11-14:
+// "it's a little hard to tell that a diagram has a fill box"), shown until the part is. Slides and Workbook only. Not in
+// the editor, which saves the drawing: there the parts just show faintly (editor.css).
 Book.fillParts = root => {
   if (typeof document === 'undefined' || document.body.classList.contains('ed')) return;
   for (const svg of root.querySelectorAll('svg.draw')) {
@@ -1127,12 +1128,16 @@ Book.fillParts = root => {
       svg.querySelectorAll(':is(line, polyline, path)[data-a], :is(line, polyline, path)[data-b]').forEach(a => {
         if (a.getAttribute('data-a') === g.id || a.getAttribute('data-b') === g.id) { a.setAttribute('data-rt-fill', g.id); a.classList.toggle('shown', g.classList.contains('shown')); }
       });
-    for (const t of svg.querySelectorAll('text[data-fill=""]')) {
-      let b; try { b = t.getBBox(); } catch (e) { continue; }
-      if (!b.width) continue;
-      const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'), y = (b.y + b.height + 1).toFixed(1);
-      for (const [k, v] of Object.entries({ x1: b.x.toFixed(1), y1: y, x2: (b.x + b.width).toFixed(1), y2: y, stroke: '#999999', 'stroke-width': 1, 'stroke-dasharray': '3 2', class: 'fill-ph', 'data-rt': '', 'pointer-events': 'none' })) l.setAttribute(k, v);
-      t.after(l);
+    if (Book.view !== 'slides' && Book.view !== 'workbook') continue;
+    for (const p of svg.querySelectorAll('[data-fill]')) {
+      if (p.parentElement.closest('[data-fill]')) continue;
+      let b; try { b = p.getBBox(); } catch (e) { continue; }
+      if (!b.width && !b.height) continue;
+      const pad = 4, h = Math.max(b.height + 2 * pad, 12), w = Math.max(b.width + 2 * pad, 12);
+      const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      for (const [k, v] of Object.entries({ x: (b.x + b.width / 2 - w / 2).toFixed(1), y: (b.y + b.height / 2 - h / 2).toFixed(1), width: w.toFixed(1), height: h.toFixed(1), rx: 4,
+        fill: 'none', stroke: '#999999', 'stroke-width': 1, 'stroke-dasharray': '4 3', class: 'fill-ph', 'data-rt': '', 'pointer-events': 'none' })) r.setAttribute(k, v);
+      p.after(r);
     }
   }
 };
@@ -1146,7 +1151,7 @@ Book.refresh = () => {
   if (Book.root) Book.wboxStarts(Book.root);
   if (Book.root) Book.root.classList.toggle('tokids', !!Book.meta.tokIds);   // token tiles show their IDs everywhere (book-meta tokIds)
   if (Book.root) Book.drawSyms(Book.root);   // symbol tiles in drawings (notation table)
-  if (Book.root) Book.fillParts(Book.root);   // drawings' answer parts: a whole tile's arrows, a lone label's underline
+  if (Book.root) Book.fillParts(Book.root);   // drawings' answer parts: a whole tile's arrows, every part's dashed outline
   if (Book.root) { if (Book.vocabs) Book.drawToks(Book.root); else if (Book.root.querySelector('svg.draw g[data-tok], b-out[tok]') || Book.meta.outTok) Book.loadVocabs(); }   // token tiles in drawings
   const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();
   if (panes.length) root.removeAttribute('data-view'); else if (root.dataset.view !== Book.view) root.dataset.view = Book.view;
@@ -1899,14 +1904,13 @@ Book.snapshot = async () => {
     const [w, h] = el.getAttribute('data-box').split(' ').map(Number);
     if (el.matches('u.fill')) { const u = document.createElement('u'); u.className = 'fill blank'; u.style.width = w + 'pt'; u.innerHTML = '&nbsp;'; el.replaceWith(u); }
     else if (el instanceof SVGElement) {   // a drawing's answer part: as the Lecture shows it, with the answer left out of the file
-      const k = el.getAttribute('data-fill');
+      const k = el.getAttribute('data-fill'), ph = el.nextElementSibling;
+      if (ph && ph.classList.contains('fill-ph')) ph.classList.add('on');   // its dashed outline stays, shown without the part
       if (k === 'label') el.querySelectorAll(':scope > text').forEach(t => t.remove());
       else if (k === 'all') {
-        const box = el.querySelector(':scope > :is(rect, ellipse, polygon, path)');
-        [...el.children].forEach(c => { if (c !== box) c.remove(); });
-        if (box) for (const [a, v] of Object.entries({ fill: 'none', stroke: '#999999', 'stroke-width': 1, 'stroke-dasharray': '4 3' })) box.setAttribute(a, v);
         const svg = el.closest('svg'); if (svg && el.id) svg.querySelectorAll('[data-rt-fill]').forEach(a => { if (a.getAttribute('data-rt-fill') === el.id) a.remove(); });
-      } else el.remove();   // its place stays empty (a lone label keeps its underline)
+        el.remove();
+      } else el.remove();   // its place stays empty, in its outline
       el.removeAttribute('data-fill'); el.removeAttribute('data-box');
     }
     else { const d = document.createElement('div'); d.className = 'fillbox'; d.style.height = h + 'pt'; if (el.getAttribute('style') && Book.isPinned(el)) d.setAttribute('style', el.getAttribute('style') + ';height:' + h + 'pt'); el.replaceWith(d); }
