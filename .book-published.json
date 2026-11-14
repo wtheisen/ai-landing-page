@@ -1,18 +1,11 @@
 {
  "_last": {
-  "at": "2026-11-13T16:11:06Z",
+  "at": "2026-11-14T14:59:16Z",
   "event": "schedule",
   "failed": [],
-  "ok": [
-   "backprop",
-   "bptt"
-  ],
-  "over": {
-   "backprop": [
-    "lec-p-224uu"
-   ]
-  },
-  "run": "43459616454"
+  "ok": [],
+  "over": {},
+  "run": "43607521472"
  },
  "backprop": {
   "at": "2026-11-13T16:11:17Z",
