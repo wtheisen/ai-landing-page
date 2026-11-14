@@ -42,7 +42,7 @@ function eaiInk(opts) {
   var HOME = SITE_DIR ? '/' + SITE_DIR.replace(/^\/|\/$/g, '') + '/' : DIR;
   var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR + VIEW, KEY_DRAFT = 'eai-ink-draft:' + HOME + VIEW + ':', KEY_OLD = 'eai-ink-draft:' + DIR + VIEW + ':';
   var viewOf = function (l) { return l.view || 'slides'; };
-  var pub = null, layers = [], mine = null, target = null, prep = null, editing = false, tool = 'hand', color = PEN[0][0], width = 2.2, undo = [];
+  var pub = null, layers = [], mine = null, target = null, prep = null, editing = false, tool = 'hand', color = PEN[0][0], width = 1.4, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
   // penDown: a pen stroke is under way (Lecture mode ignores pinches meanwhile: on the iPad a palm resting beside the
@@ -394,7 +394,7 @@ function eaiInk(opts) {
     bar.innerHTML = '<span class="grp"><button data-t="hand" title="use the page: scroll, click figures and Run buttons (L toggles)">' + I.hand + '</button></span>'
       + '<span class="grp">' + PEN.map(function (p) { return '<button data-t="pen" data-c="' + p[0] + '" title="' + p[1] + ' pen" class="sw" style="--c:' + p[0] + '"><i></i></button>'; }).join('')
       + '<button data-t="hl" title="highlighter">' + I.hl + '</button><button data-t="erase" title="eraser (your own ink)">' + I.erase + '</button><button data-t="laser" title="laser pointer (not saved)">' + I.laser + '</button></span>'
-      + '<span class="grp">' + [1.4, 2.2, 3.6].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
+      + '<span class="grp">' + [1.15, 1.4, 2.2].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
       + '<span class="grp"><button data-a="undo" title="undo (⌘Z)">' + I.undo + '</button><button data-a="blank" title="add a blank page after this one">' + I.page + '</button><button data-a="pdf" title="download this view as a PDF with the notes showing">' + I.pdf + '</button></span>'
       + '<span class="spacer"></span><span class="ink-msg"></span><span class="right"></span>';
     head.appendChild(bar);
