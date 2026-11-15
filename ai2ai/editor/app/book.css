@@ -240,6 +240,8 @@ b-out .label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 
 .run-bar button[data-a="run"] { color: var(--blue-text); border-color: var(--blue-text); }
 .run-bar.busy button[data-a="run"] { opacity: .5; pointer-events: none; }
 .run-bar .run-status { color: var(--ink-muted); font-size: 7.5pt; }
+.run-bar .colab-tag { font: 700 7.5pt var(--font-mono); color: #B06000; border: 1px dashed #E37400; border-radius: 3px; padding: 0 4pt; }   /* Colab-only code (2026-11-15) */
+.run-bar button[data-a="colab"] { color: #B06000; border-color: #E37400; }
 .run-editor { display: block; width: 100%; box-sizing: border-box; font-family: var(--font-mono); font-size: 9.4pt; line-height: 1.4; padding: 5pt 7pt; border: 1px solid var(--blue-text); border-radius: 4px; resize: vertical; tab-size: 4; }
 .view b-out pre { max-height: 14em; overflow: auto; }
 b-out pre.run-err { color: var(--red-text); }

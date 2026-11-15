@@ -692,3 +692,7 @@ body.termpanel #insp, body.termpanel #tg-insp, body.review #termpanel, body.term
 #termpanel .kt-dot.on { opacity: 1; }
 #termpanel .kt-r > button[data-a="del"] { padding: 0 5px; font-size: 11px; margin-left: 4px; }
 body.phone #termpanel { position: fixed; inset: auto 0 0 0; width: auto; height: 55vh; z-index: 60; border-top: 1px solid var(--border); border-left: 0; box-shadow: 0 -4px 16px #0002; }
+
+/* Colab-only code cells (2026-11-15): a tag on the cell in the editor; on the web the Run bar says it */
+b-code.ed-colab { position: relative; border-style: dashed; border-color: #E37400; }
+b-code.ed-colab::after { content: 'Colab only'; position: absolute; top: 2pt; right: 3pt; font: 700 6.5pt var(--font-mono); color: #B06000; background: var(--surface, #fff); border: 1px solid #E37400; border-radius: 3px; padding: 0 3pt; pointer-events: none; }

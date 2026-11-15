@@ -160,7 +160,7 @@ let commitT = 0, saveT = 0;
 // Edit either copy and the other follows on the next commit; each keeps its own layout (size, class, blanks).
 var poolLast;   // pool id -> its content as of the last sync
 // per copy: layout, and how a code copy runs (a hoisted function, so poolKey can use it before this line is reached)
-function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'data-align', 'setup', 'chain', 'norun', 'cw', 'out', 'data-push', 'contenteditable', 'spellcheck', 'draggable']; }
+function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'data-align', 'setup', 'chain', 'norun', 'colab', 'cw', 'out', 'data-push', 'contenteditable', 'spellcheck', 'draggable']; }
 const POOL_LAYOUT = poolLayoutAttrs();
 // the content two copies share: everything but the per-copy attributes (built from POOL_LAYOUT, so a new per-copy
 // attribute can't make the copies look different forever: cw did, and every commit swapped the copies, 2026-10-27)
@@ -479,7 +479,7 @@ function splitPage(el) {
   commit(true);
   const np = document.createElement('section');
   np.className = [...pg.classList].filter(c => !c.startsWith('ed-')).join(' '); np.id = uid();
-  for (const a of [...pg.attributes]) if (!['id', 'class', 'data-part', 'contenteditable', 'spellcheck'].includes(a.name)) np.setAttribute(a.name, a.value);
+  for (const a of [...pg.attributes]) if (!['id', 'class', 'data-part', 'data-colab', 'contenteditable', 'spellcheck'].includes(a.name)) np.setAttribute(a.name, a.value);
   const moving = []; let n = el;
   while (n) { if (!n.hasAttribute('data-rt') && !n.classList.contains('foot') && !n.matches('svg.overlay') && !Book.isPinned(n)) moving.push(n); n = n.nextElementSibling; }
   moving.forEach(m => np.append(m));
@@ -1289,6 +1289,25 @@ function codeInspector(el, add) {
     du.firstChild.onchange = e => { commit(true); e.target.checked ? el.setAttribute('dual', '') : el.removeAttribute('dual'); commit(true); Book.refresh(); };
   }
   if (lang.value === 'python') {
+    // Colab only (Eric, 2026-11-15): the cell, its section or the whole chapter; the nearest setting wins (Book.colabCells)
+    const sec = Book.sectionStart(el), secOwn = sec && (sec.dataset.colab === 'on' || sec.dataset.colab === 'off') ? sec.dataset.colab : '';
+    const upper = secOwn ? secOwn === 'on' : !!Book.meta.colab, upperName = secOwn ? 'its section' : 'the chapter';
+    add(`<label>Runs in</label>`);
+    const rs = add(`<select><option value="">As ${upperName} (${upper ? 'Colab' : 'the browser'})</option><option value="on">Colab only (needs a GPU, packages, a model)</option><option value="off">The browser</option></select>`);
+    rs.value = el.hasAttribute('colab') ? (el.getAttribute('colab') === 'off' ? 'off' : 'on') : '';
+    rs.onchange = () => { commit(true); if (rs.value) el.setAttribute('colab', rs.value); else el.removeAttribute('colab'); commit(true); Book.refresh(); renderInspector(); };
+    if (sec) {
+      const ss = add(`<select title="Every code cell from this section's first page to the next section"><option value="">Section “${esc(sec.dataset.part)}”: as the chapter (${Book.meta.colab ? 'Colab' : 'the browser'})</option><option value="on">Section “${esc(sec.dataset.part)}”: Colab only</option><option value="off">Section “${esc(sec.dataset.part)}”: the browser</option></select>`);
+      ss.value = secOwn;
+      ss.onchange = () => { commit(true); if (ss.value) sec.dataset.colab = ss.value; else delete sec.dataset.colab; commit(true); Book.refresh(); renderInspector(); };
+    }
+    const ca = add(`<label class="check"><input type="checkbox" ${Book.meta.colab ? 'checked' : ''}>Every code cell in this chapter runs in Colab</label>`);
+    ca.firstChild.onchange = e => { if (e.target.checked) Book.meta.colab = true; else delete Book.meta.colab; commit(true); Book.refresh(); renderInspector(); };
+    if (Book.colabOf(el)) {
+      add(`<div class="help">On the web this cell has <b>Open in Colab ↗</b> instead of Run: the chapter's notebook (Make notebook on the editor home), opened at this cell, the Solutions copy for you and the student copy for everyone else. Its Output comes from a Colab run.</div>`);
+      const oc = add(`<div class="row"><button>Open in Colab ↗</button><span class="help"></span></div>`);
+      oc.firstChild.onclick = () => { const w = window.open('about:blank', '_blank'); eaiColab(el.getAttribute('data-b'), Book.meta.web || ('ai2ai/' + Book.chapter), true, w).then(u => { if (!u) oc.lastChild.textContent = 'No notebook yet: Make notebook on the editor home'; }); };
+    } else {
     const nr = add(`<label class="check"><input type="checkbox" ${el.hasAttribute('norun') ? '' : 'checked'}>Students can run and edit it on the web</label>`);
     nr.firstChild.onchange = e => attr('norun', e.target.checked ? '' : 'true');
     const chn = add(`<label class="check"><input type="checkbox" ${el.hasAttribute('chain') ? 'checked' : ''}>Continues the code block before it (that one runs first, silently)</label>`);
@@ -1306,10 +1325,11 @@ function codeInspector(el, add) {
     run.querySelector('[data-a=prior]').onclick = e => runPrior(el, run.lastChild, e.target);
     run.querySelector('[data-a=all]').onclick = async e => {
       pyNS.clear();   // start every document's notebook over
-      const blocks = [...book.querySelectorAll('b-code[lang="python"]:not([norun])')];
+      const colab = Book.colabCells(), blocks = [...book.querySelectorAll('b-code[lang="python"]:not([norun])')].filter(b => !colab.has(b));
       for (let k = 0; k < blocks.length; k++) { await runIntoOutput(blocks[k], run.lastChild, e.target); if (/error|Could not/.test(run.lastChild.textContent)) return; }
       run.lastChild.textContent = `Filled ${blocks.length} Output block${blocks.length === 1 ? '' : 's'}.`;
     };
+    }
   }
   if (el.tagName === 'B-CODE' && el.nextElementSibling && el.nextElementSibling.tagName === 'B-OUT') {
     const cur = el.getAttribute('cw');
@@ -1521,7 +1541,7 @@ function codeDoc(el) {
 }
 function codeCells(el) {
   const d = codeDoc(el);
-  return [...book.querySelectorAll('b-code[lang="python"]')].filter(b => !b.hasAttribute('norun') && codeDoc(b) === d);
+  const colab = Book.colabCells(); return [...book.querySelectorAll('b-code[lang="python"]')].filter(b => !b.hasAttribute('norun') && !colab.has(b) && codeDoc(b) === d);
 }
 // the program a block runs (book.js eaiRunCode prelude): its hidden setup, the blocks it continues (chain), then itself.
 // The chain is only added while the cell it continues hasn't run in the current namespace (ns).
@@ -1887,7 +1907,7 @@ function pageInspector() {
     pg.id = v; commit(true); Book.refresh();
   };
   add(`<label>Starts a section (name shown in the footer from here on)</label>`); const part = add(`<input type="text" value="${esc(pg.dataset.part || '')}" placeholder="none">`);
-  part.onchange = () => { if (part.value.trim()) pg.dataset.part = part.value.trim(); else delete pg.dataset.part; commit(true); Book.refresh(); };
+  part.onchange = () => { if (part.value.trim()) pg.dataset.part = part.value.trim(); else { delete pg.dataset.part; delete pg.dataset.colab; } commit(true); Book.refresh(); };
   const over = (Book.report || []).find(r => r.id === pg.id);
   if (over) add(`<div class="err">Content ends at ${over.bottom}pt (the limit is ${Book.pageH(pg) - 26}pt)${over.right > Book.pageW(pg) - 23 ? ', and something sticks out on the right' : ''}.</div>`);
   insp.append(h('<div>' + HELP + '</div>'));
@@ -2231,7 +2251,7 @@ function addPageAt(kind, ref, before) {   // a new page with the chosen layout, 
   pg.scrollIntoView({ block: 'start' });
 }
 $('#pg-add').onclick = e => { const r = e.currentTarget.getBoundingClientRect(); openMenu(r.left, r.top - LAYOUTS.length * 28 - 16, LAYOUTS, addPage); };
-$('#pg-dup').onclick = () => { if (!curPage) return toast('Click a page first'); commit(true); const pg = unpool(h(Book.serializePage(curPage))); pg.id = uid(); delete pg.dataset.part; curPage.after(pg); prep(); Book.refresh(); commit(true); setPage(pg); pg.scrollIntoView({ block: 'start' }); };
+$('#pg-dup').onclick = () => { if (!curPage) return toast('Click a page first'); commit(true); const pg = unpool(h(Book.serializePage(curPage))); pg.id = uid(); delete pg.dataset.part; delete pg.dataset.colab; curPage.after(pg); prep(); Book.refresh(); commit(true); setPage(pg); pg.scrollIntoView({ block: 'start' }); };
 $('#pg-del').onclick = () => { if (!curPage) return toast('Click a page first'); if (Book.pages().length < 2) return; commit(true); const pg = curPage, next = pg.nextElementSibling || pg.previousElementSibling; select(null); pg.remove(); setPage(next); Book.refresh(); commit(true); renderInspector(); toast('Page deleted', 'Undo', doUndo); };
 
 // ---------------------------------------------------------------- bar: undo, zoom, settings, export

@@ -1151,6 +1151,7 @@ Book.refresh = () => {
   if (Book.root) Book.wboxStarts(Book.root);
   if (Book.root) Book.root.classList.toggle('tokids', !!Book.meta.tokIds);   // token tiles show their IDs everywhere (book-meta tokIds)
   if (Book.root) Book.drawSyms(Book.root);   // symbol tiles in drawings (notation table)
+  if (Book.root) Book.markColab();   // Colab-only code cells (class ed-colab, never saved)
   if (Book.root) Book.fillParts(Book.root);   // drawings' answer parts: a whole tile's arrows, every part's dashed outline
   if (Book.root) { if (Book.vocabs) Book.drawToks(Book.root); else if (Book.root.querySelector('svg.draw g[data-tok], b-out[tok]') || Book.meta.outTok) Book.loadVocabs(); }   // token tiles in drawings
   const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();
@@ -1608,7 +1609,31 @@ function eaiRunCode() {
     if (typeof r !== 'object') return String(r);
     try { var B = py.pyimport('builtins'), mod = String(B.getattr(B.type(r), '__module__', '')); if (/^matplotlib/.test(mod)) return ''; return B.repr(r); } catch (e) { return ''; } finally { if (r.destroy) r.destroy(); }
   }
+  // Colab-only cells (Book.colabOf in the viewer; colab="" baked in by the export): Open in Colab instead of Run
+  var colabSet = window.Book && Book.colabCells && Book.root ? Book.colabCells() : null;
+  function isColab(b) { return colabSet ? colabSet.has(b) : b.hasAttribute('colab') && b.getAttribute('colab') !== 'off'; }
+  function colabBar(block) {
+    if (block._run) return; block._run = true;
+    var out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
+    if (!out) { out = document.createElement('b-out'); out.className = 'run-new'; out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
+    var bar = document.createElement('span'); bar.className = 'run-bar run-colab web-only';
+    bar.innerHTML = '<span class="run-status"></span><span class="colab-tag" title="Needs a GPU, packages or a model the browser can\'t run">Colab only</span><button type="button" data-a="colab">Open in Colab ↗</button>';
+    out.querySelector('.label').appendChild(bar);
+    var web = window.EAI_WEB || (window.Book && Book.meta && (Book.meta.web || (Book.chapter ? 'ai2ai/' + Book.chapter : ''))) || '';
+    var sol = eaiColab.teacher(), status = bar.querySelector('.run-status');
+    eaiColab(null, web, sol);   // the manifest, fetched ahead of the tap
+    bar.querySelector('[data-a=colab]').title = sol ? 'The Solutions notebook in Colab, at this cell' : 'This chapter\'s notebook in Colab, at this cell';
+    bar.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('[data-a=colab]')) return;
+      var w = window.open('about:blank', '_blank');
+      eaiColab(block.getAttribute('data-b'), web, sol, w).then(function (u) {
+        status.textContent = u ? '' : (sol ? 'No notebook yet: Make notebook on the editor home' : 'The notebook isn\'t out yet');
+        if (u && !w) location.href = u;   // no new window allowed (the iPad app): go there
+      });
+    });
+  }
   [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
+    if (isColab(block)) return colabBar(block);
     // blanks: no Run in the Workbook; in the Lecture, Run once every blank is filled in (Book.fillBlank: the iPad app's
     // handwriting) or tapped open, and it runs the code as filled in, wrong answers too (Eric, 2026-11-13)
     var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading' && bv !== 'slides') return;
@@ -1754,6 +1779,52 @@ function eaiRunCode() {
   document.dispatchEvent(new Event('eai-run-ready'));   // lecture notes (ink.js) can now put their runs back
 }
 Book.runCode = () => { if (Book.web && !Book.exporting) eaiRunCode(); };
+// Colab-only code (Eric, 2026-11-15: "a way to tag a cell as 'Colab only' so nobody tries to run it in browser", and
+// "open in colab"): cells that need a GPU, pip, a model or the network (BaLLM programming days) get Open in Colab in
+// place of Run. Three levels, the nearest wins: the cell's colab="on|off", its section's (data-colab="on|off" on the
+// page that starts the section, data-part, within its document), the chapter's (book-meta colab: true).
+Book.colabCells = () => {
+  const on = new Set(); if (!Book.root) return on;
+  let doc = null, sec = null;
+  for (const pg of Book.pages()) {
+    const d = (pg.getAttribute('data-view') || '').split(/\s+/).includes('reading') ? 'r' : 'l';
+    if (d !== doc) { doc = d; sec = null; }
+    if (pg.dataset.part !== undefined) sec = pg.dataset.colab === 'on' || pg.dataset.colab === 'off' ? pg.dataset.colab : null;
+    pg.querySelectorAll('b-code[lang="python"]').forEach(b => {
+      const a = b.getAttribute('colab');
+      if (a !== null ? a !== 'off' : sec !== null ? sec === 'on' : !!Book.meta.colab) on.add(b);
+    });
+  }
+  return on;
+};
+Book.colabOf = el => Book.colabCells().has(el);
+Book.sectionStart = el => {   // the page that starts el's section in its document (null before the first one)
+  const pg = el && el.closest && el.closest('section.page'); if (!pg) return null;
+  const key = p => (p.getAttribute('data-view') || '').split(/\s+/).includes('reading');
+  const all = Book.pages(), k = all.indexOf(pg);
+  for (let i = k; i >= 0; i--) { if (key(all[i]) !== key(pg)) return null; if (all[i].dataset.part !== undefined) return all[i]; }
+  return null;
+};
+// the editor marks them on the page (class ed-colab: never saved)
+Book.markColab = () => { if (!Book.root) return; const on = Book.colabCells(); Book.root.querySelectorAll('b-code[lang="python"]').forEach(b => b.classList.toggle('ed-colab', on.has(b))); };
+// Open in Colab: the chapter's notebook (made from the editor home's Make notebook, listed in <book>/notebooks.json on
+// the site) opened from GitHub at this cell (the notebook's cell ids are the code blocks' data-b, #scrollTo=). The
+// signed-in instructor gets the Solutions copy, everyone else the student copy (Eric, 2026-11-15). w: a window opened
+// on the click (popup blockers), pointed at the notebook once the manifest is in. Resolves to the URL, or null.
+function eaiColab(bid, web, solutions, w) {
+  var SITE = 'https://ai.williamtheisen.com/', GH = 'https://colab.research.google.com/github/wtheisen/ai-landing-page/blob/main/';
+  web = String(web || '').replace(/^\/+|\/+$/g, '');
+  var cache = eaiColab.cache = eaiColab.cache || {}, book = web.split('/')[0];
+  cache[book] = cache[book] || fetch(SITE + book + '/notebooks.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { cache[book] = null; return {}; });
+  return cache[book].then(function (m) {
+    var hit = null; Object.keys(m || {}).forEach(function (k) { var e = m[k]; if (e && e.web === web && e.files) hit = e; });
+    var f = hit && (hit.files.filter(function (x) { return x.role === (solutions ? 'solutions' : 'student'); })[0] || hit.files[0]);
+    var url = f ? GH + f.path + (bid ? '#scrollTo=' + bid : '') : null;
+    if (w) { if (url) w.location.href = url; else w.close(); }
+    return url;
+  });
+}
+eaiColab.teacher = function () { try { return !!JSON.parse(localStorage.getItem('eai-ink-token') || 'null'); } catch (e) { return false; } };
 // Colours on code written in a Lecture (the iPad app's handwriting, Eric 2026-11-13): a pen colours the letters ("t:red",
 // bold, as b-code .cc), the highlighter highlights ("h:gold", as marks). An opened editor is a plain textarea, which can't
 // colour part of its text, so while it has colours its text is transparent and a box laid exactly over it draws the text
@@ -1888,12 +1959,16 @@ function outTables(clone, m) {
 Book.snapshot = async () => {
   const view = Book.view, live = [...Book.root.querySelectorAll('u.fill, [data-fill]')];
   if (view === 'workbook') live.forEach(el => { const pg = el.closest('.page'), k = pg ? pg.getBoundingClientRect().width / Book.pageW(pg) : 1, r = el.getBoundingClientRect(); el.setAttribute('data-box', (r.width / k).toFixed(1) + ' ' + (r.height / k).toFixed(1)); });
+  const colabOn = Book.colabCells();
   const clone = Book.root.cloneNode(true);
   live.forEach(el => el.removeAttribute('data-box'));
+  // Colab-only cells: the published page has no book-meta or sections to resolve, so each cell carries the answer
+  { const lc = [...Book.root.querySelectorAll('b-code')], cc = [...clone.querySelectorAll('b-code')];
+    cc.forEach((c, i) => { c.classList.remove('ed-colab'); if (colabOn.has(lc[i])) c.setAttribute('colab', ''); else c.removeAttribute('colab'); }); }
   if (view !== 'reading') {   // content that is not in this edition is left out of the file, not just hidden
     clone.querySelectorAll('[data-view]').forEach(n => { if (!Book.inView(n, view)) n.remove(); });
     if (view === 'slides') clone.querySelectorAll('.qc .ans').forEach(n => n.classList.add('ghost-only'));
-    clone.querySelectorAll('b-code').forEach(c => { if (c.querySelector('u.fill')) c.setAttribute('norun', ''); });   // code with blanks: no Run (its output would give the answers away)   // kept for the instructor's faint crib (ink.js)
+    clone.querySelectorAll('b-code').forEach(c => { if (c.querySelector('u.fill') && !c.hasAttribute('colab')) c.setAttribute('norun', ''); });   // code with blanks: no Run (its output would give the answers away)   // kept for the instructor's faint crib (ink.js)
     clone.querySelectorAll(view === 'slides' ? '.aside:not([data-view]), .qc details, b-answers:not([data-view])' : '.aside:not([data-view]), .qc .ans, .qc details, b-answers:not([data-view])').forEach(n => n.remove());
     if (Book.hasKeys) clone.querySelectorAll('.page > p:not([data-view])').forEach(pp => {   // a paragraph becomes its key sentences
       const keys = [...pp.querySelectorAll('.key')]; if (!keys.length) return pp.remove();
@@ -1968,6 +2043,9 @@ ${liveJs}
 var EAI_CC = ${JSON.stringify(m.codeColors || null).replace(/</g, '\\u003c')};
 var EAI_TOKDEF = ${JSON.stringify(m.outTok || null)};
 var EAI_TOK = ${JSON.stringify(outTables(clone, m)).replace(/</g, '\\u003c')};
+var EAI_WEB = ${JSON.stringify(m.web || ('ai2ai/' + Book.chapter))};
+${eaiColab.toString()}
+eaiColab.teacher = ${eaiColab.teacher.toString()};
 ${eaiOutHL.toString()}
 ${eaiOutTok.toString()}
 ${eaiRunCode.toString()}
