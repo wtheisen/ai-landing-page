@@ -1,27 +1,27 @@
 {
  "_last": {
-  "at": "2026-11-13T16:14:28Z",
+  "at": "2026-11-15T12:56:51Z",
   "failed": {},
   "ok": [
    "ballm-rag-lora"
   ],
-  "run": "43460360818"
+  "run": "43716247420"
  },
  "ballm-rag-lora": {
-  "at": "2026-11-13T16:14:38Z",
-  "commit": "e82f808f60e60e01dba819dd40d5fba31427c933",
+  "at": "2026-11-15T12:57:02Z",
+  "commit": "dc706a08244b399ac305482baccc29f4c1b184c6",
   "files": [
    {
     "name": "Solutions_BaLLM_Chapter_2.04_RAG_LoRA_and_Distillation.ipynb",
     "path": "ballm/rag-lora/Solutions_BaLLM_Chapter_2.04_RAG_LoRA_and_Distillation.ipynb",
     "role": "solutions",
-    "sha": "32d18c32964f638a45e1eed9ee6ee127e4b73ed3"
+    "sha": "918853df9cef95e63e087a1ace24169c43eeb1e6"
    },
    {
     "name": "BaLLM_Chapter_2.04_RAG_LoRA_and_Distillation.ipynb",
     "path": "ballm/rag-lora/BaLLM_Chapter_2.04_RAG_LoRA_and_Distillation.ipynb",
     "role": "student",
-    "sha": "5795e3b0bb0c36477150e6123fdce381e9dca2c4"
+    "sha": "642285cc25a007dbe0469cba4804b72bed7145f5"
    }
   ],
   "tab": "Programming Day 10: RAG, LoRA, and Distillation",
