@@ -1,15 +1,53 @@
 {
  "_last": {
-  "at": "2026-11-14T14:59:16Z",
+  "at": "2026-11-15T15:37:18Z",
   "event": "schedule",
   "failed": [],
-  "ok": [],
-  "over": {},
-  "run": "43607521472"
+  "ok": [
+   "backprop",
+   "bptt",
+   "cnn",
+   "eval",
+   "ffn",
+   "linreg",
+   "optreg",
+   "pca",
+   "rnn",
+   "search",
+   "svm"
+  ],
+  "over": {
+   "backprop": [
+    "lec-p-224uu"
+   ],
+   "eval": [
+    "residual-plots"
+   ],
+   "ffn": [
+    "p-qhx95"
+   ],
+   "search": [
+    "a-puzzle-made-of-states",
+    "what-can-happen-next",
+    "draw-the-exploration",
+    "breadth-first-traversal",
+    "depth-first-traversal",
+    "now-ask-for-a-solution",
+    "represent-the-picture",
+    "bfs-searches-the-puzzle",
+    "remember-how-we-got-here",
+    "dfs-can-go-the-wrong-way",
+    "why-put-a-limit-on-depth",
+    "found-exhausted-or-cut-off",
+    "run-the-same-puzzle",
+    "what-uninformed-search-ignores"
+   ]
+  },
+  "run": "43730746536"
  },
  "backprop": {
-  "at": "2026-11-13T16:11:17Z",
-  "commit": "c146d38ac016a1f381844e9e9d79141a09284461",
+  "at": "2026-11-15T15:37:27Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/backprop"
  },
  "ballm-attention": {
@@ -83,53 +121,53 @@
   "web": "ballm/tokenization"
  },
  "bptt": {
-  "at": "2026-11-13T16:11:27Z",
-  "commit": "c146d38ac016a1f381844e9e9d79141a09284461",
+  "at": "2026-11-15T15:37:35Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/bptt"
  },
  "cnn": {
-  "at": "2026-11-11T16:01:16Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-15T15:37:42Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/cnn"
  },
  "eval": {
-  "at": "2026-11-11T16:01:25Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-15T15:37:47Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/eval"
  },
  "ffn": {
-  "at": "2026-11-11T16:01:35Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-15T15:37:54Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/ffn"
  },
  "linreg": {
-  "at": "2026-11-11T16:01:43Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-15T15:38:00Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/linreg"
  },
  "optreg": {
-  "at": "2026-11-11T16:01:50Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-15T15:38:05Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/optreg"
  },
  "pca": {
-  "at": "2026-11-11T16:02:00Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-15T15:38:12Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/pca"
  },
  "rnn": {
-  "at": "2026-11-11T16:02:09Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-15T15:38:18Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/rnn"
  },
  "search": {
-  "at": "2026-11-11T16:02:15Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-15T15:38:22Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/search"
  },
  "svm": {
-  "at": "2026-11-11T16:02:23Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-15T15:38:27Z",
+  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
   "web": "ai2ai/svm"
  }
 }

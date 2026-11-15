@@ -236,11 +236,19 @@ b-eq.busy img { opacity: .35; }
 b-code:has(+ b-out) { margin-bottom: calc(-1 * var(--gap, 10pt)) !important; border-radius: 4px 4px 0 0; }
 b-code + b-out { border-top: 0; }
 b-out:not(b-code + b-out) { border-radius: 4px; }
-.run-bar { float: right; display: inline-flex; align-items: center; gap: 4pt; margin-top: -1pt; letter-spacing: 0; text-transform: none; }
+/* the Run bar sits in the output's label row, at its right, and wraps onto a row of its own inside the label when the label is narrow.
+   It used to float right: in a narrow output (a slide's right column, Safari's wider monospace fallback) the float dropped below
+   the label and Safari laid the output text in the sliver beside it (Eric, 2026-11-12, bptt lec-bp-run while presenting). */
+b-out .label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6pt; row-gap: 3pt; }
+.run-bar { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4pt; margin-left: auto; order: 1; letter-spacing: 0; text-transform: none; }   /* order: after the label's own text and the presenting hint (::after) */
+.run-bar.run-wait [data-a="run"], .run-bar.run-wait [data-a="prior"] { display: none; }   /* a Lecture cell with code blanks: Run once they're filled in (or it's edited) */
+.run-bar button, .run-bar .run-status { white-space: nowrap; }
 .run-bar button { font: 700 7.5pt var(--font-mono); padding: 0 5pt; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); color: var(--ink-muted); cursor: pointer; }
 .run-bar button[data-a="run"] { color: var(--blue-text); border-color: var(--blue-text); }
 .run-bar.busy button[data-a="run"] { opacity: .5; pointer-events: none; }
 .run-bar .run-status { color: var(--ink-muted); font-size: 7.5pt; }
+.run-bar .colab-tag { font: 700 7.5pt var(--font-mono); color: #B06000; border: 1px dashed #E37400; border-radius: 3px; padding: 0 4pt; }   /* Colab-only code (2026-11-15) */
+.run-bar button[data-a="colab"] { color: #B06000; border-color: #E37400; }
 .run-editor { display: block; width: 100%; box-sizing: border-box; font-family: var(--font-mono); font-size: 9.4pt; line-height: 1.4; padding: 5pt 7pt; border: 1px solid var(--blue-text); border-radius: 4px; resize: vertical; tab-size: 4; }
 .view b-out pre { max-height: 14em; overflow: auto; }
 b-out pre.run-err { color: var(--red-text); }
@@ -290,6 +298,20 @@ u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { cursor: pointer; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown { color: var(--navy); } .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown * { color: inherit !important; }
 u.fill.blank { display: inline-block; vertical-align: baseline; }
+/* a code blank filled in by hand in the Lecture (Book.fillBlank): the writing in place of the answer, underlined green,
+   or red when it isn't the answer */
+.book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
+.book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
+   box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
+.eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
+.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
+.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -298,9 +320,24 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
 /* in a table the text is smaller than the slide's, so a blank there is as large as a blank in the text around it
    (Eric, 2026-11-08: "fills in a table are also enlarged") */
 .book[data-view="slides"] :is(td, th) u.fill:not(b-code u.fill, b-out u.fill, u.fill u.fill) { font-size: max(1.2em, calc(1.2 * var(--fs, 18pt))); }   /* 1.2 x the slide's own text size (smaller on s-tight) */
-.book:is([data-view="slides"], [data-view="workbook"]) [data-fill] { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
-.book:is([data-view="slides"], [data-view="workbook"]) [data-fill] > * { visibility: hidden; }
-.book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown > * { visibility: visible; }
+/* an equation left empty to work in class is drawn 1.5x in the Lecture, so handwriting traced over its faint answer
+   comes out readable (Eric, 2026-11-13: "really small and condensed"; as text blanks are 1.2em). Its box grows with
+   it; a wide one stops at the column's width (img max-width). Measured: no Lecture slide runs over at 1.5x. */
+.book[data-view="slides"] b-eq[data-fill] > img { zoom: 1.5; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill]:not(svg *) { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill]:not(svg *) > * { visibility: hidden; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown:not(svg *) { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown:not(svg *) > * { visibility: visible; }
+/* a drawing's answer parts (docs/blank-pads.md phase 3; draw.js "Answer", todraw.py --fill), in the Lecture and
+   Workbook. A tile marked "label": its label (and a symbol's shape underneath) goes, the box stays as the slot. A tile
+   marked "all": it goes with its attached arrows (book.js fillParts marks them data-rt-fill). Anything else marked (an
+   arrow, a lone label, a shape): it goes. Every part has a dashed outline round it until it's shown (fillParts; as an
+   equation's answer box, so you can tell it's there: Eric, 2026-11-14). Shapes in a drawing are placed, so nothing moves. A tap reveals (.shown); the instructor sees them
+   faintly (ink-ghost). Opacity, not visibility: a hidden part must still take a tap. (Eric, 2026-11-13) */
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-fill=""]:not(.shown), .book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-rt-fill]:not(.shown) { opacity: 0; }
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-fill="label"]:not(.shown) > text { opacity: 0; }
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw g[data-fill="all"]:not(.shown) > * { opacity: 0; }
+svg.draw .fill-ph { display: none; }
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-fill]:not(.shown) + .fill-ph, svg.draw .fill-ph.on { display: inline; }
 .fillbox { border: 1pt dashed var(--border-strong); border-radius: 4px; }
 
 /* key sentences: <span class="key">…</span> inside a paragraph marks what Slides and Workbook show of it.
@@ -475,9 +512,14 @@ html.ink-lecture:not(.ink-hand) section.page iframe { pointer-events: none; }
 html.ink-lecture .ink-sub { box-shadow: inset 0 -2px 0 var(--gold, #DCB439); }
 @media (max-width: 640px) { .ink-sub { padding: .3rem .5rem; gap: .3rem; } .ink-sub .ink-msg { display: none; } }
 .ghost-only { display: none; }
+svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note pen): faint, with the faint answers */
+@media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
-  html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown) > * { visibility: visible; opacity: .28; }
+  html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
+  html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
+  html.ink-ghost .book[data-view="slides"] svg.draw [data-fill="label"]:not(.shown) > text,
+  html.ink-ghost .book[data-view="slides"] svg.draw g[data-fill="all"]:not(.shown) > * { opacity: .28; }
   html.ink-ghost .book[data-view="slides"] .qc .ans.ghost-only { display: block; opacity: .35; margin-top: 4pt; }
 }
 
@@ -552,6 +594,11 @@ html.lect-zooming #lect-size { overflow: visible; }   /* while pinching, the sli
    zoom it hands over to put every slide in the same place */
 html.lect #book, html.lect main.book { gap: calc(24px * var(--zoom, 1)); padding-top: calc(24px * var(--zoom, 1)); padding-bottom: calc(64px * var(--zoom, 1)); }
 /* (content-visibility: auto on lecture pages, 2026-11-01, was dropped 2026-11-02: suspected of leaving pen strokes half drawn on the iPad) */
+/* the iPad app's own pen and scrolling (ios/, ink.js nativeInk): the app's toolbar replaces the pen bar, and the page
+   scrolls and pinch-zooms natively, so nothing here scales or scrolls the pages itself */
+html.native-ink .chap-head { display: none !important; }
+/* the iPad app's PencilKit shows the ink (ink.js nativeInk, PK): the page keeps the strokes but doesn't draw them */
+html.native-pk svg.ink { visibility: hidden !important; }
 /* Lecture pages are 4:3 slides, 10 × 7.5 in (Eric, 2026-10-29: 16:9 was too wide next to his iPad; 16:9 from 2026-10-26);
    the Reading and the Workbook stay 6 × 9 pages.
    book.js Book.SIZES says the same for the measuring code; the exported page sets @page to match. */
@@ -590,6 +637,11 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { overflow: hidden; }
+/* an output beside its code keeps its Run bar in the gutter above the box, out of the flow, like the editor's (Eric,
+   2026-11-12: "why not have them just sit in the gutter like we do in the editor?"); in the label row the bar took the
+   narrow column's width and squeezed the output. Outputs under their code (out="below", Reading, Workbook) keep it in the label row. */
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) { position: relative; }
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) > .label > .run-bar { position: absolute; right: 0; bottom: calc(100% + 2pt); margin: 0; flex-wrap: nowrap; }
 /* class "side" on a block puts it beside the block before it on a slide (right column; the one before takes the left),
    e.g. the vocabulary table beside the token IDs (Eric, 2026-11-08). Other views stack them as usual. */
 .book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ .side), :has(+ .cmt + .side), :has(+ .cmt + .cmt + .side)) { grid-column: 1; align-self: center; min-width: 0; }
@@ -666,794 +718,113 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
 <main class="book view" data-view="reading">
 <section class="page cover" id="cover">
   
-  <b-fig src="fig/cover.svg" class="cover-art" alt="An RNN unrolled over six words: under each step two red input circles, above them two gold hidden circles joined by blue weights to the next step's, and a small gold output circle on top; the words cheer cheer for old notre dame under the steps in red, and the next word above each output in green" data-b="xt1vs" style="--ar: 1.670;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 230" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 230 
-L 384 230 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="line2d_1">
-    <path d="M 69.286585 192.134146 
-L 76.579268 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_2">
-    <path d="M 23.286585 110.792683 
-L 76.579268 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_3">
-    <path d="M 97.335366 192.134146 
-L 76.579268 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_4">
-    <path d="M 36.75 88.353659 
-L 76.579268 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_5">
-    <path d="M 76.579268 110.792683 
-L 83.310976 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_6">
-    <path d="M 69.286585 192.134146 
-L 90.042683 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_7">
-    <path d="M 23.286585 110.792683 
-L 90.042683 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_8">
-    <path d="M 97.335366 192.134146 
-L 90.042683 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_9">
-    <path d="M 36.75 88.353659 
-L 90.042683 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_10">
-    <path d="M 90.042683 88.353659 
-L 83.310976 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_11">
-    <path d="M 122.579268 192.134146 
-L 129.871951 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_12">
-    <path d="M 76.579268 110.792683 
-L 129.871951 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_13">
-    <path d="M 150.628049 192.134146 
-L 129.871951 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_14">
-    <path d="M 90.042683 88.353659 
-L 129.871951 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_15">
-    <path d="M 129.871951 110.792683 
-L 136.603659 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_16">
-    <path d="M 122.579268 192.134146 
-L 143.335366 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_17">
-    <path d="M 76.579268 110.792683 
-L 143.335366 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_18">
-    <path d="M 150.628049 192.134146 
-L 143.335366 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_19">
-    <path d="M 90.042683 88.353659 
-L 143.335366 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_20">
-    <path d="M 143.335366 88.353659 
-L 136.603659 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_21">
-    <path d="M 175.871951 192.134146 
-L 183.164634 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_22">
-    <path d="M 129.871951 110.792683 
-L 183.164634 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_23">
-    <path d="M 203.920732 192.134146 
-L 183.164634 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_24">
-    <path d="M 143.335366 88.353659 
-L 183.164634 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_25">
-    <path d="M 183.164634 110.792683 
-L 189.896341 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_26">
-    <path d="M 175.871951 192.134146 
-L 196.628049 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_27">
-    <path d="M 129.871951 110.792683 
-L 196.628049 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_28">
-    <path d="M 203.920732 192.134146 
-L 196.628049 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_29">
-    <path d="M 143.335366 88.353659 
-L 196.628049 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_30">
-    <path d="M 196.628049 88.353659 
-L 189.896341 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_31">
-    <path d="M 229.164634 192.134146 
-L 236.457317 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_32">
-    <path d="M 183.164634 110.792683 
-L 236.457317 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_33">
-    <path d="M 257.213415 192.134146 
-L 236.457317 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_34">
-    <path d="M 196.628049 88.353659 
-L 236.457317 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_35">
-    <path d="M 236.457317 110.792683 
-L 243.189024 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_36">
-    <path d="M 229.164634 192.134146 
-L 249.920732 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_37">
-    <path d="M 183.164634 110.792683 
-L 249.920732 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_38">
-    <path d="M 257.213415 192.134146 
-L 249.920732 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_39">
-    <path d="M 196.628049 88.353659 
-L 249.920732 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_40">
-    <path d="M 249.920732 88.353659 
-L 243.189024 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_41">
-    <path d="M 282.457317 192.134146 
-L 289.75 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_42">
-    <path d="M 236.457317 110.792683 
-L 289.75 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_43">
-    <path d="M 310.506098 192.134146 
-L 289.75 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_44">
-    <path d="M 249.920732 88.353659 
-L 289.75 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_45">
-    <path d="M 289.75 110.792683 
-L 296.481707 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_46">
-    <path d="M 282.457317 192.134146 
-L 303.213415 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_47">
-    <path d="M 236.457317 110.792683 
-L 303.213415 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_48">
-    <path d="M 310.506098 192.134146 
-L 303.213415 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_49">
-    <path d="M 249.920732 88.353659 
-L 303.213415 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_50">
-    <path d="M 303.213415 88.353659 
-L 296.481707 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_51">
-    <path d="M 335.75 192.134146 
-L 343.042683 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_52">
-    <path d="M 289.75 110.792683 
-L 343.042683 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_53">
-    <path d="M 363.79878 192.134146 
-L 343.042683 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_54">
-    <path d="M 303.213415 88.353659 
-L 343.042683 110.792683 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_55">
-    <path d="M 343.042683 110.792683 
-L 349.77439 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_56">
-    <path d="M 335.75 192.134146 
-L 356.506098 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_57">
-    <path d="M 289.75 110.792683 
-L 356.506098 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_58">
-    <path d="M 363.79878 192.134146 
-L 356.506098 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.9; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_59">
-    <path d="M 303.213415 88.353659 
-L 356.506098 88.353659 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.75; stroke-width: 1.05; stroke-linecap: round"></path>
-   </g>
-   <g id="line2d_60">
-    <path d="M 356.506098 88.353659 
-L 349.77439 32.256098 
-" clip-path="url(#p15e0c265be)" style="fill: none; stroke: #6d9eeb; stroke-opacity: 0.6; stroke-width: 0.885; stroke-linecap: round"></path>
-   </g>
-   <g id="text_1">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #cc0000" x="83.310976" y="215.712623" transform="rotate(-0 83.310976 215.712623)">cheer</text>
-   </g>
-   <g id="text_2">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #38761d" x="83.310976" y="18.686791" transform="rotate(-0 83.310976 18.686791)">cheer</text>
-   </g>
-   <g id="text_3">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #cc0000" x="136.603659" y="215.712623" transform="rotate(-0 136.603659 215.712623)">cheer</text>
-   </g>
-   <g id="text_4">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #38761d" x="136.603659" y="18.686791" transform="rotate(-0 136.603659 18.686791)">for</text>
-   </g>
-   <g id="text_5">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #cc0000" x="189.896341" y="215.712623" transform="rotate(-0 189.896341 215.712623)">for</text>
-   </g>
-   <g id="text_6">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #38761d" x="189.896341" y="18.686791" transform="rotate(-0 189.896341 18.686791)">old</text>
-   </g>
-   <g id="text_7">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #cc0000" x="243.189024" y="215.712623" transform="rotate(-0 243.189024 215.712623)">old</text>
-   </g>
-   <g id="text_8">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #38761d" x="243.189024" y="18.686791" transform="rotate(-0 243.189024 18.686791)">notre</text>
-   </g>
-   <g id="text_9">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #cc0000" x="296.481707" y="215.712623" transform="rotate(-0 296.481707 215.712623)">notre</text>
-   </g>
-   <g id="text_10">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #38761d" x="296.481707" y="18.686791" transform="rotate(-0 296.481707 18.686791)">dame</text>
-   </g>
-   <g id="text_11">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #cc0000" x="349.77439" y="215.712623" transform="rotate(-0 349.77439 215.712623)">dame</text>
-   </g>
-   <g id="text_12">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #38761d" x="349.77439" y="18.686791" transform="rotate(-0 349.77439 18.686791)">wake</text>
-   </g>
-   <g id="patch_2">
-    <path d="M 23.286585 118.365854 
-C 25.295014 118.365854 27.221452 117.567897 28.641626 116.147723 
-C 30.061799 114.72755 30.859756 112.801111 30.859756 110.792683 
-C 30.859756 108.784255 30.061799 106.857816 28.641626 105.437643 
-C 27.221452 104.017469 25.295014 103.219512 23.286585 103.219512 
-C 21.278157 103.219512 19.351718 104.017469 17.931545 105.437643 
-C 16.511372 106.857816 15.713415 108.784255 15.713415 110.792683 
-C 15.713415 112.801111 16.511372 114.72755 17.931545 116.147723 
-C 19.351718 117.567897 21.278157 118.365854 23.286585 118.365854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #ffffff; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_3">
-    <path d="M 36.75 95.926829 
-C 38.758428 95.926829 40.684867 95.128872 42.10504 93.708699 
-C 43.525214 92.288526 44.323171 90.362087 44.323171 88.353659 
-C 44.323171 86.34523 43.525214 84.418791 42.10504 82.998618 
-C 40.684867 81.578445 38.758428 80.780488 36.75 80.780488 
-C 34.741572 80.780488 32.815133 81.578445 31.39496 82.998618 
-C 29.974786 84.418791 29.176829 86.34523 29.176829 88.353659 
-C 29.176829 90.362087 29.974786 92.288526 31.39496 93.708699 
-C 32.815133 95.128872 34.741572 95.926829 36.75 95.926829 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #ffffff; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_4">
-    <path d="M 69.286585 199.707317 
-C 71.295014 199.707317 73.221452 198.90936 74.641626 197.489187 
-C 76.061799 196.069013 76.859756 194.142575 76.859756 192.134146 
-C 76.859756 190.125718 76.061799 188.199279 74.641626 186.779106 
-C 73.221452 185.358933 71.295014 184.560976 69.286585 184.560976 
-C 67.278157 184.560976 65.351718 185.358933 63.931545 186.779106 
-C 62.511372 188.199279 61.713415 190.125718 61.713415 192.134146 
-C 61.713415 194.142575 62.511372 196.069013 63.931545 197.489187 
-C 65.351718 198.90936 67.278157 199.707317 69.286585 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_5">
-    <path d="M 97.335366 199.707317 
-C 99.343794 199.707317 101.270233 198.90936 102.690406 197.489187 
-C 104.11058 196.069013 104.908537 194.142575 104.908537 192.134146 
-C 104.908537 190.125718 104.11058 188.199279 102.690406 186.779106 
-C 101.270233 185.358933 99.343794 184.560976 97.335366 184.560976 
-C 95.326937 184.560976 93.400499 185.358933 91.980325 186.779106 
-C 90.560152 188.199279 89.762195 190.125718 89.762195 192.134146 
-C 89.762195 194.142575 90.560152 196.069013 91.980325 197.489187 
-C 93.400499 198.90936 95.326937 199.707317 97.335366 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_6">
-    <path d="M 76.579268 118.365854 
-C 78.587697 118.365854 80.514135 117.567897 81.934309 116.147723 
-C 83.354482 114.72755 84.152439 112.801111 84.152439 110.792683 
-C 84.152439 108.784255 83.354482 106.857816 81.934309 105.437643 
-C 80.514135 104.017469 78.587697 103.219512 76.579268 103.219512 
-C 74.57084 103.219512 72.644401 104.017469 71.224228 105.437643 
-C 69.804055 106.857816 69.006098 108.784255 69.006098 110.792683 
-C 69.006098 112.801111 69.804055 114.72755 71.224228 116.147723 
-C 72.644401 117.567897 74.57084 118.365854 76.579268 118.365854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_7">
-    <path d="M 90.042683 95.926829 
-C 92.051111 95.926829 93.97755 95.128872 95.397723 93.708699 
-C 96.817897 92.288526 97.615854 90.362087 97.615854 88.353659 
-C 97.615854 86.34523 96.817897 84.418791 95.397723 82.998618 
-C 93.97755 81.578445 92.051111 80.780488 90.042683 80.780488 
-C 88.034255 80.780488 86.107816 81.578445 84.687643 82.998618 
-C 83.267469 84.418791 82.469512 86.34523 82.469512 88.353659 
-C 82.469512 90.362087 83.267469 92.288526 84.687643 93.708699 
-C 86.107816 95.128872 88.034255 95.926829 90.042683 95.926829 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_8">
-    <path d="M 83.310976 37.865854 
-C 84.7987 37.865854 86.225692 37.274774 87.277672 36.222794 
-C 88.329652 35.170814 88.920732 33.743822 88.920732 32.256098 
-C 88.920732 30.768373 88.329652 29.341381 87.277672 28.289401 
-C 86.225692 27.237421 84.7987 26.646341 83.310976 26.646341 
-C 81.823251 26.646341 80.396259 27.237421 79.344279 28.289401 
-C 78.292299 29.341381 77.70122 30.768373 77.70122 32.256098 
-C 77.70122 33.743822 78.292299 35.170814 79.344279 36.222794 
-C 80.396259 37.274774 81.823251 37.865854 83.310976 37.865854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_9">
-    <path d="M 122.579268 199.707317 
-C 124.587697 199.707317 126.514135 198.90936 127.934309 197.489187 
-C 129.354482 196.069013 130.152439 194.142575 130.152439 192.134146 
-C 130.152439 190.125718 129.354482 188.199279 127.934309 186.779106 
-C 126.514135 185.358933 124.587697 184.560976 122.579268 184.560976 
-C 120.57084 184.560976 118.644401 185.358933 117.224228 186.779106 
-C 115.804055 188.199279 115.006098 190.125718 115.006098 192.134146 
-C 115.006098 194.142575 115.804055 196.069013 117.224228 197.489187 
-C 118.644401 198.90936 120.57084 199.707317 122.579268 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_10">
-    <path d="M 150.628049 199.707317 
-C 152.636477 199.707317 154.562916 198.90936 155.983089 197.489187 
-C 157.403262 196.069013 158.20122 194.142575 158.20122 192.134146 
-C 158.20122 190.125718 157.403262 188.199279 155.983089 186.779106 
-C 154.562916 185.358933 152.636477 184.560976 150.628049 184.560976 
-C 148.61962 184.560976 146.693182 185.358933 145.273008 186.779106 
-C 143.852835 188.199279 143.054878 190.125718 143.054878 192.134146 
-C 143.054878 194.142575 143.852835 196.069013 145.273008 197.489187 
-C 146.693182 198.90936 148.61962 199.707317 150.628049 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_11">
-    <path d="M 129.871951 118.365854 
-C 131.88038 118.365854 133.806818 117.567897 135.226992 116.147723 
-C 136.647165 114.72755 137.445122 112.801111 137.445122 110.792683 
-C 137.445122 108.784255 136.647165 106.857816 135.226992 105.437643 
-C 133.806818 104.017469 131.88038 103.219512 129.871951 103.219512 
-C 127.863523 103.219512 125.937084 104.017469 124.516911 105.437643 
-C 123.096738 106.857816 122.29878 108.784255 122.29878 110.792683 
-C 122.29878 112.801111 123.096738 114.72755 124.516911 116.147723 
-C 125.937084 117.567897 127.863523 118.365854 129.871951 118.365854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_12">
-    <path d="M 143.335366 95.926829 
-C 145.343794 95.926829 147.270233 95.128872 148.690406 93.708699 
-C 150.11058 92.288526 150.908537 90.362087 150.908537 88.353659 
-C 150.908537 86.34523 150.11058 84.418791 148.690406 82.998618 
-C 147.270233 81.578445 145.343794 80.780488 143.335366 80.780488 
-C 141.326937 80.780488 139.400499 81.578445 137.980325 82.998618 
-C 136.560152 84.418791 135.762195 86.34523 135.762195 88.353659 
-C 135.762195 90.362087 136.560152 92.288526 137.980325 93.708699 
-C 139.400499 95.128872 141.326937 95.926829 143.335366 95.926829 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_13">
-    <path d="M 136.603659 37.865854 
-C 138.091383 37.865854 139.518375 37.274774 140.570355 36.222794 
-C 141.622335 35.170814 142.213415 33.743822 142.213415 32.256098 
-C 142.213415 30.768373 141.622335 29.341381 140.570355 28.289401 
-C 139.518375 27.237421 138.091383 26.646341 136.603659 26.646341 
-C 135.115934 26.646341 133.688942 27.237421 132.636962 28.289401 
-C 131.584982 29.341381 130.993902 30.768373 130.993902 32.256098 
-C 130.993902 33.743822 131.584982 35.170814 132.636962 36.222794 
-C 133.688942 37.274774 135.115934 37.865854 136.603659 37.865854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_14">
-    <path d="M 175.871951 199.707317 
-C 177.88038 199.707317 179.806818 198.90936 181.226992 197.489187 
-C 182.647165 196.069013 183.445122 194.142575 183.445122 192.134146 
-C 183.445122 190.125718 182.647165 188.199279 181.226992 186.779106 
-C 179.806818 185.358933 177.88038 184.560976 175.871951 184.560976 
-C 173.863523 184.560976 171.937084 185.358933 170.516911 186.779106 
-C 169.096738 188.199279 168.29878 190.125718 168.29878 192.134146 
-C 168.29878 194.142575 169.096738 196.069013 170.516911 197.489187 
-C 171.937084 198.90936 173.863523 199.707317 175.871951 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_15">
-    <path d="M 203.920732 199.707317 
-C 205.92916 199.707317 207.855599 198.90936 209.275772 197.489187 
-C 210.695945 196.069013 211.493902 194.142575 211.493902 192.134146 
-C 211.493902 190.125718 210.695945 188.199279 209.275772 186.779106 
-C 207.855599 185.358933 205.92916 184.560976 203.920732 184.560976 
-C 201.912303 184.560976 199.985865 185.358933 198.565691 186.779106 
-C 197.145518 188.199279 196.347561 190.125718 196.347561 192.134146 
-C 196.347561 194.142575 197.145518 196.069013 198.565691 197.489187 
-C 199.985865 198.90936 201.912303 199.707317 203.920732 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_16">
-    <path d="M 183.164634 118.365854 
-C 185.173063 118.365854 187.099501 117.567897 188.519675 116.147723 
-C 189.939848 114.72755 190.737805 112.801111 190.737805 110.792683 
-C 190.737805 108.784255 189.939848 106.857816 188.519675 105.437643 
-C 187.099501 104.017469 185.173063 103.219512 183.164634 103.219512 
-C 181.156206 103.219512 179.229767 104.017469 177.809594 105.437643 
-C 176.38942 106.857816 175.591463 108.784255 175.591463 110.792683 
-C 175.591463 112.801111 176.38942 114.72755 177.809594 116.147723 
-C 179.229767 117.567897 181.156206 118.365854 183.164634 118.365854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_17">
-    <path d="M 196.628049 95.926829 
-C 198.636477 95.926829 200.562916 95.128872 201.983089 93.708699 
-C 203.403262 92.288526 204.20122 90.362087 204.20122 88.353659 
-C 204.20122 86.34523 203.403262 84.418791 201.983089 82.998618 
-C 200.562916 81.578445 198.636477 80.780488 196.628049 80.780488 
-C 194.61962 80.780488 192.693182 81.578445 191.273008 82.998618 
-C 189.852835 84.418791 189.054878 86.34523 189.054878 88.353659 
-C 189.054878 90.362087 189.852835 92.288526 191.273008 93.708699 
-C 192.693182 95.128872 194.61962 95.926829 196.628049 95.926829 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_18">
-    <path d="M 189.896341 37.865854 
-C 191.384066 37.865854 192.811058 37.274774 193.863038 36.222794 
-C 194.915018 35.170814 195.506098 33.743822 195.506098 32.256098 
-C 195.506098 30.768373 194.915018 29.341381 193.863038 28.289401 
-C 192.811058 27.237421 191.384066 26.646341 189.896341 26.646341 
-C 188.408617 26.646341 186.981625 27.237421 185.929645 28.289401 
-C 184.877665 29.341381 184.286585 30.768373 184.286585 32.256098 
-C 184.286585 33.743822 184.877665 35.170814 185.929645 36.222794 
-C 186.981625 37.274774 188.408617 37.865854 189.896341 37.865854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_19">
-    <path d="M 229.164634 199.707317 
-C 231.173063 199.707317 233.099501 198.90936 234.519675 197.489187 
-C 235.939848 196.069013 236.737805 194.142575 236.737805 192.134146 
-C 236.737805 190.125718 235.939848 188.199279 234.519675 186.779106 
-C 233.099501 185.358933 231.173063 184.560976 229.164634 184.560976 
-C 227.156206 184.560976 225.229767 185.358933 223.809594 186.779106 
-C 222.38942 188.199279 221.591463 190.125718 221.591463 192.134146 
-C 221.591463 194.142575 222.38942 196.069013 223.809594 197.489187 
-C 225.229767 198.90936 227.156206 199.707317 229.164634 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_20">
-    <path d="M 257.213415 199.707317 
-C 259.221843 199.707317 261.148282 198.90936 262.568455 197.489187 
-C 263.988628 196.069013 264.786585 194.142575 264.786585 192.134146 
-C 264.786585 190.125718 263.988628 188.199279 262.568455 186.779106 
-C 261.148282 185.358933 259.221843 184.560976 257.213415 184.560976 
-C 255.204986 184.560976 253.278548 185.358933 251.858374 186.779106 
-C 250.438201 188.199279 249.640244 190.125718 249.640244 192.134146 
-C 249.640244 194.142575 250.438201 196.069013 251.858374 197.489187 
-C 253.278548 198.90936 255.204986 199.707317 257.213415 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_21">
-    <path d="M 236.457317 118.365854 
-C 238.465745 118.365854 240.392184 117.567897 241.812357 116.147723 
-C 243.232531 114.72755 244.030488 112.801111 244.030488 110.792683 
-C 244.030488 108.784255 243.232531 106.857816 241.812357 105.437643 
-C 240.392184 104.017469 238.465745 103.219512 236.457317 103.219512 
-C 234.448889 103.219512 232.52245 104.017469 231.102277 105.437643 
-C 229.682103 106.857816 228.884146 108.784255 228.884146 110.792683 
-C 228.884146 112.801111 229.682103 114.72755 231.102277 116.147723 
-C 232.52245 117.567897 234.448889 118.365854 236.457317 118.365854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_22">
-    <path d="M 249.920732 95.926829 
-C 251.92916 95.926829 253.855599 95.128872 255.275772 93.708699 
-C 256.695945 92.288526 257.493902 90.362087 257.493902 88.353659 
-C 257.493902 86.34523 256.695945 84.418791 255.275772 82.998618 
-C 253.855599 81.578445 251.92916 80.780488 249.920732 80.780488 
-C 247.912303 80.780488 245.985865 81.578445 244.565691 82.998618 
-C 243.145518 84.418791 242.347561 86.34523 242.347561 88.353659 
-C 242.347561 90.362087 243.145518 92.288526 244.565691 93.708699 
-C 245.985865 95.128872 247.912303 95.926829 249.920732 95.926829 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_23">
-    <path d="M 243.189024 37.865854 
-C 244.676749 37.865854 246.103741 37.274774 247.155721 36.222794 
-C 248.207701 35.170814 248.79878 33.743822 248.79878 32.256098 
-C 248.79878 30.768373 248.207701 29.341381 247.155721 28.289401 
-C 246.103741 27.237421 244.676749 26.646341 243.189024 26.646341 
-C 241.7013 26.646341 240.274308 27.237421 239.222328 28.289401 
-C 238.170348 29.341381 237.579268 30.768373 237.579268 32.256098 
-C 237.579268 33.743822 238.170348 35.170814 239.222328 36.222794 
-C 240.274308 37.274774 241.7013 37.865854 243.189024 37.865854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_24">
-    <path d="M 282.457317 199.707317 
-C 284.465745 199.707317 286.392184 198.90936 287.812357 197.489187 
-C 289.232531 196.069013 290.030488 194.142575 290.030488 192.134146 
-C 290.030488 190.125718 289.232531 188.199279 287.812357 186.779106 
-C 286.392184 185.358933 284.465745 184.560976 282.457317 184.560976 
-C 280.448889 184.560976 278.52245 185.358933 277.102277 186.779106 
-C 275.682103 188.199279 274.884146 190.125718 274.884146 192.134146 
-C 274.884146 194.142575 275.682103 196.069013 277.102277 197.489187 
-C 278.52245 198.90936 280.448889 199.707317 282.457317 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_25">
-    <path d="M 310.506098 199.707317 
-C 312.514526 199.707317 314.440965 198.90936 315.861138 197.489187 
-C 317.281311 196.069013 318.079268 194.142575 318.079268 192.134146 
-C 318.079268 190.125718 317.281311 188.199279 315.861138 186.779106 
-C 314.440965 185.358933 312.514526 184.560976 310.506098 184.560976 
-C 308.497669 184.560976 306.57123 185.358933 305.151057 186.779106 
-C 303.730884 188.199279 302.932927 190.125718 302.932927 192.134146 
-C 302.932927 194.142575 303.730884 196.069013 305.151057 197.489187 
-C 306.57123 198.90936 308.497669 199.707317 310.506098 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_26">
-    <path d="M 289.75 118.365854 
-C 291.758428 118.365854 293.684867 117.567897 295.10504 116.147723 
-C 296.525214 114.72755 297.323171 112.801111 297.323171 110.792683 
-C 297.323171 108.784255 296.525214 106.857816 295.10504 105.437643 
-C 293.684867 104.017469 291.758428 103.219512 289.75 103.219512 
-C 287.741572 103.219512 285.815133 104.017469 284.39496 105.437643 
-C 282.974786 106.857816 282.176829 108.784255 282.176829 110.792683 
-C 282.176829 112.801111 282.974786 114.72755 284.39496 116.147723 
-C 285.815133 117.567897 287.741572 118.365854 289.75 118.365854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_27">
-    <path d="M 303.213415 95.926829 
-C 305.221843 95.926829 307.148282 95.128872 308.568455 93.708699 
-C 309.988628 92.288526 310.786585 90.362087 310.786585 88.353659 
-C 310.786585 86.34523 309.988628 84.418791 308.568455 82.998618 
-C 307.148282 81.578445 305.221843 80.780488 303.213415 80.780488 
-C 301.204986 80.780488 299.278548 81.578445 297.858374 82.998618 
-C 296.438201 84.418791 295.640244 86.34523 295.640244 88.353659 
-C 295.640244 90.362087 296.438201 92.288526 297.858374 93.708699 
-C 299.278548 95.128872 301.204986 95.926829 303.213415 95.926829 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_28">
-    <path d="M 296.481707 37.865854 
-C 297.969432 37.865854 299.396424 37.274774 300.448404 36.222794 
-C 301.500384 35.170814 302.091463 33.743822 302.091463 32.256098 
-C 302.091463 30.768373 301.500384 29.341381 300.448404 28.289401 
-C 299.396424 27.237421 297.969432 26.646341 296.481707 26.646341 
-C 294.993983 26.646341 293.566991 27.237421 292.515011 28.289401 
-C 291.463031 29.341381 290.871951 30.768373 290.871951 32.256098 
-C 290.871951 33.743822 291.463031 35.170814 292.515011 36.222794 
-C 293.566991 37.274774 294.993983 37.865854 296.481707 37.865854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_29">
-    <path d="M 335.75 199.707317 
-C 337.758428 199.707317 339.684867 198.90936 341.10504 197.489187 
-C 342.525214 196.069013 343.323171 194.142575 343.323171 192.134146 
-C 343.323171 190.125718 342.525214 188.199279 341.10504 186.779106 
-C 339.684867 185.358933 337.758428 184.560976 335.75 184.560976 
-C 333.741572 184.560976 331.815133 185.358933 330.39496 186.779106 
-C 328.974786 188.199279 328.176829 190.125718 328.176829 192.134146 
-C 328.176829 194.142575 328.974786 196.069013 330.39496 197.489187 
-C 331.815133 198.90936 333.741572 199.707317 335.75 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_30">
-    <path d="M 363.79878 199.707317 
-C 365.807209 199.707317 367.733648 198.90936 369.153821 197.489187 
-C 370.573994 196.069013 371.371951 194.142575 371.371951 192.134146 
-C 371.371951 190.125718 370.573994 188.199279 369.153821 186.779106 
-C 367.733648 185.358933 365.807209 184.560976 363.79878 184.560976 
-C 361.790352 184.560976 359.863913 185.358933 358.44374 186.779106 
-C 357.023567 188.199279 356.22561 190.125718 356.22561 192.134146 
-C 356.22561 194.142575 357.023567 196.069013 358.44374 197.489187 
-C 359.863913 198.90936 361.790352 199.707317 363.79878 199.707317 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #f4cccc; stroke: #e06666; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_31">
-    <path d="M 343.042683 118.365854 
-C 345.051111 118.365854 346.97755 117.567897 348.397723 116.147723 
-C 349.817897 114.72755 350.615854 112.801111 350.615854 110.792683 
-C 350.615854 108.784255 349.817897 106.857816 348.397723 105.437643 
-C 346.97755 104.017469 345.051111 103.219512 343.042683 103.219512 
-C 341.034255 103.219512 339.107816 104.017469 337.687643 105.437643 
-C 336.267469 106.857816 335.469512 108.784255 335.469512 110.792683 
-C 335.469512 112.801111 336.267469 114.72755 337.687643 116.147723 
-C 339.107816 117.567897 341.034255 118.365854 343.042683 118.365854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_32">
-    <path d="M 356.506098 95.926829 
-C 358.514526 95.926829 360.440965 95.128872 361.861138 93.708699 
-C 363.281311 92.288526 364.079268 90.362087 364.079268 88.353659 
-C 364.079268 86.34523 363.281311 84.418791 361.861138 82.998618 
-C 360.440965 81.578445 358.514526 80.780488 356.506098 80.780488 
-C 354.497669 80.780488 352.57123 81.578445 351.151057 82.998618 
-C 349.730884 84.418791 348.932927 86.34523 348.932927 88.353659 
-C 348.932927 90.362087 349.730884 92.288526 351.151057 93.708699 
-C 352.57123 95.128872 354.497669 95.926829 356.506098 95.926829 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-   <g id="patch_33">
-    <path d="M 349.77439 37.865854 
-C 351.262115 37.865854 352.689107 37.274774 353.741087 36.222794 
-C 354.793067 35.170814 355.384146 33.743822 355.384146 32.256098 
-C 355.384146 30.768373 354.793067 29.341381 353.741087 28.289401 
-C 352.689107 27.237421 351.262115 26.646341 349.77439 26.646341 
-C 348.286666 26.646341 346.859674 27.237421 345.807694 28.289401 
-C 344.755713 29.341381 344.164634 30.768373 344.164634 32.256098 
-C 344.164634 33.743822 344.755713 35.170814 345.807694 36.222794 
-C 346.859674 37.274774 348.286666 37.865854 349.77439 37.865854 
-z
-" clip-path="url(#p15e0c265be)" style="fill: #fff2cc; stroke: #dcb439; stroke-width: 1.3; stroke-linejoin: miter"></path>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p15e0c265be">
-   <rect x="10.384146" y="0" width="363.231707" height="230"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig>
+  <svg class="draw" viewBox="0 0 384 230" style="width: 280.9pt" role="img" aria-label="An RNN unrolled over six words: under each step two red input circles, above them two gold hidden circles joined by blue weights to the next step's, and a small gold output circle on top; the words cheer cheer for old notre dame under the steps in red, and the next word above each output in green" data-b="xt1vs">
+    <defs></defs>
+    <line x1="69.3" y1="192.1" x2="76.6" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="23.3" y1="110.8" x2="76.6" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="97.3" y1="192.1" x2="76.6" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="36.7" y1="88.4" x2="76.6" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="76.6" y1="110.8" x2="83.3" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="69.3" y1="192.1" x2="90.0" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="23.3" y1="110.8" x2="90.0" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="97.3" y1="192.1" x2="90.0" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="36.7" y1="88.4" x2="90.0" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="90.0" y1="88.4" x2="83.3" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="122.6" y1="192.1" x2="129.9" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="76.6" y1="110.8" x2="129.9" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="150.6" y1="192.1" x2="129.9" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="90.0" y1="88.4" x2="129.9" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="129.9" y1="110.8" x2="136.6" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="122.6" y1="192.1" x2="143.3" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="76.6" y1="110.8" x2="143.3" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="150.6" y1="192.1" x2="143.3" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="90.0" y1="88.4" x2="143.3" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="143.3" y1="88.4" x2="136.6" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="175.9" y1="192.1" x2="183.2" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="129.9" y1="110.8" x2="183.2" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="203.9" y1="192.1" x2="183.2" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="143.3" y1="88.4" x2="183.2" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="183.2" y1="110.8" x2="189.9" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="175.9" y1="192.1" x2="196.6" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="129.9" y1="110.8" x2="196.6" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="203.9" y1="192.1" x2="196.6" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="143.3" y1="88.4" x2="196.6" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="196.6" y1="88.4" x2="189.9" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="229.2" y1="192.1" x2="236.5" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="183.2" y1="110.8" x2="236.5" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="257.2" y1="192.1" x2="236.5" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="196.6" y1="88.4" x2="236.5" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="236.5" y1="110.8" x2="243.2" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="229.2" y1="192.1" x2="249.9" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="183.2" y1="110.8" x2="249.9" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="257.2" y1="192.1" x2="249.9" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="196.6" y1="88.4" x2="249.9" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="249.9" y1="88.4" x2="243.2" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="282.5" y1="192.1" x2="289.8" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="236.5" y1="110.8" x2="289.8" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="310.5" y1="192.1" x2="289.8" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="249.9" y1="88.4" x2="289.8" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="289.8" y1="110.8" x2="296.5" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="282.5" y1="192.1" x2="303.2" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="236.5" y1="110.8" x2="303.2" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="310.5" y1="192.1" x2="303.2" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="249.9" y1="88.4" x2="303.2" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="303.2" y1="88.4" x2="296.5" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="335.8" y1="192.1" x2="343.0" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="289.8" y1="110.8" x2="343.0" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="363.8" y1="192.1" x2="343.0" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="303.2" y1="88.4" x2="343.0" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="343.0" y1="110.8" x2="349.8" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <line x1="335.8" y1="192.1" x2="356.5" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
+    <line x1="289.8" y1="110.8" x2="356.5" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="363.8" y1="192.1" x2="356.5" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="303.2" y1="88.4" x2="356.5" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
+    <line x1="356.5" y1="88.4" x2="349.8" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
+    <text x="83.3" y="215.6" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cheer</text>
+    <text x="83.3" y="18.6" font-size="8.5" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cheer</text>
+    <text x="136.6" y="215.6" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cheer</text>
+    <text x="136.6" y="18.6" font-size="8.5" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">for</text>
+    <text x="189.9" y="215.6" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">for</text>
+    <text x="189.9" y="18.6" font-size="8.5" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">old</text>
+    <text x="243.2" y="215.6" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">old</text>
+    <text x="243.2" y="18.6" font-size="8.5" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">notre</text>
+    <text x="296.5" y="215.6" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">notre</text>
+    <text x="296.5" y="18.6" font-size="8.5" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">dame</text>
+    <text x="349.8" y="215.6" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">dame</text>
+    <text x="349.8" y="18.6" font-size="8.5" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">wake</text>
+    <ellipse cx="23.3" cy="110.8" rx="7.6" ry="7.6" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="36.7" cy="88.4" rx="7.6" ry="7.6" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="69.3" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="97.3" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="76.6" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="90.0" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="83.3" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="122.6" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="150.6" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="129.9" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="143.3" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="136.6" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="175.9" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="203.9" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="183.2" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="196.6" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="189.9" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="229.2" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="257.2" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="236.5" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="249.9" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="243.2" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="282.5" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="310.5" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="289.8" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="303.2" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="296.5" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="335.8" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="363.8" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
+    <ellipse cx="343.0" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="356.5" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="349.8" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+  </svg>
   <div class="cover-text" data-b="f0v2n">
     <div class="kicker">Unit 03 · Chapter 3</div>
     <h1>Recurrent Neural Networks</h1>
@@ -7903,7 +7274,22 @@ document.querySelectorAll('b-fig[live]').forEach(f => { const k = f.getAttribute
 
 var EAI_CC = {"x":"red","y_hat":"gold","W_x":"blue","W_c":"blue","W_y":"blue","E":"blue","weight":"blue","b_c":"gray","bias":"gray","out":"gold","Wx":"blue","Wc":"blue","W":"blue","b":"gray","c_prev":"gold","c":"gold","x_t":"red"};
 var EAI_TOKDEF = "march";
-var EAI_TOK = {"march":{"map":{"cheer":[0,"purple"],"for":[1,"green"],"old":[2,"yellow"],"notre":[3,"red"],"dame":[4,"blue"],"wake":[5,"purple"],"up":[6,"green"],"the":[7,"yellow"],"echoes":[8,"red"],"cheering":[9,"blue"],"her":[10,"purple"],"name":[11,"green"],"send":[12,"yellow"],"a":[13,"red"],"volley":[14,"blue"],"on":[15,"green"],"high":[16,"purple"],"shake":[17,"yellow"],"down":[18,"red"],"thunder":[19,"blue"],"from":[20,"purple"],"sky":[21,"green"]},"byId":["purple","green","yellow","red","blue","purple","green","yellow","red","blue","purple","green","yellow","red","blue","green","purple","yellow","red","blue","purple","green"],"n":22}};
+var EAI_TOK = {"march":{"map":{"cheer":[0,"purple"],"for":[1,"green"],"old":[2,"yellow"],"notre":[3,"red"],"dame":[4,"blue"],"wake":[5,"purple"],"up":[6,"green"],"the":[7,"yellow"],"echoes":[8,"red"],"cheering":[9,"blue"],"her":[10,"purple"],"name":[11,"green"],"send":[12,"yellow"],"a":[13,"red"],"volley":[14,"blue"],"on":[15,"green"],"high":[16,"purple"],"shake":[17,"yellow"],"down":[18,"red"],"thunder":[19,"blue"],"from":[20,"purple"],"sky":[21,"green"],"what":[22,"yellow"],"though":[23,"red"],"odds":[24,"blue"],"be":[25,"purple"],"great":[26,"green"],"or":[27,"yellow"],"small":[28,"red"],"will":[29,"blue"],"win":[30,"purple"],"over":[31,"green"],"all":[32,"yellow"],"while":[33,"red"],"loyal":[34,"blue"],"sons":[35,"purple"],"and":[36,"green"],"daughters":[37,"yellow"],"march":[38,"red"],"to":[39,"blue"],"victory":[40,"purple"]},"byId":["purple","green","yellow","red","blue","purple","green","yellow","red","blue","purple","green","yellow","red","blue","green","purple","yellow","red","blue","purple","green","yellow","red","blue","purple","green","yellow","red","blue","purple","green","yellow","red","blue","purple","green","yellow","red","blue","purple"],"n":41}};
+var EAI_WEB = "ai2ai/rnn";
+function eaiColab(bid, web, solutions, w) {
+  var SITE = 'https://ai.williamtheisen.com/', GH = 'https://colab.research.google.com/github/wtheisen/ai-landing-page/blob/main/';
+  web = String(web || '').replace(/^\/+|\/+$/g, '');
+  var cache = eaiColab.cache = eaiColab.cache || {}, book = web.split('/')[0];
+  cache[book] = cache[book] || fetch(SITE + book + '/notebooks.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { cache[book] = null; return {}; });
+  return cache[book].then(function (m) {
+    var hit = null; Object.keys(m || {}).forEach(function (k) { var e = m[k]; if (e && e.web === web && e.files) hit = e; });
+    var f = hit && (hit.files.filter(function (x) { return x.role === (solutions ? 'solutions' : 'student'); })[0] || hit.files[0]);
+    var url = f ? GH + f.path + (bid ? '#scrollTo=' + bid : '') : null;
+    if (w) { if (url) w.location.href = url; else w.close(); }
+    return url;
+  });
+}
+eaiColab.teacher = function () { try { return !!JSON.parse(localStorage.getItem('eai-ink-token') || 'null'); } catch (e) { return false; } };
 function eaiOutHL(text, cc, hl, tok) {
   // tok (token tiles in outputs, Eric 2026-11-07): {map: {token: [id, family]}, n, ids}: a quoted string that is a token
   // of the vocabulary becomes a tile, and a bracketed list of whole numbers that are all its IDs takes the tokens' colours
@@ -8069,9 +7455,36 @@ function eaiRunCode() {
     if (typeof r !== 'object') return String(r);
     try { var B = py.pyimport('builtins'), mod = String(B.getattr(B.type(r), '__module__', '')); if (/^matplotlib/.test(mod)) return ''; return B.repr(r); } catch (e) { return ''; } finally { if (r.destroy) r.destroy(); }
   }
-  [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
-    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading') return;   // blanks in the Lecture/Workbook: no Run
+  // Colab-only cells (Book.colabOf in the viewer; colab="" baked in by the export): Open in Colab instead of Run
+  var colabSet = window.Book && Book.colabCells && Book.root ? Book.colabCells() : null;
+  function isColab(b) { return colabSet ? colabSet.has(b) : b.hasAttribute('colab') && b.getAttribute('colab') !== 'off'; }
+  function colabBar(block) {
     if (block._run) return; block._run = true;
+    var out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
+    if (!out) { out = document.createElement('b-out'); out.className = 'run-new'; out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
+    var bar = document.createElement('span'); bar.className = 'run-bar run-colab web-only';
+    bar.innerHTML = '<span class="run-status"></span><span class="colab-tag" title="Needs a GPU, packages or a model the browser can\'t run">Colab only</span><button type="button" data-a="colab">Open in Colab ↗</button>';
+    out.querySelector('.label').appendChild(bar);
+    var web = window.EAI_WEB || (window.Book && Book.meta && (Book.meta.web || (Book.chapter ? 'ai2ai/' + Book.chapter : ''))) || '';
+    var sol = eaiColab.teacher(), status = bar.querySelector('.run-status');
+    eaiColab(null, web, sol);   // the manifest, fetched ahead of the tap
+    bar.querySelector('[data-a=colab]').title = sol ? 'The Solutions notebook in Colab, at this cell' : 'This chapter\'s notebook in Colab, at this cell';
+    bar.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('[data-a=colab]')) return;
+      var w = window.open('about:blank', '_blank');
+      eaiColab(block.getAttribute('data-b'), web, sol, w).then(function (u) {
+        status.textContent = u ? '' : (sol ? 'No notebook yet: Make notebook on the editor home' : 'The notebook isn\'t out yet');
+        if (u && !w) location.href = u;   // no new window allowed (the iPad app): go there
+      });
+    });
+  }
+  [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
+    if (isColab(block)) return colabBar(block);
+    // blanks: no Run in the Workbook; in the Lecture, Run once every blank is filled in (Book.fillBlank: the iPad app's
+    // handwriting) or tapped open, and it runs the code as filled in, wrong answers too (Eric, 2026-11-13)
+    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading' && bv !== 'slides') return;
+    if (block._run) return; block._run = true;
+    var fills = bv === 'slides' ? [].slice.call(block.querySelectorAll('u.fill')) : [];
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
     // a plot saved with the Output (b-out figs=…, drawn by BOut.render, inlined in the published page) comes back on Reset
@@ -8083,6 +7496,13 @@ function eaiRunCode() {
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
+    if (fills.length) {
+      // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
+      // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
+      var ready = function () { bar.classList.toggle('run-wait', !editor && !fills.every(function (u) { return u.classList.contains('shown') || u.classList.contains('filled'); })); };
+      block.addEventListener('eai-fill', ready); ready();
+      block.addEventListener('eai-fill', function () { tell({ src: editor ? editor.value : original, edit: true }); });
+    }
     function show(text, err, figs) {
       out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
       out.classList.toggle('run-new', !printed && !storedFigs && !text && !(figs && figs.length));
@@ -8095,28 +7515,50 @@ function eaiRunCode() {
     function figures(py) { try { var r = py.runPython(FIGS), a = r.toJs(); r.destroy(); return a; } catch (e) { return []; } }
     // what happens to a cell (a run, its result, an edit, a reset) is announced as an 'eai-run' event, so the
     // instructor's lecture notes (ink.js) can keep it and publish it with the ink (Eric, 2026-11-10)
-    function tell(d) { d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
+    // what the cell's blanks hold ({index: [text, colour]}) and its editor's colours: kept in the lecture notes with it
+    function filled() { var f = {}, any = false; fills.forEach(function (u, i) { if (u.classList.contains('filled')) { f[i] = [u.textContent, window.eaiCodeColors ? eaiCodeColors.blankColor(u) : null]; any = true; } }); return any ? f : null; }
+    function tell(d) {
+      if (block._eaiApplying) return;   // notes being put back, not something done in class
+      if (fills.length && !editor && d.src === source(block)) d.src = original;   // filled blanks are kept as fills, not as code
+      if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
+      d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
       if (editor) return;
-      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = source(block);
-      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet) editor.focus();
+      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
+      // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
+      var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
+      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
+      editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
+    }
+    // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
+    function blanked() {
+      return [].map.call(block.querySelectorAll('.ln'), function (l) {
+        var c = l.cloneNode(true); [].forEach.call(c.querySelectorAll('u.fill:not(.filled):not(.shown)'), function (u) { u.textContent = '___'; });
+        return c.textContent.replace(/\u00a0/g, ' ');
+      }).join('\n');
     }
     function reset(quiet) {
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
+      if (fills.length) { var was = block._eaiApplying; block._eaiApplying = true; fills.forEach(function (u) { Book.fillBlank(u, null); }); block._eaiApplying = was; ready(); }
       if (!quiet) tell({ reset: true });
     }
-    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?} or null for the stored cell
+    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?, fills?, marks?} or null for the stored cell
     block._eaiLive = function (d) {
-      if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
-      block._eaiShowing = true;
-      if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-      else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
-      if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
-      status.textContent = 'As run in lecture';
+      block._eaiApplying = true;
+      try {
+        if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
+        block._eaiShowing = true;
+        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
+        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
+        if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
+        status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';
+      } finally { block._eaiApplying = false; }
     };
     // g: a globals dict shared with the cells run before this one (Run prior); then the cell runs alone, without the
     // blocks it chains to (they have just run in g). Resolves true when the cell ran without an error.
@@ -8128,7 +7570,7 @@ function eaiRunCode() {
         return Promise.resolve(true);
       }
       var chainNeeded = block.hasAttribute('chain') && (frag(block) || (!g && !(block._eaiPrevRan && block._eaiPrevRan())));
-      var own = editor ? editor.value : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
+      var own = editor ? editor.value : fills.length ? source(block) : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
       return pyodide().then(function (py) {
@@ -8403,8 +7845,9 @@ eaiDual();
 //   Input        Pencil and mouse write; fingers scroll.
 //
 // A layer: {"id","title","pages":[{"after":"page-id","id":"wb-…"}],"strokes":[{"p":"page-id","c":"#hex","w":2.2,
-// "o":0.35?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
-// coordinates in points from the page's top-left (a page is 432 pt wide). "code" holds what the instructor ran in
+// "o":0.35?,"f":"<blank>"?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
+// coordinates in points from the page's top-left (a page is 432 pt wide). "f" tags a fill-in blank's handwriting (the iPad
+// app's blank pads: the blank's data-b block and its index there, "bx12#0"). "code" holds what the instructor ran in
 // lecture (an edited cell's source, its output, its plots: base64 PNGs in the draft, site paths once published), put
 // back on the page with the notes and drawn into the notes PDF (Eric, 2026-11-10).
 // Self-contained on purpose: the published page gets this file's source verbatim.
@@ -8427,7 +7870,7 @@ function eaiInk(opts) {
   var HOME = SITE_DIR ? '/' + SITE_DIR.replace(/^\/|\/$/g, '') + '/' : DIR;
   var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR + VIEW, KEY_DRAFT = 'eai-ink-draft:' + HOME + VIEW + ':', KEY_OLD = 'eai-ink-draft:' + DIR + VIEW + ':';
   var viewOf = function (l) { return l.view || 'slides'; };
-  var pub = null, layers = [], mine = null, target = null, editing = false, tool = 'hand', color = PEN[0][0], width = 2.2, undo = [];
+  var pub = null, layers = [], mine = null, target = null, prep = null, editing = false, tool = 'hand', color = PEN[0][0], width = 1.4, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
   // penDown: a pen stroke is under way (Lecture mode ignores pinches meanwhile: on the iPad a palm resting beside the
@@ -8580,6 +8023,7 @@ function eaiInk(opts) {
     var pg = document.getElementById(s.p); if (!pg) return null;
     var el = document.createElementNS(NS, 'path'); paint(el, s);
     if (s.o && s.o < 1) el.setAttribute('opacity', s.o);
+    if (s.n) el.setAttribute('class', 'ink-note');
     el._s = s; overlay(pg).appendChild(el); return el;
   }
   function blankPage(b) {
@@ -8592,6 +8036,7 @@ function eaiInk(opts) {
     [].forEach.call(book.querySelectorAll('svg.ink'), function (s) { s.remove(); });
     [].forEach.call(book.querySelectorAll('section.ink-blank'), function (s) { s.remove(); });
     [pub, mine].forEach(function (l) { if (l) (l.pages || []).forEach(blankPage); });
+    if (prep) prep.strokes.forEach(drawStroke);   // private notes under the lecture's ink
     [pub, mine].forEach(function (l) { if (l) (l.strokes || []).forEach(drawStroke); });
     pages().forEach(overlay);
     applyCode();
@@ -8645,6 +8090,58 @@ function eaiInk(opts) {
     laser: SVG('<circle cx="8" cy="8" r="3" fill="#ff2a2a"/><circle cx="8" cy="8" r="5.6" fill="none" stroke="#ff2a2a" stroke-opacity=".35" stroke-width="1.5"/>'),
     undo: SVG('<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.5 3.5l-3 3 3 3M2.5 6.5H10a3.5 3.5 0 010 7H7"/>'),
     page: SVG('<path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M3.5 1.5h6l3 3v10h-9z"/><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 7v5M5.5 9.5h5"/>') };
+  // ---------------------------------------------------------------- colour wheel (Lecture mode)
+  // A ring of the pen bar's tools around the pen, so a colour is one tap away without reaching for the bar (Eric,
+  // 2026-11-12). Opened in Lecture mode (?lecture=…) by holding the pen still on a slide for half a second, or in the
+  // iPad presenting app (ios/) by a double tap (or squeeze) of the Pencil, which the app passes in as an 'eai-pencil'
+  // event on window ({detail: {x, y}} in window px when the Pencil knows where it is). A second double tap, a tap
+  // outside, the middle or Escape closes it.
+  var wheel = null, penAt = null;   // penAt: where the pen last was, in window px (the wheel opens there when the event has no place)
+  var NATIVE = !!window.eaiNativeApp, NATIVE_INK = false;   // NATIVE_INK: the app draws the Pencil and scrolls (nativeInk), set at startup
+  function native(m) { if (NATIVE) try { window.webkit.messageHandlers.eai.postMessage(m); } catch (x) {} }
+  function wheelItems() {
+    return PEN.map(function (p) { return { t: 'pen', c: p[0], name: p[1] + ' pen' }; })
+      .concat([{ t: 'hl', name: 'highlighter', i: I.hl }, { t: 'erase', name: 'eraser', i: I.erase }, { t: 'laser', name: 'laser pointer', i: I.laser }]);
+  }
+  function closeWheel() { if (wheel) { wheel.remove(); wheel = null; } }
+  function openWheel(x, y) {
+    closeWheel();
+    if (x == null || y == null) { x = penAt ? penAt.x : innerWidth / 2; y = penAt ? penAt.y : innerHeight / 2; }
+    var R = 92, R0 = 34, items = wheelItems(), n = items.length, step = 2 * Math.PI / n, pad = R + 10;
+    x = Math.max(pad, Math.min(innerWidth - pad, x)); y = Math.max(pad, Math.min(innerHeight - pad, y));
+    var P = function (a, r) { return (R + r * Math.cos(a)).toFixed(2) + ' ' + (R + r * Math.sin(a)).toFixed(2); };
+    var svg = '', marks = '';
+    items.forEach(function (it, i) {
+      var a0 = -Math.PI / 2 - step / 2 + i * step, a1 = a0 + step, am = a0 + step / 2;
+      var on = editing && it.t === tool && (!it.c || it.c === color);
+      svg += '<path d="M' + P(a0, R0) + 'L' + P(a0, R - 2) + 'A' + (R - 2) + ' ' + (R - 2) + ' 0 0 1 ' + P(a1, R - 2) + 'L' + P(a1, R0) + 'A' + R0 + ' ' + R0 + ' 0 0 0 ' + P(a0, R0) + 'Z"'
+        + ' fill="' + (it.c || '#f4f4f4') + '" stroke="#fff" stroke-width="3"/>';
+      if (on) svg += '<path d="M' + P(a0 + 0.06, R + 4) + 'A' + (R + 4) + ' ' + (R + 4) + ' 0 0 1 ' + P(a1 - 0.06, R + 4) + '" fill="none" stroke="#002B5B" stroke-width="5" stroke-linecap="round"/>';
+      if (it.i) { var c = P(am, (R + R0) / 2).split(' '); marks += '<span style="position:absolute;left:' + (+c[0] - 8) + 'px;top:' + (+c[1] - 8) + 'px;width:16px;height:16px;transform:scale(1.4)">' + it.i + '</span>'; }
+    });
+    svg += '<circle cx="' + R + '" cy="' + R + '" r="' + (R0 - 4) + '" fill="#fff" stroke="#ccc"/><path d="M' + (R - 7) + ' ' + (R - 7) + 'l14 14m0-14l-14 14" stroke="#777" stroke-width="2" stroke-linecap="round"/>';
+    wheel = document.createElement('div'); wheel.className = 'ink-wheel';
+    wheel.style.cssText = 'position:fixed;inset:0;z-index:95;touch-action:none';
+    wheel.innerHTML = '<div style="position:absolute;left:' + (x - R) + 'px;top:' + (y - R) + 'px;width:' + 2 * R + 'px;height:' + 2 * R + 'px;border-radius:50%;box-shadow:0 4px 18px rgba(0,0,0,.25);color:#333">'
+      + '<svg width="' + 2 * R + '" height="' + 2 * R + '" style="display:block;overflow:visible">' + svg + '</svg>' + marks + '</div>';
+    document.body.appendChild(wheel);
+    // a tap on a wedge picks it; anywhere else (outside, the middle) just closes. Decided on pointerdown so the tap
+    // never reaches the slide underneath (no stray dot, no Run button pressed).
+    wheel.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var dx = e.clientX - x, dy = e.clientY - y, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < R0 || d > R + 6) return closeWheel();
+      var i = Math.floor((((Math.atan2(dy, dx) + Math.PI / 2 + step / 2) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / step) % n;
+      pickTool(items[i]);
+    });
+    native({ haptic: 'open' });
+  }
+  function pickTool(it) {
+    tool = it.t; if (it.c) color = it.c; if (tool !== 'laser') last = { t: tool, c: color };
+    closeWheel(); start(); barState(); native({ haptic: 'pick' });
+  }
+  addEventListener('eai-pencil', function (e) { if (!LECT || NATIVE_INK) return; var d = e.detail || {}; if (wheel) closeWheel(); else openWheel(d.x, d.y); });
+  addEventListener('keydown', function (e) { if (wheel && e.key === 'Escape') closeWheel(); });
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function save() {
     clearTimeout(saveSoon.t);
@@ -8677,8 +8174,8 @@ function eaiInk(opts) {
 
   // ---------------------------------------------------------------- code run in lecture
   // In Lecture mode (?lecture=…) the signed-in instructor's runs go into today's notes: what the cell held when it ran
-  // (if edited), what it printed and drew. A run that gives back exactly the stored cell drops out again, and so does
-  // Reset. They are published with the ink and put back on the page wherever these notes are shown.
+  // (if edited), what it printed and drew, what its code blanks were filled in with and the colours written on it (the
+  // iPad app). A run that gives back exactly the stored cell drops out again, and so does Reset. They are published with the ink and put back on the page wherever these notes are shown.
   function codeKey(block) {
     var b = block.getAttribute('data-b'); if (b) return b;
     var pg = block.closest('section.page'), all = pg ? [].slice.call(pg.querySelectorAll('b-code')) : [];
@@ -8697,9 +8194,12 @@ function eaiInk(opts) {
     else {
       if (d.src != null) { if (d.src !== d.original) c.src = d.src; else delete c.src; }
       if (!d.edit) { c.out = d.out || ''; if (d.err) c.err = true; else delete c.err; if (d.figs && d.figs.length) c.figs = d.figs.slice(); else delete c.figs; }
+      // what its code blanks were filled in with, and the colours written in (book.js: every report has them as they are now)
+      if (d.fills) c.fills = d.fills; else delete c.fills;
+      if (d.marks) c.marks = d.marks; else delete c.marks;
       // nothing to keep: the cell's own source and either no run yet or a run that printed just what the page has
       var outSame = c.out == null || (!c.err && !c.figs && !d.stored && c.out === (d.printed || ''));
-      if (c.src == null && outSame) delete code[key]; else code[key] = c;
+      if (c.src == null && outSame && !c.fills && !c.marks) delete code[key]; else code[key] = c;
     }
     applied[key] = !!code[key];
     save(); barState();
@@ -8722,7 +8222,7 @@ function eaiInk(opts) {
     bar.innerHTML = '<span class="grp"><button data-t="hand" title="use the page: scroll, click figures and Run buttons (L toggles)">' + I.hand + '</button></span>'
       + '<span class="grp">' + PEN.map(function (p) { return '<button data-t="pen" data-c="' + p[0] + '" title="' + p[1] + ' pen" class="sw" style="--c:' + p[0] + '"><i></i></button>'; }).join('')
       + '<button data-t="hl" title="highlighter">' + I.hl + '</button><button data-t="erase" title="eraser (your own ink)">' + I.erase + '</button><button data-t="laser" title="laser pointer (not saved)">' + I.laser + '</button></span>'
-      + '<span class="grp">' + [1.4, 2.2, 3.6].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
+      + '<span class="grp">' + [1.15, 1.4, 2.2].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
       + '<span class="grp"><button data-a="undo" title="undo (⌘Z)">' + I.undo + '</button><button data-a="blank" title="add a blank page after this one">' + I.page + '</button><button data-a="pdf" title="download this view as a PDF with the notes showing">' + I.pdf + '</button></span>'
       + '<span class="spacer"></span><span class="ink-msg"></span><span class="right"></span>';
     head.appendChild(bar);
@@ -8737,6 +8237,7 @@ function eaiInk(opts) {
       if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter (this view)?')) { mine.strokes = []; mine.pages = []; undo = []; store(KEY_MINE, mine); render(); }
       if (b.dataset.a === 'publish') { ensureTarget(); publish(); }
       if (b.dataset.a === 'report') report();
+      if (b.dataset.a === 'home') { save(); native({ home: true }); }
       barState();
     });
     bar.addEventListener('change', function (e) {
@@ -8748,6 +8249,7 @@ function eaiInk(opts) {
     });
   }
   function barState() {
+    nativeState();
     if (!bar) return;
     var cur = editing ? tool : 'hand';
     [].forEach.call(bar.querySelectorAll('[data-t]'), function (x) { x.classList.toggle('on', x.dataset.t === cur && (!x.dataset.c || x.dataset.c === color)); });
@@ -8755,6 +8257,7 @@ function eaiInk(opts) {
     var right = bar.querySelector('.right'), h = '';
     if (layers.length) h += '<select id="ink-pick" title="Lecture notes"' + (editing && target !== mine ? ' disabled' : '') + '><option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '"' + (pub && pub.id === l.id ? ' selected' : '') + '>Notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ')') + '</option>'; }).join('') + '</select>';
     if (teacher() && VIEW === 'slides' && /[?&]lecture=1/.test(location.search)) h += '<span class="pres" title="Opened from the Lecture button: the faint answers are hidden, safe to mirror to the projector">Presenting</span>';
+    if (NATIVE) h += '<button data-a="home" class="quiet" title="back to the list of chapters">Chapters</button>';
     if (EDITOR_VIEW) h += '<button data-a="report" class="quiet" title="Tell Claude something is wrong on this page: your note plus this device\'s details go in as a comment on the page">Report</button>';
     h += teacher() ? '<button data-a="publish" class="act" title="publish today\'s notes for students">Publish</button>'
                    : '<button data-a="clear" class="quiet" title="erase all of my notes on this view">Clear mine</button>';
@@ -8800,22 +8303,41 @@ function eaiInk(opts) {
     barState();
   }
   function stop() { if (!editing) return barState(); editing = false; save(); document.documentElement.classList.remove('ink-lecture', 'ink-lock', 'ink-hand'); book.removeEventListener('pointerdown', down); tool = 'hand'; barState(); }
-  function msg(t) { var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; else if (t && !/…$/.test(t)) alert(t); }
+  function msg(t) { if (NATIVE_INK) native({ msg: t || '' }); var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; else if (t && !NATIVE_INK && !/…$/.test(t)) alert(t); }
   function currentPage() { var best = null, bd = 1e9; pages().forEach(function (p) { var r = rectOf(p), d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = p; } }); return best; }
-  function addBlank() {
-    var pg = currentPage(); if (!pg) return;
+  function addBlank(at) {
+    var pg = (at && document.getElementById(at)) || currentPage(); if (!pg) return;
     var b = { after: pg.id, id: (target === mine ? 'my-' : 'wb-') + Date.now().toString(36) }; target.pages.push(b); blankPage(b); undo.push({ blank: b }); save();
     document.getElementById(b.id).scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function doUndo() {
     var u = undo.pop(); if (!u) return;
-    if (u.stroke) { target.strokes.splice(target.strokes.indexOf(u.stroke), 1); if (u.el) u.el.remove(); }
-    if (u.erased) u.erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+    // every path drawing it, not just the one first drawn: an erase undone draws the stroke again as a new path
+    if (u.stroke) drop(u.stroke);
+    if (u.erased) u.erased.forEach(put);
     if (u.blank) { target.pages.splice(target.pages.indexOf(u.blank), 1); var p = document.getElementById(u.blank.id); if (p) p.remove(); }
-    save();
+    // a blank's pad (the iPad app's eaiNativeInk.fill): its handwriting as it was before the pad opened
+    if (u.fill) { u.after.forEach(unStroke); u.before.forEach(function (s) { target.strokes.push(s); drawStroke(s); }); }
+    save(); nativeState();
+  }
+  // a stroke out of its layer (today's notes, or the private notes: Note pen) and off the page, and back again
+  function drop(s) {
+    var l = s.n && prep ? prep.strokes : target.strokes, i = l.indexOf(s); if (i >= 0) l.splice(i, 1);
+    if (s.n && prep) { prep.gone.push(s.id); prepSave(); }
+    [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
+  }
+  // a private stroke put back gets a new id: its old one is gone on every device (the sync's tombstones)
+  function put(s) {
+    if (s.n && prep) { s.id = prepId(); prep.strokes.push(s); prepSave(); } else target.strokes.push(s);
+    drawStroke(s);
+  }
+  function unStroke(s) {
+    var i = target.strokes.indexOf(s); if (i >= 0) target.strokes.splice(i, 1);
+    [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
   }
   function near(s, x, y, r) { for (var i = 0; i < s.pts.length; i++) { var dx = s.pts[i][0] - x, dy = s.pts[i][1] - y; if (dx * dx + dy * dy < r * r) return true; } return false; }
   function down(e) {
+    if (NATIVE_INK && e.pointerType === 'pen') return;   // the iPad app draws the Pencil itself (nativeInk)
     if (!editing || tool === 'hand' || e.button > 0 || e.target.closest('button, a, select, textarea, input, iframe, .ink-bar')) return;
     var pg = e.target.closest('section.page'); if (!pg) return;
     if (e.pointerType === 'touch') return IOS ? undefined : fingerScroll(e);
@@ -8855,8 +8377,18 @@ function eaiInk(opts) {
       cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [smooth(pt(e))] }; if (tool === 'hl') cur.o = 0.35;
       el = drawStroke(cur);
     }
+    // Lecture mode: the pen held still for half a second opens the colour wheel there (the dot it made is taken back)
+    penAt = { x: e.clientX, y: e.clientY };
+    var hold = LECT && tool !== 'laser' ? setTimeout(held, 500) : null;
+    function held() {
+      hold = null; detach();
+      if (el) el.remove();
+      erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+      openWheel(penAt.x, penAt.y);
+    }
     function move(ev) {
       if (ev.pointerId !== e.pointerId) return;
+      if (hold && Math.abs(ev.clientX - penAt.x) + Math.abs(ev.clientY - penAt.y) > 6) { clearTimeout(hold); hold = null; }
       var es = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [ev]; if (!es.length) es = [ev];
       if (tool === 'laser') { laser.style.left = ev.clientX + 'px'; laser.style.top = ev.clientY + 'px'; return; }
       es.forEach(function (q) {
@@ -8875,10 +8407,14 @@ function eaiInk(opts) {
       tail = ahead(ev);   // draw ahead to where the pen is about to be, so the line keeps up with the tip
       if (!queued) { queued = true; requestAnimationFrame(frame); }
     }
-    function up(ev) {
-      if (ev && ev.pointerId !== e.pointerId) return;
+    function detach() {
+      clearTimeout(hold); hold = null;
       pg.removeEventListener('pointermove', move); pg.removeEventListener('pointerup', up); pg.removeEventListener('pointercancel', up);
       removeEventListener('scroll', onScroll, true); penDown = false;
+    }
+    function up(ev) {
+      if (ev && ev.pointerId !== e.pointerId) return;
+      detach(); if (ev) penAt = { x: ev.clientX, y: ev.clientY };
       if (tool === 'laser') { if (laser) laser.remove(); laser = null; return; }
       if (cur && cur.pts.length) {
         var l = cur.pts[cur.pts.length - 1]; if (raw && cur.pts.length > 1 && (raw[0] !== l[0] || raw[1] !== l[1])) cur.pts.push(raw);
@@ -8891,7 +8427,9 @@ function eaiInk(opts) {
     pg.addEventListener('pointermove', move); pg.addEventListener('pointerup', up); pg.addEventListener('pointercancel', up);
   }
   function stylusGuard(e) {
-    if (!editing || tool === 'hand') return;
+    // not in the iPad app: it draws the Pencil itself, and a cancelled Pencil touch made WebKit fail PencilKit's
+    // drawing gesture (2026-11-13: the pen drew nothing)
+    if (NATIVE_INK || !editing || tool === 'hand') return;
     var t = e.target, ts = e.changedTouches || [];
     if (!t.closest || !t.closest('section.page') || t.closest('button, a, select, textarea, input, iframe')) return;
     for (var i = 0; i < ts.length; i++) if (ts[i].touchType === 'stylus') { e.preventDefault(); return; }
@@ -8953,7 +8491,7 @@ function eaiInk(opts) {
   }
 
   // Code run in lecture, drawn into the notes PDF (Eric, 2026-11-10). The PDF has the cell as stored; where a cell was
-  // edited or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
+  // edited, filled in (its code blanks, 2026-11-13: with their colours, as are colours written on edited code) or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
   // and plots drawn in, shrunk to fit if need be. What won't fit there at a readable size (a long output, plots under
   // a cell that had no output box) goes on a page of its own right after the slide, "Run in lecture: <title>". Ink
   // is drawn after, so notes written over an output stay on top of it.
@@ -8979,15 +8517,37 @@ function eaiInk(opts) {
     var m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?/.exec(v || '');
     if (!m || m[4] === '0') return dflt; return PDFLib.rgb(+m[1] / 255, +m[2] / 255, +m[3] / 255);
   }
-  // lines of coloured runs from a rendered output (<pre>), or plain lines of code
-  function runsOf(pre) {
+  // lines of coloured runs from a rendered output (<pre>), or plain lines of code; bg: also the boxes behind text
+  // (highlights, a highlighted blank), as rn.bg
+  function runsOf(pre, bg) {
     var lines = [[]];
     (function walk(n) {
       if (n.nodeType === 3) {
         var st = getComputedStyle(n.parentNode), c = cssRGB(st.color, PDFLib.rgb(0.2, 0.2, 0.2)), b = (parseInt(st.fontWeight, 10) || 400) >= 600;
-        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push({ t: t, c: c, b: b }); });
+        var back = bg && n.parentNode !== pre ? cssRGB(st.backgroundColor, null) : null;
+        // (code) a blank not filled in or shown: a gap, not its answer (which the page keeps hidden, or faint on the iPad)
+        if (bg && n.parentNode.closest && n.parentNode.closest('u.fill:not(.filled):not(.shown)')) { lines[lines.length - 1].push({ t: n.nodeValue.replace(/[^\n]/g, ' '), c: c, b: false, ul: true }); return; }
+        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push(back ? { t: t, c: c, b: b, bg: back } : { t: t, c: c, b: b }); });
       } else if (n.nodeType === 1 && !/^(BUTTON|SCRIPT|STYLE)$/.test(n.tagName)) [].forEach.call(n.childNodes, walk);
     })(pre);
+    while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
+    return lines;
+  }
+  // a cell's code as the page shows it (its code blanks filled in, in their colours), line by line
+  function liveRuns(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return runsOf(l, true)[0] || []; }); }
+  // edited code with the colours written on it (book.js eaiCodeColors: [from, to, "t:red" | "h:gold"])
+  var PEN_RGB = { blue: '#1155CC', red: '#CC0000', green: '#38761D', purple: '#674EA7', gold: '#DCB439' }, HL_RGB = { gold: '#FFF2CC' };
+  function markedRuns(src, marks) {
+    var ink = PDFLib.rgb(0.13, 0.13, 0.13), tc = [], hc = [];
+    marks.forEach(function (m) { var p = m[2].split(':'), arr = p[0] === 't' ? tc : hc; for (var i = m[0]; i < m[1]; i++) arr[i] = p[1]; });
+    var lines = [[]], i = 0;
+    while (i < src.length) {
+      if (src[i] === '\n') { lines.push([]); i++; continue; }
+      var j = i; while (j < src.length && src[j] !== '\n' && tc[j] === tc[i] && hc[j] === hc[i]) j++;
+      var rn = { t: src.slice(i, j).replace(/\t/g, '    '), c: tc[i] && PEN_RGB[tc[i]] ? hexRGB(PEN_RGB[tc[i]]) : ink, b: !!(tc[i] && PEN_RGB[tc[i]]) };
+      if (hc[i] && HL_RGB[hc[i]]) rn.bg = hexRGB(HL_RGB[hc[i]]);
+      lines[lines.length - 1].push(rn); i = j;
+    }
     while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
     return lines;
   }
@@ -9002,7 +8562,8 @@ function eaiInk(opts) {
       var out = j.b.nextElementSibling; while (out && out.tagName === 'TEXTAREA') out = out.nextElementSibling;   // (an edited cell's editor sits between)
       if (out && out.tagName !== 'B-OUT') out = null; var pre = out && out.querySelector('pre');
       if (j.b._eaiLive) j.b._eaiLive(j.c);
-      j.code = j.c.src != null ? plainRuns(j.c.src) : null;
+      // edited code (in its colours), or the stored code with its blanks as filled in during the lecture
+      j.code = j.c.src != null ? (j.c.marks ? markedRuns(j.c.src, j.c.marks) : plainRuns(j.c.src)) : j.c.fills ? liveRuns(j.b) : null;
       j.out = j.c.out != null && pre ? runsOf(pre) : j.c.out != null ? plainRuns(j.c.out) : null;
       if (j.out && j.out.length === 1 && !j.out[0].length) j.out = null;
       j.figs = j.c.figs || [];
@@ -9033,6 +8594,14 @@ function eaiInk(opts) {
         var H = page.getSize().height, cx = x;
         runs.forEach(function (rn) {
           var t = clean(rn.t), font = rn.b ? F.b : F.r, piece = '', pieceFont = font;
+          if (rn.bg) {   // a highlight: its box behind the run
+            var rw; try { rw = font.widthOfTextAtSize(t, fs); } catch (e) { rw = t.length * F.adv * fs; }
+            page.drawRectangle({ x: cx * kp, y: H - (y + fs * 1.18) * kp, width: rw * kp, height: fs * 1.25 * kp, color: rn.bg });
+          }
+          if (rn.ul) {   // an empty code blank: its line to write on
+            var uw = t.length * F.adv * fs;
+            page.drawLine({ start: { x: cx * kp, y: H - (y + fs * 1.1) * kp }, end: { x: (cx + uw) * kp, y: H - (y + fs * 1.1) * kp }, thickness: 0.8 * kp, color: PDFLib.rgb(0.13, 0.13, 0.13) });
+          }
           var flush = function () { if (piece) page.drawText(piece, { x: cx * kp, y: H - (y + fs * 0.95) * kp, size: fs * kp, font: pieceFont, color: rn.c }); cx += (pieceFont.widthOfTextAtSize ? pieceFont.widthOfTextAtSize(piece, fs) : piece.length * F.adv * fs); piece = ''; };
           Array.from(t).forEach(function (ch) {
             var f = F.has && F.sym && !F.has.has(ch.codePointAt(0)) ? F.sym : font;
@@ -9055,7 +8624,7 @@ function eaiInk(opts) {
         var grey = PDFLib.rgb(0.45, 0.45, 0.45), place2 = { text: !j.out, ims: !j.ims.length };
         if (!place.code && j.codeBox) {   // the code didn't fit: say where it went, over the stored code
           var cb2 = j.codeBox; cover(page, kp, { x: cb2.x + 1, y: cb2.y + 1, w: cb2.w - 2, h: cb2.h - 2 }, j.bgCode);
-          line(page, kp, [{ t: 'Edited in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
+          line(page, kp, [{ t: (j.c.src != null ? 'Edited' : 'Filled in') + ' in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
         }
         if ((j.out || j.ims.length) && j.outBox && j.outTop) {   // the lecture's output (and plots) in the output box
           var ob = j.outBox, ox = ob.x + PAD + 2, oy = j.outTop.y + 1, ow = ob.w - 2 * PAD - 4, oh = ob.y + ob.h - oy - PAD;
@@ -9309,27 +8878,216 @@ function eaiInk(opts) {
     addEventListener('resize', function () { zoomGen++; setTimeout(apply, 0); });   // after the view's own resize handler
     apply(); setTimeout(apply, 0);
   }
+  // ---------------------------------------------------------------- private notes (the iPad app's Note pen)
+  // Eric, 2026-11-13: ink only he sees, on his iPad. He writes it before class (reminders, drawings to trace over in
+  // lecture) and it stays on the chapter's slides for every lecture until he erases it. It is never part of a day's
+  // notes: Publish and the notes PDF read the layers (target, pub, mine), never this; the projector's page never loads
+  // it and the app keeps it off the projector's copy of the drawing; Safari and published pages don't have it. It is
+  // shown faint, like the faint answers, and hides with them while the iPad's screen is mirrored (the app; book.css
+  // for a page drawing it itself). Kept on the device (localStorage) and in the book repo, branch prep-ink,
+  // <chapter>.json, through the editor's GitHub token, so his other devices get it: strokes with an id each, and the
+  // ids erased (gone), merged by id so two devices writing between syncs both keep their strokes.
+  var PREP_BRANCH = 'prep-ink', KEY_PREP = 'eai-ink-prep:' + (opts.chapter || ''), prepBusy = false, prepAgain = 0;
+  function prepId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function prepSave() { store(KEY_PREP, prep); clearTimeout(prepSave.t); prepSave.t = setTimeout(prepSync, 2500); }
+  // the editor's sign-in on this device (web/store.js kv 'remote': {token, repo, branch, api?, kind?}), or null
+  function editorRemote() {
+    return new Promise(function (done) {
+      if (!window.indexedDB) return done(null);
+      try {
+        var rq = indexedDB.open('ai2ai-book');
+        rq.onupgradeneeded = function () { rq.transaction.abort(); };   // no editor on this device: don't create its database
+        rq.onerror = function () { done(null); };
+        rq.onsuccess = function () {
+          var db = rq.result; if (!db.objectStoreNames.contains('kv')) { db.close(); return done(null); }
+          var g = db.transaction('kv').objectStore('kv').get('remote');
+          g.onsuccess = function () { db.close(); done(g.result || null); };
+          g.onerror = function () { db.close(); done(null); };
+        };
+      } catch (e) { done(null); }
+    });
+  }
+  function prepMerge(r) {   // theirs into ours: every stroke either side has, less every id either side erased
+    var gone = {}, have = {}, out = [], changed = false;
+    prep.gone.concat(r.gone || []).forEach(function (id) { gone[id] = 1; });
+    prep.strokes.forEach(function (s) { if (gone[s.id]) changed = true; else { have[s.id] = 1; out.push(s); } });
+    (r.strokes || []).forEach(function (s) { if (s && s.id && !gone[s.id] && !have[s.id]) { s.n = 1; have[s.id] = 1; out.push(s); changed = true; } });
+    prep.strokes = out; prep.gone = Object.keys(gone); store(KEY_PREP, prep);
+    return changed;
+  }
+  function prepSame(r) {
+    var ids = function (l) { return (l || []).map(function (x) { return x && x.id || x; }).sort().join(','); };
+    return ids(r.strokes) === ids(prep.strokes) && ids(r.gone) === ids(prep.gone);
+  }
+  function prepSync() {
+    if (!prep || !opts.chapter) return;
+    if (prepBusy) { prepAgain = 1; return; }
+    prepBusy = true; clearTimeout(prepSave.t); prepSave.t = 0;
+    editorRemote().then(function (c) {
+      if (!c || !c.token || !c.repo || c.kind === 'dev') return;
+      var base = (c.api || 'https://api.github.com') + '/repos/' + c.repo, url = base + '/contents/' + encodeURIComponent(opts.chapter) + '.json';
+      var H = { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' };
+      return fetch(url + '?ref=' + PREP_BRANCH, { headers: H, cache: 'no-store' }).then(function (r) {
+        if (r.status === 404) return { sha: null, data: {} };
+        if (!r.ok) throw new Error('prep ' + r.status);
+        return r.json().then(function (j) {
+          if (j.content) return { sha: j.sha, data: JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\s/g, ''))))) };
+          // over 1 MB the contents API leaves the content out: the blob, raw
+          return fetch(base + '/git/blobs/' + j.sha, { headers: { Authorization: H.Authorization, Accept: 'application/vnd.github.raw+json' }, cache: 'no-store' })
+            .then(function (b) { if (!b.ok) throw new Error('prep blob ' + b.status); return b.json(); }).then(function (d) { return { sha: j.sha, data: d }; });
+        });
+      }).then(function (rem) {
+        if (prepMerge(rem.data)) render();
+        if (prepSame(rem.data)) return;
+        var body = JSON.stringify({ strokes: prep.strokes.map(function (s) { return { id: s.id, p: s.p, c: s.c, w: s.w, pts: s.pts }; }), gone: prep.gone });
+        var put = { message: 'Private notes: ' + opts.chapter, branch: PREP_BRANCH, content: btoa(unescape(encodeURIComponent(body))) };
+        if (rem.sha) put.sha = rem.sha;
+        return fetch(url, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: JSON.stringify(put) }).then(function (r) {
+          if (r.status === 409 || r.status === 422) prepAgain = prepAgain || 2;   // another device wrote first: merge theirs and go again
+        });
+      });
+    }).catch(function () {}).then(function () {   // offline or refused: the device keeps them, the next sync sends them
+      prepBusy = false;
+      var n = prepAgain; prepAgain = 0;   // 1: written to meanwhile, 2: a conflict (tried again once)
+      if (n === 1 || (n === 2 && !prepSync.retry)) { prepSync.retry = n === 2; prepSync(); } else prepSync.retry = false;
+    });
+  }
+
+  // ---------------------------------------------------------------- the iPad app's own pen and scrolling
+  // AI2AI Present (ios/) from build 2 draws the Pencil itself, at the Pencil's own rate with Apple's predicted touches, and
+  // lets the web view scroll and pinch-zoom natively; its toolbar replaces the pen bar (Eric, 2026-11-12: native ink
+  // first, keeping the notes as they are). The strokes it draws come back here on lift in the usual form ({p, c, w, o,
+  // pts} in page pt), so saving, Undo, Publish and the notes PDF don't change. The app asks for this with
+  // eaiNativeApp.ink; an older app, or this page anywhere else, gets the web pen as before.
+  // To the app: {inkReady}, {ink: state}, {pages: [page boxes in document px]}, {msg}. From the app: window.eaiNativeInk.
+  function nativeState() {
+    if (!NATIVE_INK) return;
+    native({ ink: { editing: editing, tool: editing ? tool : 'hand', color: color, width: width, teacher: teacher(),
+      drafting: !!(target && target !== mine), undo: undo.length } });
+  }
+  function nativeInk() {
+    var H = document.documentElement; H.classList.add('native-ink');
+    var vp = document.querySelector('meta[name=viewport]');
+    if (!vp) { vp = document.createElement('meta'); vp.name = 'viewport'; document.head.appendChild(vp); }
+    vp.setAttribute('content', 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, viewport-fit=cover');
+    // every page's box in document px (the web view's content at zoom 1), so the app can put a Pencil point on its page
+    // without asking: a box measured against the root element's is the same whatever the scroll and the pinch
+    function boxes() {
+      var o = H.getBoundingClientRect();
+      return pages().map(function (p) { var r = p.getBoundingClientRect(); return { id: p.id, x: r.left - o.left, y: r.top - o.top, w: r.width, h: r.height, W: pgW(p) }; })
+        .filter(function (b) { return b.w > 0 && b.h > 0; });
+    }
+    var bt = 0;
+    function sendBoxes() { clearTimeout(bt); bt = setTimeout(function () { native({ pages: boxes() }); }, 60); }
+    if (window.ResizeObserver) new ResizeObserver(sendBoxes).observe(book);   // pictures loading, blank pages, the fit zoom
+    addEventListener('resize', sendBoxes); addEventListener('load', sendBoxes);
+    var erasing = [];
+    // PencilKit (app build 3, eaiNativeApp.pk): the app shows all the ink itself, so what's written looks the same from
+    // the first touch on (Eric, 2026-11-12: the live line and the page's line never quite matched, so a stroke changed
+    // a little on lift). The page still keeps the strokes (drafts, Undo, Publish, PDFs) but hides its own drawing of
+    // them, and tells the app which strokes it would draw, with an id each, whenever that changes (inkList).
+    var PK = !!window.eaiNativeApp.pk, ids = new WeakMap(), nid = 1;
+    function idOf(st) { if (!ids.has(st)) ids.set(st, nid++); return ids.get(st); }
+    function list() { return [].map.call(book.querySelectorAll('svg.ink path'), function (el) { return el._s && { id: idOf(el._s), s: el._s }; }).filter(Boolean); }
+    var lt = 0;
+    function sendList() { clearTimeout(lt); lt = setTimeout(function () { native({ inkList: list() }); }, 0); }
+    if (PK) {
+      H.classList.add('native-pk');
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var n = [].concat([].slice.call(ms[i].addedNodes), [].slice.call(ms[i].removedNodes));
+          if (n.some(function (x) { return x.nodeName === 'path' || x.nodeName === 'svg' || (x.querySelector && x.querySelector('svg.ink')); })) return sendList();
+        }
+      }).observe(book, { childList: true, subtree: true });
+    }
+    window.eaiNativeInk = {
+      boxes: boxes,
+      list: list,
+      // a finished stroke from the app
+      stroke: function (s) {
+        if (!s || !s.p || !document.getElementById(s.p) || !(s.pts && s.pts.length)) return false;
+        if (s.n) {   // the Note pen: into the private notes, not today's
+          if (!prep) return false;
+          var nt = { id: prepId(), n: 1, p: s.p, c: s.c, w: s.w, pts: s.pts };
+          drawStroke(nt); prep.strokes.push(nt); undo.push({ stroke: nt }); prepSave(); nativeState();
+          return PK ? idOf(nt) : true;
+        }
+        ensureTarget(); if (!target) return false;
+        var st = { p: s.p, c: s.c, w: s.w, pts: s.pts }; if (s.o) st.o = s.o;
+        var el = drawStroke(st); target.strokes.push(st); undo.push({ stroke: st, el: el }); saveSoon(); nativeState();
+        return PK ? idOf(st) : true;
+      },
+      // a fill-in blank's handwriting from the app's pad (ios/ TextPad.swift, docs/blank-pads.md): the strokes tagged
+      // with the blank (f: key) are replaced by these, fitted into the blank. Every change in one opening of the pad
+      // (sess) is one Undo step on the bar, which puts back the blank's handwriting from before the pad opened.
+      fill: function (key, list, sess) {
+        ensureTarget(); if (!target || !key) return false;
+        var old = target.strokes.filter(function (s) { return s.f === key; }); old.forEach(unStroke);
+        var add = (list || []).filter(function (s) { return s && s.p && document.getElementById(s.p) && s.pts && s.pts.length; }).map(function (s) {
+          var st = { p: s.p, c: s.c, w: s.w, pts: s.pts, f: key }; if (s.o) st.o = s.o;
+          drawStroke(st); target.strokes.push(st); return st;
+        });
+        var u = undo[undo.length - 1];
+        if (u && u.fill === key && u.sess === sess) u.after = add;
+        else if (old.length || add.length) undo.push({ fill: key, sess: sess, before: old, after: add });
+        saveSoon(); nativeState(); return true;
+      },
+      // PencilKit's eraser takes whole strokes: these ids (only this draft's or reader's own go; the app is sent the rest
+      // back in the next inkList), then eraseEnd as for erase()
+      eraseIds: function (list) {
+        ensureTarget(); if (!target) return;
+        (list || []).forEach(function (id) {
+          target.strokes.concat(prep ? prep.strokes : []).filter(function (s) { return ids.get(s) === id; }).forEach(function (s) { drop(s); erasing.push(s); });
+        });
+        sendList();
+      },
+      // the eraser: points (page pt) on one page as the Pencil moves, then eraseEnd (cancel: the wheel opened, put them back)
+      erase: function (pid, pts) {
+        var pg = document.getElementById(pid); if (!pg) return; ensureTarget(); if (!target) return;
+        var svg = overlay(pg);
+        (pts || []).forEach(function (q) {
+          target.strokes.concat(prep ? prep.strokes : []).filter(function (s) { return s.p === pid && near(s, q[0], q[1], 6); }).forEach(function (s) { drop(s); erasing.push(s); });
+        });
+      },
+      eraseEnd: function (cancel) {
+        var e = erasing; erasing = []; if (!e.length) return;
+        if (cancel) e.forEach(put);
+        else undo.push({ erased: e });
+        saveSoon(); nativeState();
+      },
+      // the app's toolbar and wheel
+      cmd: function (c, a, b) {
+        if (c === 'tool') { tool = a; if (b) color = b; if (tool !== 'laser') last = { t: tool, c: color }; start(); }
+        else if (c === 'hand') stop();
+        else if (c === 'width') width = +a;
+        else if (c === 'undo') { ensureTarget(); doUndo(); }
+        else if (c === 'blank') { ensureTarget(); addBlank(a); }
+        else if (c === 'pdf') notesPDF();
+        else if (c === 'publish') { ensureTarget(); publish(); }
+        else if (c === 'save') save();
+        barState();
+      }
+    };
+    if (opts.chapter && !window.eaiNativeApp.projector) {   // the iPad's own page, never the projector's
+      prep = store(KEY_PREP) || { strokes: [], gone: [] }; render(); prepSync();
+      addEventListener('online', function () { prepSync(); });
+    }
+    native({ inkReady: true, pk: PK, prep: !!prep, pages: boxes() }); nativeState(); sendBoxes(); if (PK) sendList();
+  }
   // ?lecture=1 (the editor home's Lecture button): teaching from this device: the pen in hand, the faint answers hidden
   // (see ghost). The plain Lecture view (its answers link) shows them to the signed-in instructor.
   var LECT = (location.search.match(/[?&]lecture=(\w+)/) || [])[1];
+  NATIVE_INK = NATIVE && !!window.eaiNativeApp.ink && !!LECT && VIEW === 'slides';
   ghost(); render(); buildBar(); navbar();
-  if (LECT) lectureZoom();
+  if (NATIVE_INK) nativeInk(); else if (LECT) lectureZoom();
   if (LECT === '1') start();
   // one sign-in: a device signed in to the Book Editor (same site) uses that token here too, if it can publish to this repo
-  if (!teacher() && window.indexedDB) try {
-    var rq = indexedDB.open('ai2ai-book');
-    rq.onupgradeneeded = function () { rq.transaction.abort(); };   // no editor on this device: don't create its database
-    rq.onsuccess = function () {
-      var db = rq.result; if (!db.objectStoreNames.contains('kv')) return db.close();
-      var g = db.transaction('kv').objectStore('kv').get('remote');
-      g.onsuccess = function () {
-        db.close(); var c = g.result; if (!c || !c.token || c.api) return;
-        fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (j) { if (!j || !j.permissions || !j.permissions.push || teacher()) return; store(KEY_TOKEN, c.token); var was = editing; stop(); target = null; ghost(); navbar(); if (was) start(); }, function () {});
-      };
-    };
-  } catch (e) {}
+  if (!teacher()) editorRemote().then(function (c) {
+    if (!c || !c.token || c.api) return;
+    fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (!j || !j.permissions || !j.permissions.push || teacher()) return; store(KEY_TOKEN, c.token); var was = editing; stop(); target = null; ghost(); navbar(); if (was) start(); }, function () {});
+  });
   if (/(^|[#&])teach\b/.test(location.hash)) { start(); setupTeacher(); }
   else if (/(^|[#&])(lecture|pen)\b/.test(location.hash)) start();
   addEventListener('keydown', function (e) {

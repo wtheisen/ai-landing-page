@@ -236,11 +236,19 @@ b-eq.busy img { opacity: .35; }
 b-code:has(+ b-out) { margin-bottom: calc(-1 * var(--gap, 10pt)) !important; border-radius: 4px 4px 0 0; }
 b-code + b-out { border-top: 0; }
 b-out:not(b-code + b-out) { border-radius: 4px; }
-.run-bar { float: right; display: inline-flex; align-items: center; gap: 4pt; margin-top: -1pt; letter-spacing: 0; text-transform: none; }
+/* the Run bar sits in the output's label row, at its right, and wraps onto a row of its own inside the label when the label is narrow.
+   It used to float right: in a narrow output (a slide's right column, Safari's wider monospace fallback) the float dropped below
+   the label and Safari laid the output text in the sliver beside it (Eric, 2026-11-12, bptt lec-bp-run while presenting). */
+b-out .label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6pt; row-gap: 3pt; }
+.run-bar { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4pt; margin-left: auto; order: 1; letter-spacing: 0; text-transform: none; }   /* order: after the label's own text and the presenting hint (::after) */
+.run-bar.run-wait [data-a="run"], .run-bar.run-wait [data-a="prior"] { display: none; }   /* a Lecture cell with code blanks: Run once they're filled in (or it's edited) */
+.run-bar button, .run-bar .run-status { white-space: nowrap; }
 .run-bar button { font: 700 7.5pt var(--font-mono); padding: 0 5pt; border: 1px solid var(--border); border-radius: 3px; background: var(--surface); color: var(--ink-muted); cursor: pointer; }
 .run-bar button[data-a="run"] { color: var(--blue-text); border-color: var(--blue-text); }
 .run-bar.busy button[data-a="run"] { opacity: .5; pointer-events: none; }
 .run-bar .run-status { color: var(--ink-muted); font-size: 7.5pt; }
+.run-bar .colab-tag { font: 700 7.5pt var(--font-mono); color: #B06000; border: 1px dashed #E37400; border-radius: 3px; padding: 0 4pt; }   /* Colab-only code (2026-11-15) */
+.run-bar button[data-a="colab"] { color: #B06000; border-color: #E37400; }
 .run-editor { display: block; width: 100%; box-sizing: border-box; font-family: var(--font-mono); font-size: 9.4pt; line-height: 1.4; padding: 5pt 7pt; border: 1px solid var(--blue-text); border-radius: 4px; resize: vertical; tab-size: 4; }
 .view b-out pre { max-height: 14em; overflow: auto; }
 b-out pre.run-err { color: var(--red-text); }
@@ -290,6 +298,20 @@ u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { cursor: pointer; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown { color: var(--navy); } .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown * { color: inherit !important; }
 u.fill.blank { display: inline-block; vertical-align: baseline; }
+/* a code blank filled in by hand in the Lecture (Book.fillBlank): the writing in place of the answer, underlined green,
+   or red when it isn't the answer */
+.book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
+.book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
+   box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
+.eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
+.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
+.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -298,9 +320,24 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
 /* in a table the text is smaller than the slide's, so a blank there is as large as a blank in the text around it
    (Eric, 2026-11-08: "fills in a table are also enlarged") */
 .book[data-view="slides"] :is(td, th) u.fill:not(b-code u.fill, b-out u.fill, u.fill u.fill) { font-size: max(1.2em, calc(1.2 * var(--fs, 18pt))); }   /* 1.2 x the slide's own text size (smaller on s-tight) */
-.book:is([data-view="slides"], [data-view="workbook"]) [data-fill] { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
-.book:is([data-view="slides"], [data-view="workbook"]) [data-fill] > * { visibility: hidden; }
-.book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown > * { visibility: visible; }
+/* an equation left empty to work in class is drawn 1.5x in the Lecture, so handwriting traced over its faint answer
+   comes out readable (Eric, 2026-11-13: "really small and condensed"; as text blanks are 1.2em). Its box grows with
+   it; a wide one stops at the column's width (img max-width). Measured: no Lecture slide runs over at 1.5x. */
+.book[data-view="slides"] b-eq[data-fill] > img { zoom: 1.5; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill]:not(svg *) { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill]:not(svg *) > * { visibility: hidden; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown:not(svg *) { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown:not(svg *) > * { visibility: visible; }
+/* a drawing's answer parts (docs/blank-pads.md phase 3; draw.js "Answer", todraw.py --fill), in the Lecture and
+   Workbook. A tile marked "label": its label (and a symbol's shape underneath) goes, the box stays as the slot. A tile
+   marked "all": it goes with its attached arrows (book.js fillParts marks them data-rt-fill). Anything else marked (an
+   arrow, a lone label, a shape): it goes. Every part has a dashed outline round it until it's shown (fillParts; as an
+   equation's answer box, so you can tell it's there: Eric, 2026-11-14). Shapes in a drawing are placed, so nothing moves. A tap reveals (.shown); the instructor sees them
+   faintly (ink-ghost). Opacity, not visibility: a hidden part must still take a tap. (Eric, 2026-11-13) */
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-fill=""]:not(.shown), .book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-rt-fill]:not(.shown) { opacity: 0; }
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-fill="label"]:not(.shown) > text { opacity: 0; }
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw g[data-fill="all"]:not(.shown) > * { opacity: 0; }
+svg.draw .fill-ph { display: none; }
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-fill]:not(.shown) + .fill-ph, svg.draw .fill-ph.on { display: inline; }
 .fillbox { border: 1pt dashed var(--border-strong); border-radius: 4px; }
 
 /* key sentences: <span class="key">…</span> inside a paragraph marks what Slides and Workbook show of it.
@@ -475,9 +512,14 @@ html.ink-lecture:not(.ink-hand) section.page iframe { pointer-events: none; }
 html.ink-lecture .ink-sub { box-shadow: inset 0 -2px 0 var(--gold, #DCB439); }
 @media (max-width: 640px) { .ink-sub { padding: .3rem .5rem; gap: .3rem; } .ink-sub .ink-msg { display: none; } }
 .ghost-only { display: none; }
+svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note pen): faint, with the faint answers */
+@media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
-  html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown) > * { visibility: visible; opacity: .28; }
+  html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
+  html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
+  html.ink-ghost .book[data-view="slides"] svg.draw [data-fill="label"]:not(.shown) > text,
+  html.ink-ghost .book[data-view="slides"] svg.draw g[data-fill="all"]:not(.shown) > * { opacity: .28; }
   html.ink-ghost .book[data-view="slides"] .qc .ans.ghost-only { display: block; opacity: .35; margin-top: 4pt; }
 }
 
@@ -552,6 +594,11 @@ html.lect-zooming #lect-size { overflow: visible; }   /* while pinching, the sli
    zoom it hands over to put every slide in the same place */
 html.lect #book, html.lect main.book { gap: calc(24px * var(--zoom, 1)); padding-top: calc(24px * var(--zoom, 1)); padding-bottom: calc(64px * var(--zoom, 1)); }
 /* (content-visibility: auto on lecture pages, 2026-11-01, was dropped 2026-11-02: suspected of leaving pen strokes half drawn on the iPad) */
+/* the iPad app's own pen and scrolling (ios/, ink.js nativeInk): the app's toolbar replaces the pen bar, and the page
+   scrolls and pinch-zooms natively, so nothing here scales or scrolls the pages itself */
+html.native-ink .chap-head { display: none !important; }
+/* the iPad app's PencilKit shows the ink (ink.js nativeInk, PK): the page keeps the strokes but doesn't draw them */
+html.native-pk svg.ink { visibility: hidden !important; }
 /* Lecture pages are 4:3 slides, 10 × 7.5 in (Eric, 2026-10-29: 16:9 was too wide next to his iPad; 16:9 from 2026-10-26);
    the Reading and the Workbook stay 6 × 9 pages.
    book.js Book.SIZES says the same for the measuring code; the exported page sets @page to match. */
@@ -590,6 +637,11 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > b-code:has(+ b-out:not(.run-new)) { grid-column: 1; margin-bottom: 0 !important; border-radius: 4px; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) { grid-column: 2; border-top: 1px solid var(--border); border-radius: 4px; align-self: start; min-width: 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code + b-out:not(.run-new) pre { overflow: hidden; }
+/* an output beside its code keeps its Run bar in the gutter above the box, out of the flow, like the editor's (Eric,
+   2026-11-12: "why not have them just sit in the gutter like we do in the editor?"); in the label row the bar took the
+   narrow column's width and squeezed the output. Outputs under their code (out="below", Reading, Workbook) keep it in the label row. */
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) { position: relative; }
+.book[data-view="slides"] .page:not(.cover) > b-code:not([out="below"]) + b-out:not(.run-new) > .label > .run-bar { position: absolute; right: 0; bottom: calc(100% + 2pt); margin: 0; flex-wrap: nowrap; }
 /* class "side" on a block puts it beside the block before it on a slide (right column; the one before takes the left),
    e.g. the vocabulary table beside the token IDs (Eric, 2026-11-08). Other views stack them as usual. */
 .book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ .side), :has(+ .cmt + .side), :has(+ .cmt + .cmt + .side)) { grid-column: 1; align-self: center; min-width: 0; }
@@ -666,240 +718,161 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
 <main class="book view" data-view="workbook">
 <section class="page cover" id="cover">
   
-  <b-fig src="fig/cover.svg" class="cover-art" alt="Every Notre Dame game from 2012 to 2022 as a point, standardized total yards against first downs, with two purple arrows through the cloud: a long one along the rising diagonal and a short one across it" data-b="bvfol" style="--ar: 1.670;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 230" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
- <metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTowYmJiMGU4NS0zMjkxLTQ4MDctODZmZS0wOGRhYTM3YTZlZmQAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaKu4ztP6PRzNxaIssKbR3CAAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDoyZDVhYThhNi1jNTdhLTRlYmUtOTg3YS1mMWYxZGExNWIzM2ZscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoehvuQ3HbP5LA9YMnR0HmvQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg/Axk5UjxJEccgg7VBTONnswkN7W9arHxLK6V43gFIWikZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaKEzb9tIwItLa+czeXCC7aUAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIMafJqJnYIikLJO/fz6KJIhwskOGbyg+iEWcFaJ8EO9JZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQFxZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjBiYmIwZTg1LTMyOTEtNDgwNy04NmZlLTA4ZGFhMzdhNmVmZC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjI3M2E0ZTZmLTA5NjctNGNhNC04MDgzLTNjZWQzYTA1Njc3N3JjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCD8DGTlSPEkRxyCDtUFM42ezCQ3tb1qsfEsrpXjeAUhaKJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggnRpkX65OYvhpP8SqLqQftb64mJ9CAbzNLUDNjhzDHAiiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggY7vrFHn/bskNFyQzT6laS/b8qYaUsWAcLrz95bRtmqt0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQNM0bgIiIvaTsWWPKeUi/DaVR4iD5WwlpeELBWGEYvfSkiNy3jX+L8068+X/vXkcTNL2+WkOAzteRAsVJv1K1Z8=</c2pa:manifest>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 230 
-L 384 230 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="PathCollection_1">
+  <svg class="draw" viewBox="0 0 384 230" style="width: 280.9pt" role="img" aria-label="Every Notre Dame game from 2012 to 2022 as a point, standardized total yards against first downs, with two purple arrows through the cloud: a long one along the rising diagonal and a short one across it" data-b="bvfol">
     <defs>
-     <path id="m82b28f92e5" d="M 0 2 
-C 0.530406 2 1.03916 1.789267 1.414214 1.414214 
-C 1.789267 1.03916 2 0.530406 2 0 
-C 2 -0.530406 1.789267 -1.03916 1.414214 -1.414214 
-C 1.03916 -1.789267 0.530406 -2 0 -2 
-C -0.530406 -2 -1.03916 -1.789267 -1.414214 -1.414214 
-C -1.789267 -1.03916 -2 -0.530406 -2 0 
-C -2 0.530406 -1.789267 1.03916 -1.414214 1.414214 
-C -1.03916 1.789267 -0.530406 2 0 2 
-z
-"></path>
+      <marker id="ah674EA7-bvfol" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#674EA7"></path>
+      </marker>
+      <marker id="ah8E7CC3-bvfol" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
     </defs>
-    <g clip-path="url(#p1ae6b00969)">
-     <use xlink:href="#m82b28f92e5" x="213.401862" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="172.325619" y="139.020595" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="144.941457" y="162.432374" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="122.962064" y="178.040226" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="248.352701" y="21.961703" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="157.192267" y="139.020595" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="177.009752" y="162.432374" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="182.054203" y="146.824521" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="224.932036" y="21.961703" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="178.451024" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="247.271747" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="195.025648" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="145.662093" y="162.432374" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="232.498712" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="184.576429" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="180.973249" y="131.216669" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="116.116023" y="178.040226" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="153.589087" y="193.648078" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="189.62088" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="144.941457" y="154.628448" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="204.754232" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="219.166949" y="92.197039" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="201.151053" y="162.432374" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="206.195504" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="131.609694" y="139.020595" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="214.843134" y="45.373482" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="244.389204" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="137.735099" y="131.216669" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="180.252614" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="225.292354" y="60.981334" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="170.163712" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="222.770128" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="206.195504" y="84.393112" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="228.895533" y="92.197039" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="212.320909" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="216.284406" y="68.78526" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="157.552584" y="162.432374" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="162.597035" y="131.216669" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="198.628828" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="226.733625" y="53.177408" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="202.592325" y="131.216669" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="201.511371" y="154.628448" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="282.222585" y="53.177408" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="192.503423" y="131.216669" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="202.232007" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="208.357411" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="205.11455" y="131.216669" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="194.305013" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="138.455735" y="170.2363" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="197.908192" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="228.895533" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="182.774839" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="196.827238" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="196.827238" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="181.333567" y="139.020595" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="229.255851" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="272.494002" y="92.197039" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="77.562006" y="209.25593" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="147.463683" y="162.432374" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="184.936747" y="131.216669" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="170.163712" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="208.357411" y="45.373482" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="198.628828" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="183.855793" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="255.198741" y="84.393112" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="132.33033" y="146.824521" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="257.000331" y="139.020595" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="164.758943" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="218.085995" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="212.320909" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="215.924088" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="188.900244" y="92.197039" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="292.671805" y="53.177408" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="130.889058" y="185.844152" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="154.670041" y="162.432374" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="186.378018" y="154.628448" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="169.443076" y="154.628448" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="145.662093" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="186.0177" y="131.216669" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="173.766891" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="240.786024" y="68.78526" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="235.020938" y="60.981334" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="194.66533" y="139.020595" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="160.795446" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="247.271747" y="68.78526" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="204.033596" y="92.197039" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="215.203452" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="203.673278" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="207.276458" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="126.204925" y="154.628448" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="189.260562" y="146.824521" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="249.793972" y="92.197039" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="152.508134" y="178.040226" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="152.868452" y="139.020595" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="243.30825" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="207.276458" y="92.197039" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="101.703307" y="193.648078" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="196.106602" y="92.197039" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="205.835186" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="184.576429" y="146.824521" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="217.36536" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="197.187556" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="200.790735" y="154.628448" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="195.746284" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="191.782787" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="236.462209" y="84.393112" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="158.633538" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="193.224059" y="68.78526" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="190.341515" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="223.490764" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="237.543163" y="60.981334" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="209.078047" y="92.197039" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="241.50666" y="84.393112" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="131.609694" y="146.824521" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="171.965301" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="192.143105" y="154.628448" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="198.628828" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="160.435128" y="162.432374" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="124.043018" y="154.628448" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="159.714492" y="139.020595" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="181.333567" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="174.847845" y="84.393112" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="225.292354" y="84.393112" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="191.782787" y="123.412743" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="189.260562" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="222.049493" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="220.247903" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="235.381256" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="128.006515" y="193.648078" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="163.317671" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="143.860503" y="154.628448" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="244.389204" y="14.157777" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="215.56377" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="145.301775" y="162.432374" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="191.062151" y="107.804891" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="167.281168" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="162.236717" y="100.000965" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="157.552584" y="170.2363" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="194.305013" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="183.855793" y="115.608817" style="fill: #1155cc; fill-opacity: 0.55"></use>
-     <use xlink:href="#m82b28f92e5" x="237.182845" y="76.589186" style="fill: #1155cc; fill-opacity: 0.55"></use>
-    </g>
-   </g>
-   <g id="patch_2">
-    <path d="M 192 115 
-Q 230.192935 76.807065 266.488503 40.511497 
-" clip-path="url(#p1ae6b00969)" style="fill: none; stroke: #674ea7; stroke-width: 2.4; stroke-linecap: round"></path>
-    <path d="M 261.397334 42.208553 
-L 266.488503 40.511497 
-L 264.791447 45.602666 
-z
-" clip-path="url(#p1ae6b00969)" style="fill: #674ea7; stroke: #674ea7; stroke-width: 2.4; stroke-linecap: round"></path>
-   </g>
-   <g id="patch_3">
-    <path d="M 192 115 
-Q 153.807065 153.192935 117.511497 189.488503 
-" clip-path="url(#p1ae6b00969)" style="fill: none; stroke: #674ea7; stroke-width: 2.4; stroke-linecap: round"></path>
-    <path d="M 122.602666 187.791447 
-L 117.511497 189.488503 
-L 119.208553 184.397334 
-z
-" clip-path="url(#p1ae6b00969)" style="fill: #674ea7; stroke: #674ea7; stroke-width: 2.4; stroke-linecap: round"></path>
-   </g>
-   <g id="patch_4">
-    <path d="M 192 115 
-Q 206.368933 129.368933 219.472954 142.472954 
-" clip-path="url(#p1ae6b00969)" style="fill: none; stroke: #8e7cc3; stroke-width: 1.6; stroke-linecap: round"></path>
-    <path d="M 218.200162 138.654578 
-L 219.472954 142.472954 
-L 215.654578 141.200162 
-z
-" clip-path="url(#p1ae6b00969)" style="fill: #8e7cc3; stroke: #8e7cc3; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-   <g id="patch_5">
-    <path d="M 192 115 
-Q 177.631067 100.631067 164.527046 87.527046 
-" clip-path="url(#p1ae6b00969)" style="fill: none; stroke: #8e7cc3; stroke-width: 1.6; stroke-linecap: round"></path>
-    <path d="M 165.799838 91.345422 
-L 164.527046 87.527046 
-L 168.345422 88.799838 
-z
-" clip-path="url(#p1ae6b00969)" style="fill: #8e7cc3; stroke: #8e7cc3; stroke-width: 1.6; stroke-linecap: round"></path>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p1ae6b00969">
-   <rect x="21.354839" y="0" width="341.290323" height="230"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig>
+    <ellipse cx="213.4" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="172.3" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="144.9" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="123.0" cy="178.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="248.4" cy="22.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="157.2" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="177.0" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="182.1" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="224.9" cy="22.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="178.5" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="247.3" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="195.0" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="145.7" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="232.5" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="184.6" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="181.0" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="116.1" cy="178.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="153.6" cy="193.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="189.6" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="144.9" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="204.8" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="219.2" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="201.2" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="206.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="131.6" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="214.8" cy="45.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="244.4" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="137.7" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="180.3" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="225.3" cy="61.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="170.2" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="222.8" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="206.2" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="228.9" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="212.3" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="216.3" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="157.6" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="162.6" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="198.6" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="226.7" cy="53.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="202.6" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="201.5" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="282.2" cy="53.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="192.5" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="202.2" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="208.4" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="205.1" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="194.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="138.5" cy="170.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="197.9" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="228.9" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="182.8" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="196.8" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="196.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="181.3" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="229.3" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="272.5" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="77.6" cy="209.3" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="147.5" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="184.9" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="170.2" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="208.4" cy="45.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="198.6" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="183.9" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="255.2" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="132.3" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="257.0" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="164.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="218.1" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="212.3" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="215.9" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="188.9" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.7" cy="53.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="130.9" cy="185.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="154.7" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="186.4" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="169.4" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="145.7" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="186.0" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="173.8" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="240.8" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="235.0" cy="61.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="194.7" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="160.8" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="247.3" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="204.0" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="215.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="203.7" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="207.3" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="126.2" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="189.3" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="249.8" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="152.5" cy="178.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="152.9" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="243.3" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="207.3" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="101.7" cy="193.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="196.1" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="205.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="184.6" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="217.4" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="197.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="200.8" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="195.7" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="191.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="236.5" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="158.6" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="193.2" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="190.3" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="223.5" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="237.5" cy="61.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="209.1" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="241.5" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="131.6" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="172.0" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="192.1" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="198.6" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="160.4" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="124.0" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="159.7" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="181.3" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="174.8" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="225.3" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="191.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="189.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="222.0" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="220.2" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="235.4" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="128.0" cy="193.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="163.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="143.9" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="244.4" cy="14.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="215.6" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="145.3" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="191.1" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="167.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="162.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="157.6" cy="170.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="194.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="183.9" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <ellipse cx="237.2" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
+    <polyline points="192.0,115.0 229.7,77.3 266.5,40.5" fill="none" stroke="#674EA7" stroke-width="2.40" marker-end="url(#ah674EA7-bvfol)"></polyline>
+    <polyline points="192.0,115.0 154.3,152.7 117.5,189.5" fill="none" stroke="#674EA7" stroke-width="2.40" marker-end="url(#ah674EA7-bvfol)"></polyline>
+    <polyline points="192.0,115.0 206.1,129.1 219.5,142.5" fill="none" stroke="#8E7CC3" stroke-width="1.60" marker-end="url(#ah8E7CC3-bvfol)"></polyline>
+    <polyline points="192.0,115.0 177.9,100.9 164.5,87.5" fill="none" stroke="#8E7CC3" stroke-width="1.60" marker-end="url(#ah8E7CC3-bvfol)"></polyline>
+  </svg>
   <div class="cover-text" data-b="oi6sv">
     <div class="kicker">Unit 02 · Chapter 1</div>
     <h1>Principal Component Analysis</h1>
@@ -1532,422 +1505,114 @@ z
 
 <section class="page" id="lec-project-axis" data-part="PCA" data-view="slides workbook" data-topic="variance projection" style="--gap: 22pt;">
   <h2 data-b="i7u3c">Projecting Data onto an Axis</h2>
-  <b-fig src="fig/project-axes.svg" alt="The six students, standardized, dropped onto the X1 axis on the left and onto the X2 axis on the right; the dropped points are gold" data-b="p8bq9" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 150 
-L 384 150 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="line2d_1">
-    <path d="M 126.047617 33.155841 
-L 126.047617 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_2">
-    <path d="M 134.348209 74.759457 
-L 134.348209 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_3">
-    <path d="M 109.446434 53.957649 
-L 109.446434 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_4">
-    <path d="M 67.943475 95.561266 
-L 67.943475 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_5">
-    <path d="M 51.342291 91.400904 
-L 51.342291 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_6">
-    <path d="M 59.642883 137.164883 
-L 59.642883 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_7">
-    <path d="M 25.461818 81 
-L 157.461818 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke: #674ea7; stroke-width: 1.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_8">
-    <path d="M 91.461818 147 
-L 91.461818 15 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="PathCollection_1">
-    <defs>
-     <path id="maa5e7a0c6b" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p636df64c51)">
-     <use xlink:href="#maa5e7a0c6b" x="126.047617" y="33.155841" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="134.348209" y="74.759457" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="109.446434" y="53.957649" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="67.943475" y="95.561266" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="51.342291" y="91.400904" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="59.642883" y="137.164883" style="fill: #1155cc"></use>
-    </g>
-   </g>
-   <g id="text_1">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="155.811818" y="76.039844" transform="rotate(-0 155.811818 76.039844)">X1</text>
-   </g>
-   <g id="text_2">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: start; fill: #666666" x="94.101818" y="22.474219" transform="rotate(-0 94.101818 22.474219)">X2</text>
-   </g>
-   <g id="text_3">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #002b5b" x="91.461818" y="13" transform="rotate(-0 91.461818 13)">onto X1</text>
-   </g>
-   <g id="PathCollection_2">
-    <defs>
-     <path id="ma42b791389" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p636df64c51)">
-     <use xlink:href="#ma42b791389" x="126.047617" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="134.348209" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="109.446434" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="67.943475" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="51.342291" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="59.642883" y="81" style="fill: #dcb439"></use>
-    </g>
-   </g>
-  </g>
-  <g id="axes_2">
-   <g id="line2d_9">
-    <path d="M 327.123981 33.155841 
-L 292.538182 33.155841 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_10">
-    <path d="M 335.424573 74.759457 
-L 292.538182 74.759457 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_11">
-    <path d="M 310.522797 53.957649 
-L 292.538182 53.957649 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_12">
-    <path d="M 269.019838 95.561266 
-L 292.538182 95.561266 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_13">
-    <path d="M 252.418655 91.400904 
-L 292.538182 91.400904 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_14">
-    <path d="M 260.719247 137.164883 
-L 292.538182 137.164883 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_15">
-    <path d="M 226.538182 81 
-L 358.538182 81 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_16">
-    <path d="M 292.538182 147 
-L 292.538182 15 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke: #674ea7; stroke-width: 1.6; stroke-linecap: square"></path>
-   </g>
-   <g id="PathCollection_3">
-    <g clip-path="url(#pf406e0d8ae)">
-     <use xlink:href="#maa5e7a0c6b" x="327.123981" y="33.155841" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="335.424573" y="74.759457" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="310.522797" y="53.957649" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="269.019838" y="95.561266" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="252.418655" y="91.400904" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="260.719247" y="137.164883" style="fill: #1155cc"></use>
-    </g>
-   </g>
-   <g id="text_4">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="356.888182" y="76.039844" transform="rotate(-0 356.888182 76.039844)">X1</text>
-   </g>
-   <g id="text_5">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: start; fill: #666666" x="295.178182" y="22.474219" transform="rotate(-0 295.178182 22.474219)">X2</text>
-   </g>
-   <g id="text_6">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #002b5b" x="292.538182" y="13" transform="rotate(-0 292.538182 13)">onto X2</text>
-   </g>
-   <g id="PathCollection_4">
-    <g clip-path="url(#pf406e0d8ae)">
-     <use xlink:href="#ma42b791389" x="292.538182" y="33.155841" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="74.759457" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="53.957649" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="95.561266" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="91.400904" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="137.164883" style="fill: #dcb439"></use>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p636df64c51">
-   <rect x="25.461818" y="15" width="132" height="132"></rect>
-  </clipPath>
-  <clipPath id="pf406e0d8ae">
-   <rect x="226.538182" y="15" width="132" height="132"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig>
+  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six students, standardized, dropped onto the X1 axis on the left and onto the X2 axis on the right; the dropped points are gold" data-b="p8bq9">
+    <defs></defs>
+    <line x1="126.0" y1="33.2" x2="126.0" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="134.3" y1="74.8" x2="134.3" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="109.4" y1="54.0" x2="109.4" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="67.9" y1="95.6" x2="67.9" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="51.3" y1="91.4" x2="51.3" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="59.6" y1="137.2" x2="59.6" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="25.5" y1="81.0" x2="157.5" y2="81.0" stroke="#674EA7" stroke-width="1.60"></line>
+    <line x1="91.5" y1="147.0" x2="91.5" y2="15.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="327.1" y1="33.2" x2="292.5" y2="33.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="335.4" y1="74.8" x2="292.5" y2="74.8" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="310.5" y1="54.0" x2="292.5" y2="54.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="269.0" y1="95.6" x2="292.5" y2="95.6" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="252.4" y1="91.4" x2="292.5" y2="91.4" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="260.7" y1="137.2" x2="292.5" y2="137.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="226.5" y1="81.0" x2="358.5" y2="81.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="292.5" y1="147.0" x2="292.5" y2="15.0" stroke="#674EA7" stroke-width="1.60"></line>
+    <ellipse cx="126.0" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="134.3" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="109.4" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="67.9" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="51.3" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="59.6" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <text x="155.8" y="75.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
+    <text x="94.1" y="22.3" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
+    <text x="91.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X1</text>
+    <text x="91.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X1</text>
+    <ellipse cx="327.1" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="335.4" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="310.5" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="269.0" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="252.4" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="260.7" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <text x="356.9" y="75.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
+    <text x="295.2" y="22.3" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
+    <text x="292.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X2</text>
+    <text x="292.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X2</text>
+    <ellipse cx="126.0" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="134.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="109.4" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="67.9" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="51.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="59.6" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="33.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="74.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="54.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="95.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="91.4" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="137.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+  </svg>
   
 <div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>06</span></div></section>
 
 <section class="page" id="lec-variance" data-view="slides workbook" data-topic="variance" style="--gap: 22pt;">
   <h2 data-b="ga2dy">Variance of Data on an Axis</h2>
   <div class="fillbox" style="height: 82.9pt;"></div>
-<b-fig src="fig/project-axes.svg" alt="The six students dropped onto the X1 axis and onto the X2 axis" data-b="qvzf0" style="--ar: 2.560;" data-wb-from="lec-variance-2"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 150 
-L 384 150 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="line2d_1">
-    <path d="M 126.047617 33.155841 
-L 126.047617 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_2">
-    <path d="M 134.348209 74.759457 
-L 134.348209 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_3">
-    <path d="M 109.446434 53.957649 
-L 109.446434 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_4">
-    <path d="M 67.943475 95.561266 
-L 67.943475 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_5">
-    <path d="M 51.342291 91.400904 
-L 51.342291 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_6">
-    <path d="M 59.642883 137.164883 
-L 59.642883 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_7">
-    <path d="M 25.461818 81 
-L 157.461818 81 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke: #674ea7; stroke-width: 1.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_8">
-    <path d="M 91.461818 147 
-L 91.461818 15 
-" clip-path="url(#p636df64c51)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="PathCollection_1">
-    <defs>
-     <path id="maa5e7a0c6b" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p636df64c51)">
-     <use xlink:href="#maa5e7a0c6b" x="126.047617" y="33.155841" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="134.348209" y="74.759457" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="109.446434" y="53.957649" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="67.943475" y="95.561266" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="51.342291" y="91.400904" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="59.642883" y="137.164883" style="fill: #1155cc"></use>
-    </g>
-   </g>
-   <g id="text_1">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="155.811818" y="76.039844" transform="rotate(-0 155.811818 76.039844)">X1</text>
-   </g>
-   <g id="text_2">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: start; fill: #666666" x="94.101818" y="22.474219" transform="rotate(-0 94.101818 22.474219)">X2</text>
-   </g>
-   <g id="text_3">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #002b5b" x="91.461818" y="13" transform="rotate(-0 91.461818 13)">onto X1</text>
-   </g>
-   <g id="PathCollection_2">
-    <defs>
-     <path id="ma42b791389" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p636df64c51)">
-     <use xlink:href="#ma42b791389" x="126.047617" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="134.348209" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="109.446434" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="67.943475" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="51.342291" y="81" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="59.642883" y="81" style="fill: #dcb439"></use>
-    </g>
-   </g>
-  </g>
-  <g id="axes_2">
-   <g id="line2d_9">
-    <path d="M 327.123981 33.155841 
-L 292.538182 33.155841 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_10">
-    <path d="M 335.424573 74.759457 
-L 292.538182 74.759457 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_11">
-    <path d="M 310.522797 53.957649 
-L 292.538182 53.957649 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_12">
-    <path d="M 269.019838 95.561266 
-L 292.538182 95.561266 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_13">
-    <path d="M 252.418655 91.400904 
-L 292.538182 91.400904 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_14">
-    <path d="M 260.719247 137.164883 
-L 292.538182 137.164883 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_15">
-    <path d="M 226.538182 81 
-L 358.538182 81 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_16">
-    <path d="M 292.538182 147 
-L 292.538182 15 
-" clip-path="url(#pf406e0d8ae)" style="fill: none; stroke: #674ea7; stroke-width: 1.6; stroke-linecap: square"></path>
-   </g>
-   <g id="PathCollection_3">
-    <g clip-path="url(#pf406e0d8ae)">
-     <use xlink:href="#maa5e7a0c6b" x="327.123981" y="33.155841" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="335.424573" y="74.759457" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="310.522797" y="53.957649" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="269.019838" y="95.561266" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="252.418655" y="91.400904" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="260.719247" y="137.164883" style="fill: #1155cc"></use>
-    </g>
-   </g>
-   <g id="text_4">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="356.888182" y="76.039844" transform="rotate(-0 356.888182 76.039844)">X1</text>
-   </g>
-   <g id="text_5">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: start; fill: #666666" x="295.178182" y="22.474219" transform="rotate(-0 295.178182 22.474219)">X2</text>
-   </g>
-   <g id="text_6">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #002b5b" x="292.538182" y="13" transform="rotate(-0 292.538182 13)">onto X2</text>
-   </g>
-   <g id="PathCollection_4">
-    <g clip-path="url(#pf406e0d8ae)">
-     <use xlink:href="#ma42b791389" x="292.538182" y="33.155841" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="74.759457" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="53.957649" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="95.561266" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="91.400904" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="292.538182" y="137.164883" style="fill: #dcb439"></use>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p636df64c51">
-   <rect x="25.461818" y="15" width="132" height="132"></rect>
-  </clipPath>
-  <clipPath id="pf406e0d8ae">
-   <rect x="226.538182" y="15" width="132" height="132"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig><div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>07</span></div></section>
+<svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six students dropped onto the X1 axis and onto the X2 axis" data-b="qvzf0" data-wb-from="lec-variance-2">
+    <defs></defs>
+    <line x1="126.0" y1="33.2" x2="126.0" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="134.3" y1="74.8" x2="134.3" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="109.4" y1="54.0" x2="109.4" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="67.9" y1="95.6" x2="67.9" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="51.3" y1="91.4" x2="51.3" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="59.6" y1="137.2" x2="59.6" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="25.5" y1="81.0" x2="157.5" y2="81.0" stroke="#674EA7" stroke-width="1.60"></line>
+    <line x1="91.5" y1="147.0" x2="91.5" y2="15.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="327.1" y1="33.2" x2="292.5" y2="33.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="335.4" y1="74.8" x2="292.5" y2="74.8" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="310.5" y1="54.0" x2="292.5" y2="54.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="269.0" y1="95.6" x2="292.5" y2="95.6" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="252.4" y1="91.4" x2="292.5" y2="91.4" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="260.7" y1="137.2" x2="292.5" y2="137.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="226.5" y1="81.0" x2="358.5" y2="81.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="292.5" y1="147.0" x2="292.5" y2="15.0" stroke="#674EA7" stroke-width="1.60"></line>
+    <ellipse cx="126.0" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="134.3" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="109.4" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="67.9" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="51.3" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="59.6" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <text x="155.8" y="75.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
+    <text x="94.1" y="22.3" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
+    <text x="91.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X1</text>
+    <text x="91.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X1</text>
+    <ellipse cx="327.1" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="335.4" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="310.5" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="269.0" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="252.4" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="260.7" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <text x="356.9" y="75.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
+    <text x="295.2" y="22.3" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
+    <text x="292.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X2</text>
+    <text x="292.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X2</text>
+    <ellipse cx="126.0" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="134.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="109.4" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="67.9" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="51.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="59.6" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="33.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="74.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="54.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="95.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="91.4" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="292.5" cy="137.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+  </svg><div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>07</span></div></section>
 
 
 
@@ -1965,261 +1630,63 @@ L 292.538182 15
 <section class="page" id="lec-new-axis" data-view="slides workbook" data-topic="projection pca" style="--gap: 22pt;">
   <h2 data-b="wk24k">Projecting Data onto a New Axis</h2>
   <p data-b="u2xem">What if we could find a <b class="take">new axis with higher variance</b>?</p>
-  <b-fig src="fig/project-pc1.svg" alt="The six standardized students dropped onto a purple diagonal axis labelled PC1" data-b="ixkz5" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 150 
-L 384 150 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="line2d_1">
-    <path d="M 120 75 
-L 264 75 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_2">
-    <path d="M 192 147 
-L 192 3 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_3">
-    <path d="M 141.088312 125.911688 
-L 242.911688 24.088312 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke: #674ea7; stroke-width: 1.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_4">
-    <path d="M 227.933298 25.291783 
-L 234.820758 32.179242 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_5">
-    <path d="M 236.557289 68.516319 
-L 217.520485 49.479515 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_6">
-    <path d="M 210.685315 46.904051 
-L 215.390632 51.609368 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_7">
-    <path d="M 167.565357 90.128588 
-L 172.218385 94.781615 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_8">
-    <path d="M 150.317375 85.806134 
-L 165.75562 101.24438 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_9">
-    <path d="M 158.941366 133.353125 
-L 146.294121 120.705879 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="text_1">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #674ea7" x="246.548237" y="20.451763" transform="rotate(-0 246.548237 20.451763)">PC1</text>
-   </g>
-   <g id="PathCollection_1">
-    <defs>
-     <path id="maa5e7a0c6b" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p64022067ab)">
-     <use xlink:href="#maa5e7a0c6b" x="227.933298" y="25.291783" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="236.557289" y="68.516319" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="210.685315" y="46.904051" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="167.565357" y="90.128588" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="150.317375" y="85.806134" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="158.941366" y="133.353125" style="fill: #1155cc"></use>
-    </g>
-   </g>
-   <g id="text_2">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="260.571429" y="70.596987" transform="rotate(-0 260.571429 70.596987)">X1</text>
-   </g>
-   <g id="text_3">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: start; fill: #666666" x="194.742857" y="12.25279" transform="rotate(-0 194.742857 12.25279)">X2</text>
-   </g>
-   <g id="PathCollection_2">
-    <defs>
-     <path id="ma42b791389" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p64022067ab)">
-     <use xlink:href="#ma42b791389" x="234.820758" y="32.179242" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="217.520485" y="49.479515" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="215.390632" y="51.609368" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="172.218385" y="94.781615" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="165.75562" y="101.24438" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="146.294121" y="120.705879" style="fill: #dcb439"></use>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p64022067ab">
-   <rect x="120" y="3" width="144" height="144"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig>
+  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six standardized students dropped onto a purple diagonal axis labelled PC1" data-b="ixkz5">
+    <defs></defs>
+    <line x1="120.0" y1="75.0" x2="264.0" y2="75.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="141.1" y1="125.9" x2="242.9" y2="24.1" stroke="#674EA7" stroke-width="1.60"></line>
+    <line x1="227.9" y1="25.3" x2="234.8" y2="32.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="236.6" y1="68.5" x2="217.5" y2="49.5" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="210.7" y1="46.9" x2="215.4" y2="51.6" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="167.6" y1="90.1" x2="172.2" y2="94.8" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="150.3" y1="85.8" x2="165.8" y2="101.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="158.9" y1="133.4" x2="146.3" y2="120.7" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <text x="246.5" y="20.3" font-size="8.5" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC1</text>
+    <ellipse cx="227.9" cy="25.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="236.6" cy="68.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="210.7" cy="46.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="167.6" cy="90.1" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="150.3" cy="85.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="158.9" cy="133.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <text x="260.6" y="70.5" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
+    <text x="194.7" y="12.1" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
+    <ellipse cx="234.8" cy="32.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="217.5" cy="49.5" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="215.4" cy="51.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="172.2" cy="94.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="165.8" cy="101.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="146.3" cy="120.7" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+  </svg>
 <div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>09</span></div></section>
 
 <section class="page" id="lec-pca" data-view="slides workbook" data-topic="pca" style="--gap: 22pt;">
   <h2 data-b="ptn7z">Principal Component Analysis (PCA)</h2>
   <p data-b="uihsv"><b class="name">PCA</b> works by discovering the directions (<b class="def"><u class="fill blank" style="width: 362.7pt;">&nbsp;</u></b>) along which the data <b class="take"><u class="fill blank" style="width: 117.4pt;">&nbsp;</u></b>.</p>
-  <b-fig src="fig/students-pcs.svg" alt="The six standardized students with PC1 along the rising diagonal and PC2 across it" data-b="qvfpk" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 150 
-L 384 150 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="patch_2">
-    <path d="M 145.056921 121.943079 
-Q 192 75 238.943079 28.056921 
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #674ea7; stroke-width: 1.8; stroke-linecap: round"></path>
-    <path d="M 148.875298 120.670287 
-L 145.056921 121.943079 
-L 146.329713 118.124702 
-z
-" clip-path="url(#peb0958cb73)" style="fill: #674ea7; stroke: #674ea7; stroke-width: 1.8; stroke-linecap: round"></path>
-    <path d="M 235.124702 29.329713 
-L 238.943079 28.056921 
-L 237.670287 31.875298 
-z
-" clip-path="url(#peb0958cb73)" style="fill: #674ea7; stroke: #674ea7; stroke-width: 1.8; stroke-linecap: round"></path>
-   </g>
-   <g id="patch_3">
-    <path d="M 239.417421 122.417421 
-Q 192 75 144.582579 27.582579 
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #8e7cc3; stroke-width: 1.2; stroke-linecap: round"></path>
-    <path d="M 238.144628 118.599044 
-L 239.417421 122.417421 
-L 235.599044 121.144628 
-z
-" clip-path="url(#peb0958cb73)" style="fill: #8e7cc3; stroke: #8e7cc3; stroke-width: 1.2; stroke-linecap: round"></path>
-    <path d="M 145.855372 31.400956 
-L 144.582579 27.582579 
-L 148.400956 28.855372 
-z
-" clip-path="url(#peb0958cb73)" style="fill: #8e7cc3; stroke: #8e7cc3; stroke-width: 1.2; stroke-linecap: round"></path>
-   </g>
-   <g id="patch_4">
-    <path d="M 192 75 
-L 197.4 69.6 
-L 192 64.2 
-L 186.6 69.6 
-L 192 75 
-z
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #002b5b; stroke-width: 0.8; stroke-linejoin: miter"></path>
-   </g>
-   <g id="line2d_1">
-    <path d="M 112.8 75 
-L 271.2 75 
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_2">
-    <path d="M 192 147 
-L 192 3 
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="text_1">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #674ea7" x="244.18448" y="25.015227" transform="rotate(-0 244.18448 25.015227)">PC1</text>
-   </g>
-   <g id="text_2">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #8e7cc3" x="139.81552" y="25.015227" transform="rotate(-0 139.81552 25.015227)">PC2</text>
-   </g>
-   <g id="PathCollection_1">
+  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six standardized students with PC1 along the rising diagonal and PC2 across it" data-b="qvfpk">
     <defs>
-     <path id="maa5e7a0c6b" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
+      <marker id="ah674EA7-qvfpk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#674EA7"></path>
+      </marker>
+      <marker id="ah8E7CC3-qvfpk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
     </defs>
-    <g clip-path="url(#peb0958cb73)">
-     <use xlink:href="#maa5e7a0c6b" x="229.729963" y="22.806372" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="238.785154" y="68.192135" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="211.619581" y="45.499254" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="166.343625" y="90.885017" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="148.233243" y="86.346441" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="157.288434" y="136.270781" style="fill: #1155cc"></use>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="peb0958cb73">
-   <rect x="112.8" y="3" width="158.4" height="144"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig>
+    <line x1="192.0" y1="75.0" x2="145.1" y2="121.9" stroke="#674EA7" stroke-width="1.80" marker-end="url(#ah674EA7-qvfpk)"></line>
+    <line x1="192.0" y1="75.0" x2="238.9" y2="28.1" stroke="#674EA7" stroke-width="1.80" marker-end="url(#ah674EA7-qvfpk)"></line>
+    <line x1="192.0" y1="75.0" x2="239.4" y2="122.4" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-qvfpk)"></line>
+    <polyline points="192.0,75.0 192.0,75.0 144.6,27.6" fill="none" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-qvfpk)"></polyline>
+    <polygon points="192.0,75.0 197.4,69.6 192.0,64.2 186.6,69.6 192.0,75.0" fill="none" stroke="#002B5B" stroke-width="0.80"></polygon>
+    <line x1="112.8" y1="75.0" x2="271.2" y2="75.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <text x="244.2" y="24.9" font-size="8.5" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC1</text>
+    <text x="139.8" y="24.9" font-size="8.5" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC2</text>
+    <ellipse cx="229.7" cy="22.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="238.8" cy="68.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="211.6" cy="45.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="166.3" cy="90.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="148.2" cy="86.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="157.3" cy="136.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+  </svg>
   
 <div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>10</span></div></section>
 
@@ -2635,120 +2102,31 @@ z
 <section class="page" id="lec-ortho" data-view="slides workbook" data-topic="orthogonality" style="--gap: 22pt;">
   <h2 data-b="ei8zd">Orthogonality of Principal Components</h2>
   <p data-b="yutnj"><b class="name">PCA</b> can be seen as a <b class="take">rotation of the original data axes</b> to a new set of axes. If the principal components weren't orthogonal, there would be overlap between the axes, meaning that some of the variance would be captured in multiple directions, resulting in <b class="warn">less efficient dimensionality reduction</b>.</p>
-<b-fig src="fig/students-pcs.svg" alt="The six standardized students with PC1 and PC2 at a right angle" data-b="nn46e" style="--ar: 2.560;" data-wb-from="lec-ortho-2"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 150 
-L 384 150 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="patch_2">
-    <path d="M 145.056921 121.943079 
-Q 192 75 238.943079 28.056921 
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #674ea7; stroke-width: 1.8; stroke-linecap: round"></path>
-    <path d="M 148.875298 120.670287 
-L 145.056921 121.943079 
-L 146.329713 118.124702 
-z
-" clip-path="url(#peb0958cb73)" style="fill: #674ea7; stroke: #674ea7; stroke-width: 1.8; stroke-linecap: round"></path>
-    <path d="M 235.124702 29.329713 
-L 238.943079 28.056921 
-L 237.670287 31.875298 
-z
-" clip-path="url(#peb0958cb73)" style="fill: #674ea7; stroke: #674ea7; stroke-width: 1.8; stroke-linecap: round"></path>
-   </g>
-   <g id="patch_3">
-    <path d="M 239.417421 122.417421 
-Q 192 75 144.582579 27.582579 
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #8e7cc3; stroke-width: 1.2; stroke-linecap: round"></path>
-    <path d="M 238.144628 118.599044 
-L 239.417421 122.417421 
-L 235.599044 121.144628 
-z
-" clip-path="url(#peb0958cb73)" style="fill: #8e7cc3; stroke: #8e7cc3; stroke-width: 1.2; stroke-linecap: round"></path>
-    <path d="M 145.855372 31.400956 
-L 144.582579 27.582579 
-L 148.400956 28.855372 
-z
-" clip-path="url(#peb0958cb73)" style="fill: #8e7cc3; stroke: #8e7cc3; stroke-width: 1.2; stroke-linecap: round"></path>
-   </g>
-   <g id="patch_4">
-    <path d="M 192 75 
-L 197.4 69.6 
-L 192 64.2 
-L 186.6 69.6 
-L 192 75 
-z
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #002b5b; stroke-width: 0.8; stroke-linejoin: miter"></path>
-   </g>
-   <g id="line2d_1">
-    <path d="M 112.8 75 
-L 271.2 75 
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_2">
-    <path d="M 192 147 
-L 192 3 
-" clip-path="url(#peb0958cb73)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="text_1">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #674ea7" x="244.18448" y="25.015227" transform="rotate(-0 244.18448 25.015227)">PC1</text>
-   </g>
-   <g id="text_2">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #8e7cc3" x="139.81552" y="25.015227" transform="rotate(-0 139.81552 25.015227)">PC2</text>
-   </g>
-   <g id="PathCollection_1">
+<svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six standardized students with PC1 and PC2 at a right angle" data-b="nn46e" data-wb-from="lec-ortho-2">
     <defs>
-     <path id="maa5e7a0c6b" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
+      <marker id="ah674EA7-nn46e" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#674EA7"></path>
+      </marker>
+      <marker id="ah8E7CC3-nn46e" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
     </defs>
-    <g clip-path="url(#peb0958cb73)">
-     <use xlink:href="#maa5e7a0c6b" x="229.729963" y="22.806372" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="238.785154" y="68.192135" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="211.619581" y="45.499254" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="166.343625" y="90.885017" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="148.233243" y="86.346441" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="157.288434" y="136.270781" style="fill: #1155cc"></use>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="peb0958cb73">
-   <rect x="112.8" y="3" width="158.4" height="144"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig><p data-b="kxe6r" data-wb-from="lec-ortho2">Imagine non-orthogonal axes. Moving the <b-m tex="X_1">X<sub>1</sub></b-m> of one of the points would inherently move the <b-m tex="X_2">X<sub>2</sub></b-m> value of that same point! This would be <b class="warn">extremely high covariance</b>, and have large "informational" overlap between features.</p><div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>22</span></div></section>
+    <line x1="192.0" y1="75.0" x2="145.1" y2="121.9" stroke="#674EA7" stroke-width="1.80" marker-end="url(#ah674EA7-nn46e)"></line>
+    <line x1="192.0" y1="75.0" x2="238.9" y2="28.1" stroke="#674EA7" stroke-width="1.80" marker-end="url(#ah674EA7-nn46e)"></line>
+    <line x1="192.0" y1="75.0" x2="239.4" y2="122.4" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-nn46e)"></line>
+    <polyline points="192.0,75.0 192.0,75.0 144.6,27.6" fill="none" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-nn46e)"></polyline>
+    <polygon points="192.0,75.0 197.4,69.6 192.0,64.2 186.6,69.6 192.0,75.0" fill="none" stroke="#002B5B" stroke-width="0.80"></polygon>
+    <line x1="112.8" y1="75.0" x2="271.2" y2="75.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <text x="244.2" y="24.9" font-size="8.5" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC1</text>
+    <text x="139.8" y="24.9" font-size="8.5" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC2</text>
+    <ellipse cx="229.7" cy="22.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="238.8" cy="68.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="211.6" cy="45.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="166.3" cy="90.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="148.2" cy="86.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="157.3" cy="136.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+  </svg><p data-b="kxe6r" data-wb-from="lec-ortho2">Imagine non-orthogonal axes. Moving the <b-m tex="X_1">X<sub>1</sub></b-m> of one of the points would inherently move the <b-m tex="X_2">X<sub>2</sub></b-m> value of that same point! This would be <b class="warn">extremely high covariance</b>, and have large "informational" overlap between features.</p><div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>22</span></div></section>
 
 
 
@@ -3235,142 +2613,33 @@ z
   <h2 data-b="w0m9n">6. Project Our Data into the PCA Space</h2>
   <p data-b="mt92z">The final step is to use the eigenvalues and eigenvectors of our selected principal components to <b class="take">transform our original data into our new "PC space"</b>.</p>
   <div class="fillbox" style="height: 53.8pt;"></div>
-<b-fig src="fig/project-pc1.svg" alt="The six standardized students dropped onto PC1" data-b="tobo4" style="--ar: 2.560;" data-wb-from="lec-project-2"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 150 
-L 384 150 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="line2d_1">
-    <path d="M 120 75 
-L 264 75 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_2">
-    <path d="M 192 147 
-L 192 3 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke: #9aa5b1; stroke-width: 0.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_3">
-    <path d="M 141.088312 125.911688 
-L 242.911688 24.088312 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke: #674ea7; stroke-width: 1.6; stroke-linecap: square"></path>
-   </g>
-   <g id="line2d_4">
-    <path d="M 227.933298 25.291783 
-L 234.820758 32.179242 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_5">
-    <path d="M 236.557289 68.516319 
-L 217.520485 49.479515 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_6">
-    <path d="M 210.685315 46.904051 
-L 215.390632 51.609368 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_7">
-    <path d="M 167.565357 90.128588 
-L 172.218385 94.781615 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_8">
-    <path d="M 150.317375 85.806134 
-L 165.75562 101.24438 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="line2d_9">
-    <path d="M 158.941366 133.353125 
-L 146.294121 120.705879 
-" clip-path="url(#p64022067ab)" style="fill: none; stroke-dasharray: 1.6,1.6; stroke-dashoffset: 0; stroke: #666666; stroke-width: 0.8"></path>
-   </g>
-   <g id="text_1">
-    <text style="font-weight: 700; font-size: 8.5px; font-family: 'Arial', 'Liberation Sans'; text-anchor: middle; fill: #674ea7" x="246.548237" y="20.451763" transform="rotate(-0 246.548237 20.451763)">PC1</text>
-   </g>
-   <g id="PathCollection_1">
-    <defs>
-     <path id="maa5e7a0c6b" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p64022067ab)">
-     <use xlink:href="#maa5e7a0c6b" x="227.933298" y="25.291783" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="236.557289" y="68.516319" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="210.685315" y="46.904051" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="167.565357" y="90.128588" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="150.317375" y="85.806134" style="fill: #1155cc"></use>
-     <use xlink:href="#maa5e7a0c6b" x="158.941366" y="133.353125" style="fill: #1155cc"></use>
-    </g>
-   </g>
-   <g id="text_2">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: end; fill: #666666" x="260.571429" y="70.596987" transform="rotate(-0 260.571429 70.596987)">X1</text>
-   </g>
-   <g id="text_3">
-    <text style="font-style: italic; font-size: 8px; font-family: 'Arial', 'Liberation Sans'; text-anchor: start; fill: #666666" x="194.742857" y="12.25279" transform="rotate(-0 194.742857 12.25279)">X2</text>
-   </g>
-   <g id="PathCollection_2">
-    <defs>
-     <path id="ma42b791389" d="M 0 2.54951 
-C 0.676138 2.54951 1.324674 2.280877 1.802776 1.802776 
-C 2.280877 1.324674 2.54951 0.676138 2.54951 0 
-C 2.54951 -0.676138 2.280877 -1.324674 1.802776 -1.802776 
-C 1.324674 -2.280877 0.676138 -2.54951 0 -2.54951 
-C -0.676138 -2.54951 -1.324674 -2.280877 -1.802776 -1.802776 
-C -2.280877 -1.324674 -2.54951 -0.676138 -2.54951 0 
-C -2.54951 0.676138 -2.280877 1.324674 -1.802776 1.802776 
-C -1.324674 2.280877 -0.676138 2.54951 0 2.54951 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p64022067ab)">
-     <use xlink:href="#ma42b791389" x="234.820758" y="32.179242" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="217.520485" y="49.479515" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="215.390632" y="51.609368" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="172.218385" y="94.781615" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="165.75562" y="101.24438" style="fill: #dcb439"></use>
-     <use xlink:href="#ma42b791389" x="146.294121" y="120.705879" style="fill: #dcb439"></use>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p64022067ab">
-   <rect x="120" y="3" width="144" height="144"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig><div class="foot" data-rt=""><span>Principal Component Analysis · Using PCA</span><span>25</span></div></section>
+<svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six standardized students dropped onto PC1" data-b="tobo4" data-wb-from="lec-project-2">
+    <defs></defs>
+    <line x1="120.0" y1="75.0" x2="264.0" y2="75.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="141.1" y1="125.9" x2="242.9" y2="24.1" stroke="#674EA7" stroke-width="1.60"></line>
+    <line x1="227.9" y1="25.3" x2="234.8" y2="32.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="236.6" y1="68.5" x2="217.5" y2="49.5" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="210.7" y1="46.9" x2="215.4" y2="51.6" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="167.6" y1="90.1" x2="172.2" y2="94.8" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="150.3" y1="85.8" x2="165.8" y2="101.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="158.9" y1="133.4" x2="146.3" y2="120.7" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <text x="246.5" y="20.3" font-size="8.5" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC1</text>
+    <ellipse cx="227.9" cy="25.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="236.6" cy="68.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="210.7" cy="46.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="167.6" cy="90.1" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="150.3" cy="85.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="158.9" cy="133.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <text x="260.6" y="70.5" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
+    <text x="194.7" y="12.1" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
+    <ellipse cx="234.8" cy="32.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="217.5" cy="49.5" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="215.4" cy="51.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="172.2" cy="94.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="165.8" cy="101.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="146.3" cy="120.7" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+  </svg><div class="foot" data-rt=""><span>Principal Component Analysis · Using PCA</span><span>25</span></div></section>
 
 
 
@@ -4016,7 +3285,7 @@ L 380.16 114.8
 
 
 </main>
-<script>(function(){function z(){var W=Math.min(window.innerWidth,document.documentElement.clientWidth||1e9,screen.width||1e9);var w=Math.min(1,(W-32)/576);document.documentElement.style.setProperty('--zoom',w)}z();window.addEventListener('resize',z)})();document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){if(!d.contains(e.target))d.open=false})});document.addEventListener('keydown',function(e){if(e.key==='Escape')[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){d.open=false})});[].forEach.call(document.querySelectorAll('.navbar .toc a'),function(a){a.addEventListener('click',function(){a.closest('details').open=false})});document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill]');if(f)f.classList.toggle('shown')});addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='eai-embed-height'||!(d.height>100))return;[].forEach.call(document.querySelectorAll('b-embed iframe'),function(f){if(f.contentWindow===e.source)f.style.height=Math.min(d.height,2400)+'px'})});(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-frame]'));if(!fs.length)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.src=e.target.getAttribute('data-frame');io.unobserve(e.target)}})},{rootMargin:'600px'});fs.forEach(function(f){io.observe(f)})})();function eaiLiveFig(fig){var u=fig.getAttribute('viz');if(fig._viz||!u||!/^https?:\/\//.test(u))return;fig._viz=1;fig.classList.add('viz');var io=new IntersectionObserver(function(es){if(!es.some(function(e){return e.isIntersecting}))return;io.disconnect();var f=document.createElement('iframe');f.className='vizf';f.title=fig.getAttribute('alt')||'Interactive figure';f.setAttribute('scrolling','no');f.src=u+(u.indexOf('?')<0?'?':'&')+'embed=fig&theme=light';var a=document.createElement('a');a.className='vizl';a.href=u;a.target='_blank';a.rel='noopener';a.textContent='Live · open the full tool ↗';addEventListener('message',function on(e){if(e.source!==f.contentWindow||!e.data||e.data.type!=='eai-ready')return;removeEventListener('message',on);fig.classList.add('viz-on')});fig.appendChild(f);fig.appendChild(a)},{rootMargin:'300px'});io.observe(fig)};[].forEach.call(document.querySelectorAll('b-fig[viz]'),eaiLiveFig);
+<script>(function(){function z(){var W=Math.min(window.innerWidth,document.documentElement.clientWidth||1e9,screen.width||1e9);var w=Math.min(1,(W-32)/576);document.documentElement.style.setProperty('--zoom',w)}z();window.addEventListener('resize',z)})();document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){if(!d.contains(e.target))d.open=false})});document.addEventListener('keydown',function(e){if(e.key==='Escape')[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){d.open=false})});[].forEach.call(document.querySelectorAll('.navbar .toc a'),function(a){a.addEventListener('click',function(){a.closest('details').open=false})});document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill]');if(!f)return;var on=f.classList.toggle('shown'),d=f.id&&f.closest('svg');if(d)[].forEach.call(d.querySelectorAll('[data-rt-fill]'),function(a){if(a.getAttribute('data-rt-fill')===f.id)a.classList.toggle('shown',on)})});addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='eai-embed-height'||!(d.height>100))return;[].forEach.call(document.querySelectorAll('b-embed iframe'),function(f){if(f.contentWindow===e.source)f.style.height=Math.min(d.height,2400)+'px'})});(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-frame]'));if(!fs.length)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.src=e.target.getAttribute('data-frame');io.unobserve(e.target)}})},{rootMargin:'600px'});fs.forEach(function(f){io.observe(f)})})();function eaiLiveFig(fig){var u=fig.getAttribute('viz');if(fig._viz||!u||!/^https?:\/\//.test(u))return;fig._viz=1;fig.classList.add('viz');var io=new IntersectionObserver(function(es){if(!es.some(function(e){return e.isIntersecting}))return;io.disconnect();var f=document.createElement('iframe');f.className='vizf';f.title=fig.getAttribute('alt')||'Interactive figure';f.setAttribute('scrolling','no');f.src=u+(u.indexOf('?')<0?'?':'&')+'embed=fig&theme=light';var a=document.createElement('a');a.className='vizl';a.href=u;a.target='_blank';a.rel='noopener';a.textContent='Live · open the full tool ↗';addEventListener('message',function on(e){if(e.source!==f.contentWindow||!e.data||e.data.type!=='eai-ready')return;removeEventListener('message',on);fig.classList.add('viz-on')});fig.appendChild(f);fig.appendChild(a)},{rootMargin:'300px'});io.observe(fig)};[].forEach.call(document.querySelectorAll('b-fig[viz]'),eaiLiveFig);
 // "Try it: drag the points" — a linear soft-margin SVM (SMO) re-solved while you drag.
 // Same data, colours and marks as the street figure: +1 blue circles, -1 gold triangles,
 // boundary and street purple, support vectors (alpha > 0) ringed red.
@@ -4144,6 +3413,21 @@ document.querySelectorAll('b-fig[live]').forEach(f => { const k = f.getAttribute
 var EAI_CC = null;
 var EAI_TOKDEF = null;
 var EAI_TOK = {};
+var EAI_WEB = "ai2ai/pca";
+function eaiColab(bid, web, solutions, w) {
+  var SITE = 'https://ai.williamtheisen.com/', GH = 'https://colab.research.google.com/github/wtheisen/ai-landing-page/blob/main/';
+  web = String(web || '').replace(/^\/+|\/+$/g, '');
+  var cache = eaiColab.cache = eaiColab.cache || {}, book = web.split('/')[0];
+  cache[book] = cache[book] || fetch(SITE + book + '/notebooks.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { cache[book] = null; return {}; });
+  return cache[book].then(function (m) {
+    var hit = null; Object.keys(m || {}).forEach(function (k) { var e = m[k]; if (e && e.web === web && e.files) hit = e; });
+    var f = hit && (hit.files.filter(function (x) { return x.role === (solutions ? 'solutions' : 'student'); })[0] || hit.files[0]);
+    var url = f ? GH + f.path + (bid ? '#scrollTo=' + bid : '') : null;
+    if (w) { if (url) w.location.href = url; else w.close(); }
+    return url;
+  });
+}
+eaiColab.teacher = function () { try { return !!JSON.parse(localStorage.getItem('eai-ink-token') || 'null'); } catch (e) { return false; } };
 function eaiOutHL(text, cc, hl, tok) {
   // tok (token tiles in outputs, Eric 2026-11-07): {map: {token: [id, family]}, n, ids}: a quoted string that is a token
   // of the vocabulary becomes a tile, and a bracketed list of whole numbers that are all its IDs takes the tokens' colours
@@ -4309,9 +3593,36 @@ function eaiRunCode() {
     if (typeof r !== 'object') return String(r);
     try { var B = py.pyimport('builtins'), mod = String(B.getattr(B.type(r), '__module__', '')); if (/^matplotlib/.test(mod)) return ''; return B.repr(r); } catch (e) { return ''; } finally { if (r.destroy) r.destroy(); }
   }
-  [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
-    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading') return;   // blanks in the Lecture/Workbook: no Run
+  // Colab-only cells (Book.colabOf in the viewer; colab="" baked in by the export): Open in Colab instead of Run
+  var colabSet = window.Book && Book.colabCells && Book.root ? Book.colabCells() : null;
+  function isColab(b) { return colabSet ? colabSet.has(b) : b.hasAttribute('colab') && b.getAttribute('colab') !== 'off'; }
+  function colabBar(block) {
     if (block._run) return; block._run = true;
+    var out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
+    if (!out) { out = document.createElement('b-out'); out.className = 'run-new'; out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
+    var bar = document.createElement('span'); bar.className = 'run-bar run-colab web-only';
+    bar.innerHTML = '<span class="run-status"></span><span class="colab-tag" title="Needs a GPU, packages or a model the browser can\'t run">Colab only</span><button type="button" data-a="colab">Open in Colab ↗</button>';
+    out.querySelector('.label').appendChild(bar);
+    var web = window.EAI_WEB || (window.Book && Book.meta && (Book.meta.web || (Book.chapter ? 'ai2ai/' + Book.chapter : ''))) || '';
+    var sol = eaiColab.teacher(), status = bar.querySelector('.run-status');
+    eaiColab(null, web, sol);   // the manifest, fetched ahead of the tap
+    bar.querySelector('[data-a=colab]').title = sol ? 'The Solutions notebook in Colab, at this cell' : 'This chapter\'s notebook in Colab, at this cell';
+    bar.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('[data-a=colab]')) return;
+      var w = window.open('about:blank', '_blank');
+      eaiColab(block.getAttribute('data-b'), web, sol, w).then(function (u) {
+        status.textContent = u ? '' : (sol ? 'No notebook yet: Make notebook on the editor home' : 'The notebook isn\'t out yet');
+        if (u && !w) location.href = u;   // no new window allowed (the iPad app): go there
+      });
+    });
+  }
+  [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
+    if (isColab(block)) return colabBar(block);
+    // blanks: no Run in the Workbook; in the Lecture, Run once every blank is filled in (Book.fillBlank: the iPad app's
+    // handwriting) or tapped open, and it runs the code as filled in, wrong answers too (Eric, 2026-11-13)
+    var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading' && bv !== 'slides') return;
+    if (block._run) return; block._run = true;
+    var fills = bv === 'slides' ? [].slice.call(block.querySelectorAll('u.fill')) : [];
     var original = source(block), out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
     var printed = out ? out.querySelector('pre').textContent : '';
     // a plot saved with the Output (b-out figs=…, drawn by BOut.render, inlined in the published page) comes back on Reset
@@ -4323,6 +3634,13 @@ function eaiRunCode() {
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
     var status = bar.querySelector('.run-status'), editor = null;
+    if (fills.length) {
+      // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
+      // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
+      var ready = function () { bar.classList.toggle('run-wait', !editor && !fills.every(function (u) { return u.classList.contains('shown') || u.classList.contains('filled'); })); };
+      block.addEventListener('eai-fill', ready); ready();
+      block.addEventListener('eai-fill', function () { tell({ src: editor ? editor.value : original, edit: true }); });
+    }
     function show(text, err, figs) {
       out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
       out.classList.toggle('run-new', !printed && !storedFigs && !text && !(figs && figs.length));
@@ -4335,28 +3653,50 @@ function eaiRunCode() {
     function figures(py) { try { var r = py.runPython(FIGS), a = r.toJs(); r.destroy(); return a; } catch (e) { return []; } }
     // what happens to a cell (a run, its result, an edit, a reset) is announced as an 'eai-run' event, so the
     // instructor's lecture notes (ink.js) can keep it and publish it with the ink (Eric, 2026-11-10)
-    function tell(d) { d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
+    // what the cell's blanks hold ({index: [text, colour]}) and its editor's colours: kept in the lecture notes with it
+    function filled() { var f = {}, any = false; fills.forEach(function (u, i) { if (u.classList.contains('filled')) { f[i] = [u.textContent, window.eaiCodeColors ? eaiCodeColors.blankColor(u) : null]; any = true; } }); return any ? f : null; }
+    function tell(d) {
+      if (block._eaiApplying) return;   // notes being put back, not something done in class
+      if (fills.length && !editor && d.src === source(block)) d.src = original;   // filled blanks are kept as fills, not as code
+      if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
+      d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
       if (editor) return;
-      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = source(block);
-      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet) editor.focus();
+      editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
+      // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
+      var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
+      editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
+      editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
+    }
+    // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
+    function blanked() {
+      return [].map.call(block.querySelectorAll('.ln'), function (l) {
+        var c = l.cloneNode(true); [].forEach.call(c.querySelectorAll('u.fill:not(.filled):not(.shown)'), function (u) { u.textContent = '___'; });
+        return c.textContent.replace(/\u00a0/g, ' ');
+      }).join('\n');
     }
     function reset(quiet) {
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
+      if (fills.length) { var was = block._eaiApplying; block._eaiApplying = true; fills.forEach(function (u) { Book.fillBlank(u, null); }); block._eaiApplying = was; ready(); }
       if (!quiet) tell({ reset: true });
     }
-    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?} or null for the stored cell
+    // lecture notes put back what was run in class: d = {src?, out?, err?, figs?, fills?, marks?} or null for the stored cell
     block._eaiLive = function (d) {
-      if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
-      block._eaiShowing = true;
-      if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-      else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
-      if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
-      status.textContent = 'As run in lecture';
+      block._eaiApplying = true;
+      try {
+        if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
+        block._eaiShowing = true;
+        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
+        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
+        if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
+        status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';
+      } finally { block._eaiApplying = false; }
     };
     // g: a globals dict shared with the cells run before this one (Run prior); then the cell runs alone, without the
     // blocks it chains to (they have just run in g). Resolves true when the cell ran without an error.
@@ -4368,7 +3708,7 @@ function eaiRunCode() {
         return Promise.resolve(true);
       }
       var chainNeeded = block.hasAttribute('chain') && (frag(block) || (!g && !(block._eaiPrevRan && block._eaiPrevRan())));
-      var own = editor ? editor.value : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
+      var own = editor ? editor.value : fills.length ? source(block) : original, pre = chainNeeded ? prelude(block) : (block.getAttribute('setup') || ''), code = pre ? pre + '\n' + own : own, off = pre ? pre.split('\n').length : 0, lines = [], ok = false;
       status.textContent = boot ? 'Running…' : 'Loading Python (the first run takes a little while)…';
       bar.classList.add('busy');
       return pyodide().then(function (py) {
@@ -4643,8 +3983,9 @@ eaiDual();
 //   Input        Pencil and mouse write; fingers scroll.
 //
 // A layer: {"id","title","pages":[{"after":"page-id","id":"wb-…"}],"strokes":[{"p":"page-id","c":"#hex","w":2.2,
-// "o":0.35?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
-// coordinates in points from the page's top-left (a page is 432 pt wide). "code" holds what the instructor ran in
+// "o":0.35?,"f":"<blank>"?,"pts":[[x,y,pressure],…]}],"code":{"<b-code data-b>":{"p":"page-id","src"?,"out"?,"err"?,"figs"?}}},
+// coordinates in points from the page's top-left (a page is 432 pt wide). "f" tags a fill-in blank's handwriting (the iPad
+// app's blank pads: the blank's data-b block and its index there, "bx12#0"). "code" holds what the instructor ran in
 // lecture (an edited cell's source, its output, its plots: base64 PNGs in the draft, site paths once published), put
 // back on the page with the notes and drawn into the notes PDF (Eric, 2026-11-10).
 // Self-contained on purpose: the published page gets this file's source verbatim.
@@ -4667,7 +4008,7 @@ function eaiInk(opts) {
   var HOME = SITE_DIR ? '/' + SITE_DIR.replace(/^\/|\/$/g, '') + '/' : DIR;
   var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR + VIEW, KEY_DRAFT = 'eai-ink-draft:' + HOME + VIEW + ':', KEY_OLD = 'eai-ink-draft:' + DIR + VIEW + ':';
   var viewOf = function (l) { return l.view || 'slides'; };
-  var pub = null, layers = [], mine = null, target = null, editing = false, tool = 'hand', color = PEN[0][0], width = 2.2, undo = [];
+  var pub = null, layers = [], mine = null, target = null, prep = null, editing = false, tool = 'hand', color = PEN[0][0], width = 1.4, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
   // penDown: a pen stroke is under way (Lecture mode ignores pinches meanwhile: on the iPad a palm resting beside the
@@ -4820,6 +4161,7 @@ function eaiInk(opts) {
     var pg = document.getElementById(s.p); if (!pg) return null;
     var el = document.createElementNS(NS, 'path'); paint(el, s);
     if (s.o && s.o < 1) el.setAttribute('opacity', s.o);
+    if (s.n) el.setAttribute('class', 'ink-note');
     el._s = s; overlay(pg).appendChild(el); return el;
   }
   function blankPage(b) {
@@ -4832,6 +4174,7 @@ function eaiInk(opts) {
     [].forEach.call(book.querySelectorAll('svg.ink'), function (s) { s.remove(); });
     [].forEach.call(book.querySelectorAll('section.ink-blank'), function (s) { s.remove(); });
     [pub, mine].forEach(function (l) { if (l) (l.pages || []).forEach(blankPage); });
+    if (prep) prep.strokes.forEach(drawStroke);   // private notes under the lecture's ink
     [pub, mine].forEach(function (l) { if (l) (l.strokes || []).forEach(drawStroke); });
     pages().forEach(overlay);
     applyCode();
@@ -4885,6 +4228,58 @@ function eaiInk(opts) {
     laser: SVG('<circle cx="8" cy="8" r="3" fill="#ff2a2a"/><circle cx="8" cy="8" r="5.6" fill="none" stroke="#ff2a2a" stroke-opacity=".35" stroke-width="1.5"/>'),
     undo: SVG('<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M5.5 3.5l-3 3 3 3M2.5 6.5H10a3.5 3.5 0 010 7H7"/>'),
     page: SVG('<path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" d="M3.5 1.5h6l3 3v10h-9z"/><path stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 7v5M5.5 9.5h5"/>') };
+  // ---------------------------------------------------------------- colour wheel (Lecture mode)
+  // A ring of the pen bar's tools around the pen, so a colour is one tap away without reaching for the bar (Eric,
+  // 2026-11-12). Opened in Lecture mode (?lecture=…) by holding the pen still on a slide for half a second, or in the
+  // iPad presenting app (ios/) by a double tap (or squeeze) of the Pencil, which the app passes in as an 'eai-pencil'
+  // event on window ({detail: {x, y}} in window px when the Pencil knows where it is). A second double tap, a tap
+  // outside, the middle or Escape closes it.
+  var wheel = null, penAt = null;   // penAt: where the pen last was, in window px (the wheel opens there when the event has no place)
+  var NATIVE = !!window.eaiNativeApp, NATIVE_INK = false;   // NATIVE_INK: the app draws the Pencil and scrolls (nativeInk), set at startup
+  function native(m) { if (NATIVE) try { window.webkit.messageHandlers.eai.postMessage(m); } catch (x) {} }
+  function wheelItems() {
+    return PEN.map(function (p) { return { t: 'pen', c: p[0], name: p[1] + ' pen' }; })
+      .concat([{ t: 'hl', name: 'highlighter', i: I.hl }, { t: 'erase', name: 'eraser', i: I.erase }, { t: 'laser', name: 'laser pointer', i: I.laser }]);
+  }
+  function closeWheel() { if (wheel) { wheel.remove(); wheel = null; } }
+  function openWheel(x, y) {
+    closeWheel();
+    if (x == null || y == null) { x = penAt ? penAt.x : innerWidth / 2; y = penAt ? penAt.y : innerHeight / 2; }
+    var R = 92, R0 = 34, items = wheelItems(), n = items.length, step = 2 * Math.PI / n, pad = R + 10;
+    x = Math.max(pad, Math.min(innerWidth - pad, x)); y = Math.max(pad, Math.min(innerHeight - pad, y));
+    var P = function (a, r) { return (R + r * Math.cos(a)).toFixed(2) + ' ' + (R + r * Math.sin(a)).toFixed(2); };
+    var svg = '', marks = '';
+    items.forEach(function (it, i) {
+      var a0 = -Math.PI / 2 - step / 2 + i * step, a1 = a0 + step, am = a0 + step / 2;
+      var on = editing && it.t === tool && (!it.c || it.c === color);
+      svg += '<path d="M' + P(a0, R0) + 'L' + P(a0, R - 2) + 'A' + (R - 2) + ' ' + (R - 2) + ' 0 0 1 ' + P(a1, R - 2) + 'L' + P(a1, R0) + 'A' + R0 + ' ' + R0 + ' 0 0 0 ' + P(a0, R0) + 'Z"'
+        + ' fill="' + (it.c || '#f4f4f4') + '" stroke="#fff" stroke-width="3"/>';
+      if (on) svg += '<path d="M' + P(a0 + 0.06, R + 4) + 'A' + (R + 4) + ' ' + (R + 4) + ' 0 0 1 ' + P(a1 - 0.06, R + 4) + '" fill="none" stroke="#002B5B" stroke-width="5" stroke-linecap="round"/>';
+      if (it.i) { var c = P(am, (R + R0) / 2).split(' '); marks += '<span style="position:absolute;left:' + (+c[0] - 8) + 'px;top:' + (+c[1] - 8) + 'px;width:16px;height:16px;transform:scale(1.4)">' + it.i + '</span>'; }
+    });
+    svg += '<circle cx="' + R + '" cy="' + R + '" r="' + (R0 - 4) + '" fill="#fff" stroke="#ccc"/><path d="M' + (R - 7) + ' ' + (R - 7) + 'l14 14m0-14l-14 14" stroke="#777" stroke-width="2" stroke-linecap="round"/>';
+    wheel = document.createElement('div'); wheel.className = 'ink-wheel';
+    wheel.style.cssText = 'position:fixed;inset:0;z-index:95;touch-action:none';
+    wheel.innerHTML = '<div style="position:absolute;left:' + (x - R) + 'px;top:' + (y - R) + 'px;width:' + 2 * R + 'px;height:' + 2 * R + 'px;border-radius:50%;box-shadow:0 4px 18px rgba(0,0,0,.25);color:#333">'
+      + '<svg width="' + 2 * R + '" height="' + 2 * R + '" style="display:block;overflow:visible">' + svg + '</svg>' + marks + '</div>';
+    document.body.appendChild(wheel);
+    // a tap on a wedge picks it; anywhere else (outside, the middle) just closes. Decided on pointerdown so the tap
+    // never reaches the slide underneath (no stray dot, no Run button pressed).
+    wheel.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      var dx = e.clientX - x, dy = e.clientY - y, d = Math.sqrt(dx * dx + dy * dy);
+      if (d < R0 || d > R + 6) return closeWheel();
+      var i = Math.floor((((Math.atan2(dy, dx) + Math.PI / 2 + step / 2) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI) / step) % n;
+      pickTool(items[i]);
+    });
+    native({ haptic: 'open' });
+  }
+  function pickTool(it) {
+    tool = it.t; if (it.c) color = it.c; if (tool !== 'laser') last = { t: tool, c: color };
+    closeWheel(); start(); barState(); native({ haptic: 'pick' });
+  }
+  addEventListener('eai-pencil', function (e) { if (!LECT || NATIVE_INK) return; var d = e.detail || {}; if (wheel) closeWheel(); else openWheel(d.x, d.y); });
+  addEventListener('keydown', function (e) { if (wheel && e.key === 'Escape') closeWheel(); });
   function today() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
   function save() {
     clearTimeout(saveSoon.t);
@@ -4917,8 +4312,8 @@ function eaiInk(opts) {
 
   // ---------------------------------------------------------------- code run in lecture
   // In Lecture mode (?lecture=…) the signed-in instructor's runs go into today's notes: what the cell held when it ran
-  // (if edited), what it printed and drew. A run that gives back exactly the stored cell drops out again, and so does
-  // Reset. They are published with the ink and put back on the page wherever these notes are shown.
+  // (if edited), what it printed and drew, what its code blanks were filled in with and the colours written on it (the
+  // iPad app). A run that gives back exactly the stored cell drops out again, and so does Reset. They are published with the ink and put back on the page wherever these notes are shown.
   function codeKey(block) {
     var b = block.getAttribute('data-b'); if (b) return b;
     var pg = block.closest('section.page'), all = pg ? [].slice.call(pg.querySelectorAll('b-code')) : [];
@@ -4937,9 +4332,12 @@ function eaiInk(opts) {
     else {
       if (d.src != null) { if (d.src !== d.original) c.src = d.src; else delete c.src; }
       if (!d.edit) { c.out = d.out || ''; if (d.err) c.err = true; else delete c.err; if (d.figs && d.figs.length) c.figs = d.figs.slice(); else delete c.figs; }
+      // what its code blanks were filled in with, and the colours written in (book.js: every report has them as they are now)
+      if (d.fills) c.fills = d.fills; else delete c.fills;
+      if (d.marks) c.marks = d.marks; else delete c.marks;
       // nothing to keep: the cell's own source and either no run yet or a run that printed just what the page has
       var outSame = c.out == null || (!c.err && !c.figs && !d.stored && c.out === (d.printed || ''));
-      if (c.src == null && outSame) delete code[key]; else code[key] = c;
+      if (c.src == null && outSame && !c.fills && !c.marks) delete code[key]; else code[key] = c;
     }
     applied[key] = !!code[key];
     save(); barState();
@@ -4962,7 +4360,7 @@ function eaiInk(opts) {
     bar.innerHTML = '<span class="grp"><button data-t="hand" title="use the page: scroll, click figures and Run buttons (L toggles)">' + I.hand + '</button></span>'
       + '<span class="grp">' + PEN.map(function (p) { return '<button data-t="pen" data-c="' + p[0] + '" title="' + p[1] + ' pen" class="sw" style="--c:' + p[0] + '"><i></i></button>'; }).join('')
       + '<button data-t="hl" title="highlighter">' + I.hl + '</button><button data-t="erase" title="eraser (your own ink)">' + I.erase + '</button><button data-t="laser" title="laser pointer (not saved)">' + I.laser + '</button></span>'
-      + '<span class="grp">' + [1.4, 2.2, 3.6].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
+      + '<span class="grp">' + [1.15, 1.4, 2.2].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
       + '<span class="grp"><button data-a="undo" title="undo (⌘Z)">' + I.undo + '</button><button data-a="blank" title="add a blank page after this one">' + I.page + '</button><button data-a="pdf" title="download this view as a PDF with the notes showing">' + I.pdf + '</button></span>'
       + '<span class="spacer"></span><span class="ink-msg"></span><span class="right"></span>';
     head.appendChild(bar);
@@ -4977,6 +4375,7 @@ function eaiInk(opts) {
       if (b.dataset.a === 'clear' && confirm('Erase all of your notes in this chapter (this view)?')) { mine.strokes = []; mine.pages = []; undo = []; store(KEY_MINE, mine); render(); }
       if (b.dataset.a === 'publish') { ensureTarget(); publish(); }
       if (b.dataset.a === 'report') report();
+      if (b.dataset.a === 'home') { save(); native({ home: true }); }
       barState();
     });
     bar.addEventListener('change', function (e) {
@@ -4988,6 +4387,7 @@ function eaiInk(opts) {
     });
   }
   function barState() {
+    nativeState();
     if (!bar) return;
     var cur = editing ? tool : 'hand';
     [].forEach.call(bar.querySelectorAll('[data-t]'), function (x) { x.classList.toggle('on', x.dataset.t === cur && (!x.dataset.c || x.dataset.c === color)); });
@@ -4995,6 +4395,7 @@ function eaiInk(opts) {
     var right = bar.querySelector('.right'), h = '';
     if (layers.length) h += '<select id="ink-pick" title="Lecture notes"' + (editing && target !== mine ? ' disabled' : '') + '><option value="">No lecture notes</option>' + layers.map(function (l) { return '<option value="' + l.id + '"' + (pub && pub.id === l.id ? ' selected' : '') + '>Notes: ' + (l.title || l.id) + (viewOf(l) === VIEW ? '' : ' (' + VIEWNAME[viewOf(l)] + ')') + '</option>'; }).join('') + '</select>';
     if (teacher() && VIEW === 'slides' && /[?&]lecture=1/.test(location.search)) h += '<span class="pres" title="Opened from the Lecture button: the faint answers are hidden, safe to mirror to the projector">Presenting</span>';
+    if (NATIVE) h += '<button data-a="home" class="quiet" title="back to the list of chapters">Chapters</button>';
     if (EDITOR_VIEW) h += '<button data-a="report" class="quiet" title="Tell Claude something is wrong on this page: your note plus this device\'s details go in as a comment on the page">Report</button>';
     h += teacher() ? '<button data-a="publish" class="act" title="publish today\'s notes for students">Publish</button>'
                    : '<button data-a="clear" class="quiet" title="erase all of my notes on this view">Clear mine</button>';
@@ -5040,22 +4441,41 @@ function eaiInk(opts) {
     barState();
   }
   function stop() { if (!editing) return barState(); editing = false; save(); document.documentElement.classList.remove('ink-lecture', 'ink-lock', 'ink-hand'); book.removeEventListener('pointerdown', down); tool = 'hand'; barState(); }
-  function msg(t) { var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; else if (t && !/…$/.test(t)) alert(t); }
+  function msg(t) { if (NATIVE_INK) native({ msg: t || '' }); var m = bar && bar.querySelector('.ink-msg'); if (m) m.textContent = t; else if (t && !NATIVE_INK && !/…$/.test(t)) alert(t); }
   function currentPage() { var best = null, bd = 1e9; pages().forEach(function (p) { var r = rectOf(p), d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = p; } }); return best; }
-  function addBlank() {
-    var pg = currentPage(); if (!pg) return;
+  function addBlank(at) {
+    var pg = (at && document.getElementById(at)) || currentPage(); if (!pg) return;
     var b = { after: pg.id, id: (target === mine ? 'my-' : 'wb-') + Date.now().toString(36) }; target.pages.push(b); blankPage(b); undo.push({ blank: b }); save();
     document.getElementById(b.id).scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function doUndo() {
     var u = undo.pop(); if (!u) return;
-    if (u.stroke) { target.strokes.splice(target.strokes.indexOf(u.stroke), 1); if (u.el) u.el.remove(); }
-    if (u.erased) u.erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+    // every path drawing it, not just the one first drawn: an erase undone draws the stroke again as a new path
+    if (u.stroke) drop(u.stroke);
+    if (u.erased) u.erased.forEach(put);
     if (u.blank) { target.pages.splice(target.pages.indexOf(u.blank), 1); var p = document.getElementById(u.blank.id); if (p) p.remove(); }
-    save();
+    // a blank's pad (the iPad app's eaiNativeInk.fill): its handwriting as it was before the pad opened
+    if (u.fill) { u.after.forEach(unStroke); u.before.forEach(function (s) { target.strokes.push(s); drawStroke(s); }); }
+    save(); nativeState();
+  }
+  // a stroke out of its layer (today's notes, or the private notes: Note pen) and off the page, and back again
+  function drop(s) {
+    var l = s.n && prep ? prep.strokes : target.strokes, i = l.indexOf(s); if (i >= 0) l.splice(i, 1);
+    if (s.n && prep) { prep.gone.push(s.id); prepSave(); }
+    [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
+  }
+  // a private stroke put back gets a new id: its old one is gone on every device (the sync's tombstones)
+  function put(s) {
+    if (s.n && prep) { s.id = prepId(); prep.strokes.push(s); prepSave(); } else target.strokes.push(s);
+    drawStroke(s);
+  }
+  function unStroke(s) {
+    var i = target.strokes.indexOf(s); if (i >= 0) target.strokes.splice(i, 1);
+    [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
   }
   function near(s, x, y, r) { for (var i = 0; i < s.pts.length; i++) { var dx = s.pts[i][0] - x, dy = s.pts[i][1] - y; if (dx * dx + dy * dy < r * r) return true; } return false; }
   function down(e) {
+    if (NATIVE_INK && e.pointerType === 'pen') return;   // the iPad app draws the Pencil itself (nativeInk)
     if (!editing || tool === 'hand' || e.button > 0 || e.target.closest('button, a, select, textarea, input, iframe, .ink-bar')) return;
     var pg = e.target.closest('section.page'); if (!pg) return;
     if (e.pointerType === 'touch') return IOS ? undefined : fingerScroll(e);
@@ -5095,8 +4515,18 @@ function eaiInk(opts) {
       cur = { p: pg.id, c: tool === 'hl' ? HL : color, w: tool === 'hl' ? 11 : width, pts: [smooth(pt(e))] }; if (tool === 'hl') cur.o = 0.35;
       el = drawStroke(cur);
     }
+    // Lecture mode: the pen held still for half a second opens the colour wheel there (the dot it made is taken back)
+    penAt = { x: e.clientX, y: e.clientY };
+    var hold = LECT && tool !== 'laser' ? setTimeout(held, 500) : null;
+    function held() {
+      hold = null; detach();
+      if (el) el.remove();
+      erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+      openWheel(penAt.x, penAt.y);
+    }
     function move(ev) {
       if (ev.pointerId !== e.pointerId) return;
+      if (hold && Math.abs(ev.clientX - penAt.x) + Math.abs(ev.clientY - penAt.y) > 6) { clearTimeout(hold); hold = null; }
       var es = ev.getCoalescedEvents ? ev.getCoalescedEvents() : [ev]; if (!es.length) es = [ev];
       if (tool === 'laser') { laser.style.left = ev.clientX + 'px'; laser.style.top = ev.clientY + 'px'; return; }
       es.forEach(function (q) {
@@ -5115,10 +4545,14 @@ function eaiInk(opts) {
       tail = ahead(ev);   // draw ahead to where the pen is about to be, so the line keeps up with the tip
       if (!queued) { queued = true; requestAnimationFrame(frame); }
     }
-    function up(ev) {
-      if (ev && ev.pointerId !== e.pointerId) return;
+    function detach() {
+      clearTimeout(hold); hold = null;
       pg.removeEventListener('pointermove', move); pg.removeEventListener('pointerup', up); pg.removeEventListener('pointercancel', up);
       removeEventListener('scroll', onScroll, true); penDown = false;
+    }
+    function up(ev) {
+      if (ev && ev.pointerId !== e.pointerId) return;
+      detach(); if (ev) penAt = { x: ev.clientX, y: ev.clientY };
       if (tool === 'laser') { if (laser) laser.remove(); laser = null; return; }
       if (cur && cur.pts.length) {
         var l = cur.pts[cur.pts.length - 1]; if (raw && cur.pts.length > 1 && (raw[0] !== l[0] || raw[1] !== l[1])) cur.pts.push(raw);
@@ -5131,7 +4565,9 @@ function eaiInk(opts) {
     pg.addEventListener('pointermove', move); pg.addEventListener('pointerup', up); pg.addEventListener('pointercancel', up);
   }
   function stylusGuard(e) {
-    if (!editing || tool === 'hand') return;
+    // not in the iPad app: it draws the Pencil itself, and a cancelled Pencil touch made WebKit fail PencilKit's
+    // drawing gesture (2026-11-13: the pen drew nothing)
+    if (NATIVE_INK || !editing || tool === 'hand') return;
     var t = e.target, ts = e.changedTouches || [];
     if (!t.closest || !t.closest('section.page') || t.closest('button, a, select, textarea, input, iframe')) return;
     for (var i = 0; i < ts.length; i++) if (ts[i].touchType === 'stylus') { e.preventDefault(); return; }
@@ -5193,7 +4629,7 @@ function eaiInk(opts) {
   }
 
   // Code run in lecture, drawn into the notes PDF (Eric, 2026-11-10). The PDF has the cell as stored; where a cell was
-  // edited or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
+  // edited, filled in (its code blanks, 2026-11-13: with their colours, as are colours written on edited code) or run, its code box and/or output box are painted over and the lecture's code, output (in its colours)
   // and plots drawn in, shrunk to fit if need be. What won't fit there at a readable size (a long output, plots under
   // a cell that had no output box) goes on a page of its own right after the slide, "Run in lecture: <title>". Ink
   // is drawn after, so notes written over an output stay on top of it.
@@ -5219,15 +4655,37 @@ function eaiInk(opts) {
     var m = /rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?/.exec(v || '');
     if (!m || m[4] === '0') return dflt; return PDFLib.rgb(+m[1] / 255, +m[2] / 255, +m[3] / 255);
   }
-  // lines of coloured runs from a rendered output (<pre>), or plain lines of code
-  function runsOf(pre) {
+  // lines of coloured runs from a rendered output (<pre>), or plain lines of code; bg: also the boxes behind text
+  // (highlights, a highlighted blank), as rn.bg
+  function runsOf(pre, bg) {
     var lines = [[]];
     (function walk(n) {
       if (n.nodeType === 3) {
         var st = getComputedStyle(n.parentNode), c = cssRGB(st.color, PDFLib.rgb(0.2, 0.2, 0.2)), b = (parseInt(st.fontWeight, 10) || 400) >= 600;
-        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push({ t: t, c: c, b: b }); });
+        var back = bg && n.parentNode !== pre ? cssRGB(st.backgroundColor, null) : null;
+        // (code) a blank not filled in or shown: a gap, not its answer (which the page keeps hidden, or faint on the iPad)
+        if (bg && n.parentNode.closest && n.parentNode.closest('u.fill:not(.filled):not(.shown)')) { lines[lines.length - 1].push({ t: n.nodeValue.replace(/[^\n]/g, ' '), c: c, b: false, ul: true }); return; }
+        n.nodeValue.replace(/\t/g, '    ').split('\n').forEach(function (t, i) { if (i) lines.push([]); if (t) lines[lines.length - 1].push(back ? { t: t, c: c, b: b, bg: back } : { t: t, c: c, b: b }); });
       } else if (n.nodeType === 1 && !/^(BUTTON|SCRIPT|STYLE)$/.test(n.tagName)) [].forEach.call(n.childNodes, walk);
     })(pre);
+    while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
+    return lines;
+  }
+  // a cell's code as the page shows it (its code blanks filled in, in their colours), line by line
+  function liveRuns(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return runsOf(l, true)[0] || []; }); }
+  // edited code with the colours written on it (book.js eaiCodeColors: [from, to, "t:red" | "h:gold"])
+  var PEN_RGB = { blue: '#1155CC', red: '#CC0000', green: '#38761D', purple: '#674EA7', gold: '#DCB439' }, HL_RGB = { gold: '#FFF2CC' };
+  function markedRuns(src, marks) {
+    var ink = PDFLib.rgb(0.13, 0.13, 0.13), tc = [], hc = [];
+    marks.forEach(function (m) { var p = m[2].split(':'), arr = p[0] === 't' ? tc : hc; for (var i = m[0]; i < m[1]; i++) arr[i] = p[1]; });
+    var lines = [[]], i = 0;
+    while (i < src.length) {
+      if (src[i] === '\n') { lines.push([]); i++; continue; }
+      var j = i; while (j < src.length && src[j] !== '\n' && tc[j] === tc[i] && hc[j] === hc[i]) j++;
+      var rn = { t: src.slice(i, j).replace(/\t/g, '    '), c: tc[i] && PEN_RGB[tc[i]] ? hexRGB(PEN_RGB[tc[i]]) : ink, b: !!(tc[i] && PEN_RGB[tc[i]]) };
+      if (hc[i] && HL_RGB[hc[i]]) rn.bg = hexRGB(HL_RGB[hc[i]]);
+      lines[lines.length - 1].push(rn); i = j;
+    }
     while (lines.length > 1 && !lines[lines.length - 1].length) lines.pop();
     return lines;
   }
@@ -5242,7 +4700,8 @@ function eaiInk(opts) {
       var out = j.b.nextElementSibling; while (out && out.tagName === 'TEXTAREA') out = out.nextElementSibling;   // (an edited cell's editor sits between)
       if (out && out.tagName !== 'B-OUT') out = null; var pre = out && out.querySelector('pre');
       if (j.b._eaiLive) j.b._eaiLive(j.c);
-      j.code = j.c.src != null ? plainRuns(j.c.src) : null;
+      // edited code (in its colours), or the stored code with its blanks as filled in during the lecture
+      j.code = j.c.src != null ? (j.c.marks ? markedRuns(j.c.src, j.c.marks) : plainRuns(j.c.src)) : j.c.fills ? liveRuns(j.b) : null;
       j.out = j.c.out != null && pre ? runsOf(pre) : j.c.out != null ? plainRuns(j.c.out) : null;
       if (j.out && j.out.length === 1 && !j.out[0].length) j.out = null;
       j.figs = j.c.figs || [];
@@ -5273,6 +4732,14 @@ function eaiInk(opts) {
         var H = page.getSize().height, cx = x;
         runs.forEach(function (rn) {
           var t = clean(rn.t), font = rn.b ? F.b : F.r, piece = '', pieceFont = font;
+          if (rn.bg) {   // a highlight: its box behind the run
+            var rw; try { rw = font.widthOfTextAtSize(t, fs); } catch (e) { rw = t.length * F.adv * fs; }
+            page.drawRectangle({ x: cx * kp, y: H - (y + fs * 1.18) * kp, width: rw * kp, height: fs * 1.25 * kp, color: rn.bg });
+          }
+          if (rn.ul) {   // an empty code blank: its line to write on
+            var uw = t.length * F.adv * fs;
+            page.drawLine({ start: { x: cx * kp, y: H - (y + fs * 1.1) * kp }, end: { x: (cx + uw) * kp, y: H - (y + fs * 1.1) * kp }, thickness: 0.8 * kp, color: PDFLib.rgb(0.13, 0.13, 0.13) });
+          }
           var flush = function () { if (piece) page.drawText(piece, { x: cx * kp, y: H - (y + fs * 0.95) * kp, size: fs * kp, font: pieceFont, color: rn.c }); cx += (pieceFont.widthOfTextAtSize ? pieceFont.widthOfTextAtSize(piece, fs) : piece.length * F.adv * fs); piece = ''; };
           Array.from(t).forEach(function (ch) {
             var f = F.has && F.sym && !F.has.has(ch.codePointAt(0)) ? F.sym : font;
@@ -5295,7 +4762,7 @@ function eaiInk(opts) {
         var grey = PDFLib.rgb(0.45, 0.45, 0.45), place2 = { text: !j.out, ims: !j.ims.length };
         if (!place.code && j.codeBox) {   // the code didn't fit: say where it went, over the stored code
           var cb2 = j.codeBox; cover(page, kp, { x: cb2.x + 1, y: cb2.y + 1, w: cb2.w - 2, h: cb2.h - 2 }, j.bgCode);
-          line(page, kp, [{ t: 'Edited in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
+          line(page, kp, [{ t: (j.c.src != null ? 'Edited' : 'Filled in') + ' in lecture: the code is on the next page.', c: grey, b: false }], cb2.x + 6, cb2.y + 5, Math.min(j.fsCode, 11));
         }
         if ((j.out || j.ims.length) && j.outBox && j.outTop) {   // the lecture's output (and plots) in the output box
           var ob = j.outBox, ox = ob.x + PAD + 2, oy = j.outTop.y + 1, ow = ob.w - 2 * PAD - 4, oh = ob.y + ob.h - oy - PAD;
@@ -5549,27 +5016,216 @@ function eaiInk(opts) {
     addEventListener('resize', function () { zoomGen++; setTimeout(apply, 0); });   // after the view's own resize handler
     apply(); setTimeout(apply, 0);
   }
+  // ---------------------------------------------------------------- private notes (the iPad app's Note pen)
+  // Eric, 2026-11-13: ink only he sees, on his iPad. He writes it before class (reminders, drawings to trace over in
+  // lecture) and it stays on the chapter's slides for every lecture until he erases it. It is never part of a day's
+  // notes: Publish and the notes PDF read the layers (target, pub, mine), never this; the projector's page never loads
+  // it and the app keeps it off the projector's copy of the drawing; Safari and published pages don't have it. It is
+  // shown faint, like the faint answers, and hides with them while the iPad's screen is mirrored (the app; book.css
+  // for a page drawing it itself). Kept on the device (localStorage) and in the book repo, branch prep-ink,
+  // <chapter>.json, through the editor's GitHub token, so his other devices get it: strokes with an id each, and the
+  // ids erased (gone), merged by id so two devices writing between syncs both keep their strokes.
+  var PREP_BRANCH = 'prep-ink', KEY_PREP = 'eai-ink-prep:' + (opts.chapter || ''), prepBusy = false, prepAgain = 0;
+  function prepId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function prepSave() { store(KEY_PREP, prep); clearTimeout(prepSave.t); prepSave.t = setTimeout(prepSync, 2500); }
+  // the editor's sign-in on this device (web/store.js kv 'remote': {token, repo, branch, api?, kind?}), or null
+  function editorRemote() {
+    return new Promise(function (done) {
+      if (!window.indexedDB) return done(null);
+      try {
+        var rq = indexedDB.open('ai2ai-book');
+        rq.onupgradeneeded = function () { rq.transaction.abort(); };   // no editor on this device: don't create its database
+        rq.onerror = function () { done(null); };
+        rq.onsuccess = function () {
+          var db = rq.result; if (!db.objectStoreNames.contains('kv')) { db.close(); return done(null); }
+          var g = db.transaction('kv').objectStore('kv').get('remote');
+          g.onsuccess = function () { db.close(); done(g.result || null); };
+          g.onerror = function () { db.close(); done(null); };
+        };
+      } catch (e) { done(null); }
+    });
+  }
+  function prepMerge(r) {   // theirs into ours: every stroke either side has, less every id either side erased
+    var gone = {}, have = {}, out = [], changed = false;
+    prep.gone.concat(r.gone || []).forEach(function (id) { gone[id] = 1; });
+    prep.strokes.forEach(function (s) { if (gone[s.id]) changed = true; else { have[s.id] = 1; out.push(s); } });
+    (r.strokes || []).forEach(function (s) { if (s && s.id && !gone[s.id] && !have[s.id]) { s.n = 1; have[s.id] = 1; out.push(s); changed = true; } });
+    prep.strokes = out; prep.gone = Object.keys(gone); store(KEY_PREP, prep);
+    return changed;
+  }
+  function prepSame(r) {
+    var ids = function (l) { return (l || []).map(function (x) { return x && x.id || x; }).sort().join(','); };
+    return ids(r.strokes) === ids(prep.strokes) && ids(r.gone) === ids(prep.gone);
+  }
+  function prepSync() {
+    if (!prep || !opts.chapter) return;
+    if (prepBusy) { prepAgain = 1; return; }
+    prepBusy = true; clearTimeout(prepSave.t); prepSave.t = 0;
+    editorRemote().then(function (c) {
+      if (!c || !c.token || !c.repo || c.kind === 'dev') return;
+      var base = (c.api || 'https://api.github.com') + '/repos/' + c.repo, url = base + '/contents/' + encodeURIComponent(opts.chapter) + '.json';
+      var H = { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' };
+      return fetch(url + '?ref=' + PREP_BRANCH, { headers: H, cache: 'no-store' }).then(function (r) {
+        if (r.status === 404) return { sha: null, data: {} };
+        if (!r.ok) throw new Error('prep ' + r.status);
+        return r.json().then(function (j) {
+          if (j.content) return { sha: j.sha, data: JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\s/g, ''))))) };
+          // over 1 MB the contents API leaves the content out: the blob, raw
+          return fetch(base + '/git/blobs/' + j.sha, { headers: { Authorization: H.Authorization, Accept: 'application/vnd.github.raw+json' }, cache: 'no-store' })
+            .then(function (b) { if (!b.ok) throw new Error('prep blob ' + b.status); return b.json(); }).then(function (d) { return { sha: j.sha, data: d }; });
+        });
+      }).then(function (rem) {
+        if (prepMerge(rem.data)) render();
+        if (prepSame(rem.data)) return;
+        var body = JSON.stringify({ strokes: prep.strokes.map(function (s) { return { id: s.id, p: s.p, c: s.c, w: s.w, pts: s.pts }; }), gone: prep.gone });
+        var put = { message: 'Private notes: ' + opts.chapter, branch: PREP_BRANCH, content: btoa(unescape(encodeURIComponent(body))) };
+        if (rem.sha) put.sha = rem.sha;
+        return fetch(url, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: JSON.stringify(put) }).then(function (r) {
+          if (r.status === 409 || r.status === 422) prepAgain = prepAgain || 2;   // another device wrote first: merge theirs and go again
+        });
+      });
+    }).catch(function () {}).then(function () {   // offline or refused: the device keeps them, the next sync sends them
+      prepBusy = false;
+      var n = prepAgain; prepAgain = 0;   // 1: written to meanwhile, 2: a conflict (tried again once)
+      if (n === 1 || (n === 2 && !prepSync.retry)) { prepSync.retry = n === 2; prepSync(); } else prepSync.retry = false;
+    });
+  }
+
+  // ---------------------------------------------------------------- the iPad app's own pen and scrolling
+  // AI2AI Present (ios/) from build 2 draws the Pencil itself, at the Pencil's own rate with Apple's predicted touches, and
+  // lets the web view scroll and pinch-zoom natively; its toolbar replaces the pen bar (Eric, 2026-11-12: native ink
+  // first, keeping the notes as they are). The strokes it draws come back here on lift in the usual form ({p, c, w, o,
+  // pts} in page pt), so saving, Undo, Publish and the notes PDF don't change. The app asks for this with
+  // eaiNativeApp.ink; an older app, or this page anywhere else, gets the web pen as before.
+  // To the app: {inkReady}, {ink: state}, {pages: [page boxes in document px]}, {msg}. From the app: window.eaiNativeInk.
+  function nativeState() {
+    if (!NATIVE_INK) return;
+    native({ ink: { editing: editing, tool: editing ? tool : 'hand', color: color, width: width, teacher: teacher(),
+      drafting: !!(target && target !== mine), undo: undo.length } });
+  }
+  function nativeInk() {
+    var H = document.documentElement; H.classList.add('native-ink');
+    var vp = document.querySelector('meta[name=viewport]');
+    if (!vp) { vp = document.createElement('meta'); vp.name = 'viewport'; document.head.appendChild(vp); }
+    vp.setAttribute('content', 'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, viewport-fit=cover');
+    // every page's box in document px (the web view's content at zoom 1), so the app can put a Pencil point on its page
+    // without asking: a box measured against the root element's is the same whatever the scroll and the pinch
+    function boxes() {
+      var o = H.getBoundingClientRect();
+      return pages().map(function (p) { var r = p.getBoundingClientRect(); return { id: p.id, x: r.left - o.left, y: r.top - o.top, w: r.width, h: r.height, W: pgW(p) }; })
+        .filter(function (b) { return b.w > 0 && b.h > 0; });
+    }
+    var bt = 0;
+    function sendBoxes() { clearTimeout(bt); bt = setTimeout(function () { native({ pages: boxes() }); }, 60); }
+    if (window.ResizeObserver) new ResizeObserver(sendBoxes).observe(book);   // pictures loading, blank pages, the fit zoom
+    addEventListener('resize', sendBoxes); addEventListener('load', sendBoxes);
+    var erasing = [];
+    // PencilKit (app build 3, eaiNativeApp.pk): the app shows all the ink itself, so what's written looks the same from
+    // the first touch on (Eric, 2026-11-12: the live line and the page's line never quite matched, so a stroke changed
+    // a little on lift). The page still keeps the strokes (drafts, Undo, Publish, PDFs) but hides its own drawing of
+    // them, and tells the app which strokes it would draw, with an id each, whenever that changes (inkList).
+    var PK = !!window.eaiNativeApp.pk, ids = new WeakMap(), nid = 1;
+    function idOf(st) { if (!ids.has(st)) ids.set(st, nid++); return ids.get(st); }
+    function list() { return [].map.call(book.querySelectorAll('svg.ink path'), function (el) { return el._s && { id: idOf(el._s), s: el._s }; }).filter(Boolean); }
+    var lt = 0;
+    function sendList() { clearTimeout(lt); lt = setTimeout(function () { native({ inkList: list() }); }, 0); }
+    if (PK) {
+      H.classList.add('native-pk');
+      new MutationObserver(function (ms) {
+        for (var i = 0; i < ms.length; i++) {
+          var n = [].concat([].slice.call(ms[i].addedNodes), [].slice.call(ms[i].removedNodes));
+          if (n.some(function (x) { return x.nodeName === 'path' || x.nodeName === 'svg' || (x.querySelector && x.querySelector('svg.ink')); })) return sendList();
+        }
+      }).observe(book, { childList: true, subtree: true });
+    }
+    window.eaiNativeInk = {
+      boxes: boxes,
+      list: list,
+      // a finished stroke from the app
+      stroke: function (s) {
+        if (!s || !s.p || !document.getElementById(s.p) || !(s.pts && s.pts.length)) return false;
+        if (s.n) {   // the Note pen: into the private notes, not today's
+          if (!prep) return false;
+          var nt = { id: prepId(), n: 1, p: s.p, c: s.c, w: s.w, pts: s.pts };
+          drawStroke(nt); prep.strokes.push(nt); undo.push({ stroke: nt }); prepSave(); nativeState();
+          return PK ? idOf(nt) : true;
+        }
+        ensureTarget(); if (!target) return false;
+        var st = { p: s.p, c: s.c, w: s.w, pts: s.pts }; if (s.o) st.o = s.o;
+        var el = drawStroke(st); target.strokes.push(st); undo.push({ stroke: st, el: el }); saveSoon(); nativeState();
+        return PK ? idOf(st) : true;
+      },
+      // a fill-in blank's handwriting from the app's pad (ios/ TextPad.swift, docs/blank-pads.md): the strokes tagged
+      // with the blank (f: key) are replaced by these, fitted into the blank. Every change in one opening of the pad
+      // (sess) is one Undo step on the bar, which puts back the blank's handwriting from before the pad opened.
+      fill: function (key, list, sess) {
+        ensureTarget(); if (!target || !key) return false;
+        var old = target.strokes.filter(function (s) { return s.f === key; }); old.forEach(unStroke);
+        var add = (list || []).filter(function (s) { return s && s.p && document.getElementById(s.p) && s.pts && s.pts.length; }).map(function (s) {
+          var st = { p: s.p, c: s.c, w: s.w, pts: s.pts, f: key }; if (s.o) st.o = s.o;
+          drawStroke(st); target.strokes.push(st); return st;
+        });
+        var u = undo[undo.length - 1];
+        if (u && u.fill === key && u.sess === sess) u.after = add;
+        else if (old.length || add.length) undo.push({ fill: key, sess: sess, before: old, after: add });
+        saveSoon(); nativeState(); return true;
+      },
+      // PencilKit's eraser takes whole strokes: these ids (only this draft's or reader's own go; the app is sent the rest
+      // back in the next inkList), then eraseEnd as for erase()
+      eraseIds: function (list) {
+        ensureTarget(); if (!target) return;
+        (list || []).forEach(function (id) {
+          target.strokes.concat(prep ? prep.strokes : []).filter(function (s) { return ids.get(s) === id; }).forEach(function (s) { drop(s); erasing.push(s); });
+        });
+        sendList();
+      },
+      // the eraser: points (page pt) on one page as the Pencil moves, then eraseEnd (cancel: the wheel opened, put them back)
+      erase: function (pid, pts) {
+        var pg = document.getElementById(pid); if (!pg) return; ensureTarget(); if (!target) return;
+        var svg = overlay(pg);
+        (pts || []).forEach(function (q) {
+          target.strokes.concat(prep ? prep.strokes : []).filter(function (s) { return s.p === pid && near(s, q[0], q[1], 6); }).forEach(function (s) { drop(s); erasing.push(s); });
+        });
+      },
+      eraseEnd: function (cancel) {
+        var e = erasing; erasing = []; if (!e.length) return;
+        if (cancel) e.forEach(put);
+        else undo.push({ erased: e });
+        saveSoon(); nativeState();
+      },
+      // the app's toolbar and wheel
+      cmd: function (c, a, b) {
+        if (c === 'tool') { tool = a; if (b) color = b; if (tool !== 'laser') last = { t: tool, c: color }; start(); }
+        else if (c === 'hand') stop();
+        else if (c === 'width') width = +a;
+        else if (c === 'undo') { ensureTarget(); doUndo(); }
+        else if (c === 'blank') { ensureTarget(); addBlank(a); }
+        else if (c === 'pdf') notesPDF();
+        else if (c === 'publish') { ensureTarget(); publish(); }
+        else if (c === 'save') save();
+        barState();
+      }
+    };
+    if (opts.chapter && !window.eaiNativeApp.projector) {   // the iPad's own page, never the projector's
+      prep = store(KEY_PREP) || { strokes: [], gone: [] }; render(); prepSync();
+      addEventListener('online', function () { prepSync(); });
+    }
+    native({ inkReady: true, pk: PK, prep: !!prep, pages: boxes() }); nativeState(); sendBoxes(); if (PK) sendList();
+  }
   // ?lecture=1 (the editor home's Lecture button): teaching from this device: the pen in hand, the faint answers hidden
   // (see ghost). The plain Lecture view (its answers link) shows them to the signed-in instructor.
   var LECT = (location.search.match(/[?&]lecture=(\w+)/) || [])[1];
+  NATIVE_INK = NATIVE && !!window.eaiNativeApp.ink && !!LECT && VIEW === 'slides';
   ghost(); render(); buildBar(); navbar();
-  if (LECT) lectureZoom();
+  if (NATIVE_INK) nativeInk(); else if (LECT) lectureZoom();
   if (LECT === '1') start();
   // one sign-in: a device signed in to the Book Editor (same site) uses that token here too, if it can publish to this repo
-  if (!teacher() && window.indexedDB) try {
-    var rq = indexedDB.open('ai2ai-book');
-    rq.onupgradeneeded = function () { rq.transaction.abort(); };   // no editor on this device: don't create its database
-    rq.onsuccess = function () {
-      var db = rq.result; if (!db.objectStoreNames.contains('kv')) return db.close();
-      var g = db.transaction('kv').objectStore('kv').get('remote');
-      g.onsuccess = function () {
-        db.close(); var c = g.result; if (!c || !c.token || c.api) return;
-        fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (j) { if (!j || !j.permissions || !j.permissions.push || teacher()) return; store(KEY_TOKEN, c.token); var was = editing; stop(); target = null; ghost(); navbar(); if (was) start(); }, function () {});
-      };
-    };
-  } catch (e) {}
+  if (!teacher()) editorRemote().then(function (c) {
+    if (!c || !c.token || c.api) return;
+    fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (!j || !j.permissions || !j.permissions.push || teacher()) return; store(KEY_TOKEN, c.token); var was = editing; stop(); target = null; ghost(); navbar(); if (was) start(); }, function () {});
+  });
   if (/(^|[#&])teach\b/.test(location.hash)) { start(); setupTeacher(); }
   else if (/(^|[#&])(lecture|pen)\b/.test(location.hash)) start();
   addEventListener('keydown', function (e) {

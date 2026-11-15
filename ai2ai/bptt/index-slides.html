@@ -247,6 +247,8 @@ b-out .label { display: flex; flex-wrap: wrap; align-items: center; column-gap: 
 .run-bar button[data-a="run"] { color: var(--blue-text); border-color: var(--blue-text); }
 .run-bar.busy button[data-a="run"] { opacity: .5; pointer-events: none; }
 .run-bar .run-status { color: var(--ink-muted); font-size: 7.5pt; }
+.run-bar .colab-tag { font: 700 7.5pt var(--font-mono); color: #B06000; border: 1px dashed #E37400; border-radius: 3px; padding: 0 4pt; }   /* Colab-only code (2026-11-15) */
+.run-bar button[data-a="colab"] { color: #B06000; border-color: #E37400; }
 .run-editor { display: block; width: 100%; box-sizing: border-box; font-family: var(--font-mono); font-size: 9.4pt; line-height: 1.4; padding: 5pt 7pt; border: 1px solid var(--blue-text); border-radius: 4px; resize: vertical; tab-size: 4; }
 .view b-out pre { max-height: 14em; overflow: auto; }
 b-out pre.run-err { color: var(--red-text); }
@@ -318,9 +320,24 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
 /* in a table the text is smaller than the slide's, so a blank there is as large as a blank in the text around it
    (Eric, 2026-11-08: "fills in a table are also enlarged") */
 .book[data-view="slides"] :is(td, th) u.fill:not(b-code u.fill, b-out u.fill, u.fill u.fill) { font-size: max(1.2em, calc(1.2 * var(--fs, 18pt))); }   /* 1.2 x the slide's own text size (smaller on s-tight) */
-.book:is([data-view="slides"], [data-view="workbook"]) [data-fill] { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
-.book:is([data-view="slides"], [data-view="workbook"]) [data-fill] > * { visibility: hidden; }
-.book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown > * { visibility: visible; }
+/* an equation left empty to work in class is drawn 1.5x in the Lecture, so handwriting traced over its faint answer
+   comes out readable (Eric, 2026-11-13: "really small and condensed"; as text blanks are 1.2em). Its box grows with
+   it; a wide one stops at the column's width (img max-width). Measured: no Lecture slide runs over at 1.5x. */
+.book[data-view="slides"] b-eq[data-fill] > img { zoom: 1.5; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill]:not(svg *) { color: transparent; border: 1pt dashed var(--border-strong); border-radius: 4px; background: none; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill]:not(svg *) > * { visibility: hidden; }
+.book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown:not(svg *) { color: inherit; } .book:is([data-view="slides"], [data-view="workbook"]) [data-fill].shown:not(svg *) > * { visibility: visible; }
+/* a drawing's answer parts (docs/blank-pads.md phase 3; draw.js "Answer", todraw.py --fill), in the Lecture and
+   Workbook. A tile marked "label": its label (and a symbol's shape underneath) goes, the box stays as the slot. A tile
+   marked "all": it goes with its attached arrows (book.js fillParts marks them data-rt-fill). Anything else marked (an
+   arrow, a lone label, a shape): it goes. Every part has a dashed outline round it until it's shown (fillParts; as an
+   equation's answer box, so you can tell it's there: Eric, 2026-11-14). Shapes in a drawing are placed, so nothing moves. A tap reveals (.shown); the instructor sees them
+   faintly (ink-ghost). Opacity, not visibility: a hidden part must still take a tap. (Eric, 2026-11-13) */
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-fill=""]:not(.shown), .book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-rt-fill]:not(.shown) { opacity: 0; }
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-fill="label"]:not(.shown) > text { opacity: 0; }
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw g[data-fill="all"]:not(.shown) > * { opacity: 0; }
+svg.draw .fill-ph { display: none; }
+.book:is([data-view="slides"], [data-view="workbook"]) svg.draw [data-fill]:not(.shown) + .fill-ph, svg.draw .fill-ph.on { display: inline; }
 .fillbox { border: 1pt dashed var(--border-strong); border-radius: 4px; }
 
 /* key sentences: <span class="key">…</span> inside a paragraph marks what Slides and Workbook show of it.
@@ -495,9 +512,14 @@ html.ink-lecture:not(.ink-hand) section.page iframe { pointer-events: none; }
 html.ink-lecture .ink-sub { box-shadow: inset 0 -2px 0 var(--gold, #DCB439); }
 @media (max-width: 640px) { .ink-sub { padding: .3rem .5rem; gap: .3rem; } .ink-sub .ink-msg { display: none; } }
 .ghost-only { display: none; }
+svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note pen): faint, with the faint answers */
+@media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
-  html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown) > * { visibility: visible; opacity: .28; }
+  html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
+  html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
+  html.ink-ghost .book[data-view="slides"] svg.draw [data-fill="label"]:not(.shown) > text,
+  html.ink-ghost .book[data-view="slides"] svg.draw g[data-fill="all"]:not(.shown) > * { opacity: .28; }
   html.ink-ghost .book[data-view="slides"] .qc .ans.ghost-only { display: block; opacity: .35; margin-top: 4pt; }
 }
 
@@ -696,1342 +718,109 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Backpropagation Through Time</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#lec-ffn-q">Review</a><a href="#lec-p-izza3">Sequence Data</a><a href="#lec-autograd">BPTT from Scratch</a><a href="#lec-forget">Vanishing and Exploding Gradients</a><a href="#lec-gates">LSTMs and GRUs</a><a href="#lec-static">Toward Attention</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="on">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="bptt-chapter.pdf" download>Reading</a><a href="bptt-chapter-slides.pdf" download>Lecture</a><a href="bptt-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="slides">
 <section class="page cover" id="cover">
-  <b-fig src="fig/cover.svg" class="cover-art" alt="A row of 50 gold bars, one per word of the chorus, shrinking and fading from right to left, with a row of navy dots underneath" data-b="d2a27" style="--ar: 1.745;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 220" xmlns="http://www.w3.org/2000/svg" version="1.1">
- <metadata>
-  <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-   <cc:work>
-    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type>
-    <dc:format>image/svg+xml</dc:format>
-    <dc:creator>
-     <cc:agent>
-      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
-     </cc:agent>
-    </dc:creator>
-   </cc:work>
-  </rdf:rdf>
- </metadata>
- <defs>
-  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
- </defs>
- <g id="figure_1">
-  <g id="patch_1">
-   <path d="M 0 220 
-L 384 220 
-L 384 0 
-L 0 0 
-z
-" style="fill: #ffffff"></path>
-  </g>
-  <g id="axes_1">
-   <g id="patch_2">
-    <path d="M 5.195294 191.690602 
-L 9.863529 191.690602 
-L 9.863529 175.513803 
-L 5.195294 175.513803 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.18"></path>
-   </g>
-   <g id="PathCollection_1">
-    <defs>
-     <path id="m34bc29cd19" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m34bc29cd19" x="7.529412" y="205.845301" style="fill: #002b5b; fill-opacity: 0.18"></use>
-    </g>
-   </g>
-   <g id="patch_3">
-    <path d="M 12.724706 191.690602 
-L 17.392941 191.690602 
-L 17.392941 170.7595 
-L 12.724706 170.7595 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.196735"></path>
-   </g>
-   <g id="PathCollection_2">
-    <defs>
-     <path id="m649e671a95" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m649e671a95" x="15.058824" y="205.845301" style="fill: #002b5b; fill-opacity: 0.196735"></use>
-    </g>
-   </g>
-   <g id="patch_4">
-    <path d="M 20.254118 191.690602 
-L 24.922353 191.690602 
-L 24.922353 168.452302 
-L 20.254118 168.452302 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.213469"></path>
-   </g>
-   <g id="PathCollection_3">
-    <defs>
-     <path id="mbc80efb618" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mbc80efb618" x="22.588235" y="205.845301" style="fill: #002b5b; fill-opacity: 0.213469"></use>
-    </g>
-   </g>
-   <g id="patch_5">
-    <path d="M 27.783529 191.690602 
-L 32.451765 191.690602 
-L 32.451765 166.773007 
-L 27.783529 166.773007 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.230204"></path>
-   </g>
-   <g id="PathCollection_4">
-    <defs>
-     <path id="mfb22284577" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mfb22284577" x="30.117647" y="205.845301" style="fill: #002b5b; fill-opacity: 0.230204"></use>
-    </g>
-   </g>
-   <g id="patch_6">
-    <path d="M 35.312941 191.690602 
-L 39.981176 191.690602 
-L 39.981176 162.162209 
-L 35.312941 162.162209 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.246939"></path>
-   </g>
-   <g id="PathCollection_5">
-    <defs>
-     <path id="m4c48ac374e" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m4c48ac374e" x="37.647059" y="205.845301" style="fill: #002b5b; fill-opacity: 0.246939"></use>
-    </g>
-   </g>
-   <g id="patch_7">
-    <path d="M 42.842353 191.690602 
-L 47.510588 191.690602 
-L 47.510588 155.384858 
-L 42.842353 155.384858 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.263673"></path>
-   </g>
-   <g id="PathCollection_6">
-    <defs>
-     <path id="m37de12ba45" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m37de12ba45" x="45.176471" y="205.845301" style="fill: #002b5b; fill-opacity: 0.263673"></use>
-    </g>
-   </g>
-   <g id="patch_8">
-    <path d="M 50.371765 191.690602 
-L 55.04 191.690602 
-L 55.04 150.947878 
-L 50.371765 150.947878 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.280408"></path>
-   </g>
-   <g id="PathCollection_7">
-    <defs>
-     <path id="m21935b7836" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m21935b7836" x="52.705882" y="205.845301" style="fill: #002b5b; fill-opacity: 0.280408"></use>
-    </g>
-   </g>
-   <g id="patch_9">
-    <path d="M 57.901176 191.690602 
-L 62.569412 191.690602 
-L 62.569412 150.116527 
-L 57.901176 150.116527 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.297143"></path>
-   </g>
-   <g id="PathCollection_8">
-    <defs>
-     <path id="me2f9f37750" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#me2f9f37750" x="60.235294" y="205.845301" style="fill: #002b5b; fill-opacity: 0.297143"></use>
-    </g>
-   </g>
-   <g id="patch_10">
-    <path d="M 65.430588 191.690602 
-L 70.098824 191.690602 
-L 70.098824 149.076859 
-L 65.430588 149.076859 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.313878"></path>
-   </g>
-   <g id="PathCollection_9">
-    <defs>
-     <path id="m83e95b0a40" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m83e95b0a40" x="67.764706" y="205.845301" style="fill: #002b5b; fill-opacity: 0.313878"></use>
-    </g>
-   </g>
-   <g id="patch_11">
-    <path d="M 72.96 191.690602 
-L 77.628235 191.690602 
-L 77.628235 145.88212 
-L 72.96 145.88212 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.330612"></path>
-   </g>
-   <g id="PathCollection_10">
-    <defs>
-     <path id="mdab3d386f4" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mdab3d386f4" x="75.294118" y="205.845301" style="fill: #002b5b; fill-opacity: 0.330612"></use>
-    </g>
-   </g>
-   <g id="patch_12">
-    <path d="M 80.489412 191.690602 
-L 85.157647 191.690602 
-L 85.157647 141.217646 
-L 80.489412 141.217646 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.347347"></path>
-   </g>
-   <g id="PathCollection_11">
-    <defs>
-     <path id="m8aee768471" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m8aee768471" x="82.823529" y="205.845301" style="fill: #002b5b; fill-opacity: 0.347347"></use>
-    </g>
-   </g>
-   <g id="patch_13">
-    <path d="M 88.018824 191.690602 
-L 92.687059 191.690602 
-L 92.687059 138.446705 
-L 88.018824 138.446705 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.364082"></path>
-   </g>
-   <g id="PathCollection_12">
-    <defs>
-     <path id="m9dfd83ed3e" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m9dfd83ed3e" x="90.352941" y="205.845301" style="fill: #002b5b; fill-opacity: 0.364082"></use>
-    </g>
-   </g>
-   <g id="patch_14">
-    <path d="M 95.548235 191.690602 
-L 100.216471 191.690602 
-L 100.216471 138.858256 
-L 95.548235 138.858256 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.380816"></path>
-   </g>
-   <g id="PathCollection_13">
-    <defs>
-     <path id="ma78a007222" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#ma78a007222" x="97.882353" y="205.845301" style="fill: #002b5b; fill-opacity: 0.380816"></use>
-    </g>
-   </g>
-   <g id="patch_15">
-    <path d="M 103.077647 191.690602 
-L 107.745882 191.690602 
-L 107.745882 134.59041 
-L 103.077647 134.59041 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.397551"></path>
-   </g>
-   <g id="PathCollection_14">
-    <defs>
-     <path id="mc431c9a0b3" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mc431c9a0b3" x="105.411765" y="205.845301" style="fill: #002b5b; fill-opacity: 0.397551"></use>
-    </g>
-   </g>
-   <g id="patch_16">
-    <path d="M 110.607059 191.690602 
-L 115.275294 191.690602 
-L 115.275294 129.675917 
-L 110.607059 129.675917 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.414286"></path>
-   </g>
-   <g id="PathCollection_15">
-    <defs>
-     <path id="mc4f1c67514" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mc4f1c67514" x="112.941176" y="205.845301" style="fill: #002b5b; fill-opacity: 0.414286"></use>
-    </g>
-   </g>
-   <g id="patch_17">
-    <path d="M 118.136471 191.690602 
-L 122.804706 191.690602 
-L 122.804706 127.370893 
-L 118.136471 127.370893 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.43102"></path>
-   </g>
-   <g id="PathCollection_16">
-    <defs>
-     <path id="mb7eee36ac7" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mb7eee36ac7" x="120.470588" y="205.845301" style="fill: #002b5b; fill-opacity: 0.43102"></use>
-    </g>
-   </g>
-   <g id="patch_18">
-    <path d="M 125.665882 191.690602 
-L 130.334118 191.690602 
-L 130.334118 126.330654 
-L 125.665882 126.330654 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.447755"></path>
-   </g>
-   <g id="PathCollection_17">
-    <defs>
-     <path id="m353bd3f261" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m353bd3f261" x="128" y="205.845301" style="fill: #002b5b; fill-opacity: 0.447755"></use>
-    </g>
-   </g>
-   <g id="patch_19">
-    <path d="M 133.195294 191.690602 
-L 137.863529 191.690602 
-L 137.863529 125.136565 
-L 133.195294 125.136565 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.46449"></path>
-   </g>
-   <g id="PathCollection_18">
-    <defs>
-     <path id="m798759cc2d" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m798759cc2d" x="135.529412" y="205.845301" style="fill: #002b5b; fill-opacity: 0.46449"></use>
-    </g>
-   </g>
-   <g id="patch_20">
-    <path d="M 140.724706 191.690602 
-L 145.392941 191.690602 
-L 145.392941 118.630988 
-L 140.724706 118.630988 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.481224"></path>
-   </g>
-   <g id="PathCollection_19">
-    <defs>
-     <path id="m69d877692e" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m69d877692e" x="143.058824" y="205.845301" style="fill: #002b5b; fill-opacity: 0.481224"></use>
-    </g>
-   </g>
-   <g id="patch_21">
-    <path d="M 148.254118 191.690602 
-L 152.922353 191.690602 
-L 152.922353 112.317419 
-L 148.254118 112.317419 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.497959"></path>
-   </g>
-   <g id="PathCollection_20">
-    <defs>
-     <path id="mb750c3869f" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mb750c3869f" x="150.588235" y="205.845301" style="fill: #002b5b; fill-opacity: 0.497959"></use>
-    </g>
-   </g>
-   <g id="patch_22">
-    <path d="M 155.783529 191.690602 
-L 160.451765 191.690602 
-L 160.451765 110.503855 
-L 155.783529 110.503855 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.514694"></path>
-   </g>
-   <g id="PathCollection_21">
-    <defs>
-     <path id="mea0546cff1" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mea0546cff1" x="158.117647" y="205.845301" style="fill: #002b5b; fill-opacity: 0.514694"></use>
-    </g>
-   </g>
-   <g id="patch_23">
-    <path d="M 163.312941 191.690602 
-L 167.981176 191.690602 
-L 167.981176 109.126526 
-L 163.312941 109.126526 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.531429"></path>
-   </g>
-   <g id="PathCollection_22">
-    <defs>
-     <path id="mfe09ed9a23" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mfe09ed9a23" x="165.647059" y="205.845301" style="fill: #002b5b; fill-opacity: 0.531429"></use>
-    </g>
-   </g>
-   <g id="patch_24">
-    <path d="M 170.842353 191.690602 
-L 175.510588 191.690602 
-L 175.510588 105.211795 
-L 170.842353 105.211795 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.548163"></path>
-   </g>
-   <g id="PathCollection_23">
-    <defs>
-     <path id="mbd854b94a1" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mbd854b94a1" x="173.176471" y="205.845301" style="fill: #002b5b; fill-opacity: 0.548163"></use>
-    </g>
-   </g>
-   <g id="patch_25">
-    <path d="M 178.371765 191.690602 
-L 183.04 191.690602 
-L 183.04 98.465187 
-L 178.371765 98.465187 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.564898"></path>
-   </g>
-   <g id="PathCollection_24">
-    <defs>
-     <path id="med149a25ac" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#med149a25ac" x="180.705882" y="205.845301" style="fill: #002b5b; fill-opacity: 0.564898"></use>
-    </g>
-   </g>
-   <g id="patch_26">
-    <path d="M 185.901176 191.690602 
-L 190.569412 191.690602 
-L 190.569412 94.41641 
-L 185.901176 94.41641 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.581633"></path>
-   </g>
-   <g id="PathCollection_25">
-    <defs>
-     <path id="mad4c148a55" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mad4c148a55" x="188.235294" y="205.845301" style="fill: #002b5b; fill-opacity: 0.581633"></use>
-    </g>
-   </g>
-   <g id="patch_27">
-    <path d="M 193.430588 191.690602 
-L 198.098824 191.690602 
-L 198.098824 94.887241 
-L 193.430588 94.887241 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.598367"></path>
-   </g>
-   <g id="PathCollection_26">
-    <defs>
-     <path id="m1a3eef8f2b" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m1a3eef8f2b" x="195.764706" y="205.845301" style="fill: #002b5b; fill-opacity: 0.598367"></use>
-    </g>
-   </g>
-   <g id="patch_28">
-    <path d="M 200.96 191.690602 
-L 205.628235 191.690602 
-L 205.628235 90.264133 
-L 200.96 90.264133 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.615102"></path>
-   </g>
-   <g id="PathCollection_27">
-    <defs>
-     <path id="m3d2ef35e47" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m3d2ef35e47" x="203.294118" y="205.845301" style="fill: #002b5b; fill-opacity: 0.615102"></use>
-    </g>
-   </g>
-   <g id="patch_29">
-    <path d="M 208.489412 191.690602 
-L 213.157647 191.690602 
-L 213.157647 84.042019 
-L 208.489412 84.042019 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.631837"></path>
-   </g>
-   <g id="PathCollection_28">
-    <defs>
-     <path id="m1f08f65f79" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m1f08f65f79" x="210.823529" y="205.845301" style="fill: #002b5b; fill-opacity: 0.631837"></use>
-    </g>
-   </g>
-   <g id="patch_30">
-    <path d="M 216.018824 191.690602 
-L 220.687059 191.690602 
-L 220.687059 80.388317 
-L 216.018824 80.388317 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.648571"></path>
-   </g>
-   <g id="PathCollection_29">
-    <defs>
-     <path id="me5de58b94e" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#me5de58b94e" x="218.352941" y="205.845301" style="fill: #002b5b; fill-opacity: 0.648571"></use>
-    </g>
-   </g>
-   <g id="patch_31">
-    <path d="M 223.548235 191.690602 
-L 228.216471 191.690602 
-L 228.216471 78.115939 
-L 223.548235 78.115939 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.665306"></path>
-   </g>
-   <g id="PathCollection_30">
-    <defs>
-     <path id="m32a249514c" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m32a249514c" x="225.882353" y="205.845301" style="fill: #002b5b; fill-opacity: 0.665306"></use>
-    </g>
-   </g>
-   <g id="patch_32">
-    <path d="M 231.077647 191.690602 
-L 235.745882 191.690602 
-L 235.745882 76.522905 
-L 231.077647 76.522905 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.682041"></path>
-   </g>
-   <g id="PathCollection_31">
-    <defs>
-     <path id="me1b9e0be3c" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#me1b9e0be3c" x="233.411765" y="205.845301" style="fill: #002b5b; fill-opacity: 0.682041"></use>
-    </g>
-   </g>
-   <g id="patch_33">
-    <path d="M 238.607059 191.690602 
-L 243.275294 191.690602 
-L 243.275294 69.79282 
-L 238.607059 69.79282 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.698776"></path>
-   </g>
-   <g id="PathCollection_32">
-    <defs>
-     <path id="m6c8d4d9071" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m6c8d4d9071" x="240.941176" y="205.845301" style="fill: #002b5b; fill-opacity: 0.698776"></use>
-    </g>
-   </g>
-   <g id="patch_34">
-    <path d="M 246.136471 191.690602 
-L 250.804706 191.690602 
-L 250.804706 66.34506 
-L 246.136471 66.34506 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.71551"></path>
-   </g>
-   <g id="PathCollection_33">
-    <defs>
-     <path id="ma9ba229865" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#ma9ba229865" x="248.470588" y="205.845301" style="fill: #002b5b; fill-opacity: 0.71551"></use>
-    </g>
-   </g>
-   <g id="patch_35">
-    <path d="M 253.665882 191.690602 
-L 258.334118 191.690602 
-L 258.334118 66.037193 
-L 253.665882 66.037193 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.732245"></path>
-   </g>
-   <g id="PathCollection_34">
-    <defs>
-     <path id="m42e412c53d" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m42e412c53d" x="256" y="205.845301" style="fill: #002b5b; fill-opacity: 0.732245"></use>
-    </g>
-   </g>
-   <g id="patch_36">
-    <path d="M 261.195294 191.690602 
-L 265.863529 191.690602 
-L 265.863529 63.953473 
-L 261.195294 63.953473 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.74898"></path>
-   </g>
-   <g id="PathCollection_35">
-    <defs>
-     <path id="m930f8afb02" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m930f8afb02" x="263.529412" y="205.845301" style="fill: #002b5b; fill-opacity: 0.74898"></use>
-    </g>
-   </g>
-   <g id="patch_37">
-    <path d="M 268.724706 191.690602 
-L 273.392941 191.690602 
-L 273.392941 57.92884 
-L 268.724706 57.92884 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.765714"></path>
-   </g>
-   <g id="PathCollection_36">
-    <defs>
-     <path id="m260ada38fe" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m260ada38fe" x="271.058824" y="205.845301" style="fill: #002b5b; fill-opacity: 0.765714"></use>
-    </g>
-   </g>
-   <g id="patch_38">
-    <path d="M 276.254118 191.690602 
-L 280.922353 191.690602 
-L 280.922353 49.442677 
-L 276.254118 49.442677 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.782449"></path>
-   </g>
-   <g id="PathCollection_37">
-    <defs>
-     <path id="m5d6f680e8a" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m5d6f680e8a" x="278.588235" y="205.845301" style="fill: #002b5b; fill-opacity: 0.782449"></use>
-    </g>
-   </g>
-   <g id="patch_39">
-    <path d="M 283.783529 191.690602 
-L 288.451765 191.690602 
-L 288.451765 46.955741 
-L 283.783529 46.955741 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.799184"></path>
-   </g>
-   <g id="PathCollection_38">
-    <defs>
-     <path id="m9cd7d1c105" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m9cd7d1c105" x="286.117647" y="205.845301" style="fill: #002b5b; fill-opacity: 0.799184"></use>
-    </g>
-   </g>
-   <g id="patch_40">
-    <path d="M 291.312941 191.690602 
-L 295.981176 191.690602 
-L 295.981176 45.429854 
-L 291.312941 45.429854 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.815918"></path>
-   </g>
-   <g id="PathCollection_39">
-    <defs>
-     <path id="mcdc0d7e394" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mcdc0d7e394" x="293.647059" y="205.845301" style="fill: #002b5b; fill-opacity: 0.815918"></use>
-    </g>
-   </g>
-   <g id="patch_41">
-    <path d="M 298.842353 191.690602 
-L 303.510588 191.690602 
-L 303.510588 43.244491 
-L 298.842353 43.244491 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.832653"></path>
-   </g>
-   <g id="PathCollection_40">
-    <defs>
-     <path id="m6dd06aa28e" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m6dd06aa28e" x="301.176471" y="205.845301" style="fill: #002b5b; fill-opacity: 0.832653"></use>
-    </g>
-   </g>
-   <g id="patch_42">
-    <path d="M 306.371765 191.690602 
-L 311.04 191.690602 
-L 311.04 37.899926 
-L 306.371765 37.899926 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.849388"></path>
-   </g>
-   <g id="PathCollection_41">
-    <defs>
-     <path id="mad598d7b17" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mad598d7b17" x="308.705882" y="205.845301" style="fill: #002b5b; fill-opacity: 0.849388"></use>
-    </g>
-   </g>
-   <g id="patch_43">
-    <path d="M 313.901176 191.690602 
-L 318.569412 191.690602 
-L 318.569412 33.078967 
-L 313.901176 33.078967 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.866122"></path>
-   </g>
-   <g id="PathCollection_42">
-    <defs>
-     <path id="md877cb8412" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#md877cb8412" x="316.235294" y="205.845301" style="fill: #002b5b; fill-opacity: 0.866122"></use>
-    </g>
-   </g>
-   <g id="patch_44">
-    <path d="M 321.430588 191.690602 
-L 326.098824 191.690602 
-L 326.098824 27.89784 
-L 321.430588 27.89784 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.882857"></path>
-   </g>
-   <g id="PathCollection_43">
-    <defs>
-     <path id="m21b7578776" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m21b7578776" x="323.764706" y="205.845301" style="fill: #002b5b; fill-opacity: 0.882857"></use>
-    </g>
-   </g>
-   <g id="patch_45">
-    <path d="M 328.96 191.690602 
-L 333.628235 191.690602 
-L 333.628235 27.515408 
-L 328.96 27.515408 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.899592"></path>
-   </g>
-   <g id="PathCollection_44">
-    <defs>
-     <path id="m9bd2f229b7" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m9bd2f229b7" x="331.294118" y="205.845301" style="fill: #002b5b; fill-opacity: 0.899592"></use>
-    </g>
-   </g>
-   <g id="patch_46">
-    <path d="M 336.489412 191.690602 
-L 341.157647 191.690602 
-L 341.157647 23.032482 
-L 336.489412 23.032482 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.916327"></path>
-   </g>
-   <g id="PathCollection_45">
-    <defs>
-     <path id="m37b9b0ac6a" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m37b9b0ac6a" x="338.823529" y="205.845301" style="fill: #002b5b; fill-opacity: 0.916327"></use>
-    </g>
-   </g>
-   <g id="patch_47">
-    <path d="M 344.018824 191.690602 
-L 348.687059 191.690602 
-L 348.687059 16.489482 
-L 344.018824 16.489482 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.933061"></path>
-   </g>
-   <g id="PathCollection_46">
-    <defs>
-     <path id="ma7bc119ace" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#ma7bc119ace" x="346.352941" y="205.845301" style="fill: #002b5b; fill-opacity: 0.933061"></use>
-    </g>
-   </g>
-   <g id="patch_48">
-    <path d="M 351.548235 191.690602 
-L 356.216471 191.690602 
-L 356.216471 16.789627 
-L 351.548235 16.789627 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.949796"></path>
-   </g>
-   <g id="PathCollection_47">
-    <defs>
-     <path id="mb46d013393" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#mb46d013393" x="353.882353" y="205.845301" style="fill: #002b5b; fill-opacity: 0.949796"></use>
-    </g>
-   </g>
-   <g id="patch_49">
-    <path d="M 359.077647 191.690602 
-L 363.745882 191.690602 
-L 363.745882 15.557738 
-L 359.077647 15.557738 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.966531"></path>
-   </g>
-   <g id="PathCollection_48">
-    <defs>
-     <path id="m854df18fdb" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m854df18fdb" x="361.411765" y="205.845301" style="fill: #002b5b; fill-opacity: 0.966531"></use>
-    </g>
-   </g>
-   <g id="patch_50">
-    <path d="M 366.607059 191.690602 
-L 371.275294 191.690602 
-L 371.275294 12.630388 
-L 366.607059 12.630388 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439; opacity: 0.983265"></path>
-   </g>
-   <g id="PathCollection_49">
-    <defs>
-     <path id="m72cdff7565" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m72cdff7565" x="368.941176" y="205.845301" style="fill: #002b5b; fill-opacity: 0.983265"></use>
-    </g>
-   </g>
-   <g id="patch_51">
-    <path d="M 374.136471 191.690602 
-L 378.804706 191.690602 
-L 378.804706 12.132599 
-L 374.136471 12.132599 
-z
-" clip-path="url(#p57fe481f7a)" style="fill: #dcb439"></path>
-   </g>
-   <g id="PathCollection_50">
-    <defs>
-     <path id="m144fb39bd5" d="M 0 1.5 
-C 0.397805 1.5 0.77937 1.341951 1.06066 1.06066 
-C 1.341951 0.77937 1.5 0.397805 1.5 0 
-C 1.5 -0.397805 1.341951 -0.77937 1.06066 -1.06066 
-C 0.77937 -1.341951 0.397805 -1.5 0 -1.5 
-C -0.397805 -1.5 -0.77937 -1.341951 -1.06066 -1.06066 
-C -1.341951 -0.77937 -1.5 -0.397805 -1.5 0 
-C -1.5 0.397805 -1.341951 0.77937 -1.06066 1.06066 
-C -0.77937 1.341951 -0.397805 1.5 0 1.5 
-z
-"></path>
-    </defs>
-    <g clip-path="url(#p57fe481f7a)">
-     <use xlink:href="#m144fb39bd5" x="376.470588" y="205.845301" style="fill: #002b5b"></use>
-    </g>
-   </g>
-  </g>
- </g>
- <defs>
-  <clipPath id="p57fe481f7a">
-   <rect x="0" y="0" width="384" height="220"></rect>
-  </clipPath>
- </defs>
-</svg>
-</b-fig>
+  <svg class="draw" viewBox="0 0 384 220" style="width: 280.9pt" role="img" aria-label="A row of 50 gold bars, one per word of the chorus, shrinking and fading from right to left, with a row of navy dots underneath" data-b="d2a27">
+    <defs></defs>
+    <rect x="5.2" y="175.5" width="4.7" height="16.2" rx="0.0" fill="#F9F2DB" stroke="none"></rect>
+    <ellipse cx="7.5" cy="205.8" rx="1.5" ry="1.5" fill="#D1D9E1" stroke="#D1D9E1" stroke-width="0.00"></ellipse>
+    <rect x="12.7" y="170.8" width="4.7" height="20.9" rx="0.0" fill="#F8F0D8" stroke="none"></rect>
+    <ellipse cx="15.1" cy="205.8" rx="1.5" ry="1.5" fill="#CDD5DF" stroke="#CDD5DF" stroke-width="0.00"></ellipse>
+    <rect x="20.3" y="168.5" width="4.7" height="23.2" rx="0.0" fill="#F8EFD5" stroke="none"></rect>
+    <ellipse cx="22.6" cy="205.8" rx="1.5" ry="1.5" fill="#C9D2DC" stroke="#C9D2DC" stroke-width="0.00"></ellipse>
+    <rect x="27.8" y="166.8" width="4.7" height="24.9" rx="0.0" fill="#F7EED1" stroke="none"></rect>
+    <ellipse cx="30.1" cy="205.8" rx="1.5" ry="1.5" fill="#C4CED9" stroke="#C4CED9" stroke-width="0.00"></ellipse>
+    <rect x="35.3" y="162.2" width="4.7" height="29.5" rx="0.0" fill="#F6ECCE" stroke="none"></rect>
+    <ellipse cx="37.6" cy="205.8" rx="1.5" ry="1.5" fill="#C0CBD7" stroke="#C0CBD7" stroke-width="0.00"></ellipse>
+    <rect x="42.8" y="155.4" width="4.7" height="36.3" rx="0.0" fill="#F6EBCB" stroke="none"></rect>
+    <ellipse cx="45.2" cy="205.8" rx="1.5" ry="1.5" fill="#BCC7D4" stroke="#BCC7D4" stroke-width="0.00"></ellipse>
+    <rect x="50.4" y="150.9" width="4.7" height="40.7" rx="0.0" fill="#F5EAC7" stroke="none"></rect>
+    <ellipse cx="52.7" cy="205.8" rx="1.5" ry="1.5" fill="#B7C4D1" stroke="#B7C4D1" stroke-width="0.00"></ellipse>
+    <rect x="57.9" y="150.1" width="4.7" height="41.6" rx="0.0" fill="#F5E9C4" stroke="none"></rect>
+    <ellipse cx="60.2" cy="205.8" rx="1.5" ry="1.5" fill="#B3C0CE" stroke="#B3C0CE" stroke-width="0.00"></ellipse>
+    <rect x="65.4" y="149.1" width="4.7" height="42.6" rx="0.0" fill="#F4E7C1" stroke="none"></rect>
+    <ellipse cx="67.8" cy="205.8" rx="1.5" ry="1.5" fill="#AFBCCC" stroke="#AFBCCC" stroke-width="0.00"></ellipse>
+    <rect x="73.0" y="145.9" width="4.7" height="45.8" rx="0.0" fill="#F3E6BE" stroke="none"></rect>
+    <ellipse cx="75.3" cy="205.8" rx="1.5" ry="1.5" fill="#ABB9C9" stroke="#ABB9C9" stroke-width="0.00"></ellipse>
+    <rect x="80.5" y="141.2" width="4.7" height="50.5" rx="0.0" fill="#F3E5BA" stroke="none"></rect>
+    <ellipse cx="82.8" cy="205.8" rx="1.5" ry="1.5" fill="#A6B5C6" stroke="#A6B5C6" stroke-width="0.00"></ellipse>
+    <rect x="88.0" y="138.4" width="4.7" height="53.2" rx="0.0" fill="#F2E4B7" stroke="none"></rect>
+    <ellipse cx="90.4" cy="205.8" rx="1.5" ry="1.5" fill="#A2B2C3" stroke="#A2B2C3" stroke-width="0.00"></ellipse>
+    <rect x="95.5" y="138.9" width="4.7" height="52.8" rx="0.0" fill="#F2E2B4" stroke="none"></rect>
+    <ellipse cx="97.9" cy="205.8" rx="1.5" ry="1.5" fill="#9EAEC1" stroke="#9EAEC1" stroke-width="0.00"></ellipse>
+    <rect x="103.1" y="134.6" width="4.7" height="57.1" rx="0.0" fill="#F1E1B0" stroke="none"></rect>
+    <ellipse cx="105.4" cy="205.8" rx="1.5" ry="1.5" fill="#9AABBE" stroke="#9AABBE" stroke-width="0.00"></ellipse>
+    <rect x="110.6" y="129.7" width="4.7" height="62.0" rx="0.0" fill="#F0E0AD" stroke="none"></rect>
+    <ellipse cx="112.9" cy="205.8" rx="1.5" ry="1.5" fill="#95A7BB" stroke="#95A7BB" stroke-width="0.00"></ellipse>
+    <rect x="118.1" y="127.4" width="4.7" height="64.3" rx="0.0" fill="#F0DFAA" stroke="none"></rect>
+    <ellipse cx="120.5" cy="205.8" rx="1.5" ry="1.5" fill="#91A4B8" stroke="#91A4B8" stroke-width="0.00"></ellipse>
+    <rect x="125.7" y="126.3" width="4.7" height="65.4" rx="0.0" fill="#EFDDA6" stroke="none"></rect>
+    <ellipse cx="128.0" cy="205.8" rx="1.5" ry="1.5" fill="#8DA0B6" stroke="#8DA0B6" stroke-width="0.00"></ellipse>
+    <rect x="133.2" y="125.1" width="4.7" height="66.6" rx="0.0" fill="#EFDCA3" stroke="none"></rect>
+    <ellipse cx="135.5" cy="205.8" rx="1.5" ry="1.5" fill="#899DB3" stroke="#899DB3" stroke-width="0.00"></ellipse>
+    <rect x="140.7" y="118.6" width="4.7" height="73.1" rx="0.0" fill="#EEDBA0" stroke="none"></rect>
+    <ellipse cx="143.1" cy="205.8" rx="1.5" ry="1.5" fill="#8499B0" stroke="#8499B0" stroke-width="0.00"></ellipse>
+    <rect x="148.3" y="112.3" width="4.7" height="79.4" rx="0.0" fill="#EEDA9C" stroke="none"></rect>
+    <ellipse cx="150.6" cy="205.8" rx="1.5" ry="1.5" fill="#8095AD" stroke="#8095AD" stroke-width="0.00"></ellipse>
+    <rect x="155.8" y="110.5" width="4.7" height="81.2" rx="0.0" fill="#EDD899" stroke="none"></rect>
+    <ellipse cx="158.1" cy="205.8" rx="1.5" ry="1.5" fill="#7C92AB" stroke="#7C92AB" stroke-width="0.00"></ellipse>
+    <rect x="163.3" y="109.1" width="4.7" height="82.6" rx="0.0" fill="#ECD796" stroke="none"></rect>
+    <ellipse cx="165.6" cy="205.8" rx="1.5" ry="1.5" fill="#778EA8" stroke="#778EA8" stroke-width="0.00"></ellipse>
+    <rect x="170.8" y="105.2" width="4.7" height="86.5" rx="0.0" fill="#ECD692" stroke="none"></rect>
+    <ellipse cx="173.2" cy="205.8" rx="1.5" ry="1.5" fill="#738BA5" stroke="#738BA5" stroke-width="0.00"></ellipse>
+    <rect x="178.4" y="98.5" width="4.7" height="93.2" rx="0.0" fill="#EBD58F" stroke="none"></rect>
+    <ellipse cx="180.7" cy="205.8" rx="1.5" ry="1.5" fill="#6F87A2" stroke="#6F87A2" stroke-width="0.00"></ellipse>
+    <rect x="185.9" y="94.4" width="4.7" height="97.3" rx="0.0" fill="#EBD38C" stroke="none"></rect>
+    <ellipse cx="188.2" cy="205.8" rx="1.5" ry="1.5" fill="#6B84A0" stroke="#6B84A0" stroke-width="0.00"></ellipse>
+    <rect x="193.4" y="94.9" width="4.7" height="96.8" rx="0.0" fill="#EAD289" stroke="none"></rect>
+    <ellipse cx="195.8" cy="205.8" rx="1.5" ry="1.5" fill="#66809D" stroke="#66809D" stroke-width="0.00"></ellipse>
+    <rect x="201.0" y="90.3" width="4.7" height="101.4" rx="0.0" fill="#E9D185" stroke="none"></rect>
+    <ellipse cx="203.3" cy="205.8" rx="1.5" ry="1.5" fill="#627D9A" stroke="#627D9A" stroke-width="0.00"></ellipse>
+    <rect x="208.5" y="84.0" width="4.7" height="107.6" rx="0.0" fill="#E9D082" stroke="none"></rect>
+    <ellipse cx="210.8" cy="205.8" rx="1.5" ry="1.5" fill="#5E7997" stroke="#5E7997" stroke-width="0.00"></ellipse>
+    <rect x="216.0" y="80.4" width="4.7" height="111.3" rx="0.0" fill="#E8CE7F" stroke="none"></rect>
+    <ellipse cx="218.4" cy="205.8" rx="1.5" ry="1.5" fill="#5A7695" stroke="#5A7695" stroke-width="0.00"></ellipse>
+    <rect x="223.5" y="78.1" width="4.7" height="113.6" rx="0.0" fill="#E8CD7B" stroke="none"></rect>
+    <ellipse cx="225.9" cy="205.8" rx="1.5" ry="1.5" fill="#557292" stroke="#557292" stroke-width="0.00"></ellipse>
+    <rect x="231.1" y="76.5" width="4.7" height="115.2" rx="0.0" fill="#E7CC78" stroke="none"></rect>
+    <ellipse cx="233.4" cy="205.8" rx="1.5" ry="1.5" fill="#516E8F" stroke="#516E8F" stroke-width="0.00"></ellipse>
+    <rect x="238.6" y="69.8" width="4.7" height="121.9" rx="0.0" fill="#E7CB75" stroke="none"></rect>
+    <ellipse cx="240.9" cy="205.8" rx="1.5" ry="1.5" fill="#4D6B8C" stroke="#4D6B8C" stroke-width="0.00"></ellipse>
+    <rect x="246.1" y="66.3" width="4.7" height="125.3" rx="0.0" fill="#E6C971" stroke="none"></rect>
+    <ellipse cx="248.5" cy="205.8" rx="1.5" ry="1.5" fill="#49678A" stroke="#49678A" stroke-width="0.00"></ellipse>
+    <rect x="253.7" y="66.0" width="4.7" height="125.7" rx="0.0" fill="#E5C86E" stroke="none"></rect>
+    <ellipse cx="256.0" cy="205.8" rx="1.5" ry="1.5" fill="#446487" stroke="#446487" stroke-width="0.00"></ellipse>
+    <rect x="261.2" y="64.0" width="4.7" height="127.7" rx="0.0" fill="#E5C76B" stroke="none"></rect>
+    <ellipse cx="263.5" cy="205.8" rx="1.5" ry="1.5" fill="#406084" stroke="#406084" stroke-width="0.00"></ellipse>
+    <rect x="268.7" y="57.9" width="4.7" height="133.8" rx="0.0" fill="#E4C667" stroke="none"></rect>
+    <ellipse cx="271.1" cy="205.8" rx="1.5" ry="1.5" fill="#3C5D81" stroke="#3C5D81" stroke-width="0.00"></ellipse>
+    <rect x="276.3" y="49.4" width="4.7" height="142.2" rx="0.0" fill="#E4C464" stroke="none"></rect>
+    <ellipse cx="278.6" cy="205.8" rx="1.5" ry="1.5" fill="#37597F" stroke="#37597F" stroke-width="0.00"></ellipse>
+    <rect x="283.8" y="47.0" width="4.7" height="144.7" rx="0.0" fill="#E3C361" stroke="none"></rect>
+    <ellipse cx="286.1" cy="205.8" rx="1.5" ry="1.5" fill="#33567C" stroke="#33567C" stroke-width="0.00"></ellipse>
+    <rect x="291.3" y="45.4" width="4.7" height="146.3" rx="0.0" fill="#E2C25D" stroke="none"></rect>
+    <ellipse cx="293.6" cy="205.8" rx="1.5" ry="1.5" fill="#2F5279" stroke="#2F5279" stroke-width="0.00"></ellipse>
+    <rect x="298.8" y="43.2" width="4.7" height="148.4" rx="0.0" fill="#E2C15A" stroke="none"></rect>
+    <ellipse cx="301.2" cy="205.8" rx="1.5" ry="1.5" fill="#2B4E76" stroke="#2B4E76" stroke-width="0.00"></ellipse>
+    <rect x="306.4" y="37.9" width="4.7" height="153.8" rx="0.0" fill="#E1BF57" stroke="none"></rect>
+    <ellipse cx="308.7" cy="205.8" rx="1.5" ry="1.5" fill="#264B74" stroke="#264B74" stroke-width="0.00"></ellipse>
+    <rect x="313.9" y="33.1" width="4.7" height="158.6" rx="0.0" fill="#E1BE54" stroke="none"></rect>
+    <ellipse cx="316.2" cy="205.8" rx="1.5" ry="1.5" fill="#224771" stroke="#224771" stroke-width="0.00"></ellipse>
+    <rect x="321.4" y="27.9" width="4.7" height="163.8" rx="0.0" fill="#E0BD50" stroke="none"></rect>
+    <ellipse cx="323.8" cy="205.8" rx="1.5" ry="1.5" fill="#1E446E" stroke="#1E446E" stroke-width="0.00"></ellipse>
+    <rect x="329.0" y="27.5" width="4.7" height="164.2" rx="0.0" fill="#E0BC4D" stroke="none"></rect>
+    <ellipse cx="331.3" cy="205.8" rx="1.5" ry="1.5" fill="#1A406B" stroke="#1A406B" stroke-width="0.00"></ellipse>
+    <rect x="336.5" y="23.0" width="4.7" height="168.7" rx="0.0" fill="#DFBA4A" stroke="none"></rect>
+    <ellipse cx="338.8" cy="205.8" rx="1.5" ry="1.5" fill="#153D69" stroke="#153D69" stroke-width="0.00"></ellipse>
+    <rect x="344.0" y="16.5" width="4.7" height="175.2" rx="0.0" fill="#DEB946" stroke="none"></rect>
+    <ellipse cx="346.4" cy="205.8" rx="1.5" ry="1.5" fill="#113966" stroke="#113966" stroke-width="0.00"></ellipse>
+    <rect x="351.5" y="16.8" width="4.7" height="174.9" rx="0.0" fill="#DEB843" stroke="none"></rect>
+    <ellipse cx="353.9" cy="205.8" rx="1.5" ry="1.5" fill="#0D3663" stroke="#0D3663" stroke-width="0.00"></ellipse>
+    <rect x="359.1" y="15.6" width="4.7" height="176.1" rx="0.0" fill="#DDB740" stroke="none"></rect>
+    <ellipse cx="361.4" cy="205.8" rx="1.5" ry="1.5" fill="#093260" stroke="#093260" stroke-width="0.00"></ellipse>
+    <rect x="366.6" y="12.6" width="4.7" height="179.1" rx="0.0" fill="#DDB53C" stroke="none"></rect>
+    <ellipse cx="368.9" cy="205.8" rx="1.5" ry="1.5" fill="#042F5E" stroke="#042F5E" stroke-width="0.00"></ellipse>
+    <rect x="374.1" y="12.1" width="4.7" height="179.6" rx="0.0" fill="#DCB439" stroke="none"></rect>
+    <ellipse cx="376.5" cy="205.8" rx="1.5" ry="1.5" fill="#002B5B" stroke="#002B5B" stroke-width="0.00"></ellipse>
+  </svg>
   <div class="cover-text" data-b="nz1vz">
     <div class="kicker">Unit 03 · Chapter 4</div>
     <h1>Backpropagation Through Time</h1>
@@ -5119,7 +3908,7 @@ z
 </b-fig>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Sequence Data</span><span>09</span></div></section>
 
-<section class="page" id="lec-p-992ol" data-view="slides workbook" data-topic="unrolling rnn-equations" style="--gap: 20.3pt;">
+<section class="page" id="lec-p-992ol" data-view="slides workbook" data-topic="unrolling rnn-equations" style="--gap: 20.4pt;">
   <h2 data-b="xv6ry">RNNs (Old Exam Questions)</h2>
   <aside class="qc exam" data-qsrc="pp03-rnn-graph" data-b="lfr44"><b>Old exam question:</b> Draw the computation graph for an <b class="name">RNN</b>, for the sentence "Good Luck", with a word level <b class="def">tokenizer</b>. Only produce output for the final <b class="def">token</b>.<div class="ans ghost-only">Two tokens, <b-m tex="x_{1}"><span class="c red">x<sub>1</sub></span></b-m> = "Good" and <b-m tex="x_{2}"><span class="c red">x<sub>2</sub></span></b-m> = "Luck" (each as its embedding), and two copies of the cell sharing <b-m tex="Ω_x"><span class="c wblue"><span class="Om">ω</span><sub>x</sub></span></b-m>, <b-m tex="Ω_c"><span class="c wblue"><span class="Om">ω</span><sub>c</sub></span></b-m> and <b-m tex="b_c"><span class="c gray">b<sub>c</sub></span></b-m>. Start from <b-m tex="c_{0} = 0"><span class="c gold">c<sub>0</sub></span> = 0</b-m>. Step 1: <b-m tex="c_{1} = g_1(x_{1} Ω_x\T + c_{0} Ω_c\T + b_c)"><span class="c gold">c<sub>1</sub></span> = g<sub>1</sub>(<span class="c red">x<sub>1</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>x</sub></span><sup>T</sup> + <span class="c gold">c<sub>0</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>c</sub></span><sup>T</sup> + <span class="c gray">b<sub>c</sub></span>)</b-m>, no output. Step 2: <b-m tex="c_{2} = g_1(x_{2} Ω_x\T + c_{1} Ω_c\T + b_c)"><span class="c gold">c<sub>2</sub></span> = g<sub>1</sub>(<span class="c red">x<sub>2</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>x</sub></span><sup>T</sup> + <span class="c gold">c<sub>1</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>c</sub></span><sup>T</sup> + <span class="c gray">b<sub>c</sub></span>)</b-m>, then the only output <b-m tex="ŷ = g_2(c_{2} Ω_y\T + b_y)"><span class="c gold">ŷ</span> = g<sub>2</sub>(<span class="c gold">c<sub>2</sub></span> <span class="c wblue"><span class="Om">ω</span><sub>y</sub></span><sup>T</sup> + <span class="c gray">b<sub>y</sub></span>)</b-m>. Drawn: <b-m tex="c_{0}"><span class="c gold">c<sub>0</sub></span></b-m> → cell 1 (with "Good" from below) → <b-m tex="c_{1}"><span class="c gold">c<sub>1</sub></span></b-m> → cell 2 (with "Luck" from below) → <b-m tex="c_{2}"><span class="c gold">c<sub>2</sub></span></b-m> → output layer → <b-m tex="ŷ"><span class="c gold">ŷ</span></b-m>, with the shared weights feeding both cells.</div></aside>
   <div class="wbox" style="height: 358pt" data-b="hu0i5"></div>
@@ -6750,7 +5539,7 @@ z
  </defs>
 </svg>
 </b-fig>
-  <p data-b="i6ke8">By the ninth word it's <span class="num">0.001</span>: the <b class="name">RNN</b><b class="warn"> <u class="fill">forgets</u></b> how the song started. One fix:<br><u class="fill">let each step choose what to keep</u></p>
+  <p data-b="i6ke8">By the ninth word it's <span class="num">0.001</span>: the <b class="name">RNN</b><b class="warn"> <u class="fill">forgets</u></b> how the song started. One fix: a <u class="fill">gate</u> that lets each step choose what to keep</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Vanishing and Exploding Gradients</span><span>26</span></div></section>
 
 <section class="page" id="p-n86c9" data-view="slides workbook" data-topic="vanishing">
@@ -8053,10 +6842,10 @@ L 268.637969 23.815527
 
 <section class="page" id="lec-lstm-gru" data-view="slides workbook" data-topic="gating lstm-gru" style="--gap: 22pt;">
   <h2 data-b="hcixn">LSTMs and GRUs</h2>
-  <p data-b="sdkb0">A real gate is <u class="fill">a sigmoid layer of its own</u>, so the network <u class="fill">learns when to hold on and when to let go</u></p>
+  <p data-b="sdkb0">A real gate is its own <u class="fill">sigmoid</u> layer, so the network <b class="take">learns when to hold on and when to let go</b></p>
   <ul data-b="ptr5h">
-    <li><b class="name"><b class="name">LSTM</b> (<span class="num">1997</span>): <u class="fill">three gates and a separate cell state</u></b></li>
-    <li><b class="name">GRU</b> (<span class="num">2014</span>): <u class="fill">an update gate and a reset gate</u></li>
+    <li><b class="name">LSTM</b> (<span class="num">1997</span>): <u class="fill">three</u> gates and a separate <u class="fill">cell state</u></li>
+    <li><b class="name">GRU</b> (<span class="num">2014</span>): an <u class="fill">update gate</u> and a <u class="fill">reset gate</u></li>
   </ul>
   <b-code lang="python" data-b="xutud"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div></div><div class="src"><div class="ln"><span class="kw">from</span> torch <span class="kw">import</span> nn</div><div class="ln"><span class="ctl">for</span> cell <span class="kw">in</span> [nn.RNN(<span class="nu nn">2</span>, <span class="nu nn">2</span>), nn.GRU(<span class="nu nn">2</span>, <span class="nu nn">2</span>), nn.LSTM(<span class="nu nn">2</span>, <span class="nu nn">2</span>)]:</div><div class="ln">    n = <span class="bi">sum</span>(<span class="cc gold">p</span>.numel() <span class="ctl">for</span> <span class="cc gold">p</span> <span class="kw">in</span> cell.parameters())</div><div class="ln">    <span class="bi">print</span>(<span class="ty">type</span>(cell).__name__, n)</div></div></b-code>
   <b-out data-b="uwctr"><div class="label">Output</div><pre><span class="olab">RNN</span> <span class="nu nn">12</span>
@@ -8394,7 +7183,7 @@ L 268.637969 23.815527
 
 <section class="page" id="lec-rnn-attention" data-view="slides workbook" data-topic="attention" style="--gap: 22pt;">
   <h2 data-b="ezozb">Attention</h2>
-  <p data-b="lyzn6">Bahdanau, Cho and Bengio (<span class="num">2014</span>): before each token it writes, the decoder <u class="fill">looks back at every encoder hidden state</u></p>
+  <p data-b="lyzn6">Bahdanau, Cho and Bengio (<span class="num">2014</span>): before each token it writes, the decoder looks back at every encoder <u class="fill">hidden state</u></p>
   <svg class="draw" viewBox="0 0 380 192" style="width: 82%" role="img" aria-label="Attention, step by step: the encoder reads from, the, sky and keeps a hidden state c 1, c 2, c 3 for each word. The decoder state s is scored against each of them (s dot c j), a softmax turns the scores e into weights alpha, and the context v is the weighted sum of the c j. v goes into the decoder, which writes cielo." data-b="qby87">
     <defs>
       <marker id="ah666666-qby87" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
@@ -9232,7 +8021,7 @@ L 380.16 105
  </defs>
 </svg>
 </b-fig>
-  <p data-b="ve59r">Most weight on <b-tok v="march" t="up" data-f="green" title="Victory March words: &quot;up&quot; = 6"><span class="tk-t">up</span><span class="tk-id">6</span></b-tok> and the other <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok>s: <u class="fill">their hidden states are the most like this one</u>. Next chapter: attention with learned weights</p>
+  <p data-b="ve59r">Most weight on <b-tok v="march" t="up" data-f="green" title="Victory March words: &quot;up&quot; = 6"><span class="tk-t">up</span><span class="tk-id">6</span></b-tok> and the other <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok>s: their hidden states have the biggest <u class="fill">dot product</u> with this one. Next chapter: <b class="def">attention</b> with <b class="take">learned weights</b></p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Toward Attention</span><span>35</span></div></section>
 
 <section class="page" id="lec-attention" data-view="slides workbook" data-topic="attention">
@@ -9401,7 +8190,7 @@ L 380.16 105
 
 
 </main>
-<script>(function(){function z(){var W=Math.min(window.innerWidth,document.documentElement.clientWidth||1e9,screen.width||1e9);var w=Math.min(1,(W-32)/960);document.documentElement.style.setProperty('--zoom',w)}z();window.addEventListener('resize',z)})();document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){if(!d.contains(e.target))d.open=false})});document.addEventListener('keydown',function(e){if(e.key==='Escape')[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){d.open=false})});[].forEach.call(document.querySelectorAll('.navbar .toc a'),function(a){a.addEventListener('click',function(){a.closest('details').open=false})});document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill]');if(f)f.classList.toggle('shown')});addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='eai-embed-height'||!(d.height>100))return;[].forEach.call(document.querySelectorAll('b-embed iframe'),function(f){if(f.contentWindow===e.source)f.style.height=Math.min(d.height,2400)+'px'})});(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-frame]'));if(!fs.length)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.src=e.target.getAttribute('data-frame');io.unobserve(e.target)}})},{rootMargin:'600px'});fs.forEach(function(f){io.observe(f)})})();function eaiLiveFig(fig){var u=fig.getAttribute('viz');if(fig._viz||!u||!/^https?:\/\//.test(u))return;fig._viz=1;fig.classList.add('viz');var io=new IntersectionObserver(function(es){if(!es.some(function(e){return e.isIntersecting}))return;io.disconnect();var f=document.createElement('iframe');f.className='vizf';f.title=fig.getAttribute('alt')||'Interactive figure';f.setAttribute('scrolling','no');f.src=u+(u.indexOf('?')<0?'?':'&')+'embed=fig&theme=light';var a=document.createElement('a');a.className='vizl';a.href=u;a.target='_blank';a.rel='noopener';a.textContent='Live · open the full tool ↗';addEventListener('message',function on(e){if(e.source!==f.contentWindow||!e.data||e.data.type!=='eai-ready')return;removeEventListener('message',on);fig.classList.add('viz-on')});fig.appendChild(f);fig.appendChild(a)},{rootMargin:'300px'});io.observe(fig)};[].forEach.call(document.querySelectorAll('b-fig[viz]'),eaiLiveFig);
+<script>(function(){function z(){var W=Math.min(window.innerWidth,document.documentElement.clientWidth||1e9,screen.width||1e9);var w=Math.min(1,(W-32)/960);document.documentElement.style.setProperty('--zoom',w)}z();window.addEventListener('resize',z)})();document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){if(!d.contains(e.target))d.open=false})});document.addEventListener('keydown',function(e){if(e.key==='Escape')[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){d.open=false})});[].forEach.call(document.querySelectorAll('.navbar .toc a'),function(a){a.addEventListener('click',function(){a.closest('details').open=false})});document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill]');if(!f)return;var on=f.classList.toggle('shown'),d=f.id&&f.closest('svg');if(d)[].forEach.call(d.querySelectorAll('[data-rt-fill]'),function(a){if(a.getAttribute('data-rt-fill')===f.id)a.classList.toggle('shown',on)})});addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='eai-embed-height'||!(d.height>100))return;[].forEach.call(document.querySelectorAll('b-embed iframe'),function(f){if(f.contentWindow===e.source)f.style.height=Math.min(d.height,2400)+'px'})});(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-frame]'));if(!fs.length)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.src=e.target.getAttribute('data-frame');io.unobserve(e.target)}})},{rootMargin:'600px'});fs.forEach(function(f){io.observe(f)})})();function eaiLiveFig(fig){var u=fig.getAttribute('viz');if(fig._viz||!u||!/^https?:\/\//.test(u))return;fig._viz=1;fig.classList.add('viz');var io=new IntersectionObserver(function(es){if(!es.some(function(e){return e.isIntersecting}))return;io.disconnect();var f=document.createElement('iframe');f.className='vizf';f.title=fig.getAttribute('alt')||'Interactive figure';f.setAttribute('scrolling','no');f.src=u+(u.indexOf('?')<0?'?':'&')+'embed=fig&theme=light';var a=document.createElement('a');a.className='vizl';a.href=u;a.target='_blank';a.rel='noopener';a.textContent='Live · open the full tool ↗';addEventListener('message',function on(e){if(e.source!==f.contentWindow||!e.data||e.data.type!=='eai-ready')return;removeEventListener('message',on);fig.classList.add('viz-on')});fig.appendChild(f);fig.appendChild(a)},{rootMargin:'300px'});io.observe(fig)};[].forEach.call(document.querySelectorAll('b-fig[viz]'),eaiLiveFig);
 // "Try it: drag the points" — a linear soft-margin SVM (SMO) re-solved while you drag.
 // Same data, colours and marks as the street figure: +1 blue circles, -1 gold triangles,
 // boundary and street purple, support vectors (alpha > 0) ringed red.
@@ -9529,6 +8318,21 @@ document.querySelectorAll('b-fig[live]').forEach(f => { const k = f.getAttribute
 var EAI_CC = {"x":"red","X":"red","Wx":"blue","Wc":"blue","Wy":"blue","bc":"gray","by":"gray","c":"gold","C":"gold","p":"gold","P":"gold","y":"green","Y":"green"};
 var EAI_TOKDEF = null;
 var EAI_TOK = {"march":{"map":{"cheer":[0,"purple"],"for":[1,"green"],"old":[2,"yellow"],"notre":[3,"red"],"dame":[4,"blue"],"wake":[5,"purple"],"up":[6,"green"],"the":[7,"yellow"],"echoes":[8,"red"],"cheering":[9,"blue"],"her":[10,"purple"],"name":[11,"green"],"send":[12,"yellow"],"a":[13,"red"],"volley":[14,"blue"],"on":[15,"green"],"high":[16,"purple"],"shake":[17,"yellow"],"down":[18,"red"],"thunder":[19,"blue"],"from":[20,"purple"],"sky":[21,"green"],"what":[22,"yellow"],"though":[23,"red"],"odds":[24,"blue"],"be":[25,"purple"],"great":[26,"green"],"or":[27,"yellow"],"small":[28,"red"],"will":[29,"blue"],"win":[30,"purple"],"over":[31,"green"],"all":[32,"yellow"],"while":[33,"red"],"loyal":[34,"blue"],"sons":[35,"purple"],"and":[36,"green"],"daughters":[37,"yellow"],"march":[38,"red"],"to":[39,"blue"],"victory":[40,"purple"]},"byId":["purple","green","yellow","red","blue","purple","green","yellow","red","blue","purple","green","yellow","red","blue","green","purple","yellow","red","blue","purple","green","yellow","red","blue","purple","green","yellow","red","blue","purple","green","yellow","red","blue","purple","green","yellow","red","blue","purple"],"n":41}};
+var EAI_WEB = "ai2ai/bptt";
+function eaiColab(bid, web, solutions, w) {
+  var SITE = 'https://ai.williamtheisen.com/', GH = 'https://colab.research.google.com/github/wtheisen/ai-landing-page/blob/main/';
+  web = String(web || '').replace(/^\/+|\/+$/g, '');
+  var cache = eaiColab.cache = eaiColab.cache || {}, book = web.split('/')[0];
+  cache[book] = cache[book] || fetch(SITE + book + '/notebooks.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { cache[book] = null; return {}; });
+  return cache[book].then(function (m) {
+    var hit = null; Object.keys(m || {}).forEach(function (k) { var e = m[k]; if (e && e.web === web && e.files) hit = e; });
+    var f = hit && (hit.files.filter(function (x) { return x.role === (solutions ? 'solutions' : 'student'); })[0] || hit.files[0]);
+    var url = f ? GH + f.path + (bid ? '#scrollTo=' + bid : '') : null;
+    if (w) { if (url) w.location.href = url; else w.close(); }
+    return url;
+  });
+}
+eaiColab.teacher = function () { try { return !!JSON.parse(localStorage.getItem('eai-ink-token') || 'null'); } catch (e) { return false; } };
 function eaiOutHL(text, cc, hl, tok) {
   // tok (token tiles in outputs, Eric 2026-11-07): {map: {token: [id, family]}, n, ids}: a quoted string that is a token
   // of the vocabulary becomes a tile, and a bracketed list of whole numbers that are all its IDs takes the tokens' colours
@@ -9694,7 +8498,31 @@ function eaiRunCode() {
     if (typeof r !== 'object') return String(r);
     try { var B = py.pyimport('builtins'), mod = String(B.getattr(B.type(r), '__module__', '')); if (/^matplotlib/.test(mod)) return ''; return B.repr(r); } catch (e) { return ''; } finally { if (r.destroy) r.destroy(); }
   }
+  // Colab-only cells (Book.colabOf in the viewer; colab="" baked in by the export): Open in Colab instead of Run
+  var colabSet = window.Book && Book.colabCells && Book.root ? Book.colabCells() : null;
+  function isColab(b) { return colabSet ? colabSet.has(b) : b.hasAttribute('colab') && b.getAttribute('colab') !== 'off'; }
+  function colabBar(block) {
+    if (block._run) return; block._run = true;
+    var out = block.nextElementSibling && block.nextElementSibling.tagName === 'B-OUT' ? block.nextElementSibling : null;
+    if (!out) { out = document.createElement('b-out'); out.className = 'run-new'; out.innerHTML = '<div class="label">Output</div><pre></pre>'; block.after(out); }
+    var bar = document.createElement('span'); bar.className = 'run-bar run-colab web-only';
+    bar.innerHTML = '<span class="run-status"></span><span class="colab-tag" title="Needs a GPU, packages or a model the browser can\'t run">Colab only</span><button type="button" data-a="colab">Open in Colab ↗</button>';
+    out.querySelector('.label').appendChild(bar);
+    var web = window.EAI_WEB || (window.Book && Book.meta && (Book.meta.web || (Book.chapter ? 'ai2ai/' + Book.chapter : ''))) || '';
+    var sol = eaiColab.teacher(), status = bar.querySelector('.run-status');
+    eaiColab(null, web, sol);   // the manifest, fetched ahead of the tap
+    bar.querySelector('[data-a=colab]').title = sol ? 'The Solutions notebook in Colab, at this cell' : 'This chapter\'s notebook in Colab, at this cell';
+    bar.addEventListener('click', function (e) {
+      if (!e.target.closest || !e.target.closest('[data-a=colab]')) return;
+      var w = window.open('about:blank', '_blank');
+      eaiColab(block.getAttribute('data-b'), web, sol, w).then(function (u) {
+        status.textContent = u ? '' : (sol ? 'No notebook yet: Make notebook on the editor home' : 'The notebook isn\'t out yet');
+        if (u && !w) location.href = u;   // no new window allowed (the iPad app): go there
+      });
+    });
+  }
   [].forEach.call(document.querySelectorAll('b-code[lang="python"]:not([norun])'), function (block) {
+    if (isColab(block)) return colabBar(block);
     // blanks: no Run in the Workbook; in the Lecture, Run once every blank is filled in (Book.fillBlank: the iPad app's
     // handwriting) or tapped open, and it runs the code as filled in, wrong answers too (Eric, 2026-11-13)
     var bk = block.closest('.book'), bv = bk && bk.getAttribute('data-view'); if (block.querySelector('u.fill') && bv && bv !== 'reading' && bv !== 'slides') return;
@@ -10085,7 +8913,7 @@ function eaiInk(opts) {
   var HOME = SITE_DIR ? '/' + SITE_DIR.replace(/^\/|\/$/g, '') + '/' : DIR;
   var KEY_TOKEN = 'eai-ink-token', KEY_MINE = 'eai-ink-mine:' + DIR + VIEW, KEY_DRAFT = 'eai-ink-draft:' + HOME + VIEW + ':', KEY_OLD = 'eai-ink-draft:' + DIR + VIEW + ':';
   var viewOf = function (l) { return l.view || 'slides'; };
-  var pub = null, layers = [], mine = null, target = null, editing = false, tool = 'hand', color = PEN[0][0], width = 2.2, undo = [];
+  var pub = null, layers = [], mine = null, target = null, prep = null, editing = false, tool = 'hand', color = PEN[0][0], width = 1.4, undo = [];
   var store = function (k, v) { try { if (v === undefined) return JSON.parse(localStorage.getItem(k) || 'null'); localStorage.setItem(k, JSON.stringify(v)); } catch (e) { return null; } };
   var r1 = function (v) { return Math.round(v * 10) / 10; };
   // penDown: a pen stroke is under way (Lecture mode ignores pinches meanwhile: on the iPad a palm resting beside the
@@ -10238,6 +9066,7 @@ function eaiInk(opts) {
     var pg = document.getElementById(s.p); if (!pg) return null;
     var el = document.createElementNS(NS, 'path'); paint(el, s);
     if (s.o && s.o < 1) el.setAttribute('opacity', s.o);
+    if (s.n) el.setAttribute('class', 'ink-note');
     el._s = s; overlay(pg).appendChild(el); return el;
   }
   function blankPage(b) {
@@ -10250,6 +9079,7 @@ function eaiInk(opts) {
     [].forEach.call(book.querySelectorAll('svg.ink'), function (s) { s.remove(); });
     [].forEach.call(book.querySelectorAll('section.ink-blank'), function (s) { s.remove(); });
     [pub, mine].forEach(function (l) { if (l) (l.pages || []).forEach(blankPage); });
+    if (prep) prep.strokes.forEach(drawStroke);   // private notes under the lecture's ink
     [pub, mine].forEach(function (l) { if (l) (l.strokes || []).forEach(drawStroke); });
     pages().forEach(overlay);
     applyCode();
@@ -10435,7 +9265,7 @@ function eaiInk(opts) {
     bar.innerHTML = '<span class="grp"><button data-t="hand" title="use the page: scroll, click figures and Run buttons (L toggles)">' + I.hand + '</button></span>'
       + '<span class="grp">' + PEN.map(function (p) { return '<button data-t="pen" data-c="' + p[0] + '" title="' + p[1] + ' pen" class="sw" style="--c:' + p[0] + '"><i></i></button>'; }).join('')
       + '<button data-t="hl" title="highlighter">' + I.hl + '</button><button data-t="erase" title="eraser (your own ink)">' + I.erase + '</button><button data-t="laser" title="laser pointer (not saved)">' + I.laser + '</button></span>'
-      + '<span class="grp">' + [1.4, 2.2, 3.6].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
+      + '<span class="grp">' + [1.15, 1.4, 2.2].map(function (v, i) { return '<button data-w="' + v + '" title="' + ['thin', 'medium', 'thick'][i] + '" class="wd' + (v === width ? ' on' : '') + '"><i style="--d:' + (3 + i * 2.5) + 'px"></i></button>'; }).join('') + '</span>'
       + '<span class="grp"><button data-a="undo" title="undo (⌘Z)">' + I.undo + '</button><button data-a="blank" title="add a blank page after this one">' + I.page + '</button><button data-a="pdf" title="download this view as a PDF with the notes showing">' + I.pdf + '</button></span>'
       + '<span class="spacer"></span><span class="ink-msg"></span><span class="right"></span>';
     head.appendChild(bar);
@@ -10526,12 +9356,23 @@ function eaiInk(opts) {
   function doUndo() {
     var u = undo.pop(); if (!u) return;
     // every path drawing it, not just the one first drawn: an erase undone draws the stroke again as a new path
-    if (u.stroke) { target.strokes.splice(target.strokes.indexOf(u.stroke), 1); [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === u.stroke) pp.remove(); }); }
-    if (u.erased) u.erased.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+    if (u.stroke) drop(u.stroke);
+    if (u.erased) u.erased.forEach(put);
     if (u.blank) { target.pages.splice(target.pages.indexOf(u.blank), 1); var p = document.getElementById(u.blank.id); if (p) p.remove(); }
     // a blank's pad (the iPad app's eaiNativeInk.fill): its handwriting as it was before the pad opened
     if (u.fill) { u.after.forEach(unStroke); u.before.forEach(function (s) { target.strokes.push(s); drawStroke(s); }); }
     save(); nativeState();
+  }
+  // a stroke out of its layer (today's notes, or the private notes: Note pen) and off the page, and back again
+  function drop(s) {
+    var l = s.n && prep ? prep.strokes : target.strokes, i = l.indexOf(s); if (i >= 0) l.splice(i, 1);
+    if (s.n && prep) { prep.gone.push(s.id); prepSave(); }
+    [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
+  }
+  // a private stroke put back gets a new id: its old one is gone on every device (the sync's tombstones)
+  function put(s) {
+    if (s.n && prep) { s.id = prepId(); prep.strokes.push(s); prepSave(); } else target.strokes.push(s);
+    drawStroke(s);
   }
   function unStroke(s) {
     var i = target.strokes.indexOf(s); if (i >= 0) target.strokes.splice(i, 1);
@@ -11080,6 +9921,81 @@ function eaiInk(opts) {
     addEventListener('resize', function () { zoomGen++; setTimeout(apply, 0); });   // after the view's own resize handler
     apply(); setTimeout(apply, 0);
   }
+  // ---------------------------------------------------------------- private notes (the iPad app's Note pen)
+  // Eric, 2026-11-13: ink only he sees, on his iPad. He writes it before class (reminders, drawings to trace over in
+  // lecture) and it stays on the chapter's slides for every lecture until he erases it. It is never part of a day's
+  // notes: Publish and the notes PDF read the layers (target, pub, mine), never this; the projector's page never loads
+  // it and the app keeps it off the projector's copy of the drawing; Safari and published pages don't have it. It is
+  // shown faint, like the faint answers, and hides with them while the iPad's screen is mirrored (the app; book.css
+  // for a page drawing it itself). Kept on the device (localStorage) and in the book repo, branch prep-ink,
+  // <chapter>.json, through the editor's GitHub token, so his other devices get it: strokes with an id each, and the
+  // ids erased (gone), merged by id so two devices writing between syncs both keep their strokes.
+  var PREP_BRANCH = 'prep-ink', KEY_PREP = 'eai-ink-prep:' + (opts.chapter || ''), prepBusy = false, prepAgain = 0;
+  function prepId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function prepSave() { store(KEY_PREP, prep); clearTimeout(prepSave.t); prepSave.t = setTimeout(prepSync, 2500); }
+  // the editor's sign-in on this device (web/store.js kv 'remote': {token, repo, branch, api?, kind?}), or null
+  function editorRemote() {
+    return new Promise(function (done) {
+      if (!window.indexedDB) return done(null);
+      try {
+        var rq = indexedDB.open('ai2ai-book');
+        rq.onupgradeneeded = function () { rq.transaction.abort(); };   // no editor on this device: don't create its database
+        rq.onerror = function () { done(null); };
+        rq.onsuccess = function () {
+          var db = rq.result; if (!db.objectStoreNames.contains('kv')) { db.close(); return done(null); }
+          var g = db.transaction('kv').objectStore('kv').get('remote');
+          g.onsuccess = function () { db.close(); done(g.result || null); };
+          g.onerror = function () { db.close(); done(null); };
+        };
+      } catch (e) { done(null); }
+    });
+  }
+  function prepMerge(r) {   // theirs into ours: every stroke either side has, less every id either side erased
+    var gone = {}, have = {}, out = [], changed = false;
+    prep.gone.concat(r.gone || []).forEach(function (id) { gone[id] = 1; });
+    prep.strokes.forEach(function (s) { if (gone[s.id]) changed = true; else { have[s.id] = 1; out.push(s); } });
+    (r.strokes || []).forEach(function (s) { if (s && s.id && !gone[s.id] && !have[s.id]) { s.n = 1; have[s.id] = 1; out.push(s); changed = true; } });
+    prep.strokes = out; prep.gone = Object.keys(gone); store(KEY_PREP, prep);
+    return changed;
+  }
+  function prepSame(r) {
+    var ids = function (l) { return (l || []).map(function (x) { return x && x.id || x; }).sort().join(','); };
+    return ids(r.strokes) === ids(prep.strokes) && ids(r.gone) === ids(prep.gone);
+  }
+  function prepSync() {
+    if (!prep || !opts.chapter) return;
+    if (prepBusy) { prepAgain = 1; return; }
+    prepBusy = true; clearTimeout(prepSave.t); prepSave.t = 0;
+    editorRemote().then(function (c) {
+      if (!c || !c.token || !c.repo || c.kind === 'dev') return;
+      var base = (c.api || 'https://api.github.com') + '/repos/' + c.repo, url = base + '/contents/' + encodeURIComponent(opts.chapter) + '.json';
+      var H = { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' };
+      return fetch(url + '?ref=' + PREP_BRANCH, { headers: H, cache: 'no-store' }).then(function (r) {
+        if (r.status === 404) return { sha: null, data: {} };
+        if (!r.ok) throw new Error('prep ' + r.status);
+        return r.json().then(function (j) {
+          if (j.content) return { sha: j.sha, data: JSON.parse(decodeURIComponent(escape(atob(j.content.replace(/\s/g, ''))))) };
+          // over 1 MB the contents API leaves the content out: the blob, raw
+          return fetch(base + '/git/blobs/' + j.sha, { headers: { Authorization: H.Authorization, Accept: 'application/vnd.github.raw+json' }, cache: 'no-store' })
+            .then(function (b) { if (!b.ok) throw new Error('prep blob ' + b.status); return b.json(); }).then(function (d) { return { sha: j.sha, data: d }; });
+        });
+      }).then(function (rem) {
+        if (prepMerge(rem.data)) render();
+        if (prepSame(rem.data)) return;
+        var body = JSON.stringify({ strokes: prep.strokes.map(function (s) { return { id: s.id, p: s.p, c: s.c, w: s.w, pts: s.pts }; }), gone: prep.gone });
+        var put = { message: 'Private notes: ' + opts.chapter, branch: PREP_BRANCH, content: btoa(unescape(encodeURIComponent(body))) };
+        if (rem.sha) put.sha = rem.sha;
+        return fetch(url, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: JSON.stringify(put) }).then(function (r) {
+          if (r.status === 409 || r.status === 422) prepAgain = prepAgain || 2;   // another device wrote first: merge theirs and go again
+        });
+      });
+    }).catch(function () {}).then(function () {   // offline or refused: the device keeps them, the next sync sends them
+      prepBusy = false;
+      var n = prepAgain; prepAgain = 0;   // 1: written to meanwhile, 2: a conflict (tried again once)
+      if (n === 1 || (n === 2 && !prepSync.retry)) { prepSync.retry = n === 2; prepSync(); } else prepSync.retry = false;
+    });
+  }
+
   // ---------------------------------------------------------------- the iPad app's own pen and scrolling
   // AI2AI Present (ios/) from build 2 draws the Pencil itself, at the Pencil's own rate with Apple's predicted touches, and
   // lets the web view scroll and pinch-zoom natively; its toolbar replaces the pen bar (Eric, 2026-11-12: native ink
@@ -11133,6 +10049,12 @@ function eaiInk(opts) {
       // a finished stroke from the app
       stroke: function (s) {
         if (!s || !s.p || !document.getElementById(s.p) || !(s.pts && s.pts.length)) return false;
+        if (s.n) {   // the Note pen: into the private notes, not today's
+          if (!prep) return false;
+          var nt = { id: prepId(), n: 1, p: s.p, c: s.c, w: s.w, pts: s.pts };
+          drawStroke(nt); prep.strokes.push(nt); undo.push({ stroke: nt }); prepSave(); nativeState();
+          return PK ? idOf(nt) : true;
+        }
         ensureTarget(); if (!target) return false;
         var st = { p: s.p, c: s.c, w: s.w, pts: s.pts }; if (s.o) st.o = s.o;
         var el = drawStroke(st); target.strokes.push(st); undo.push({ stroke: st, el: el }); saveSoon(); nativeState();
@@ -11158,10 +10080,7 @@ function eaiInk(opts) {
       eraseIds: function (list) {
         ensureTarget(); if (!target) return;
         (list || []).forEach(function (id) {
-          target.strokes.filter(function (s) { return ids.get(s) === id; }).forEach(function (s) {
-            target.strokes.splice(target.strokes.indexOf(s), 1); erasing.push(s);
-            [].forEach.call(book.querySelectorAll('svg.ink path'), function (pp) { if (pp._s === s) pp.remove(); });
-          });
+          target.strokes.concat(prep ? prep.strokes : []).filter(function (s) { return ids.get(s) === id; }).forEach(function (s) { drop(s); erasing.push(s); });
         });
         sendList();
       },
@@ -11170,15 +10089,12 @@ function eaiInk(opts) {
         var pg = document.getElementById(pid); if (!pg) return; ensureTarget(); if (!target) return;
         var svg = overlay(pg);
         (pts || []).forEach(function (q) {
-          target.strokes.filter(function (s) { return s.p === pid && near(s, q[0], q[1], 6); }).forEach(function (s) {
-            target.strokes.splice(target.strokes.indexOf(s), 1); erasing.push(s);
-            [].forEach.call(svg.querySelectorAll('path'), function (pp) { if (pp._s === s) pp.remove(); });
-          });
+          target.strokes.concat(prep ? prep.strokes : []).filter(function (s) { return s.p === pid && near(s, q[0], q[1], 6); }).forEach(function (s) { drop(s); erasing.push(s); });
         });
       },
       eraseEnd: function (cancel) {
         var e = erasing; erasing = []; if (!e.length) return;
-        if (cancel) e.forEach(function (s) { target.strokes.push(s); drawStroke(s); });
+        if (cancel) e.forEach(put);
         else undo.push({ erased: e });
         saveSoon(); nativeState();
       },
@@ -11195,7 +10111,11 @@ function eaiInk(opts) {
         barState();
       }
     };
-    native({ inkReady: true, pk: PK, pages: boxes() }); nativeState(); sendBoxes(); if (PK) sendList();
+    if (opts.chapter && !window.eaiNativeApp.projector) {   // the iPad's own page, never the projector's
+      prep = store(KEY_PREP) || { strokes: [], gone: [] }; render(); prepSync();
+      addEventListener('online', function () { prepSync(); });
+    }
+    native({ inkReady: true, pk: PK, prep: !!prep, pages: boxes() }); nativeState(); sendBoxes(); if (PK) sendList();
   }
   // ?lecture=1 (the editor home's Lecture button): teaching from this device: the pen in hand, the faint answers hidden
   // (see ghost). The plain Lecture view (its answers link) shows them to the signed-in instructor.
@@ -11205,20 +10125,12 @@ function eaiInk(opts) {
   if (NATIVE_INK) nativeInk(); else if (LECT) lectureZoom();
   if (LECT === '1') start();
   // one sign-in: a device signed in to the Book Editor (same site) uses that token here too, if it can publish to this repo
-  if (!teacher() && window.indexedDB) try {
-    var rq = indexedDB.open('ai2ai-book');
-    rq.onupgradeneeded = function () { rq.transaction.abort(); };   // no editor on this device: don't create its database
-    rq.onsuccess = function () {
-      var db = rq.result; if (!db.objectStoreNames.contains('kv')) return db.close();
-      var g = db.transaction('kv').objectStore('kv').get('remote');
-      g.onsuccess = function () {
-        db.close(); var c = g.result; if (!c || !c.token || c.api) return;
-        fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (j) { if (!j || !j.permissions || !j.permissions.push || teacher()) return; store(KEY_TOKEN, c.token); var was = editing; stop(); target = null; ghost(); navbar(); if (was) start(); }, function () {});
-      };
-    };
-  } catch (e) {}
+  if (!teacher()) editorRemote().then(function (c) {
+    if (!c || !c.token || c.api) return;
+    fetch('https://api.github.com/repos/' + REPO, { headers: { Authorization: 'Bearer ' + c.token, Accept: 'application/vnd.github+json' }, cache: 'no-store' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (!j || !j.permissions || !j.permissions.push || teacher()) return; store(KEY_TOKEN, c.token); var was = editing; stop(); target = null; ghost(); navbar(); if (was) start(); }, function () {});
+  });
   if (/(^|[#&])teach\b/.test(location.hash)) { start(); setupTeacher(); }
   else if (/(^|[#&])(lecture|pen)\b/.test(location.hash)) start();
   addEventListener('keydown', function (e) {
