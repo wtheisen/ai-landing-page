@@ -287,6 +287,7 @@ body.panes .gcol + #desk, body.panes #desk + .gcol { border-left: 1px solid var(
 /* toolbar: Insert, Draw and More are menus */
 #bar .grp2 { display: flex; align-items: center; gap: 3px; }
 #bar #status { font-size: 11px; min-width: 3.5em; }
+body:not(.phone) #bar #status { width: 70px; min-width: 0; box-sizing: border-box; padding: 3px 4px; overflow: hidden; text-overflow: ellipsis; }   /* fixed: Saving… / Syncing… / ✓ never reflow the bar */
 #bar details.dd { position: relative; }
 #bar details.dd > summary { list-style: none; cursor: pointer; padding: 3px 9px; border-radius: 4px; border: 1px solid rgba(255,255,255,.35); font-size: 13px; user-select: none; white-space: nowrap; }
 #bar details.dd > summary::-webkit-details-marker { display: none; }
@@ -303,6 +304,23 @@ body.panes .gcol + #desk, body.panes #desk + .gcol { border-left: 1px solid var(
 #bar select#x-mode { width: 92px !important; min-width: 0 !important; }
 #bar select#zoom { width: 76px !important; min-width: 0 !important; }
 #bar .ddp a.btnlink { display: block; white-space: nowrap; }
+/* one row (Eric 2026-11-16): rarer controls live in Text ▾, View ▾ and Panels ▾; Export is in More ▾ */
+#bar .ddp.cols3 { display: grid; grid-template-columns: repeat(3, auto); gap: 4px 14px; }
+#bar .ddp .ddc { display: flex; flex-direction: column; gap: 3px; min-width: 150px; }
+#bar .ddp .ddh { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .65; padding: 2px 4px; }
+.phone #bar .ddp.cols3 { grid-template-columns: 1fr; }
+#bar .ddp .ddl { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; padding: 2px 4px 4px; white-space: nowrap; }
+#bar .ddp button.primary { font-weight: 700; }
+#bar #title-btn { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#bar .ddp .ddc button { white-space: normal; max-width: 230px; }
+@media (max-width: 1240px) {   /* iPad landscape and small laptops: still one row (Cmd+B / Cmd+I do bold and italic) */
+  body:not(.phone) #bar #title-btn { max-width: 110px; }
+  body:not(.phone) #styles [data-style="b"], body:not(.phone) #styles [data-style="i"] { display: none; }
+  body:not(.phone) #bar select#x-mode { width: 82px !important; }
+  body:not(.phone) #bar #title-btn { max-width: 92px; }
+  body:not(.phone) #styles [data-style="mono"] { font-size: 0; }
+  body:not(.phone) #styles [data-style="mono"]::after { content: 'Cons'; font-size: 12px; }
+}
 #bar button.ico { font-size: 15px; line-height: 1; padding: 3px 7px; }
 /* while pinching only a transform changes; the editing overlays come back when the zoom is applied */
 body.zooming #blockbar, body.zooming #rsz, body.zooming #rszb, body.zooming #croph, body.zooming #rulers, body.zooming #cmtm, body.zooming #drop { visibility: hidden !important; }
@@ -378,7 +396,7 @@ body.zooming #revbox { visibility: hidden; }
 ::highlight(rev) { background: #ffe58a; }
 
 /* text colour circles (bold + colour); the names behind them (def, name, take, warn, ex) are only storage */
-#bar button.dot { width: 20px; height: 20px; min-width: 0; padding: 0; border-radius: 50%; background: var(--c); border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); margin: 0 1px; vertical-align: middle; cursor: pointer; }
+#bar button.dot { width: 18px; height: 18px; min-width: 0; padding: 0; border-radius: 50%; background: var(--c); border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); margin: 0 1px; vertical-align: middle; cursor: pointer; }
 #bar button.dot:hover { transform: scale(1.12); box-shadow: 0 0 0 2px rgba(255,255,255,.6); }
 /* the colour shelf (Eric 2026-11-16): the rarer colours behind a rainbow dot, so the seven everyday circles stay put */
 #bar button.dot.more { background: conic-gradient(#cc0000, #e69138, #dcb439, #38761d, #5aabbc, #1155cc, #674ea7, #cc0000); }
@@ -449,7 +467,7 @@ body.phone { font-size: 15px; }
 .phone.ph-open #bar > #styles { order: 10; flex-basis: 100%; flex-wrap: wrap; border: 0; padding: 0; gap: 4px; }
 .phone.ph-open #bar > :not(#home):not(#title-btn):not(#status):not(#ph-tools):not(#x-review):not(#styles) { order: 11; }
 .phone #bar select { font-size: 16px; min-height: 34px; }   /* 16px: iOS zooms the page into smaller inputs */
-.phone #bar .ddp { position: fixed; left: 6px; right: 6px; max-height: 60vh; overflow-y: auto; }
+.phone #bar .ddp, .phone #bar details.dd.right .ddp { position: fixed; left: 6px; right: 6px; top: var(--dd-top, 60px); max-height: 60vh; overflow-y: auto; }   /* top set on open (editor.js): calc(100%) of a fixed menu was the screen's height, so phone menus opened off-screen */
 .phone #x-grid, .phone #glabels { display: none !important; }
 /* while typing: the text styles ride just above the keyboard */
 .phone.ph-typing:not(.ph-open) #bar > #styles { display: flex; position: fixed; left: 0; right: 0; bottom: var(--kb, 0px); z-index: 60;

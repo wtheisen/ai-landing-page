@@ -98,11 +98,11 @@ const normalized = cur !== disk.content;   // first save rewrites the file in th
 
 function setStatus() {
   const dirty = cur !== saved;
-  status.textContent = conflict ? (savedLocal ? 'Changed elsewhere' : 'Changed on disk') : saving ? 'Saving…' : dirty ? 'Unsaved' : savedLocal ? (syncing ? 'Syncing…' : '✓ Saved on device') : info.offline ? '✓ Synced' : '✓ Saved';
+  status.textContent = conflict ? 'Changed' : saving ? 'Saving…' : dirty ? 'Unsaved' : savedLocal ? (syncing ? 'Syncing…' : 'On device') : '✓';   // short words in a fixed-width pill so the one-row bar never jumps (2026-11-16); the title says the rest   // just the tick when all is saved (one-row bar, 2026-11-16); the title says Synced or Saved
   status.className = conflict ? 'bad' : saving || dirty ? 'dirty' : 'ok';
   if (phone) status.textContent = status.textContent.replace('Saved on device', 'On device').replace('Changed elsewhere', 'Changed');   // short, so the chapter title keeps its room
   if (phone && innerWidth < 400) status.textContent = conflict ? '!' : saving || syncing ? '…' : dirty ? '•' : savedLocal ? '↑' : '✓';   // small phones: a symbol (the colour says the rest; tap for details)
-  status.title = conflict ? 'chapter.html changed on disk while you had unsaved edits: choose in the banner' : dirty ? 'Click (or Cmd+S) to save now. Edits also save by themselves about a second after you stop.' : savedLocal ? 'Saved on this device. It goes up to GitHub a few seconds after you stop typing, whenever there is a connection' + (syncErr ? ' (last try: ' + syncErr + ')' : '') : info.offline ? 'Saved on this device and on GitHub' : 'Everything is saved to chapter.html';
+  status.title = conflict ? (savedLocal ? 'Changed elsewhere' : 'chapter.html changed on disk') + ' while you had unsaved edits: choose in the banner' : dirty ? 'Click (or Cmd+S) to save now. Edits also save by themselves about a second after you stop.' : savedLocal ? 'Saved on this device. It goes up to GitHub a few seconds after you stop typing, whenever there is a connection' + (syncErr ? ' (last try: ' + syncErr + ')' : '') : info.offline ? 'Saved on this device and on GitHub' : 'Everything is saved to chapter.html';
   $('#undo').disabled = !undo.length; $('#redo').disabled = !redo.length;
 }
 // Chrome types a non-breaking space next to elements and at the ends of text; turn those back into ordinary
@@ -2312,7 +2312,7 @@ window.addEventListener('resize', () => { if (/fit|two|three|width/.test($('#zoo
 $('#x-margins').onclick = () => { const on = book.classList.toggle('ed-margins'); $('#x-margins').classList.toggle('on', on); try { localStorage.setItem('book-margins', on ? '1' : '0'); } catch (x) {} };
 try { if (localStorage.getItem('book-margins') === '1') $('#x-margins').click(); } catch (x) {}
 // pages that run over: a counter in the bar that jumps to the next one
-book.addEventListener('book-refresh', () => { const n = (Book.report || []).length, b = $('#x-over'); b.hidden = !n; b.textContent = n + (n === 1 ? ' page over' : ' pages over'); });
+book.addEventListener('book-refresh', () => { const n = (Book.report || []).length, b = $('#x-over'); b.hidden = !n; b.textContent = '⚠ ' + n; b.title = n + (n === 1 ? ' page runs' : ' pages run') + ' past the footer: click to go to the next one'; });
 $('#x-over').onclick = () => { const list = Book.report || []; if (!list.length) return; const pages = Book.pages(), at = curPage ? pages.indexOf(curPage) + 1 : 0; const next = list.find(r => r.page > at) || list[0]; const pg = pages[next.page - 1]; select(null); setPage(pg); renderInspector(); pg.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
 // keyboard shortcuts
 const KEYS = [['Writing'], ['Enter', 'new line in the same block (in a list: next item)'], ['Cmd+Enter', 'new paragraph block below (in a column box: the next box)'], ['1. or * then space', 'at the start of a paragraph: a numbered or bulleted list'], ['Enter on an empty last item', 'end the list'], ['/', 'in an empty paragraph: insert menu'], ['$x_i$', 'inline math (or Cmd+E)'], ['Option+1 … 6', 'gold, navy, green, red, teal, dark grey (bold)'], ['Option+N', 'number: bold Consolas in dark grey'], ['Option+M', 'Consolas on or off (numbers, technical bits)'], ['Option+T', 'note: smaller text in light grey (again: back to normal)'], ['Option+K', 'token tiles of the current vocabulary (again on tiles: back to text)'], ['Cmd+Shift+E', 'centre the block (again: back to the left)'], ['Option+0', 'clear emphasis'], ['Cmd+B / Cmd+I', 'bold / italic'], ['Cmd+K', 'link'], ['Tab / Shift+Tab', 'next cell in a table; nest / un-nest in a list'], ['Arrow keys', 'walk into the next block'], ['Cmd+F', 'find and replace'],
@@ -3122,8 +3122,11 @@ gridLayout();
 // ---------------------------------------------------------------- toolbar menus (Insert, Draw, More)
 document.querySelectorAll('#bar details.dd > summary').forEach(sm => sm.addEventListener('mousedown', e => e.preventDefault()));   // keep the text selection
 document.addEventListener('mousedown', e => document.querySelectorAll('#bar details.dd[open]').forEach(d => { if (!d.contains(e.target)) d.open = false; }));
-['#dd-insert', '#dd-more'].forEach(id => $(id).querySelector('.ddp').addEventListener('click', e => { if (e.target.closest('button')) $(id).open = false; }));   // Draw stays open so a tool can be double-clicked
-document.querySelectorAll('#bar details.dd').forEach(d => d.addEventListener('toggle', () => { if (d.open) document.querySelectorAll('#bar details.dd[open]').forEach(o => { if (o !== d) o.open = false; }); }));
+['#dd-insert', '#dd-more', '#dd-text'].forEach(id => $(id).querySelector('.ddp').addEventListener('click', e => { if (e.target.closest('button')) $(id).open = false; }));   // Draw stays open so a tool can be double-clicked
+// ☰ shows a dot when something inside is on (Focus, Grid, Margins, Rulers, an open panel, comments or suggestions waiting), like Draw
+const ddOn = (id, sel) => { const f = () => $(id + ' > summary').classList.toggle('on', !!$(id).querySelector(sel)); f(); new MutationObserver(f).observe($(id + ' .ddp'), { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] }); };
+ddOn('#dd-more', 'button.on, button.has, .badge');
+document.querySelectorAll('#bar details.dd').forEach(d => d.addEventListener('toggle', () => { if (d.open) document.querySelectorAll('#bar details.dd[open]').forEach(o => { if (o !== d) o.open = false; }); if (d.open && phone) d.querySelector('.ddp').style.setProperty('--dd-top', Math.round($('#bar').getBoundingClientRect().bottom + 4) + 'px'); }));
 new MutationObserver(() => { const t = document.querySelector('#tools button.on'); $('#dd-draw > summary').classList.toggle('on', !!t && t.dataset.tool !== 'select'); }).observe($('#tools'), { subtree: true, attributes: true, attributeFilter: ['class'] });
 
 // ---------------------------------------------------------------- side panels and focus
@@ -3556,7 +3559,7 @@ function setReview(on) {
 }
 (function () {
   const b = document.createElement('button'); b.id = 'x-review'; b.title = 'Go through the comments one at a time and answer each (Esc to leave)'; b.textContent = 'Review';
-  $('#x-cmts').after(b); b.onclick = () => setReview(!revOn);
+  $('#dd-more').before(b); b.onclick = () => setReview(!revOn);   // Review stays on the bar; the panels are in ☰ (2026-11-16)
   document.addEventListener('keydown', e => {
     if (!revOn || e.metaKey || e.ctrlKey || e.altKey) return;
     const a = document.activeElement, typing = a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
@@ -4001,7 +4004,7 @@ if (phone) {
   const btn = document.createElement('button'); btn.id = 'x-qpool'; btn.textContent = 'Questions';
   btn.title = 'Question pool: every practice and exam question for this chapter. Drag one onto a Lecture or Workbook page.';
   btn.onclick = () => setOn(!on);
-  ($('#x-review') || $('#x-cmts')).after(btn);
+  $('#panels').append(btn);
   // follow the page you are on (the "This page's topics" filter) and edits that add or remove copies
   let pend = 0; const soon = () => { if (!on || drag) return; cancelAnimationFrame(pend); pend = requestAnimationFrame(() => { if (!panel.contains(document.activeElement) || !document.activeElement.matches('select')) render(); }); };
   let lastPage = null, lastN = -1;
@@ -4204,7 +4207,7 @@ if (phone) {
   const btn = document.createElement('button'); btn.id = 'x-tok'; btn.textContent = 'Tokens';
   btn.title = 'Token table: every token tile, with its ID and colour, shared by every chapter. Select text and press Token (Option+K) to make tiles.';
   btn.onclick = () => setOn(!on);
-  ($('#x-qpool') || $('#x-review') || $('#x-cmts')).after(btn);
+  $('#panels').append(btn);
   let lastPage = null, lastN = -1;
   setInterval(() => { if (!on) return; const n = book.querySelectorAll('b-tok').length; if (curPage !== lastPage || n !== lastN) { lastPage = curPage; lastN = n; if (!panel.contains(document.activeElement)) render(); } }, 400);
   // for the drawing tools (draw.js): the vocabulary in use here, and adding a word list's new words (saved)
@@ -4297,7 +4300,7 @@ if (phone) {
   const btn = document.createElement('button'); btn.id = 'x-note'; btn.textContent = 'Notation';
   btn.title = "Notation table: the colour of every maths symbol in this chapter's drawings (Symbol tool), one colour per quantity";
   btn.onclick = () => setOn(!on);
-  ($('#x-tok') || $('#x-qpool') || $('#x-review') || $('#x-cmts')).after(btn);
+  $('#panels').append(btn);
   let last = '';
   setInterval(() => { if (!on) return; const sig = tiles().map(g => g.getAttribute('data-sym')).join('|') + JSON.stringify(Book.meta.notation || {}); if (sig !== last) { last = sig; if (!panel.contains(document.activeElement)) render(); } }, 500);
   window.Notation = { open: () => setOn(true), close: () => setOn(false), render };
@@ -4393,7 +4396,7 @@ if (phone) {
   const btn = document.createElement('button'); btn.id = 'x-terms'; btn.textContent = 'Terms';
   btn.title = "Key terms: each term's colour in this chapter, and a button that colours every mention";
   btn.onclick = () => setOn(!on);
-  ($('#x-note') || $('#x-tok') || $('#x-qpool') || $('#x-review') || $('#x-cmts')).after(btn);
+  $('#panels').append(btn);
   window.Terms = { open: () => setOn(true), close: () => setOn(false), render, scan };
 })();
 // another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)
@@ -4451,7 +4454,7 @@ if (phone) {
   const errs = [];
   addEventListener('error', e => { errs.push(String(e.message || e)); if (errs.length > 10) errs.shift(); });
   addEventListener('unhandledrejection', e => { errs.push('promise: ' + String(e.reason && e.reason.message || e.reason)); if (errs.length > 10) errs.shift(); });
-  const more = $('#dd-more .ddp'), rb = h('<button id="x-report" title="Tell Claude something is wrong: your note, the page you are on and this device\'s details go in as a comment Claude reads">Report a problem…</button>');
+  const more = $('#m-more'), rb = h('<button id="x-report" title="Tell Claude something is wrong: your note, the page you are on and this device\'s details go in as a comment Claude reads">Report a problem…</button>');
   more.insertBefore(rb, $('#x-help'));
   rb.onclick = () => {
     $('#dd-more').open = false;

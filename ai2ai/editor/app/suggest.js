@@ -242,7 +242,7 @@ function suggestInit() {
   const btn = document.createElement('button'); btn.id = 'x-sugs'; btn.textContent = 'Suggestions';
   btn.title = 'Edits Claude has suggested for this chapter: accept or reject each one';
   btn.onclick = () => setOn(!on);
-  ($('#x-qpool') || $('#x-cmts')).after(btn);
+  $('#panels').append(btn);
   // pick up new suggestions (an agent pushing while you work), and keep the marks on blocks the editor redraws
   load();
   setInterval(() => { if (!document.hidden) load(); }, 20000);
