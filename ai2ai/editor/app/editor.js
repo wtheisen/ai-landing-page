@@ -53,12 +53,20 @@ if (info.offline && navigator.serviceWorker) {   // the offline edition: the ser
   });
   const ask = () => { if (navigator.serviceWorker.controller && navigator.onLine && !document.hidden) navigator.serviceWorker.controller.postMessage({ type: 'sync' }); };
   ask(); setInterval(ask, 60000); addEventListener('online', ask); document.addEventListener('visibilitychange', ask);   // pick up other devices' edits
-  // a new version of the editor: offer a reload (after saving) instead of needing the app closed and reopened
-  navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
-  let hadController = !!navigator.serviceWorker.controller;
+  // a new version of the editor (2026-11-16: it used to take Eric 2 or 3 hard reloads): look for one every minute and
+  // on coming back to the tab, not only at load; once installed, apply it by itself at a quiet moment (all saved, 20 s
+  // without typing or clicking, no menu or popup open, not presenting; or the tab in the background) and come back to
+  // the same page. Until then the toast and the Update button wait, as before.
+  const upd = () => navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
+  upd(); setInterval(upd, 60000); document.addEventListener('visibilitychange', () => { if (!document.hidden) upd(); });
+  let hadController = !!navigator.serviceWorker.controller, lastAct = Date.now();
+  ['keydown', 'pointerdown', 'input', 'wheel'].forEach(t => addEventListener(t, () => { lastAct = Date.now(); }, true));
+  const quiet = () => cur === saved && !saving && !conflict && !document.documentElement.classList.contains('ink-lecture')
+    && (document.hidden || (Date.now() - lastAct > 20000 && $('#pop').hidden && (!$('#ctx') || $('#ctx').hidden) && !document.querySelector('#bar details.dd[open], .modal:not([hidden]), #modal:not([hidden])')));
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!hadController) { hadController = true; return; }
-    const go = async () => { commit(true); await save(); location.reload(); };
+    const go = async () => { commit(true); await save(); remember(); location.reload(); };
+    const auto = setInterval(() => { if (quiet()) { clearInterval(auto); go(); } }, 3000);
     toast('New version of the editor', 'Reload', go);
     // and a button in the header that stays until it's used: other messages replace the toast (2026-10-27)
     if (!$('#x-update')) { const b = document.createElement('button'); b.id = 'x-update'; b.textContent = 'Update editor ↻'; b.title = 'A new version of the editor is ready: save and reload'; b.style.cssText = 'background:#DCB439;color:#002B5B;border-color:#DCB439;font-weight:600'; b.onclick = go; $('#bar').append(b); }
@@ -66,6 +74,9 @@ if (info.offline && navigator.serviceWorker) {   // the offline edition: the ser
 }
 if (info.offline) { const home = document.createElement('a'); home.href = '../'; home.id = 'home'; home.className = 'btnlink'; home.textContent = '⌂'; home.title = 'All chapters'; home.style.cssText = 'color:#fff;background:transparent;border-color:rgba(255,255,255,.35)'; $('#bar').prepend(home); }   // the offline edition (service worker) saves to this device; GitHub sync is separate
 
+function remember() {   // where you are, for the reload an automatic update does (restored at the end of this file)
+  try { const pg = curPage, sc = pg && (pg.closest('.dpane') || deskBox); if (pg && pg.id) sessionStorage.setItem('ai2ai-resume-' + ch, JSON.stringify({ page: pg.id, off: pg.getBoundingClientRect().top - sc.getBoundingClientRect().top, t: Date.now() })); } catch (x) {}
+}
 function prep() {   // make text blocks editable; equations, figures and code are edited from the side panel
   book.querySelectorAll('.tbox, .colbox').forEach(boxDivsToP);   // lines a browser made into <div>s are paragraphs
   // a figure, equation, code or table can't live inside a text box: lift it out (before the box if nothing comes
@@ -4542,5 +4553,13 @@ if (phone) {
       $('#modal').hidden = true; toast('Sent: Claude sees it as a comment on this page');
     };
   };
+})();
+// back on the same page after an automatic update's reload (remember(), 2026-11-16)
+(() => {
+  let r = null; try { r = JSON.parse(sessionStorage.getItem('ai2ai-resume-' + ch) || 'null'); sessionStorage.removeItem('ai2ai-resume-' + ch); } catch (x) {}
+  if (!r || Date.now() - r.t > 120000) return;
+  const back = () => { const pg = [...document.querySelectorAll('section.page')].find(s => s.id === r.page && !s.closest('[data-thumb], #pages')); if (!pg) return;
+    try { setPage(pg); } catch (x) {} const sc = pg.closest('.dpane') || deskBox; sc.scrollTop += pg.getBoundingClientRect().top - sc.getBoundingClientRect().top - r.off; };
+  setTimeout(back, 300); setTimeout(back, 1200);
 })();
 })();

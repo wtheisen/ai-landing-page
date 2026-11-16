@@ -575,7 +575,8 @@ show(); installHint(); await chips(); await when(); await list(); siteStatus();
 if ('serviceWorker' in navigator) {   // a new version: reload this page to use it; and say which version is running
   let had = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (had) location.reload(); had = true; });
-  navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
+  const upd = () => navigator.serviceWorker.getRegistration().then(r => r && r.update()).catch(() => {});
+  upd(); setInterval(upd, 60000); document.addEventListener('visibilitychange', () => { if (!document.hidden) upd(); });   // 2026-11-16
   fetch('api/info').then(r => r.json()).then(d => { if (d.version) $('#ver').textContent = 'Editor version ' + d.version; }).catch(() => {});
 }
 if (navigator.serviceWorker) navigator.serviceWorker.addEventListener('message', async e => { const d = e.data || {}; if (d.type === 'sync' && !d.reply && d.state !== 'syncing') { await when(); await list(); await chips(); } });

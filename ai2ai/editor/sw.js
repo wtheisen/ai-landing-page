@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = 'd547dfff26', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "present.html", "present.js", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = 'e681d62c6a', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "present.html", "present.js", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/
@@ -11,7 +11,13 @@ const NAME = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
 
 self.addEventListener('install', e => e.waitUntil((async () => {
   const c = await caches.open(SHELL_CACHE);
-  await c.addAll(SHELL.map(p => new Request(ROOT + p, { cache: 'reload' })));
+  // ?v= gets past the site's CDN cache, so a new version never mixes in files from the old one (2026-11-16);
+  // they are stored under the plain names the pages ask for. Any file failing fails the install (the old version stays).
+  await Promise.all(SHELL.map(async p => {
+    const r = await fetch(ROOT + p + (p.includes('?') ? '&' : '?') + 'v=' + VERSION, { cache: 'reload' });
+    if (!r.ok) throw new Error('install: ' + p + ' ' + r.status);
+    await c.put(ROOT + p, r);
+  }));
   self.skipWaiting();
 })()));
 self.addEventListener('activate', e => e.waitUntil((async () => {
