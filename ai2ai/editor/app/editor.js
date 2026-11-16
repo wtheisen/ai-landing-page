@@ -526,6 +526,73 @@ $('#blockbar').addEventListener('click', e => {
   if (a === 'up') moveAll(-1); else if (a === 'down') moveAll(1); else if (a === 'dup') duplicateAll(); else if (a === 'pin') { const list = allSel(), on = !Book.isPinned(sel); list.forEach(b => { if (Book.isPinned(b) !== on) togglePin(b); }); if (list.length > 1) selectMany(list); } else if (a === 'del') removeAll();
 });
 
+// ---------------------------------------------------------------- right-click menu (Eric 2026-11-16)
+// On selected text: the colour circles (and the shelf), text styles, Cut/Copy and Comment. On a block: the block
+// toolbar's actions and Insert after ▸. Option+right-click keeps the browser's own menu (spelling fixes, Paste);
+// so do fields, code being typed, the other document's pane, phones and lecture mode.
+const ctx = document.createElement('div'); ctx.id = 'ctx'; ctx.hidden = true; ctx.setAttribute('role', 'menu'); document.body.append(ctx);
+function ctxClose() { if (!ctx.hidden) { ctx.hidden = true; ctx.innerHTML = ''; } }
+function ctxOpen(x, y, rows) {   // rows: '-' a divider | { dots: [[style, name, colour]] } | [label, fn, hint] | [label, null, hint, [[label, fn]]] (submenu)
+  ctx.innerHTML = '';
+  for (const r of rows) {
+    if (r === '-') { ctx.append(h('<hr>')); continue; }
+    if (r.dots) {
+      const d = h('<div class="ctx-dots"></div>');
+      r.dots.forEach(([k, n, c]) => { const b = h(`<button class="dot" title="${esc(n)}" aria-label="${esc(n)}"></button>`); b.style.setProperty('--c', c); b.onclick = () => { ctxClose(); style(k); }; d.append(b); });
+      ctx.append(d); continue;
+    }
+    const [label, fn, hint, sub] = r;
+    const it = h(`<div class="ctx-it${sub ? ' sub' : ''}" role="menuitem"><span>${esc(label)}</span><small>${esc(hint || '')}${sub ? ' ▸' : ''}</small></div>`);
+    if (sub) {
+      const sm = h('<div class="ctx-sub" role="menu"></div>');
+      sub.forEach(([l, f]) => { const s = h(`<div class="ctx-it" role="menuitem"><span>${esc(l)}</span></div>`); s.onclick = e => { e.stopPropagation(); ctxClose(); f(); }; sm.append(s); });
+      it.append(sm);
+      it.addEventListener('mouseenter', () => { sm.style.top = ''; const r2 = sm.getBoundingClientRect(); if (r2.bottom > innerHeight - 4) sm.style.top = (-5 - (r2.bottom - innerHeight + 8)) + 'px'; });
+    } else it.onclick = () => { ctxClose(); fn(); };
+    ctx.append(it);
+  }
+  ctx.hidden = false;
+  const w = ctx.offsetWidth, hh = ctx.offsetHeight;
+  ctx.style.left = Math.max(4, Math.min(x, innerWidth - w - 4)) + 'px'; ctx.style.top = Math.max(4, Math.min(y, innerHeight - hh - 4)) + 'px';
+  ctx.classList.toggle('flip', x + w + 190 > innerWidth);   // submenus open to the left near the right edge
+}
+ctx.addEventListener('mousedown', e => e.preventDefault());   // keep the text selection
+document.addEventListener('mousedown', e => { if (!ctx.hidden && !ctx.contains(e.target)) ctxClose(); }, true);
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !ctx.hidden) { e.stopPropagation(); e.preventDefault(); ctxClose(); } }, true);
+document.addEventListener('scroll', ctxClose, true); addEventListener('blur', ctxClose); addEventListener('resize', ctxClose);
+document.addEventListener('contextmenu', e => {
+  ctxClose();
+  if (e.altKey || phone || document.documentElement.classList.contains('ink-lecture') || !deskBox.contains(e.target)) return;
+  if (e.target.closest('textarea, input, select, #pop, .ed-code')) return;
+  const s = getSelection(), r = s.rangeCount && !s.isCollapsed ? s.getRangeAt(0) : null;
+  const onText = r && e.target.closest('[contenteditable=true]') && r.intersectsNode(e.target);
+  if (onText) {
+    e.preventDefault();
+    const dots = [...document.querySelectorAll('#styles > .dot[data-style], #shelf .dot[data-style]')].map(b => [b.dataset.style, b.getAttribute('aria-label'), getComputedStyle(b).backgroundColor]);
+    const st = k => () => style(k), cmd = c => () => { if (!document.execCommand(c)) toast(c === 'cut' ? 'Cut with Cmd+X' : 'Copy with Cmd+C'); };
+    const blk = blockOf(r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement);
+    return ctxOpen(e.clientX, e.clientY, [{ dots }, '-',
+      ['Bold', st('b'), '⌘B'], ['Italic', st('i'), '⌘I'], ['Consolas', st('mono'), '⌥M'], ['Number', st('num'), '⌥N'], ['Note', st('note'), '⌥T'],
+      ['Fill-in blank', st('fill'), ''], ['Math', st('math'), '⌘E'], ['Link…', st('link'), '⌘K'], ['Token tiles', st('tok'), '⌥K'], ['Clear formatting', st('clear'), '⌥0'], '-',
+      ['Cut', cmd('cut'), '⌘X'], ['Copy', cmd('copy'), '⌘C'],
+      ...(blk ? ['-', ['Comment on this block', () => addComment(blk), '']] : [])]);
+  }
+  const b = blockOf(e.target); if (!b) return;   // not on a block (page margins, the page list): the browser's menu
+  e.preventDefault();
+  if (!allSel().includes(b)) select(b);
+  const act = a => () => $(`#blockbar [data-act=${a}]`).click(), many = allSel().length > 1, pinned = Book.isPinned(b);
+  const inFlow = !pinned && b.parentElement && b.parentElement.matches('section.page:not(.cover)');
+  const ins = [...document.querySelectorAll('#insert [data-ins]')].map(x => [x.textContent.trim(), () => { select(b); insert(x.dataset.ins); }]);
+  ctxOpen(e.clientX, e.clientY, [
+    [many ? 'Duplicate blocks' : 'Duplicate', act('dup'), '⌘D'], [many ? 'Delete blocks' : 'Delete', act('del'), ''], '-',
+    ['Move up', act('up'), '⌥↑'], ['Move down', act('down'), '⌥↓'],
+    [pinned ? 'Unpin (back into the flow)' : 'Pin where it is', act('pin'), ''],
+    ...(inFlow && !many ? [[b.hasAttribute('data-push') ? 'Stop pushing to the bottom' : 'Push to the bottom', act('push'), '']] : []),
+    ...(b.tagName !== 'B-CODE' && b.tagName !== 'B-OUT' ? [[isCentred(b) ? 'Uncentre' : 'Centre', act('center'), '⇧⌘E']] : []),
+    ...(b.tagName === 'B-FIG' && !many ? [['Show the code behind it', act('code'), '⇧⌘F']] : []), '-',
+    ['Comment', act('cmt'), ''], ['Insert after', null, '', ins]]);
+});
+
 // ---------------------------------------------------------------- drag: reorder in the flow, or move a pinned block freely (with snapping)
 var dragMoved = false;
 // autoPin (a figure dragged by its body, Eric 2026-10-28): the first move within this document pins it where it is and it
