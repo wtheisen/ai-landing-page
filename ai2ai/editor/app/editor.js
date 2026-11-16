@@ -810,30 +810,7 @@ $('#rsz').addEventListener('pointerdown', e => {
 // ---------------------------------------------------------------- text: emphasis, math, references
 const editHost = () => { const s = getSelection(); if (!s.rangeCount) return null; const n = s.anchorNode; const e = n && (n.nodeType === 1 ? n : n.parentElement); const hst = e && e.closest('[contenteditable=true]'); return hst && book.contains(hst) ? hst : null; };
 function unwrap(el) { const p = el.parentNode; while (el.firstChild) p.insertBefore(el.firstChild, el); el.remove(); p.normalize(); }
-// A selection in a table that crosses cells, or ends on a row or the table itself (Safari's triple-click ends at the
-// start of the next cell), is styled cell by cell: each cell's part of it gets its own wrapper, so no <b> ever holds
-// a cell or a marker lands in a row (Eric, 2026-11-16: "if I select text in a table and try and color it it screws
-// the table all up"). Returns true when it handled the selection.
-function perCell(fn) {
-  const host = editHost(), s = getSelection(); if (!host || !s.rangeCount || !host.querySelector('td, th')) return false;
-  const r = s.getRangeAt(0); if (r.collapsed) return false;
-  const cellOf = n => (n.nodeType === 1 ? n : n.parentElement).closest('td, th');
-  const a = cellOf(r.startContainer), b = cellOf(r.endContainer);
-  if (a && a === b && host.contains(a)) return false;   // inside one cell: the ordinary way
-  const parts = [...host.querySelectorAll('td, th')].filter(c => r.intersectsNode(c)).map(c => {
-    const x = document.createRange(); x.selectNodeContents(c);
-    if (c.contains(r.startContainer)) x.setStart(r.startContainer, r.startOffset);
-    if (c.contains(r.endContainer)) x.setEnd(r.endContainer, r.endOffset);
-    return x;
-  }).filter(x => !x.collapsed && x.toString().trim());
-  if (!parts.length) { toast('Select some text in the cells first'); return true; }
-  held++;   // one undo step for the whole selection, not one per cell
-  try { for (const x of parts.reverse()) { s.removeAllRanges(); s.addRange(x); fn(); } }   // last cell first, so the earlier ranges stay put
-  finally { held--; }
-  commit(true); return true;
-}
 function wrapSel(tag, cls) {
-  if (perCell(() => wrapSel(tag, cls))) return;
   const host = editHost(); if (!host) return toast('Click into some text first');
   const s = getSelection(), r = s.getRangeAt(0);
   const anc = r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement;
@@ -849,13 +826,9 @@ function wrapSel(tag, cls) {
   const frag = r.extractContents();
   frag.querySelectorAll(same).forEach(unwrap);
   const el = document.createElement(tag); if (cls) el.className = cls; el.append(frag);
-  r.insertNode(el);
-  // a selection that starts or ends at the very edge of a span leaves an empty shell of it behind: drop it
-  for (const x of [el.previousSibling, el.nextSibling]) if (x && x.nodeType === 1 && /^(B|I|EM|STRONG|U|CODE|SPAN)$/.test(x.tagName) && !x.textContent && !x.querySelector('img, br, svg, b-m')) x.remove();
-  s.selectAllChildren(el); commit(true);
+  r.insertNode(el); s.selectAllChildren(el); commit(true);
 }
 function clearSel() {
-  if (perCell(clearSel)) return;
   const host = editHost(); if (!host) return;
   const s = getSelection(), r = s.getRangeAt(0);
   let n = r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement;
