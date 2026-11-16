@@ -1,49 +1,13 @@
 {
  "_last": {
-  "at": "2026-11-15T15:37:18Z",
-  "event": "schedule",
+  "at": "2026-11-16T11:23:23Z",
+  "event": "push",
   "failed": [],
   "ok": [
-   "backprop",
-   "bptt",
-   "cnn",
-   "eval",
-   "ffn",
-   "linreg",
-   "optreg",
-   "pca",
-   "rnn",
-   "search",
-   "svm"
+   "ballm-rag-lora"
   ],
-  "over": {
-   "backprop": [
-    "lec-p-224uu"
-   ],
-   "eval": [
-    "residual-plots"
-   ],
-   "ffn": [
-    "p-qhx95"
-   ],
-   "search": [
-    "a-puzzle-made-of-states",
-    "what-can-happen-next",
-    "draw-the-exploration",
-    "breadth-first-traversal",
-    "depth-first-traversal",
-    "now-ask-for-a-solution",
-    "represent-the-picture",
-    "bfs-searches-the-puzzle",
-    "remember-how-we-got-here",
-    "dfs-can-go-the-wrong-way",
-    "why-put-a-limit-on-depth",
-    "found-exhausted-or-cut-off",
-    "run-the-same-puzzle",
-    "what-uninformed-search-ignores"
-   ]
-  },
-  "run": "43730746536"
+  "over": {},
+  "run": "43856988693"
  },
  "backprop": {
   "at": "2026-11-15T15:37:27Z",
@@ -109,6 +73,11 @@
   "at": "2026-11-11T16:00:36Z",
   "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
   "web": "ballm/optim"
+ },
+ "ballm-rag-lora": {
+  "at": "2026-11-16T11:23:30Z",
+  "commit": "4e7f398ddbf3fe9682e02dfc4356524c2d813081",
+  "web": "ballm/rag-lora"
  },
  "ballm-rnn": {
   "at": "2026-11-11T16:00:43Z",
