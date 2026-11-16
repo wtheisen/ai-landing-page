@@ -4477,13 +4477,14 @@ if (phone) {
   $('#panels').append(btn);
   window.Terms = { open: () => setOn(true), close: () => setOn(false), render, scan };
 })();
-// Story view (Eric, 2026-11-16: story mode). The Lecture as one strip, a row per slide grouped by part: what each slide
-// raises, answers and introduces (from the approved STORY.md spec, tools/agent/story.py), arcs from each question to
-// the slide that answers it (red when the answer comes first, a red stub when it never comes), and the story checks
-// flagged on their rows (the same checks as story.py; selftest test_story_view keeps the two in step). Click a row to
-// go to the slide, drag rows to reorder the slides.
+// Story, woven into the slides (Eric, 2026-11-16: story mode; "woven in between slides/pages would be ideal"). With
+// ☰ ▸ View ▸ Story on, the Lecture's slides get a band above each one (the part it starts, what it answers and from
+// which slide, what it introduces, its story findings in red) and one below (what it sets up for a later slide), from
+// the approved STORY.md spec (tools/agent/story.py). Editor-only: the bands sit in the overlay, never in the chapter.
+// The checks are story.py's, ported (selftest test_story_view keeps the two in step); without a spec only the
+// term-before-definition check runs.
 (() => {
-  let on = false, panel = null, spec = null, specFor = null, dragId = null;
+  let on = false, spec = null, specFor = null, box = null, busy = false;
   const hesc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const isLecture = pg => { const v = pg.getAttribute('data-view'); return !!v && /\b(slides|workbook)\b/.test(v); };
   const lecture = () => [...book.querySelectorAll('section.page')].filter(pg => !pg.classList.contains('cover') && !pg.closest('[data-thumb]') && isLecture(pg));
@@ -4565,77 +4566,97 @@ if (phone) {
     try { const r = await fetch('../c/' + ch + '/STORY.md', { cache: 'no-store' }); if (r.ok) spec = parse(await r.text()); } catch (x) {}
     return spec;
   }
-  function render() {
-    if (!panel || !on) return;
-    const pgs = lecture(), sp = spec, byId = {}; (sp ? sp.pages : []).forEach(p => { if (p.id !== 'new') byId[p.id] = p; });
-    const flags = checks(sp, pgs), n0 = book.querySelector('section.page.cover') ? 2 : 1;
-    let part = null, rows = '', nflags = 0;
-    pgs.forEach((pg, k) => {
-      const p = byId[pg.id], act = pg.getAttribute('data-part') || (p && p.act) || part;
-      if (act && act !== part) { rows += `<div class="sv-act">${hesc(act)}</div>`; part = act; }
-      const f = flags[pg.id] || []; nflags += f.length;
-      const chip = (cls, v, tip) => `<span class="sv-c ${cls}" title="${hesc(tip || '')}">${hesc(v)}</span>`;
-      const chips = p ? [...p.raises.map(q => chip('r', q, 'raises: ' + (sp.qs[q] || ''))), ...p.answers.map(q => chip('a', q, 'answers: ' + (sp.qs[q] || ''))), ...p.introduces.map(t => chip('i', t, 'introduces')), ...p.uses.map(t => chip('u', t, 'uses'))].join('') : '';
-      const title = (pg.querySelector('h1, h2') || {}).textContent || pg.id;
-      rows += `<div class="sv-r${f.length ? ' bad' : ''}${pg === curPage ? ' cur' : ''}" draggable="true" data-id="${hesc(pg.id)}"><span class="sv-n">${k + n0}</span><span class="sv-b"><span class="sv-t">${hesc(title)}</span>${chips ? `<span class="sv-cs">${chips}</span>` : ''}${f.map(m => `<span class="sv-f">${hesc(m)}</span>`).join('')}</span></div>`;
-    });
-    const other = Object.keys(flags).filter(k => k.startsWith('new:') || !pgs.some(pg => pg.id === k));
-    const extra = other.flatMap(k => flags[k]); nflags += extra.length;
-    const scroll = panel.querySelector('.sv-list') ? panel.querySelector('.sv-list').scrollTop : 0;
-    panel.innerHTML = `<div class="qp-top"><b>Story</b><span class="qp-n${nflags ? ' bad' : ''}" title="story findings">${nflags}</span><span class="sp"></span><button data-a="close">Done</button></div>
-      <div class="help">${sp ? `<b>Hook:</b> ${hesc(sp.head.hook || '(none)')}<br><b>Running example:</b> ${hesc(sp.head['running example'] || '(none)')}` : 'No story spec for this chapter yet (STORY.md): only the term check runs. <code>ai2ai story</code> writes one.'}
-      <br><span class="sv-key"><span class="sv-c r">?raises</span> <span class="sv-c a">?answers</span> <span class="sv-c i">introduces</span> <span class="sv-c u">uses</span> · drag rows to reorder slides</span></div>
-      ${extra.length ? `<div class="sv-extra">${extra.map(m => `<span class="sv-f">${hesc(m)}</span>`).join('')}</div>` : ''}
-      <div class="sv-list"><svg class="sv-arcs"></svg>${rows}</div>`;
-    const l = panel.querySelector('.sv-list'); l.scrollTop = scroll;
-    requestAnimationFrame(() => arcs(sp));
+  // the container showing the Lecture: #book itself, or (side by side) the pane whose view is slides, else workbook
+  const host = () => {
+    const v = el => el.dataset.view || '', cands = [book, ...book.querySelectorAll(':scope > .dpane')].filter(el => el.offsetParent !== null || el === book);
+    return cands.find(el => v(el) === 'slides' && el.querySelector(':scope > section.page')) || cands.find(el => v(el) === 'workbook' && el.querySelector(':scope > section.page')) || null;
+  };
+  let gapOn = null;
+  function clear() { if (box) box.innerHTML = ''; if (gapOn) { if (gapOn.style.rowGap) gapOn.style.removeProperty('row-gap'); if (gapOn.style.paddingTop) gapOn.style.removeProperty('padding-top'); } gapOn = null; }
+  function weave() {
+    if (busy) return;
+    const H = on && !document.documentElement.classList.contains('ink-lecture') ? host() : null;
+    if (!H) return clear();
+    busy = true;
+    try {
+      const S = H.classList.contains('dpane') ? H : deskBox;   // the scroller the bands ride in
+      if (gapOn && gapOn !== H) clear();
+      if (!box) { box = document.createElement('div'); box.id = 'storyw'; box.setAttribute('data-ed', ''); }   // data-ed: Book.serialize skips it (inside a pane it sits among the chapter's nodes)
+      if (box.parentElement !== S) S.append(box);
+      const all = lecture(), pgs = all.filter(pg => pg.parentElement === H && pg.offsetParent);
+      const sp = spec, byId = {}, num = {}, n0 = book.querySelector('section.page.cover') ? 2 : 1;
+      all.forEach((pg, k) => { num[pg.id] = k + n0; });
+      (sp ? sp.pages : []).forEach(p => { if (p.id !== 'new') byId[p.id] = p; });
+      const flags = checks(sp, all), raisedBy = {}, answeredBy = {};
+      (sp ? sp.pages : []).forEach(p => { p.raises.forEach(q => { if (!(q in raisedBy)) raisedBy[q] = p.id; }); p.answers.forEach(q => { if (!(q in answeredBy)) answeredBy[q] = p.id; }); });
+      const qtext = q => sp && sp.qs[q] ? sp.qs[q] : '';
+      const go = id => id && num[id] ? `<a data-go="${hesc(id)}">slide ${num[id]}</a>` : '';
+      let html = '';
+      pgs.forEach((pg, k) => {
+        const p = byId[pg.id], prev = all[all.indexOf(pg) - 1], next = all[all.indexOf(pg) + 1];
+        let up = '', down = '';
+        const part = pg.getAttribute('data-part'); if (part) up += `<div class="sw-part">${hesc(part)}</div>`;
+        if (p) {
+          p.answers.forEach(q => {
+            const r = raisedBy[q];
+            if (!r) up += `<div class="sw-l bad">answers ${hesc(q)} “${hesc(qtext(q))}”, which no slide raises</div>`;
+            else if (num[r] > num[pg.id]) up += `<div class="sw-l bad">answers ${hesc(q)} “${hesc(qtext(q))}” before ${go(r)} raises it</div>`;
+            else up += `<div class="sw-l">↳ <b>${hesc(qtext(q) || q)}</b>${prev && r === prev.id ? '' : ` <span class="sw-from">(raised on ${go(r)})</span>`}</div>`;
+          });
+          if (p.introduces.length) up += `<div class="sw-l">${p.introduces.map(t => `<span class="sw-c">${hesc(t)}</span>`).join(' ')}</div>`;
+          p.raises.forEach(q => {
+            const a = answeredBy[q];
+            if (a && next && a === next.id) return;   // the next slide's band shows it
+            if (!a) down += `<div class="sw-l${handedOff(q, sp.qs) ? '' : ' bad'}">${hesc(q)} “${hesc(qtext(q))}” ${handedOff(q, sp.qs) ? '→ the next chapter' : 'is never answered'}</div>`;
+            else if (num[a] > num[pg.id]) down += `<div class="sw-l">sets up <b>${hesc(qtext(q) || q)}</b> → ${go(a)}</div>`;
+          });
+        }
+        (flags[pg.id] || []).forEach(m => { up += `<div class="sw-l bad">${hesc(m)}</div>`; });
+        if (k === 0) Object.keys(flags).filter(x => x.startsWith('new:') || !num[x]).forEach(x => flags[x].forEach(m => { up += `<div class="sw-l bad">${hesc(m)}</div>`; }));
+        if (up) html += `<div class="sw sw-up" data-for="${hesc(pg.id)}">${up}</div>`;
+        if (down) html += `<div class="sw sw-down" data-for="${hesc(pg.id)}">${down}</div>`;
+      });
+      box.innerHTML = html;
+      // room between the rows for the tallest pair of bands, then place them against their slides
+      const h = {};
+      box.querySelectorAll('.sw').forEach(b => { const id = b.dataset.for; h[id] = h[id] || [0, 0]; h[id][b.classList.contains('sw-up') ? 0 : 1] = b.offsetHeight; });
+      let need = 0;   // the gap between two rows holds one slide's band below and the next one's band above
+      pgs.forEach((pg, k) => { if (k) need = Math.max(need, (h[pgs[k - 1].id] || [0, 0])[1] + (h[pg.id] || [0, 0])[0]); });
+      // widen the gaps only as much as the bands need: side by side the Lecture is already spaced to line up with the
+      // Reading, and the pane's zoom scales a gap set in px, so measure the gaps, and what 100px more comes to on screen
+      if (H.style.rowGap) H.style.removeProperty('row-gap');
+      const gaps = () => pgs.map((pg, k) => k ? pg.getBoundingClientRect().top - pgs[k - 1].getBoundingClientRect().bottom : Infinity);
+      const g0 = gaps(), base = parseFloat(getComputedStyle(H).rowGap) || 0;
+      let short = 0;
+      pgs.forEach((pg, k) => { if (k && g0[k] > -1) short = Math.max(short, (h[pgs[k - 1].id] || [0, 0])[1] + (h[pg.id] || [0, 0])[0] + 22 - g0[k]); });
+      let f = 1;
+      if (short > 0 && pgs.length > 1) { H.style.rowGap = (base + 100) + 'px'; const g1 = gaps(), k = g0.findIndex((g, i) => i && g > -1); if (k > 0 && g1[k] - g0[k] > 1) f = (g1[k] - g0[k]) / 100; }
+      const gap = short > 0 ? Math.ceil(base + short / f) + 'px' : '', pad = Math.round(Math.max(0, ((h[pgs[0] && pgs[0].id] || [0, 0])[0]) + 30) / f) + 'px';
+      if (H.style.rowGap !== gap) H.style.rowGap = gap;
+      if (H.style.paddingTop !== pad) H.style.paddingTop = pad; gapOn = H;
+      box.querySelectorAll('.sw').forEach(b => {
+        const pg = pgs.find(x => x.id === b.dataset.for); if (!pg) return;
+        const r = pg.getBoundingClientRect(), q = S.getBoundingClientRect(), x = r.left - q.left + S.scrollLeft - S.clientLeft, y = r.top - q.top + S.scrollTop - S.clientTop;
+        b.style.left = x + 'px'; b.style.width = r.width + 'px';
+        b.style.top = (b.classList.contains('sw-up') ? y - b.offsetHeight - 6 : y + r.height + 6) + 'px';
+      });
+    } finally { busy = false; }
   }
-  function arcs(sp) {   // question arcs in the left gutter: raise → answer, nested by length
-    const l = panel && panel.querySelector('.sv-list'), svg = l && l.querySelector('.sv-arcs'); if (!svg || !sp) return;
-    const top = l.getBoundingClientRect().top - l.scrollTop, y = {};
-    l.querySelectorAll('.sv-r').forEach(r => { const b = r.getBoundingClientRect(); y[r.dataset.id] = b.top - top + Math.min(14, b.height / 2); });
-    const raised = {}, answered = {};
-    sp.pages.forEach(p => { if (!(p.id in y)) return; p.raises.forEach(q => { if (!(q in raised)) raised[q] = p.id; }); p.answers.forEach(q => { if (!(q in answered)) answered[q] = p.id; }); });
-    const list = Object.keys(sp.qs).map(q => [q, raised[q], answered[q]]).filter(x => x[1] || x[2]).sort((a, b) => Math.abs((y[a[2]] || 0) - (y[a[1]] || 0)) - Math.abs((y[b[2]] || 0) - (y[b[1]] || 0)));
-    let out = '';
-    list.forEach(([q, r, a], i) => {
-      const x = 40 - Math.min(34, 6 + (i % 9) * 4), tip = `<title>${hesc(q + ': ' + (sp.qs[q] || ''))}</title>`;
-      if (r && a) { const y0 = y[r], y1 = y[a], bad = y1 < y0; out += `<path class="${bad ? 'bad' : ''}" d="M42 ${y0} C${x} ${y0} ${x} ${y1} 42 ${y1}"${bad ? '' : ' marker-end="url(#sv-ah)"'}>${tip}</path>`; }
-      else if (r && !handedOff(q, sp.qs)) out += `<path class="bad" d="M42 ${y[r]} L30 ${y[r] + 10}">${tip}</path>`;
-    });
-    svg.setAttribute('height', l.scrollHeight);
-    svg.innerHTML = '<defs><marker id="sv-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#38761D"/></marker></defs>' + out;
-  }
+  document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('#storyw a[data-go]'); if (!a) return; const pg = lecture().find(p => p.id === a.dataset.go); if (pg) { setPage(pg); pg.scrollIntoView({ block: 'start' }); } });
   async function setOn(x) {
-    if (x === on) return;
-    on = x; document.body.classList.toggle('storypanel', on);
-    if (on) ['QPool', 'Suggest', 'Tokens', 'Notation', 'Terms'].forEach(k => window[k] && window[k].close && window[k].close());
-    if (!panel) {
-      panel = document.createElement('aside'); panel.id = 'storypanel';
-      panel.addEventListener('click', e => {
-        const b = e.target.closest('button'); if (b && b.dataset.a === 'close') return setOn(false);
-        const r = e.target.closest('.sv-r'); if (!r) return;
-        const pg = lecture().find(p => p.id === r.dataset.id); if (pg) { setPage(pg); pg.scrollIntoView({ block: 'start' }); render(); }
-      });
-      panel.addEventListener('dragstart', e => { const r = e.target.closest('.sv-r'); dragId = r && r.dataset.id; if (dragId) { e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', dragId); } catch (x) {} } });
-      panel.addEventListener('dragover', e => { if (!dragId) return; e.preventDefault(); panel.querySelectorAll('.sv-r.dropb, .sv-r.dropa').forEach(r => r.classList.remove('dropb', 'dropa')); const r = e.target.closest('.sv-r'); if (r) { const b = r.getBoundingClientRect(); r.classList.add(e.clientY > b.top + b.height / 2 ? 'dropa' : 'dropb'); } });
-      panel.addEventListener('drop', e => {
-        e.preventDefault(); const r = e.target.closest('.sv-r'), id = dragId; dragId = null; if (!r || r.dataset.id === id) return render();
-        const pgs = lecture(), pg = pgs.find(p => p.id === id), target = pgs.find(p => p.id === r.dataset.id); if (!pg || !target) return render();
-        const after = r.classList.contains('dropa'); commit(true); if (after) target.after(pg); else target.before(pg); commit(true); Book.refresh(); render();
-      });
-      panel.addEventListener('dragend', () => { dragId = null; panel.querySelectorAll('.sv-r.dropb, .sv-r.dropa').forEach(r => r.classList.remove('dropb', 'dropa')); });
-      $('#panels').addEventListener('click', e => { const b = e.target.closest('button'); if (b && b.id !== 'x-story' && on) setOn(false); });
-    }
-    if (on) { $('#main').append(panel); await load(); render(); } else renderInspector();
-    const b = $('#x-story'); if (b) b.classList.toggle('on', on);
+    on = x; try { localStorage.setItem('book-story', on ? '1' : '0'); } catch (e) {}
+    document.body.classList.toggle('storyweave', on); $('#x-story').classList.toggle('on', on);
+    if (on) await load(); weave();
   }
-  let t = 0; book.addEventListener('book-refresh', () => { if (on) { clearTimeout(t); t = setTimeout(render, 300); } });
-  const btn = document.createElement('button'); btn.id = 'x-story'; btn.textContent = 'Story';
-  btn.title = "Story view: the Lecture slide by slide, what each raises and answers, and the story checks (drag rows to reorder slides)";
+  let t = 0; const soon = () => { if (!on) return; clearTimeout(t); t = setTimeout(weave, 120); };
+  book.addEventListener('book-refresh', soon); addEventListener('resize', soon);
+  new MutationObserver(soon).observe(book, { attributes: true, subtree: true, attributeFilter: ['data-view', 'style', 'class'] });
+  const btn = h('<button id="x-story" title="Story: the Lecture\'s story woven in between the slides (what each answers, introduces and sets up, and the story checks in red)">Story</button>');
   btn.onclick = () => setOn(!on);
-  $('#panels').prepend(btn);
-  window.Story = { open: () => setOn(true), close: () => setOn(false), render, parse, checks: sp => checks(sp, lecture()), reload: () => { specFor = null; return load(); } };
+  $('#m-view').append(btn);
+  window.Story = { on: () => setOn(true), off: () => setOn(false), weave, parse, checks: sp => checks(sp, lecture()), reload: () => { specFor = null; return load(); } };
+  let saved = null; try { saved = localStorage.getItem('book-story'); } catch (e) {}
+  load().then(sp => { if (saved === '1' || (saved == null && sp)) setOn(true); });
 })();
 // another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)
 (() => {
