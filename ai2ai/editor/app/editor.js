@@ -3571,7 +3571,7 @@ async function flipFig(el) {
   const fig = el.getAttribute('src') || '';
   let d;
   try { const r = await fetch('../api/figsrc/' + ch + '?fig=' + encodeURIComponent(fig)); d = await r.json(); if (!r.ok) throw new Error(d.error); }
-  catch (e) { if (e.message === 'not found') return toast('Restart the editor server (Ctrl-C, then python3 server.py) to see figure code'); return toast(/\.png$|\.jpe?g$/i.test(fig) ? 'This figure is a screenshot, so there is no code behind it' : 'No script draws ' + fig + ' yet'); }
+  catch (e) { if (e.message === 'not found') return toast('Restart the editor server (Ctrl-C, then python3 server.py) to see figure code'); return toast(/\.(png|jpe?g|gif|webp)$/i.test(fig) ? 'This figure is a screenshot, so there is no code behind it' : 'No script draws ' + fig + ' yet'); }
   if (!figPanel) {
     figPanel = document.createElement('div'); figPanel.id = 'figcode'; figPanel.hidden = true; figPanel.setAttribute('data-ed', ''); figPanel.setAttribute('data-ed-ui', '');
     figPanel.innerHTML = '<div class="fc-bar"><span class="fc-name"></span><span class="fc-state"></span><span class="sp"></span>' +

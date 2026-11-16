@@ -7,7 +7,7 @@
 const DB_NAME = 'ai2ai-book', DB_VER = 1;
 const TEXT = /\.(html|js|json|py|svg|txt|csv|tex|md|css)$/i;
 const MIME = { html: 'text/html; charset=utf-8', js: 'text/javascript; charset=utf-8', css: 'text/css; charset=utf-8', json: 'application/json',
-  svg: 'image/svg+xml', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', ttf: 'font/ttf', pdf: 'application/pdf',
+  svg: 'image/svg+xml', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', ttf: 'font/ttf', pdf: 'application/pdf',
   txt: 'text/plain; charset=utf-8', py: 'text/plain; charset=utf-8', csv: 'text/csv; charset=utf-8', tex: 'text/plain; charset=utf-8', md: 'text/plain; charset=utf-8' };
 const mimeOf = p => MIME[(p.split('.').pop() || '').toLowerCase()] || 'application/octet-stream';
 const isText = p => TEXT.test(p);

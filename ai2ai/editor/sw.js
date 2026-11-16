@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = 'c7e4f7c654', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "present.html", "present.js", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = '747b044143', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "present.html", "present.js", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/
@@ -123,7 +123,7 @@ async function api(req, u, parts) {
   }
   if (kind === 'upload') {
     let name = (q.get('name') || 'figure').split('/').pop().replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^[-.]+|[-.]+$/g, '') || 'figure';
-    if (!/\.(svg|png|jpe?g|gif)$/i.test(name)) return json(400, { error: 'figures can be svg, png, jpg or gif' });
+    if (!/\.(svg|png|jpe?g|gif|webp)$/i.test(name)) return json(400, { error: 'figures can be svg, png, jpg, gif or webp' });
     const body = await req.blob(), data = /\.svg$/i.test(name) ? await body.text() : body;
     const [stem, ext] = [name.replace(/\.[^.]+$/, ''), name.slice(name.lastIndexOf('.'))];
     for (let k = 2; ; k++) {
