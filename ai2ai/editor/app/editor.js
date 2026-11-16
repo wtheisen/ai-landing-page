@@ -4566,7 +4566,7 @@ if (phone) {
     return cands.find(el => v(el) === 'slides' && el.querySelector(':scope > section.page')) || cands.find(el => v(el) === 'workbook' && el.querySelector(':scope > section.page')) || null;
   };
   let gapOn = null;
-  function clear() { if (box) box.innerHTML = ''; if (gapOn) { if (gapOn.style.rowGap) gapOn.style.removeProperty('row-gap'); if (gapOn.style.paddingTop) gapOn.style.removeProperty('padding-top'); } gapOn = null; }
+  function clear() { if (box) box.innerHTML = ''; if (gapOn) { ['row-gap', 'padding-top', 'padding-left'].forEach(k => gapOn.style.removeProperty(k)); } gapOn = null; }
   async function load() {
     if (specFor === ch) return spec;
     specFor = ch; spec = null;
@@ -4635,13 +4635,13 @@ if (phone) {
         if (!prev) c += `<div class="sw-hook"><label>Hook <input data-head="hook" value="${hesc(spec.head.hook || '')}" placeholder="a question from the students' world, not a recap"></label><label>Running example <input data-head="running example" value="${hesc(spec.head['running example'] || '')}" placeholder="one example, from their world"></label>${spec.pending ? '<div class="sw-wait">From the story outline waiting for your approval on the editor home. Editing here makes it the chapter\'s story.</div>' : ''}</div>`;
         const part = pg.getAttribute('data-part');
         if (part != null) c += `<div class="sw-part"><input data-part="${hesc(pg.id)}" value="${hesc(part)}" title="This part's name (the slides' footer label)"></div>`;
-        if (pp) pp.raises.forEach(q => { const a = answeredBy[q]; if (a === pg.id) return;
-          if (!a) c += qline(q, 'slide ' + num[prev.id] + ' sets up', handedOff(q, spec.qs) ? '→ the next chapter' : 'never answered', !handedOff(q, spec.qs));
-          else c += qline(q, 'slide ' + num[prev.id] + ' sets up', '→ ' + go(a), num[a] <= num[prev.id]); });
+        if (pp) pp.raises.forEach(q => { const a = answeredBy[q]; if (a === pg.id || (a && num[a] > num[prev.id])) return;   // a later answer: an arc in the margin
+          if (!a) c += qline(q, 'slide ' + num[prev.id] + ' leaves', handedOff(q, spec.qs) ? '→ the next chapter' : 'never answered', !handedOff(q, spec.qs));
+          else c += qline(q, 'slide ' + num[prev.id] + ' leaves', 'answered before it is raised', true); });
         p.answers.forEach(q => { const r = raisedBy[q];
           if (!r) c += qline(q, '↳', 'no slide raises it', true);
           else if (num[r] > num[pg.id]) c += qline(q, '↳', 'before ' + go(r) + ' raises it', true);
-          else c += qline(q, '↳', prev && r === prev.id ? '' : '(raised on ' + go(r) + ')', false); });
+          else c += qline(q, '↳', '', false); });
         c += `<div class="sw-adds">${prev ? `<button class="sw-add" data-addq="${hesc(prev.id)}>${hesc(pg.id)}">+ question slide ${num[prev.id]} leaves, slide ${num[pg.id]} answers</button>` : ''}${part == null ? `<button class="sw-add" data-addpart="${hesc(pg.id)}">+ a part starts here</button>` : ''}</div>`;
         c += `<div class="sw-t"><label>introduces <input data-intro="${hesc(pg.id)}" value="${hesc(p.introduces.join(', '))}" placeholder="terms first explained on slide ${num[pg.id]}"></label><label>uses <input data-uses="${hesc(pg.id)}" value="${hesc(p.uses.join(', '))}" placeholder="earlier terms it needs"></label></div>`;
         (flags[pg.id] || []).forEach(m => { c += `<div class="sw-l bad">${hesc(m)}</div>`; });
@@ -4673,13 +4673,51 @@ if (phone) {
       const gap = short > 0 ? Math.ceil(base + short / f) + 'px' : '', pad = Math.round(Math.max(0, ((h[pgs[0] && pgs[0].id] || [0, 0])[0]) + 30) / f) + 'px';
       if (H.style.rowGap !== gap) H.style.rowGap = gap;
       if (H.style.paddingTop !== pad) H.style.paddingTop = pad; gapOn = H;
+      if (H.classList.contains('dpane') && H.style.paddingLeft !== '56px') H.style.paddingLeft = '56px';   // side by side: room for the graph
       box.querySelectorAll('.sw').forEach(b => {
         const pg = pgs.find(x => x.id === b.dataset.for); if (!pg) return;
         const r = pg.getBoundingClientRect(), q = S.getBoundingClientRect(), x = r.left - q.left + S.scrollLeft - S.clientLeft, y = r.top - q.top + S.scrollTop - S.clientTop;
         b.style.left = x + 'px'; b.style.width = r.width + 'px';
         b.style.top = (b.classList.contains('sw-up') ? y - b.offsetHeight - 6 : y + r.height + 6) + 'px';
       });
+      arcs(S, pgs, all, d, raisedBy, answeredBy, num);
     } finally { busy = false; }
+  }
+  // the story's threads as a graph in the left margin (Eric, 2026-11-16: "show arrows or lines in the margins going
+  // between stuff, almost like a kind of graph"): each question from the slide that raises it to the card line that
+  // answers it, nested by length; red when the answer comes first, a red stub for a question never answered. The
+  // question from one slide to the next is in the card between them, so only longer threads get a line.
+  function arcs(S, pgs, all, d, raisedBy, answeredBy, num) {
+    if (!pgs.length) return;
+    const q0 = S.getBoundingClientRect(), X = x => x - q0.left + S.scrollLeft - S.clientLeft, Y = y => y - q0.top + S.scrollTop - S.clientTop;
+    const vis = new Set(pgs.map(p => p.id)), left = Math.min(...pgs.map(p => p.getBoundingClientRect().left)), xL = X(left) - 4;
+    const room = Math.max(10, xL - 6);
+    const lines = [];
+    Object.keys(spec.qs).forEach(q => {
+      const r = raisedBy[q], a = answeredBy[q]; if (!r || !vis.has(r)) return;
+      const rp = all.find(p => p.id === r), rr = rp.getBoundingClientRect(), y0 = Y(rr.bottom) - 14;
+      if (!a) { if (!handedOff(q, spec.qs)) lines.push({ q, y0, y1: y0 + 26, stub: true, bad: true }); return; }
+      if (!vis.has(a) || (all.indexOf(all.find(p => p.id === a)) - all.indexOf(rp) === 1)) return;   // next slide: the card between them shows it
+      const t = box.querySelector(`.sw-up[data-for="${CSS.escape(a)}"] textarea[data-q="${CSS.escape(q)}"]`); if (!t) return;
+      const tr = t.getBoundingClientRect();
+      lines.push({ q, y0, y1: Y(tr.top + Math.min(12, tr.height / 2)), bad: num[a] < num[r] });
+    });
+    lines.sort((a, b) => Math.abs(a.y1 - a.y0) - Math.abs(b.y1 - b.y0));
+    const lanes = [];   // nest: a longer thread goes further out than the shorter ones inside it
+    lines.forEach(l => { const lo = Math.min(l.y0, l.y1), hi = Math.max(l.y0, l.y1); let k = 0; while (lanes[k] && lanes[k].some(([a, b]) => lo < b && a < hi)) k++; (lanes[k] = lanes[k] || []).push([lo, hi]); l.k = k; });
+    const step = Math.max(4, Math.min(12, (room - 8) / Math.max(1, lanes.length)));
+    const svgH = Math.max(S.scrollHeight, ...lines.map(l => Math.max(l.y0, l.y1) + 20));
+    let out = '';
+    lines.forEach(l => {
+      const x = xL - 8 - l.k * step, tip = `<title>${hesc(l.q + ': ' + (spec.qs[l.q] || ''))}</title>`;
+      if (l.stub) out += `<g class="bad">${tip}<path d="M${xL} ${l.y0} H${x} V${l.y1}"/><circle cx="${x}" cy="${l.y1 + 4}" r="3.5"/></g>`;
+      else out += `<g class="${l.bad ? 'bad' : ''}">${tip}<path d="M${xL} ${l.y0} H${x} V${l.y1} H${xL + 2}" marker-end="url(#sw-ah${l.bad ? 'r' : 'g'})"/><circle cx="${xL}" cy="${l.y0}" r="2.5"/></g>`;
+    });
+    let svg = box.querySelector('svg.sw-arcs');
+    if (!svg) { svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'sw-arcs'); box.prepend(svg); }
+    svg.setAttribute('width', Math.max(1, xL + 6)); svg.setAttribute('height', svgH);
+    svg.innerHTML = '<defs><marker id="sw-ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#38761D"/></marker>'
+      + '<marker id="sw-ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#cc0000"/></marker></defs>' + out;
   }
   // editing in the cards
   function fit(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
