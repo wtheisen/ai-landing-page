@@ -734,14 +734,28 @@ b-code.ed-colab::after { content: 'Colab only'; position: absolute; top: 2pt; ri
 #ctx.flip .ctx-sub { left: auto; right: calc(100% - 2px); }
 #ctx .ctx-it.sub:hover > .ctx-sub { display: block; }
 
-/* Story woven into the slides (editor.js, 2026-11-16): editor-only bands above and below each Lecture slide */
+/* Story cards woven in between the slides (editor.js, 2026-11-16): editor-only, editable, above each Lecture slide */
 #storyw { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 5; }
-#storyw .sw { position: absolute; box-sizing: border-box; padding: 0 2px; font: 12px/1.4 Arial, sans-serif; color: #44546a; pointer-events: auto; }
-#storyw .sw-part { font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .5px; font-size: 12px; border-bottom: 2px solid #DCB439; margin-bottom: 3px; padding-bottom: 1px; }
-#storyw .sw-l { white-space: normal; }
-#storyw .sw-l b { color: #38761D; font-weight: 600; }
-#storyw .sw-l.bad { color: #cc0000; }
-#storyw .sw-from { color: #888; }
-#storyw .sw-c { display: inline-block; background: #002B5B; color: #fff; border-radius: 8px; padding: 0 6px; font-size: 11px; line-height: 16px; }
+#storyw .sw { position: absolute; box-sizing: border-box; font: 13px/1.35 Arial, sans-serif; color: #44546a; background: #fbfaf5; border: 1px solid #e6dfc8; border-radius: 8px; padding: 6px 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+#storyw .sw-hook { display: flex; flex-direction: column; gap: 3px; padding-bottom: 5px; margin-bottom: 4px; border-bottom: 1px dashed #e0d7bb; }
+#storyw .sw-hook label, #storyw .sw-t label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .3px; }
+#storyw .sw-t { display: flex; gap: 10px; margin-top: 3px; } #storyw .sw-t label { flex: 1; }
+#storyw :is(input, textarea) { flex: 1; min-width: 0; font: inherit; color: #1d2433; text-transform: none; letter-spacing: 0; background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 2px 4px; }
+#storyw :is(input, textarea):hover { border-color: #e0d7bb; } #storyw :is(input, textarea):focus { border-color: #6D9EEB; background: #fff; outline: none; }
+#storyw textarea { resize: none; overflow: hidden; display: block; line-height: 1.3; }
+#storyw :is(input, textarea)::placeholder { color: #bbb; }
+#storyw .sw-t input { font-size: 12px; }
+#storyw .sw-part input { width: 100%; box-sizing: border-box; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .5px; font-size: 13px; border-bottom: 2px solid #DCB439; border-radius: 0; }
+#storyw .sw-q { display: flex; align-items: flex-start; gap: 4px; } #storyw .sw-q > span { padding-top: 4px; }
+#storyw .sw-q textarea { font-weight: 600; color: #38761D; font-size: 14px; }
+#storyw .sw-q.bad textarea { color: #cc0000; }
+#storyw .sw-pre { color: #888; font-size: 12px; white-space: nowrap; } #storyw .sw-post { color: #888; font-size: 12px; white-space: nowrap; }
+#storyw .sw-q.bad .sw-post { color: #cc0000; }
+#storyw .sw-q button { border: 0; background: none; color: #bbb; cursor: pointer; font-size: 14px; padding: 0 3px; visibility: hidden; }
+#storyw .sw-q:hover button { visibility: visible; } #storyw .sw-q button:hover { color: #cc0000; }
+#storyw .sw-adds { display: flex; gap: 6px; min-height: 18px; }
+#storyw .sw-add { border: 0; background: none; color: #1155CC; cursor: pointer; font-size: 12px; padding: 1px 4px; opacity: 0; }
+#storyw .sw:hover .sw-add, #storyw .sw-add:focus { opacity: .85; }
+#storyw .sw-l.bad { color: #cc0000; font-size: 12px; }
+#storyw .sw-wait { color: #8a6d00; font-size: 12px; }
 #storyw a[data-go] { color: #1155CC; cursor: pointer; text-decoration: underline; }
-#storyw .sw-down { color: #777; }

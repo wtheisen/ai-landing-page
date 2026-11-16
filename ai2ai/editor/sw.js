@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = '33fa70848c', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "present.html", "present.js", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = '2ddd623abc', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "present.html", "present.js", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/
@@ -89,6 +89,10 @@ async function api(req, u, parts) {
     return json(200, { ok: true, local: true });
   }
   if (!ch || !NAME.test(ch)) return json(404, { error: 'no such chapter' });
+  if (kind === 'story' && post) {   // the story cards between the slides write the chapter's STORY.md (story mode, 2026-11-16)
+    await Files.put('chapters/' + ch + '/STORY.md', await req.text()); soon();
+    return json(200, { ok: true, local: true });
+  }
   const cf = await Sync.file(chapterPath(ch));
   if (!cf) return json(404, { error: 'no such chapter on this device' });
 

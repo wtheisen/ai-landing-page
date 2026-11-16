@@ -4560,6 +4560,13 @@ if (phone) {
     if (name) { const hit = text.findIndex(x => has(x, name)); if (hit < 0 || hit >= 4) flag(ids[0] || 'new:0', `running example "${name}" is not on the first 4 slides`); }
     return out;
   }
+  // the container showing the Lecture: #book itself, or (side by side) the pane whose view is slides, else workbook
+  const host = () => {
+    const v = el => el.dataset.view || '', cands = [book, ...book.querySelectorAll(':scope > .dpane')].filter(el => el.offsetParent !== null || el === book);
+    return cands.find(el => v(el) === 'slides' && el.querySelector(':scope > section.page')) || cands.find(el => v(el) === 'workbook' && el.querySelector(':scope > section.page')) || null;
+  };
+  let gapOn = null;
+  function clear() { if (box) box.innerHTML = ''; if (gapOn) { if (gapOn.style.rowGap) gapOn.style.removeProperty('row-gap'); if (gapOn.style.paddingTop) gapOn.style.removeProperty('padding-top'); } gapOn = null; }
   async function load() {
     if (specFor === ch) return spec;
     specFor = ch; spec = null;
@@ -4571,66 +4578,90 @@ if (phone) {
         if (c) { spec = parse(c.story); if (spec) spec.pending = c.status === 'open'; }
       }
     } catch (x) {}
+    if (!spec) spec = { head: {}, qs: {}, pages: [], blank: true };
     return spec;
   }
-  // the container showing the Lecture: #book itself, or (side by side) the pane whose view is slides, else workbook
-  const host = () => {
-    const v = el => el.dataset.view || '', cands = [book, ...book.querySelectorAll(':scope > .dpane')].filter(el => el.offsetParent !== null || el === book);
-    return cands.find(el => v(el) === 'slides' && el.querySelector(':scope > section.page')) || cands.find(el => v(el) === 'workbook' && el.querySelector(':scope > section.page')) || null;
-  };
-  let gapOn = null;
-  function clear() { if (box) box.innerHTML = ''; if (gapOn) { if (gapOn.style.rowGap) gapOn.style.removeProperty('row-gap'); if (gapOn.style.paddingTop) gapOn.style.removeProperty('padding-top'); } gapOn = null; }
+  // the story as edited between the slides: per-slide fields from the spec, in the Lecture's real order, the acts from
+  // its part labels (data-part; the slides before the first part are the Hook), slides not drafted yet ("new") kept last
+  const field = id => { let p = spec.pages.find(x => x.id === id); if (!p) { p = { id, title: '', act: '', raises: [], answers: [], introduces: [], uses: [] }; spec.pages.push(p); } return p; };
+  function derived() {
+    const all = lecture(); let act = 'Hook';
+    const pages = all.map(pg => { act = pg.getAttribute('data-part') || act; const p = field(pg.id); return Object.assign({}, p, { title: ((pg.querySelector('h1, h2') || {}).textContent || pg.id).trim(), act }); });
+    return { head: spec.head, qs: spec.qs, pages: pages.concat(spec.pages.filter(p => p.id === 'new')) };
+  }
+  function text() {   // STORY.md, in the format tools/agent/story.py reads
+    const d = derived(), H = d.head, out = ['# Story: ' + ch + ' (edited between the slides in the Book Editor)', ''];
+    [['hook', 'Hook'], ['running example', 'Running example'], ['opens from', 'Opens from'], ['hands off to', 'Hands off to'], ['source decks', 'Source deck(s)']].forEach(([k, l]) => { if (H[k]) out.push(l + ': ' + H[k]); });
+    out.push('', 'Questions:'); Object.entries(d.qs).forEach(([q, t]) => out.push(q + ': ' + t));
+    let act = null;
+    d.pages.forEach(p => {
+      if (p.act !== act) { out.push('', 'Act: ' + p.act); act = p.act; }
+      const f = [p.title.replace(/\s*\|\s*/g, ' / ') || p.id];
+      if (p.raises.length) f.push('raises ' + p.raises.join(' ')); if (p.answers.length) f.push('answers ' + p.answers.join(' '));
+      if (p.introduces.length) f.push('introduces ' + p.introduces.join(', ')); if (p.uses.length) f.push('uses ' + p.uses.join(', '));
+      out.push('- ' + p.id + ': ' + f.join(' | '));
+    });
+    return out.join('\n') + '\n';
+  }
+  let saveT = 0;
+  function save() {   // edits between the slides write STORY.md (they are Eric's story, so it stops being "waiting")
+    spec.pending = false; spec.blank = false; clearTimeout(saveT);
+    saveT = setTimeout(() => fetch('../api/story/' + ch, { method: 'POST', body: text() }).then(r => { if (!r.ok) toast('The story did not save'); }).catch(() => toast('The story did not save')), 500);
+  }
+  const newQ = () => { let n = 1; while (('?q' + n) in spec.qs) n++; return '?q' + n; };
+  const delQ = q => { delete spec.qs[q]; spec.pages.forEach(p => { p.raises = p.raises.filter(x => x !== q); p.answers = p.answers.filter(x => x !== q); }); };
+  const terms = v => v.split(',').map(t => t.trim()).filter(Boolean);
   function weave() {
     if (busy) return;
-    const H = on && !document.documentElement.classList.contains('ink-lecture') ? host() : null;
+    if (box && box.contains(document.activeElement)) return;   // never redraw under someone typing in a card
+    const H = on && spec && !document.documentElement.classList.contains('ink-lecture') ? host() : null;
     if (!H) return clear();
     busy = true;
     try {
-      const S = H.classList.contains('dpane') ? H : deskBox;   // the scroller the bands ride in
+      const S = H.classList.contains('dpane') ? H : deskBox;
       if (gapOn && gapOn !== H) clear();
-      if (!box) { box = document.createElement('div'); box.id = 'storyw'; box.setAttribute('data-ed', ''); }   // data-ed: Book.serialize skips it (inside a pane it sits among the chapter's nodes)
+      if (!box) { box = document.createElement('div'); box.id = 'storyw'; box.setAttribute('data-ed', ''); }   // data-ed: Book.serialize skips it
       if (box.parentElement !== S) S.append(box);
       const all = lecture(), pgs = all.filter(pg => pg.parentElement === H && pg.offsetParent);
-      const sp = spec, byId = {}, num = {}, n0 = book.querySelector('section.page.cover') ? 2 : 1;
+      const d = derived(), byId = {}, num = {}, n0 = book.querySelector('section.page.cover') ? 2 : 1;
       all.forEach((pg, k) => { num[pg.id] = k + n0; });
-      (sp ? sp.pages : []).forEach(p => { if (p.id !== 'new') byId[p.id] = p; });
-      const flags = checks(sp, all), raisedBy = {}, answeredBy = {};
-      (sp ? sp.pages : []).forEach(p => { p.raises.forEach(q => { if (!(q in raisedBy)) raisedBy[q] = p.id; }); p.answers.forEach(q => { if (!(q in answeredBy)) answeredBy[q] = p.id; }); });
-      const qtext = q => sp && sp.qs[q] ? sp.qs[q] : '';
+      d.pages.forEach(p => { if (p.id !== 'new') byId[p.id] = p; });
+      const flags = checks(spec.blank ? null : d, all), raisedBy = {}, answeredBy = {};
+      d.pages.forEach(p => { p.raises.forEach(q => { if (!(q in raisedBy)) raisedBy[q] = p.id; }); p.answers.forEach(q => { if (!(q in answeredBy)) answeredBy[q] = p.id; }); });
       const go = id => id && num[id] ? `<a data-go="${hesc(id)}">slide ${num[id]}</a>` : '';
+      const qline = (q, pre, post, bad) => `<div class="sw-q${bad ? ' bad' : ''}" title="${hesc(q)}"><span class="sw-pre">${pre}</span><textarea data-q="${hesc(q)}" rows="1" placeholder="the question, as a student would ask it" spellcheck="true">${hesc(spec.qs[q] || '')}</textarea><span class="sw-post">${post}</span><button data-del="${hesc(q)}" title="Remove this question">×</button></div>`;
+      const card = (pg, prev, last) => {
+        const p = byId[pg.id] || field(pg.id), pp = prev ? (byId[prev.id] || field(prev.id)) : null; let c = '';
+        if (!prev) c += `<div class="sw-hook"><label>Hook <input data-head="hook" value="${hesc(spec.head.hook || '')}" placeholder="a question from the students' world, not a recap"></label><label>Running example <input data-head="running example" value="${hesc(spec.head['running example'] || '')}" placeholder="one example, from their world"></label>${spec.pending ? '<div class="sw-wait">From the story outline waiting for your approval on the editor home. Editing here makes it the chapter\'s story.</div>' : ''}</div>`;
+        const part = pg.getAttribute('data-part');
+        if (part != null) c += `<div class="sw-part"><input data-part="${hesc(pg.id)}" value="${hesc(part)}" title="This part's name (the slides' footer label)"></div>`;
+        if (pp) pp.raises.forEach(q => { const a = answeredBy[q]; if (a === pg.id) return;
+          if (!a) c += qline(q, 'slide ' + num[prev.id] + ' sets up', handedOff(q, spec.qs) ? '→ the next chapter' : 'never answered', !handedOff(q, spec.qs));
+          else c += qline(q, 'slide ' + num[prev.id] + ' sets up', '→ ' + go(a), num[a] <= num[prev.id]); });
+        p.answers.forEach(q => { const r = raisedBy[q];
+          if (!r) c += qline(q, '↳', 'no slide raises it', true);
+          else if (num[r] > num[pg.id]) c += qline(q, '↳', 'before ' + go(r) + ' raises it', true);
+          else c += qline(q, '↳', prev && r === prev.id ? '' : '(raised on ' + go(r) + ')', false); });
+        c += `<div class="sw-adds">${prev ? `<button class="sw-add" data-addq="${hesc(prev.id)}>${hesc(pg.id)}">+ question slide ${num[prev.id]} leaves, slide ${num[pg.id]} answers</button>` : ''}${part == null ? `<button class="sw-add" data-addpart="${hesc(pg.id)}">+ a part starts here</button>` : ''}</div>`;
+        c += `<div class="sw-t"><label>introduces <input data-intro="${hesc(pg.id)}" value="${hesc(p.introduces.join(', '))}" placeholder="terms first explained on slide ${num[pg.id]}"></label><label>uses <input data-uses="${hesc(pg.id)}" value="${hesc(p.uses.join(', '))}" placeholder="earlier terms it needs"></label></div>`;
+        (flags[pg.id] || []).forEach(m => { c += `<div class="sw-l bad">${hesc(m)}</div>`; });
+        if (!prev) Object.keys(flags).filter(x => x.startsWith('new:') || !num[x]).forEach(x => flags[x].forEach(m => { c += `<div class="sw-l bad">${hesc(m)}</div>`; }));
+        return `<div class="sw sw-up" data-for="${hesc(pg.id)}">${c}</div>`;
+      };
       let html = '';
-      pgs.forEach((pg, k) => {
-        const p = byId[pg.id], prev = all[all.indexOf(pg) - 1], next = all[all.indexOf(pg) + 1];
-        let up = '', down = '';
-        const part = pg.getAttribute('data-part'); if (part) up += `<div class="sw-part">${hesc(part)}</div>`;
-        if (p) {
-          p.answers.forEach(q => {
-            const r = raisedBy[q];
-            if (!r) up += `<div class="sw-l bad">answers ${hesc(q)} “${hesc(qtext(q))}”, which no slide raises</div>`;
-            else if (num[r] > num[pg.id]) up += `<div class="sw-l bad">answers ${hesc(q)} “${hesc(qtext(q))}” before ${go(r)} raises it</div>`;
-            else up += `<div class="sw-l">↳ <b>${hesc(qtext(q) || q)}</b>${prev && r === prev.id ? '' : ` <span class="sw-from">(raised on ${go(r)})</span>`}</div>`;
-          });
-          if (p.introduces.length) up += `<div class="sw-l">${p.introduces.map(t => `<span class="sw-c">${hesc(t)}</span>`).join(' ')}</div>`;
-          p.raises.forEach(q => {
-            const a = answeredBy[q];
-            if (a && next && a === next.id) return;   // the next slide's band shows it
-            if (!a) down += `<div class="sw-l${handedOff(q, sp.qs) ? '' : ' bad'}">${hesc(q)} “${hesc(qtext(q))}” ${handedOff(q, sp.qs) ? '→ the next chapter' : 'is never answered'}</div>`;
-            else if (num[a] > num[pg.id]) down += `<div class="sw-l">sets up <b>${hesc(qtext(q) || q)}</b> → ${go(a)}</div>`;
-          });
-        }
-        (flags[pg.id] || []).forEach(m => { up += `<div class="sw-l bad">${hesc(m)}</div>`; });
-        if (k === 0 && sp && sp.pending) up = `<div class="sw-l sw-from">story outline waiting for your approval on the editor home</div>` + up;
-        if (k === 0) Object.keys(flags).filter(x => x.startsWith('new:') || !num[x]).forEach(x => flags[x].forEach(m => { up += `<div class="sw-l bad">${hesc(m)}</div>`; }));
-        if (up) html += `<div class="sw sw-up" data-for="${hesc(pg.id)}">${up}</div>`;
-        if (down) html += `<div class="sw sw-down" data-for="${hesc(pg.id)}">${down}</div>`;
-      });
+      pgs.forEach(pg => { const k = all.indexOf(pg); html += card(pg, all[k - 1] || null); });
+      const lastPg = all[all.length - 1];
+      if (lastPg && pgs.includes(lastPg)) {   // after the last slide: what it hands off
+        const p = byId[lastPg.id] || field(lastPg.id); let c = '';
+        p.raises.forEach(q => { c += qline(q, 'slide ' + num[lastPg.id] + ' leaves', handedOff(q, spec.qs) ? '→ the next chapter' : (answeredBy[q] ? '→ ' + go(answeredBy[q]) : 'never answered'), !handedOff(q, spec.qs) && !answeredBy[q]); });
+        c += `<button class="sw-add" data-addend="${hesc(lastPg.id)}">+ question for the next chapter</button>`;
+        html += `<div class="sw sw-down" data-for="${hesc(lastPg.id)}">${c}</div>`;
+      }
       box.innerHTML = html;
-      // room between the rows for the tallest pair of bands, then place them against their slides
+      box.querySelectorAll('textarea').forEach(fit);
       const h = {};
       box.querySelectorAll('.sw').forEach(b => { const id = b.dataset.for; h[id] = h[id] || [0, 0]; h[id][b.classList.contains('sw-up') ? 0 : 1] = b.offsetHeight; });
-      let need = 0;   // the gap between two rows holds one slide's band below and the next one's band above
-      pgs.forEach((pg, k) => { if (k) need = Math.max(need, (h[pgs[k - 1].id] || [0, 0])[1] + (h[pg.id] || [0, 0])[0]); });
-      // widen the gaps only as much as the bands need: side by side the Lecture is already spaced to line up with the
+      // widen the gaps only as much as the cards need: side by side the Lecture is already spaced to line up with the
       // Reading, and the pane's zoom scales a gap set in px, so measure the gaps, and what 100px more comes to on screen
       if (H.style.rowGap) H.style.removeProperty('row-gap');
       const gaps = () => pgs.map((pg, k) => k ? pg.getBoundingClientRect().top - pgs[k - 1].getBoundingClientRect().bottom : Infinity);
@@ -4650,7 +4681,32 @@ if (phone) {
       });
     } finally { busy = false; }
   }
-  document.addEventListener('click', e => { const a = e.target.closest && e.target.closest('#storyw a[data-go]'); if (!a) return; const pg = lecture().find(p => p.id === a.dataset.go); if (pg) { setPage(pg); pg.scrollIntoView({ block: 'start' }); } });
+  // editing in the cards
+  function fit(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
+  document.addEventListener('input', e => { if (box && box.contains(e.target) && e.target.matches('textarea')) fit(e.target); }, true);
+  const after = () => { save(); setTimeout(weave, 0); };
+  document.addEventListener('change', e => {
+    const t = e.target; if (!box || !box.contains(t)) return;
+    if (t.dataset.q) { const v = t.value.trim(); if (v) spec.qs[t.dataset.q] = v; else delQ(t.dataset.q); }
+    else if (t.dataset.head) { const v = t.value.trim(); if (v) spec.head[t.dataset.head] = v; else delete spec.head[t.dataset.head]; }
+    else if (t.dataset.intro) field(t.dataset.intro).introduces = terms(t.value);
+    else if (t.dataset.uses) field(t.dataset.uses).uses = terms(t.value);
+    else if (t.dataset.part) { const pg = lecture().find(p => p.id === t.dataset.part), v = t.value.trim(); if (pg) { commit(true); if (v) pg.setAttribute('data-part', v); else pg.removeAttribute('data-part'); commit(true); Book.refresh(); } }
+    t.blur(); after();
+  }, true);
+  document.addEventListener('keydown', e => { if (e.key === 'Enter' && box && box.contains(e.target) && e.target.matches('input, textarea')) { e.preventDefault(); e.target.blur(); } }, true);
+  document.addEventListener('focusout', e => { if (box && box.contains(e.target)) setTimeout(() => { if (!box.contains(document.activeElement)) weave(); }, 0); }, true);
+  document.addEventListener('click', e => {
+    const t = e.target.closest && e.target.closest('#storyw a[data-go], #storyw button'); if (!t) return;
+    if (t.dataset.go) { const pg = lecture().find(p => p.id === t.dataset.go); if (pg) { setPage(pg); pg.scrollIntoView({ block: 'start' }); } return; }
+    let focus = null;
+    if (t.dataset.del) delQ(t.dataset.del);
+    else if (t.dataset.addq) { const [a, b] = t.dataset.addq.split('>'), q = newQ(); spec.qs[q] = ''; field(a).raises.push(q); field(b).answers.push(q); focus = q; spec.qs[q] = 'New question'; }
+    else if (t.dataset.addend) { const q = '?next-' + (Object.keys(spec.qs).length + 1); spec.qs[q] = 'What does the next chapter answer? (the next chapter)'; field(t.dataset.addend).raises.push(q); focus = q; }
+    else if (t.dataset.addpart) { const pg = lecture().find(p => p.id === t.dataset.addpart); if (pg) { commit(true); pg.setAttribute('data-part', 'New part'); commit(true); Book.refresh(); } focus = 'part:' + t.dataset.addpart; }
+    save(); weave();
+    if (focus) { const i = focus.startsWith('part:') ? box.querySelector(`input[data-part="${CSS.escape(focus.slice(5))}"]`) : box.querySelector(`input[data-q="${CSS.escape(focus)}"]`); if (i) { i.focus(); i.select(); } }   // (textarea or input)
+  });
   async function setOn(x) {
     on = x; try { localStorage.setItem('book-story', on ? '1' : '0'); } catch (e) {}
     document.body.classList.toggle('storyweave', on); $('#x-story').classList.toggle('on', on);
@@ -4659,12 +4715,12 @@ if (phone) {
   let t = 0; const soon = () => { if (!on) return; clearTimeout(t); t = setTimeout(weave, 120); };
   book.addEventListener('book-refresh', soon); addEventListener('resize', soon);
   new MutationObserver(soon).observe(book, { attributes: true, subtree: true, attributeFilter: ['data-view', 'style', 'class'] });
-  const btn = h('<button id="x-story" title="Story: the Lecture\'s story woven in between the slides (what each answers, introduces and sets up, and the story checks in red)">Story</button>');
+  const btn = h('<button id="x-story" title="Story: the Lecture\'s story woven in between the slides, as cards you can edit (the questions each slide leaves and the next answers, the parts, the terms), with the story checks in red">Story</button>');
   btn.onclick = () => setOn(!on);
   $('#m-view').append(btn);
-  window.Story = { on: () => setOn(true), off: () => setOn(false), weave, parse, checks: sp => checks(sp, lecture()), reload: () => { specFor = null; return load(); } };
+  window.Story = { on: () => setOn(true), off: () => setOn(false), weave, parse, checks: sp => checks(sp, lecture()), reload: () => { specFor = null; return load(); }, text, spec: () => spec };
   let saved = null; try { saved = localStorage.getItem('book-story'); } catch (e) {}
-  load().then(sp => { if (saved === '1' || (saved == null && sp)) setOn(true); });
+  load().then(sp => { if (saved === '1' || (saved == null && sp && !sp.blank)) setOn(true); });
 })();
 // another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)
 (() => {
