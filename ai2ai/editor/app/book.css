@@ -6,6 +6,7 @@
   --navy: #002b5b; --gold: #dcb439; --link: #dcb439; --focus-ring: #002b5b;
   --blue-text: #002b5b; --yellow-text: #dcb439; --yellow-fill: #fff2cc; --yellow-line: #ffd966;
   --purple-text: #674ea7; --green-text: #38761d; --red-text: #cc0000; --teal-text: #5aabbc; --gray-text: #434343;
+  --orange-text: #d97757;   /* Anthropic orange, on the colour shelf (Eric 2026-11-16) */
   --font-sans: Arial, "Helvetica Neue", Helvetica, "Liberation Sans", sans-serif;
   --font-mono: Consolas, "SF Mono", Menlo, Monaco, "Liberation Mono", "Courier New", monospace;
   --font-math: "Inconsolata LGC", Consolas, monospace;
@@ -60,7 +61,8 @@ b.take { color: var(--green-text); }
 b.warn { color: var(--red-text); }
 b.ex { color: var(--teal-text); }
 b.gray { color: var(--gray-text); }
-b.purple { color: var(--purple-text); }   /* Eric 2026-11-01: the network purple (Z), seventh colour circle */   /* examples and technical spotlights: methods, tools, datasets */
+b.purple { color: var(--purple-text); }
+b.orange { color: var(--orange-text); }   /* shelf colours (the rainbow dot): Eric 2026-11-16 */   /* Eric 2026-11-01: the network purple (Z), seventh colour circle */   /* examples and technical spotlights: methods, tools, datasets */
 
 /* ---------- math ---------- */
 /* token tiles (<b-tok>): one token of a vocabulary as a rounded tile in its family's fill and line tone; the ID sits under
@@ -192,6 +194,7 @@ b-code .cc.purple { color: #674EA7; } b-code .cc.gold { color: #DCB439; } b-code
 :is(b-code, b-out) mark { background: var(--yellow-fill); box-shadow: 0 0 0 1px var(--yellow-line); border-radius: 2px; color: inherit; }
 :is(b-code, b-out) mark.blue { background: #c9daf8; box-shadow: 0 0 0 1px #6d9eeb; } :is(b-code, b-out) mark.green { background: #d9ead3; box-shadow: 0 0 0 1px #93c47d; }
 :is(b-code, b-out) mark.teal { background: #d5ecf1; box-shadow: 0 0 0 1px #5aabbc; } :is(b-code, b-out) mark.gray { background: #e6e6e6; box-shadow: 0 0 0 1px #999; }
+:is(b-code, b-out) mark.orange { background: #f7e0d7; box-shadow: 0 0 0 1px #d97757; }
 :is(b-code, b-out) mark.purple { background: #d9d2e9; box-shadow: 0 0 0 1px #8e7cc3; } :is(b-code, b-out) mark.red { background: #f4cccc; box-shadow: 0 0 0 1px #e06666; }
 /* Output colours (book.js eaiOutHL, Eric 2026-11-01): the network colours of the diagrams and equations (f-<family> on a
    line's label and its numbers; gold and grey a shade darker so plain text stays readable), unnamed labels bold navy,

@@ -893,7 +893,7 @@ function clean(node) {
       const tag = n.tagName === 'STRONG' ? 'B' : n.tagName === 'EM' ? 'I' : n.tagName, inner = clean(n);
       if (tag === 'BR') out += ' ';
       else if (tag === 'SPAN' && !/^(key|mono|num|note)$/.test(n.className)) out += inner;
-      else if (KEEP[tag]) { const cls = (tag === 'B' && /^(def|name|take|warn|ex|gray|purple|lead)$/.test(n.className)) || (tag === 'U' && n.className === 'fill') || (tag === 'SPAN' && /^(key|mono|num|note)$/.test(n.className)) ? ` class="${n.className}"` : ''; out += `<${tag.toLowerCase()}${cls}>${inner}</${tag.toLowerCase()}>`; }
+      else if (KEEP[tag]) { const cls = (tag === 'B' && /^(def|name|take|warn|ex|gray|purple|orange|lead)$/.test(n.className)) || (tag === 'U' && n.className === 'fill') || (tag === 'SPAN' && /^(key|mono|num|note)$/.test(n.className)) ? ` class="${n.className}"` : ''; out += `<${tag.toLowerCase()}${cls}>${inner}</${tag.toLowerCase()}>`; }
       else out += inner + (/^(P|DIV|LI|H[1-6]|TR)$/.test(n.tagName) ? ' ' : '');
     }
   }
@@ -1364,7 +1364,7 @@ function codeInspector(el, add) {
   add(`<label>Highlights (line:from-to:colour, separated by spaces)</label>`);
   const mk = add(`<input type="text" spellcheck="false" style="font-family:var(--font-mono);font-size:11px" placeholder="3:4-18:gold">`);
   mk.value = el.getAttribute('marks') || ''; mk.onchange = () => attr('marks', mk.value.trim());
-  add(`<div class="help">Line numbers start at 1, columns at 0. Colours: gold, blue, green, red, teal, gray, purple, or <code>fill</code> for a fill-in blank. Easier: click into the code, select the part and press a colour circle (Option+1-6) or Fill on the toolbar; the same button again removes it, Clear removes highlights. Python is highlighted automatically; extra type names to colour purple go in the chapter settings.</div>`);
+  add(`<div class="help">Line numbers start at 1, columns at 0. Colours: gold, blue, green, red, teal, gray, purple, orange, or <code>fill</code> for a fill-in blank. Easier: click into the code, select the part and press a colour circle (Option+1-6) or Fill on the toolbar; the same button again removes it, Clear removes highlights. Python is highlighted automatically; extra type names to colour purple go in the chapter settings.</div>`);
 }
 let pyBoot = null, torchBoot = null;
 // same PyTorch as the web edition (see eaiRunCode in book.js), loaded when the code imports torch
@@ -1406,6 +1406,26 @@ function codeFill() { return codeMark('fill'); }
 // pressing a colour on code already highlighted in that colour removes it, another colour recolours it, Clear removes
 // every highlight (not blanks) in the selection.
 const CODE_COLOUR = { def: 'gold', name: 'blue', take: 'green', warn: 'red', ex: 'teal', gray: 'gray', purple: 'purple', clear: 'clear' };
+// The colour shelf (Eric 2026-11-16): the rarer, "boutique" colours sit behind the rainbow dot after the seven circles.
+// To add one: an entry here [class, name, hex], and b.<class> (plus mark.<class> for code) in book.css.
+const SHELF = [['orange', 'Anthropic orange', '#D97757']];
+SHELF.forEach(([k]) => { CODE_COLOUR[k] = k; });
+{
+  const shelf = $('#shelf'), btn = document.querySelector('[data-shelf]');
+  shelf.innerHTML = SHELF.map(([k, n, c]) => `<button data-style="${k}" class="dot" role="menuitem" style="--c: ${c}" title="${n}, bold" aria-label="${n}"></button>`).join('');
+  const open = on => {
+    shelf.hidden = !on; btn.classList.toggle('on', on); btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    if (!on) return;
+    const r = btn.getBoundingClientRect(), h = shelf.offsetHeight, w = shelf.offsetWidth;
+    shelf.style.left = Math.max(4, Math.min(r.left + r.width / 2 - w / 2, innerWidth - w - 4)) + 'px';
+    shelf.style.top = (r.bottom + 6 + h < innerHeight ? r.bottom + 6 : r.top - 6 - h) + 'px';   // above when the bar sits on the phone keyboard
+  };
+  btn.addEventListener('click', () => open(shelf.hidden));
+  shelf.addEventListener('click', e => { if (e.target.closest('[data-style]')) open(false); });   // #styles' own listener then applies it
+  document.addEventListener('pointerdown', e => { if (!shelf.hidden && !e.target.closest('#shelf, [data-shelf]')) open(false); }, true);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !shelf.hidden) open(false); }, true);
+  addEventListener('resize', () => open(false));
+}
 function codeMark(kind) {
   const { el, ta } = codeEd, a = ta.selectionStart, b = ta.selectionEnd, isFill = kind === 'fill';
   if (a === b) return toast(isFill ? 'Select the code to blank out first' : 'Select the code to highlight first');
@@ -4289,7 +4309,7 @@ if (phone) {
 // A term with two capitals (MNIST, ReLU) or a digit matches its case; "a|b" lists spellings of one term.
 (() => {
   let on = false, panel = null;
-  const EM = ['def', 'name', 'take', 'warn', 'ex', 'gray', 'purple'], NAMES = { def: 'Gold', name: 'Navy', take: 'Green', warn: 'Red', ex: 'Teal', gray: 'Grey', purple: 'Purple' };
+  const EM = ['def', 'name', 'take', 'warn', 'ex', 'gray', 'purple', ...SHELF.map(s => s[0])], NAMES = Object.assign({ def: 'Gold', name: 'Navy', take: 'Green', warn: 'Red', ex: 'Teal', gray: 'Grey', purple: 'Purple' }, Object.fromEntries(SHELF.map(s => [s[0], s[1]])));
   const SKIP = new Set(['B', 'U', 'A', 'B-M', 'B-EQ', 'B-CODE', 'B-OUT', 'CODE', 'SVG', 'H1', 'H2', 'H3', 'H4', 'SCRIPT', 'STYLE', 'SUB', 'SUP', 'B-FIG', 'B-TOK', 'FIGCAPTION', 'B-MATMUL']);
   const hesc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const terms = () => Object.fromEntries(Object.entries(Book.meta.terms || {}).filter(([k, v]) => k.trim() && EM.includes(v)));

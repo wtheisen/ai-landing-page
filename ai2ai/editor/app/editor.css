@@ -380,6 +380,11 @@ body.zooming #revbox { visibility: hidden; }
 /* text colour circles (bold + colour); the names behind them (def, name, take, warn, ex) are only storage */
 #bar button.dot { width: 20px; height: 20px; min-width: 0; padding: 0; border-radius: 50%; background: var(--c); border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.25); margin: 0 1px; vertical-align: middle; cursor: pointer; }
 #bar button.dot:hover { transform: scale(1.12); box-shadow: 0 0 0 2px rgba(255,255,255,.6); }
+/* the colour shelf (Eric 2026-11-16): the rarer colours behind a rainbow dot, so the seven everyday circles stay put */
+#bar button.dot.more { background: conic-gradient(#cc0000, #e69138, #dcb439, #38761d, #5aabbc, #1155cc, #674ea7, #cc0000); }
+#bar button.dot.more.on { box-shadow: 0 0 0 2px #fff; }
+#shelf { position: fixed; z-index: 70; display: flex; flex-wrap: wrap; gap: 4px; max-width: 220px; padding: 6px; background: var(--navy); border: 1px solid rgba(255,255,255,.35); border-radius: 17px; box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+#shelf[hidden] { display: none; }
 
 /* figure flip: the code that draws a figure, laid over it */
 #blockbar button[hidden] { display: none; }
