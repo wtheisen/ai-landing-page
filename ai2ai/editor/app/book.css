@@ -294,6 +294,10 @@ u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { cursor: pointer; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown { color: var(--navy); } .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown * { color: inherit !important; }
 u.fill.blank { display: inline-block; vertical-align: baseline; }
+/* a blank never breaks across two lines (Eric, 2026-11-16: the iPad pad put the handwriting for attention's
+   "long-term dependency" way off: a wrapped blank's box spans both lines, so the pad anchored at the second line's
+   left edge on the first line's baseline) */
+.book:is([data-view="slides"], [data-view="workbook"]) u.fill:not(b-code u.fill, b-out u.fill, :is(td, th) u.fill) { white-space: nowrap; }
 /* a code blank filled in by hand in the Lecture (Book.fillBlank): the writing in place of the answer, underlined green,
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
