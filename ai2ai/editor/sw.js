@@ -2,7 +2,7 @@
 // The editor and viewer pages are the same files the Mac editor serves, and they talk to the same /api/… routes;
 // here those routes are answered from the on-device store (store.js), so editing works with no server and no network.
 // tools/build_web.py fills in the three constants below.
-const VERSION = 'd10791d6ec', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "present.html", "present.js", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
+const VERSION = '33fa70848c', KIT = '7a914092', SHELL = ["index.html", "home.js", "store.js", "manifest.webmanifest", "present.html", "present.js", "app/book.css", "app/book.js", "app/draw.js", "app/editor.css", "app/editor.html", "app/editor.js", "app/eqml.js", "app/ink.js", "app/live.js", "app/suggest.css", "app/suggest.js", "app/temml.LICENSE", "app/temml.min.js", "app/view.html", "kit/fonts/Inconsolata-LGC.ttf", "kit/fonts/Inconsolata-LGC-Bold.ttf", "kit/fonts/AI2AI-Math.ttf", "kit/fonts/AI2AI-Omega.ttf", "kit/fonts/AI2AI-Loss.ttf", "icon-180.png", "icon-192.png", "icon-512.png"];
 importScripts('store.js');
 const { Store, Files, Sync, mimeOf } = self.AI2AI;
 const ROOT = new URL(self.registration.scope).pathname;      // e.g. /ai2ai/editor/
@@ -95,6 +95,11 @@ async function api(req, u, parts) {
   if (!post) {
     if (kind === 'chapter') return json(200, { content: cf.data, mtime: stamp(cf), local: !!cf.dirty });
     if (kind === 'stat') return json(200, { mtime: stamp(cf), local: !!cf.dirty, sync: syncState });
+    if (kind === 'story') {   // story mode (2026-11-16): STORY.md and the chapter's story cards, for the Story bands
+      const sf = await Sync.file('chapters/' + ch + '/STORY.md'), df = await Sync.file('chapters/decisions.json');
+      let items = []; try { items = df && typeof df.data === 'string' ? (JSON.parse(df.data).items || []) : []; } catch (e) {}
+      return json(200, { story: sf && typeof sf.data === 'string' ? sf.data : '', cards: items.filter(i => i.kind === 'story' && i.slug === ch).map(i => ({ id: i.id, status: i.status, answer: i.answer, when: i.when, story: i.story })) });
+    }
     if (kind === 'history') {
       const name = q.get('name');
       if (name) { const v = await Store.get('hist', name); return v ? json(200, { content: v.content, mtime: stamp(cf) }) : json(404, { error: 'no such version' }); }

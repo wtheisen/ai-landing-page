@@ -4563,7 +4563,14 @@ if (phone) {
   async function load() {
     if (specFor === ch) return spec;
     specFor = ch; spec = null;
-    try { const r = await fetch('../c/' + ch + '/STORY.md', { cache: 'no-store' }); if (r.ok) spec = parse(await r.text()); } catch (x) {}
+    try {
+      const d = await (await fetch('../api/story/' + ch, { cache: 'no-store' })).json();
+      spec = parse(d.story || '');
+      if (!spec) {   // STORY.md not a spec yet: the newest story card, approved or waiting on the editor home, shown as such
+        const c = (d.cards || []).filter(i => i.story && (i.status === 'open' || /^approve/i.test(i.answer || ''))).sort((a, b) => String(a.when).localeCompare(String(b.when))).pop();
+        if (c) { spec = parse(c.story); if (spec) spec.pending = c.status === 'open'; }
+      }
+    } catch (x) {}
     return spec;
   }
   // the container showing the Lecture: #book itself, or (side by side) the pane whose view is slides, else workbook
@@ -4612,6 +4619,7 @@ if (phone) {
           });
         }
         (flags[pg.id] || []).forEach(m => { up += `<div class="sw-l bad">${hesc(m)}</div>`; });
+        if (k === 0 && sp && sp.pending) up = `<div class="sw-l sw-from">story outline waiting for your approval on the editor home</div>` + up;
         if (k === 0) Object.keys(flags).filter(x => x.startsWith('new:') || !num[x]).forEach(x => flags[x].forEach(m => { up += `<div class="sw-l bad">${hesc(m)}</div>`; }));
         if (up) html += `<div class="sw sw-up" data-for="${hesc(pg.id)}">${up}</div>`;
         if (down) html += `<div class="sw sw-down" data-for="${hesc(pg.id)}">${down}</div>`;
