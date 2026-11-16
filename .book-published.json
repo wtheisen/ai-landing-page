@@ -1,13 +1,17 @@
 {
  "_last": {
-  "at": "2026-11-16T11:23:23Z",
+  "at": "2026-11-16T16:17:19Z",
   "event": "push",
   "failed": [],
   "ok": [
-   "ballm-rag-lora"
+   "ballm-reasoning"
   ],
-  "over": {},
-  "run": "43856988693"
+  "over": {
+   "ballm-reasoning": [
+    "p-7ywaz"
+   ]
+  },
+  "run": "43905415265"
  },
  "backprop": {
   "at": "2026-11-15T15:37:27Z",
@@ -78,6 +82,11 @@
   "at": "2026-11-16T11:23:30Z",
   "commit": "4e7f398ddbf3fe9682e02dfc4356524c2d813081",
   "web": "ballm/rag-lora"
+ },
+ "ballm-reasoning": {
+  "at": "2026-11-16T16:17:27Z",
+  "commit": "091f0342d73e8885729510dd8f4b4a49a38316d1",
+  "web": "ballm/reasoning"
  },
  "ballm-rnn": {
   "at": "2026-11-11T16:00:43Z",
