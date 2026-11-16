@@ -4477,6 +4477,166 @@ if (phone) {
   $('#panels').append(btn);
   window.Terms = { open: () => setOn(true), close: () => setOn(false), render, scan };
 })();
+// Story view (Eric, 2026-11-16: story mode). The Lecture as one strip, a row per slide grouped by part: what each slide
+// raises, answers and introduces (from the approved STORY.md spec, tools/agent/story.py), arcs from each question to
+// the slide that answers it (red when the answer comes first, a red stub when it never comes), and the story checks
+// flagged on their rows (the same checks as story.py; selftest test_story_view keeps the two in step). Click a row to
+// go to the slide, drag rows to reorder the slides.
+(() => {
+  let on = false, panel = null, spec = null, specFor = null, dragId = null;
+  const hesc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const isLecture = pg => { const v = pg.getAttribute('data-view'); return !!v && /\b(slides|workbook)\b/.test(v); };
+  const lecture = () => [...book.querySelectorAll('section.page')].filter(pg => !pg.classList.contains('cover') && !pg.closest('[data-thumb]') && isLecture(pg));
+  function parse(text) {
+    const head = {}, qs = {}, pages = []; let act = null, m;
+    for (const raw of text.split('\n')) {
+      const line = raw.trim(); if (!line || line.startsWith('#')) continue;
+      if ((m = /^(\?[\w-]+)\s*:\s*(.+)$/.exec(line))) { qs[m[1]] = m[2].trim(); continue; }
+      if ((m = /^act\s*\d*\s*:\s*(.+)$/i.exec(line))) { act = m[1].trim(); continue; }
+      if ((m = /^[-*]\s+([\w-]+)\s*:\s*(.+)$/.exec(line)) && act !== null) {
+        const parts = m[2].split(' | ').map(x => x.trim()), pg = { id: m[1], title: parts[0], act, raises: [], answers: [], introduces: [], uses: [] };
+        for (const q of parts.slice(1)) {
+          const k = /^(\S+)\s*(.*)$/.exec(q); if (!k) continue; const key = k[1].toLowerCase();
+          if (key === 'raises' || key === 'answers') pg[key] = k[2].match(/\?[\w-]+/g) || [];
+          else if (key === 'introduces' || key === 'uses') pg[key] = k[2].split(',').map(t => t.trim()).filter(Boolean);
+        }
+        pages.push(pg); continue;
+      }
+      if ((m = /^([A-Za-z][A-Za-z ()]+?)\s*:\s*(.*)$/.exec(line))) head[m[1].trim().toLowerCase().replace('(s)', 's')] = m[2].trim();
+    }
+    return pages.length ? { head, qs, pages } : null;
+  }
+  const norm = t => t.toLowerCase().replace(/‑/g, '-').replace(/’/g, "'").replace(/\s+/g, ' ');
+  function pageText(pg) {
+    const bits = [pg.textContent]; pg.querySelectorAll('[alt], [aria-label]').forEach(e => bits.push(e.getAttribute('alt') || '', e.getAttribute('aria-label') || ''));
+    let t = bits.join(' '); pg.querySelectorAll('div.cmt').forEach(c => { t = t.replace(c.textContent, ' '); });   // comments are not on the slide
+    return norm(t);
+  }
+  const has = (text, term) => new RegExp('(?<![\\w])' + norm(term).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\? /g, '[\\s-]+') + '(?:s|es)?(?![\\w])').test(text);
+  const handedOff = (q, qs) => q.startsWith('?next') || /next (chapter|lecture)/i.test(qs[q] || '');
+  // the checks (tools/agent/story.py check and term_before_definition): {key: [message]}, key a page id or 'new:k'
+  function checks(sp, pgs) {
+    const out = {}, flag = (k, m) => (out[k] = out[k] || []).push(m);
+    const terms = Object.keys(Book.meta.terms || {});
+    const text = pgs.map(pageText), defs = {};
+    pgs.forEach((pg, k) => pg.querySelectorAll(':scope > *, .colbox > *').forEach(b => { if (b.closest('div.cmt')) return; const m = /^\s*◆\s*(.+?)\s*[—–-]{1,2}\s/.exec(b.textContent); if (m && !(m[1].trim().toLowerCase() in defs)) defs[m[1].trim().toLowerCase()] = k; }));
+    for (const t of terms) {
+      const alts = t.split('|').map(a => a.trim()).filter(Boolean), ks = alts.map(a => defs[a.toLowerCase()]).filter(k => k != null);
+      if (!ks.length) continue; const k = Math.min(...ks);
+      const first = text.slice(0, k).findIndex(x => alts.some(a => has(x, a)));
+      if (first >= 0) flag(pgs[first].id, `term before definition: "${alts[0]}" is on this slide before its ◆ line on ${pgs[k].id}`);
+    }
+    if (!sp) return out;
+    const P = sp.pages, qs = sp.qs, key = k => P[k].id === 'new' ? 'new:' + k : P[k].id, label = k => P[k].id === 'new' ? `"${P[k].title}"` : P[k].id;
+    const raised = {}, answered = {};
+    P.forEach((p, k) => { p.raises.forEach(q => { if (!(q in raised)) raised[q] = k; }); p.answers.forEach(q => { if (!(q in answered)) answered[q] = k; }); });
+    for (const q of [...new Set([...Object.keys(raised), ...Object.keys(answered), ...Object.keys(qs)])].sort()) {
+      const r = raised[q], a = answered[q];
+      if (!(q in qs)) flag(key(r != null ? r : a), `question ${q} is not in the Questions list`);
+      if (r == null && a != null) flag(key(a), `answer before question: ${q} ("${qs[q] || ''}") is answered here but no slide raises it`);
+      else if (r != null && a == null) { if (!handedOff(q, qs)) flag(key(r), `dangling setup: ${q} ("${qs[q] || ''}") is raised here and never answered`); }
+      else if (r != null && a < r) flag(key(a), `answer before question: ${q} is answered here, before ${label(r)} raises it`);
+    }
+    const intro = {}; P.forEach((p, k) => p.introduces.forEach(t => { if (!(t.toLowerCase() in intro)) intro[t.toLowerCase()] = k; }));
+    P.forEach((p, k) => p.uses.forEach(t => { const i = intro[t.toLowerCase()]; if (i != null && i > k) flag(key(k), `spoiler: uses "${t}", which ${label(i)} introduces later`); }));
+    const acts = []; P.forEach((p, k) => { if (!acts.length || acts[acts.length - 1][0] !== p.act) acts.push([p.act, k]); });
+    for (let j = 1; j < acts.length; j++) {
+      const [name, k0] = acts[j]; if (j === 1 && /^hook/i.test(acts[0][0])) continue;
+      const prev = new Set(P.slice(acts[j - 1][1], k0).flatMap(p => p.raises));
+      if (!P[k0].answers.some(q => prev.has(q))) flag(key(k0), `no pivot: act "${name}" opens without answering what the act before left open (its first slide should say why ${acts[j - 1][0]} was not enough)`);
+    }
+    if (acts.length && /review|recap|last time|previously/i.test(acts[0][0])) flag(key(0), `opens on a recap (act "${acts[0][0]}"): open on a question the students already have, and bring last week in where it is needed`);
+    const first = /^hook/i.test(P[0].act) ? P.filter(p => p.act === P[0].act) : P.slice(0, 3);
+    if (!sp.head.hook) flag(key(0), "no Hook: line (a question from the students' world, not a recap)");
+    if (!first.flatMap(p => p.raises).some(q => (answered[q] != null ? answered[q] : -1) >= 0.5 * P.length)) flag(key(0), 'hook not paid off: no question the opening raises is answered in the second half of the Lecture');
+    const ids = pgs.map(pg => pg.id), real = P.map(p => p.id).filter(id => id !== 'new');
+    real.forEach(id => { if (!ids.includes(id)) flag(id, `the story has page ${id} and the Lecture does not`); });
+    ids.forEach(id => { if (!real.includes(id)) flag(id, `page ${id} is in the Lecture but not in the story`); });
+    const order = ids.filter(id => real.includes(id)), want = real.filter(id => ids.includes(id)), d = order.findIndex((id, k) => id !== want[k]);
+    if (d >= 0) flag(order[d], 'the Lecture order differs from the story from here on (move the slides, or change the story and get it approved)');
+    P.forEach(p => { const k = ids.indexOf(p.id); if (k < 0) return; p.introduces.forEach(t => { if (!has(text[k], t)) flag(p.id, `introduces "${t}" but the word is not on the slide`); }); });
+    const name = ((sp.head['running example'] || '').split(/\s*[(:,;]/)[0] || '').trim();
+    if (name) { const hit = text.findIndex(x => has(x, name)); if (hit < 0 || hit >= 4) flag(ids[0] || 'new:0', `running example "${name}" is not on the first 4 slides`); }
+    return out;
+  }
+  async function load() {
+    if (specFor === ch) return spec;
+    specFor = ch; spec = null;
+    try { const r = await fetch('../c/' + ch + '/STORY.md', { cache: 'no-store' }); if (r.ok) spec = parse(await r.text()); } catch (x) {}
+    return spec;
+  }
+  function render() {
+    if (!panel || !on) return;
+    const pgs = lecture(), sp = spec, byId = {}; (sp ? sp.pages : []).forEach(p => { if (p.id !== 'new') byId[p.id] = p; });
+    const flags = checks(sp, pgs), n0 = book.querySelector('section.page.cover') ? 2 : 1;
+    let part = null, rows = '', nflags = 0;
+    pgs.forEach((pg, k) => {
+      const p = byId[pg.id], act = pg.getAttribute('data-part') || (p && p.act) || part;
+      if (act && act !== part) { rows += `<div class="sv-act">${hesc(act)}</div>`; part = act; }
+      const f = flags[pg.id] || []; nflags += f.length;
+      const chip = (cls, v, tip) => `<span class="sv-c ${cls}" title="${hesc(tip || '')}">${hesc(v)}</span>`;
+      const chips = p ? [...p.raises.map(q => chip('r', q, 'raises: ' + (sp.qs[q] || ''))), ...p.answers.map(q => chip('a', q, 'answers: ' + (sp.qs[q] || ''))), ...p.introduces.map(t => chip('i', t, 'introduces')), ...p.uses.map(t => chip('u', t, 'uses'))].join('') : '';
+      const title = (pg.querySelector('h1, h2') || {}).textContent || pg.id;
+      rows += `<div class="sv-r${f.length ? ' bad' : ''}${pg === curPage ? ' cur' : ''}" draggable="true" data-id="${hesc(pg.id)}"><span class="sv-n">${k + n0}</span><span class="sv-b"><span class="sv-t">${hesc(title)}</span>${chips ? `<span class="sv-cs">${chips}</span>` : ''}${f.map(m => `<span class="sv-f">${hesc(m)}</span>`).join('')}</span></div>`;
+    });
+    const other = Object.keys(flags).filter(k => k.startsWith('new:') || !pgs.some(pg => pg.id === k));
+    const extra = other.flatMap(k => flags[k]); nflags += extra.length;
+    const scroll = panel.querySelector('.sv-list') ? panel.querySelector('.sv-list').scrollTop : 0;
+    panel.innerHTML = `<div class="qp-top"><b>Story</b><span class="qp-n${nflags ? ' bad' : ''}" title="story findings">${nflags}</span><span class="sp"></span><button data-a="close">Done</button></div>
+      <div class="help">${sp ? `<b>Hook:</b> ${hesc(sp.head.hook || '(none)')}<br><b>Running example:</b> ${hesc(sp.head['running example'] || '(none)')}` : 'No story spec for this chapter yet (STORY.md): only the term check runs. <code>ai2ai story</code> writes one.'}
+      <br><span class="sv-key"><span class="sv-c r">?raises</span> <span class="sv-c a">?answers</span> <span class="sv-c i">introduces</span> <span class="sv-c u">uses</span> · drag rows to reorder slides</span></div>
+      ${extra.length ? `<div class="sv-extra">${extra.map(m => `<span class="sv-f">${hesc(m)}</span>`).join('')}</div>` : ''}
+      <div class="sv-list"><svg class="sv-arcs"></svg>${rows}</div>`;
+    const l = panel.querySelector('.sv-list'); l.scrollTop = scroll;
+    requestAnimationFrame(() => arcs(sp));
+  }
+  function arcs(sp) {   // question arcs in the left gutter: raise → answer, nested by length
+    const l = panel && panel.querySelector('.sv-list'), svg = l && l.querySelector('.sv-arcs'); if (!svg || !sp) return;
+    const top = l.getBoundingClientRect().top - l.scrollTop, y = {};
+    l.querySelectorAll('.sv-r').forEach(r => { const b = r.getBoundingClientRect(); y[r.dataset.id] = b.top - top + Math.min(14, b.height / 2); });
+    const raised = {}, answered = {};
+    sp.pages.forEach(p => { if (!(p.id in y)) return; p.raises.forEach(q => { if (!(q in raised)) raised[q] = p.id; }); p.answers.forEach(q => { if (!(q in answered)) answered[q] = p.id; }); });
+    const list = Object.keys(sp.qs).map(q => [q, raised[q], answered[q]]).filter(x => x[1] || x[2]).sort((a, b) => Math.abs((y[a[2]] || 0) - (y[a[1]] || 0)) - Math.abs((y[b[2]] || 0) - (y[b[1]] || 0)));
+    let out = '';
+    list.forEach(([q, r, a], i) => {
+      const x = 40 - Math.min(34, 6 + (i % 9) * 4), tip = `<title>${hesc(q + ': ' + (sp.qs[q] || ''))}</title>`;
+      if (r && a) { const y0 = y[r], y1 = y[a], bad = y1 < y0; out += `<path class="${bad ? 'bad' : ''}" d="M42 ${y0} C${x} ${y0} ${x} ${y1} 42 ${y1}"${bad ? '' : ' marker-end="url(#sv-ah)"'}>${tip}</path>`; }
+      else if (r && !handedOff(q, sp.qs)) out += `<path class="bad" d="M42 ${y[r]} L30 ${y[r] + 10}">${tip}</path>`;
+    });
+    svg.setAttribute('height', l.scrollHeight);
+    svg.innerHTML = '<defs><marker id="sv-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#38761D"/></marker></defs>' + out;
+  }
+  async function setOn(x) {
+    if (x === on) return;
+    on = x; document.body.classList.toggle('storypanel', on);
+    if (on) ['QPool', 'Suggest', 'Tokens', 'Notation', 'Terms'].forEach(k => window[k] && window[k].close && window[k].close());
+    if (!panel) {
+      panel = document.createElement('aside'); panel.id = 'storypanel';
+      panel.addEventListener('click', e => {
+        const b = e.target.closest('button'); if (b && b.dataset.a === 'close') return setOn(false);
+        const r = e.target.closest('.sv-r'); if (!r) return;
+        const pg = lecture().find(p => p.id === r.dataset.id); if (pg) { setPage(pg); pg.scrollIntoView({ block: 'start' }); render(); }
+      });
+      panel.addEventListener('dragstart', e => { const r = e.target.closest('.sv-r'); dragId = r && r.dataset.id; if (dragId) { e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', dragId); } catch (x) {} } });
+      panel.addEventListener('dragover', e => { if (!dragId) return; e.preventDefault(); panel.querySelectorAll('.sv-r.dropb, .sv-r.dropa').forEach(r => r.classList.remove('dropb', 'dropa')); const r = e.target.closest('.sv-r'); if (r) { const b = r.getBoundingClientRect(); r.classList.add(e.clientY > b.top + b.height / 2 ? 'dropa' : 'dropb'); } });
+      panel.addEventListener('drop', e => {
+        e.preventDefault(); const r = e.target.closest('.sv-r'), id = dragId; dragId = null; if (!r || r.dataset.id === id) return render();
+        const pgs = lecture(), pg = pgs.find(p => p.id === id), target = pgs.find(p => p.id === r.dataset.id); if (!pg || !target) return render();
+        const after = r.classList.contains('dropa'); commit(true); if (after) target.after(pg); else target.before(pg); commit(true); Book.refresh(); render();
+      });
+      panel.addEventListener('dragend', () => { dragId = null; panel.querySelectorAll('.sv-r.dropb, .sv-r.dropa').forEach(r => r.classList.remove('dropb', 'dropa')); });
+      $('#panels').addEventListener('click', e => { const b = e.target.closest('button'); if (b && b.id !== 'x-story' && on) setOn(false); });
+    }
+    if (on) { $('#main').append(panel); await load(); render(); } else renderInspector();
+    const b = $('#x-story'); if (b) b.classList.toggle('on', on);
+  }
+  let t = 0; book.addEventListener('book-refresh', () => { if (on) { clearTimeout(t); t = setTimeout(render, 300); } });
+  const btn = document.createElement('button'); btn.id = 'x-story'; btn.textContent = 'Story';
+  btn.title = "Story view: the Lecture slide by slide, what each raises and answers, and the story checks (drag rows to reorder slides)";
+  btn.onclick = () => setOn(!on);
+  $('#panels').prepend(btn);
+  window.Story = { open: () => setOn(true), close: () => setOn(false), render, parse, checks: sp => checks(sp, lecture()), reload: () => { specFor = null; return load(); } };
+})();
 // another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)
 (() => {
   const q = new URLSearchParams(location.search); let s = q.get('side') ? { slug: q.get('side'), view: q.get('sideview') || 'slides' } : null;
