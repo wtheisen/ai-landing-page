@@ -1352,7 +1352,7 @@ document.addEventListener('selectionchange', () => { const n = getSelection().an
 const KIND = el => el.localName === 'svg' ? 'Drawing' : el.tagName === 'B-EQ' ? 'Equation' : el.tagName === 'B-FIG' ? 'Image' : el.tagName === 'B-CODE' ? 'Code' : el.tagName === 'B-OUT' ? 'Code output' : el.tagName === 'TABLE' ? 'Table'
   : /^(UL|OL)$/.test(el.tagName) ? 'List' : el.classList.contains('qc') ? 'Exam question' : el.classList.contains('wbox') ? 'Write-in box' : /^H\d$/.test(el.tagName) ? 'Heading' : el.tagName === 'B-ANSWERS' ? 'Quick-check answers' : el.tagName === 'B-TOC' ? 'Contents' : el.tagName === 'B-EMBED' ? 'Interactive' : 'Text';
 const TEXT_TYPES = [['p', '', 'Paragraph'], ['h2', '', 'Page title'], ['h3', '', 'Subheading'], ['p', 'aside', 'Note (small grey)'], ['div', 'callout', 'Callout']];
-function userClass(el) { return [...el.classList].filter(c => !c.startsWith('ed-') && !['over', 'busy', 'bad', 'live-on'].includes(c)).join(' '); }
+function userClass(el) { return [...el.classList].filter(c => !c.startsWith('ed-') && !['over', 'tall', 'busy', 'bad', 'live-on'].includes(c)).join(' '); }
 // ---------------------------------------------------------------- code blocks
 // A <b-code> carries: lang ("python" runs on the web; "text" for pseudo-code), files (data the code reads, fetched into
 // the browser's Python before it runs), marks (tinted boxes: "3:4-18:gold"), and norun (python shown but not runnable).

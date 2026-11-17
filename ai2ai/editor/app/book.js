@@ -993,7 +993,10 @@ Book.swReady = async () => {
 Book.SIZES = { reading: { w: 432, h: 648 }, slides: { w: 720, h: 540 }, workbook: { w: 432, h: 648 } };   // the Workbook prints like the Reading (6 × 9 in), for paper and tablets
 Book.size = el => Book.SIZES[el && el.nodeType ? Book.viewOf(el) : (el || Book.view)] || Book.SIZES.reading;
 Book.pageW = el => Book.size(el).w;
-Book.pageH = el => Book.size(el).h;
+Book.pageH = el => {   // a tall Lecture slide (Book.refresh: --page-h on the page) is as tall as it was made
+  const pg = el && el.nodeType && el.closest ? el.closest('section.page') : null, t = pg && parseFloat(pg.style.getPropertyValue('--page-h'));
+  return t || Book.size(el).h;
+};
 Book.viewOf = el => { const p = el && el.closest && el.closest('.dpane'); return p ? p.dataset.view : Book.view; };
 Book.blocks = pg => [...pg.children].filter(el => !el.hasAttribute('data-rt') && !el.classList.contains('overlay') && !el.classList.contains('cmt'));
 Book.isPinned = el => el.style.position === 'absolute';
@@ -1231,7 +1234,7 @@ Book.refresh = () => {
       if (pgap.nextElementSibling !== push) push.before(pgap);
       if (pg.style.getPropertyValue('--gap')) pg.style.removeProperty('--gap');   // the spare room goes into the gap, not between the blocks
     }
-    const s = r.width / Book.pageW(pg), cur = parseFloat(pg.style.getPropertyValue('--gap')) || 10, PW = Book.pageW(pg), PH = Book.pageH(pg);
+    const s = r.width / Book.pageW(pg), cur = parseFloat(pg.style.getPropertyValue('--gap')) || 10, PW = Book.pageW(pg), PH = Book.size(pg).h;
     const wraps = Book.wrapText(pg);
     let bottom = 0, right = 0, n = 0, joined = 0, pinBottom = 0;
     for (const el of pg.children) {
@@ -1254,7 +1257,18 @@ Book.refresh = () => {
       gap = free > 6 && gaps > 0 ? +(10 + Math.min(free / gaps, 12)).toFixed(1) : 10;
       if (Math.abs(gap - cur) > 0.05) { if (gap === 10) pg.style.removeProperty('--gap'); else pg.style.setProperty('--gap', gap + 'pt'); if (wraps) Book.wrapText(pg); }   // blocks moved: re-place the wrap floats
     }
-    const end = Math.round(Math.max(base + gaps * (gap - 10), pinBottom)), over = end > PH - 26 || Math.round(right) > PW - 23;
+    const end = Math.round(Math.max(base + gaps * (gap - 10), pinBottom));
+    // Tall slides (Eric, 2026-11-17: "for lectures only, allow variable height pages" so long code shows whole): a Lecture
+    // slide whose content runs past 540pt grows to fit it plus the footer room, by --page-h on the page (never saved;
+    // the exported PDF gives it a page that tall, see Book.snapshot). Only running off the right edge is "over" there.
+    const tall = Book.viewOf(pg) === 'slides' && end > PH - 26 ? end + 26 : 0;
+    if (tall) { if (pg.style.getPropertyValue('--page-h') !== tall + 'pt') pg.style.setProperty('--page-h', tall + 'pt'); }
+    else if (pg.style.getPropertyValue('--page-h')) pg.style.removeProperty('--page-h');
+    pg.classList.toggle('tall', !!tall);
+    for (const o of pg.querySelectorAll(':scope > svg.draw.overlay')) {   // the page's own drawing layer covers it all, at the same scale
+      const vb = '0 0 ' + PW + ' ' + (tall || PH); if (o.getAttribute('viewBox') !== vb) o.setAttribute('viewBox', vb);
+    }
+    const over = (!tall && end > PH - 26) || Math.round(right) > PW - 23;
     pg.classList.toggle('over', over);
     if (over) report.push({ page: k + 1, id: pg.id, bottom: end, right: Math.round(right) });
   });
@@ -1276,10 +1290,10 @@ function attrs(el) {
   for (const a of el.attributes) {
     const n = a.name; let v = a.value;
     if (SKIP_ATTR.has(n) || n.startsWith('data-ed')) continue;
-    if (n === 'class') { v = v.split(/\s+/).filter(c => c && !c.startsWith('ed-') && c !== 'live-on' && c !== 'over' && c !== 'busy' && c !== 'bad').join(' '); if (!v) continue; }
+    if (n === 'class') { v = v.split(/\s+/).filter(c => c && !c.startsWith('ed-') && c !== 'live-on' && c !== 'over' && c !== 'tall' && c !== 'busy' && c !== 'bad').join(' '); if (!v) continue; }
     if (n === 'style') {
       if (INLINE_STYLE_DROP.test(el.localName) && !Book.isPinned(el)) continue;
-      v = v.split(';').map(d => d.trim()).filter(d => d && !d.startsWith('--gap') && !d.startsWith('--ar') && !d.startsWith('--mm-h')).join('; '); if (!v) continue;
+      v = v.split(';').map(d => d.trim()).filter(d => d && !d.startsWith('--gap') && !d.startsWith('--ar') && !d.startsWith('--mm-h') && !d.startsWith('--page-h')).join('; '); if (!v) continue;
     }
     s += ` ${n}="${escAttr(v)}"`;
   }
@@ -1972,6 +1986,10 @@ Book.snapshot = async () => {
   const colabOn = Book.colabCells();
   const clone = Book.root.cloneNode(true);
   live.forEach(el => el.removeAttribute('data-box'));
+  // tall Lecture slides (Book.refresh): each prints on a page of its own height, through a named @page per height
+  const tallH = new Set();
+  if (view === 'slides') clone.querySelectorAll('section.page').forEach(pg => { const h = parseFloat(pg.style.getPropertyValue('--page-h')); if (h) { pg.setAttribute('data-tall', h); tallH.add(h); } });
+  const tallCSS = [...tallH].map(h => `\n@page t${h} { size: 720pt ${h}pt; margin: 0; } section.page[data-tall="${h}"] { page: t${h}; }`).join('');
   // Colab-only cells: the published page has no book-meta or sections to resolve, so each cell carries the answer
   { const lc = [...Book.root.querySelectorAll('b-code')], cc = [...clone.querySelectorAll('b-code')];
     cc.forEach((c, i) => { c.classList.remove('ed-colab'); if (colabOn.has(lc[i])) c.setAttribute('colab', ''); else c.removeAttribute('colab'); }); }
@@ -2041,7 +2059,7 @@ Book.snapshot = async () => {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(m.title || '')}</title>
 <style>${faces}
-${css}${view === 'slides' ? '\n@page { size: 10in 7.5in; margin: 0; }' : ''}</style>
+${css}${view === 'slides' ? '\n@page { size: 10in 7.5in; margin: 0; }' + tallCSS : ''}</style>
 </head>
 <body>
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="${escAttr(m.toc || '/ai2ai/')}" title="All chapters">${esc(m.book || '')}</a><span class="crumb">${esc(m.title || '')}</span>${toc}<span class="spacer"></span>${viewbar}<span class="tools">${pdfmenu}</span></nav>
