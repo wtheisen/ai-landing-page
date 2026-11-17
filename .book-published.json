@@ -1,17 +1,17 @@
 {
  "_last": {
-  "at": "2026-11-16T20:20:08Z",
-  "event": "push",
+  "at": "2026-11-17T17:37:08Z",
+  "event": "schedule",
   "failed": [],
   "ok": [
    "attention"
   ],
   "over": {},
-  "run": "43948328514"
+  "run": "44138305918"
  },
  "attention": {
-  "at": "2026-11-16T20:20:17Z",
-  "commit": "f6ee6e9d8d3551be348a3c21cd9d0f652ead0c43",
+  "at": "2026-11-17T17:37:17Z",
+  "commit": "48a6714820fc9f6b450f919f6b6a2d25c7ebe944",
   "web": "ai2ai/attention"
  },
  "backprop": {
