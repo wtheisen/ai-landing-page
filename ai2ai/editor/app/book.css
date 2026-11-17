@@ -700,11 +700,11 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ b-code[beside] + b-out:not(.run-new)), :has(+ .cmt + b-code[beside] + b-out:not(.run-new))) { grid-row: span 2; }
 .book[data-view="slides"] .page:not(.cover) > svg.draw:is(:has(+ b-code[beside]), :has(+ .cmt + b-code[beside])) { height: auto; }
 /* an equation beside code fills its column (up to twice its size), so it reads at the size of the code next to it */
-.book[data-view="slides"] .page:not(.cover) > b-eq:is(:has(+ b-code[beside]), :has(+ .cmt + b-code[beside])) { width: auto; justify-self: stretch; }
+.book[data-view="slides"] .page:not(.cover) > b-eq:is(:has(+ b-code[beside]), :has(+ .cmt + b-code[beside])) { width: 100%; }
 .book[data-view="slides"] .page:not(.cover) > b-eq:is(:has(+ b-code[beside]), :has(+ .cmt + b-code[beside])) > img { width: 100%; max-width: none; max-height: 260pt; object-fit: contain; }
 .book[data-view="slides"] .page:not(.cover) > b-code[beside="left"], .book[data-view="slides"] .page:not(.cover) > b-code[beside="left"] + b-out:not(.run-new) { grid-column: var(--cs) / -1 !important; }
 .book[data-view="slides"] .page:not(.cover) > b-code[beside="right"], .book[data-view="slides"] .page:not(.cover) > b-code[beside="right"] + b-out:not(.run-new) { grid-column: 1 / span var(--cw) !important; }
-.book[data-view="slides"] .page:not(.cover) > b-code[beside] { min-width: 0; align-self: end !important; }   /* down against its output when the picture is the taller */
+.book[data-view="slides"] .page:not(.cover) > b-code[beside] { min-width: 0; align-self: end; }
 .book[data-view="slides"] .page:not(.cover) > b-code[beside]:has(+ b-out:not(.run-new)) { border-radius: 4px 4px 0 0; }
 .book[data-view="slides"] .page:not(.cover) > b-code[beside] + b-out:not(.run-new) { margin-left: 0 !important; margin-top: calc(-1 * var(--gap, 10pt)) !important; border-top: 0; border-radius: 0 0 4px 4px; min-width: 0; align-self: start; }
 .book[data-view="slides"] .page:not(.cover) > b-code[beside] + b-out:not(.run-new) > .label > .run-bar { position: static; }

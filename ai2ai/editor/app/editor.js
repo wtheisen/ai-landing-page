@@ -1480,7 +1480,7 @@ function codeBesideInspector(el, add) {
   let prev = el.previousElementSibling; while (prev && prev.classList.contains('cmt')) prev = prev.previousElementSibling;
   const what = !prev ? null : prev.matches('svg.draw') ? 'drawing' : prev.tagName === 'B-EQ' ? 'equation' : prev.tagName === 'B-FIG' ? 'figure' : prev.tagName === 'TABLE' ? 'table' : 'block';
   add(`<label>Beside the ${what || 'block'} before it, on a slide</label>`);
-  const sb = add(`<div class="seg ed-beside"><button data-s="">Off</button><button data-s="right">${what ? what[0].toUpperCase() + what.slice(1) : 'It'} on the right</button><button data-s="left">On the left</button></div>`);
+  const sb = add(`<div class="seg ed-beside"><button data-s="">Off</button><button data-s="left">${what || 'It'} on the left</button><button data-s="right">On the right</button></div>`);
   sb.querySelectorAll('button').forEach(b => { b.classList.toggle('on', (el.getAttribute('beside') || '') === b.dataset.s);
     b.onclick = () => { if (b.dataset.s && !prev) return toast('Put a drawing or an equation just before the code first');
       commit(true); if (b.dataset.s) el.setAttribute('beside', b.dataset.s); else { el.removeAttribute('beside'); el.removeAttribute('bw'); }
@@ -3243,11 +3243,7 @@ function enterDual() {
   [...book.childNodes].forEach(n => n.remove());
   (first && paneDoc(first) === 'reading' ? ['reading', 'lecture'] : ['lecture', 'reading']).forEach(d => book.append(dpanes[d]));   // in file order (the serializer reads them in this order)
   book.classList.add('dual'); book.removeAttribute('data-view');
-  // the document being edited must be one that shows: with the Reading folded away (colHide, kept per browser), open on
-  // the Lecture (Eric, 2026-11-17: the page list and the mode select showed the hidden Reading's pages after a load)
-  let doc = docOf(Book.view); const otherDoc = doc === 'reading' ? 'lecture' : 'reading';
-  const hid = colHide || {}; if (hid[doc] && !hid[otherDoc]) doc = otherDoc;
-  desk = null; activatePane(dpanes[doc]);
+  desk = null; activatePane(dpanes[docOf(Book.view)]);
   coverKey = ''; lectureCover(); Book.refresh(); mo.takeRecords(); applying = was;
   if (anc && anc[0].parentElement === desk) desk.scrollTop += anc[0].getBoundingClientRect().top - anc[1];
   const other = Object.values(dpanes).find(p => p !== desk);

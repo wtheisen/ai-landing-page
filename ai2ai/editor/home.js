@@ -140,10 +140,7 @@ async function load() {
     let meta = {}; try { meta = JSON.parse((/<script type="application\/json" id="book-meta">([\s\S]*?)<\/script>/.exec(f.data) || [])[1] || '{}'); } catch (e) { /* bad meta */ }
     const cover = (/<section class="page[^"]*\bcover\b[^"]*"[^>]*>([\s\S]*?)<\/section>/.exec(f.data) || [])[1] || '';
     const art = (/<b-fig\b[^>]*\bsrc="([^"]+)"/.exec(cover) || [])[1] || '';
-    // a cover whose art was turned into an editable drawing (tools/todraw.py: ffn, backprop, cnn, rnn, bptt …) holds an
-    // <svg class="draw"> instead of a b-fig: show that drawing itself (2026-11-17, Eric: those covers stayed blank)
-    const draw = art ? '' : (/<svg\b[^>]*\bclass="draw\b[^"]*"[^>]*>[\s\S]*?<\/svg>/.exec(cover) || [])[0] || '';
-    chapters[m[1]] = { slug: m[1], title: meta.title || m[1], dirty: f.dirty, art: /^[\w./-]+$/.test(art) && !art.includes('..') ? art : '', draw: draw ? drawURL(draw) : '' };
+    chapters[m[1]] = { slug: m[1], title: meta.title || m[1], dirty: f.dirty, art: /^[\w./-]+$/.test(art) && !art.includes('..') ? art : '' };
   }
   const units = [], seen = new Set();
   for (const u of (toc && toc.units) || []) {
@@ -172,7 +169,7 @@ async function list() {
     const c = chapters[it.slug], [have, need] = await Sync.coverage(it.slug), full = need && have >= need;
     const href = encodeURIComponent(it.slug);
     return `<div class="book" data-key="${esc(it.key)}" data-slug="${esc(it.slug)}">
-      <a class="cv" href="edit/${href}" draggable="false">${c.art ? `<span class="cv-art" data-art="chapters/${esc(it.slug)}/${esc(c.art)}"><img alt="" draggable="false"${arts[`chapters/${it.slug}/${c.art}`] ? ` src="${arts[`chapters/${it.slug}/${c.art}`]}"` : ''}></span>` : c.draw ? `<span class="cv-art"><img alt="" draggable="false" src="${c.draw}"></span>` : '<span class="cv-art none"></span>'}
+      <a class="cv" href="edit/${href}" draggable="false">${c.art ? `<span class="cv-art" data-art="chapters/${esc(it.slug)}/${esc(c.art)}"><img alt="" draggable="false"${arts[`chapters/${it.slug}/${c.art}`] ? ` src="${arts[`chapters/${it.slug}/${c.art}`]}"` : ''}></span>` : '<span class="cv-art none"></span>'}
         <span class="cv-text"><span class="kicker">${esc(num)}</span><span class="cv-title">${esc(c.title)}</span><span class="rule"></span></span></a>
       <div class="meta">${side.claims[it.slug] ? `<span class="claim" title="A Claude session is working on this chapter: ${esc(side.claims[it.slug].what || '')} (until ${esc((side.claims[it.slug].expires || '').slice(11, 16))})">Claude working</span>` : ''}${side.changed[it.slug] ? `<span class="chg" title="Pages Claude changed since you last looked (blue dots in the editor's page list)">● ${side.changed[it.slug]} changed</span>` : ''}${c.dirty ? '<span class="edited">Edited here</span>' : ''}<span class="off ${full ? 'full' : ''}">${full ? 'Offline ✓' : need ? `<a href="#" data-dl="${esc(it.slug)}">Download</a> ${have}/${need}` : ''}</span></div>
       <div class="acts"><a class="btn" href="view/${href}">Read</a><a class="btn" href="edit/${href}">Edit</a><a class="btn lect" href="view/${href}?view=slides&lecture=1" title="Teach from this device: the Lecture with the pen in hand and the faint answers hidden (safe to mirror to the projector)">Lecture</a><a class="ans" href="view/${href}?view=slides&lecture=answers" title="For a second screen: the Lecture with the faint answers showing">answers</a>${cfg && cfg.kind === 'github' ? `<a class="pub" href="#" data-pub="${esc(it.slug)}" title="Put this chapter's current version on the website (pages and PDFs). Every chapter edited since its last publish also goes up each night.">Publish to the site</a>` : ''}${cfg && cfg.kind === 'github' && book().id === 'ballm' ? `<a class="pub nbk" href="#" data-nbk="${esc(it.slug)}" title="Make this chapter's CSE 10124 notebooks (student and Solutions, from its Lecture): they go into your Drive Notebooks folder and the course site within about 15 minutes">Make notebook</a>` : ''}</div></div>`;
@@ -426,11 +423,6 @@ async function newChapter(title, where, slug) {
   return slug;
 }
 
-// a drawing as a picture: its markup as an SVG file (the namespace a stand-alone file needs, no page-sized width)
-function drawURL(svg) {
-  svg = svg.replace(/^<svg\b/, '<svg xmlns="http://www.w3.org/2000/svg"').replace(/^(<svg\b[^>]*?)\sstyle="[^"]*"/, '$1');
-  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
-}
 // cover art: read from this device's store, or fetched from GitHub once and kept (Sync.file), shown as a blob URL.
 // (Not through the service worker's c/ route, so it works whichever version of the worker is in charge.)
 const arts = {};   // repo path -> object URL, kept across redraws
