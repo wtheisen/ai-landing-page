@@ -859,16 +859,6 @@ function codeMarks(attr, lang) {
   };
 }
 Book.codeMarks = codeMarks;
-// "#~ purple" (or green, gold, red, blue, gray, teal) at the end of code lines draws each run of them as one block in
-// the colour of the drawing's tile or the equation piece \lk{purple}{…} they compute, so a slide can show which lines
-// implement which part of the picture beside them (Eric, 2026-11-17). Other "#~ name"s stay invisible links.
-const LK_LINE = /\s*#~\s*([\w-]+(?:[\s,]+[\w-]+)*)\s*$/;
-const BLK = { purple: 'purple', green: 'green', gold: 'gold', yellow: 'gold', red: 'red', blue: 'blue', gray: 'gray', grey: 'gray', teal: 'teal' };
-function codeBlocks(lines) {   // per line: '' or ' blk blk-<colour>' plus blk-top / blk-bot at the ends of a run
-  const c = lines.map(l => { const m = LK_LINE.exec(l); return m ? (m[1].split(/[\s,]+/).map(n => BLK[n]).find(Boolean) || null) : null; });
-  return c.map((x, k) => x ? ` blk blk-${x}` + (c[k - 1] !== x ? ' blk-top' : '') + (c[k + 1] !== x ? ' blk-bot' : '') : '');
-}
-Book.codeBlocks = codeBlocks; Book.BLK = BLK; Book.LK_LINE = LK_LINE;
 class BCode extends HTMLElement {
   // Moving a rendered block (presenting mode wraps #book in its scroll boxes) calls this again: drawing it afresh then
   // threw away the Run bar eaiRunCode had added and any live output, so no cell could run while presenting (Eric,
@@ -881,9 +871,9 @@ class BCode extends HTMLElement {
     this._drawn = this.drawKey();
     const lines = this.src.split('\n'), line = codeMarks(this.getAttribute('marks'), this.getAttribute('lang'));
     // "#~ name" at the end of a line links it to the piece of the paired equation marked \lk{name}{…} (hidden here)
-    const lk = lines.map(l => LK_LINE.exec(l)), blk = codeBlocks(lines);
+    const lk = lines.map(l => /\s*#~\s*([\w-]+(?:[\s,]+[\w-]+)*)\s*$/.exec(l));
     const shown = lines.map((l, k) => lk[k] ? l.slice(0, lk[k].index) : l);
-    this.innerHTML = `<div class="gutter" aria-hidden="true">${lines.map((_, k) => `<div>${k + 1}</div>`).join('')}</div><div class="src">${shown.map((l, k) => `<div class="ln${blk[k]}"${lk[k] ? ` data-lk="${lk[k][1].split(/[\s,]+/).join(' ')}"` : ''}>${line(l, k)}</div>`).join('')}</div>`;
+    this.innerHTML = `<div class="gutter" aria-hidden="true">${lines.map((_, k) => `<div>${k + 1}</div>`).join('')}</div><div class="src">${shown.map((l, k) => `<div class="ln"${lk[k] ? ` data-lk="${lk[k][1].split(/[\s,]+/).join(' ')}"` : ''}>${line(l, k)}</div>`).join('')}</div>`;
   }
 }
 class BMatmul extends HTMLElement {
