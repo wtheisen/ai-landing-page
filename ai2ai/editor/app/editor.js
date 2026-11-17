@@ -171,7 +171,7 @@ let commitT = 0, saveT = 0;
 // Edit either copy and the other follows on the next commit; each keeps its own layout (size, class, blanks).
 var poolLast;   // pool id -> its content as of the last sync
 // per copy: layout, and how a code copy runs (a hoisted function, so poolKey can use it before this line is reached)
-function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'data-align', 'setup', 'chain', 'norun', 'colab', 'cw', 'out', 'data-push', 'contenteditable', 'spellcheck', 'draggable']; }
+function poolLayoutAttrs() { return ['style', 'class', 'data-view', 'data-fill', 'data-pool', 'data-b', 'data-align', 'setup', 'chain', 'norun', 'colab', 'cw', 'out', 'beside', 'bw', 'data-push', 'contenteditable', 'spellcheck', 'draggable']; }
 const POOL_LAYOUT = poolLayoutAttrs();
 // the content two copies share: everything but the per-copy attributes (built from POOL_LAYOUT, so a new per-copy
 // attribute can't make the copies look different forever: cw did, and every commit swapped the copies, 2026-10-27)
@@ -1466,10 +1466,68 @@ function codeInspector(el, add) {
     add(`<div class="help">The Lecture puts code and its output side by side. Auto fits the code to its longest line; or drag the gap between them on the slide.</div>`);
     }
   }
+  if (el.tagName === 'B-CODE') codeBesideInspector(el, add);
   add(`<label>Highlights (line:from-to:colour, separated by spaces)</label>`);
   const mk = add(`<input type="text" spellcheck="false" style="font-family:var(--font-mono);font-size:11px" placeholder="3:4-18:gold">`);
   mk.value = el.getAttribute('marks') || ''; mk.onchange = () => attr('marks', mk.value.trim());
   add(`<div class="help">Line numbers start at 1, columns at 0. Colours: gold, blue, green, red, teal, gray, purple, orange, or <code>fill</code> for a fill-in blank. Easier: click into the code, select the part and press a colour circle (Option+1-6) or Fill on the toolbar; the same button again removes it, Clear removes highlights. Python is highlighted automatically; extra type names to colour purple go in the chapter settings.</div>`);
+}
+// Code beside a picture, with colour blocks (Eric, 2026-11-17, from his students: fewer slides that are only code).
+// beside="left|right": on a slide the block before the code (drawing, equation, figure) sits on that side of it, its
+// share of the width bw="20".."60" (default 40); book.css "beside". Colour blocks: "#~ purple" at the end of lines
+// (book.js codeBlocks), matching a tile of that colour or an equation piece typed \lk{purple}{…}.
+function codeBesideInspector(el, add) {
+  let prev = el.previousElementSibling; while (prev && prev.classList.contains('cmt')) prev = prev.previousElementSibling;
+  const what = !prev ? null : prev.matches('svg.draw') ? 'drawing' : prev.tagName === 'B-EQ' ? 'equation' : prev.tagName === 'B-FIG' ? 'figure' : prev.tagName === 'TABLE' ? 'table' : 'block';
+  add(`<label>Beside the ${what || 'block'} before it, on a slide</label>`);
+  const sb = add(`<div class="seg ed-beside"><button data-s="">Off</button><button data-s="left">${what || 'It'} on the left</button><button data-s="right">On the right</button></div>`);
+  sb.querySelectorAll('button').forEach(b => { b.classList.toggle('on', (el.getAttribute('beside') || '') === b.dataset.s);
+    b.onclick = () => { if (b.dataset.s && !prev) return toast('Put a drawing or an equation just before the code first');
+      commit(true); if (b.dataset.s) el.setAttribute('beside', b.dataset.s); else { el.removeAttribute('beside'); el.removeAttribute('bw'); }
+      commit(true); place(); Book.refreshSoon(); renderInspector(); }; });
+  if (el.hasAttribute('beside')) {
+    const r = add(`<div class="row" style="display:flex;gap:6px;align-items:center"><input type="range" min="20" max="60" step="5" style="flex:1"><span class="mono" style="width:6.5em;font-size:11px"></span></div>`);
+    const rng = r.querySelector('input'), lab = r.querySelector('span');
+    const show = () => { const v = el.getAttribute('bw') || '40'; rng.value = v; lab.textContent = `${what || 'block'} ${v}%`; };
+    rng.oninput = () => { if (rng.value === '40') el.removeAttribute('bw'); else el.setAttribute('bw', rng.value); show(); place(); };
+    rng.onchange = () => { commit(true); Book.refreshSoon(); };
+    show();
+    add(`<div class="help">The output goes under the code. The Workbook and the Reading stack them as usual.</div>`);
+  }
+  add(`<label>Colour block for the selected lines</label>`);
+  const cols = ['purple', 'green', 'gold', 'red', 'blue', 'gray', 'teal'], hex = { purple: '#8E7CC3', green: '#93C47D', gold: '#DCB439', red: '#E06666', blue: '#6D9EEB', gray: '#999999', teal: '#5AABBC' };
+  const cb = add(`<div class="row ed-blocks" style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">${cols.map(c => `<button data-c="${c}" title="${c}" style="width:22px;height:22px;border-radius:5px;padding:0;border:1.5px solid ${hex[c]}"></button>`).join('')}<button data-c="">None</button></div>`);
+  const fill = { purple: '#D9D2E9', green: '#D9EAD3', gold: '#FFF2CC', red: '#F4CCCC', blue: '#C9DAF8', gray: '#EFEFEF', teal: '#D5ECF1' };
+  cb.querySelectorAll('[data-c]').forEach(b => { if (b.dataset.c) b.style.background = fill[b.dataset.c];
+    b.addEventListener('mousedown', e => e.preventDefault());   // keep the typing focus (and its selection)
+    b.onclick = () => codeBlock(el, b.dataset.c); });
+  add(`<div class="help">Click into the code and select the lines (or put the caret on one), then pick a colour: the lines get a box in that colour, to match a tile in the drawing or a piece of the equation typed <code>\\lk{purple}{…}</code>. In the code it is a hidden <code>#~ purple</code> at the end of each line.</div>`);
+}
+function codeBlock(el, colour) {
+  const live = codeEd && codeEd.el === el, src = live ? codeEd.ta.value : el.src, lines = src.split('\n');
+  const [a, b] = live ? [codeEd.ta.selectionStart, codeEd.ta.selectionEnd] : (el._sel || [0, 0]);
+  if (!live && !el._sel) return toast('Click into the code and select the lines first');
+  let at = 0, first = -1, last = -1;
+  lines.forEach((l, k) => { const e = at + l.length; if (first < 0 && a <= e) first = k; if (b >= at) last = k; at = e + 1; });
+  if (b > a && last > first && b === src.split('\n').slice(0, last).join('\n').length + 1) last--;   // a selection ending at the start of a line stops before it
+  if (first < 0) return toast('Select some lines first');
+  // a line that ends inside a string (the lines of a triple-quoted text) can't take a comment: it would become text
+  const open = []; { let q = null; lines.forEach((l, k) => { const body = (Book.LK_LINE.exec(l) ? l.slice(0, Book.LK_LINE.exec(l).index) : l);
+    for (const m of body.matchAll(/"{3}|'{3}/g)) q = q === null ? m[0] : q === m[0] ? null : q; open[k] = q !== null; }); }
+  let skipped = 0;
+  for (let k = first; k <= last; k++) {
+    if (open[k]) { skipped++; continue; }
+    const m = Book.LK_LINE.exec(lines[k]), body = m ? lines[k].slice(0, m.index) : lines[k];
+    const names = (m ? m[1].split(/[\s,]+/) : []).filter(n => !Book.BLK[n]);
+    if (colour && body.trim()) names.push(colour);
+    lines[k] = names.length ? body.replace(/\s+$/, '') + '  #~ ' + names.join(' ') : body.replace(/\s+$/, '');
+  }
+  const v = lines.join('\n');
+  commit(true);
+  if (live) { const { ta } = codeEd; ta.focus(); ta.select(); document.execCommand('insertText', false, v); ta.setSelectionRange(a, a); }
+  else { el.setAttribute('data-src', v); el.render(); }
+  commit(true); place();
+  toast((colour ? `Lines ${first + 1}–${last + 1}: ${colour} block` : 'Colour block removed') + (skipped ? ` (not on ${skipped} line${skipped > 1 ? 's' : ''} inside a string)` : ''));
 }
 let pyBoot = null, torchBoot = null;
 // same PyTorch as the web edition (see eaiRunCode in book.js), loaded when the code imports torch
@@ -1502,7 +1560,8 @@ function codeEditView(el, text) {
   if (el.tagName === 'B-OUT') { el.querySelector('pre').innerHTML = eaiOutHL(text, Book.meta.codeColors, el.getAttribute('hl'), eaiOutTok(el)); return; }
   el.querySelector('.gutter').innerHTML = lines.map((_, k) => `<div>${k + 1}</div>`).join('');
   const line = Book.codeMarks(el.getAttribute('marks'), el.getAttribute('lang'));
-  el.querySelector('.src').innerHTML = lines.map((l, k) => `<div class="ln">${line(l, k)}</div>`).join('');
+  const blk = Book.codeBlocks(lines);   // colour blocks show while typing too (the "#~ purple" stays visible here)
+  el.querySelector('.src').innerHTML = lines.map((l, k) => `<div class="ln${blk[k]}">${line(l, k)}</div>`).join('');
 }
 // Fill in a code cell: the selected characters become a blank (marks "line:from-to:fill"), one per line they span.
 // Selecting inside an existing blank and pressing Fill again removes it.
@@ -1613,6 +1672,8 @@ function startCodeEdit(el, ev) {
     el.append(run);
   }
   codeEd = { el, ta, run, fit };
+  { const keep = () => { el._sel = [ta.selectionStart, ta.selectionEnd]; };   // the inspector's colour blocks use the last selection
+    ['select', 'keyup', 'mouseup', 'pointerup'].forEach(t => ta.addEventListener(t, keep)); }
   ta.oninput = () => { el.setAttribute('data-src', ta.value); codeEditView(el, ta.value); fit(); place(); commit(); };
   ta.onkeydown = e => {
     if (e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); document.execCommand('insertText', false, '    '); }
