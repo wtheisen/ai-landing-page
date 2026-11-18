@@ -4789,9 +4789,6 @@ if (phone) {
         html += `<div class="sw sw-down" data-for="${hesc(lastPg.id)}">${c}</div>`;
       }
       box.innerHTML = html;
-      // widths first: a textarea fitted before its card has its width measures one word per line (Eric, 2026-11-18:
-      // "they're like hilariously tall now")
-      box.querySelectorAll('.sw').forEach(b => { const pg = pgs.find(x => x.id === b.dataset.for); if (pg) b.style.width = pg.getBoundingClientRect().width + 'px'; });
       box.querySelectorAll('textarea').forEach(fit);
       const h = {};
       box.querySelectorAll('.sw').forEach(b => { const id = b.dataset.for; h[id] = h[id] || [0, 0]; h[id][b.classList.contains('sw-up') ? 0 : 1] = b.offsetHeight; });
@@ -4854,14 +4851,7 @@ if (phone) {
       + '<marker id="sw-ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#cc0000"/></marker></defs>' + out;
   }
   // editing in the cards
-  // a hook or running example longer than 3 lines shows 3 (faded) until clicked into, so a narrow pane's cards don't
-  // grow a screen tall (Eric, 2026-11-18)
-  function fit(ta) {
-    ta.style.height = 'auto'; const full = ta.scrollHeight;
-    const cap = ta.dataset.head && document.activeElement !== ta ? Math.ceil(parseFloat(getComputedStyle(ta).lineHeight) * 3 + 6) : Infinity;
-    ta.style.height = Math.min(full, cap) + 'px'; ta.classList.toggle('clipped', full > cap);
-  }
-  document.addEventListener('focusin', e => { if (box && box.contains(e.target) && e.target.matches('textarea[data-head]')) fit(e.target); }, true);
+  function fit(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
   document.addEventListener('input', e => { if (box && box.contains(e.target) && e.target.matches('textarea')) fit(e.target); }, true);
   const after = () => { save(); setTimeout(weave, 0); };
   document.addEventListener('change', e => {
@@ -4895,7 +4885,6 @@ if (phone) {
   }
   let t = 0; const soon = () => { if (!on) return; clearTimeout(t); t = setTimeout(weave, 120); };
   book.addEventListener('book-refresh', soon); addEventListener('resize', soon);
-  if (window.ResizeObserver) new ResizeObserver(soon).observe(book);   // a pane dragged wider or narrower, a pane closed
   new MutationObserver(soon).observe(book, { attributes: true, subtree: true, attributeFilter: ['data-view', 'style', 'class'] });
   const btn = h('<button id="x-story" title="Story: the Lecture\'s story woven in between the slides, as cards you can edit (the questions each slide leaves and the next answers, the parts, the terms), with the story checks in red">Story</button>');
   btn.onclick = () => setOn(!on);
