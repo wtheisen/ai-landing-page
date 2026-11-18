@@ -806,11 +806,3 @@ b-code.ed-colab::after { content: 'Colab only'; position: absolute; top: 2pt; ri
 #lp-sheet button[data-a="page"] { border: 0; padding: 8px 0; color: #1155CC; background: none; font-size: 14px; }
 #lp-sheet .lp-save { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: 700; }
 #book .ed-lp { outline: 3px solid #DCB439; outline-offset: 2px; border-radius: 3px; }
-
-/* ---------------------------------------------------------------- the iPhone review app (html.eai-review, editor.js reviewApp)
-   Locked, the app's own bar stands in for the page's, and a swipe moves exactly one slide (snapped to the middle of the
-   screen; a pinch still zooms). Unlocked to edit, the page's bar comes back (the app's Done locks again). */
-html.eai-review body.locked #bar { display: none; }
-html.eai-review #bar > #ph-lock, html.eai-review #bar > #home { display: none !important; }
-html.eai-review body.locked #desk { scroll-snap-type: y mandatory; }
-html.eai-review body.locked #book section.page { scroll-snap-align: center; scroll-snap-stop: always; }

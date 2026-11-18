@@ -27,10 +27,6 @@ const h = (html) => { const t = document.createElement('template'); t.innerHTML 
 const NOEDIT = /^(B-EQ|B-FIG|B-CODE|B-OUT|B-ANSWERS|B-TOC|B-EMBED|FIGURE|IMG|HR|SVG)$/i;
 var phone = matchMedia('(max-width: 760px)').matches;   // phone layout: one page column at print size, tools tucked away (see the end of this file)
 if (phone) document.body.classList.add('phone');
-// inside the iPhone review app (ios/AI2AIReview sets window.eaiNativeApp.review before the page loads): see "AI2AI Review"
-// near the end of this file. Nothing changes without it (desktop, iPad, Safari on a phone).
-var reviewApp = phone && !!(window.eaiNativeApp && window.eaiNativeApp.review);
-if (reviewApp) document.documentElement.classList.add('eai-review');
 
 Book.mode = 'edit'; Book.chapter = ch; Book.base = '../c/' + ch + '/';
 await Book.swReady();
@@ -130,7 +126,7 @@ function lpStart(e) {   // from the lock's capture listener (it stops the event 
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const blk = blockOf(e.target), pg = e.target.closest && e.target.closest('section.page'); if (!pg) return;
   lpAt = [e.clientX, e.clientY]; clearTimeout(lpT);
-  lpT = setTimeout(() => { lpAt = null; (reviewApp ? reviewPress : commentSheet)(blk && blk.parentElement === pg ? blk : null, pg); }, 550);   // the app shows its own menu and sheet
+  lpT = setTimeout(() => { lpAt = null; commentSheet(blk && blk.parentElement === pg ? blk : null, pg); }, 550);
 }
 ['pointerup', 'pointercancel'].forEach(t => addEventListener(t, () => { clearTimeout(lpT); lpAt = null; }, true));
 addEventListener('pointermove', e => { if (lpAt && Math.hypot(e.clientX - lpAt[0], e.clientY - lpAt[1]) > 10) { clearTimeout(lpT); lpAt = null; } }, true);
@@ -161,7 +157,6 @@ function setLocked(on) {
   locked = on; document.body.classList.toggle('locked', on);
   if (on) { try { select(null); } catch (x) {} const a = document.activeElement; if (a && book.contains(a) && a.blur) a.blur(); getSelection().removeAllRanges(); }
   lockBlocks(on);
-  if (reviewApp) reviewTell({ locked: on });
   const b = document.getElementById('ph-lock'); if (b) { b.textContent = on ? 'Edit' : 'Done'; b.classList.toggle('on', !on); b.title = on ? 'Unlock the chapter to edit it' : 'Lock it again: scroll and read only'; }
 }
 oldColumns(); prep();
@@ -2900,8 +2895,6 @@ try { const v = localStorage.getItem('book-view-' + ch); if (v && v !== 'reading
 // a split chapter whose Reading is still only its cover opens on the slides (Eric, 2026-11-18, Harness Engineering on
 // the phone opened on a lone cover)
 if (!dual && modeSel.value === 'reading' && Book.split && !Book.pages().some(pg => !pg.classList.contains('cover') && Book.inView(pg, 'reading')) && Book.pages().some(pg => Book.inView(pg, 'slides'))) setMode('slides');
-if (reviewApp && !dual && modeSel.value !== 'slides' && Book.views.includes('slides') && Book.pages().some(pg => !pg.classList.contains('cover') && Book.inView(pg, 'slides'))) setMode('slides');   // the review app reviews the slides
-if (reviewApp) reviewReady();
 mo.takeRecords();
 if (normalized) status.title = 'The file will be rewritten in the editor\'s fixed layout on the first save.';
 window.Editor = { moveBy, duplicate, removeBlock, runIntoOutput, onDeskScroll, renderPages, guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
@@ -4019,64 +4012,6 @@ if (phone) {
   $('#pages').addEventListener('click', e => { if (e.target.closest('li')) { document.body.classList.add('no-side'); panelsChanged(); } });
   addEventListener('orientationchange', () => setTimeout(() => applyZoom($('#zoom').value), 300));
 }
-
-// ---------------------------------------------------------------- AI2AI Review (the iPhone app, ios/AI2AIReview)
-// The app shows this page locked (review mode), on its slides, under a native bar of its own (back, the title, "n / N",
-// Edit/Done). Only with its flag (reviewApp): the page's own bar hides while locked (it comes back to edit), a swipe moves
-// one slide (scroll snap, editor.css html.eai-review), and a long press posts the block to the app (reviewPress) instead
-// of opening the comment sheet; the app's menu and sheet call back through window.eaiReview. Messages go to
-// webkit.messageHandlers.eai: {review: {title, n, N, locked}}, {page: {n, N}}, {locked}, {status: {cls, text}},
-// {longPress: {...}}.
-function reviewTell(m) { try { webkit.messageHandlers.eai.postMessage(m); } catch (x) { /* not in the app */ } }
-function reviewPages() { return deskPages().filter(p => (!Book.split || Book.inView(p, Book.view)) && p.offsetParent); }
-var reviewHeld = null, reviewN = 0;   // var and function: reviewReady runs (at open) before this section is reached
-function reviewPage() {   // the page nearest the middle of the screen, 1-based, of the pages shown
-  const ps = reviewPages(), d = desk.getBoundingClientRect(), mid = d.top + Math.min(d.height, innerHeight) / 2;
-  let best = 0, bd = Infinity;
-  ps.forEach((p, i) => { const r = p.getBoundingClientRect(), dd = Math.abs((r.top + r.bottom) / 2 - mid); if (dd < bd) { bd = dd; best = i; } });
-  return { n: ps.length ? best + 1 : 0, N: ps.length };
-}
-function reviewScroll() { const p = reviewPage(); if (p.n !== reviewN) { reviewN = p.n; reviewTell({ page: p }); } }
-function cmtsOf(blk, pg) {   // the open comments right after a block (or at the top of the page, for the page)
-  const out = []; let n = blk ? blk.nextElementSibling : pg.firstElementChild;
-  while (n && n.classList.contains('cmt')) { if (!n.hasAttribute('data-done')) out.push({ by: n.dataset.by || '', when: n.dataset.when || '', text: n.textContent.trim() }); n = n.nextElementSibling; }
-  return out;
-}
-function reviewPress(blk, pg) {   // a long press, locked: the block to the app, which shows its menu
-  if (reviewHeld && reviewHeld.blk) reviewHeld.blk.classList.remove('ed-lp');
-  reviewHeld = { blk, pg };
-  if (blk) blk.classList.add('ed-lp');
-  const ps = reviewPages(), r = (blk || pg).getBoundingClientRect();
-  reviewTell({ longPress: {
-    text: blk ? blk.textContent.trim().replace(/\s+/g, ' ').slice(0, 4000) : '', kind: blk ? KIND(blk) : 'Page',
-    page: ps.indexOf(pg) + 1, pages: ps.length, id: blk ? blk.getAttribute('data-b') || '' : '', pageId: pg.id || '',
-    comments: blk ? cmtsOf(blk, pg) : [], pageComments: cmtsOf(null, pg),
-    rect: [r.left, r.top, r.width, r.height] } });
-}
-function reviewReady() {
-  onDeskScroll(() => { cancelAnimationFrame(reviewScroll.raf); reviewScroll.raf = requestAnimationFrame(reviewScroll); });
-  addEventListener('resize', reviewScroll);
-  new MutationObserver(() => reviewTell({ status: { cls: status.className, text: status.textContent, title: status.title } })).observe(status, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class'] });
-  const p = reviewPage(); reviewN = p.n;
-  reviewTell({ review: { slug: ch, title: (Book.meta && Book.meta.title) || document.title || ch, n: p.n, N: p.N, locked, view: Book.view, status: { cls: status.className, text: status.textContent } } });
-}
-window.eaiReview = {
-  state() { return Object.assign({ slug: ch, locked, view: Book.view }, reviewPage()); },
-  setLocked(on) { setLocked(!!on); return locked; },
-  release() { if (reviewHeld && reviewHeld.blk) reviewHeld.blk.classList.remove('ed-lp'); reviewHeld = null; },
-  comment(text, onPage) {   // the app's sheet saved: an ordinary comment after the held block (or on its page)
-    const hd = reviewHeld, t = String(text || '').trim(); if (!hd || !t) return false;
-    const was = curPage; curPage = hd.pg; addComment(onPage ? null : hd.blk, t); curPage = was || hd.pg;
-    this.release(); clearTimeout(saveT); save(); return true;
-  },
-  editHere() {   // unlock and put the caret in the held block
-    const hd = reviewHeld; this.release(); setLocked(false);
-    if (hd && hd.blk) { select(hd.blk); if (hd.blk.isContentEditable) { hd.blk.focus(); const r = document.createRange(); r.selectNodeContents(hd.blk); r.collapse(false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } }
-    return locked;
-  },
-  async flush() { commit(true); await save(); return cur === saved; },   // before the app leaves the page
-  go(n) { const p = reviewPages()[n - 1]; if (p) p.scrollIntoView({ block: 'center', behavior: 'smooth' }); },
-};
 
 // ---------------------------------------------------------------- question pool
 // Question pool: every practice and exam question for a chapter, kept in chapters/<slug>/questions.html, shown in the
