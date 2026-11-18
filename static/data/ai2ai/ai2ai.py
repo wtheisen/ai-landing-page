@@ -33,7 +33,7 @@ class Text:
         return [self.vocab.index(w) for w in words]
 
     def decode(self, ids):
-        return " ".join(self.vocab[int(i)] for i in ids)
+        return [self.vocab[int(i)] for i in ids]
 
     def __repr__(self):
         return (f"{len(self.words)} words, "
