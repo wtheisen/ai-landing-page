@@ -100,6 +100,29 @@ function prep() {   // make text blocks editable; equations, figures and code ar
     if (el.classList.contains('colrow')) { el.removeAttribute('contenteditable'); for (const b of el.querySelectorAll(':scope > .colbox')) if (b.getAttribute('contenteditable') !== 'true') { b.setAttribute('contenteditable', 'true'); b.setAttribute('spellcheck', 'true'); } continue; }
     if (el.getAttribute('contenteditable') !== 'true') { el.setAttribute('contenteditable', 'true'); el.setAttribute('spellcheck', 'true'); }
   }
+  if (typeof locked !== 'undefined' && locked) lockBlocks(true);
+}
+// Locked (review) mode (Eric, 2026-11-18: on the phone "default to the elements being locked so I can just scroll
+// through the slides in more of a review mode"): nothing in the chapter is editable or selectable, so a swipe only
+// scrolls and a tap does nothing; the bar's Edit button unlocks for this visit. Phones open locked, every time.
+var locked = phone;
+function lockBlocks(on) {
+  if (on) book.querySelectorAll('[contenteditable="true"]').forEach(el => { el.setAttribute('contenteditable', 'false'); el.setAttribute('data-ed-locked', ''); });
+  else book.querySelectorAll('[data-ed-locked]').forEach(el => { el.setAttribute('contenteditable', 'true'); el.removeAttribute('data-ed-locked'); });
+}
+['pointerdown', 'mousedown', 'click', 'dblclick', 'contextmenu', 'focusin'].forEach(t => addEventListener(t, e => {
+  if (!locked || !book.contains(e.target) || document.documentElement.classList.contains('ink-lecture')) return;
+  const a = e.target.closest && e.target.closest('a[href]');
+  if (a && t === 'click') return;   // links still open
+  e.stopPropagation();
+  if (t !== 'pointerdown') e.preventDefault();   // pointerdown left alone: swipes and pinches still scroll and zoom
+  if (t === 'focusin' && e.target.blur) e.target.blur();
+}, true));
+function setLocked(on) {
+  locked = on; document.body.classList.toggle('locked', on);
+  if (on) { try { select(null); } catch (x) {} const a = document.activeElement; if (a && book.contains(a) && a.blur) a.blur(); getSelection().removeAllRanges(); }
+  lockBlocks(on);
+  const b = document.getElementById('ph-lock'); if (b) { b.textContent = on ? 'Edit' : 'Done'; b.classList.toggle('on', !on); b.title = on ? 'Unlock the chapter to edit it' : 'Lock it again: scroll and read only'; }
 }
 oldColumns(); prep();
 status.addEventListener('click', () => { commit(true); save(); });
@@ -3939,6 +3962,8 @@ if (phone) {
   const tools = document.createElement('button'); tools.id = 'ph-tools'; tools.textContent = 'Aa'; tools.title = 'All the tools';
   tools.onclick = () => { const on = document.body.classList.toggle('ph-open'); tools.classList.toggle('on', on); setTimeout(place, 0); };
   $('#status').after(tools);
+  const lockBtn = document.createElement('button'); lockBtn.id = 'ph-lock'; lockBtn.onclick = () => setLocked(!locked);
+  tools.after(lockBtn); setLocked(true);
   const typing = () => { const a = document.activeElement; document.body.classList.toggle('ph-typing', !!(a && a.isContentEditable && book.contains(a))); };
   document.addEventListener('focusin', typing); document.addEventListener('focusout', () => setTimeout(typing, 0));
   const vv = window.visualViewport;   // keep the style bar on top of the on-screen keyboard
@@ -4789,6 +4814,9 @@ if (phone) {
         html += `<div class="sw sw-down" data-for="${hesc(lastPg.id)}">${c}</div>`;
       }
       box.innerHTML = html;
+      // widths first: a textarea fitted before its card has its width measures one word per line (Eric, 2026-11-18:
+      // "they're like hilariously tall now")
+      box.querySelectorAll('.sw').forEach(b => { const pg = pgs.find(x => x.id === b.dataset.for); if (pg) b.style.width = pg.getBoundingClientRect().width + 'px'; });
       box.querySelectorAll('textarea').forEach(fit);
       const h = {};
       box.querySelectorAll('.sw').forEach(b => { const id = b.dataset.for; h[id] = h[id] || [0, 0]; h[id][b.classList.contains('sw-up') ? 0 : 1] = b.offsetHeight; });
@@ -4851,7 +4879,14 @@ if (phone) {
       + '<marker id="sw-ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#cc0000"/></marker></defs>' + out;
   }
   // editing in the cards
-  function fit(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
+  // a hook or running example longer than 3 lines shows 3 (faded) until clicked into, so a narrow pane's cards don't
+  // grow a screen tall (Eric, 2026-11-18)
+  function fit(ta) {
+    ta.style.height = 'auto'; const full = ta.scrollHeight;
+    const cap = ta.dataset.head && document.activeElement !== ta ? Math.ceil(parseFloat(getComputedStyle(ta).lineHeight) * 3 + 6) : Infinity;
+    ta.style.height = Math.min(full, cap) + 'px'; ta.classList.toggle('clipped', full > cap);
+  }
+  document.addEventListener('focusin', e => { if (box && box.contains(e.target) && e.target.matches('textarea[data-head]')) fit(e.target); }, true);
   document.addEventListener('input', e => { if (box && box.contains(e.target) && e.target.matches('textarea')) fit(e.target); }, true);
   const after = () => { save(); setTimeout(weave, 0); };
   document.addEventListener('change', e => {
@@ -4885,6 +4920,7 @@ if (phone) {
   }
   let t = 0; const soon = () => { if (!on) return; clearTimeout(t); t = setTimeout(weave, 120); };
   book.addEventListener('book-refresh', soon); addEventListener('resize', soon);
+  if (window.ResizeObserver) new ResizeObserver(soon).observe(book);   // a pane dragged wider or narrower, a pane closed
   new MutationObserver(soon).observe(book, { attributes: true, subtree: true, attributeFilter: ['data-view', 'style', 'class'] });
   const btn = h('<button id="x-story" title="Story: the Lecture\'s story woven in between the slides, as cards you can edit (the questions each slide leaves and the next answers, the parts, the terms), with the story checks in red">Story</button>');
   btn.onclick = () => setOn(!on);
