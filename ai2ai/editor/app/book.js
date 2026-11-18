@@ -176,7 +176,14 @@ function eaiOutHL(text, cc, hl, tok) {
     var body = q.slice(1, -1);
     return body.replace(/\\(n|t|r|'|"|\\)/g, function (_, c) { return c === 'n' ? '\n' : c === 't' ? '\t' : c === 'r' ? '\r' : c; });
   }
-  function tile(t, f) { return '<span class="otk" data-f="' + f + '">' + esc(t.replace(/\n/g, '\u21b5').replace(/\t/g, '\u2192')) + '</span>'; }
+  // raw: the repr as printed. Its quotes ride along hidden (span.oq), so the tile's textContent is still the printed
+  // text: the iPad app mirrors outputs to the projector as textContent, and without them the projector's copy had no
+  // quoted words left to make tiles of (Eric, 2026-11-18: "on the external projector it loses it")
+  function tile(t, f, raw) {
+    var shown = esc(t.replace(/\n/g, '\u21b5').replace(/\t/g, '\u2192')), m = raw && /^(b?['"])([\s\S]*)(['"])$/.exec(raw);
+    if (m && m[2] === t) return '<span class="otk" data-f="' + f + '"><span class="oq">' + esc(m[1]) + '</span>' + shown + '<span class="oq">' + esc(m[3]) + '</span></span>';
+    return '<span class="otk" data-f="' + f + '">' + shown + '</span>';
+  }
   function auto(seg, fam, noTok) {
     if (tok && tok.map && !noTok) {   // tokens first: quoted strings and ID lists
       var TT = /((?:\bb)?(?:'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"))|(\[\s*\d+(?:\s*,\s*\d+)*\s*,?\s*\])/g, o = '', last = 0, q;   // b'…': a bytes repr
@@ -184,7 +191,7 @@ function eaiOutHL(text, cc, hl, tok) {
         var piece = null;
         if (q[1] !== undefined) {
           var t = unq(q[1].replace(/^b/, '')), hit = Object.prototype.hasOwnProperty.call(tok.map, t) ? tok.map[t] : null;
-          if (hit) piece = tile(t, hit[1]);
+          if (hit) piece = tile(t, hit[1], q[1]);
           else if (tok.ids !== false && /^0x[0-9a-fA-F]+$|^0b[01]+$/.test(t)) {   // hex(b) / bin(b) of an ID: coloured like the ID
             var v = parseInt(t.slice(2), t[1] === 'x' ? 16 : 2);
             if (v < tok.n && tok.byId[v]) piece = '<span class="otid" data-f="' + tok.byId[v] + '">' + esc(q[1]) + '</span>';
