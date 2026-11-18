@@ -779,6 +779,15 @@ function loadEqML() {
   }))).then(() => { EqML.addFonts(); }).catch(e => { eqmlP = null; throw e; }));
 }
 const EQ_UC = 'αβγδεθλμσφηρτωΩξŷ';   // the symbols server.py TEX spells as commands
+// what colours an equation (Eric, 2026-11-18: equation colouring kept being left to hand): book-meta colors (by letter)
+// with the notation table on top, the same table the drawings' symbol tiles use. Its entries are quantities (Ω_Q, Z_z),
+// groups (Ω*) and function names (softmax, ReLU, Attention: \mathrm{…} in the TeX), so one change there recolours the
+// drawings and every equation. eqml.js and kit/render.py colorize look up the quantity, then its group, then the letter.
+Book.eqColors = () => {
+  const m = Object.assign({}, Book.meta.colors || {}), n = Book.meta.notation || {};
+  for (const k in n) if (n[k]) m[k] = n[k];
+  return m;
+};
 class BEq extends HTMLElement {
   static get observedAttributes() { return ['flush', 'gap']; }
   attributeChangedCallback() { if (this.isConnected && !inThumb(this) && this._key) this.render(); }
@@ -801,7 +810,7 @@ class BEq extends HTMLElement {
     const gap = Math.max(0, parseFloat(this.getAttribute('gap')) || 0);
     // a coloured symbol typed as itself (ω, σ, ŷ …, not \omega) takes its colour since 2026-11-03 (server.py
     // texcolors): the extra 'uc' gives those equations a new image
-    const cols = Book.meta.colors || {}, uc = rows.some(r => [...(r[0] === 'eq' ? r[3] : r[1]) || ''].some(c => EQ_UC.includes(c) && cols[c]));
+    const cols = Book.eqColors(), uc = rows.some(r => [...(r[0] === 'eq' ? r[3] : r[1]) || ''].some(c => EQ_UC.includes(c) && cols[c]));
     const key = hash(JSON.stringify([rows, cols, Book.kit].concat(rows.some(r => r[0] === 'eq' && r[2] && r[2].includes('Ω')) ? ['om'] : [], flush ? ['flush'] : [], gap ? ['gap' + gap] : [], uc ? ['uc'] : [])));
     if (key === this._key) return this._done;
     this._key = key;
@@ -812,13 +821,13 @@ class BEq extends HTMLElement {
       try {
         let ok = (await fetch(url, { method: 'HEAD' })).ok;
         if (!ok && Book.mathml) {   // no TeX on this device: typeset it here (eqml.js), no image needed
-          try { await loadEqML(); if (this._key !== key) return; html = EqML.render(rows, Book.meta.colors || {}, flush, gap); }
+          try { await loadEqML(); if (this._key !== key) return; html = EqML.render(rows, cols, flush, gap); }
           catch (e) { err = 'TeX: ' + String(e.message || e).replace(/^ParseError:\s*/, ''); }
         } else if (!ok && Book.api) {
           const release = await eqSlot();
           try {
             if (this._key !== key) return;
-            const r = await fetch('../api/eq/' + Book.chapter, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key, rows, colors: Book.meta.colors || {}, flush, gap }) });
+            const r = await fetch('../api/eq/' + Book.chapter, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key, rows, colors: cols, flush, gap }) });
             ok = r.ok; if (!ok) err = (await r.json().catch(() => ({}))).error || 'could not render';
           } finally { release(); }
         } else if (!ok) err = 'equation image missing';

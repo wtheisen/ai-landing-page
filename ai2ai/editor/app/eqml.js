@@ -5,7 +5,8 @@
 // colours are drawn bold in their family colour (render.py colorize), \lk{name}{…} pieces get class lk-<name>.
 (function (G) {
 'use strict';
-const FAM = { blue: '#1155CC', wblue: '#1155CC', gold: '#DCB439', purple: '#674EA7', green: '#38761D', red: '#CC0000', gray: '#666666', navy: '#002B5B', muted: '#666666', ink: '#000000' };
+const FAM = { blue: '#1155CC', wblue: '#1155CC', gold: '#DCB439', purple: '#674EA7', green: '#38761D', red: '#CC0000', gray: '#666666', navy: '#002B5B', muted: '#666666', ink: '#000000',
+  pink: '#A64D79', orange: '#B45F06', brown: '#783F04', olive: '#6B6B00', teal: '#134F5C', magenta: '#8E2C80' };   // the last six: the notation table's other families (book.js SYM_COLS text tones)
 // the TeX each Unicode symbol in a chapter's colour map stands for (server.py TEX)
 const TEX = { 'α': '\\alpha', 'β': '\\beta', 'γ': '\\gamma', 'δ': '\\delta', 'ε': '\\varepsilon', 'θ': '\\theta', 'λ': '\\lambda', 'μ': '\\mu',
   'σ': '\\sigma', 'φ': '\\varphi', 'η': '\\eta', 'ρ': '\\rho', 'τ': '\\tau', 'ω': '\\omega', 'Ω': '\\Omega', 'ξ': '\\xi', 'ŷ': '\\yhat' };
@@ -32,15 +33,30 @@ function colorize(tex, colors) {   // render.py colorize: wrap each coloured sym
     const c = tex[i]; let tok, key;
     if (c === '\\') {
       tok = /^\\([A-Za-z]+|.)/.exec(tex.slice(i))[0]; i += tok.length;
-      if (VERBATIM.has(tok.slice(1)) || tok === '\\lk') { const a = group(tex, i); out.push(tok + a); i += a.length; continue; }
+      if (VERBATIM.has(tok.slice(1)) || tok === '\\lk') { const a = group(tex, i); out.push(verbatimColor(tok, a, colors) || tok + a); i += a.length; continue; }
       key = tok;
     } else if (/\p{L}/u.test(c)) { tok = key = c; i++; }
     else { out.push(c); i++; continue; }
-    if (!(key in colors)) { out.push(tok); continue; }
-    if (tex[i] === '_') { const sub = group(tex, i + 1); tok += '_' + sub; i += 1 + sub.length; }
-    out.push('{\\eqfam{' + colors[key] + '}{' + tok + '}}');   // braced, so \\hat\\omega still takes the whole symbol
+    // the quantity first (the notation table: Ω_Q, Z_z, its group Ω*), then the letter (render.py colorize does the same)
+    const sub = tex[i] === '_' ? group(tex, i + 1) : null, qk = sub !== null ? quantity(key, sub) : null;
+    const col = (qk && colors[qk]) || colors[key + '*'] || colors[key] || (/^\\[a-z]{3,}$/.test(key) && colors[key.slice(1)]);   // \\sin: the table's sin
+    if (!col) { out.push(tok); continue; }
+    if (sub !== null) { tok += '_' + sub; i += 1 + sub.length; }
+    out.push('{\\eqfam{' + col + '}{' + tok + '}}');   // braced, so \\hat\\omega still takes the whole symbol
   }
   return out.join('');
+}
+// a symbol and its subscript as a notation key: Ω_{zx} -> Ω_zx (\\Omega too); a time or step index (t, t−1, 2) is no
+// part of it (book.js symKey): c_{t-1} -> null, so c takes the letter's colour
+const INDEX = /^(?:t|T|\d+)(?:\s*[+\-−]\s*\d+)?$/;
+function quantity(key, sub) {
+  const s = sub.replace(/^\{|\}$/g, '').replace(/\s+/g, '').replace(/-/g, '−');
+  return !s || INDEX.test(s) || /[\\{}]/.test(s) ? null : key + '_' + s;
+}
+function verbatimColor(tok, a, colors) {   // \\mathrm{softmax}, \\operatorname{ReLU}: a function named in the table
+  if (!/^\\(mathrm|operatorname|text)$/.test(tok)) return null;
+  const name = a.replace(/^\{|\}$/g, '');
+  return colors[name] ? '{\\eqfam{' + colors[name] + '}{' + tok + a + '}}' : null;
 }
 function boldText(tex) {   // text inside a coloured piece is bold too (preamble_mathfont.tex \eqfam): \blue{\text{Precision}}
   const re = /\\(?:eqfam\{[^{}]*\}|blue|gold|purple|green|red|wnum|bnum)(?![A-Za-z])/g; let m, out = '', at = 0;
@@ -51,8 +67,12 @@ function boldText(tex) {   // text inside a coloured piece is bold too (preamble
   }
   return out + tex.slice(at);
 }
-function texColors(colors) {   // chapter colour map {symbol: family} -> {TeX token: hex}
-  const m = {}; for (const k in colors || {}) { const hex = FAM[colors[k]] || colors[k]; m[TEX[k] || k] = hex; if (TEX[k]) m[k] = hex; }
+function texColors(colors) {   // chapter colour map {symbol: family} -> {TeX token: hex}; Ω_zx and Ω* also as \\Omega_zx, \\Omega*
+  const m = {};
+  for (const k in colors || {}) {
+    const hex = FAM[colors[k]] || colors[k], b = /^(.)(_.+|\*)$/u.exec(k);
+    m[k] = hex; if (TEX[k]) m[TEX[k]] = hex; if (b && TEX[b[1]]) m[TEX[b[1]] + b[2]] = hex;
+  }
   return m;
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
