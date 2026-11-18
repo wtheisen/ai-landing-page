@@ -59,11 +59,10 @@ $('#go').onclick = async () => {
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo) || !token) return msg('Fill in the repository and the token.');
   $('#go').disabled = true; msg('Checking the token…');
   try {
-    const api = params.get('api') || 'https://api.github.com';   // ?api=: tests against the stand-in GitHub (web/test/mockgh.py), as on the editor home
-    const r = await fetch(api + '/repos/' + repo, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } });
+    const r = await fetch('https://api.github.com/repos/' + repo, { headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' } });
     if (!r.ok) throw new Error(r.status === 404 || r.status === 401 ? 'GitHub doesn\'t accept that token for ' + repo + '.' : 'GitHub said ' + r.status + '.');
     const d = await r.json();
-    cfg = { kind: 'github', repo, token, branch: d.default_branch || 'main' }; if (params.get('api')) cfg.api = api; await Store.kv('remote', cfg);
+    cfg = { kind: 'github', repo, token, branch: d.default_branch || 'main' }; await Store.kv('remote', cfg);
     $('#token').value = ''; show(); await pull();
   } catch (e) { msg(e.message); }
   $('#go').disabled = false;
@@ -130,9 +129,7 @@ async function load() {   // [{book, units: [{n, title, items}]}] in contents or
     let meta = {}; try { meta = JSON.parse((/<script type="application\/json" id="book-meta">([\s\S]*?)<\/script>/.exec(file.data) || [])[1] || '{}'); } catch (e) { /* bad meta */ }
     const cover = (/<section class="page[^"]*\bcover\b[^"]*"[^>]*>([\s\S]*?)<\/section>/.exec(file.data) || [])[1] || '';
     const art = (/<b-fig\b[^>]*\bsrc="([^"]+)"/.exec(cover) || [])[1] || '';
-    // a cover drawn in the editor (svg.draw) instead of a picture: the drawing itself, as an image (no scripts run in one)
-    let draw = ''; if (!art) { let sv = (/<svg\b[^>]*\bclass="[^"]*\bdraw\b[\s\S]*?<\/svg>/.exec(cover) || [])[0] || ''; if (sv) { if (!/\sxmlns=/.test(sv.slice(0, 300))) sv = sv.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"'); draw = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(sv); } }
-    chapters[m[1]] = Object.assign({ slug: m[1], book: bookOf(m[1]), title: meta.title || m[1], art: /^[\w./-]+$/.test(art) && !art.includes('..') ? art : '', draw }, openCounts(file.data));
+    chapters[m[1]] = Object.assign({ slug: m[1], book: bookOf(m[1]), title: meta.title || m[1], art: /^[\w./-]+$/.test(art) && !art.includes('..') ? art : '' }, openCounts(file.data));
   }
   const out = [];
   for (const b of BOOKS) {
@@ -148,7 +145,7 @@ async function load() {   // [{book, units: [{n, title, items}]}] in contents or
   all = out.flatMap(x => x.units.flatMap(u => u.items));
   return out;
 }
-const arts = {}, asking = {};
+const arts = {};
 async function list() {
   const books = await load();
   let html = '';
@@ -161,7 +158,7 @@ async function list() {
         const ap = c.art ? `chapters/${c.slug}/${c.art}` : '', n = c.waiting + c.claude;
         const why = [c.waiting ? c.waiting + ' waiting for Claude' : '', c.claude ? c.claude + ' from Claude' : ''].filter(Boolean).join(' · ');
         html += `<a class="ch" href="edit/${encodeURIComponent(c.slug)}" data-slug="${esc(c.slug)}" data-open="${n}">
-          <span class="cv${ap || c.draw ? '' : ' none'}"${ap ? ` data-art="${esc(ap)}"` : ''}><img alt=""${arts[ap] ? ` src="${arts[ap]}"` : c.draw ? ` src="${esc(c.draw)}"` : ''}><span class="rule"></span></span>
+          <span class="cv${ap ? '' : ' none'}"${ap ? ` data-art="${esc(ap)}"` : ''}><img alt=""${arts[ap] ? ` src="${arts[ap]}"` : ''}><span class="rule"></span></span>
           <span class="txt">${c.num ? `<span class="num">${esc(c.num)}</span>` : ''}<div class="ttl">${esc(c.title)}</div>${why ? `<div class="why">${esc(why)}</div>` : ''}</span>
           ${n ? `<span class="badge${c.waiting ? '' : ' claude'}" title="${esc(why)}">${n}</span>` : ''}<span class="chev" aria-hidden="true">›</span></a>`;
       }
@@ -170,13 +167,13 @@ async function list() {
   }
   $('#list').innerHTML = html;
   for (const el of $('#list').querySelectorAll('.cv[data-art]')) {
-    const path = el.dataset.art; if (arts[path]) continue;   // a cover not here yet is tried again on the next list (after a sync)
-    if (asking[path]) continue; asking[path] = true;
+    const path = el.dataset.art; if (arts[path] !== undefined) { if (!arts[path]) el.classList.add('none'); continue; }
+    arts[path] = arts[path] || '';
     Sync.file(path).then(f => {
       if (!f) throw new Error('missing');
       const blob = typeof f.data === 'string' ? new Blob([f.data], { type: mimeOf(path) }) : (f.data.type ? f.data : new Blob([f.data], { type: mimeOf(path) }));
       arts[path] = URL.createObjectURL(blob);
-    }).catch(() => { arts[path] = null; }).then(() => { asking[path] = false;
+    }).catch(() => { arts[path] = null; }).then(() => {
       document.querySelectorAll(`.cv[data-art="${CSS.escape(path)}"]`).forEach(x => { if (arts[path]) x.querySelector('img').src = arts[path]; else x.classList.add('none'); });
     });
   }

@@ -813,5 +813,4 @@ b-code.ed-colab::after { content: 'Colab only'; position: absolute; top: 2pt; ri
 html.eai-review body.locked #bar { display: none; }
 html.eai-review #bar > #ph-lock, html.eai-review #bar > #home { display: none !important; }
 html.eai-review body.locked #desk { scroll-snap-type: y mandatory; }
-html.eai-review body.locked .edgetab { display: none; }
 html.eai-review body.locked #book section.page { scroll-snap-align: center; scroll-snap-stop: always; }
