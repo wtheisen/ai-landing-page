@@ -163,7 +163,7 @@ function commentSheet(blk, pg) {
     else if (a === 'page') { close(); commentSheet(null, pg); }
     else if (a === 'save') { const t = ta.value.trim(); if (!t) return ta.focus(); const was = curPage; curPage = pg; addComment(blk, t); curPage = was || pg; close(); toast('Comment saved'); }
   });
-  ta.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') close(); });
+  ta.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') close(); else if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); d.querySelector('[data-a="save"]').click(); } });
   setTimeout(() => ta.focus(), 50);
 }
 function setLocked(on) {
@@ -2811,7 +2811,16 @@ function commentItem(c, withWhere) {
   // the page may have been rebuilt under the box (a sync or another device's save reloaded the chapter): write into the
   // comment that is on the page now, never a detached copy (2026-11-18: Eric's typed comments were saved empty)
   txt.oninput = () => { if (!c.isConnected && c.dataset.id) { const l = book.querySelector(`.cmt[data-id="${CSS.escape(c.dataset.id)}"]`); if (l) c = l; } c.textContent = txt.textContent; };
-  txt.onkeydown = e => { e.stopPropagation(); if (e.key === 'Escape' || (e.key === 'Enter' && (e.metaKey || e.ctrlKey))) { e.preventDefault(); txt.blur(); } };
+  // Enter saves the comment and closes the side panel (Eric, 2026-11-18); Shift+Enter is a new line, Escape just leaves the box
+  txt.onkeydown = e => {
+    e.stopPropagation();
+    if (e.key === 'Escape') { e.preventDefault(); txt.blur(); return; }
+    if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      e.preventDefault(); c.textContent = txt.textContent; txt.blur();
+      commit(true); clearTimeout(saveT); save();
+      if (c.isConnected && c.textContent.trim()) { togglePanel('no-insp', true); toast('Comment saved'); }
+    }
+  };
   txt.onblur = () => { if (!c.textContent.trim() && c.isConnected) { c.remove(); commit(true); renderInspector(); } placeMarkers(); };
   d.querySelector('.meta').onclick = e => { const a = e.target.dataset.a; if (!a) return; commit(true); const th = [c, ...cmtReplies(c)]; if (a === 'del') th.forEach(x => x.remove()); else if (done) th.forEach(x => x.removeAttribute('data-done')); else th.forEach(x => x.setAttribute('data-done', '1')); commit(true); renderInspector(); placeMarkers(); if ($('#modal').hidden === false) showComments(); };
   if (withWhere) { const t = targetOf(c), pg = c.closest('section.page'), n = Book.pages().indexOf(pg) + 1; const w = h(`<div class="where">p. ${n} · ${esc(t ? (t.textContent.trim().slice(0, 60) || KIND(t)) : 'the page')}</div>`); w.onclick = () => { $('#modal').hidden = true; if (t) select(t); else { select(null); setPage(pg); renderInspector(); } (t || pg).scrollIntoView({ block: 'center' }); }; d.append(w); }
@@ -4048,6 +4057,14 @@ function reviewPage() {   // the page nearest the middle of the screen, 1-based,
   ps.forEach((p, i) => { const r = p.getBoundingClientRect(), dd = Math.abs((r.top + r.bottom) / 2 - mid); if (dd < bd) { bd = dd; best = i; } });
   return { n: ps.length ? best + 1 : 0, N: ps.length };
 }
+function reviewFit() {   // Fit width fits a Reading page (578 px): in the app a slide fills the screen's width instead
+  const p = reviewPages()[0]; if (!p) return;
+  const z = parseFloat(book.style.getPropertyValue('--zoom')) || parseFloat(getComputedStyle(book).getPropertyValue('--zoom')) || 1;
+  // the screen's width (an overflowing page can widen the layout viewport on iOS), less the page's left gutter both sides
+  const r = p.getBoundingClientRect(), d = desk.getBoundingClientRect(), vw = Math.min(desk.clientWidth, screen.width || innerWidth, innerWidth);
+  const w = r.width, want = vw - 2 * Math.max(8, Math.min(32, r.left - d.left));
+  if (w > 0 && want > 100 && Math.abs(w - want) > 2) { book.style.setProperty('--zoom', +(z * want / w).toFixed(3)); Book.refresh(); place(); }
+}
 function reviewScroll() { const p = reviewPage(); if (p.n !== reviewN) { reviewN = p.n; reviewTell({ page: p }); } }
 function cmtsOf(blk, pg) {   // the open comments right after a block (or at the top of the page, for the page)
   const out = []; let n = blk ? blk.nextElementSibling : pg.firstElementChild;
@@ -4060,14 +4077,15 @@ function reviewPress(blk, pg) {   // a long press, locked: the block to the app,
   if (blk) blk.classList.add('ed-lp');
   const ps = reviewPages(), r = (blk || pg).getBoundingClientRect();
   reviewTell({ longPress: {
-    text: blk ? blk.textContent.trim().replace(/\s+/g, ' ').slice(0, 4000) : '', kind: blk ? KIND(blk) : 'Page',
+    text: blk && !/^(B-FIG|B-EQ|svg|SVG|B-OUT|B-MATMUL)$/.test(blk.tagName) ? blk.textContent.trim().replace(/\s+/g, ' ').slice(0, 4000) : '', kind: blk ? KIND(blk) : 'Page',   // a figure's or drawing's text is its SVG's insides
     page: ps.indexOf(pg) + 1, pages: ps.length, id: blk ? blk.getAttribute('data-b') || '' : '', pageId: pg.id || '',
     comments: blk ? cmtsOf(blk, pg) : [], pageComments: cmtsOf(null, pg),
     rect: [r.left, r.top, r.width, r.height] } });
 }
 function reviewReady() {
   onDeskScroll(() => { cancelAnimationFrame(reviewScroll.raf); reviewScroll.raf = requestAnimationFrame(reviewScroll); });
-  addEventListener('resize', reviewScroll);
+  addEventListener('resize', () => { reviewFit(); reviewScroll(); });
+  reviewFit(); setTimeout(reviewFit, 300); setTimeout(reviewFit, 1500);
   new MutationObserver(() => reviewTell({ status: { cls: status.className, text: status.textContent, title: status.title } })).observe(status, { childList: true, characterData: true, subtree: true, attributes: true, attributeFilter: ['class'] });
   const p = reviewPage(); reviewN = p.n;
   reviewTell({ review: { slug: ch, title: (Book.meta && Book.meta.title) || document.title || ch, n: p.n, N: p.N, locked, view: Book.view, status: { cls: status.className, text: status.textContent } } });
@@ -4079,7 +4097,9 @@ window.eaiReview = {
   comment(text, onPage) {   // the app's sheet saved: an ordinary comment after the held block (or on its page)
     const hd = reviewHeld, t = String(text || '').trim(); if (!hd || !t) return false;
     const was = curPage; curPage = hd.pg; addComment(onPage ? null : hd.blk, t); curPage = was || hd.pg;
-    this.release(); clearTimeout(saveT); save(); return true;
+    this.release(); clearTimeout(saveT); save();
+    const keep = () => hd.pg.scrollIntoView({ block: 'center' }); requestAnimationFrame(keep); setTimeout(keep, 250);   // the new marker reflows the page: stay on the commented slide
+    return true;
   },
   editHere() {   // unlock and put the caret in the held block
     const hd = reviewHeld; this.release(); setLocked(false);
@@ -5042,7 +5062,7 @@ window.eaiReview = {
   $('#m-view').append(btn);
   window.Story = { on: () => setOn(true), off: () => setOn(false), weave, parse, checks: sp => checks(sp, lecture()), reload: () => { specFor = null; return load(); }, text, spec: () => spec };
   let saved = null; try { saved = localStorage.getItem('book-story'); } catch (e) {}
-  load().then(sp => { if (saved === '1' || (saved == null && sp && !sp.blank)) setOn(true); });
+  load().then(sp => { if (!reviewApp && (saved === '1' || (saved == null && sp && !sp.blank))) setOn(true); });   // the review app pages through the bare slides (Story stays in the menu)
 })();
 // another chapter beside this one, if one was open last time (or Edit it brought us here: ?side=…)
 (() => {
