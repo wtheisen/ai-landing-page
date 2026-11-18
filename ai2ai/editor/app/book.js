@@ -1603,7 +1603,10 @@ function eaiRunCode() {
   }
   // Presenting (the Lecture opened with ?lecture=1, the editor home's Lecture button): outputs are hidden, their space
   // kept, until the code is run live or the output is clicked (click again to hide it), like the fill-in blanks.
-  if (/[?&]lecture=1\b/.test(location.search) && !document.documentElement.classList.contains('present-out')) {
+  // Also the iPad app's projector copy (lecture=show) and the answers link (lecture=answers, the iPad's crib, where
+  // book.css draws them faint like the answers): the projector showed every stored output from the start (Eric,
+  // 2026-11-18: "during lecture I don't want them visible unless I run a cell"). The page itself keeps them.
+  if (/[?&]lecture=(1|show|answers)\b/.test(location.search) && !document.documentElement.classList.contains('present-out')) {
     document.documentElement.classList.add('present-out');
     document.addEventListener('click', function (e) {
       var o = e.target.closest && e.target.closest('b-out'); if (!o || e.target.closest('.run-bar, .run-editor')) return;
