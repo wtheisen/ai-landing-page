@@ -4602,7 +4602,7 @@ if (phone) {
   const norm = t => t.toLowerCase().replace(/‑/g, '-').replace(/’/g, "'").replace(/\s+/g, ' ');
   function pageText(pg) {
     const bits = [pg.textContent]; pg.querySelectorAll('[alt], [aria-label]').forEach(e => bits.push(e.getAttribute('alt') || '', e.getAttribute('aria-label') || ''));
-    let t = bits.join(' '); pg.querySelectorAll('div.cmt').forEach(c => { t = t.replace(c.textContent, ' '); });   // comments are not on the slide
+    let t = bits.join(' '); pg.querySelectorAll('div.cmt, [data-rt]').forEach(c => { t = t.replace(c.textContent, ' '); });   // comments, the footer and other runtime bits are not on the slide
     return norm(t);
   }
   const has = (text, term) => new RegExp('(?<![\\w])' + norm(term).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\? /g, '[\\s-]+') + '(?:s|es)?(?![\\w])').test(text);
@@ -4675,10 +4675,40 @@ if (phone) {
   }
   // the story as edited between the slides: per-slide fields from the spec, in the Lecture's real order, the acts from
   // its part labels (data-part; the slides before the first part are the Hook), slides not drafted yet ("new") kept last
+  // uses, worked out (Eric, 2026-11-18: "instead of 'Uses: earlier terms it needs' can we have that be an actually useful
+  // list"): every key term (the chapter's table, plus anything a slide introduces) that is on the slide, with the slide
+  // that introduces it, its ◆ line or the story's introduces, whichever comes first
+  function termIndex(all) {
+    const vocab = new Map();   // lower-case spelling -> the term as shown
+    Object.keys(Book.meta.terms || {}).forEach(t => t.split('|').map(a => a.trim()).filter(Boolean).forEach((a, i, arr) => vocab.set(a.toLowerCase(), arr[0])));
+    const intro = {};   // shown term -> first slide index
+    all.forEach((pg, k) => {
+      const p = spec.pages.find(x => x.id === pg.id);
+      (p ? p.introduces : []).forEach(t => { const key = vocab.get(t.toLowerCase()) || t; if (!vocab.has(t.toLowerCase())) vocab.set(t.toLowerCase(), t); if (!(key in intro)) intro[key] = k; });
+      pg.querySelectorAll(':scope > *, .colbox > *').forEach(b => { if (b.closest('div.cmt')) return; const m = /^\s*◆\s*(.+?)\s*[—–-]{1,2}\s/.exec(b.textContent); if (!m) return; const key = vocab.get(m[1].trim().toLowerCase()); if (key && !(key in intro)) intro[key] = k; });
+    });
+    return { vocab, intro };
+  }
+  function usesOf(pg, k, all, ti, text) {   // [{term, at (slide index or -1), later, name}] for the terms on slide k it did not introduce
+    let t = text || pageText(pg); const out = [], seen = new Set(), kinds = Book.meta.terms || {};
+    const kind = term => { const e = Object.entries(kinds).find(([key]) => key.split('|')[0].trim() === term); return e ? e[1] : ''; };
+    // longest spellings first, each match blanked out, so "agent" inside "agent loop" is not a use of "agent"
+    for (const [low, term] of [...ti.vocab].sort((a, b) => b[0].length - a[0].length)) {
+      const re = new RegExp('(?<![\\w])' + norm(low).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\\? /g, '[\\s-]+') + '(?:s|es)?(?![\\w])', 'g');
+      if (!re.test(t)) continue;
+      t = t.replace(re, m => ' '.repeat(m.length));
+      if (seen.has(term)) continue; seen.add(term);
+      const at = term in ti.intro ? ti.intro[term] : -1;
+      if (at === k) continue;
+      out.push({ term, at, later: at > k, name: kind(term) === 'name' });
+    }
+    return out.sort((a, b) => (a.at < 0) - (b.at < 0) || a.at - b.at || a.term.localeCompare(b.term));
+  }
   const field = id => { let p = spec.pages.find(x => x.id === id); if (!p) { p = { id, title: '', act: '', raises: [], answers: [], introduces: [], uses: [] }; spec.pages.push(p); } return p; };
   function derived() {
     const all = lecture(); let act = 'Hook';
-    const pages = all.map(pg => { act = pg.getAttribute('data-part') || act; const p = field(pg.id); return Object.assign({}, p, { title: ((pg.querySelector('h1, h2') || {}).textContent || pg.id).trim(), act }); });
+    const ti = termIndex(all);
+    const pages = all.map((pg, k) => { act = pg.getAttribute('data-part') || act; const p = field(pg.id); return Object.assign({}, p, { title: ((pg.querySelector('h1, h2') || {}).textContent || pg.id).trim(), act, uses: usesOf(pg, k, all, ti).filter(u => u.at >= 0).map(u => u.term) }); });
     return { head: spec.head, qs: spec.qs, pages: pages.concat(spec.pages.filter(p => p.id === 'new')) };
   }
   function text() {   // STORY.md, in the format tools/agent/story.py reads
@@ -4715,7 +4745,7 @@ if (phone) {
       if (!box) { box = document.createElement('div'); box.id = 'storyw'; box.setAttribute('data-ed', ''); }   // data-ed: Book.serialize skips it
       if (box.parentElement !== S) S.append(box);
       const all = lecture(), pgs = all.filter(pg => pg.parentElement === H && pg.offsetParent);
-      const d = derived(), byId = {}, num = {}, n0 = book.querySelector('section.page.cover') ? 2 : 1;
+      const d = derived(), byId = {}, num = {}, n0 = book.querySelector('section.page.cover') ? 2 : 1, TI = termIndex(all);
       all.forEach((pg, k) => { num[pg.id] = k + n0; });
       d.pages.forEach(p => { if (p.id !== 'new') byId[p.id] = p; });
       const flags = checks(spec.blank ? null : d, all), raisedBy = {}, answeredBy = {};
@@ -4724,9 +4754,9 @@ if (phone) {
       const qline = (q, pre, post, bad) => `<div class="sw-q${bad ? ' bad' : ''}" title="${hesc(q)}"><span class="sw-pre">${pre}</span><textarea data-q="${hesc(q)}" rows="1" placeholder="the question, as a student would ask it" spellcheck="true">${hesc(spec.qs[q] || '')}</textarea><span class="sw-post">${post}</span><button data-del="${hesc(q)}" title="Remove this question">×</button></div>`;
       const card = (pg, prev, last) => {
         const p = byId[pg.id] || field(pg.id), pp = prev ? (byId[prev.id] || field(prev.id)) : null; let c = '';
-        if (!prev) c += `<div class="sw-hook"><label>Hook <input data-head="hook" value="${hesc(spec.head.hook || '')}" placeholder="a question from the students' world, not a recap"></label><label>Running example <input data-head="running example" value="${hesc(spec.head['running example'] || '')}" placeholder="one example, from their world"></label>${spec.pending ? '<div class="sw-wait">From the story outline waiting for your approval on the editor home. Editing here makes it the chapter\'s story.</div>' : ''}</div>`;
+        if (!prev) c += `<div class="sw-hook"><label><span>Hook</span><textarea data-head="hook" rows="1" spellcheck="true" placeholder="a question from the students' world, not a recap">${hesc(spec.head.hook || '')}</textarea></label><label><span>Running example</span><textarea data-head="running example" rows="1" spellcheck="true" placeholder="one example, from their world">${hesc(spec.head['running example'] || '')}</textarea></label>${spec.pending ? '<div class="sw-wait">From the story outline waiting for your approval on the editor home. Editing here makes it the chapter\'s story.</div>' : ''}</div>`;
         const part = pg.getAttribute('data-part');
-        if (part != null) c += `<div class="sw-part"><input data-part="${hesc(pg.id)}" value="${hesc(part)}" title="This part's name (the slides' footer label)"></div>`;
+        if (part != null) c += `<div class="sw-part"><span>Part</span><input data-part="${hesc(pg.id)}" value="${hesc(part)}" title="This part's name (the slides' footer label)"></div>`;
         if (pp) pp.raises.forEach(q => { const a = answeredBy[q]; if (a === pg.id || (a && num[a] > num[prev.id])) return;   // a later answer: an arc in the margin
           if (!a) c += qline(q, 'slide ' + num[prev.id] + ' leaves', handedOff(q, spec.qs) ? '→ the next chapter' : 'never answered', !handedOff(q, spec.qs));
           else c += qline(q, 'slide ' + num[prev.id] + ' leaves', 'answered before it is raised', true); });
@@ -4735,7 +4765,16 @@ if (phone) {
           else if (num[r] > num[pg.id]) c += qline(q, '↳', 'before ' + go(r) + ' raises it', true);
           else c += qline(q, '↳', '', false); });
         c += `<div class="sw-adds">${prev ? `<button class="sw-add" data-addq="${hesc(prev.id)}>${hesc(pg.id)}">+ question slide ${num[prev.id]} leaves, slide ${num[pg.id]} answers</button>` : ''}${part == null ? `<button class="sw-add" data-addpart="${hesc(pg.id)}">+ a part starts here</button>` : ''}</div>`;
-        c += `<div class="sw-t"><label>introduces <input data-intro="${hesc(pg.id)}" value="${hesc(p.introduces.join(', '))}" placeholder="terms first explained on slide ${num[pg.id]}"></label><label>uses <input data-uses="${hesc(pg.id)}" value="${hesc(p.uses.join(', '))}" placeholder="earlier terms it needs"></label></div>`;
+        const k = all.indexOf(pg), ptext = pageText(pg), diam = [];
+        pg.querySelectorAll(':scope > *, .colbox > *').forEach(b => { const m = /^\s*◆\s*(.+?)\s*[—–-]{1,2}\s/.exec(b.textContent); if (m && !b.closest('div.cmt')) diam.push(m[1].trim()); });
+        const intro = p.introduces.map(t => `<span class="sw-chip in${has(ptext, t) ? '' : ' bad'}" title="${has(ptext, t) ? 'introduced on this slide' : 'not on this slide'}">${hesc(t)}<button data-unintro="${hesc(pg.id)}" data-t="${hesc(t)}" title="Remove">×</button></span>`).join('')
+          + diam.filter(t => !p.introduces.some(x => x.toLowerCase() === t.toLowerCase())).map(t => `<button class="sw-chip sug" data-addintro="${hesc(pg.id)}" data-t="${hesc(t)}" title="This slide has a ◆ line for it: add it to what the slide introduces">+ ${hesc(t)}</button>`).join('')
+          + `<input class="sw-new" data-intro-add="${hesc(pg.id)}" placeholder="+ term">`;
+        const uses = usesOf(pg, k, all, TI, ptext).map(u => u.at < 0
+            ? (u.name ? `<span class="sw-chip nm" title="a name (model, method, person) from the key-terms table">${hesc(u.term)}</span>`
+                      : `<span class="sw-chip none" title="a key term no slide introduces yet: add it to the slide that explains it">${hesc(u.term)}</span>`)
+            : `<span class="sw-chip use${u.later ? ' bad' : ''}" title="${u.later ? 'used before slide ' + (u.at + n0) + ' introduces it' : 'introduced on slide ' + (u.at + n0)}">${hesc(u.term)}<a data-go="${hesc(all[u.at].id)}">${u.later ? 'before ' : ''}${u.at + n0}</a></span>`).join('');
+        c += `<div class="sw-t"><div><span class="sw-lab">Introduces</span><div class="sw-chips">${intro}</div></div><div><span class="sw-lab">Uses</span><div class="sw-chips">${uses || '<span class="sw-none">no earlier terms on this slide</span>'}</div></div></div>`;
         (flags[pg.id] || []).forEach(m => { c += `<div class="sw-l bad">${hesc(m)}</div>`; });
         if (!prev) Object.keys(flags).filter(x => x.startsWith('new:') || !num[x]).forEach(x => flags[x].forEach(m => { c += `<div class="sw-l bad">${hesc(m)}</div>`; }));
         return `<div class="sw sw-up" data-for="${hesc(pg.id)}">${c}</div>`;
@@ -4759,10 +4798,10 @@ if (phone) {
       const gaps = () => pgs.map((pg, k) => k ? pg.getBoundingClientRect().top - pgs[k - 1].getBoundingClientRect().bottom : Infinity);
       const g0 = gaps(), base = parseFloat(getComputedStyle(H).rowGap) || 0;
       let short = 0;
-      pgs.forEach((pg, k) => { if (k && g0[k] > -1) short = Math.max(short, (h[pgs[k - 1].id] || [0, 0])[1] + (h[pg.id] || [0, 0])[0] + 22 - g0[k]); });
+      pgs.forEach((pg, k) => { if (k && g0[k] > -1) short = Math.max(short, (h[pgs[k - 1].id] || [0, 0])[1] + (h[pg.id] || [0, 0])[0] + 50 - g0[k]); });
       let f = 1;
       if (short > 0 && pgs.length > 1) { H.style.rowGap = (base + 100) + 'px'; const g1 = gaps(), k = g0.findIndex((g, i) => i && g > -1); if (k > 0 && g1[k] - g0[k] > 1) f = (g1[k] - g0[k]) / 100; }
-      const gap = short > 0 ? Math.ceil(base + short / f) + 'px' : '', pad = Math.round(Math.max(0, ((h[pgs[0] && pgs[0].id] || [0, 0])[0]) + 30) / f) + 'px';
+      const gap = short > 0 ? Math.ceil(base + short / f) + 'px' : '', pad = Math.round(Math.max(0, ((h[pgs[0] && pgs[0].id] || [0, 0])[0]) + 44) / f) + 'px';
       if (H.style.rowGap !== gap) H.style.rowGap = gap;
       if (H.style.paddingTop !== pad) H.style.paddingTop = pad; gapOn = H;
       if (H.classList.contains('dpane') && H.style.paddingLeft !== '56px') H.style.paddingLeft = '56px';   // side by side: room for the graph
@@ -4770,7 +4809,7 @@ if (phone) {
         const pg = pgs.find(x => x.id === b.dataset.for); if (!pg) return;
         const r = pg.getBoundingClientRect(), q = S.getBoundingClientRect(), x = r.left - q.left + S.scrollLeft - S.clientLeft, y = r.top - q.top + S.scrollTop - S.clientTop;
         b.style.left = x + 'px'; b.style.width = r.width + 'px';
-        b.style.top = (b.classList.contains('sw-up') ? y - b.offsetHeight - 6 : y + r.height + 6) + 'px';
+        b.style.top = (b.classList.contains('sw-up') ? y - b.offsetHeight - 20 : y + r.height + 20) + 'px';   // 20: the page's + buttons sit on its edge
       });
       arcs(S, pgs, all, d, raisedBy, answeredBy, num);
     } finally { busy = false; }
@@ -4819,8 +4858,7 @@ if (phone) {
     const t = e.target; if (!box || !box.contains(t)) return;
     if (t.dataset.q) { const v = t.value.trim(); if (v) spec.qs[t.dataset.q] = v; else delQ(t.dataset.q); }
     else if (t.dataset.head) { const v = t.value.trim(); if (v) spec.head[t.dataset.head] = v; else delete spec.head[t.dataset.head]; }
-    else if (t.dataset.intro) field(t.dataset.intro).introduces = terms(t.value);
-    else if (t.dataset.uses) field(t.dataset.uses).uses = terms(t.value);
+    else if (t.dataset.introAdd) { const f = field(t.dataset.introAdd); terms(t.value).forEach(x => { if (!f.introduces.some(y => y.toLowerCase() === x.toLowerCase())) f.introduces.push(x); }); }
     else if (t.dataset.part) { const pg = lecture().find(p => p.id === t.dataset.part), v = t.value.trim(); if (pg) { commit(true); if (v) pg.setAttribute('data-part', v); else pg.removeAttribute('data-part'); commit(true); Book.refresh(); } }
     t.blur(); after();
   }, true);
@@ -4828,9 +4866,12 @@ if (phone) {
   document.addEventListener('focusout', e => { if (box && box.contains(e.target)) setTimeout(() => { if (!box.contains(document.activeElement)) weave(); }, 0); }, true);
   document.addEventListener('click', e => {
     const t = e.target.closest && e.target.closest('#storyw a[data-go], #storyw button'); if (!t) return;
+    e.preventDefault();
     if (t.dataset.go) { const pg = lecture().find(p => p.id === t.dataset.go); if (pg) { setPage(pg); pg.scrollIntoView({ block: 'start' }); } return; }
     let focus = null;
     if (t.dataset.del) delQ(t.dataset.del);
+    else if (t.dataset.unintro) { const f = field(t.dataset.unintro); f.introduces = f.introduces.filter(x => x !== t.dataset.t); }
+    else if (t.dataset.addintro) { const f = field(t.dataset.addintro); if (!f.introduces.includes(t.dataset.t)) f.introduces.push(t.dataset.t); }
     else if (t.dataset.addq) { const [a, b] = t.dataset.addq.split('>'), q = newQ(); spec.qs[q] = ''; field(a).raises.push(q); field(b).answers.push(q); focus = q; spec.qs[q] = 'New question'; }
     else if (t.dataset.addend) { const q = '?next-' + (Object.keys(spec.qs).length + 1); spec.qs[q] = 'What does the next chapter answer? (the next chapter)'; field(t.dataset.addend).raises.push(q); focus = q; }
     else if (t.dataset.addpart) { const pg = lecture().find(p => p.id === t.dataset.addpart); if (pg) { commit(true); pg.setAttribute('data-part', 'New part'); commit(true); Book.refresh(); } focus = 'part:' + t.dataset.addpart; }

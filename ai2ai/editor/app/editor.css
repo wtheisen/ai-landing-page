@@ -736,16 +736,36 @@ b-code.ed-colab::after { content: 'Colab only'; position: absolute; top: 2pt; ri
 
 /* Story cards woven in between the slides (editor.js, 2026-11-16): editor-only, editable, above each Lecture slide */
 #storyw { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 5; }
-#storyw .sw { position: absolute; box-sizing: border-box; font: 13px/1.35 Arial, sans-serif; color: #44546a; background: #fbfaf5; border: 1px solid #e6dfc8; border-radius: 8px; padding: 6px 8px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-#storyw .sw-hook { display: flex; flex-direction: column; gap: 3px; padding-bottom: 5px; margin-bottom: 4px; border-bottom: 1px dashed #e0d7bb; }
-#storyw .sw-hook label, #storyw .sw-t label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: .3px; }
-#storyw .sw-t { display: flex; gap: 10px; margin-top: 3px; } #storyw .sw-t label { flex: 1; }
+#storyw .sw { position: absolute; box-sizing: border-box; font: 13px/1.4 Arial, sans-serif; color: #44546a; background: #fdfcf8; border: 1px solid #e8e1cc; border-left: 3px solid #DCB439; border-radius: 8px; padding: 10px 14px 10px 13px; box-shadow: 0 1px 4px rgba(0,0,0,.07); display: flex; flex-direction: column; gap: 6px; }
+#storyw .sw-hook { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; padding-bottom: 8px; border-bottom: 1px solid #ece5cf; }
+#storyw .sw-hook label { display: contents; }
+#storyw .sw-hook label > span, #storyw .sw-lab, #storyw .sw-part > span { font-size: 10.5px; font-weight: 700; color: #8a8f99; text-transform: uppercase; letter-spacing: .6px; padding-top: 4px; white-space: nowrap; }
+#storyw .sw-hook textarea { font-size: 13.5px; color: #1d2433; }
+#storyw .sw-part { display: flex; align-items: center; gap: 10px; }
+#storyw .sw-part input { flex: 1; font-weight: 700; color: var(--navy); font-size: 15px; letter-spacing: .2px; }
+#storyw .sw-t { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px 16px; padding-top: 6px; border-top: 1px dashed #ece5cf; }
+#storyw .sw-t > div { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+#storyw .sw-chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-width: 0; }
+#storyw .sw-chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; box-sizing: border-box; font: 12px/1.2 Arial, sans-serif; padding: 2px 8px; border-radius: 10px; border: 1px solid; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#storyw .sw-chip.nm { background: #fff; border-color: #c5ccd6; color: var(--navy); font-weight: 600; }
+#storyw .sw-lab { min-width: 64px; }
+#storyw .sw-chip.in { background: #fff6d6; border-color: #e6cf7a; color: #5c4a00; }
+#storyw .sw-chip.use { background: #eef3fb; border-color: #c9daf8; color: #1d2433; }
+#storyw .sw-chip.use a[data-go] { font-size: 10.5px; color: #1155CC; text-decoration: none; background: #fff; border-radius: 8px; padding: 0 5px; margin-right: -4px; }
+#storyw .sw-chip.use a[data-go]:hover { text-decoration: underline; }
+#storyw .sw-chip.none { background: #f4f4f4; border-color: #ddd; border-style: dashed; color: #888; }
+#storyw .sw-chip.bad { background: #fde8e8; border-color: #e99; color: #a00; } #storyw .sw-chip.bad a[data-go] { color: #a00; }
+#storyw .sw-chip.sug { background: transparent; border-style: dashed; border-color: #d9c370; color: #8a6d00; cursor: pointer; }
+#storyw .sw-chip.sug:hover { background: #fff6d6; }
+#storyw .sw-chip button { border: 0; background: none; padding: 0; margin-right: -3px; color: #b59a3a; cursor: pointer; font-size: 13px; line-height: 1; visibility: hidden; }
+#storyw .sw-chip:hover button { visibility: visible; } #storyw .sw-chip button:hover { color: #cc0000; }
+#storyw input.sw-new { flex: 0 0 70px; font-size: 12px; padding: 1px 4px; }
+#storyw input.sw-new:focus { flex-basis: 140px; }
+#storyw .sw-none { font-size: 12px; color: #aaa; font-style: italic; padding-top: 2px; }
 #storyw :is(input, textarea) { flex: 1; min-width: 0; font: inherit; color: #1d2433; text-transform: none; letter-spacing: 0; background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 2px 4px; }
 #storyw :is(input, textarea):hover { border-color: #e0d7bb; } #storyw :is(input, textarea):focus { border-color: #6D9EEB; background: #fff; outline: none; }
-#storyw textarea { resize: none; overflow: hidden; display: block; line-height: 1.3; }
+#storyw textarea { resize: none; overflow: hidden; display: block; line-height: 1.35; }
 #storyw :is(input, textarea)::placeholder { color: #bbb; }
-#storyw .sw-t input { font-size: 12px; }
-#storyw .sw-part input { width: 100%; box-sizing: border-box; font-weight: 700; color: var(--navy); text-transform: uppercase; letter-spacing: .5px; font-size: 13px; border-bottom: 2px solid #DCB439; border-radius: 0; }
 #storyw .sw-q { display: flex; align-items: flex-start; gap: 4px; } #storyw .sw-q > span { padding-top: 4px; }
 #storyw .sw-q textarea { font-weight: 600; color: #38761D; font-size: 14px; }
 #storyw .sw-q.bad textarea { color: #cc0000; }
