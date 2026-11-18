@@ -246,7 +246,8 @@ async function sideState() {
 }
 async function asks() {
   const box = $('#asks'); if (!box) return;
-  const d = await readJSON('chapters/decisions.json'), open = (d.items || []).filter(i => (i.status || 'open') === 'open');
+  // story outlines are reviewed in the chapter's Story view now (2026-11-18), not as cards here
+  const d = await readJSON('chapters/decisions.json'), open = (d.items || []).filter(i => (i.status || 'open') === 'open' && i.kind !== 'story');
   box.hidden = !open.length; if (!open.length) return;
   // a story outline (ai2ai story, 2026-11-14): the outline itself, editable, then Approve or Send back with a note
   const story = i => `<div class="q story" data-id="${esc(i.id)}">

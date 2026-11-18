@@ -4572,7 +4572,7 @@ if (phone) {
 // Story, woven into the slides (Eric, 2026-11-16: story mode; "woven in between slides/pages would be ideal"). With
 // ☰ ▸ View ▸ Story on, the Lecture's slides get a band above each one (the part it starts, what it answers and from
 // which slide, what it introduces, its story findings in red) and one below (what it sets up for a later slide), from
-// the approved STORY.md spec (tools/agent/story.py). Editor-only: the bands sit in the overlay, never in the chapter.
+// the chapter's STORY.md spec (tools/agent/story.py; Claude writes it with the draft, Eric reviews it here since 2026-11-18). Editor-only: the bands sit in the overlay, never in the chapter.
 // The checks are story.py's, ported (selftest test_story_view keeps the two in step); without a spec only the
 // term-before-definition check runs.
 (() => {
@@ -4646,7 +4646,7 @@ if (phone) {
     real.forEach(id => { if (!ids.includes(id)) flag(id, `the story has page ${id} and the Lecture does not`); });
     ids.forEach(id => { if (!real.includes(id)) flag(id, `page ${id} is in the Lecture but not in the story`); });
     const order = ids.filter(id => real.includes(id)), want = real.filter(id => ids.includes(id)), d = order.findIndex((id, k) => id !== want[k]);
-    if (d >= 0) flag(order[d], 'the Lecture order differs from the story from here on (move the slides, or change the story and get it approved)');
+    if (d >= 0) flag(order[d], 'the Lecture order differs from the story from here on (move the slides, or change the story here)');
     P.forEach(p => { const k = ids.indexOf(p.id); if (k < 0) return; p.introduces.forEach(t => { if (!has(text[k], t)) flag(p.id, `introduces "${t}" but the word is not on the slide`); }); });
     const name = ((sp.head['running example'] || '').split(/\s*[(:,;]/)[0] || '').trim();
     if (name) { const hit = text.findIndex(x => has(x, name)); if (hit < 0 || hit >= 4) flag(ids[0] || 'new:0', `running example "${name}" is not on the first 4 slides`); }
