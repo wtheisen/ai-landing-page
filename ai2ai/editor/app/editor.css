@@ -793,3 +793,16 @@ b-code.ed-colab::after { content: 'Colab only'; position: absolute; top: 2pt; ri
 #storyw svg.sw-arcs circle { fill: #38761D; opacity: .8; }
 #storyw svg.sw-arcs g:hover path { stroke-width: 3; opacity: 1; }
 #storyw svg.sw-arcs g.bad path { stroke: #cc0000; opacity: 1; } #storyw svg.sw-arcs g.bad circle { fill: #cc0000; }
+
+/* long-press comment sheet (locked / review mode, 2026-11-18) */
+#lp-sheet { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.25); display: flex; align-items: flex-end; justify-content: center; }
+#lp-sheet .lp-card { box-sizing: border-box; width: min(560px, 100%); max-height: 70vh; overflow-y: auto; background: #fff; border-radius: 14px 14px 0 0; padding: 14px 14px calc(14px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 18px rgba(0,0,0,.18); font: 15px/1.4 Arial, sans-serif; display: flex; flex-direction: column; gap: 8px; }
+#lp-sheet .lp-where { font-size: 12px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#lp-sheet .lp-old { font-size: 14px; background: #f6f3e8; border-radius: 8px; padding: 6px 9px; color: #333; }
+#lp-sheet textarea { font: 16px/1.35 Arial, sans-serif; border: 1px solid #c9d3e0; border-radius: 8px; padding: 8px; resize: vertical; min-height: 70px; }
+#lp-sheet .lp-btns { display: flex; gap: 8px; align-items: center; } #lp-sheet .lp-btns span { flex: 1; }
+#lp-sheet button { font: 15px Arial, sans-serif; padding: 8px 14px; border-radius: 8px; border: 1px solid #c9d3e0; background: #fff; color: var(--navy); }
+#lp-sheet button[data-a="page"]:empty { display: none; }
+#lp-sheet button[data-a="page"] { border: 0; padding: 8px 0; color: #1155CC; background: none; font-size: 14px; }
+#lp-sheet .lp-save { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: 700; }
+#book .ed-lp { outline: 3px solid #DCB439; outline-offset: 2px; border-radius: 3px; }

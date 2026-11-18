@@ -114,10 +114,45 @@ function lockBlocks(on) {
   if (!locked || !book.contains(e.target) || document.documentElement.classList.contains('ink-lecture')) return;
   const a = e.target.closest && e.target.closest('a[href]');
   if (a && t === 'click') return;   // links still open
+  if (t === 'pointerdown') lpStart(e);
   e.stopPropagation();
   if (t !== 'pointerdown') e.preventDefault();   // pointerdown left alone: swipes and pinches still scroll and zoom
   if (t === 'focusin' && e.target.blur) e.target.blur();
 }, true));
+// Locked, a long press on a block opens a comment sheet for it (Eric, 2026-11-18: "add something so like a long press
+// brings up comment entry"): the block's open comments, a box to type in, Save adds an ordinary comment (addComment)
+let lpT = 0, lpAt = null;
+function lpStart(e) {   // from the lock's capture listener (it stops the event before #book's own listeners)
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  const blk = blockOf(e.target), pg = e.target.closest && e.target.closest('section.page'); if (!pg) return;
+  lpAt = [e.clientX, e.clientY]; clearTimeout(lpT);
+  lpT = setTimeout(() => { lpAt = null; commentSheet(blk && blk.parentElement === pg ? blk : null, pg); }, 550);
+}
+['pointerup', 'pointercancel'].forEach(t => addEventListener(t, () => { clearTimeout(lpT); lpAt = null; }, true));
+addEventListener('pointermove', e => { if (lpAt && Math.hypot(e.clientX - lpAt[0], e.clientY - lpAt[1]) > 10) { clearTimeout(lpT); lpAt = null; } }, true);
+addEventListener('scroll', () => { clearTimeout(lpT); lpAt = null; }, true);
+function commentSheet(blk, pg) {
+  document.getElementById('lp-sheet')?.remove();
+  const cms = []; if (blk) { let n = blk.nextElementSibling; while (n && n.classList.contains('cmt')) { if (!n.hasAttribute('data-done')) cms.push(n); n = n.nextElementSibling; } }
+  else { let n = pg.firstElementChild; while (n && n.classList.contains('cmt')) { if (!n.hasAttribute('data-done')) cms.push(n); n = n.nextElementSibling; } }
+  const what = blk ? (blk.textContent.trim().replace(/\s+/g, ' ').slice(0, 90) || KIND(blk)) : 'the whole page';
+  const n = Book.pages().indexOf(pg) + 1;
+  const d = h(`<div id="lp-sheet" data-ed-ui><div class="lp-card"><div class="lp-where">p. ${n} · ${esc(what)}</div>${cms.map(c => `<div class="lp-old"><b>${esc(c.dataset.by || '')}</b> ${esc(c.textContent.trim())}</div>`).join('')}<textarea rows="3" placeholder="${cms.length ? 'Reply' : 'Comment for Claude'} on ${blk ? 'this block' : 'this page'}"></textarea><div class="lp-btns"><button data-a="page">${blk ? 'On the page instead' : ''}</button><span></span><button data-a="cancel">Cancel</button><button data-a="save" class="lp-save">Save</button></div></div></div>`);
+  document.body.append(d);
+  if (blk) blk.classList.add('ed-lp'); 
+  const ta = d.querySelector('textarea'), close = () => { d.remove(); if (blk) blk.classList.remove('ed-lp'); };
+  const opened = performance.now();
+  if (!blk) d.querySelector('[data-a="page"]').remove();
+  d.addEventListener('click', e => {
+    if (e.target === d) { if (performance.now() - opened > 600) close(); return; }   // the long press's own lift is a click on the backdrop
+    const a = e.target.dataset && e.target.dataset.a; if (!a) return;
+    if (a === 'cancel') close();
+    else if (a === 'page') { close(); commentSheet(null, pg); }
+    else if (a === 'save') { const t = ta.value.trim(); if (!t) return ta.focus(); const was = curPage; curPage = pg; addComment(blk, t); curPage = was || pg; close(); toast('Comment saved'); }
+  });
+  ta.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') close(); });
+  setTimeout(() => ta.focus(), 50);
+}
 function setLocked(on) {
   locked = on; document.body.classList.toggle('locked', on);
   if (on) { try { select(null); } catch (x) {} const a = document.activeElement; if (a && book.contains(a) && a.blur) a.blur(); getSelection().removeAllRanges(); }
@@ -2857,6 +2892,9 @@ window.Editor && 0;
 await Book.ready(); Book.refresh(); renderPages(); renderInspector(); setStatus();
 setRulers(rulersOn); placeMarkers();
 try { const v = localStorage.getItem('book-view-' + ch); if (v && v !== 'reading') setMode(v); } catch (x) {}
+// a split chapter whose Reading is still only its cover opens on the slides (Eric, 2026-11-18, Harness Engineering on
+// the phone opened on a lone cover)
+if (!dual && modeSel.value === 'reading' && Book.split && !Book.pages().some(pg => !pg.classList.contains('cover') && Book.inView(pg, 'reading')) && Book.pages().some(pg => Book.inView(pg, 'slides'))) setMode('slides');
 mo.takeRecords();
 if (normalized) status.title = 'The file will be rewritten in the editor\'s fixed layout on the first save.';
 window.Editor = { moveBy, duplicate, removeBlock, runIntoOutput, onDeskScroll, renderPages, guides: () => (rulersOn ? guides : { v: [], h: [] }), clearClip() { blockClip = null; }, selectMany, commit, save, apply, select, place, toast, deskXY, blockOf, pageOf, setPage, insertAfter, renderInspector, prep, h, doUndo, hold(on) { held = Math.max(0, held + (on ? 1 : -1)); if (!held) commit(true); }, get sel() { return sel; }, get curPage() { return curPage; }, get cur() { return cur; }, get saved() { return saved; } };
