@@ -1137,6 +1137,7 @@ function eaiInk(opts) {
     native({ ink: { editing: editing, tool: editing ? tool : 'hand', color: color, width: width, teacher: teacher(),
       drafting: !!(target && target !== mine), undo: undo.length } });
   }
+  var BLANK_INK = 0.7;   // text blanks: their handwriting at 0.7 of the weight the pad sends (fill below)
   function nativeInk() {
     var H = document.documentElement; H.classList.add('native-ink');
     var vp = document.querySelector('meta[name=viewport]');
@@ -1196,7 +1197,11 @@ function eaiInk(opts) {
         ensureTarget(); if (!target || !key) return false;
         var old = target.strokes.filter(function (s) { return s.f === key; }); old.forEach(unStroke);
         var add = (list || []).filter(function (s) { return s && s.p && document.getElementById(s.p) && s.pts && s.pts.length; }).map(function (s) {
-          var st = { p: s.p, c: s.c, w: s.w, pts: s.pts, f: key }; if (s.o) st.o = s.o;
+          // a text blank's handwriting is a little lighter than the pad sends it (Eric, 2026-11-18: "a little too thick,
+          // it makes it tricky to read when it shrinks"): the pad sends its old heavier weights (TextPad padWeight), so
+          // 0.7 brings it near the bar's own width; never under 1 pt (PencilKit draws nothing thinner, TextPad thinnest)
+          var w = s.w; if (key.indexOf(':') < 0 && w) w = Math.max(1, Math.round(w * BLANK_INK * 100) / 100);
+          var st = { p: s.p, c: s.c, w: w, pts: s.pts, f: key }; if (s.o) st.o = s.o;
           drawStroke(st); target.strokes.push(st); return st;
         });
         var u = undo[undo.length - 1];
