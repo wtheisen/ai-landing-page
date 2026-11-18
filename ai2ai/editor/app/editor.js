@@ -52,9 +52,18 @@ if (info.offline && navigator.serviceWorker) {   // the offline edition: the ser
     const d = e.data || {}; if (d.type !== 'sync') return;
     syncing = d.state === 'syncing'; syncErr = d.state === 'error' && !d.offline ? d.error : '';
     if (d.state === 'error' && !d.offline && !d.reply) toast('Could not sync with GitHub: ' + d.error);
+    if (d.result && (d.result.fetched || (d.result.merged || []).length)) vocabsFromSync();
     if (d.result && d.result.clashes && d.result.clashes.length) toast('Merged with changes from another device. Pages changed in both places are kept twice: look for the copy marked "version on GitHub".');
     setStatus();
   });
+  // a sync that brought a new vocabs.json (a vocabulary added on another device or by Claude): load it again, so new
+  // tokens are coloured without a reload (2026-11-18: qwen3 tiles stayed grey "?" until then)
+  let vocabText = null;
+  const vocabsFromSync = () => fetch(Book.url('../vocab/vocabs.json'), { cache: 'no-store' }).then(r => r.ok ? r.text() : null).then(t => {
+    if (t == null) return; const was = vocabText; vocabText = t;
+    if (was !== null && was !== t && Book.vocabs) Book.loadVocabs(true).then(() => { if (Book.root) Book.drawToks(Book.root); });
+  }).catch(() => {});
+  vocabsFromSync();
   const ask = () => { if (navigator.serviceWorker.controller && navigator.onLine && !document.hidden) navigator.serviceWorker.controller.postMessage({ type: 'sync' }); };
   ask(); setInterval(ask, 60000); addEventListener('online', ask); document.addEventListener('visibilitychange', ask);   // pick up other devices' edits
   // a new version of the editor (2026-11-16: it used to take Eric 2 or 3 hard reloads): look for one every minute and
@@ -361,6 +370,7 @@ setInterval(async () => {
   if (document.hidden || saving || conflict) return;
   try {
     const d = await (await fetch('../api/stat/' + ch)).json();
+    commit(true);   // edits still waiting for their commit count as unsaved: never reload over them (2026-11-18)
     if ('local' in d && d.local !== savedLocal && !saving && cur === saved) { savedLocal = d.local; setStatus(); }
     if (d.mtime === mtime || saving) return;
     if (cur !== saved) { conflict = true; setStatus(); return showConflict(); }
@@ -2798,7 +2808,9 @@ function commentItem(c, withWhere) {
   if (askWaiting(c)) d.querySelector('.meta').append(h('<span class="ask-wait" title="Claude does it the next time you ask in a session (\'address my comments\'); ai2ai brief lists it">waiting for Claude</span>'));
   if (c.dataset.sugs && c.dataset.by === 'Claude') { const b = h('<button class="ask-sugs">Suggestions</button>'); b.onclick = () => { if (window.Suggest) Suggest.open(); }; d.append(b); }
   txt.addEventListener('input', () => { const w = d.querySelector('.ask-wait'), on = askWaiting(c); if (on && !w) d.querySelector('.meta').append(h('<span class="ask-wait">will go to Claude</span>')); else if (!on && w) w.remove(); });
-  txt.oninput = () => { c.textContent = txt.textContent; };
+  // the page may have been rebuilt under the box (a sync or another device's save reloaded the chapter): write into the
+  // comment that is on the page now, never a detached copy (2026-11-18: Eric's typed comments were saved empty)
+  txt.oninput = () => { if (!c.isConnected && c.dataset.id) { const l = book.querySelector(`.cmt[data-id="${CSS.escape(c.dataset.id)}"]`); if (l) c = l; } c.textContent = txt.textContent; };
   txt.onkeydown = e => { e.stopPropagation(); if (e.key === 'Escape' || (e.key === 'Enter' && (e.metaKey || e.ctrlKey))) { e.preventDefault(); txt.blur(); } };
   txt.onblur = () => { if (!c.textContent.trim() && c.isConnected) { c.remove(); commit(true); renderInspector(); } placeMarkers(); };
   d.querySelector('.meta').onclick = e => { const a = e.target.dataset.a; if (!a) return; commit(true); const th = [c, ...cmtReplies(c)]; if (a === 'del') th.forEach(x => x.remove()); else if (done) th.forEach(x => x.removeAttribute('data-done')); else th.forEach(x => x.setAttribute('data-done', '1')); commit(true); renderInspector(); placeMarkers(); if ($('#modal').hidden === false) showComments(); };
