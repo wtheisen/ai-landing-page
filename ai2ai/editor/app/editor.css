@@ -739,13 +739,17 @@ b-code.ed-colab::after { content: 'Colab only'; position: absolute; top: 2pt; ri
 #storyw .sw { position: absolute; box-sizing: border-box; font: 13px/1.4 Arial, sans-serif; color: #44546a; background: #fdfcf8; border: 1px solid #e8e1cc; border-left: 3px solid #DCB439; border-radius: 8px; padding: 10px 14px 10px 13px; box-shadow: 0 1px 4px rgba(0,0,0,.07); display: flex; flex-direction: column; gap: 6px; }
 #storyw .sw-hook { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; padding-bottom: 8px; border-bottom: 1px solid #ece5cf; }
 #storyw .sw-hook label { display: contents; }
+#storyw .sw { container-type: inline-size; }
+@container (max-width: 460px) { #storyw .sw-hook { grid-template-columns: 1fr; } #storyw .sw-hook label > span { padding-top: 2px; } #storyw .sw-t > div { flex-direction: column; gap: 3px; } }
+#storyw textarea.clipped { -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); cursor: text; }
 #storyw .sw-hook label > span, #storyw .sw-lab, #storyw .sw-part > span { font-size: 10.5px; font-weight: 700; color: #8a8f99; text-transform: uppercase; letter-spacing: .6px; padding-top: 4px; white-space: nowrap; }
-#storyw .sw-hook textarea { font-size: 13.5px; color: #1d2433; }
+#storyw .sw-hook textarea { width: 100%; box-sizing: border-box; font-size: 13.5px; color: #1d2433; }
 #storyw .sw-part { display: flex; align-items: center; gap: 10px; }
 #storyw .sw-part input { flex: 1; font-weight: 700; color: var(--navy); font-size: 15px; letter-spacing: .2px; }
 #storyw .sw-t { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 8px 16px; padding-top: 6px; border-top: 1px dashed #ece5cf; }
 #storyw .sw-t > div { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
-#storyw .sw-chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-width: 0; }
+#storyw .sw-chips { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-width: 0; max-width: 100%; }
+#storyw .sw-t > div > .sw-chips { flex: 1; }
 #storyw .sw-chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; box-sizing: border-box; font: 12px/1.2 Arial, sans-serif; padding: 2px 8px; border-radius: 10px; border: 1px solid; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #storyw .sw-chip.nm { background: #fff; border-color: #c5ccd6; color: var(--navy); font-weight: 600; }
 #storyw .sw-lab { min-width: 64px; }
@@ -767,7 +771,7 @@ b-code.ed-colab::after { content: 'Colab only'; position: absolute; top: 2pt; ri
 #storyw textarea { resize: none; overflow: hidden; display: block; line-height: 1.35; }
 #storyw :is(input, textarea)::placeholder { color: #bbb; }
 #storyw .sw-q { display: flex; align-items: flex-start; gap: 4px; } #storyw .sw-q > span { padding-top: 4px; }
-#storyw .sw-q textarea { font-weight: 600; color: #38761D; font-size: 14px; }
+#storyw .sw-q textarea { width: 100%; box-sizing: border-box; font-weight: 600; color: #38761D; font-size: 14px; }
 #storyw .sw-q.bad textarea { color: #cc0000; }
 #storyw .sw-pre { color: #888; font-size: 12px; white-space: nowrap; } #storyw .sw-post { color: #888; font-size: 12px; white-space: nowrap; }
 #storyw .sw-q.bad .sw-post { color: #cc0000; }
