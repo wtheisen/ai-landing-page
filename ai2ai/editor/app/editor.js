@@ -1630,7 +1630,7 @@ function editorPython() {
 let codeEd = null;
 function codeEditView(el, text) {
   const lines = text.split('\n');
-  if (el.tagName === 'B-OUT') { el.querySelector('pre').innerHTML = eaiOutHL(text, Book.outColors(), el.getAttribute('hl'), eaiOutTok(el)); return; }
+  if (el.tagName === 'B-OUT') { el.querySelector('pre').innerHTML = eaiOutHL(text, Book.meta.codeColors, el.getAttribute('hl'), eaiOutTok(el)); return; }
   el.querySelector('.gutter').innerHTML = lines.map((_, k) => `<div>${k + 1}</div>`).join('');
   const line = Book.codeMarks(el.getAttribute('marks'), el.getAttribute('lang'));
   const blk = Book.codeBlocks(lines);   // colour blocks show while typing too (the "#~ purple" stays visible here)
