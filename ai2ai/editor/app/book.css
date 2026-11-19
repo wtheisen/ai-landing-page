@@ -99,8 +99,6 @@ b-m .c .Om { transform: scaleY(1.332); }
 .eqml-note .Om { display: inline-block; line-height: 1; transform: scaleY(1.355); transform-origin: 50% 80%; }   /* Ω in an equation's note: the tall ω too */
 .c.blue { color: var(--blue-text); } .c.gold { color: var(--yellow-text); } .c.purple { color: var(--purple-text); }
 .c.green { color: var(--green-text); } .c.red { color: var(--red-text); } .c.gray { color: #666666; } .c.wblue { color: #1155CC; }
-/* the notation table's other families (book.js SYM_COLS text tones), for inline maths coloured from it */
-.c.pink { color: #A64D79; } .c.orange { color: #B45F06; } .c.brown { color: #783F04; } .c.olive { color: #6B6B00; } .c.teal { color: #134F5C; } .c.magenta { color: #8E2C80; } .c.navy { color: #002B5B; }
 b-eq { display: block; border: 1px solid var(--border); border-radius: 4px; background: #fff; padding: 5pt 4pt; text-align: left; }
 b-eq.answer { border: 2px solid #000; border-radius: 0; box-sizing: border-box; }
 b-eq img { display: inline-block; vertical-align: middle; max-width: 100%; height: auto; }
@@ -220,9 +218,6 @@ b-out .olab { font-weight: 700; color: #002B5B; } b-out .cc { font-weight: 700; 
 b-out :is(.cc, .olab, .nu).red, b-out .f-red { color: #CC0000; } b-out :is(.cc, .olab, .nu).blue, b-out .f-blue { color: #1155CC; }
 b-out :is(.cc, .olab, .nu).gray, b-out .f-gray { color: #666666; } b-out :is(.cc, .olab, .nu).purple, b-out .f-purple { color: #674EA7; }
 b-out :is(.cc, .olab, .nu).gold, b-out .f-gold { color: #B8920F; } b-out :is(.cc, .olab, .nu).green, b-out .f-green { color: #38761D; }
-/* the notation table's other families (2026-11-18: outputs and code colour from it too) */
-b-out :is(.cc, .olab, .nu).pink, b-out .f-pink { color: #A64D79; } b-out :is(.cc, .olab, .nu).orange, b-out .f-orange { color: #B45F06; } b-out :is(.cc, .olab, .nu).brown, b-out .f-brown { color: #783F04; } b-out :is(.cc, .olab, .nu).olive, b-out .f-olive { color: #6B6B00; } b-out :is(.cc, .olab, .nu).teal, b-out .f-teal { color: #134F5C; } b-out :is(.cc, .olab, .nu).magenta, b-out .f-magenta { color: #8E2C80; } b-out :is(.cc, .olab, .nu).navy, b-out .f-navy { color: #002B5B; } b-out :is(.cc, .olab, .nu).wblue, b-out .f-wblue { color: #1155CC; }
-b-code .cc.pink { color: #A64D79; } b-code .cc.orange { color: #B45F06; } b-code .cc.brown { color: #783F04; } b-code .cc.olive { color: #6B6B00; } b-code .cc.teal { color: #134F5C; } b-code .cc.magenta { color: #8E2C80; } b-code .cc.navy { color: #002B5B; } b-code .cc.wblue { color: #1155CC; }
 b-out { display: block; border: 1px solid var(--border); border-radius: 0 0 4px 4px; }
 b-out .label { padding: 2pt 7pt; font-size: 7.5pt; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-muted); border-bottom: 1px solid var(--border); }
 b-out pre { margin: 0; padding: 4pt 7pt; font-family: var(--font-mono); font-size: 9.4pt; line-height: 1.4; }
