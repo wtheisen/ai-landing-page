@@ -618,45 +618,29 @@ const ctx = document.createElement('div'); ctx.id = 'ctx'; ctx.hidden = true; ct
 function ctxClose() { if (!ctx.hidden) { ctx.hidden = true; ctx.innerHTML = ''; } }
 // the tile menu: blank on/off (\fill{…} around its symbol in the tex), its colour (the chapter's notation table, so every
 // tile of that symbol in the chapter changes: drawings, inline maths, equations), and the maths pop-up
-// A tile is in inline maths (b-m: span.sym, data-at = its place in the tex after aliases) or in a typeset equation
-// (b-eq: an element of class sym, class sa-<start>-<end> = its place in its row's tex; a blank sits in class eqfill)
-const TILE = '.book b-m .sym[data-at], .book b-eq .eq-ml .sym';
-function tileTop(t) { return t && !(t.closest('b-m') ? t.parentElement.closest('sub, sup, .sym') : t.parentElement.closest('.sym, msub > :not(:first-child), msup > :not(:first-child), msubsup > :not(:first-child)')) ? t : null; }
-function tileAt(el) { const m = / sa-(\d+)-(\d+)/.exec(' ' + el.getAttribute('class')); return m ? [+m[1], +m[2]] : null; }
-function tileInfo(tile) {
-  const m = tile.closest('b-m');
-  if (m) {
-    const [a, b] = tile.dataset.at.split(',').map(Number);
-    return { host: m, fill: tile.hasAttribute('data-fill'), at: [a, b], key: tile.dataset.k || tile.textContent,
-      get: () => Book.mathAliased(m.getAttribute('tex') || ''), set: t => m.setAttribute('tex', t), edit: () => mathPop(m) };
-  }
-  const eq = tile.closest('b-eq'), ml = eq.querySelector(':scope > .eq-ml'), rowEl = tile.closest('.eqml-e, .eqml-s');
-  const k = [...ml.querySelectorAll('.eqml-e, .eqml-s')].indexOf(rowEl), row = [...eq.children].filter(c => /^EQ-(ROW|STEP)$/.test(c.tagName))[k];
-  const fl = tile.closest('.eqfill'), fa = fl && / eqfa-(\d+)-(\d+)/.exec(' ' + fl.getAttribute('class')), at = fa ? [+fa[1], +fa[2]] : tileAt(tile) || [0, 0];
-  const src = Book.texOf(row).slice(...(tileAt(tile) || at)), key = Book.symKey(Book.mathAliased(src.replace(/\\(?:mathbf|boldsymbol)\b/g, '')).replace(/[{}]/g, ''));
-  return { host: eq, fill: !!fl, at, key, get: () => Book.texOf(row), set: t => { row.textContent = t; eq.render(); }, edit: () => { select(blockOf(eq)); } };
+function tileEdit(tile, f) {
+  const m = tile.closest('b-m'), tex = Book.mathAliased(m.getAttribute('tex') || ''), [a, b] = tile.dataset.at.split(',').map(Number);
+  commit(true); m.setAttribute('tex', f(tex, a, b)); commit(true);
 }
 function tileFill(tile) {
-  const I = tileInfo(tile), t = I.get(), [a, b] = I.at;
-  commit(true);
-  if (I.fill) { const inner = t.slice(a, b).replace(/^\\fill\s*\{/, '').replace(/\}$/, ''); I.set(t.slice(0, a) + inner + t.slice(b)); }
-  else I.set(t.slice(0, a) + '\\fill{' + t.slice(a, b) + '}' + t.slice(b));
-  commit(true);
+  tileEdit(tile, (t, a, b) => {
+    if (tile.hasAttribute('data-fill')) { const inner = t.slice(a, b).replace(/^\\fill\s*\{/, '').replace(/\}$/, ''); return t.slice(0, a) + inner + t.slice(b); }
+    return t.slice(0, a) + '\\fill{' + t.slice(a, b) + '}' + t.slice(b);
+  });
 }
 function tileColour(tile, fam) {
-  const k = tileInfo(tile).key; if (!k) return;
+  const k = tile.dataset.k; if (!k) return;
   commit(true); Book.meta.notation = Book.meta.notation || {};
   if (fam) Book.meta.notation[k] = fam; else delete Book.meta.notation[k];
   if (!Object.keys(Book.meta.notation).length) delete Book.meta.notation;
   Book.drawSyms(Book.root); Book.root.querySelectorAll('b-m').forEach(e => e.setAttribute('tex', e.getAttribute('tex')));
-  Book.root.querySelectorAll('b-eq').forEach(e => e.render && e.render());
   Book.refresh(); commit(true);
 }
 // on the iPad (no right-click): hold a tile for half a second
 { let hold = null;
   document.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' || document.documentElement.classList.contains('ink-lecture')) return;
-    const t = tileTop(e.target.closest && e.target.closest(TILE)); if (!t) return;
+    const t = e.target.closest && e.target.closest('.book b-m .sym[data-at]'); if (!t || t.parentElement.closest('sub, sup, .sym')) return;
     const x = e.clientX, y = e.clientY; clearTimeout(hold);
     hold = setTimeout(() => { hold = null; tileMenu(t, x, y); }, 500);
     const stop = ev => { if (ev.type !== 'pointermove' || Math.hypot(ev.clientX - x, ev.clientY - y) > 8) { clearTimeout(hold); off(); } };
@@ -665,14 +649,14 @@ function tileColour(tile, fam) {
   }, true);
 }
 function tileMenu(tile, x, y) {
-  const I = tileInfo(tile), m = I.host, k = I.key, own = (Book.meta.notation || {})[k], fill = I.fill;
+  const m = tile.closest('b-m'), k = tile.dataset.k || tile.textContent, own = (Book.meta.notation || {})[k], fill = tile.hasAttribute('data-fill');
   const NAME = f => f[0].toUpperCase() + f.slice(1);
   const cols = (Book.SYM_FAMS || []).map(f => [(own === f ? '✓ ' : '') + NAME(f), () => tileColour(tile, f), '']);
   if (own) cols.push(['No colour of its own', () => tileColour(tile, null), '']);
   ctxOpen(x, y, [
     [(fill ? '✓ ' : '') + 'Fill-in blank', () => tileFill(tile), ''],
     ['Colour of ' + k, null, '', cols],
-    [m.tagName === 'B-M' ? 'Edit maths…' : 'Select the equation', () => I.edit(), ''],
+    ['Edit maths…', () => mathPop(m), ''],
     ...(blockOf(m) ? ['-', ['Comment on this block', () => addComment(blockOf(m)), '']] : [])]);
 }
 function ctxOpen(x, y, rows) {   // rows: '-' a divider | { dots: [[style, name, colour]] } | [label, fn, hint] | [label, null, hint, [[label, fn]]] (submenu)
@@ -709,8 +693,8 @@ document.addEventListener('contextmenu', e => {
   if (e.target.closest('textarea, input, select, #pop, .ed-code')) return;
   // a symbol tile in inline maths (Eric, 2026-11-19: "these little boxes should almost effectively just be a new kind of
   // element that I can interact fully with"): its own menu, like a token tile's
-  const tile = tileTop(e.target.closest && e.target.closest(TILE));
-  if (tile) { e.preventDefault(); return tileMenu(tile, e.clientX, e.clientY); }
+  const tile = e.target.closest && e.target.closest('.book b-m .sym[data-at]');
+  if (tile && !tile.parentElement.closest('sub, sup, .sym')) { e.preventDefault(); return tileMenu(tile, e.clientX, e.clientY); }
   const s = getSelection(), r = s.rangeCount && !s.isCollapsed ? s.getRangeAt(0) : null;
   const onText = r && e.target.closest('[contenteditable=true]') && r.intersectsNode(e.target);
   if (onText) {

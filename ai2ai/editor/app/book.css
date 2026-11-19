@@ -229,10 +229,6 @@ b-code .ln.blk.blk-top.blk-bot { box-shadow: inset 0 0 0 1pt var(--bl); }
 .eq-ml .sym-CC0000 { --sf: #F4CCCC; --sl: #E06666; } .eq-ml .sym-674EA7 { --sf: #D9D2E9; --sl: #8E7CC3; } .eq-ml .sym-38761D { --sf: #D9EAD3; --sl: #93C47D; }
 .eq-ml .sym-DCB439 { --sf: #FFF2CC; --sl: #DCB439; } .eq-ml .sym-1155CC { --sf: #C9DAF8; --sl: #6D9EEB; } .eq-ml .sym-666666 { --sf: #EEEEEE; --sl: #999999; }
 .eq-ml :is(msub, msup, msubsup) > :not(:first-child) .sym, .eq-ml :is(msub, msup, msubsup) > .sym:not(:first-child), .eq-ml .sym .sym { background: none; box-shadow: none; padding: 0; }
-/* \fill{…} in a typeset equation (2026-11-19): the tile stays, its symbol is left out in the Lecture and Workbook until shown */
-.book:is([data-view="slides"], [data-view="workbook"]) .eq-ml .eqfill:not(.shown), .book:is([data-view="slides"], [data-view="workbook"]) .eq-ml .eqfill:not(.shown) * { color: transparent !important; cursor: pointer; }
-.eq-ml .eqfill:not(.sym):not(:has(.sym)) { background: #EEEEEE; box-shadow: inset 0 0 0 0.8pt #999999; border-radius: 2.4pt; padding: 0 1.2pt; }
-.book[data-view="reading"] .eq-ml .eqfill, .book.ed .eq-ml .eqfill { outline: 1pt dashed #999; outline-offset: 1pt; }
 /* the same pieces typeset by Temml (hosted editor, eqml.js): \lk{purple}{…} is class lk-purple */
 .eq-ml :is(.lk-purple, .lk-green, .lk-gold, .lk-yellow, .lk-red, .lk-blue, .lk-gray, .lk-grey, .lk-teal) { background: var(--bf); box-shadow: 0 0 0 0.9pt var(--bl); border-radius: 2.4pt; padding: 0 1pt; }
 .eq-ml .lk-purple { --bf: #D9D2E9; --bl: #8E7CC3; } .eq-ml .lk-green { --bf: #D9EAD3; --bl: #93C47D; } .eq-ml :is(.lk-gold, .lk-yellow) { --bf: #FFF2CC; --bl: #DCB439; }

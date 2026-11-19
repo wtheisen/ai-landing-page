@@ -2015,7 +2015,7 @@ Book.webExtras = () => {
   Book.freezeGaps = true; Book.liveOn = true;
   Book.root.querySelectorAll('b-fig[live]').forEach(Book.initLive);
   Book.runCode();
-  if (Book.view === 'slides' || Book.view === 'workbook') Book.root.addEventListener('click', e => { const f = e.target.closest && e.target.closest('u.fill, [data-fill], .eqfill'); if (f) { Book.reveal(f); f.dispatchEvent(new CustomEvent('eai-fill', { bubbles: true })); } });
+  if (Book.view === 'slides' || Book.view === 'workbook') Book.root.addEventListener('click', e => { const f = e.target.closest && e.target.closest('u.fill, [data-fill]'); if (f) { Book.reveal(f); f.dispatchEvent(new CustomEvent('eai-fill', { bubbles: true })); } });
   Book.root.querySelectorAll('.qc > .ans').forEach(a => {
     if (a.nextElementSibling && a.nextElementSibling.tagName === 'DETAILS') return;
     const d = document.createElement('details'); d.className = 'web-only'; d.setAttribute('data-rt', '');
@@ -2030,7 +2030,7 @@ function outTables(clone, m) {
   return out;
 }
 Book.snapshot = async () => {
-  const view = Book.view, live = [...Book.root.querySelectorAll('u.fill, [data-fill], .eq-ml .eqfill')];
+  const view = Book.view, live = [...Book.root.querySelectorAll('u.fill, [data-fill]')];
   if (view === 'workbook') live.forEach(el => { const pg = el.closest('.page'), k = pg ? pg.getBoundingClientRect().width / Book.pageW(pg) : 1, r = el.getBoundingClientRect(); el.setAttribute('data-box', (r.width / k).toFixed(1) + ' ' + (r.height / k).toFixed(1)); });
   const colabOn = Book.colabCells();
   const clone = Book.root.cloneNode(true);
@@ -2054,10 +2054,6 @@ Book.snapshot = async () => {
   } else clone.querySelectorAll('[data-view], aside.qc, div.wbox').forEach(n => { if (!Book.inView(n, view)) n.remove(); });   // (quick checks: not in Reading unless tagged)
   if (view === 'workbook') clone.querySelectorAll('[data-box]').forEach(el => {   // the workbook carries blanks, not hidden answers
     const [w, h] = el.getAttribute('data-box').split(' ').map(Number);
-    if (el.matches('.eq-ml .eqfill')) {   // a blank tile in an equation: its symbol leaves the file, its tile stays
-      el.querySelectorAll('mi, mn, mo, mtext').forEach(t => { t.textContent = '\u2002'.repeat(Math.max(1, t.textContent.length)); });
-      el.removeAttribute('data-box'); return;
-    }
     if (el.matches('b-m .sym')) {   // an inline tile blank: its size and colour stay, the symbol leaves the file
       const bm = el.closest('b-m'); if (bm) { bm.removeAttribute('tex'); bm.setAttribute('data-frozen', ''); }
       el.innerHTML = '&nbsp;'; el.style.width = w + 'pt'; el.removeAttribute('data-fill'); el.removeAttribute('data-box'); return;
@@ -2092,7 +2088,7 @@ Book.snapshot = async () => {
   const m = Book.meta, css = await (await fetch('../app/book.css')).text(), liveJs = await (await fetch('../app/live.js')).text(), inkJs = await (await fetch('../app/ink.js')).text();
   const frames = FIT + "(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-frame]'));if(!fs.length)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.src=e.target.getAttribute('data-frame');io.unobserve(e.target)}})},{rootMargin:'600px'});fs.forEach(function(f){io.observe(f)})})();" + LIVEFIG + ";[].forEach.call(document.querySelectorAll('b-fig[viz]'),eaiLiveFig);";
   // tap a blank to see its answer: in the Lecture while presenting, and in the Workbook to practise (Eric, 2026-11-03)
-  const reveal = view === 'slides' || view === 'workbook' ? "document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill],.eqfill');if(!f)return;var on=f.classList.toggle('shown'),d=f.id&&f.closest('svg');if(d)[].forEach.call(d.querySelectorAll('[data-rt-fill]'),function(a){if(a.getAttribute('data-rt-fill')===f.id)a.classList.toggle('shown',on)})});" : '';
+  const reveal = view === 'slides' || view === 'workbook' ? "document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill]');if(!f)return;var on=f.classList.toggle('shown'),d=f.id&&f.closest('svg');if(d)[].forEach.call(d.querySelectorAll('[data-rt-fill]'),function(a){if(a.getAttribute('data-rt-fill')===f.id)a.classList.toggle('shown',on)})});" : '';
   const faces = (await Promise.all([['Inconsolata-LGC.ttf', 400], ['Inconsolata-LGC-Bold.ttf', 700]].map(async ([f, w]) =>
     `@font-face{font-family:'Inconsolata LGC';src:url(data:font/ttf;base64,${await b64('../kit/fonts/' + f)}) format('truetype');font-weight:${w}}`))).join('') + `@font-face{font-family:'AI2AI Omega';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Omega.ttf')}) format('truetype');unicode-range:U+03A9}@font-face{font-family:'AI2AI Omega';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Loss.ttf')}) format('truetype');unicode-range:U+2112}`;
   const mathFace = clone.querySelector('.eq-ml') ? `@font-face{font-family:'AI2AI Math';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Math.ttf')}) format('truetype')}` : '';   // typeset equations (2026-11-19)
