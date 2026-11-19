@@ -34,11 +34,19 @@ function colorize(tex, colors, base = 0) {   // render.py colorize: wrap each co
     const c = tex[i], i0 = i; let tok, key;
     if (c === '\\') {
       tok = /^\\([A-Za-z]+|.)/.exec(tex.slice(i))[0]; i += tok.length;
-      if (tok === '\\fill' && tex[i] === '{') {   // \fill{Q}: the tile is a fill-in blank in the Lecture (2026-11-19)
-        const a = group(tex, i), inner = colorize(a.slice(1, -1), colors, base + i + 1); i += a.length;
-        // one tile inside: the blank's classes go on that tile (Temml drops a \\class nested in another)
-        const one = /^\{\\class\{(sym [^}]*)\}\{([\s\S]*)\}\}$/.exec(inner), fa = 'eqfill eqfa-' + (base + i0) + '-' + (base + i);
-        out.push(one && !/\\class/.test(one[2]) ? '{\\class{' + one[1] + ' ' + fa + '}{' + one[2] + '}}' : '{\\class{' + fa + '}{' + inner + '}}'); continue;
+      // \tile[fill,shape]{Q} (\fill{Q} = \tile[fill]{Q}; 2026-11-19): fill: a fill-in blank in the Lecture; shape: the
+      // notation's shape under the symbol (G.EqML.shapeOf, set by book.js). Classes: eqt (a wrapped tile), eqfa-<start>-<end>
+      // (its place in the row), eqo-fill / eqo-shape, eqfill when it's a blank
+      if ((tok === '\\fill' || tok === '\\tile') && /^\s*(\[[^\]]*\])?\s*\{/.test(tex.slice(i))) {
+        const om = /^\s*(?:\[([^\]]*)\])?\s*/.exec(tex.slice(i)); i += om[0].length;
+        const opts = new Set((om[1] || '').split(',').map(x => x.trim()).filter(Boolean)); if (tok === '\\fill') opts.add('fill');
+        const a = group(tex, i), src = a.slice(1, -1), inner = colorize(src, colors, base + i + 1); i += a.length;
+        const cls = 'eqt eqfa-' + (base + i0) + '-' + (base + i) + [...opts].map(o => ' eqo-' + o).join('') + (opts.has('fill') ? ' eqfill' : '');
+        const sh = opts.has('shape') && G.EqML.shapeOf ? G.EqML.shapeOf(src) : '';
+        const body = t => sh ? '\\underset{\\scriptscriptstyle\\text{' + sh.replace(/[<>]/g, c => c === '<' ? '⟨' : '⟩') + '}}{' + t + '}' : t;
+        // one tile inside: the wrapper's classes go on that tile (Temml drops a \\class nested in another)
+        const one = /^\{\\class\{(sym [^}]*)\}\{([\s\S]*)\}\}$/.exec(inner);
+        out.push(one && !/\\class/.test(one[2]) ? '{\\class{' + one[1] + ' ' + cls + '}{' + body(one[2]) + '}}' : '{\\class{sym sym-666666 ' + cls + '}{' + body(inner) + '}}'); continue;
       }
       if (VERBATIM.has(tok.slice(1)) || tok === '\\lk') { const a = group(tex, i); out.push(verbatimColor(tok, a, colors) || tok + a); i += a.length; continue; }
       key = tok;
@@ -49,7 +57,8 @@ function colorize(tex, colors, base = 0) {   // render.py colorize: wrap each co
     const own = (qk && colors[qk]) || colors[key + '*'] || colors[key], col = own || (/^\\[a-z]{3,}$/.test(key) && colors[key.slice(1)]);   // \\sin: the table's sin
     if (!col) { out.push(tok); continue; }
     if (sub !== null) { tok += '_' + sub; i += 1 + sub.length; }
-    out.push(own ? '{\\class{sym sym-' + String(col).replace('#', '') + ' sa-' + (base + i0) + '-' + (base + i) + '}{\\eqfam{' + col + '}{' + tok + '}}}' : '{\\eqfam{' + col + '}{' + tok + '}}');   // braced, so \\hat\\omega still takes the whole symbol; a tile, as inline maths and the tile rows (Eric, 2026-11-19)
+    // \\vphantom{X_Q}: every tile one height, with room for a subscript (Eric, 2026-11-19: heights matter, widths may vary)
+    out.push(own ? '{\\class{sym sym-' + String(col).replace('#', '') + ' sa-' + (base + i0) + '-' + (base + i) + '}{\\vphantom{X_Q}\\eqfam{' + col + '}{' + tok + '}}}' : '{\\eqfam{' + col + '}{' + tok + '}}');   // braced, so \\hat\\omega still takes the whole symbol; a tile, as inline maths and the tile rows (Eric, 2026-11-19)
   }
   return out.join('');
 }

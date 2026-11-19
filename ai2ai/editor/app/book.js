@@ -15,6 +15,8 @@
 (function () {
 'use strict';
 const Book = window.Book = { mode: 'view', base: '', chapter: '', meta: {}, kit: '', api: true, root: null, freezeGaps: false, pending: new Set() };
+// presenting: stored outputs hidden from the first paint (the rest of this is in Book.runCode, which runs later)
+if (/[?&]lecture=(1|show|answers)\b/.test(location.search)) document.documentElement.classList.add('present-out');
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/ /g, '&nbsp;');
 const escAttr = s => esc(s).replace(/"/g, '&quot;');
 Book.esc = esc;
@@ -58,13 +60,19 @@ function inlineMath(s, plain, base = 0) {   // base: where s starts in the whole
       if (s[j] === '{') [b, k] = group(j);
       out.push(`<span class="fr"><span>${inlineMath(a, plain, base + i + fr[0].length + 1)}</span><span>${inlineMath(b, plain, base + j + 1)}</span></span>`); i = k; continue;
     }
-    // \fill{Ω_Q}: the tile is a fill-in blank in the Lecture, drawn empty in its colour (Eric, 2026-11-19: "mark these
-    // boxes as fill, similar to filling in a box in a diagram"); several symbols, or none coloured, make one grey tile
-    const fl = /^\\fill\s*(?=\{)/.exec(s.slice(i));
-    if (fl) {
-      const [a, j] = group(i + fl[0].length), inner = inlineMath(a, plain).replace(/ data-at="[^"]*"/g, ''), at = ` data-at="${base + i},${base + j}"`;
+    // \tile[fill,shape]{Ω_Q} (\fill{…} is \tile[fill]{…}; Eric, 2026-11-19): fill: a fill-in blank in the Lecture, drawn
+    // empty in its colour; shape: its shape from the notation's shapes table under the symbol, as drawings show it.
+    // \tile{x} makes a tile of a symbol the table doesn't colour (grey); several symbols make one tile
+    const tl = /^\\(tile|fill)\s*(?:\[([^\]]*)\])?\s*(?=\{)/.exec(s.slice(i));
+    if (tl) {
+      const [a, j] = group(i + tl[0].length), opts = new Set((tl[2] || '').split(',').map(x => x.trim()).filter(Boolean));
+      if (tl[1] === 'fill') opts.add('fill');
+      const inner = inlineMath(a, plain).replace(/ data-at="[^"]*"/g, ''), at = ` data-at="${base + i},${base + j}" data-opts="${[...opts].join(',')}" data-wrap=""`;
       const one = /^<span class="c [a-z]+ sym"[^>]*>/.test(inner) && (inner.match(/ sym"/g) || []).length === 1 && inner.endsWith('</span>');
-      out.push(one ? inner.replace(' sym"', ' sym" data-fill=""' + at) : `<span class="sym gray" data-fill=""${at}>${inner}</span>`); i = j; continue;
+      const k = one ? (/ data-k="([^"]*)"/.exec(inner) || [])[1] : null, sh = opts.has('shape') ? Book.shapeText(k || Book.symKey(a)) : '';
+      const extra = (opts.has('fill') ? ' data-fill=""' : '') + at, shp = sh ? `<span class="tsh">${esc(sh)}</span>` : '';
+      out.push(one ? inner.replace(' sym"', ' sym' + (sh ? ' shp' : '') + '"' + extra).replace(/<\/span>$/, shp + '</span>')
+        : `<span class="sym gray${sh ? ' shp' : ''}"${extra}>${inner}${shp}</span>`); i = j; continue;
     }
     if (s.startsWith('\\T', i)) { out.push('<sup>T</sup>'); i += 2; continue; }
     const word = WORDS.find(w => s.startsWith(w, i));
@@ -119,14 +127,14 @@ function highlight(line, st) {
   const types = new Set([...TY, ...(Book.meta.types || [])]);
   // meta.codeColors {name: family}: variables coloured by what they are (inputs red, weights blue, ...), like the
   // figures and equations. Chapters that use it show plain numbers in grey, so red only means an input.
-  const concept = Book.outColors(), nuCls = Book.meta.codeColors ? 'nu nn' : 'nu';
+  const concept = Book.outColors(), nuCls = Book.meta.codeColors ? 'nu nn' : 'nu', nota = Book.meta.notation || {};   // a notation symbol (Q, K, V) is a tile in code too (2026-11-19)
   let prev = null, m;
   while ((m = TOK.exec(line))) {
     const t = m[0], e = esc(t);
     if (m[4] !== undefined) {
       const cls = (prev === 'def' || prev === 'class') ? 'def' : KW.has(t) ? 'kw' : CTL.has(t) ? 'ctl' : types.has(t) ? 'ty'
         : (BI.has(t) && !line.slice(0, m.index).trimEnd().endsWith('.')) ? 'bi' : NUMC.has(t) ? 'nu'
-        : concept[t] ? 'cc ' + concept[t] : null;
+        : concept[t] ? 'cc ' + concept[t] + (nota[t] || /^[A-Z]$/.test(t) && Book.meta.notation ? ' csym' : '') : null;
       out += cls ? `<span class="${cls}">${e}</span>` : e; prev = t;
     } else if (m[1] !== undefined) out += `<span class="cm">${e}</span>`;
     else if (m[2] !== undefined) {
@@ -175,7 +183,7 @@ function eaiOutHL(text, cc, hl, tok) {
   function name(t) {   // outside labels: codeColors names, and the longer DEF names (not single letters in running output)
     if (WRAP[t]) return 'ow'; if (CONST[t]) return nuCls;
     var parts = t.split('.');
-    for (var i = parts.length - 1; i >= 0; i--) { var w = parts[i]; if (cc[w]) return 'cc ' + cc[w]; if (w.length > 2 && DEF[w]) return 'cc ' + DEF[w]; }
+    for (var i = parts.length - 1; i >= 0; i--) { var w = parts[i]; if (cc[w]) return 'cc ' + cc[w] + (/^[A-Z]$/.test(w) ? ' csym' : ''); if (w.length > 2 && DEF[w]) return 'cc ' + DEF[w]; }
     return null;
   }
   function famOf(label) {   // the family of a label: its first word that names one (single letters only in a one-word label)
@@ -243,7 +251,7 @@ function eaiOutHL(text, cc, hl, tok) {
     if (!lab) { if (!/^\s/.test(line)) fam = null; return marked(line, fam); }   // a wrapped tensor's next lines keep the family
     fam = famOf(lab[1]);
     // a later label on the same line that names a family ("… loss: tensor(0.70)") colours what follows it (Eric, 2026-11-03)
-    var rest = line.slice(lab[1].length), out = '<span class="olab' + (fam ? ' f-' + fam : '') + '">' + marked(lab[1], fam, !!fam) + '</span>', MID = /(\s)([A-Za-z_][A-Za-z_ ]{0,30}:)(?=\s)/g, mm, from = 0, f2 = fam;
+    var rest = line.slice(lab[1].length), out = '<span class="olab' + (fam ? ' f-' + fam + (/^[A-Z]$/.test(lab[1]) ? ' cc csym ' + fam : '') : '') + '">' + marked(lab[1], fam, !!fam) + '</span>', MID = /(\s)([A-Za-z_][A-Za-z_ ]{0,30}:)(?=\s)/g, mm, from = 0, f2 = fam;
     while ((mm = MID.exec(rest))) {
       var mf = famOf(mm[2]); if (!mf) continue;
       var at = mm.index + mm[1].length;
@@ -502,6 +510,11 @@ Book.symShape = g => {
   const k = Book.symKey(s), d = sh[k] || sh[p.base + '*'];
   if (!d) return null;
   return p.sup === 'T' ? d.split(',').reverse().join(',') : d;
+};
+// a symbol's shape as text ('<5,8>') from the notation's shapes table (or its group's), for inline and equation tiles
+Book.shapeText = k => {
+  const sh = (Book.meta && Book.meta.shapes) || {}, p = Book.symParse(k || ''), d = sh[k] || sh[p.base + '*'];
+  return d ? Book.symDims(null, p.sup === 'T' ? d.split(',').reverse().join(',') : d) : '';
 };
 Book.symFontFamily = t => (/[Ωℒ]/.test(t) ? "'AI2AI Omega', " : '') + "Consolas, 'Inconsolata LGC', monospace";
 // the label's content: base, then the subscript and the superscript as tspans (the superscript stacked over the
@@ -790,7 +803,7 @@ function loadEqML() {
   if (window.EqML && window.temml) return Promise.resolve();
   return eqmlP || (eqmlP = Promise.all(['../app/temml.min.js', '../app/eqml.js'].map(src => new Promise((res, rej) => {
     const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('could not load ' + src)); document.head.appendChild(s);
-  }))).then(() => { EqML.addFonts(); }).catch(e => { eqmlP = null; throw e; }));
+  }))).then(() => { EqML.addFonts(); EqML.shapeOf = src => Book.shapeText(Book.symKey(Book.mathAliased(src.replace(/\\(?:mathbf|boldsymbol)\b/g, '')).replace(/[{}]/g, ''))); }).catch(e => { eqmlP = null; throw e; }));
 }
 const EQ_UC = 'αβγδεθλμσφηρτωΩξŷ';   // the symbols server.py TEX spells as commands
 // what colours an equation (Eric, 2026-11-18: equation colouring kept being left to hand): book-meta colors (by letter)
@@ -1650,8 +1663,8 @@ function eaiRunCode() {
   // Also the iPad app's projector copy (lecture=show) and the answers link (lecture=answers, the iPad's crib, where
   // book.css draws them faint like the answers): the projector showed every stored output from the start (Eric,
   // 2026-11-18: "during lecture I don't want them visible unless I run a cell"). The page itself keeps them.
-  if (/[?&]lecture=(1|show|answers)\b/.test(location.search) && !document.documentElement.classList.contains('present-out')) {
-    document.documentElement.classList.add('present-out');
+  if (/[?&]lecture=(1|show|answers)\b/.test(location.search) && !document.documentElement.classList.contains('present-out-on')) {
+    document.documentElement.classList.add('present-out', 'present-out-on');
   }
   function source(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return l.textContent.replace(/ /g, ' '); }).join('\n'); }
   // What runs before a block's own code: its hidden setup (setup="…", imports and data a slide leaves out), and, for a

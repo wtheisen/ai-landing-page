@@ -105,6 +105,9 @@ b-m .sym > sub { vertical-align: -.2em; } b-m .sym > sup { vertical-align: .42em
 .book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill].shown { color: var(--sk, inherit); }
 b-m .sym.red { --sk: var(--red-text); } b-m .sym.purple { --sk: var(--purple-text); } b-m .sym.green { --sk: var(--green-text); } b-m .sym.gold { --sk: #B8920F; } b-m .sym:is(.blue, .wblue) { --sk: #1155CC; } b-m .sym.gray { --sk: #666666; }
 .book[data-view="reading"] b-m .sym[data-fill], .book.ed b-m .sym[data-fill] { outline: 1pt dashed currentColor; outline-offset: 1pt; }   /* the author sees which tiles are blanks */
+/* a tile with its shape under the symbol (\tile[shape]{X}): taller, the shape small, like a drawing's tile */
+b-m .sym.shp { height: auto; line-height: 1.05; padding-top: .08em; padding-bottom: .12em; vertical-align: -.55em; }
+b-m .sym .tsh { display: block; font-size: .46em; line-height: 1.1; font-family: var(--font-mono, monospace); font-weight: 700; }
 b-m sub .sym, b-m sup .sym, b-m .sym .sym { background: none; box-shadow: none; padding: 0; margin: 0; }
 b-m .fr { display: inline-flex; flex-direction: column; vertical-align: middle; font-size: .8em; line-height: 1.08; text-align: center; margin: 0 .12em; }   /* \frac{a}{b} */
 b-m .fr > span { padding: 0 .1em; } b-m .fr > span + span { border-top: .07em solid currentColor; }
@@ -207,6 +210,10 @@ b-code .ln { white-space: pre; min-height: 1.42em; }
 b-code :is(.kw, .ctl, .ty, .bi, .st, .nu, .cm, .def) { font-weight: 700; }
 b-code .kw, b-code .bi, b-code .def { color: var(--blue-text); } b-code .ctl { color: var(--yellow-text); } b-code .ty { color: var(--purple-text); }
 b-code .st, b-code .nu { color: var(--red-text); } b-code .cm { color: var(--green-text); }
+/* a notation symbol in code (Q, K, V) is a tile like everywhere else (Eric, 2026-11-19: "ultra consistent"): fill and line only, no padding, so the columns still line up */
+:is(b-code, b-out) .cc.csym { border-radius: .22em; padding: .04em .14em; margin: 0 -.14em; background: var(--sf, #EEEEEE); box-shadow: inset 0 0 0 .08em var(--sl, #999999); }   /* padding paid back by margin: the columns don't move */
+:is(b-code, b-out) .cc.csym.red { --sf: #F4CCCC; --sl: #E06666; } :is(b-code, b-out) .cc.csym.purple { --sf: #D9D2E9; --sl: #8E7CC3; } :is(b-code, b-out) .cc.csym.green { --sf: #D9EAD3; --sl: #93C47D; }
+:is(b-code, b-out) .cc.csym.gold { --sf: #FFF2CC; --sl: #DCB439; color: #B8920F; } :is(b-code, b-out) .cc.csym:is(.blue, .wblue) { --sf: #C9DAF8; --sl: #6D9EEB; } :is(b-code, b-out) .cc.csym.gray { --sf: #EEEEEE; --sl: #999999; }
 b-code .cc { font-weight: 700; } b-code .cc.red { color: #CC0000; } b-code .cc.blue { color: #1155CC; } b-code .cc.gray { color: #666666; }
 b-code .cc.purple { color: #674EA7; } b-code .cc.gold { color: #DCB439; } b-code .cc.green { color: #38761D; } b-code .nu.nn { color: #434343; }
 :is(b-code, b-out) mark { background: var(--yellow-fill); box-shadow: 0 0 0 1px var(--yellow-line); border-radius: 2px; color: inherit; }
@@ -561,6 +568,7 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
+  html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
   html.ink-ghost .book[data-view="slides"] svg.draw [data-fill="label"]:not(.shown) > text,
   html.ink-ghost .book[data-view="slides"] svg.draw g[data-fill="all"]:not(.shown) > * { opacity: .28; }

@@ -620,29 +620,56 @@ function ctxClose() { if (!ctx.hidden) { ctx.hidden = true; ctx.innerHTML = ''; 
 // tile of that symbol in the chapter changes: drawings, inline maths, equations), and the maths pop-up
 // A tile is in inline maths (b-m: span.sym, data-at = its place in the tex after aliases) or in a typeset equation
 // (b-eq: an element of class sym, class sa-<start>-<end> = its place in its row's tex; a blank sits in class eqfill)
-const TILE = '.book b-m .sym[data-at], .book b-eq .eq-ml .sym';
-function tileTop(t) { return t && !(t.closest('b-m') ? t.parentElement.closest('sub, sup, .sym') : t.parentElement.closest('.sym, msub > :not(:first-child), msup > :not(:first-child), msubsup > :not(:first-child)')) ? t : null; }
-function tileAt(el) { const m = / sa-(\d+)-(\d+)/.exec(' ' + el.getAttribute('class')); return m ? [+m[1], +m[2]] : null; }
+const TILE = '.book b-m .sym[data-at], .book b-eq .eq-ml .sym, .book svg.draw g[data-sym]';
+function tileTop(t) {
+  if (!t) return null;
+  if (t.matches('g[data-sym]')) return t;
+  return !(t.closest('b-m') ? t.parentElement.closest('sub, sup, .sym') : t.parentElement.closest('.sym, msub > :not(:first-child), msup > :not(:first-child), msubsup > :not(:first-child)')) ? t : null;
+}
+function tileAt(el, pre) { const m = new RegExp(' ' + (pre || 'sa') + '-(\\d+)-(\\d+)').exec(' ' + el.getAttribute('class')); return m ? [+m[1], +m[2]] : null; }
+// what a tile is and how to change it: its options (fill, shape) and its notation key; for maths, where it sits in the
+// tex (a wrapper \tile[…]{…} or the bare symbol) and how to write the tex back; for a drawing, its own attributes
 function tileInfo(tile) {
-  const m = tile.closest('b-m');
-  if (m) {
-    const [a, b] = tile.dataset.at.split(',').map(Number);
-    return { host: m, fill: tile.hasAttribute('data-fill'), at: [a, b], key: tile.dataset.k || tile.textContent,
-      get: () => Book.mathAliased(m.getAttribute('tex') || ''), set: t => m.setAttribute('tex', t), edit: () => mathPop(m) };
+  if (tile.matches('g[data-sym]')) {
+    const svg = tile.closest('svg.draw'), opts = new Set();
+    if (tile.hasAttribute('data-fill')) opts.add('fill');
+    if (Book.symShape(tile)) opts.add('shape');
+    return { kind: 'draw', host: svg, opts, key: Book.symKey(tile.getAttribute('data-sym') || ''), coloured: true,
+      setOpts: o => {
+        if (o.has('fill')) tile.setAttribute('data-fill', 'label'); else tile.removeAttribute('data-fill');
+        if (o.has('shape')) tile.setAttribute('data-showdims', 'on'); else tile.setAttribute('data-showdims', 'off');
+        Book.drawSyms(svg.parentNode); Book.refresh();
+      }, edit: () => select(blockOf(svg)) };
   }
-  const eq = tile.closest('b-eq'), ml = eq.querySelector(':scope > .eq-ml'), rowEl = tile.closest('.eqml-e, .eqml-s');
-  const k = [...ml.querySelectorAll('.eqml-e, .eqml-s')].indexOf(rowEl), row = [...eq.children].filter(c => /^EQ-(ROW|STEP)$/.test(c.tagName))[k];
-  const fl = tile.closest('.eqfill'), fa = fl && / eqfa-(\d+)-(\d+)/.exec(' ' + fl.getAttribute('class')), at = fa ? [+fa[1], +fa[2]] : tileAt(tile) || [0, 0];
-  const src = Book.texOf(row).slice(...(tileAt(tile) || at)), key = Book.symKey(Book.mathAliased(src.replace(/\\(?:mathbf|boldsymbol)\b/g, '')).replace(/[{}]/g, ''));
-  return { host: eq, fill: !!fl, at, key, get: () => Book.texOf(row), set: t => { row.textContent = t; eq.render(); }, edit: () => { select(blockOf(eq)); } };
+  const m = tile.closest('b-m');
+  let get, set, at, wrap, opts, edit, host;
+  if (m) {
+    host = m; at = tile.dataset.at.split(',').map(Number); wrap = tile.hasAttribute('data-wrap');
+    opts = new Set((tile.dataset.opts || '').split(',').filter(Boolean));
+    get = () => Book.mathAliased(m.getAttribute('tex') || ''); set = t => m.setAttribute('tex', t); edit = () => mathPop(m);
+  } else {
+    const eq = tile.closest('b-eq'), ml = eq.querySelector(':scope > .eq-ml'), rowEl = tile.closest('.eqml-e, .eqml-s');
+    const k = [...ml.querySelectorAll('.eqml-e, .eqml-s')].indexOf(rowEl), row = [...eq.children].filter(c => /^EQ-(ROW|STEP)$/.test(c.tagName))[k];
+    host = eq; wrap = tile.classList.contains('eqt'); at = (wrap ? tileAt(tile, 'eqfa') : tileAt(tile)) || [0, 0];
+    opts = new Set([...tile.classList].filter(c => c.startsWith('eqo-')).map(c => c.slice(4)));
+    get = () => Book.texOf(row); set = t => { row.textContent = t; eq.render(); }; edit = () => select(blockOf(eq));
+  }
+  const t0 = get(), whole = t0.slice(at[0], at[1]);
+  const inner = wrap ? whole.replace(/^\\(?:tile|fill)\s*(?:\[[^\]]*\])?\s*\{/, '').replace(/\}$/, '') : whole;
+  const key = m ? (tile.dataset.k || Book.symKey(inner)) : Book.symKey(Book.mathAliased(inner.replace(/\\(?:mathbf|boldsymbol)\b/g, '')).replace(/[{}]/g, ''));
+  const coloured = !tile.matches('.gray:not(.c)') && !(!m && tile.classList.contains('sym-666666') && wrap && !(Book.meta.notation || {})[key]);
+  return { kind: m ? 'inline' : 'eq', host, opts, key, coloured, edit,
+    setOpts: o => {
+      const t = get(), w = o.size ? '\\tile[' + [...o].join(',') + ']{' + inner + '}' : coloured ? inner : '\\tile{' + inner + '}';
+      set(t.slice(0, at[0]) + w + t.slice(at[1]));
+    } };
 }
-function tileFill(tile) {
-  const I = tileInfo(tile), t = I.get(), [a, b] = I.at;
-  commit(true);
-  if (I.fill) { const inner = t.slice(a, b).replace(/^\\fill\s*\{/, '').replace(/\}$/, ''); I.set(t.slice(0, a) + inner + t.slice(b)); }
-  else I.set(t.slice(0, a) + '\\fill{' + t.slice(a, b) + '}' + t.slice(b));
-  commit(true);
+function tileToggle(tile, name) {
+  const I = tileInfo(tile), o = new Set(I.opts);
+  if (o.has(name)) o.delete(name); else o.add(name);
+  commit(true); I.setOpts(o); commit(true);
 }
+function tileFill(tile) { tileToggle(tile, 'fill'); }
 function tileColour(tile, fam) {
   const k = tileInfo(tile).key; if (!k) return;
   commit(true); Book.meta.notation = Book.meta.notation || {};
@@ -665,14 +692,16 @@ function tileColour(tile, fam) {
   }, true);
 }
 function tileMenu(tile, x, y) {
-  const I = tileInfo(tile), m = I.host, k = I.key, own = (Book.meta.notation || {})[k], fill = I.fill;
+  const I = tileInfo(tile), m = I.host, k = I.key, own = (Book.meta.notation || {})[k], fill = I.opts.has('fill'), shape = I.opts.has('shape');
   const NAME = f => f[0].toUpperCase() + f.slice(1);
   const cols = (Book.SYM_FAMS || []).map(f => [(own === f ? '✓ ' : '') + NAME(f), () => tileColour(tile, f), '']);
   if (own) cols.push(['No colour of its own', () => tileColour(tile, null), '']);
+  const hasShape = !!Book.shapeText(k) || I.kind === 'draw';
   ctxOpen(x, y, [
-    [(fill ? '✓ ' : '') + 'Fill-in blank', () => tileFill(tile), ''],
+    [(fill ? '✓ ' : '') + 'Fill-in blank', () => tileToggle(tile, 'fill'), ''],
+    [(shape ? '✓ ' : '') + (hasShape ? 'Show its shape' : 'Show its shape (none in the table)'), () => hasShape ? tileToggle(tile, 'shape') : toast('Give ' + k + ' a shape in the notation panel first'), ''],
     ['Colour of ' + k, null, '', cols],
-    [m.tagName === 'B-M' ? 'Edit maths…' : 'Select the equation', () => I.edit(), ''],
+    [I.kind === 'inline' ? 'Edit maths…' : I.kind === 'eq' ? 'Select the equation' : 'Select the drawing', () => I.edit(), ''],
     ...(blockOf(m) ? ['-', ['Comment on this block', () => addComment(blockOf(m)), '']] : [])]);
 }
 function ctxOpen(x, y, rows) {   // rows: '-' a divider | { dots: [[style, name, colour]] } | [label, fn, hint] | [label, null, hint, [[label, fn]]] (submenu)
@@ -720,7 +749,7 @@ document.addEventListener('contextmenu', e => {
     const blk = blockOf(r.commonAncestorContainer.nodeType === 1 ? r.commonAncestorContainer : r.commonAncestorContainer.parentElement);
     return ctxOpen(e.clientX, e.clientY, [{ dots }, '-',
       ['Bold', st('b'), '⌘B'], ['Italic', st('i'), '⌘I'], ['Consolas', st('mono'), '⌥M'], ['Number', st('num'), '⌥N'], ['Note', st('note'), '⌥T'],
-      ['Fill-in blank', st('fill'), ''], ['Math', st('math'), '⌘E'], ['Link…', st('link'), '⌘K'], ['Token tiles', st('tok'), '⌥K'], ['Clear formatting', st('clear'), '⌥0'], '-',
+      ['Fill-in blank', st('fill'), ''], ['Math', st('math'), '⌘E'], ['Tile', st('tile'), ''], ['Link…', st('link'), '⌘K'], ['Token tiles', st('tok'), '⌥K'], ['Clear formatting', st('clear'), '⌥0'], '-',
       ['Cut', cmd('cut'), '⌘X'], ['Copy', cmd('copy'), '⌘C'],
       ...(blk ? ['-', ['Comment on this block', () => addComment(blk), '']] : [])]);
   }
@@ -1015,10 +1044,10 @@ function clearSel() {
 }
 const ALIAS = Book.MATH_ALIAS;   // book.js: the same names render in a stored <b-m> too
 const mathNorm = (s, final) => (final ? s + '\n' : s).replace(/\\([A-Za-z]+)(?=[^A-Za-z])/g, (m, w) => ALIAS[w] ? ALIAS[w] : m).replace(/'/g, '′').normalize('NFC');
-function insertMath() {
+function insertMath(tile) {   // tile: the selection (or X) as a tile, \tile{…} (Eric, 2026-11-19: tiles as their own element)
   const host = editHost(); if (!host) return toast('Click into some text first');
-  const s = getSelection(), r = s.getRangeAt(0);
-  const m = document.createElement('b-m'); m.setAttribute('tex', mathNorm(r.toString(), true).trim());
+  const s = getSelection(), r = s.getRangeAt(0), t = mathNorm(r.toString(), true).trim();
+  const m = document.createElement('b-m'); m.setAttribute('tex', tile ? '\\tile{' + (t || 'X') + '}' : t);
   r.deleteContents(); r.insertNode(m);
   commit(true); mathPop(m);
 }
@@ -1078,7 +1107,7 @@ document.addEventListener('mousedown', e => { if (!$('#pop').hidden && !e.target
 function style(k) {
   if (codeEd && document.activeElement === codeEd.ta && codeEd.el.tagName === 'B-CODE' && (k === 'fill' || CODE_COLOUR[k])) return codeMark(k === 'fill' ? 'fill' : CODE_COLOUR[k]);
   if (codeEd && document.activeElement === codeEd.ta && codeEd.el.tagName === 'B-OUT' && CODE_COLOUR[k]) return outMark(CODE_COLOUR[k]);
-  if (k === 'math') return insertMath(); if (k === 'ref') return insertRef(); if (k === 'link') return linkPop(); if (k === 'clear') return clearSel();
+  if (k === 'math') return insertMath(); if (k === 'tile') return insertMath(true); if (k === 'ref') return insertRef(); if (k === 'link') return linkPop(); if (k === 'clear') return clearSel();
   if (k === 'fill') return wrapSel('u', 'fill');
   if (k === 'key') return wrapSel('span', 'key');
   if (k === 'mono') return wrapSel('span', 'mono');
