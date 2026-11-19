@@ -28,7 +28,7 @@ const isAlpha = c => /\p{L}/u.test(c);
 // e.g. typed before the editor knew the name, still renders the symbol: Eric 2026-11-01, \sig showed as text)
 Book.MATH_ALIAS = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', theta: 'θ', lambda: 'λ', mu: 'μ', sigma: 'σ', sig: 'σ', phi: 'φ', varphi: 'φ', eta: 'η', rho: 'ρ', tau: 'τ', omega: 'ω', xi: 'ξ',
   Sigma: 'Σ', sum: 'Σ', Omega: 'Ω', Delta: 'Δ', Gamma: 'Γ', Theta: 'Θ', Lambda: 'Λ', Phi: 'Φ', Pi: 'Π', Psi: 'Ψ', pi: 'π', psi: 'ψ', kappa: 'κ', nu: 'ν', zeta: 'ζ', chi: 'χ', nabla: '∇', ge: '≥', geq: '≥', le: '≤', leq: '≤', ne: '≠', neq: '≠', cdot: '·', times: '×', pm: '±', in: '∈', approx: '≈', infty: '∞', sqrt: '√', norm: '‖', half: '½', prime: '′', yhat: 'ŷ', to: '→', partial: '∂', L: 'ℒ', loss: 'ℒ' };   // \L = the loss ℒ (Eric, 2026-11-03)
-function inlineMath(s, plain) {   // plain: no colours (the subscripts of a coloured symbol take its colour, as in equations)
+function inlineMath(s, plain, base = 0) {   // base: where s starts in the whole tex (a tile's data-at, for the editor's tile menu); plain: no colours (the subscripts of a coloured symbol take its colour, as in equations)
   s = String(s).replace(/\\([A-Za-z]+)(?![A-Za-z])/g, (m, w) => w !== 'T' && Book.MATH_ALIAS[w] ? Book.MATH_ALIAS[w] : m);
   const out = []; let i = 0;
   const colors = plain ? {} : Book.eqColors();   // the notation table over the letters' colours, as equations (2026-11-18)
@@ -56,7 +56,15 @@ function inlineMath(s, plain) {   // plain: no colours (the subscripts of a colo
     if (fr) {
       const [a, j] = group(i + fr[0].length); let b = '', k = j;
       if (s[j] === '{') [b, k] = group(j);
-      out.push(`<span class="fr"><span>${inlineMath(a, plain)}</span><span>${inlineMath(b, plain)}</span></span>`); i = k; continue;
+      out.push(`<span class="fr"><span>${inlineMath(a, plain, base + i + fr[0].length + 1)}</span><span>${inlineMath(b, plain, base + j + 1)}</span></span>`); i = k; continue;
+    }
+    // \fill{Ω_Q}: the tile is a fill-in blank in the Lecture, drawn empty in its colour (Eric, 2026-11-19: "mark these
+    // boxes as fill, similar to filling in a box in a diagram"); several symbols, or none coloured, make one grey tile
+    const fl = /^\\fill\s*(?=\{)/.exec(s.slice(i));
+    if (fl) {
+      const [a, j] = group(i + fl[0].length), inner = inlineMath(a, plain).replace(/ data-at="[^"]*"/g, ''), at = ` data-at="${base + i},${base + j}"`;
+      const one = /^<span class="c [a-z]+ sym"[^>]*>/.test(inner) && (inner.match(/ sym"/g) || []).length === 1 && inner.endsWith('</span>');
+      out.push(one ? inner.replace(' sym"', ' sym" data-fill=""' + at) : `<span class="sym gray" data-fill=""${at}>${inner}</span>`); i = j; continue;
     }
     if (s.startsWith('\\T', i)) { out.push('<sup>T</sup>'); i += 2; continue; }
     const word = WORDS.find(w => s.startsWith(w, i));
@@ -65,18 +73,18 @@ function inlineMath(s, plain) {   // plain: no colours (the subscripts of a colo
     const fn = !plain && isAlpha(c) && (i === 0 || !isAlpha(s[i - 1])) ? /^[A-Za-z]{2,}/.exec(s.slice(i)) : null;
     if (fn && colors[fn[0]] && !/^[A-Za-z]$/.test(fn[0])) { out.push(`<span class="c ${colors[fn[0]]}">${esc(fn[0])}</span>`); i += fn[0].length; continue; }
     if (isAlpha(c)) {
-      i++;
+      const i0 = i; i++;
       let tok = c === 'Ω' ? '<span class="Om">ω</span>' : esc(c);   // Ω = the weight-matrix ω, drawn as a tall ω (like the equation font)
-      let base = c; while (i < s.length && /[\u0300-\u036f]/.test(s[i])) { base += s[i]; tok += s[i++]; }   // c̃: a combining mark stays on its letter, not on the subscript
+      let base0 = c; while (i < s.length && /[\u0300-\u036f]/.test(s[i])) { base0 += s[i]; tok += s[i++]; }   // c̃: a combining mark stays on its letter, not on the subscript
       // the quantity (Ω_Q, Z_z), its group (Ω*), then the letter, as equations do (eqml.js colorize); a time index (c_t) is no part of it
-      const q = s[i] === '_' ? script(i + 1)[0].replace(/\s+/g, '').replace(/-/g, '−') : '', qk = q && !/^(?:t|T|\d+)(?:[+−]\d+)?$/.test(q) && !/[\\{}]/.test(q) ? base + '_' + q : null;
-      const f = (qk && colors[qk]) || colors[base + '*'] || colors[base] || (base !== c ? null : colors[c]);
+      const q = s[i] === '_' ? script(i + 1)[0].replace(/\s+/g, '').replace(/-/g, '−') : '', qk = q && !/^(?:t|T|\d+)(?:[+−]\d+)?$/.test(q) && !/[\\{}]/.test(q) ? base0 + '_' + q : null;
+      const f = (qk && colors[qk]) || colors[base0 + '*'] || colors[base0] || (base0 !== c ? null : colors[c]);
       while (i < s.length && (s[i] === '_' || s[i] === '^')) {
         const tag = s[i] === '_' ? 'sub' : 'sup', [sub, i2] = script(i + 1);
         tok += `<${tag}>${inlineMath(sub, plain || (tag === 'sub' && !!f))}</${tag}>`; i = i2;   // Ω_{ax}: the ax is Ω's blue (Eric's equations), not a gold a and a red x
       }
       if (s[i] === '′') { i++; tok = scripts(tok + '<span class="pr">′</span>'); }
-      out.push(f ? `<span class="c ${f} sym">${tok}</span>` : tok);   // a coloured symbol is a tile, like the equation rows and token tiles (Eric, 2026-11-19)
+      out.push(f ? `<span class="c ${f} sym" data-at="${base + i0},${base + i}" data-k="${esc(qk || base0)}">${tok}</span>` : tok);   // a coloured symbol is a tile, like the equation rows and token tiles (Eric, 2026-11-19)
       continue;
     }
     if (c === '^' || c === '_') {
@@ -88,6 +96,7 @@ function inlineMath(s, plain) {   // plain: no colours (the subscripts of a colo
   return out.join('');
 }
 Book.inlineMath = inlineMath;
+Book.mathAliased = t => String(t).replace(/\\([A-Za-z]+)(?![A-Za-z])/g, (m, w) => w !== 'T' && Book.MATH_ALIAS[w] ? Book.MATH_ALIAS[w] : m);   // the tex data-at counts in
 
 // ---------------------------------------------------------------- code highlighting
 const set = s => new Set(s.split(' '));
@@ -265,7 +274,7 @@ const rawText = el => el.textContent.replace(/^\s*\n/, '').replace(/\s+$/, '');
 
 class BM extends HTMLElement {
   static get observedAttributes() { return ['tex']; }
-  connectedCallback() { lock(this); if (!this.hasAttribute('tex')) this.setAttribute('tex', this.textContent.trim()); }
+  connectedCallback() { lock(this); if (!this.hasAttribute('tex') && !this.hasAttribute('data-frozen')) this.setAttribute('tex', this.textContent.trim()); }
   attributeChangedCallback() { if (this.firstChild && inThumb(this)) return; this.innerHTML = inlineMath(this.getAttribute('tex') || ''); }
 }
 // ---------------------------------------------------------------- token tiles (Eric, 2026-11-07: "token mode")
@@ -2030,6 +2039,10 @@ Book.snapshot = async () => {
   } else clone.querySelectorAll('[data-view], aside.qc, div.wbox').forEach(n => { if (!Book.inView(n, view)) n.remove(); });   // (quick checks: not in Reading unless tagged)
   if (view === 'workbook') clone.querySelectorAll('[data-box]').forEach(el => {   // the workbook carries blanks, not hidden answers
     const [w, h] = el.getAttribute('data-box').split(' ').map(Number);
+    if (el.matches('b-m .sym')) {   // an inline tile blank: its size and colour stay, the symbol leaves the file
+      const bm = el.closest('b-m'); if (bm) { bm.removeAttribute('tex'); bm.setAttribute('data-frozen', ''); }
+      el.innerHTML = '&nbsp;'; el.style.width = w + 'pt'; el.removeAttribute('data-fill'); el.removeAttribute('data-box'); return;
+    }
     if (el.matches('u.fill')) { const u = document.createElement('u'); u.className = 'fill blank'; u.style.width = w + 'pt'; u.innerHTML = '&nbsp;'; el.replaceWith(u); }
     else if (el instanceof SVGElement) {   // a drawing's answer part: as the Lecture shows it, with the answer left out of the file
       const k = el.getAttribute('data-fill'), ph = el.nextElementSibling;

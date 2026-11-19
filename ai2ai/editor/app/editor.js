@@ -616,6 +616,49 @@ $('#blockbar').addEventListener('click', e => {
 // so do fields, code being typed, the other document's pane, phones and lecture mode.
 const ctx = document.createElement('div'); ctx.id = 'ctx'; ctx.hidden = true; ctx.setAttribute('role', 'menu'); document.body.append(ctx);
 function ctxClose() { if (!ctx.hidden) { ctx.hidden = true; ctx.innerHTML = ''; } }
+// the tile menu: blank on/off (\fill{…} around its symbol in the tex), its colour (the chapter's notation table, so every
+// tile of that symbol in the chapter changes: drawings, inline maths, equations), and the maths pop-up
+function tileEdit(tile, f) {
+  const m = tile.closest('b-m'), tex = Book.mathAliased(m.getAttribute('tex') || ''), [a, b] = tile.dataset.at.split(',').map(Number);
+  commit(true); m.setAttribute('tex', f(tex, a, b)); commit(true);
+}
+function tileFill(tile) {
+  tileEdit(tile, (t, a, b) => {
+    if (tile.hasAttribute('data-fill')) { const inner = t.slice(a, b).replace(/^\\fill\s*\{/, '').replace(/\}$/, ''); return t.slice(0, a) + inner + t.slice(b); }
+    return t.slice(0, a) + '\\fill{' + t.slice(a, b) + '}' + t.slice(b);
+  });
+}
+function tileColour(tile, fam) {
+  const k = tile.dataset.k; if (!k) return;
+  commit(true); Book.meta.notation = Book.meta.notation || {};
+  if (fam) Book.meta.notation[k] = fam; else delete Book.meta.notation[k];
+  if (!Object.keys(Book.meta.notation).length) delete Book.meta.notation;
+  Book.drawSyms(Book.root); Book.root.querySelectorAll('b-m').forEach(e => e.setAttribute('tex', e.getAttribute('tex')));
+  Book.refresh(); commit(true);
+}
+// on the iPad (no right-click): hold a tile for half a second
+{ let hold = null;
+  document.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || document.documentElement.classList.contains('ink-lecture')) return;
+    const t = e.target.closest && e.target.closest('.book b-m .sym[data-at]'); if (!t || t.parentElement.closest('sub, sup, .sym')) return;
+    const x = e.clientX, y = e.clientY; clearTimeout(hold);
+    hold = setTimeout(() => { hold = null; tileMenu(t, x, y); }, 500);
+    const stop = ev => { if (ev.type !== 'pointermove' || Math.hypot(ev.clientX - x, ev.clientY - y) > 8) { clearTimeout(hold); off(); } };
+    const off = () => ['pointermove', 'pointerup', 'pointercancel'].forEach(k => removeEventListener(k, stop, true));
+    ['pointermove', 'pointerup', 'pointercancel'].forEach(k => addEventListener(k, stop, true));
+  }, true);
+}
+function tileMenu(tile, x, y) {
+  const m = tile.closest('b-m'), k = tile.dataset.k || tile.textContent, own = (Book.meta.notation || {})[k], fill = tile.hasAttribute('data-fill');
+  const NAME = f => f[0].toUpperCase() + f.slice(1);
+  const cols = (Book.SYM_FAMS || []).map(f => [(own === f ? '✓ ' : '') + NAME(f), () => tileColour(tile, f), '']);
+  if (own) cols.push(['No colour of its own', () => tileColour(tile, null), '']);
+  ctxOpen(x, y, [
+    [(fill ? '✓ ' : '') + 'Fill-in blank', () => tileFill(tile), ''],
+    ['Colour of ' + k, null, '', cols],
+    ['Edit maths…', () => mathPop(m), ''],
+    ...(blockOf(m) ? ['-', ['Comment on this block', () => addComment(blockOf(m)), '']] : [])]);
+}
 function ctxOpen(x, y, rows) {   // rows: '-' a divider | { dots: [[style, name, colour]] } | [label, fn, hint] | [label, null, hint, [[label, fn]]] (submenu)
   ctx.innerHTML = '';
   for (const r of rows) {
@@ -648,6 +691,10 @@ document.addEventListener('contextmenu', e => {
   ctxClose();
   if (e.altKey || phone || document.documentElement.classList.contains('ink-lecture') || !deskBox.contains(e.target)) return;
   if (e.target.closest('textarea, input, select, #pop, .ed-code')) return;
+  // a symbol tile in inline maths (Eric, 2026-11-19: "these little boxes should almost effectively just be a new kind of
+  // element that I can interact fully with"): its own menu, like a token tile's
+  const tile = e.target.closest && e.target.closest('.book b-m .sym[data-at]');
+  if (tile && !tile.parentElement.closest('sub, sup, .sym')) { e.preventDefault(); return tileMenu(tile, e.clientX, e.clientY); }
   const s = getSelection(), r = s.rangeCount && !s.isCollapsed ? s.getRangeAt(0) : null;
   const onText = r && e.target.closest('[contenteditable=true]') && r.intersectsNode(e.target);
   if (onText) {
