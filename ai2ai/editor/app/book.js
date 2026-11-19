@@ -864,9 +864,12 @@ class BEq extends HTMLElement {
   fit() {
     const d = this.querySelector(':scope > .eq-ml'); if (!d) return;
     const bk = this.closest('.book'), big = this.hasAttribute('data-fill') && bk && bk.getAttribute('data-view') === 'slides' ? 1.5 : 1;
-    d.style.zoom = ''; const cs = getComputedStyle(this), avail = this.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), w = d.scrollWidth;
+    // the box's room first (with the equation at its current size, so a grid column it sits in can't grow to the full
+    // equation), then the equation's own width
+    const cs = getComputedStyle(this), avail = this.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    d.style.zoom = ''; const w = d.scrollWidth;
     if (!avail || !w) return;
-    const z = Math.min(big, avail / w); if (Math.abs(z - 1) > 0.005) d.style.zoom = z.toFixed(3);
+    const z = w * big > avail ? 0.96 * avail / w : big; if (Math.abs(z - 1) > 0.005) d.style.zoom = z.toFixed(3);   // a little inside the box, which then shrinks to it
   }
 }
 // marks="3:4-18:gold 7:0-9:blue": a tinted box behind part of a line (1-based line, 0-based columns).

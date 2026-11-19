@@ -92,11 +92,11 @@ b-m sub, b-m sup { font-size: .68em; line-height: 0; }
 b-m sub { vertical-align: -.32em; } b-m sup { vertical-align: .55em; }
 b-m .c { font-weight: 700; }
 /* inline symbols as tiles (Eric, 2026-11-19: "should be like the token system, consistent everywhere"): the fill and line of the drawings' symbol tiles */
-b-m .sym { padding: 0 .14em; margin: 0 .05em; border-radius: .26em; background: var(--sf, color-mix(in srgb, currentColor 15%, #fff)); box-shadow: inset 0 0 0 .085em var(--sl, color-mix(in srgb, currentColor 50%, #fff)); }
+b-m .sym { padding: 0 .1em; margin: 0 .03em; border-radius: .26em; background: var(--sf, color-mix(in srgb, currentColor 15%, #fff)); box-shadow: inset 0 0 0 .085em var(--sl, color-mix(in srgb, currentColor 50%, #fff)); }
 b-m .sym.red { --sf: #F4CCCC; --sl: #E06666; } b-m .sym.purple { --sf: #D9D2E9; --sl: #8E7CC3; } b-m .sym.green { --sf: #D9EAD3; --sl: #93C47D; }
 b-m .sym.gold { --sf: #FFF2CC; --sl: #DCB439; color: #B8920F; } b-m .sym.blue, b-m .sym.wblue { --sf: #C9DAF8; --sl: #6D9EEB; color: #1155CC; } b-m .sym.gray { --sf: #EEEEEE; --sl: #999999; }
 /* every tile the same size (Eric, 2026-11-19), with room for a subscript inside */
-b-m .sym { display: inline-block; box-sizing: border-box; height: 1.36em; min-width: 1.22em; line-height: 1.28em; text-align: center; vertical-align: baseline; word-spacing: 0; }   /* the symbol sits on the text's baseline */
+b-m .sym { display: inline-block; box-sizing: border-box; height: 1.3em; min-width: 1em; line-height: 1.24em; margin-block: -.15em; text-align: center; vertical-align: baseline; word-spacing: 0; }   /* the symbol sits on the text's baseline */
 b-m .sym > sub { vertical-align: -.2em; } b-m .sym > sup { vertical-align: .42em; }
 /* \fill{…}: an inline tile left empty in the Lecture until it is filled (tap) or shown, like a drawing's fill part */
 .book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill]:not(.shown) { color: transparent; border: 0; border-radius: .26em; background: var(--sf, #EEEEEE); cursor: pointer; }
@@ -578,6 +578,7 @@ span.wrapf { display: block; pointer-events: none; -webkit-user-select: none; us
 
 /* equations typeset in the browser (eqml.js): laid out like the TeX images (kit/preamble_mathfont.tex) */
 b-eq > .eq-ml { display: inline-block; vertical-align: middle; }   /* BEq.fit shrinks it to the box */
+b-eq { min-width: 0; }   /* in a grid (code beside) the box keeps its column, so fit can shrink the equation */
 .eqml.flush { grid-template-columns: 0 auto; column-gap: 0; }
 .eqml { display: grid; grid-template-columns: 3.6em auto; column-gap: 0.5em; row-gap: 5.6pt; align-items: center; font-size: 16pt; line-height: 1.2; color: #000; }
 .eqml math { font-family: 'AI2AI Math', math; font-size: 16pt; }
