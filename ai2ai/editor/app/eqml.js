@@ -27,12 +27,19 @@ function group(s, i) {   // the balanced {...} group starting at s[i], or the si
   let d = 0; for (let j = i; j < s.length; j++) { d += s[j] === '{' ? 1 : s[j] === '}' ? -1 : 0; if (!d) return s.slice(i, j + 1); }
   throw new Error('unbalanced braces');
 }
-function colorize(tex, colors) {   // render.py colorize: wrap each coloured symbol (and its subscript) in \eqfam
+function colorize(tex, colors, base = 0) {   // render.py colorize: wrap each coloured symbol (and its subscript) in \eqfam
+  // base: where tex starts in the row; each tile carries its place as class sa-<start>-<end> (the editor's tile menu)
   const out = []; let i = 0;
   while (i < tex.length) {
-    const c = tex[i]; let tok, key;
+    const c = tex[i], i0 = i; let tok, key;
     if (c === '\\') {
       tok = /^\\([A-Za-z]+|.)/.exec(tex.slice(i))[0]; i += tok.length;
+      if (tok === '\\fill' && tex[i] === '{') {   // \fill{Q}: the tile is a fill-in blank in the Lecture (2026-11-19)
+        const a = group(tex, i), inner = colorize(a.slice(1, -1), colors, base + i + 1); i += a.length;
+        // one tile inside: the blank's classes go on that tile (Temml drops a \\class nested in another)
+        const one = /^\{\\class\{(sym [^}]*)\}\{([\s\S]*)\}\}$/.exec(inner), fa = 'eqfill eqfa-' + (base + i0) + '-' + (base + i);
+        out.push(one && !/\\class/.test(one[2]) ? '{\\class{' + one[1] + ' ' + fa + '}{' + one[2] + '}}' : '{\\class{' + fa + '}{' + inner + '}}'); continue;
+      }
       if (VERBATIM.has(tok.slice(1)) || tok === '\\lk') { const a = group(tex, i); out.push(verbatimColor(tok, a, colors) || tok + a); i += a.length; continue; }
       key = tok;
     } else if (/\p{L}/u.test(c)) { tok = key = c; i++; }
@@ -42,7 +49,7 @@ function colorize(tex, colors) {   // render.py colorize: wrap each coloured sym
     const own = (qk && colors[qk]) || colors[key + '*'] || colors[key], col = own || (/^\\[a-z]{3,}$/.test(key) && colors[key.slice(1)]);   // \\sin: the table's sin
     if (!col) { out.push(tok); continue; }
     if (sub !== null) { tok += '_' + sub; i += 1 + sub.length; }
-    out.push(own ? '{\\class{sym sym-' + String(col).replace('#', '') + '}{\\eqfam{' + col + '}{' + tok + '}}}' : '{\\eqfam{' + col + '}{' + tok + '}}');   // braced, so \\hat\\omega still takes the whole symbol; a tile, as inline maths and the tile rows (Eric, 2026-11-19)
+    out.push(own ? '{\\class{sym sym-' + String(col).replace('#', '') + ' sa-' + (base + i0) + '-' + (base + i) + '}{\\eqfam{' + col + '}{' + tok + '}}}' : '{\\eqfam{' + col + '}{' + tok + '}}');   // braced, so \\hat\\omega still takes the whole symbol; a tile, as inline maths and the tile rows (Eric, 2026-11-19)
   }
   return out.join('');
 }
@@ -77,7 +84,8 @@ function texColors(colors) {   // chapter colour map {symbol: family} -> {TeX to
 }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function one(tex, colors, display) {
-  return G.temml.renderToString(colorize(boldText(tex), colors), { displayMode: false, macros: Object.assign({}, MACROS), trust: true, throwOnError: true, annotate: false, xml: false, wrap: 'none' })
+  // colorize first, so tiles count places in the row's own tex
+  return G.temml.renderToString(boldText(colorize(tex, colors)), { displayMode: false, macros: Object.assign({}, MACROS), trust: true, throwOnError: true, annotate: false, xml: false, wrap: 'none' })
     .replace(/^<math/, display ? '<math display="block" displaystyle="true" style="display:inline-block"' : '<math')
     .replace(/<mi>/g, '<mi mathvariant="normal">')   // unicode-math math-style=upright: letters are upright, as in the TeX images
     .replace(/(<mi class="mathcal" style="color:[^"]*">)ℒ</g, '$1𝓛<');   // a coloured ℒ is the font's bold script 𝓛 (render.py colorize; Temml ignores \mathbf on it)
