@@ -59,6 +59,9 @@ body.ed { display: flex; flex-direction: column; overflow: hidden; font-size: 13
 /* pages on the desk: fixed 6x9 sheets, overflow visible so you can see what runs over */
 .ed .book { display: flex; flex-flow: row wrap; justify-content: safe center; align-items: flex-start; gap: 24px; padding: 34px 24px 80px; }
 .ed .page { height: var(--page-h); overflow: visible; }
+/* a slide is at least its 540pt and as tall as its content (Book.refresh then sets --page-h to match): with a fixed height the
+   slide grid squeezed a tall code row and the code ran up over the title (Eric, 2026-11-19, lec-output with code shapes) */
+.ed .book[data-view="slides"] .page:not(.cover) { height: auto; min-height: var(--page-h); }
 .ed .page.over { border-color: var(--red-text); }
 .ed .page.over::after { content: "content runs into the footer"; position: absolute; left: 0; right: 0; top: calc(var(--page-h) - 26pt); border-top: 1px dashed var(--red-text); color: var(--red-text); font-size: 7pt; text-align: right; padding-right: 4pt; pointer-events: none; }
 .ed .page > :not(.foot):hover { outline: 1px dashed #b5b5b5; outline-offset: 3px; }
