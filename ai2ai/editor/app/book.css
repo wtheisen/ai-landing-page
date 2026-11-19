@@ -224,6 +224,13 @@ b-code.code-shapes .ln { min-height: 2.5em; }   /* an empty line as tall as the 
 b-code.code-shapes .cc.csym[data-shape] { display: inline-flex; flex-direction: column; align-items: center; vertical-align: baseline; line-height: 1; padding: .5em .14em .06em; margin: 0 .04em; }
 b-code.code-shapes .cc.csym[data-shape]::before { left: 0; right: 0; top: 0; bottom: 0; }
 b-code.code-shapes .cc.csym[data-shape]::after { content: attr(data-shape); font-size: .44em; line-height: 1; margin-top: .1em; white-space: nowrap; font-weight: 700; }
+/* while the code is being edited it is plain code again: no shapes, ordinary line height (Eric, 2026-11-19: the tall
+   gutter and the short typed lines went out of step) */
+b-code.code-shapes.ed-editing { line-height: 1.4; }
+b-code.code-shapes.ed-editing .ln { min-height: 0; }
+b-code.code-shapes.ed-editing .cc.csym[data-shape] { display: inline; padding: 0; margin: 0; }
+b-code.code-shapes.ed-editing .cc.csym[data-shape]::before { left: -.12em; right: -.12em; top: -.02em; bottom: -.04em; }
+b-code.code-shapes.ed-editing .cc.csym[data-shape]::after { content: none; }
 :is(b-code, b-out) .cc.csym.red { --sf: #F4CCCC; --sl: #E06666; } :is(b-code, b-out) .cc.csym.purple { --sf: #D9D2E9; --sl: #8E7CC3; } :is(b-code, b-out) .cc.csym.green { --sf: #D9EAD3; --sl: #93C47D; }
 :is(b-code, b-out) .cc.csym.gold { --sf: #FFF2CC; --sl: #DCB439; color: #B8920F; } :is(b-code, b-out) .cc.csym:is(.blue, .wblue) { --sf: #C9DAF8; --sl: #6D9EEB; } :is(b-code, b-out) .cc.csym.gray { --sf: #EEEEEE; --sl: #999999; }
 b-code .cc { font-weight: 700; } b-code .cc.red { color: #CC0000; } b-code .cc.blue { color: #1155CC; } b-code .cc.gray { color: #666666; }
