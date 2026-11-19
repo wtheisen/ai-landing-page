@@ -1,37 +1,88 @@
 {
  "_last": {
-  "at": "2026-11-18T20:13:50Z",
-  "event": "push",
+  "at": "2026-11-19T17:17:18Z",
+  "event": "schedule",
   "failed": [],
   "ok": [
+   "attention",
+   "backprop",
+   "ballm-attention",
+   "ballm-attnvar",
+   "ballm-blocks",
+   "ballm-embeddings",
+   "ballm-evals",
+   "ballm-hdd",
+   "ballm-loss",
+   "ballm-mha",
+   "ballm-moe",
+   "ballm-optim",
+   "ballm-rnn",
+   "bptt",
+   "cnn",
+   "eval",
+   "ffn",
+   "linreg",
+   "optreg",
+   "pca",
+   "rnn",
+   "svm",
    "transformer"
   ],
-  "over": {},
-  "run": "44388274692"
+  "over": {
+   "attention": [
+    "qkv"
+   ],
+   "backprop": [
+    "chain",
+    "lec-p-224uu"
+   ],
+   "ballm-hdd": [
+    "normalization"
+   ],
+   "ballm-loss": [
+    "r-vectors"
+   ],
+   "ballm-optim": [
+    "multilayer-backprop"
+   ],
+   "bptt": [
+    "gates"
+   ],
+   "eval": [
+    "residual-plots"
+   ],
+   "ffn": [
+    "p-qhx95"
+   ],
+   "transformer": [
+    "lec-output"
+   ]
+  },
+  "run": "44575365314"
  },
  "attention": {
-  "at": "2026-11-17T17:37:17Z",
-  "commit": "48a6714820fc9f6b450f919f6b6a2d25c7ebe944",
+  "at": "2026-11-19T17:17:26Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/attention"
  },
  "backprop": {
-  "at": "2026-11-15T15:37:27Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:17:34Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/backprop"
  },
  "ballm-attention": {
-  "at": "2026-11-11T15:59:06Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:17:41Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/attention"
  },
  "ballm-attnvar": {
-  "at": "2026-11-11T15:59:14Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:17:47Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/attnvar"
  },
  "ballm-blocks": {
-  "at": "2026-11-11T15:59:22Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:17:53Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/blocks"
  },
  "ballm-bpe": {
@@ -40,18 +91,18 @@
   "web": "ballm/bpe"
  },
  "ballm-embeddings": {
-  "at": "2026-11-11T15:59:36Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:17:59Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/embeddings"
  },
  "ballm-evals": {
-  "at": "2026-11-11T15:59:42Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:18:05Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/evals"
  },
  "ballm-hdd": {
-  "at": "2026-11-11T15:59:53Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:18:14Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/hdd"
  },
  "ballm-irishqwen": {
@@ -60,23 +111,23 @@
   "web": "ballm/irishqwen"
  },
  "ballm-loss": {
-  "at": "2026-11-11T16:00:09Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:18:21Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/loss"
  },
  "ballm-mha": {
-  "at": "2026-11-11T16:00:19Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:18:27Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/mha"
  },
  "ballm-moe": {
-  "at": "2026-11-11T16:00:25Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:18:32Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/moe"
  },
  "ballm-optim": {
-  "at": "2026-11-11T16:00:36Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:18:41Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/optim"
  },
  "ballm-rag-lora": {
@@ -90,8 +141,8 @@
   "web": "ballm/reasoning"
  },
  "ballm-rnn": {
-  "at": "2026-11-11T16:00:43Z",
-  "commit": "6994f498b5d04272e72c9c8ba98c55edfc394eb6",
+  "at": "2026-11-19T17:18:47Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ballm/rnn"
  },
  "ballm-tokenization": {
@@ -100,43 +151,43 @@
   "web": "ballm/tokenization"
  },
  "bptt": {
-  "at": "2026-11-15T15:37:35Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:18:55Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/bptt"
  },
  "cnn": {
-  "at": "2026-11-15T15:37:42Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:19:03Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/cnn"
  },
  "eval": {
-  "at": "2026-11-15T15:37:47Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:19:10Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/eval"
  },
  "ffn": {
-  "at": "2026-11-15T15:37:54Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:19:18Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/ffn"
  },
  "linreg": {
-  "at": "2026-11-15T15:38:00Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:19:25Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/linreg"
  },
  "optreg": {
-  "at": "2026-11-15T15:38:05Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:19:31Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/optreg"
  },
  "pca": {
-  "at": "2026-11-15T15:38:12Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:19:37Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/pca"
  },
  "rnn": {
-  "at": "2026-11-15T15:38:18Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:19:45Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/rnn"
  },
  "search": {
@@ -145,13 +196,13 @@
   "web": "ai2ai/search"
  },
  "svm": {
-  "at": "2026-11-15T15:38:27Z",
-  "commit": "30fbcbaa0b85388b7999766ac64e667a05b9319b",
+  "at": "2026-11-19T17:19:51Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/svm"
  },
  "transformer": {
-  "at": "2026-11-18T20:14:08Z",
-  "commit": "9c211734dc11602f1865279af5c7deb42dabbd32",
+  "at": "2026-11-19T17:19:58Z",
+  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
   "web": "ai2ai/transformer"
  }
 }
