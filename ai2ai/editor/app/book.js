@@ -135,7 +135,9 @@ function highlight(line, st) {
       const cls = (prev === 'def' || prev === 'class') ? 'def' : KW.has(t) ? 'kw' : CTL.has(t) ? 'ctl' : types.has(t) ? 'ty'
         : (BI.has(t) && !line.slice(0, m.index).trimEnd().endsWith('.')) ? 'bi' : NUMC.has(t) ? 'nu'
         : concept[t] ? 'cc ' + concept[t] + (nota[t] || /^[A-Z]$/.test(t) && Book.meta.notation ? ' csym' : '') : null;
-      out += cls ? `<span class="${cls}">${e}</span>` : e; prev = t;
+      // a code tile carries the expression it names (W.Q, not just Q), for its shape after a run (Book.paintShapes)
+      const ch = cls && / csym/.test(cls) ? /([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\.$/.exec(line.slice(0, m.index)) : null;
+      out += cls ? `<span class="${cls}"${/ csym/.test(cls) ? ` data-e="${esc(ch ? ch[1] + '.' + t : t)}"` : ''}>${e}</span>` : e; prev = t;
     } else if (m[1] !== undefined) out += `<span class="cm">${e}</span>`;
     else if (m[2] !== undefined) {
       out += `<span class="st">${e}</span>`;
@@ -928,8 +930,39 @@ class BCode extends HTMLElement {
     const lk = lines.map(l => LK_LINE.exec(l)), blk = codeBlocks(lines);
     const shown = lines.map((l, k) => lk[k] ? l.slice(0, lk[k].index) : l);
     this.innerHTML = `<div class="gutter" aria-hidden="true">${lines.map((_, k) => `<div>${k + 1}</div>`).join('')}</div><div class="src">${shown.map((l, k) => `<div class="ln${blk[k]}"${lk[k] ? ` data-lk="${lk[k][1].split(/[\s,]+/).join(' ')}"` : ''}>${line(l, k)}</div>`).join('')}</div>`;
+    Book.paintShapes(this);
   }
+  static get observedAttributes() { return ['shapes', 'showshapes']; }
+  attributeChangedCallback() { if (this.firstElementChild) Book.paintShapes(this); }
 }
+// Shapes in code (Eric, 2026-11-19): after a run, each code tile (Q, X, W.Q) shows the shape its expression had, small
+// under it, as drawing tiles do. b-code[shapes] holds them ({"W.Q": [8, 8]}, saved from a run in the editor, set live
+// in the Lecture); they show where the chapter asks (book-meta codeShapes) or the cell does (showshapes="on"/"off").
+// Every line of such a cell is a little taller, the same for all, so the columns and the gutter still line up.
+Book.paintShapes = el => {
+  let map = {}; try { map = JSON.parse(el.getAttribute('shapes') || '{}'); } catch (e) {}
+  // the chapter's setting is for the Lecture slides (a slide may grow tall; the Reading and the Workbook have fixed pages),
+  // a cell's own showshapes="on" anywhere
+  const bk = el.closest && el.closest('.book'), view = bk ? bk.getAttribute('data-view') : Book.view;
+  const own = el.getAttribute('showshapes'), on = own === 'on' || (own !== 'off' && !!(Book.meta && Book.meta.codeShapes) && view === 'slides');
+  const any = on && Object.keys(map).length > 0;
+  el.classList.toggle('code-shapes', any);
+  el.querySelectorAll('.cc.csym[data-e]').forEach(sp => { const d = any && map[sp.dataset.e]; if (d) sp.setAttribute('data-shape', '<' + d.join(',') + '>'); else sp.removeAttribute('data-shape'); });
+};
+// the Python that reads them: every code tile's expression, evaluated in the cell's namespace once it has run
+Book.SHAPES_PY = "def _eai_shapes(_es, _ns):\n    import json\n    _r = {}\n    for _e in _es:\n        try:\n            _s = getattr(eval(_e, _ns), 'shape', None)\n            if _s is not None: _r[_e] = [int(_x) for _x in _s]\n        except Exception: pass\n    return json.dumps(_r)\n";
+// locals too (gpt's X, Q, K live inside the function): a trace on the cell's own code keeps each function's locals'
+// shapes at its return. Book.startShapes before the run, Book.readShapes after it (which also stops the trace).
+Book.TRACE_PY = "import sys\n_eai_loc = {}\ndef _eai_tr(f, ev, a):\n    if f.f_code.co_filename != '<exec>': return None\n    if ev == 'return':\n        for k, v in f.f_locals.items():\n            s = getattr(v, 'shape', None)\n            if s is not None:\n                try: _eai_loc[k] = [int(x) for x in s]\n                except Exception: pass\n    return _eai_tr\nsys.settrace(_eai_tr)\n";
+Book.startShapes = (py, el) => { if (!el.querySelector('.cc.csym[data-e]')) return; try { py.runPython(Book.TRACE_PY); } catch (e) {} };
+Book.readShapes = (py, ns, el) => {
+  try { py.runPython('import sys\nsys.settrace(None)'); } catch (e) {}
+  const es = [...new Set([...el.querySelectorAll('.cc.csym[data-e]')].map(s => s.dataset.e))]; if (!es.length) return null;
+  try {
+    py.runPython(Book.SHAPES_PY + "def _eai_shapes2(_es, _ns):\n    import json\n    m = json.loads(_eai_shapes(_es, _ns))\n    for e in _es:\n        if e not in m and e in globals().get('_eai_loc', {}): m[e] = _eai_loc[e]\n    return json.dumps(m)\n");
+    const f = py.globals.get('_eai_shapes2'), a = py.toPy(es); const r = f(a, ns); a.destroy(); f.destroy(); const m = JSON.parse(r); return Object.keys(m).length ? m : null;
+  } catch (e) { return null; }
+};
 class BMatmul extends HTMLElement {
   static get observedAttributes() { return ['spec']; }
   connectedCallback() { if (inThumb(this)) return; lock(this); if (!window.eaiMatmulOne) eaiMatmul(); this._mm = 1; window.eaiMatmulOne(this); }
@@ -1209,7 +1242,8 @@ Book.refresh = () => {
   if (Book.root) Book.root.classList.toggle('tokids', !!Book.meta.tokIds);   // token tiles show their IDs everywhere (book-meta tokIds)
   if (Book.root) Book.drawSyms(Book.root);   // symbol tiles in drawings (notation table)
   if (Book.root) Book.markColab();   // Colab-only code cells (class ed-colab, never saved)
-  if (Book.root) Book.root.querySelectorAll('b-eq').forEach(e => e.fit && e.fit());   // typeset equations shrink to their box
+  if (Book.root) Book.root.querySelectorAll('b-eq').forEach(e => e.fit && e.fit());
+  if (Book.root) Book.root.querySelectorAll('b-code[shapes]').forEach(Book.paintShapes);   // shapes in code: the view decides   // typeset equations shrink to their box
   if (Book.root) Book.fillParts(Book.root);   // drawings' answer parts: a whole tile's arrows, every part's dashed outline
   if (Book.root) { if (Book.vocabs) Book.drawToks(Book.root); else if (Book.root.querySelector('svg.draw g[data-tok], b-out[tok]') || Book.meta.outTok) Book.loadVocabs(); }   // token tiles in drawings
   const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();
@@ -1824,9 +1858,10 @@ function eaiRunCode() {
             status.textContent = 'Running…';
             py.setStdout({ batched: function (t) { lines.push(t); } }); py.setStderr({ batched: function (t) { lines.push(t); } });
             var home = bk || document; if (g) home._eaiG = g; else if (!home._eaiG) home._eaiG = py.globals.get('dict')();
+            if (window.Book && Book.startShapes) Book.startShapes(py, block);
             return py.runPythonAsync(code, { globals: home._eaiG });
           })
-          .then(function (r) { ok = true; block._eaiRan = (bk || document)._eaiG; var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed && !storedFigs) { show(''); tell({ src: own, out: '', figs: [] }); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
+          .then(function (r) { ok = true; block._eaiRan = (bk || document)._eaiG; if (window.Book && Book.readShapes) { var shp = Book.readShapes(py, (bk || document)._eaiG, block); if (shp) block.setAttribute('shapes', JSON.stringify(shp)); } var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed && !storedFigs) { show(''); tell({ src: own, out: '', figs: [] }); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
           var txt = lines.join('\n') || (f.length ? '' : '(no output)'); show(txt, false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; tell({ src: own, out: txt, figs: f }); },
                 function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); var etxt = (lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), ef = figures(window._eaiPy); show(etxt, true, ef); out.classList.add('shown'); status.textContent = 'Error'; tell({ src: own, out: etxt, err: true, figs: ef }); });
       }, function (e) { status.textContent = String(e.message || e); })
