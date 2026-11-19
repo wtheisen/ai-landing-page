@@ -31,7 +31,7 @@ Book.MATH_ALIAS = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 
 function inlineMath(s, plain) {   // plain: no colours (the subscripts of a coloured symbol take its colour, as in equations)
   s = String(s).replace(/\\([A-Za-z]+)(?![A-Za-z])/g, (m, w) => w !== 'T' && Book.MATH_ALIAS[w] ? Book.MATH_ALIAS[w] : m);
   const out = []; let i = 0;
-  const colors = plain ? {} : Book.eqColors();   // the notation table over the letters' colours, as equations (2026-11-18)
+  const colors = plain ? {} : Book.meta.colors || {};
   const script = i => {
     if (s[i] === '{') { let j = s.indexOf('}', i); if (j < 0) j = s.length; return [s.slice(i + 1, j), j + 1]; }
     const m = /^(\d+|[\s\S])/.exec(s.slice(i)); return m ? [m[0], i + m[0].length] : ['', i + 1];
@@ -61,16 +61,11 @@ function inlineMath(s, plain) {   // plain: no colours (the subscripts of a colo
     if (s.startsWith('\\T', i)) { out.push('<sup>T</sup>'); i += 2; continue; }
     const word = WORDS.find(w => s.startsWith(w, i));
     if (word) { out.push(word); i += word.length; continue; }
-    // a function named in the table (softmax, ReLU, Attention): the whole word in its colour, as \mathrm{…} in equations
-    const fn = !plain && isAlpha(c) && (i === 0 || !isAlpha(s[i - 1])) ? /^[A-Za-z]{2,}/.exec(s.slice(i)) : null;
-    if (fn && colors[fn[0]] && !/^[A-Za-z]$/.test(fn[0])) { out.push(`<span class="c ${colors[fn[0]]}">${esc(fn[0])}</span>`); i += fn[0].length; continue; }
     if (isAlpha(c)) {
       i++;
       let tok = c === 'Ω' ? '<span class="Om">ω</span>' : esc(c);   // Ω = the weight-matrix ω, drawn as a tall ω (like the equation font)
-      let base = c; while (i < s.length && /[\u0300-\u036f]/.test(s[i])) { base += s[i]; tok += s[i++]; }   // c̃: a combining mark stays on its letter, not on the subscript
-      // the quantity (Ω_Q, Z_z), its group (Ω*), then the letter, as equations do (eqml.js colorize); a time index (c_t) is no part of it
-      const q = s[i] === '_' ? script(i + 1)[0].replace(/\s+/g, '').replace(/-/g, '−') : '', qk = q && !/^(?:t|T|\d+)(?:[+−]\d+)?$/.test(q) && !/[\\{}]/.test(q) ? base + '_' + q : null;
-      const f = (qk && colors[qk]) || colors[base + '*'] || colors[base] || (base !== c ? null : colors[c]);
+      while (i < s.length && /[\u0300-\u036f]/.test(s[i])) tok += s[i++];   // c̃: a combining mark stays on its letter, not on the subscript
+      const f = colors[c];
       while (i < s.length && (s[i] === '_' || s[i] === '^')) {
         const tag = s[i] === '_' ? 'sub' : 'sup', [sub, i2] = script(i + 1);
         tok += `<${tag}>${inlineMath(sub, plain || (tag === 'sub' && !!f))}</${tag}>`; i = i2;   // Ω_{ax}: the ax is Ω's blue (Eric's equations), not a gold a and a red x
@@ -110,7 +105,7 @@ function highlight(line, st) {
   const types = new Set([...TY, ...(Book.meta.types || [])]);
   // meta.codeColors {name: family}: variables coloured by what they are (inputs red, weights blue, ...), like the
   // figures and equations. Chapters that use it show plain numbers in grey, so red only means an input.
-  const concept = Book.outColors(), nuCls = Book.meta.codeColors ? 'nu nn' : 'nu';
+  const concept = Book.meta.codeColors || {}, nuCls = Book.meta.codeColors ? 'nu nn' : 'nu';
   let prev = null, m;
   while ((m = TOK.exec(line))) {
     const t = m[0], e = esc(t);
@@ -319,7 +314,7 @@ Book.tokTable = vn => {
   return (tokTables[vn] = { map, byId, n: byId.length });
 };
 // redraw the Outputs that show tokens (after the vocabularies load or change)
-Book.renderOuts = () => { if (Book.root) Book.root.querySelectorAll('b-out').forEach(o => { const pre = o.querySelector('pre'); if (pre && o.src != null && !o._ran && eaiOutTok(o)) pre.innerHTML = eaiOutHL(o.src, Book.outColors(), o.getAttribute('hl'), eaiOutTok(o)); }); };
+Book.renderOuts = () => { if (Book.root) Book.root.querySelectorAll('b-out').forEach(o => { const pre = o.querySelector('pre'); if (pre && o.src != null && !o._ran && eaiOutTok(o)) pre.innerHTML = eaiOutHL(o.src, Book.meta.codeColors, o.getAttribute('hl'), eaiOutTok(o)); }); };
 Book.prepVocab = v => {
   for (const k in tokTables) delete tokTables[k];   // colours or IDs may have changed
   Object.defineProperty(v, '_byT', { value: new Map(), writable: true, configurable: true });
@@ -788,12 +783,6 @@ const EQ_UC = 'αβγδεθλμσφηρτωΩξŷ';   // the symbols server.py T
 // with the notation table on top, the same table the drawings' symbol tiles use. Its entries are quantities (Ω_Q, Z_z),
 // groups (Ω*) and function names (softmax, ReLU, Attention: \mathrm{…} in the TeX), so one change there recolours the
 // drawings and every equation. eqml.js and kit/render.py colorize look up the quantity, then its group, then the letter.
-// what colours code and its outputs: the notation table's entries (Q, K, V, softmax …) under the chapter's codeColors,
-// which win (they name code identifiers: W1, probs, loss); outputs and code take the table like equations do (2026-11-18)
-Book.outColors = () => Object.assign(Book.outNotation((Book.meta && Book.meta.notation) || {}), (Book.meta && Book.meta.codeColors) || {});
-// the notation entries that can name things in code: capitals (Q, K, V), not function names (bold softmax in code widened
-// lines past the beside column), single small letters (bptt i, f, o gates: every loop variable) or Ω_zx, Z*
-Book.outNotation = n => { const m = {}; for (const k in n) if (/^[A-Z]$/.test(k)) m[k] = n[k]; return m; };
 Book.eqColors = () => {
   const m = Object.assign({}, Book.meta.colors || {}), n = Book.meta.notation || {};
   for (const k in n) if (n[k]) m[k] = n[k];
@@ -924,7 +913,7 @@ class BOut extends BCode {
   render() {
     this._drawn = this.drawKey();
     const figs = (this.getAttribute('figs') || '').split(/\s+/).filter(Boolean);
-    this.innerHTML = `<div class="label">Output</div><pre>${eaiOutHL(this.src, Book.outColors(), this.getAttribute('hl'), eaiOutTok(this))}</pre>`
+    this.innerHTML = `<div class="label">Output</div><pre>${eaiOutHL(this.src, Book.meta.codeColors, this.getAttribute('hl'), eaiOutTok(this))}</pre>`
       + (figs.length ? `<div class="run-figs">${figs.map(f => `<img src="${Book.url(f)}" alt="Plot from the code above">`).join('')}</div>` : '');
   }
 }
@@ -1709,7 +1698,7 @@ function eaiRunCode() {
     function show(text, err, figs) {
       out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
       out.classList.toggle('run-new', !printed && !storedFigs && !text && !(figs && figs.length));
-      var pre = out.querySelector('pre'); if (!err && typeof eaiOutHL === 'function') pre.innerHTML = eaiOutHL(text, window.EAI_CC || (window.Book && window.Book.outColors ? window.Book.outColors() : null), out.getAttribute('hl'), typeof eaiOutTok === 'function' ? eaiOutTok(out) : null); else pre.textContent = text; pre.classList.toggle('run-err', !!err);
+      var pre = out.querySelector('pre'); if (!err && typeof eaiOutHL === 'function') pre.innerHTML = eaiOutHL(text, window.EAI_CC || (window.Book && window.Book.meta && window.Book.meta.codeColors), out.getAttribute('hl'), typeof eaiOutTok === 'function' ? eaiOutTok(out) : null); else pre.textContent = text; pre.classList.toggle('run-err', !!err);
       var old = out.querySelector('.run-figs'); if (old) old.remove();
       if (figs && figs.length) { var d = document.createElement('div'); d.className = 'run-figs'; figs.forEach(function (b) { var im = document.createElement('img'); im.src = /^(data:|https?:|\/)/.test(b) ? b : 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; d.appendChild(im); }); out.appendChild(d); }
     }
@@ -2093,7 +2082,7 @@ ${clone.innerHTML}
 </main>
 <script>${zoom}${navjs}${reveal}${frames}
 ${liveJs}
-var EAI_CC = ${JSON.stringify(m.codeColors || m.notation ? Object.assign(Book.outNotation(m.notation || {}), m.codeColors || {}) : null).replace(/</g, '\\u003c')};
+var EAI_CC = ${JSON.stringify(m.codeColors || null).replace(/</g, '\\u003c')};
 var EAI_TOKDEF = ${JSON.stringify(m.outTok || null)};
 var EAI_TOK = ${JSON.stringify(outTables(clone, m)).replace(/</g, '\\u003c')};
 var EAI_WEB = ${JSON.stringify(m.web || ('ai2ai/' + Book.chapter))};
