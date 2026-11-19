@@ -1930,10 +1930,8 @@ async function runIntoOutput(el, status, btn) {
     status.textContent = 'Running…';
     await py.loadPackagesFromImports(prog.code);
     py.setStdout({ batched: t => lines.push(t) }); py.setStderr({ batched: t => lines.push(t) });
-    Book.startShapes(py, el);
     const r = await py.runPythonAsync(prog.code, { globals: ns });
     el._edRan = ns;
-    { const shp = Book.readShapes(py, ns, el); if (shp) el.setAttribute('shapes', JSON.stringify(shp)); }   // shapes for the code tiles, saved with the cell
     if (r !== undefined && r !== null) {   // like a notebook: a last line that is an expression shows its value
       const B = py.pyimport('builtins');
       if (typeof r === 'object') { try { if (!/^matplotlib/.test(String(B.getattr(B.type(r), '__module__', '')))) lines.push(B.repr(r)); } finally { if (r.destroy) r.destroy(); } }
