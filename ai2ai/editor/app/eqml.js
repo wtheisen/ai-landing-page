@@ -39,10 +39,10 @@ function colorize(tex, colors) {   // render.py colorize: wrap each coloured sym
     else { out.push(c); i++; continue; }
     // the quantity first (the notation table: Ω_Q, Z_z, its group Ω*), then the letter (render.py colorize does the same)
     const sub = tex[i] === '_' ? group(tex, i + 1) : null, qk = sub !== null ? quantity(key, sub) : null;
-    const col = (qk && colors[qk]) || colors[key + '*'] || colors[key] || (/^\\[a-z]{3,}$/.test(key) && colors[key.slice(1)]);   // \\sin: the table's sin
+    const own = (qk && colors[qk]) || colors[key + '*'] || colors[key], col = own || (/^\\[a-z]{3,}$/.test(key) && colors[key.slice(1)]);   // \\sin: the table's sin
     if (!col) { out.push(tok); continue; }
     if (sub !== null) { tok += '_' + sub; i += 1 + sub.length; }
-    out.push('{\\eqfam{' + col + '}{' + tok + '}}');   // braced, so \\hat\\omega still takes the whole symbol
+    out.push(own ? '{\\class{sym sym-' + String(col).replace('#', '') + '}{\\eqfam{' + col + '}{' + tok + '}}}' : '{\\eqfam{' + col + '}{' + tok + '}}');   // braced, so \\hat\\omega still takes the whole symbol; a tile, as inline maths and the tile rows (Eric, 2026-11-19)
   }
   return out.join('');
 }
