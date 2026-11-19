@@ -815,3 +815,8 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
 /* Saved plots under an Output (b-out figs, 2026-11-10) on a 6 × 9 Workbook page: no taller than 120pt, so a plot
    saved for a slide doesn't push the page over (rnn p-043pd: 647 of 622 at full column width) */
 .book[data-view="workbook"] b-out > .run-figs img { max-height: 120pt; width: auto; }
+
+/* a drawing re-spaced to line up with the code beside it (Book.alignBeside): the copy is shown, the drawing kept for editing */
+svg.draw[data-ed-al]:not(.ed-sel) > :not(defs):not(marker) { visibility: hidden; }
+.page:has(> svg.draw.ed-sel[data-ed-al]) > svg.al-clone { display: none; }
+svg.al-clone { z-index: 1; }

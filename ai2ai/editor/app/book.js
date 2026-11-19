@@ -1352,11 +1352,99 @@ Book.refresh = () => {
     if (over) report.push({ page: k + 1, id: pg.id, bottom: end, right: Math.round(right) });
   });
   root.classList.remove('measure-print');
+  pages.forEach(pg => { try { Book.alignBeside(pg); } catch (e) { console.warn('alignBeside', e); } });
   Book.report = report;
   root.dispatchEvent(new CustomEvent('book-refresh'));
 };
 
 // ---------------------------------------------------------------- serialize: DOM -> chapter file
+// A drawing beside code on a slide lines its boxes up with the code's coloured blocks (Eric, 2026-11-19: "adjust vertically to
+// roughly line up the blocks"). Each code block ("#~ red" lines) is matched, in order, with the next box of the same outline
+// colour; the drawing is then re-spaced (never squeezed) so each matched box sits level with its block: every box moves with
+// the labels inside it, arrows stretch between the boxes they join. It is a copy drawn over the page (svg.al-clone, data-rt,
+// never saved): the drawing itself is untouched, and selecting it in the editor shows the real one to edit.
+Book.alignBeside = pg => {
+  const old = pg.querySelector(':scope > svg.al-clone');
+  const code = Book.viewOf(pg) === 'slides' ? pg.querySelector(':scope > b-code[beside]') : null;
+  let svg = code && code.previousElementSibling; while (svg && svg.classList.contains('cmt')) svg = svg.previousElementSibling;
+  const off = () => { if (old) old.remove(); if (svg && svg.hasAttribute && svg.hasAttribute('data-ed-al')) svg.removeAttribute('data-ed-al'); return false; };
+  if (!svg || !svg.matches('svg.draw') || code.getAttribute('align') === 'off') { if (old) old.remove(); pg.querySelectorAll(':scope > svg.draw[data-ed-al]').forEach(x => x.removeAttribute('data-ed-al')); return false; }
+  const R = svg.getBoundingClientRect(), vb = (svg.getAttribute('viewBox') || '').split(/[\s,]+/).map(Number);
+  if (!R.height || vb.length !== 4) return off();
+  const ku = vb[3] / R.height, U = cy => vb[1] + (cy - R.top) * ku;   // client y → the drawing's units
+  const runs = []; let top = null;
+  for (const ln of code.querySelectorAll('.ln.blk')) {
+    if (ln.classList.contains('blk-top')) top = ln.getBoundingClientRect().top;
+    if (ln.classList.contains('blk-bot') && top != null) { runs.push({ col: getComputedStyle(ln).getPropertyValue('--bl').trim().toUpperCase(), y: U((top + ln.getBoundingClientRect().bottom) / 2) }); top = null; }
+  }
+  // units: each box (rect, ellipse) with whatever sits inside it; anything else stands alone
+  const els = [...svg.children].filter(c => !/^(defs|title|desc|style|metadata|marker)$/.test(c.localName));
+  const box = el => { const b = el.getBBox(); return { x0: b.x, y0: b.y, x1: b.x + b.width, y1: b.y + b.height }; };
+  const isLine = el => /^(line|polyline|path)$/.test(el.localName) && (el.getAttribute('fill') || 'none') === 'none' || el.localName === 'line';
+  const shapeOf = el => /^(rect|ellipse|circle)$/.test(el.localName) ? el : el.localName === 'g' ? el.querySelector(':scope > rect, :scope > ellipse, :scope > circle') : null;
+  const area = b => (b.x1 - b.x0) * (b.y1 - b.y0);
+  let cands = els.map(el => { const sh = shapeOf(el); if (!sh) return null; const b = box(sh); return b.y1 - b.y0 < vb[3] * .5 ? { el, sh, b, kids: [], dy: 0 } : null; }).filter(Boolean);
+  const inside = (x, y, b, tol = 0) => x >= b.x0 - tol && x <= b.x1 + tol && y >= b.y0 - tol && y <= b.y1 + tol;
+  const holder = (x, y, not, tol = 0) => { let best = null; for (const u of cands) if (u !== not && inside(x, y, u.b, tol) && (!not || area(u.b) > area(not.b)) && (!best || area(u.b) < area(best.b))) best = u; return best; };
+  const nested = new Set();
+  for (const u of cands) { const h = holder((u.b.x0 + u.b.x1) / 2, (u.b.y0 + u.b.y1) / 2, u); if (h) nested.add(u); }
+  const units = cands.filter(u => !nested.has(u));
+  const unitAt = (x, y, tol = 0) => { let best = null; for (const u of units) if (inside(x, y, u.b, tol) && (!best || area(u.b) < area(best.b))) best = u; return best; };
+  const loose = [];
+  for (const el of els) {
+    if (units.some(u => u.el === el) || isLine(el)) continue;
+    let b; try { b = box(el); } catch (e) { continue; }
+    const u = unitAt((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2); if (u) u.kids.push(el); else loose.push({ el, b });
+  }
+  const colOf = u => (u.sh.getAttribute('stroke') || '').toUpperCase();
+  const order = units.slice().sort((a, b) => a.b.y0 - b.b.y0), anchors = []; let from = 0;
+  for (const r of runs) { const i = order.findIndex((u, k) => k >= from && colOf(u) === r.col); if (i < 0) continue; anchors.push([(order[i].b.y0 + order[i].b.y1) / 2, r.y]); from = i + 1; }
+  if (anchors.length < 2) return off();
+  // between two matched boxes only the empty space stretches or shrinks (boxes keep their size), down to a third of it
+  const occ = []; for (const u of units.slice().sort((p, q) => p.b.y0 - q.b.y0)) { const l = occ[occ.length - 1]; if (l && u.b.y0 <= l[1]) l[1] = Math.max(l[1], u.b.y1); else occ.push([u.b.y0, u.b.y1]); }
+  const used = (y0, y1) => occ.reduce((a, [p, q]) => a + Math.max(0, Math.min(q, y1) - Math.max(p, y0)), 0);
+  const ks = [];
+  for (let i = 1; i < anchors.length; i++) {
+    const [d0, t0] = anchors[i - 1], [d1] = anchors[i], O = used(d0, d1), F = d1 - d0 - O;
+    let k = F > .5 ? (anchors[i][1] - t0 - O) / F : 1; if (k < 1 / 3) k = 1 / 3;
+    ks.push(k); anchors[i][1] = t0 + O + k * F;
+  }
+  const f = y => { const A = anchors, n = A.length - 1; if (y <= A[0][0]) return y + A[0][1] - A[0][0]; if (y >= A[n][0]) return y + A[n][1] - A[n][0];
+    let i = 0; while (i < n - 1 && y > A[i + 1][0]) i++;
+    const d0 = A[i][0], O = used(d0, y); return A[i][1] + O + ks[i] * (y - d0 - O); };
+  if (anchors.every(([d, t]) => Math.abs(t - d) < .5)) return off();
+  // the copy
+  const cl = svg.cloneNode(true); cl.removeAttribute('data-b'); cl.removeAttribute('data-ed-al'); cl.classList.remove('ed-sel', 'draw'); cl.classList.add('al-clone');
+  cl.setAttribute('data-rt', ''); cl.setAttribute('aria-hidden', 'true'); cl.removeAttribute('role'); cl.removeAttribute('aria-label');
+  cl.querySelectorAll('defs, marker').forEach(n => n.remove());
+  const twin = new Map(), so = [...svg.querySelectorAll('*')], co = [...cl.querySelectorAll('*')];
+  { let j = 0; for (const n of so) { if (n.closest('defs, marker')) continue; twin.set(n, co[j++]); } }
+  cl.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+  const move = (el, dy) => { const t = twin.get(el); if (t && Math.abs(dy) > .01) t.setAttribute('transform', 'translate(0 ' + dy.toFixed(2) + ')' + (el.getAttribute('transform') ? ' ' + el.getAttribute('transform') : '')); };
+  for (const u of units) { u.dy = f((u.b.y0 + u.b.y1) / 2) - (u.b.y0 + u.b.y1) / 2; move(u.el, u.dy); u.kids.forEach(k => move(k, u.dy)); }
+  for (const { el, b } of loose) move(el, f((b.y0 + b.y1) / 2) - (b.y0 + b.y1) / 2);
+  const byId = id => units.find(u => u.el.id === id || (u.el.parentNode && u.el.parentNode.id === id));
+  const endDy = (x, y, id) => { const u = (id && byId(id)) || unitAt(x, y, 3); return u ? u.dy : f(y) - y; };
+  for (const el of els) {
+    if (!isLine(el) || el.getAttribute('transform')) continue;
+    const t = twin.get(el); if (!t) continue;
+    if (el.localName === 'line') {
+      const x1 = +el.getAttribute('x1'), y1 = +el.getAttribute('y1'), x2 = +el.getAttribute('x2'), y2 = +el.getAttribute('y2');
+      t.setAttribute('y1', (y1 + endDy(x1, y1, el.getAttribute('data-a'))).toFixed(2)); t.setAttribute('y2', (y2 + endDy(x2, y2, el.getAttribute('data-b'))).toFixed(2));
+    } else if (el.localName === 'polyline') {
+      const p = (el.getAttribute('points') || '').trim().split(/[\s,]+/).map(Number), q = []; for (let i = 0; i + 1 < p.length; i += 2) q.push([p[i], p[i + 1]]);
+      if (q.length < 2) continue;
+      const a = endDy(...q[0], el.getAttribute('data-a')), z = endDy(...q[q.length - 1], el.getAttribute('data-b'));
+      t.setAttribute('points', q.map(([x, y], i) => { const dy = i === 0 ? a : i === q.length - 1 ? z : Math.abs(y - q[0][1]) < .5 ? a : Math.abs(y - q[q.length - 1][1]) < .5 ? z : f(y) - y; return x + ',' + (y + dy).toFixed(2); }).join(' '));
+    } else { let b; try { b = box(el); } catch (e) { continue; } move(el, f((b.y0 + b.y1) / 2) - (b.y0 + b.y1) / 2); }
+  }
+  const P = pg.getBoundingClientRect(), s = P.width / Book.pageW(pg);
+  Object.assign(cl.style, { position: 'absolute', left: ((R.left - P.left) / s).toFixed(2) + 'pt', top: ((R.top - P.top) / s).toFixed(2) + 'pt', width: (R.width / s).toFixed(2) + 'pt', height: (R.height / s).toFixed(2) + 'pt', overflow: 'visible', pointerEvents: 'none', margin: '0', gridColumn: 'auto', gridRow: 'auto' });
+  if (old) old.replaceWith(cl); else pg.append(cl);
+  if (!svg.hasAttribute('data-ed-al')) svg.setAttribute('data-ed-al', '');
+  return true;
+};
+
 const SVGNS = 'http://www.w3.org/2000/svg';
 const VOID = new Set(['br', 'img', 'hr', 'input', 'col', 'wbr']);
 const BLOCKY = new Set(['section', 'ul', 'ol', 'table', 'thead', 'tbody', 'tfoot', 'dl', 'b-eq', 'svg', 'g', 'defs', 'marker']);
