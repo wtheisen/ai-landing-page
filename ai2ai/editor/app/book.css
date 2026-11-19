@@ -95,7 +95,9 @@ b-m .c { font-weight: 700; }
 b-m .sym { padding: 0 .14em; margin: 0 .05em; border-radius: .26em; background: var(--sf, color-mix(in srgb, currentColor 15%, #fff)); box-shadow: inset 0 0 0 .085em var(--sl, color-mix(in srgb, currentColor 50%, #fff)); }
 b-m .sym.red { --sf: #F4CCCC; --sl: #E06666; } b-m .sym.purple { --sf: #D9D2E9; --sl: #8E7CC3; } b-m .sym.green { --sf: #D9EAD3; --sl: #93C47D; }
 b-m .sym.gold { --sf: #FFF2CC; --sl: #DCB439; color: #B8920F; } b-m .sym.blue, b-m .sym.wblue { --sf: #C9DAF8; --sl: #6D9EEB; color: #1155CC; } b-m .sym.gray { --sf: #EEEEEE; --sl: #999999; }
-b-m .sym:has(> sub) { padding-bottom: .26em; } b-m .sym:has(> sup) { padding-top: .24em; }   /* the tile takes in a subscript (it clipped Ω_Q, 2026-11-19) */
+/* every tile the same size (Eric, 2026-11-19), with room for a subscript inside */
+b-m .sym { display: inline-block; box-sizing: border-box; height: 1.36em; min-width: 1.22em; line-height: 1.28em; text-align: center; vertical-align: -.3em; word-spacing: 0; }
+b-m .sym > sub { vertical-align: -.2em; } b-m .sym > sup { vertical-align: .42em; }
 b-m sub .sym, b-m sup .sym, b-m .sym .sym { background: none; box-shadow: none; padding: 0; margin: 0; }
 b-m .fr { display: inline-flex; flex-direction: column; vertical-align: middle; font-size: .8em; line-height: 1.08; text-align: center; margin: 0 .12em; }   /* \frac{a}{b} */
 b-m .fr > span { padding: 0 .1em; } b-m .fr > span + span { border-top: .07em solid currentColor; }
