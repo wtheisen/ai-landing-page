@@ -834,24 +834,13 @@ class BEq extends HTMLElement {
     const key = hash(JSON.stringify([rows, cols, Book.kit].concat(rows.some(r => r[0] === 'eq' && r[2] && r[2].includes('Ω')) ? ['om'] : [], flush ? ['flush'] : [], gap ? ['gap' + gap] : [], uc ? ['uc'] : [])));
     if (key === this._key) return this._done;
     this._key = key;
-    const url = Book.url('eq/' + key + '.svg');
     this.classList.add('busy');
+    // every equation is typeset in the page (Temml + eqml.js) since 2026-11-19 (Eric: "why do we still render
+    // equations as images?"): its tiles are page elements, no TeX run, no image cache; PDFs are Chrome printing the page
     const done = async () => {
       let err = '', html = '';
-      try {
-        let ok = (await fetch(url, { method: 'HEAD' })).ok;
-        if (!ok && Book.mathml) {   // no TeX on this device: typeset it here (eqml.js), no image needed
-          try { await loadEqML(); if (this._key !== key) return; html = EqML.render(rows, cols, flush, gap); }
-          catch (e) { err = 'TeX: ' + String(e.message || e).replace(/^ParseError:\s*/, ''); }
-        } else if (!ok && Book.api) {
-          const release = await eqSlot();
-          try {
-            if (this._key !== key) return;
-            const r = await fetch('../api/eq/' + Book.chapter, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key, rows, colors: cols, flush, gap }) });
-            ok = r.ok; if (!ok) err = (await r.json().catch(() => ({}))).error || 'could not render';
-          } finally { release(); }
-        } else if (!ok) err = 'equation image missing';
-      } catch (e) { err = String(e.message || e); }
+      try { await loadEqML(); if (this._key !== key) return; html = EqML.render(rows, cols, flush, gap); }
+      catch (e) { err = 'TeX: ' + String(e.message || e).replace(/^ParseError:\s*/, ''); }
       if (this._key !== key) return;
       this.querySelectorAll(':scope > [data-rt]').forEach(n => { if (err || html || n.tagName !== 'IMG') n.remove(); });
       this.classList.remove('busy');
@@ -863,18 +852,21 @@ class BEq extends HTMLElement {
         const d = document.createElement('div'); d.className = 'eq-ml'; d.setAttribute('data-rt', ''); d.setAttribute('contenteditable', 'false'); d.innerHTML = html; this.append(d);
         this.querySelectorAll(':scope > eq-row[label]').forEach(r => { const a = document.createElement('a'); a.id = 'eq-' + r.getAttribute('label'); a.setAttribute('data-rt', ''); this.prepend(a); });
         if (document.fonts) await document.fonts.ready;   // the math font changes the size: measure pages after it has loaded
-      } else {
-        const old = this.querySelector(':scope > img[data-rt]');
-        const img = document.createElement('img'); img.setAttribute('data-rt', ''); img.alt = rows.map(r => r[r.length - 1]).join('; ');
-        await new Promise(res => { img.onload = img.onerror = res; img.src = url; });
-        if (this._key !== key) return;
-        if (old) old.replaceWith(img); else this.append(img);
-        this.querySelectorAll(':scope > eq-row[label]').forEach(r => { const a = document.createElement('a'); a.id = 'eq-' + r.getAttribute('label'); a.setAttribute('data-rt', ''); this.prepend(a); });
+        this.fit();
       }
       this.dispatchEvent(new CustomEvent('eq-rendered', { bubbles: true }));
       Book.refreshSoon();
     };
     return this._done = track(done());
+  }
+  // a typeset equation is drawn at its size and shrinks to fit its box, as the pictures did (max-width: 100%); an
+  // answer box on a slide draws it 1.5x (as before)
+  fit() {
+    const d = this.querySelector(':scope > .eq-ml'); if (!d) return;
+    const bk = this.closest('.book'), big = this.hasAttribute('data-fill') && bk && bk.getAttribute('data-view') === 'slides' ? 1.5 : 1;
+    d.style.zoom = ''; const cs = getComputedStyle(this), avail = this.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), w = d.scrollWidth;
+    if (!avail || !w) return;
+    const z = Math.min(big, avail / w); if (Math.abs(z - 1) > 0.005) d.style.zoom = z.toFixed(3);
   }
 }
 // marks="3:4-18:gold 7:0-9:blue": a tinted box behind part of a line (1-based line, 0-based columns).
@@ -1201,6 +1193,7 @@ Book.refresh = () => {
   if (Book.root) Book.root.classList.toggle('tokids', !!Book.meta.tokIds);   // token tiles show their IDs everywhere (book-meta tokIds)
   if (Book.root) Book.drawSyms(Book.root);   // symbol tiles in drawings (notation table)
   if (Book.root) Book.markColab();   // Colab-only code cells (class ed-colab, never saved)
+  if (Book.root) Book.root.querySelectorAll('b-eq').forEach(e => e.fit && e.fit());   // typeset equations shrink to their box
   if (Book.root) Book.fillParts(Book.root);   // drawings' answer parts: a whole tile's arrows, every part's dashed outline
   if (Book.root) { if (Book.vocabs) Book.drawToks(Book.root); else if (Book.root.querySelector('svg.draw g[data-tok], b-out[tok]') || Book.meta.outTok) Book.loadVocabs(); }   // token tiles in drawings
   const root = Book.root, pages = Book.pages(), title = Book.meta.title || '', panes = Book.panes();
@@ -1553,16 +1546,34 @@ function eaiDual() {
   // links: hovering (or tapping) a linked code line shows the equation with its piece lit; hovering a lit piece of
   // the equation shows the code that computes it. Both are floating cards, so nothing on the page moves.
   pairs.forEach(function (box) {
-    var eq = box.querySelector('b-eq'), img = eq && eq.querySelector('img'), lines = box.querySelectorAll('b-code .ln[data-lk]');
+    var eq = box.querySelector('b-eq'), img = eq && eq.querySelector('img, .eq-ml'), lines = box.querySelectorAll('b-code .ln[data-lk]');
     if (!img || !lines.length) return;
-    fetch(img.src).then(function (r) { return r.text(); }).then(function (sv) {
-      var m = /<metadata id="eai-links">([\s\S]*?)<\/metadata>/.exec(sv), vb = /viewBox="[\d.\s-]*?([\d.]+)\s+([\d.]+)"/.exec(sv);
-      if (!m || !vb) return;
-      var L = JSON.parse(m[1]), W = +vb[1], card = null;
+    // a typeset equation (2026-11-19): its \lk{name}{…} pieces are elements (class lk-name), boxes measured in place;
+    // an old picture carries them in its metadata
+    (img.tagName === 'IMG' ? fetch(img.src).then(function (r) { return r.text(); }) : Promise.resolve(null)).then(function (sv) {
+      var L, W;
+      var live = sv === null;
+      function measure() {   // the pieces where they are now (the equation may have been hidden or resized since)
+        L = {}; W = img.clientWidth || 1; var o = img.getBoundingClientRect();
+        [].forEach.call(lines, function (ln) { (ln.getAttribute('data-lk') || '').split(' ').forEach(function (n) {
+          if (!n || L[n]) return; var els = img.querySelectorAll('.lk-' + n.replace(/[^\w-]/g, ''));
+          if (els.length) L[n] = [].map.call(els, function (e) { var r = e.getBoundingClientRect(); return [r.left - o.left, r.top - o.top, r.width, r.height]; });
+        }); });
+      }
+      if (live) {
+        measure();
+        if (!Object.keys(L).length) [].forEach.call(lines, function (ln) { (ln.getAttribute('data-lk') || '').split(' ').forEach(function (n) { if (n && img.querySelector('.lk-' + n.replace(/[^\w-]/g, ''))) L[n] = []; }); });
+      } else {
+        var m = /<metadata id="eai-links">([\s\S]*?)<\/metadata>/.exec(sv), vb = /viewBox="[\d.\s-]*?([\d.]+)\s+([\d.]+)"/.exec(sv);
+        if (!m || !vb) return;
+        L = JSON.parse(m[1]); W = +vb[1];
+      }
+      var card = null;
       box.classList.add('linked');
       function names(el) { return (el.getAttribute('data-lk') || '').split(' ').filter(function (n) { return L[n]; }); }
       function lit(host, pic, ns) {   // gold boxes over the named pieces of an equation picture
         [].forEach.call(host.querySelectorAll('.lk-hl'), function (d) { d.remove(); });
+        if (live) { var keep = img; img = pic; measure(); img = keep; }
         var k = pic.clientWidth / W, ox = pic.offsetLeft, oy = pic.offsetTop;
         ns.forEach(function (n) { (L[n] || []).forEach(function (r) {
           var d = document.createElement('div'); d.className = 'lk-hl';
@@ -1580,10 +1591,11 @@ function eaiDual() {
         hide(); ln.classList.add('lk-on');
         [].forEach.call(lines, function (o) { if (o !== ln && names(o).some(function (n) { return ns.indexOf(n) >= 0; })) o.classList.add('lk-on'); });
         card = document.createElement('div'); card.className = 'lk-card';
-        var pic = document.createElement('img'); pic.src = img.src; pic.alt = img.alt; card.appendChild(pic); box.appendChild(card);
-        var go = function () { lit(card, pic, ns); place(ln); }; if (pic.complete) go(); else pic.onload = go;
+        var pic = live ? img.cloneNode(true) : document.createElement('img'); if (!live) { pic.src = img.src; pic.alt = img.alt; } card.appendChild(pic); box.appendChild(card);
+        var go = function () { lit(card, pic, ns); place(ln); }; if (live || pic.complete) go(); else pic.onload = go;
       }
       function fromEq(e) {
+        if (live && !eq._lk) measure();
         var r = img.getBoundingClientRect(), k = W / r.width, x = (e.clientX - r.left) * k, y = (e.clientY - r.top) * k, best = null, area = 1e9;
         Object.keys(L).forEach(function (n) { L[n].forEach(function (q) { if (x >= q[0] && x <= q[0] + q[2] && y >= q[1] && y <= q[1] + q[3] && q[2] * q[3] < area) { area = q[2] * q[3]; best = n; } }); });
         if (best === eq._lk) return; eq._lk = best; hide();
@@ -2076,6 +2088,7 @@ Book.snapshot = async () => {
   const reveal = view === 'slides' || view === 'workbook' ? "document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill]');if(!f)return;var on=f.classList.toggle('shown'),d=f.id&&f.closest('svg');if(d)[].forEach.call(d.querySelectorAll('[data-rt-fill]'),function(a){if(a.getAttribute('data-rt-fill')===f.id)a.classList.toggle('shown',on)})});" : '';
   const faces = (await Promise.all([['Inconsolata-LGC.ttf', 400], ['Inconsolata-LGC-Bold.ttf', 700]].map(async ([f, w]) =>
     `@font-face{font-family:'Inconsolata LGC';src:url(data:font/ttf;base64,${await b64('../kit/fonts/' + f)}) format('truetype');font-weight:${w}}`))).join('') + `@font-face{font-family:'AI2AI Omega';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Omega.ttf')}) format('truetype');unicode-range:U+03A9}@font-face{font-family:'AI2AI Omega';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Loss.ttf')}) format('truetype');unicode-range:U+2112}`;
+  const mathFace = clone.querySelector('.eq-ml') ? `@font-face{font-family:'AI2AI Math';src:url(data:font/ttf;base64,${await b64('../kit/fonts/AI2AI-Math.ttf')}) format('truetype')}` : '';   // typeset equations (2026-11-19)
   const nav = Book.pages().filter(p => p.dataset.part && Book.inView(p, view)).map(p => `<a href="#${p.id}">${esc(p.dataset.part)}</a>`).join('');
   // the published chapter is three pages (one per view) that link to each other; Export PDF offers each view's PDF
   // or prints this page as it stands (so lecture notes that are showing go into the PDF too)
@@ -2096,7 +2109,7 @@ Book.snapshot = async () => {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(m.title || '')}</title>
-<style>${faces}
+<style>${faces}${mathFace}
 ${css}${view === 'slides' ? '\n@page { size: 10in 7.5in; margin: 0; }' + tallCSS : ''}</style>
 </head>
 <body>
