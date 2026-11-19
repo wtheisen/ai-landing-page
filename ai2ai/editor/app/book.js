@@ -58,14 +58,6 @@ function inlineMath(s, plain) {   // plain: no colours (the subscripts of a colo
       if (s[j] === '{') [b, k] = group(j);
       out.push(`<span class="fr"><span>${inlineMath(a, plain)}</span><span>${inlineMath(b, plain)}</span></span>`); i = k; continue;
     }
-    // \fill{Ω_Q}: the tile is a fill-in blank in the Lecture, drawn empty in its colour (Eric, 2026-11-19: "mark these
-    // boxes as fill, similar to filling in a box in a diagram"); several symbols, or none coloured, make one grey tile
-    const fl = /^\\fill\s*(?=\{)/.exec(s.slice(i));
-    if (fl) {
-      const [a, j] = group(i + fl[0].length), inner = inlineMath(a, plain);
-      const one = /^<span class="c [a-z]+ sym">/.test(inner) && (inner.match(/ sym">/g) || []).length === 1 && inner.endsWith('</span>');
-      out.push(one ? inner.replace(' sym">', ' sym" data-fill="">') : `<span class="sym gray" data-fill="">${inner}</span>`); i = j; continue;
-    }
     if (s.startsWith('\\T', i)) { out.push('<sup>T</sup>'); i += 2; continue; }
     const word = WORDS.find(w => s.startsWith(w, i));
     if (word) { out.push(word); i += word.length; continue; }
@@ -273,7 +265,7 @@ const rawText = el => el.textContent.replace(/^\s*\n/, '').replace(/\s+$/, '');
 
 class BM extends HTMLElement {
   static get observedAttributes() { return ['tex']; }
-  connectedCallback() { lock(this); if (!this.hasAttribute('tex') && !this.hasAttribute('data-frozen')) this.setAttribute('tex', this.textContent.trim()); }
+  connectedCallback() { lock(this); if (!this.hasAttribute('tex')) this.setAttribute('tex', this.textContent.trim()); }
   attributeChangedCallback() { if (this.firstChild && inThumb(this)) return; this.innerHTML = inlineMath(this.getAttribute('tex') || ''); }
 }
 // ---------------------------------------------------------------- token tiles (Eric, 2026-11-07: "token mode")
@@ -2038,10 +2030,6 @@ Book.snapshot = async () => {
   } else clone.querySelectorAll('[data-view], aside.qc, div.wbox').forEach(n => { if (!Book.inView(n, view)) n.remove(); });   // (quick checks: not in Reading unless tagged)
   if (view === 'workbook') clone.querySelectorAll('[data-box]').forEach(el => {   // the workbook carries blanks, not hidden answers
     const [w, h] = el.getAttribute('data-box').split(' ').map(Number);
-    if (el.matches('b-m .sym')) {   // an inline tile blank: its size and colour stay, the symbol leaves the file
-      const bm = el.closest('b-m'); if (bm) { bm.removeAttribute('tex'); bm.setAttribute('data-frozen', ''); }
-      el.innerHTML = '&nbsp;'; el.style.width = w + 'pt'; el.removeAttribute('data-fill'); el.removeAttribute('data-box'); return;
-    }
     if (el.matches('u.fill')) { const u = document.createElement('u'); u.className = 'fill blank'; u.style.width = w + 'pt'; u.innerHTML = '&nbsp;'; el.replaceWith(u); }
     else if (el instanceof SVGElement) {   // a drawing's answer part: as the Lecture shows it, with the answer left out of the file
       const k = el.getAttribute('data-fill'), ph = el.nextElementSibling;

@@ -98,13 +98,6 @@ b-m .sym.gold { --sf: #FFF2CC; --sl: #DCB439; color: #B8920F; } b-m .sym.blue, b
 /* every tile the same size (Eric, 2026-11-19), with room for a subscript inside */
 b-m .sym { display: inline-block; box-sizing: border-box; height: 1.36em; min-width: 1.22em; line-height: 1.28em; text-align: center; vertical-align: baseline; word-spacing: 0; }   /* the symbol sits on the text's baseline */
 b-m .sym > sub { vertical-align: -.2em; } b-m .sym > sup { vertical-align: .42em; }
-/* \fill{…}: an inline tile left empty in the Lecture until it is filled (tap) or shown, like a drawing's fill part */
-.book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill]:not(.shown) { color: transparent; border: 0; border-radius: .26em; background: var(--sf, #EEEEEE); cursor: pointer; }
-.book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill]:not(.shown) * { color: transparent; }
-.book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill] > * { visibility: visible; }
-.book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill].shown { color: var(--sk, inherit); }
-b-m .sym.red { --sk: var(--red-text); } b-m .sym.purple { --sk: var(--purple-text); } b-m .sym.green { --sk: var(--green-text); } b-m .sym.gold { --sk: #B8920F; } b-m .sym:is(.blue, .wblue) { --sk: #1155CC; } b-m .sym.gray { --sk: #666666; }
-.book[data-view="reading"] b-m .sym[data-fill], .book.ed b-m .sym[data-fill] { outline: 1pt dashed currentColor; outline-offset: 1pt; }   /* the author sees which tiles are blanks */
 b-m sub .sym, b-m sup .sym, b-m .sym .sym { background: none; box-shadow: none; padding: 0; margin: 0; }
 b-m .fr { display: inline-flex; flex-direction: column; vertical-align: middle; font-size: .8em; line-height: 1.08; text-align: center; margin: 0 .12em; }   /* \frac{a}{b} */
 b-m .fr > span { padding: 0 .1em; } b-m .fr > span + span { border-top: .07em solid currentColor; }
