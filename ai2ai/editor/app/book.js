@@ -115,6 +115,8 @@ const BI = set('print len range enumerate zip sorted reversed min max sum abs is
 const NUMC = set('None True False');
 // st carries a triple-quoted string across lines (Eric, 2026-11-07: a """ docstring/text block only coloured its quotes):
 // pass the same object for every line of a block, in order. st.tq is the open quote ('"""' or "'''") or null.
+// code names that hold weights by name rather than being one (book-meta codeContainers, default W)
+Book.codeContainers = () => new Set((Book.meta && Book.meta.codeContainers) || ['W']);
 function highlight(line, st) {
   st = st || {};
   let out = '';
@@ -135,6 +137,15 @@ function highlight(line, st) {
       const cls = (prev === 'def' || prev === 'class') ? 'def' : KW.has(t) ? 'kw' : CTL.has(t) ? 'ctl' : types.has(t) ? 'ty'
         : (BI.has(t) && !line.slice(0, m.index).trimEnd().endsWith('.')) ? 'bi' : NUMC.has(t) ? 'nu'
         : concept[t] ? 'cc ' + concept[t] + (nota[t] || /^[A-Z]$/.test(t) && Book.meta.notation ? ' csym' : '') : null;
+      // the weights object (W, from load()) is a container, not a matrix (Eric, 2026-11-19): W.Q, W.E.T is one tile, in
+      // the weights' colour, with its shape; a bare W is coloured but not a tile; a method (W.params()) stays outside
+      if (cls && / csym/.test(cls) && Book.codeContainers().has(t)) {
+        const segs = /^((?:\.[A-Za-z_]\w*)+)/.exec(line.slice(m.index + t.length));
+        let chain = segs ? segs[1] : '';
+        if (chain) { const rest = line.slice(m.index + t.length + chain.length); if (/^\s*\(/.test(rest)) chain = chain.replace(/\.[A-Za-z_]\w*$/, ''); }
+        if (chain) { out += `<span class="${cls} cbox" data-e="${esc(t + chain)}">${esc(t + chain)}</span>`; TOK.lastIndex = m.index + t.length + chain.length; prev = null; continue; }
+        out += `<span class="${cls.replace(' csym', '')}">${e}</span>`; prev = t; continue;
+      }
       // a code tile carries the expression it names (W.Q, not just Q), for its shape after a run (Book.paintShapes)
       const ch = cls && / csym/.test(cls) ? /([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\.$/.exec(line.slice(0, m.index)) : null;
       out += cls ? `<span class="${cls}"${/ csym/.test(cls) ? ` data-e="${esc(ch ? ch[1] + '.' + t : t)}"` : ''}>${e}</span>` : e; prev = t;
