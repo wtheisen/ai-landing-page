@@ -112,7 +112,12 @@ const curvePt = (q, t) => [(1 - t) * (1 - t) * q[0] + 2 * t * (1 - t) * q[2] + t
 function segDist(px, py, ax, ay, bx, by) { const dx = bx - ax, dy = by - ay, l = dx * dx + dy * dy; let t = l ? ((px - ax) * dx + (py - ay) * dy) / l : 0; t = Math.max(0, Math.min(1, t)); return Math.hypot(px - ax - t * dx, py - ay - t * dy); }
 const nearPath = (p, cx, cy, d) => { for (let i = 0; i + 1 < p.length; i++) if (segDist(cx, cy, p[i][0], p[i][1], p[i + 1][0], p[i + 1][1]) <= d) return true; return false; };
 function hit(svg, cx, cy) {   // topmost shape under the pointer, with a few px of tolerance for thin lines and outlines
-  const list = kids(svg), tol = 5;
+  // right on something first, then with the tolerance: an arrow ending beside a small tile no longer takes the click meant
+  // for the tile (2026-11-19, the symbol tiles are smaller than the old boxes)
+  return hitTol(svg, cx, cy, 1.5) || hitTol(svg, cx, cy, 5);
+}
+function hitTol(svg, cx, cy, tol) {
+  const list = kids(svg);
   for (let k = list.length - 1; k >= 0; k--) {
     const el = list[k], t = el.localName, r = el.getBoundingClientRect();
     if (el.hasAttribute('data-lock') || cx < r.left - tol || cx > r.right + tol || cy < r.top - tol || cy > r.bottom + tol) continue;
