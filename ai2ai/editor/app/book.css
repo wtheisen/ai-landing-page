@@ -91,11 +91,6 @@ b-m { font-family: var(--font-math); font-size: 1.04em; white-space: nowrap; wor
 b-m sub, b-m sup { font-size: .68em; line-height: 0; }
 b-m sub { vertical-align: -.32em; } b-m sup { vertical-align: .55em; }
 b-m .c { font-weight: 700; }
-/* inline symbols as tiles (Eric, 2026-11-19: "should be like the token system, consistent everywhere"): the fill and line of the drawings' symbol tiles */
-b-m .sym { padding: 0 .14em; margin: 0 .05em; border-radius: .26em; background: var(--sf, color-mix(in srgb, currentColor 15%, #fff)); box-shadow: inset 0 0 0 .085em var(--sl, color-mix(in srgb, currentColor 50%, #fff)); }
-b-m .sym.red { --sf: #F4CCCC; --sl: #E06666; } b-m .sym.purple { --sf: #D9D2E9; --sl: #8E7CC3; } b-m .sym.green { --sf: #D9EAD3; --sl: #93C47D; }
-b-m .sym.gold { --sf: #FFF2CC; --sl: #DCB439; color: #B8920F; } b-m .sym.blue, b-m .sym.wblue { --sf: #C9DAF8; --sl: #6D9EEB; color: #1155CC; } b-m .sym.gray { --sf: #EEEEEE; --sl: #999999; }
-b-m sub .sym, b-m sup .sym, b-m .sym .sym { background: none; box-shadow: none; padding: 0; margin: 0; }
 b-m .fr { display: inline-flex; flex-direction: column; vertical-align: middle; font-size: .8em; line-height: 1.08; text-align: center; margin: 0 .12em; }   /* \frac{a}{b} */
 b-m .fr > span { padding: 0 .1em; } b-m .fr > span + span { border-top: .07em solid currentColor; }
 /* Ω in inline math is the weight matrix: ω stretched to capital height, as in the AI2AI Math font (scale from kit/build_math_font.py) */
@@ -104,8 +99,6 @@ b-m .c .Om { transform: scaleY(1.332); }
 .eqml-note .Om { display: inline-block; line-height: 1; transform: scaleY(1.355); transform-origin: 50% 80%; }   /* Ω in an equation's note: the tall ω too */
 .c.blue { color: var(--blue-text); } .c.gold { color: var(--yellow-text); } .c.purple { color: var(--purple-text); }
 .c.green { color: var(--green-text); } .c.red { color: var(--red-text); } .c.gray { color: #666666; } .c.wblue { color: #1155CC; }
-/* the notation table's other families (book.js SYM_COLS text tones), for inline maths coloured from it */
-.c.pink { color: #A64D79; } .c.orange { color: #B45F06; } .c.brown { color: #783F04; } .c.olive { color: #6B6B00; } .c.teal { color: #134F5C; } .c.magenta { color: #8E2C80; } .c.navy { color: #002B5B; }
 b-eq { display: block; border: 1px solid var(--border); border-radius: 4px; background: #fff; padding: 5pt 4pt; text-align: left; }
 b-eq.answer { border: 2px solid #000; border-radius: 0; box-sizing: border-box; }
 b-eq img { display: inline-block; vertical-align: middle; max-width: 100%; height: auto; }
@@ -213,12 +206,6 @@ b-code .ln.blk.blk-bot { border-bottom-left-radius: 3pt; border-bottom-right-rad
 b-code .ln.blk.blk-top.blk-bot { box-shadow: inset 0 0 0 1pt var(--bl); }
 .blk-purple { --bf: #D9D2E9; --bl: #8E7CC3; } .blk-green { --bf: #D9EAD3; --bl: #93C47D; } .blk-gold { --bf: #FFF2CC; --bl: #DCB439; }
 .blk-red { --bf: #F4CCCC; --bl: #E06666; } .blk-blue { --bf: #C9DAF8; --bl: #6D9EEB; } .blk-gray { --bf: #EFEFEF; --bl: #999999; } .blk-teal { --bf: #D5ECF1; --bl: #5AABBC; }
-/* every coloured symbol in a typeset equation is a tile too (Eric, 2026-11-19), not in sub/superscripts */
-.eq-ml .sym { background: var(--sf); box-shadow: inset 0 0 0 0.8pt var(--sl, #999999); border-radius: 2.4pt; padding: 0 1.2pt; }
-.eq-ml .sym { --sf: color-mix(in srgb, currentColor 15%, #fff); --sl: color-mix(in srgb, currentColor 50%, #fff); }   /* eqml.js names the colour by its hex */
-.eq-ml .sym-CC0000 { --sf: #F4CCCC; --sl: #E06666; } .eq-ml .sym-674EA7 { --sf: #D9D2E9; --sl: #8E7CC3; } .eq-ml .sym-38761D { --sf: #D9EAD3; --sl: #93C47D; }
-.eq-ml .sym-DCB439 { --sf: #FFF2CC; --sl: #DCB439; } .eq-ml .sym-1155CC { --sf: #C9DAF8; --sl: #6D9EEB; } .eq-ml .sym-666666 { --sf: #EEEEEE; --sl: #999999; }
-.eq-ml :is(msub, msup, msubsup) > :not(:first-child) .sym, .eq-ml :is(msub, msup, msubsup) > .sym:not(:first-child), .eq-ml .sym .sym { background: none; box-shadow: none; padding: 0; }
 /* the same pieces typeset by Temml (hosted editor, eqml.js): \lk{purple}{…} is class lk-purple */
 .eq-ml :is(.lk-purple, .lk-green, .lk-gold, .lk-yellow, .lk-red, .lk-blue, .lk-gray, .lk-grey, .lk-teal) { background: var(--bf); box-shadow: 0 0 0 0.9pt var(--bl); border-radius: 2.4pt; padding: 0 1pt; }
 .eq-ml .lk-purple { --bf: #D9D2E9; --bl: #8E7CC3; } .eq-ml .lk-green { --bf: #D9EAD3; --bl: #93C47D; } .eq-ml :is(.lk-gold, .lk-yellow) { --bf: #FFF2CC; --bl: #DCB439; }
@@ -231,9 +218,6 @@ b-out .olab { font-weight: 700; color: #002B5B; } b-out .cc { font-weight: 700; 
 b-out :is(.cc, .olab, .nu).red, b-out .f-red { color: #CC0000; } b-out :is(.cc, .olab, .nu).blue, b-out .f-blue { color: #1155CC; }
 b-out :is(.cc, .olab, .nu).gray, b-out .f-gray { color: #666666; } b-out :is(.cc, .olab, .nu).purple, b-out .f-purple { color: #674EA7; }
 b-out :is(.cc, .olab, .nu).gold, b-out .f-gold { color: #B8920F; } b-out :is(.cc, .olab, .nu).green, b-out .f-green { color: #38761D; }
-/* the notation table's other families (2026-11-18: outputs and code colour from it too) */
-b-out :is(.cc, .olab, .nu).pink, b-out .f-pink { color: #A64D79; } b-out :is(.cc, .olab, .nu).orange, b-out .f-orange { color: #B45F06; } b-out :is(.cc, .olab, .nu).brown, b-out .f-brown { color: #783F04; } b-out :is(.cc, .olab, .nu).olive, b-out .f-olive { color: #6B6B00; } b-out :is(.cc, .olab, .nu).teal, b-out .f-teal { color: #134F5C; } b-out :is(.cc, .olab, .nu).magenta, b-out .f-magenta { color: #8E2C80; } b-out :is(.cc, .olab, .nu).navy, b-out .f-navy { color: #002B5B; } b-out :is(.cc, .olab, .nu).wblue, b-out .f-wblue { color: #1155CC; }
-b-code .cc.pink { color: #A64D79; } b-code .cc.orange { color: #B45F06; } b-code .cc.brown { color: #783F04; } b-code .cc.olive { color: #6B6B00; } b-code .cc.teal { color: #134F5C; } b-code .cc.magenta { color: #8E2C80; } b-code .cc.navy { color: #002B5B; } b-code .cc.wblue { color: #1155CC; }
 b-out { display: block; border: 1px solid var(--border); border-radius: 0 0 4px 4px; }
 b-out .label { padding: 2pt 7pt; font-size: 7.5pt; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-muted); border-bottom: 1px solid var(--border); }
 b-out pre { margin: 0; padding: 4pt 7pt; font-family: var(--font-mono); font-size: 9.4pt; line-height: 1.4; }
