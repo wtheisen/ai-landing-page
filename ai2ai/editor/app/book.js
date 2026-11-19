@@ -1397,8 +1397,20 @@ Book.alignBeside = pg => {
     const u = unitAt((b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2); if (u) u.kids.push(el); else loose.push({ el, b });
   }
   const colOf = u => (u.sh.getAttribute('stroke') || '').toUpperCase();
-  const order = units.slice().sort((a, b) => a.b.y0 - b.b.y0), anchors = []; let from = 0;
-  for (const r of runs) { const i = order.findIndex((u, k) => k >= from && colOf(u) === r.col); if (i < 0) continue; anchors.push([(order[i].b.y0 + order[i].b.y1) / 2, r.y]); from = i + 1; }
+  const order = units.slice().sort((a, b) => a.b.y0 - b.b.y0), anchors = [];
+  // pair blocks and boxes in order, as many pairs as possible (a longest common subsequence by colour; 2026-11-19: taking
+  // the next box of a colour let a gold block near the top grab ŷ at the bottom), ties to the pairing that moves boxes least
+  { const n = runs.length, m = order.length, cy = u => (u.b.y0 + u.b.y1) / 2, BIG = 1e6, S = [...Array(n + 1)].map(() => new Array(m + 1).fill(0));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) {
+      S[i][j] = Math.max(S[i + 1][j], S[i][j + 1]);
+      if (colOf(order[j]) === runs[i].col) S[i][j] = Math.max(S[i][j], BIG - Math.min(BIG / 2, Math.abs(runs[i].y - cy(order[j]))) + S[i + 1][j + 1]);
+    }
+    let i = 0, j = 0;
+    while (i < n && j < m) {
+      if (colOf(order[j]) === runs[i].col && S[i][j] === BIG - Math.min(BIG / 2, Math.abs(runs[i].y - cy(order[j]))) + S[i + 1][j + 1]) { anchors.push([cy(order[j]), runs[i].y]); i++; j++; }
+      else if (S[i][j] === S[i + 1][j]) i++; else j++;
+    }
+  }
   if (anchors.length < 2) return off();
   // between two matched boxes only the empty space stretches or shrinks (boxes keep their size), down to a third of it
   const occ = []; for (const u of units.slice().sort((p, q) => p.b.y0 - q.b.y0)) { const l = occ[occ.length - 1]; if (l && u.b.y0 <= l[1]) l[1] = Math.max(l[1], u.b.y1); else occ.push([u.b.y0, u.b.y1]); }
