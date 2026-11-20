@@ -3357,7 +3357,15 @@ function zoomAt(dy, cx0, cy0) {
     const c0 = frame ? box.left + box.width / 2 : wide ? wide.left + wide.width / 2 : cx0;   // the pages' centre line now
     const pw = frame ? 578 * z0 : Math.max(1, ...pages.map(n => n.getBoundingClientRect().width)), pad = frame ? 32 : key === 'desk' ? 48 : 24;
     const near = pages.reduce((b, n) => { const q = n.getBoundingClientRect(); const d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !b || d < b.d ? { n, d, q } : b; }, null);
-    pinch = { key, col, frame, sc, z0, z1: z0, cx0, cy0, pw, pad, box, c0,
+    // the column's layout, to know where the page under the fingers can end up once laid out at the new zoom: pages
+    // grow with the zoom, the gaps between them and the column's padding don't
+    let lay = null;
+    if (sc && near) {
+      const qs = pages.map(n => n.getBoundingClientRect()), i = pages.indexOf(near.n), y0 = box.top + sc.clientTop - sc.scrollTop;
+      lay = { hs: 0, hsAbove: 0, gaps: 0, gapsAbove: 0, padT: qs[0].top - y0, padB: sc.scrollHeight - (qs[qs.length - 1].bottom - y0), wA: near.q.width, hA: near.q.height };
+      qs.forEach((q, j) => { lay.hs += q.height; if (j < i) lay.hsAbove += q.height; if (j) { const g = q.top - qs[j - 1].bottom; lay.gaps += g; if (j <= i) lay.gapsAbove += g; } });
+    }
+    pinch = { key, col, frame, sc, z0, z1: z0, cx0, cy0, pw, pad, box, c0, lay,
       // transform-origin is in the element's own (zoomed) units: a page carries the column's zoom, so divide by it
       els: parts.map(el => { const q = el.getBoundingClientRect(); return [el, q, el.matches('section.page') ? q.width / (Book.pageW(el) * 4 / 3) : 1]; }),
       mid: frame ? box.left + box.width / 2 : box.left + sc.clientWidth / 2,   // the middle of the room the pages are centred in (without the scrollbar)
@@ -3368,8 +3376,24 @@ function zoomAt(dy, cx0, cy0) {
   p.z1 = Math.max(0.15, Math.min(2.5, p.z1 * Math.exp(-dy * 0.01)));
   const k = p.z1 / p.z0, fits = p.pw * k + p.pad <= (p.sc ? p.sc.clientWidth : p.box.width);
   // pages that will fit end up centred in the column: pick the origin that takes the pages' centre (c0) to the middle
-  const ox = !fits ? p.cx0 : Math.abs(1 - k) < 1e-3 ? p.mid : (p.mid - p.c0 * k) / (1 - k);
-  p.els.forEach(([el, q, zf]) => { el.style.transformOrigin = (ox - q.left) / zf + 'px ' + (p.cy0 - q.top) / zf + 'px'; el.style.transform = 'scale(' + k + ')'; });
+  let ox = !fits ? p.cx0 : Math.abs(1 - k) < 1e-3 ? p.mid : (p.mid - p.c0 * k) / (1 - k), oy = p.cy0;
+  // the content stays under the fingers only as far as the column can scroll once laid out: past its top or bottom
+  // (zooming out near a chapter's start or end) or its left edge (zooming in past the column's width) the preview
+  // stops where the layout will put it, so the end of the pinch doesn't jump. tx, ty: where the point under the
+  // fingers shows now
+  const L = p.lay, a = p.anchor;
+  if (L && a && Math.abs(1 - k) >= 1e-3) {
+    const top = p.box.top + p.sc.clientTop, yA = L.padT + L.hsAbove * k + L.gapsAbove + a.fy * L.hA * k;
+    const maxT = Math.max(0, L.padT + L.hs * k + L.gaps + L.padB - p.sc.clientHeight);
+    oy = (Math.min(Math.max(p.cy0, top + yA - maxT), top + yA) - p.cy0 * k) / (1 - k);
+    if (!fits) {   // wider than the column: the pages sit at its left padding, scrolled at most to their right edge
+      const left = p.box.left + p.sc.clientLeft, wf = p.pw * k, xA = p.pad / 2 + (wf - L.wA * k) / 2 + a.fx * L.wA * k;
+      const maxL = Math.max(0, p.pad / 2 + wf - p.sc.clientWidth);
+      ox = (Math.min(Math.max(p.cx0, left + xA - maxL), left + xA) - p.cx0 * k) / (1 - k);
+    }
+  }
+  p.tx = ox + (p.cx0 - ox) * k; p.ty = oy + (p.cy0 - oy) * k;
+  p.els.forEach(([el, q, zf]) => { el.style.transformOrigin = (ox - q.left) / zf + 'px ' + (oy - q.top) / zf + 'px'; el.style.transform = 'scale(' + k + ')'; });
   const zs = $('#zoom'); let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(p.z1 * 100) + '%'; zs.value = 'custom';
   clearTimeout(gridT); gridT = setTimeout(endPinch, 150);
 }
@@ -3386,7 +3410,7 @@ function endPinch() {
     applyColZooms(); Book.refresh();
     p.els.forEach(([el]) => { el.style.transform = ''; el.style.transformOrigin = ''; });
     const a = p.anchor;
-    if (a && a.n.isConnected) { const q = a.n.getBoundingClientRect(); p.sc.scrollTop += q.top + a.fy * q.height - p.cy0; p.sc.scrollLeft += q.left + a.fx * q.width - p.cx0; }
+    if (a && a.n.isConnected) { const q = a.n.getBoundingClientRect(); p.sc.scrollTop += q.top + a.fy * q.height - p.ty; p.sc.scrollLeft += q.left + a.fx * q.width - p.tx; }   // where the preview showed it
   }
   document.body.classList.remove('zooming');
   place();
