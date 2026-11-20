@@ -3353,10 +3353,12 @@ function zoomAt(dy, cx0, cy0) {
     const parts = frame ? [frame] : key === 'desk' ? [book] : pages;
     const z0 = key === 'desk' ? colZoom('desk') : key.startsWith('g-') ? colZoom(key) : parseFloat(getComputedStyle(col).getPropertyValue('--zoom')) || baseZ;
     // the widest page now, and the room the column has for it
-    const wide = pages.reduce((b, n) => { const q = n.getBoundingClientRect(); return !b || q.width > b.width ? q : b; }, null);
-    const c0 = frame ? box.left + box.width / 2 : wide ? wide.left + wide.width / 2 : cx0;   // the pages' centre line now
-    const pw = frame ? 578 * z0 : Math.max(1, ...pages.map(n => n.getBoundingClientRect().width)), pad = frame ? 32 : key === 'desk' ? 48 : 24;
-    const near = pages.reduce((b, n) => { const q = n.getBoundingClientRect(); const d = cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0; return !b || d < b.d ? { n, d, q } : b; }, null);
+    // what the pages span across (one page, or a row of two side by side)
+    const qs = pages.map(n => n.getBoundingClientRect()), l0 = Math.min(...qs.map(q => q.left)), r0 = Math.max(...qs.map(q => q.right));
+    const c0 = frame ? box.left + box.width / 2 : qs.length ? (l0 + r0) / 2 : cx0;   // the pages' centre line now
+    const pw = frame ? 578 * z0 : qs.length ? Math.max(1, r0 - l0) : 1, pad = frame ? 32 : key === 'desk' ? 48 : 24;
+    // the page under the fingers (pages side by side: the nearest across as well as down)
+    const near = pages.reduce((b, n) => { const q = n.getBoundingClientRect(); const d = Math.hypot(cx0 < q.left ? q.left - cx0 : cx0 > q.right ? cx0 - q.right : 0, cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0); return !b || d < b.d ? { n, d, q } : b; }, null);
     pinch = { key, col, frame, sc, z0, z1: z0, cx0, cy0, pw, pad, box, c0,
       // transform-origin is in the element's own (zoomed) units: a page carries the column's zoom, so divide by it
       els: parts.map(el => { const q = el.getBoundingClientRect(); return [el, q, el.matches('section.page') ? q.width / (Book.pageW(el) * 4 / 3) : 1]; }),
@@ -3373,6 +3375,17 @@ function zoomAt(dy, cx0, cy0) {
   const zs = $('#zoom'); let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(p.z1 * 100) + '%'; zs.value = 'custom';
   clearTimeout(gridT); gridT = setTimeout(endPinch, 150);
 }
+// keep the point under the fingers there while the layout settles after a zoom: the Story view redraws its cards
+// between the slides over several passes and equations re-render at the new size, each moving the pages (Eric,
+// 2026-11-20: a pinch ended somewhere else). Until it has been still, for 2 s at most, or you scroll, click or type.
+function holdAt(sc, a, x, y) {
+  const put = () => { if (!a.n.isConnected) return stop(); const q = a.n.getBoundingClientRect(); sc.scrollTop += q.top + a.fy * q.height - y; sc.scrollLeft += q.left + a.fx * q.width - x; };
+  const ro = new ResizeObserver(put), mine = ['wheel', 'pointerdown', 'keydown', 'touchstart'];
+  let done = false;
+  function stop() { if (done) return; done = true; ro.disconnect(); mine.forEach(t => removeEventListener(t, stop, true)); }
+  put(); ro.observe(a.n.parentElement, { box: 'border-box' }); ro.observe(a.n, { box: 'border-box' });
+  mine.forEach(t => addEventListener(t, stop, true)); setTimeout(stop, 2000);
+}
 function endPinch() {
   const p = pinch; if (!p) return; pinch = null;
   const z = +p.z1.toFixed(3);
@@ -3384,9 +3397,12 @@ function endPinch() {
     window.addEventListener('message', on); setTimeout(off, 1500);
   } else {
     applyColZooms(); Book.refresh();
+    // the Story view's cards between the slides, redrawn for the new size now rather than 120 ms later, which moved
+    // the page away again after it was put back under the fingers
+    if (window.Story && document.body.classList.contains('storyweave')) Story.weave();
     p.els.forEach(([el]) => { el.style.transform = ''; el.style.transformOrigin = ''; });
     const a = p.anchor;
-    if (a && a.n.isConnected) { const q = a.n.getBoundingClientRect(); p.sc.scrollTop += q.top + a.fy * q.height - p.cy0; p.sc.scrollLeft += q.left + a.fx * q.width - p.cx0; }
+    if (a && a.n.isConnected) holdAt(p.sc, a, p.cx0, p.cy0);
   }
   document.body.classList.remove('zooming');
   place();
