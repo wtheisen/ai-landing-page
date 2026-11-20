@@ -3350,31 +3350,77 @@ function zoomAt(dy, cx0, cy0) {
     const [key, col] = hit, frame = key.startsWith('g-') ? col.querySelector('iframe') : null;
     const sc = frame ? null : key === 'desk' ? deskBox : col, box = (frame || sc).getBoundingClientRect();
     const pages = frame ? [] : [...(key === 'desk' ? book : col).querySelectorAll(':scope > section.page, :scope > .ed-cover')].filter(n => n.getClientRects().length);
-    const parts = frame ? [frame] : key === 'desk' ? [book] : pages.slice(), sw = document.getElementById('storyw');
-    if (sc && sw && sc.contains(sw) && sw.children.length) parts.push(sw);   // the Story view's cards, with the slides
     const z0 = key === 'desk' ? colZoom('desk') : key.startsWith('g-') ? colZoom(key) : parseFloat(getComputedStyle(col).getPropertyValue('--zoom')) || baseZ;
-    // the widest page now, and the room the column has for it
-    // what the pages span across (one page, or a row of two side by side)
-    const qs = pages.map(n => n.getBoundingClientRect()), l0 = Math.min(...qs.map(q => q.left)), r0 = Math.max(...qs.map(q => q.right));
-    const c0 = frame ? box.left + box.width / 2 : qs.length ? (l0 + r0) / 2 : cx0;   // the pages' centre line now
-    const pw = frame ? 578 * z0 : qs.length ? Math.max(1, r0 - l0) : 1, pad = frame ? 32 : key === 'desk' ? 48 : 24;
     // the page under the fingers (pages side by side: the nearest across as well as down)
     const near = pages.reduce((b, n) => { const q = n.getBoundingClientRect(); const d = Math.hypot(cx0 < q.left ? q.left - cx0 : cx0 > q.right ? cx0 - q.right : 0, cy0 < q.top ? q.top - cy0 : cy0 > q.bottom ? cy0 - q.bottom : 0); return !b || d < b.d ? { n, d, q } : b; }, null);
-    pinch = { key, col, frame, sc, z0, z1: z0, cx0, cy0, pw, pad, box, c0,
-      // transform-origin is in the element's own (zoomed) units: a page carries the column's zoom, so divide by it
-      els: parts.map(el => { const q = el.getBoundingClientRect(); return [el, q, el.matches('section.page') ? q.width / (Book.pageW(el) * 4 / 3) : 1]; }),
-      mid: frame ? box.left + box.width / 2 : box.left + sc.clientWidth / 2,   // the middle of the room the pages are centred in (without the scrollbar)
+    if (!frame && !near) return;
+    pinch = { key, col, frame, sc, z0, z1: z0, cx0, cy0, box, lay: frame ? null : pinchLayout(sc, pages, near),
       anchor: near && { n: near.n, fx: (cx0 - near.q.left) / near.q.width, fy: (cy0 - near.q.top) / near.q.height } };
     document.body.classList.add('zooming');
   }
   const p = pinch;
   p.z1 = Math.max(0.15, Math.min(2.5, p.z1 * Math.exp(-dy * 0.01)));
-  const k = p.z1 / p.z0, fits = p.pw * k + p.pad <= (p.sc ? p.sc.clientWidth : p.box.width);
-  // pages that will fit end up centred in the column: pick the origin that takes the pages' centre (c0) to the middle
-  const ox = !fits ? p.cx0 : Math.abs(1 - k) < 1e-3 ? p.mid : (p.mid - p.c0 * k) / (1 - k);
-  p.els.forEach(([el, q, zf]) => { el.style.transformOrigin = (ox - q.left) / zf + 'px ' + (p.cy0 - q.top) / zf + 'px'; el.style.transform = 'scale(' + k + ')'; });
+  const k = p.z1 / p.z0;
+  if (p.frame) {   // a preview pane: scaled as a picture about the fingers, it lays itself out at the end
+    p.frame.style.transformOrigin = (p.cx0 - p.box.left) + 'px ' + (p.cy0 - p.box.top) + 'px'; p.frame.style.transform = 'scale(' + k + ')';
+  } else pinchShow(p, k);
   const zs = $('#zoom'); let o = zs.querySelector('option[value="custom"]'); if (!o) { o = document.createElement('option'); o.value = 'custom'; zs.prepend(o); } o.textContent = Math.round(p.z1 * 100) + '%'; zs.value = 'custom';
   clearTimeout(gridT); gridT = setTimeout(endPinch, 150);
+}
+// A pinch shows the column as it will be laid out at the new zoom, not a picture of it scaled (Eric, 2026-11-20: zoomed
+// out far enough for two or three slides a row, the release reflowed everything; the Story cards kept their size and
+// redrew on release). The pages are laid out as #book lays them out (rows that wrap, centred, the gaps between them),
+// at the new size, each moved there with a transform, with its Story cards; the column scrolled as the end of the pinch
+// will scroll it, to keep the point under the fingers there as far as it can. pinchLayout measures once, pinchShow
+// places everything for a zoom.
+function pinchLayout(sc, pages, near) {
+  const ct = pages[0].parentElement, cs = getComputedStyle(ct), scR = sc.getBoundingClientRect(), ctR = ct.getBoundingClientRect();
+  const sw = document.getElementById('storyw'), story = !!(sw && sc.contains(sw) && document.body.classList.contains('storyweave') && sw.querySelector('.sw'));
+  const sx = scR.left + sc.clientLeft - sc.scrollLeft, sy = scR.top + sc.clientTop - sc.scrollTop;   // the scroller's content origin on screen
+  const offX = ct === sc ? 0 : ctR.left + ct.clientLeft - sx, offY = ct === sc ? 0 : ctR.top + ct.clientTop - sy;   // the pages' container in it
+  const zc = parseFloat(cs.getPropertyValue('--zoom')) || 1, card = (c, n) => sw.querySelector(c + '[data-for="' + CSS.escape(n.id) + '"]');
+  const items = pages.map(n => {
+    const q = n.getBoundingClientRect(), it = { n, q, zf: n.matches('section.page') ? q.width / (Book.pageW(n) * 4 / 3) : 1, cards: [], hu: 0, hd: 0 };
+    if (story) [['.sw-up', 'hu'], ['.sw-down', 'hd']].forEach(([c, h]) => { const e = card(c, n); if (e) { it[h] = e.offsetHeight; it.cards.push([e, e.getBoundingClientRect()]); } });
+    return it;
+  });
+  return { ct, offX, offY, story, zc, items, a: items.find(it => it.n === near.n), dpane: ct.classList.contains('dpane'),
+    padL: parseFloat(cs.paddingLeft) || 0, padR: parseFloat(cs.paddingRight) || 0, padT: parseFloat(cs.paddingTop) || 0, padB: parseFloat(cs.paddingBottom) || 0,
+    cgap: parseFloat(cs.columnGap) || 0, rgap: parseFloat(cs.rowGap) || 0, W: ct.clientWidth };
+}
+function pinchShow(p, k) {
+  const L = p.lay, sc = p.sc, z1 = L.zc * k, W = L.W - L.padL - L.padR;
+  // rows as flex-wrap fills them
+  const rows = []; let row = [], rw = 0;
+  L.items.forEach(it => { const w = it.q.width * k; if (row.length && rw + L.cgap + w > W + 0.5) { rows.push(row); row = []; rw = 0; } rw += (row.length ? L.cgap : 0) + w; row.push(it); });
+  if (row.length) rows.push(row);
+  // the gaps between rows: the Story view's are as tall as the cards in them (Story.weave), plain ones as the CSS has them
+  // (as Story.weave works them out: over the slides with cards, the cover left out, each slide that starts a row below
+  // the one before it)
+  const base = L.dpane ? 24 * z1 : 24, sp = L.items.filter(it => it.cards.length);
+  rows.forEach((r, i) => r.forEach(it => { it.row = i; }));
+  const need = sp.slice(1).map((it, j) => it.row > sp[j].row ? (sp[j].hd + it.hu + 50) * z1 : 0);
+  const rgap = L.story ? Math.max(base, Math.ceil(Math.max(0, ...need))) : L.dpane ? L.rgap * k : L.rgap;
+  const padT = L.story && sp.length ? Math.round((sp[0].hu + 44) * z1) : L.padT;
+  let y = padT, wide = 0;
+  rows.forEach(r => {
+    const w = r.reduce((s, it) => s + it.q.width * k, 0) + L.cgap * (r.length - 1); wide = Math.max(wide, w);
+    let x = L.padL + Math.max(0, (W - w) / 2), h = 0;
+    r.forEach(it => { it.x = x; it.y = y; x += it.q.width * k + L.cgap; h = Math.max(h, it.q.height * k); });
+    y += h + rgap;
+  });
+  const tall = L.offY + y - rgap + L.padB, broad = L.offX + L.padL + wide + L.padR;
+  // scrolled as endPinch will scroll: the point under the fingers stays put as far as the column can scroll
+  const a = L.a, scR = sc.getBoundingClientRect(), ax = L.offX + a.x + p.anchor.fx * a.q.width * k, ay = L.offY + a.y + p.anchor.fy * a.q.height * k;
+  const st = Math.min(Math.max(0, scR.top + sc.clientTop + ay - p.cy0), Math.max(0, tall - sc.clientHeight));
+  const sl = Math.min(Math.max(0, scR.left + sc.clientLeft + ax - p.cx0), Math.max(0, broad - sc.clientWidth));
+  const ox = scR.left + sc.clientLeft - sl + L.offX, oy = scR.top + sc.clientTop - st + L.offY;
+  p.tx = ox - L.offX + ax; p.ty = oy - L.offY + ay;   // where the point under the fingers shows
+  L.items.forEach(it => {
+    const X = ox + it.x, Y = oy + it.y;
+    it.n.style.transformOrigin = '0 0'; it.n.style.transform = 'translate(' + (X - it.q.left) / it.zf + 'px,' + (Y - it.q.top) / it.zf + 'px) scale(' + k + ')';
+    it.cards.forEach(([e, q]) => { e.style.transform = 'translate(' + (X + (q.left - it.q.left) * k - q.left) + 'px,' + (Y + (q.top - it.q.top) * k - q.top) + 'px) scale(' + z1 + ')'; });
+  });
 }
 // keep the point under the fingers there while the layout settles after a zoom: the Story view redraws its cards
 // between the slides over several passes and equations re-render at the new size, each moving the pages (Eric,
@@ -3397,13 +3443,13 @@ function endPinch() {
     const fr = p.frame, off = () => { fr.style.transform = ''; fr.style.transformOrigin = ''; window.removeEventListener('message', on); }, on = e => { if (e.source === fr.contentWindow && e.data && e.data.gridZoomed) off(); };
     window.addEventListener('message', on); setTimeout(off, 1500);
   } else {
+    p.lay.items.forEach(it => { it.n.style.transform = ''; it.n.style.transformOrigin = ''; it.cards.forEach(([e]) => { e.style.transform = 'scale(' + p.lay.zc + ')'; }); });
     applyColZooms(); Book.refresh();
     // the Story view's cards between the slides, redrawn for the new size now rather than 120 ms later, which moved
     // the page away again after it was put back under the fingers
     if (window.Story && document.body.classList.contains('storyweave')) Story.weave();
-    p.els.forEach(([el]) => { el.style.transform = ''; el.style.transformOrigin = ''; });
     const a = p.anchor;
-    if (a && a.n.isConnected) holdAt(p.sc, a, p.cx0, p.cy0);
+    if (a && a.n.isConnected) holdAt(p.sc, a, p.tx, p.ty);   // where the pinch showed it
   }
   document.body.classList.remove('zooming');
   place();
