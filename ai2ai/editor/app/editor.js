@@ -3350,7 +3350,8 @@ function zoomAt(dy, cx0, cy0) {
     const [key, col] = hit, frame = key.startsWith('g-') ? col.querySelector('iframe') : null;
     const sc = frame ? null : key === 'desk' ? deskBox : col, box = (frame || sc).getBoundingClientRect();
     const pages = frame ? [] : [...(key === 'desk' ? book : col).querySelectorAll(':scope > section.page, :scope > .ed-cover')].filter(n => n.getClientRects().length);
-    const parts = frame ? [frame] : key === 'desk' ? [book] : pages;
+    const parts = frame ? [frame] : key === 'desk' ? [book] : pages.slice(), sw = document.getElementById('storyw');
+    if (sc && sw && sc.contains(sw) && sw.children.length) parts.push(sw);   // the Story view's cards, with the slides
     const z0 = key === 'desk' ? colZoom('desk') : key.startsWith('g-') ? colZoom(key) : parseFloat(getComputedStyle(col).getPropertyValue('--zoom')) || baseZ;
     // the widest page now, and the room the column has for it
     // what the pages span across (one page, or a row of two side by side)
@@ -5004,7 +5005,7 @@ window.eaiReview = {
   const delQ = q => { delete spec.qs[q]; spec.pages.forEach(p => { p.raises = p.raises.filter(x => x !== q); p.answers = p.answers.filter(x => x !== q); }); };
   const terms = v => v.split(',').map(t => t.trim()).filter(Boolean);
   function weave() {
-    if (busy) return;
+    if (busy || pinch) return;   // mid-pinch the cards are scaled with the slides; endPinch weaves once at the new zoom
     if (box && box.contains(document.activeElement)) return;   // never redraw under someone typing in a card
     const H = on && spec && !document.documentElement.classList.contains('ink-lecture') ? host() : null;
     if (!H) return clear();
@@ -5061,28 +5062,32 @@ window.eaiReview = {
       box.innerHTML = html;
       // widths first: a textarea fitted before its card has its width measures one word per line (Eric, 2026-11-18:
       // "they're like hilariously tall now")
-      box.querySelectorAll('.sw').forEach(b => { const pg = pgs.find(x => x.id === b.dataset.for); if (pg) b.style.width = pg.getBoundingClientRect().width + 'px'; });
+      // the cards zoom with the slides (Eric, 2026-11-20: they kept their size through a pinch, then jumped on release):
+      // laid out at the slide's width at zoom 1, so their text wraps the same at every zoom, and scaled by the column's
+      // zoom, so a card, the gaps it needs and the pinch preview all scale together
+      const z = parseFloat(getComputedStyle(H).getPropertyValue('--zoom')) || 1;
+      box.querySelectorAll('.sw').forEach(b => { const pg = pgs.find(x => x.id === b.dataset.for); if (pg) { b.style.width = pg.getBoundingClientRect().width / z + 'px'; b.style.transformOrigin = '0 0'; b.style.transform = 'scale(' + z + ')'; } });
       box.querySelectorAll('textarea').forEach(fit);
       const h = {};
-      box.querySelectorAll('.sw').forEach(b => { const id = b.dataset.for; h[id] = h[id] || [0, 0]; h[id][b.classList.contains('sw-up') ? 0 : 1] = b.offsetHeight; });
+      box.querySelectorAll('.sw').forEach(b => { const id = b.dataset.for; h[id] = h[id] || [0, 0]; h[id][b.classList.contains('sw-up') ? 0 : 1] = b.offsetHeight * z; });
       // widen the gaps only as much as the cards need: side by side the Lecture is already spaced to line up with the
       // Reading, and the pane's zoom scales a gap set in px, so measure the gaps, and what 100px more comes to on screen
       if (H.style.rowGap) H.style.removeProperty('row-gap');
       const gaps = () => pgs.map((pg, k) => k ? pg.getBoundingClientRect().top - pgs[k - 1].getBoundingClientRect().bottom : Infinity);
       const g0 = gaps(), base = parseFloat(getComputedStyle(H).rowGap) || 0;
       let short = 0;
-      pgs.forEach((pg, k) => { if (k && g0[k] > -1) short = Math.max(short, (h[pgs[k - 1].id] || [0, 0])[1] + (h[pg.id] || [0, 0])[0] + 50 - g0[k]); });
+      pgs.forEach((pg, k) => { if (k && g0[k] > -1) short = Math.max(short, (h[pgs[k - 1].id] || [0, 0])[1] + (h[pg.id] || [0, 0])[0] + 50 * z - g0[k]); });
       let f = 1;
       if (short > 0 && pgs.length > 1) { H.style.rowGap = (base + 100) + 'px'; const g1 = gaps(), k = g0.findIndex((g, i) => i && g > -1); if (k > 0 && g1[k] - g0[k] > 1) f = (g1[k] - g0[k]) / 100; }
-      const gap = short > 0 ? Math.ceil(base + short / f) + 'px' : '', pad = Math.round(Math.max(0, ((h[pgs[0] && pgs[0].id] || [0, 0])[0]) + 44) / f) + 'px';
+      const gap = short > 0 ? Math.ceil(base + short / f) + 'px' : '', pad = Math.round(Math.max(0, ((h[pgs[0] && pgs[0].id] || [0, 0])[0]) + 44 * z) / f) + 'px';
       if (H.style.rowGap !== gap) H.style.rowGap = gap;
       if (H.style.paddingTop !== pad) H.style.paddingTop = pad; gapOn = H;
       if (H.classList.contains('dpane') && H.style.paddingLeft !== '56px') H.style.paddingLeft = '56px';   // side by side: room for the graph
       box.querySelectorAll('.sw').forEach(b => {
         const pg = pgs.find(x => x.id === b.dataset.for); if (!pg) return;
         const r = pg.getBoundingClientRect(), q = S.getBoundingClientRect(), x = r.left - q.left + S.scrollLeft - S.clientLeft, y = r.top - q.top + S.scrollTop - S.clientTop;
-        b.style.left = x + 'px'; b.style.width = r.width + 'px';
-        b.style.top = (b.classList.contains('sw-up') ? y - b.offsetHeight - 20 : y + r.height + 20) + 'px';   // 20: the page's + buttons sit on its edge
+        b.style.left = x + 'px';
+        b.style.top = (b.classList.contains('sw-up') ? y - (b.offsetHeight + 20) * z : y + r.height + 20 * z) + 'px';   // 20: the page's + buttons sit on its edge
       });
       arcs(S, pgs, all, d, raisedBy, answeredBy, num);
     } finally { busy = false; }
