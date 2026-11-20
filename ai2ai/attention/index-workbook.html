@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -2479,7 +2490,7 @@ L 352 185.877551
 <div class="foot" data-rt=""><span>Self-Attention · Attention</span><span>07</span></div></section>
 
 <section class="page" id="lec-parallel-sa" data-view="slides workbook" data-topic="self-attention" style="--gap: 22pt;">
-  <h2 data-b="bt455"><b class="def">softmax</b>(<b-m tex="Q K\T / √d_k"><span class="c purple sym" data-at="0,1" data-k="Q">Q</span> <span class="c purple sym" data-at="2,3" data-k="K">K</span><sup>T</sup> / √d<sub><span class="c purple sym" data-at="0,1" data-k="k">k</span></sub></b-m>)</h2>
+  <h2 data-b="bt455"><b class="def">softmax</b>(<b-m tex="\frac{Q K\T}{√d_k}"><span class="fr"><span><span class="c purple sym" data-at="6,7" data-k="Q">Q</span> <span class="c purple sym" data-at="8,9" data-k="K">K</span><sup>T</sup></span><span>√d<sub><span class="c purple sym" data-at="0,1" data-k="k">k</span></sub></span></span></b-m>)</h2>
   <b-fig src="fig/heatmap.svg" data-pool="heatmap-fig" style="width: 83.6%; --fig-h: none; --ar: 1.670;" alt="A 7 by 7 grid of attention weights for wake up the echoes cheering her name, one row per query and one column per key, darker for bigger weights. The darkest cells are cheering to her and name to her, both 0.51" data-b="pxxwi"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 230" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -2988,7 +2999,7 @@ z
 
 <section class="page" id="p-ia0yi" data-view="slides workbook" data-topic="qkv" style="--gap: 22pt;">
   <h2 data-b="rvxc9">Values</h2>
-  <p data-b="x8fos">All <b class="def">softmax</b>(QK/d) does is compute how much <b class="def">attention</b> each token should pay to the others.</p>
+  <p data-b="x8fos">All <b class="def">softmax</b>(<b-m tex="\frac{Q K\T}{√d_k}"><span class="fr"><span><span class="c purple sym" data-at="6,7" data-k="Q">Q</span> <span class="c purple sym" data-at="8,9" data-k="K">K</span><sup>T</sup></span><span>√d<sub><span class="c purple sym" data-at="0,1" data-k="k">k</span></sub></span></span></b-m>) does is compute how much <b class="def">attention</b> each token should pay to the others.</p>
   <p data-b="jyjlu">To actually update our <b class="def">embeddings</b> we then multiply these <b class="def">attention</b> scores by the <b class="def">values</b> matrix V.</p>
   <svg class="draw" viewBox="0 0 384 112" style="width: 523pt" role="img" aria-label="X, the embeddings, goes through self-attention, softmax(QKᵀ/√dₖ) V, to Z; a residual connection carries X around self-attention to a plus, giving X + Z, the embeddings with context, all 7 by 4" data-b="ne1no">
     <defs>
@@ -3012,8 +3023,16 @@ z
     </g>
     <g id="residual-ne1no-s2">
       <rect x="74.0" y="62.0" width="104.0" height="32.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <text x="126.0" y="77.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">self-attention</text>
-      <text x="126.0" y="87.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">softmax(QKᵀ/√dₖ) V</text>
+      <text x="126.0" y="74.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">self-attention</text>
+      <g data-tiles="">
+        <text x="99.5" y="88.9" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace">softmax</text>
+        <path d="M 124.4 79.3 Q 123 85.3 124.4 91.3" fill="none" stroke="#000000" stroke-width="0.5" stroke-linecap="round"></path>
+        <text x="131.6" y="84.6" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">QKᵀ</text>
+        <line x1="126.2" y1="86.8" x2="137" y2="86.8" stroke="#000000" stroke-width="0.45"></line>
+        <text x="131.6" y="91.6" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">√dₖ</text>
+        <path d="M 138.8 79.3 Q 140.2 85.3 138.8 91.3" fill="none" stroke="#000000" stroke-width="0.5" stroke-linecap="round"></path>
+        <text x="142" y="88.9" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace">V</text>
+      </g>
     </g>
     <g id="residual-ne1no-s3" data-sym="Z" data-dims="7,4" data-showdims="on">
       <rect x="209.6" y="61.3" width="24.8" height="33.4" rx="5.2" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></rect>
@@ -4100,7 +4119,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -4128,15 +4147,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -4145,6 +4210,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -4157,9 +4223,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

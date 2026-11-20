@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -1430,30 +1441,33 @@ L 384 0
 <section class="page" id="p-tz6ij" data-view="slides workbook" data-topic="gpt" style="--gap: 22pt;">
   <h2 data-b="dpeh6">Self-Attention</h2>
   
-  <svg class="draw" viewBox="0 0 235.9 41.4" style="width: 380pt" role="img" aria-label="The attention equation as tiles with their shapes for our five words: A of shape 5 by 8 = softmax of Q (5 by 8) times K transposed (8 by 5) over the square root of 8, times V (5 by 8)." data-b="wa22w">
-    <g data-row="" id="att-s5" transform="translate(-1.7 -3.3)">
+  <svg class="draw" viewBox="0 0 235.9 62.6" style="width: 380pt" role="img" aria-label="The attention equation as tiles with their shapes for our five words: A of shape 5 by 8 = softmax of Q (5 by 8) times K transposed (8 by 5) over the square root of 8, times V (5 by 8)." data-b="wa22w">
+    <g id="att-s5" transform="translate(-1.7 -3.3)" data-tiles="">
       <g id="att-s1" data-sym="A" data-dims="T,d">
-        <rect x="5.7" y="7.3" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.1" y="22.6">A</text>
-        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.1" y="34.2">&lt;5,8&gt;</text>
+        <rect x="5.8" y="28.5" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.2" y="43.8">A</text>
+        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.2" y="55.4">&lt;5,8&gt;</text>
       </g>
-      <text x="34.1" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
-      <text x="44.9" y="28.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">softmax(</text>
+      <text x="34.1" y="49.9" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="44.9" y="49.9" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">softmax</text>
+      <path data-frac="" d="M 102.1 9.3 Q 94.52 34.57 102.1 59.84" fill="none" stroke="#B8920F" stroke-width="1.44" stroke-linecap="round"></path>
       <g id="att-s2" data-sym="Q" data-dims="T,d">
-        <rect x="105.7" y="7.3" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Q|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="118.1" y="22.6">Q</text>
-        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="118.1" y="34.2">&lt;5,8&gt;</text>
+        <rect x="105.1" y="10.3" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Q|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="117.5" y="25.6">Q</text>
+        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="117.5" y="37.2">&lt;5,8&gt;</text>
       </g>
       <g id="att-s3" data-sym="K^T" data-dims="d,T">
-        <rect x="134.2" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="K^T|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="146.6" y="22.6">K<tspan font-size="8.1" dy="-5.9">T</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="146.6" y="34.2">&lt;8,5&gt;</text>
+        <rect x="133.6" y="10.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="K^T|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="146" y="25.6">K<tspan font-size="8.1" dy="-5.9">T</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="146" y="37.2">&lt;8,5&gt;</text>
       </g>
-      <text x="162.6" y="28.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">/ √8 )</text>
+      <line x1="104.05" y1="45.2" x2="159.35" y2="45.2" stroke="#000000" stroke-width="1.3"></line>
+      <text x="131.7" y="55.83" font-size="11.7" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle">√8</text>
+      <path data-frac="" d="M 165.2 9.3 Q 172.78 34.57 165.2 59.84" fill="none" stroke="#B8920F" stroke-width="1.44" stroke-linecap="round"></path>
       <g id="att-s4" data-sym="V" data-dims="T,d">
-        <rect x="209.1" y="7.3" width="24.8" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="V|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="221.5" y="22.6">V</text>
-        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="221.5" y="34.2">&lt;5,8&gt;</text>
+        <rect x="173.7" y="28.5" width="24.8" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="V|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="186.1" y="43.8">V</text>
+        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="186.1" y="55.4">&lt;5,8&gt;</text>
       </g>
     </g>
   </svg>
@@ -1938,7 +1952,7 @@ z
 
 <section class="page" id="lec-whole" data-view="slides workbook" data-topic="gpt" style="--gap: 22pt;">
   <h2 data-b="k7g7e">The Whole Model</h2>
-  <svg class="draw" viewBox="0 30 444 314" style="width: 610pt" role="img" aria-label="Left: the decoder-only transformer from bottom to top: the text, a tokenizer, embeddings plus positional encoding, transformer blocks 1 to N, a layer normalization, a linear layer and a softmax giving the next word. Right: one block, layer normalization, masked self-attention and a residual add, then layer normalization, a feed-forward MLP and a second residual add" data-b="gf99y">
+  <svg class="draw" viewBox="0 30 444 328.18" style="width: 583.6pt" role="img" aria-label="Left: the decoder-only transformer from bottom to top: the text, a tokenizer, embeddings plus positional encoding, transformer blocks 1 to N, a layer normalization, a linear layer and a softmax giving the next word. Right: one block, layer normalization, masked self-attention and a residual add, then layer normalization, a feed-forward MLP and a second residual add" data-b="gf99y">
     <defs>
       <marker id="ah002B5B-c738g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -2022,37 +2036,39 @@ z
     <line x1="72.0" y1="95.5" x2="72.0" y2="86.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s10" data-b="gpt-c738g-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="72.0" y1="69.5" x2="86" y2="51.7" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s11" data-b="gpt-c738g-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="39.0" y1="249.0" x2="65.0" y2="249.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s5" data-b="gpt-c738g-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <rect x="228.0" y="120.0" width="200.0" height="202.0" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+    <rect x="228.0" y="120.0" width="200.0" height="216.18" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
     <line x1="128.0" y1="213.5" x2="228.0" y2="120.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="3 2"></line>
-    <line x1="128.0" y1="230.5" x2="228.0" y2="322.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="3 2"></line>
-    <text x="318.0" y="336.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block input (one row per word)</text>
+    <line x1="128.0" y1="230.5" x2="228.0" y2="336.18" stroke="#666666" stroke-width="0.80" stroke-dasharray="3 2"></line>
+    <text x="318.0" y="350.18" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block input (one row per word)</text>
     <g id="gpt-c738g-s13">
-      <rect x="258.0" y="287.5" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
-      <text x="318.0" y="298.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization</text>
+      <rect x="258.0" y="301.68" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <text x="318.0" y="312.78" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization</text>
     </g>
     <g id="gpt-c738g-s14">
-      <rect x="242.1" y="248.5" width="151.9" height="29.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="242.1" y="248.5" width="151.9" height="43.18" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
       <text x="318.0" y="259.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Masked Self-Attention</text>
-      <g data-row="" id="gf99y-r9">
-        <text x="246.1" y="272.4" font-size="8.5" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">softmax(</text>
+      <g id="gf99y-r9" data-tiles="">
+        <text x="246.1" y="283.35" font-size="8.5" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">softmax</text>
+        <path data-frac="" d="M 283.5 262.9 Q 279.21 277.19 283.5 291.48" fill="none" stroke="#B8920F" stroke-width="0.94" stroke-linecap="round"></path>
         <g id="gf99y-r2" data-sym="Q">
-          <rect x="285.8" y="261.9" width="13.6" height="14.9" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9" rx="3.4"></rect>
-          <text font-size="8.5" data-sl="Q|8.5" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="292.6" y="271.9">Q</text>
+          <rect x="285.8" y="263.9" width="13.6" height="14.9" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9" rx="3.4"></rect>
+          <text font-size="8.5" data-sl="Q|8.5" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="292.6" y="273.9">Q</text>
         </g>
         <g id="gf99y-r3" data-sym="K^T">
-          <rect x="301.8" y="261.9" width="16.1" height="14.9" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.4"></rect>
-          <text font-size="8.5" data-sl="K^T|8.5" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="309.9" y="271.9">K<tspan font-size="5.3" dy="-3.8">T</tspan></text>
+          <rect x="301.7" y="263.9" width="16.1" height="14.9" fill="#F4CCCC" stroke="#E06666" stroke-width="0.9" rx="3.4"></rect>
+          <text font-size="8.5" data-sl="K^T|8.5" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="309.8" y="273.9">K<tspan font-size="5.3" dy="-3.8">T</tspan></text>
         </g>
-        <text x="320.3" y="272.4" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">/ √dₖ</text>
-        <text x="346.6" y="272.4" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+        <line x1="284.77" y1="280.3" x2="318.78" y2="280.3" stroke="#000000" stroke-width="0.85"></line>
+        <text x="301.77" y="288.43" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle">√dₖ</text>
+        <text x="321.75" y="283.35" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
         <g id="gf99y-r6" data-sym="M">
-          <rect x="353.6" y="261.9" width="13.6" height="14.9" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.4"></rect>
-          <text font-size="8.5" data-sl="M|8.5" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="360.4" y="271.9">M</text>
+          <rect x="328.8" y="272.9" width="13.6" height="14.9" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" rx="3.4"></rect>
+          <text font-size="8.5" data-sl="M|8.5" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="335.6" y="282.9">M</text>
         </g>
-        <text x="369.6" y="272.4" font-size="8.5" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
+        <path data-frac="" d="M 346.02 262.9 Q 350.31 277.19 346.02 291.48" fill="none" stroke="#B8920F" stroke-width="0.94" stroke-linecap="round"></path>
         <g id="gf99y-r8" data-sym="V">
-          <rect x="376.7" y="261.9" width="13.6" height="14.9" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.9" rx="3.4"></rect>
-          <text font-size="8.5" data-sl="V|8.5" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="383.5" y="271.9">V</text>
+          <rect x="351.9" y="272.9" width="13.6" height="14.9" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.9" rx="3.4"></rect>
+          <text font-size="8.5" data-sl="V|8.5" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="358.7" y="282.9">V</text>
         </g>
       </g>
     </g>
@@ -2073,16 +2089,16 @@ z
       <text x="318.0" y="145.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <text x="318.0" y="106.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block output</text>
-    <line x1="318.0" y1="328.0" x2="318.0" y2="304.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-b="gpt-c738g-s13" data-b-at="b:0.500"></line>
-    <line x1="318.0" y1="287.5" x2="318" y2="277.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s13" data-b="gpt-c738g-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="318.0" y1="342.18" x2="318.0" y2="318.68" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-b="gpt-c738g-s13" data-b-at="b:0.500"></line>
+    <line x1="318.0" y1="301.68" x2="318" y2="291.68" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s13" data-b="gpt-c738g-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="318" y1="248.5" x2="318.0" y2="243.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s14" data-b="gpt-c738g-s15" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="318.0" y1="229.0" x2="318.0" y2="212.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s15" data-b="gpt-c738g-s16" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="318.0" y1="195.5" x2="318.0" y2="182.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s16" data-b="gpt-c738g-s17" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="318.0" y1="165.5" x2="318.0" y2="149.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s17" data-b="gpt-c738g-s18" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="318.0" y1="135.0" x2="318.0" y2="112.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s18" data-a-at="t:0.500"></line>
-    <polyline points="318.0,316.0 410.0,316.0 410.0,236.0 325.0,236.0" fill="none" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)"></polyline>
+    <polyline points="318.0,330.18 410.0,330.18 410.0,236 325.0,236" fill="none" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)"></polyline>
     <polyline points="318.0,222.0 410.0,222.0 410.0,142.0 325.0,142.0" fill="none" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)"></polyline>
-    <text x="406.0" y="300.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">residual</text>
+    <text x="406.0" y="314.18" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">residual</text>
     <text x="406.0" y="184.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">residual</text>
   </svg>
   
@@ -2093,7 +2109,7 @@ z
   <h2 data-b="nyusd">Self-Attention and Word Order</h2>
   
   <p data-b="akbe7">Shuffle our line: <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> <b-tok v="march" t="cheering" data-f="blue" title="Victory March words: &quot;cheering&quot; = 9"><span class="tk-t">cheering</span><span class="tk-id">9</span></b-tok> <b-tok v="march" t="echoes" data-f="red" title="Victory March words: &quot;echoes&quot; = 8"><span class="tk-t">echoes</span><span class="tk-id">8</span></b-tok> <b-tok v="march" t="name" data-f="purple" title="Victory March words: &quot;name&quot; = 11"><span class="tk-t">name</span><span class="tk-id">11</span></b-tok> <b-tok v="march" t="her" data-f="green" title="Victory March words: &quot;her&quot; = 10"><span class="tk-t">her</span><span class="tk-id">10</span></b-tok> <b-tok v="march" t="wake" data-f="purple" title="Victory March words: &quot;wake&quot; = 5"><span class="tk-t">wake</span><span class="tk-id">5</span></b-tok> <b-tok v="march" t="up" data-f="green" title="Victory March words: &quot;up&quot; = 6"><span class="tk-t">up</span><span class="tk-id">6</span></b-tok>. Every <b class="def">token</b> gets <b class="warn">the same output, just in a different row</b></p>
-  <p data-b="koscs"><b class="def">Self-attention</b> treats a sentence as a <b class="def">bag of words</b>: <b class="ex">wake up the echoes</b> = <b class="ex">the echoes wake up</b></p>
+  <p data-b="koscs"><b class="def">Self-attention</b> treats a sentence as a <u class="fill blank" style="width: 99.5pt;">&nbsp;</u>: <b class="ex">wake up the echoes</b> = <b class="ex">the echoes wake up</b></p>
   
   <svg class="draw" viewBox="0 0 630 196" style="width: 620pt" role="img" aria-label="Two attention grids with no positions. Left: wake up the echoes. Right: the shuffled the echoes wake up. Every weight is the same, just moved to another row and column: wake to up is 0.37 in both." data-b="fdunz">
     <defs>
@@ -2387,8 +2403,8 @@ z
       <text x="500.0" y="64.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.32</text>
     </g>
     <g id="pos-order-ki1uh-s14" data-sym="v_1">
-      <rect x="545" y="53.3" width="18.9" height="17.5" rx="4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1"></rect>
-      <text x="554.5" y="65.1" font-size="10.0" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="v_1|10">v<tspan font-size="6.2" dy="2.8">1</tspan></text>
+      <rect x="545.1" y="53.3" width="18.9" height="17.5" rx="4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1"></rect>
+      <text x="554.6" y="65.1" font-size="10.0" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="v_1|10">v<tspan font-size="6.2" dy="2.8">1</tspan></text>
     </g>
     <g id="pos-order-ki1uh-s15" data-tok="march" data-t="cheer">
       <rect x="359.7" y="79.4" width="28.5" height="13.2" rx="3.2" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
@@ -2407,8 +2423,8 @@ z
       <text x="500.0" y="88.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.32</text>
     </g>
     <g id="pos-order-ki1uh-s19" data-sym="v_2">
-      <rect x="545" y="77.3" width="18.9" height="17.5" rx="4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1"></rect>
-      <text x="554.5" y="89.1" font-size="10.0" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="v_2|10">v<tspan font-size="6.2" dy="2.8">2</tspan></text>
+      <rect x="545.1" y="77.3" width="18.9" height="17.5" rx="4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1"></rect>
+      <text x="554.6" y="89.1" font-size="10.0" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="v_2|10">v<tspan font-size="6.2" dy="2.8">2</tspan></text>
     </g>
     <g id="pos-order-ki1uh-s20" data-tok="march" data-t="for">
       <rect x="365.1" y="103.4" width="17.8" height="13.2" rx="3.2" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
@@ -2427,8 +2443,8 @@ z
       <text x="500.0" y="112.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.17</text>
     </g>
     <g id="pos-order-ki1uh-s24" data-sym="v_3">
-      <rect x="545" y="101.3" width="18.9" height="17.5" rx="4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1"></rect>
-      <text x="554.5" y="113.1" font-size="10.0" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="v_3|10">v<tspan font-size="6.2" dy="2.8">3</tspan></text>
+      <rect x="545.1" y="101.3" width="18.9" height="17.5" rx="4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1"></rect>
+      <text x="554.6" y="113.1" font-size="10.0" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="v_3|10">v<tspan font-size="6.2" dy="2.8">3</tspan></text>
     </g>
     <rect x="399.0" y="49.0" width="122.0" height="50.0" rx="2.0" fill="none" stroke="#CC0000" stroke-width="1.60"></rect>
     <g data-row="" id="ki1uh-r76">
@@ -2443,9 +2459,9 @@ z
         <text font-size="9.4" data-sl="v_2|9.4" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="538.5" y="136.3">v<tspan font-size="5.8" dy="2.6">2</tspan></text>
       </g>
     </g>
-    <line x1="522.0" y1="62.0" x2="545" y2="62" stroke="#93C47D" stroke-width="1.00" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s13" data-b="pos-order-ki1uh-s14" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
-    <line x1="522.0" y1="86.0" x2="545" y2="86.1" stroke="#93C47D" stroke-width="1.00" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s18" data-b="pos-order-ki1uh-s19" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
-    <line x1="522.0" y1="110.0" x2="545" y2="110.1" stroke="#93C47D" stroke-width="1.00" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s23" data-b="pos-order-ki1uh-s24" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
+    <line x1="522.0" y1="62.0" x2="545.1" y2="62.1" stroke="#93C47D" stroke-width="1.00" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s13" data-b="pos-order-ki1uh-s14" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
+    <line x1="522.0" y1="86.0" x2="545.1" y2="86.1" stroke="#93C47D" stroke-width="1.00" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s18" data-b="pos-order-ki1uh-s19" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
+    <line x1="522.0" y1="110.0" x2="545.1" y2="110.1" stroke="#93C47D" stroke-width="1.00" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s23" data-b="pos-order-ki1uh-s24" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
     <text x="460.0" y="147.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">one row per query, one column per key</text>
   </svg>
   
@@ -2468,21 +2484,21 @@ z
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[6.1]</div><div class="eqml-e"><div class="eqml-note">even columns</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-12"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐏</mi><mrow><mi mathvariant="normal">𝐩</mi><mi mathvariant="normal">𝐨</mi><mi mathvariant="normal">𝐬</mi><mo separator="true">,</mo><mspace width="0.1667em"></mspace><mn>𝟐</mn><mi mathvariant="normal">𝐢</mi></mrow></msub></mrow></mrow><mo>=</mo><mrow><mrow style="color:#1155CC;"><mi mathvariant="normal">sin</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow class="lk-gold"><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mspace width="0.1667em"></mspace><mi mathvariant="normal">/</mi><mspace width="0.1667em"></mspace><msup><mn>10000</mn><mrow><mn>2</mn><mi mathvariant="normal">i</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi></mrow></msup></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">odd columns</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-14"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐏</mi><mrow><mi mathvariant="normal">𝐩</mi><mi mathvariant="normal">𝐨</mi><mi mathvariant="normal">𝐬</mi><mo separator="true">,</mo><mspace width="0.1667em"></mspace><mn>𝟐</mn><mi mathvariant="normal">𝐢</mi><mo>+</mo><mn>𝟏</mn></mrow></msub></mrow></mrow><mo>=</mo><mrow><mrow style="color:#674EA7;"><mi mathvariant="normal">cos</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow class="lk-gold"><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mspace width="0.1667em"></mspace><mi mathvariant="normal">/</mi><mspace width="0.1667em"></mspace><msup><mn>10000</mn><mrow><mn>2</mn><mi mathvariant="normal">i</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi></mrow></msup></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div></div></div></b-eq><svg class="draw" viewBox="0 6 136 36" style="width: 196pt" role="img" aria-label="X (5 by 8) = E_x, the words’ embeddings (5 by 8), + P, their positions (5 by 8)." data-b="xsh8d">
     <g data-row="" id="pos-s4">
       <g id="pos-s1" data-sym="X" data-dims="T,d">
-        <rect x="5.7" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.1" y="22.6">X</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.1" y="34.2">&lt;5,8&gt;</text>
+        <rect x="5.8" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.2" y="22.6">X</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.2" y="34.2">&lt;5,8&gt;</text>
       </g>
-      <text x="34.1" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="34.2" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
       <g id="pos-s2" data-sym="E_x" data-dims="T,d">
-        <rect x="44.9" y="7.3" width="24.8" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="E_x|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="57.3" y="22.6">E<tspan font-size="8.1" dy="3.6">x</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="57.3" y="34.2">&lt;5,8&gt;</text>
+        <rect x="45" y="7.3" width="24.8" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="E_x|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="57.4" y="22.6">E<tspan font-size="8.1" dy="3.6">x</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="57.4" y="34.2">&lt;5,8&gt;</text>
       </g>
-      <text x="73.4" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
-      <g id="pos-s3" data-sym="P" data-dims="T,d">
-        <rect x="84.2" y="7.3" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="P|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="96.6" y="22.6">P</text>
-        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="96.6" y="34.2">&lt;5,8&gt;</text>
+      <text x="73.5" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <g id="pos-s3" data-sym="P" data-dims="T,d" data-showdims="on">
+        <rect x="84.3" y="7.3" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="96.7" y="22.6" data-sl="P|13">P</text>
+        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="96.7" y="34.2">&lt;5,8&gt;</text>
       </g>
     </g>
   </svg><p data-b="dsqiq" data-align="center">This is referred to as <b>Sinusoidal Position Encoding</b></p><svg class="draw" viewBox="0 0 630 98" style="width: 600pt" role="img" aria-label="The two cheers at positions 0 and 1: the same embedding row E[cheer], different position rows P0 and P1, so different inputs X = E[x] + P." data-b="vcg6o">
@@ -4565,7 +4581,7 @@ z
 <section class="page" id="lec-diagram" data-part="The Transformer Block" data-view="slides workbook" data-topic="block" style="--gap: 22pt;">
   <h2 data-b="sggh4">Simple Decoder/Generative Transformer Diagram</h2>
   <p data-b="peb0r">The <b class="def">mask</b> lives in the block's <b class="def">attention</b>. One <b class="def">transformer block</b>, at <b class="name">GPT-2</b> small's size:</p>
-  <svg class="draw" data-vars="T=T" viewBox="0 0 620 390" style="width: 600pt" role="img" aria-label="One GPT-2 small transformer block, bottom to top. Masked self-attention, 12 heads of 64 columns: H = LN(X) of shape T by 768; Q, K and V = H times their weights, T by 64; the scores Q K transposed over the square root of 64, T by T; plus the mask M, minus infinity above the diagonal; softmax of each row, the attention weights; weights times V; the 12 heads joined and times Ω_O, back to T by 768, to the residual plus. Feed-forward, each word on its own: H = LN(X), H Ω₁ to 3072, GELU (ours uses ReLU), times Ω₂ back to 768, to the residual plus. Below it, ReLU (dashed grey) and GELU (gold) from −3 to 3: GELU dips just below zero and bends smoothly at zero." data-b="n8t1j">
+  <svg class="draw" data-vars="T=T" viewBox="0 0 620 411.2" style="width: 569.1pt" role="img" aria-label="One GPT-2 small transformer block, bottom to top. Masked self-attention, 12 heads of 64 columns: H = LN(X) of shape T by 768; Q, K and V = H times their weights, T by 64; the scores Q K transposed over the square root of 64, T by T; plus the mask M, minus infinity above the diagonal; softmax of each row, the attention weights; weights times V; the 12 heads joined and times Ω_O, back to T by 768, to the residual plus. Feed-forward, each word on its own: H = LN(X), H Ω₁ to 3072, GELU (ours uses ReLU), times Ω₂ back to 768, to the residual plus. Below it, ReLU (dashed grey) and GELU (gold) from −3 to 3: GELU dips just below zero and bends smoothly at zero." data-b="n8t1j">
     <defs>
       <marker id="ah002B5B-n8t1j" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -4590,154 +4606,155 @@ z
     <text x="190.0" y="25.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">12 heads, 64 columns each</text>
     <g data-row="" id="gpt2-block-n8t1j-s1">
       <g id="gpt2-block-n8t1j-s1t1" data-sym="Y" data-dims="T,768">
-        <rect x="94.4" y="55.3" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Y|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="110.2" y="70.6">Y</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="110.2" y="82.2">&lt;T,768&gt;</text>
+        <rect x="94.5" y="55.3" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Y|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="110.3" y="70.6">Y</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="110.3" y="82.2">&lt;T,768&gt;</text>
       </g>
-      <text x="129.6" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
-      <text x="140.4" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">concat(</text>
+      <text x="129.7" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="140.5" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">concat(</text>
       <g id="gpt2-block-n8t1j-s1t2" data-sym="O_h" data-dims="T,64">
-        <rect x="194.1" y="55.3" width="28.2" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="O_h|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="208.2" y="70.6">O<tspan font-size="8.1" dy="3.6">h</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="208.2" y="82.2">&lt;T,64&gt;</text>
+        <rect x="194.2" y="55.3" width="28.2" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="O_h|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="208.3" y="70.6">O<tspan font-size="8.1" dy="3.6">h</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="208.3" y="82.2">&lt;T,64&gt;</text>
       </g>
-      <text x="225.9" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
-      <text x="236.7" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
+      <text x="226" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
+      <text x="236.8" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
       <g id="gpt2-block-n8t1j-s1t3" data-sym="Ω_O" data-dims="768,768">
-        <rect x="247.5" y="55.3" width="38.4" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Ω_O|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="266.7" y="70.6">Ω<tspan font-size="8.1" dy="3.6">O</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="266.7" y="82.2">&lt;768,768&gt;</text>
+        <rect x="247.6" y="55.3" width="38.4" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Ω_O|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="266.8" y="70.6">Ω<tspan font-size="8.1" dy="3.6">O</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="266.8" y="82.2">&lt;768,768&gt;</text>
       </g>
     </g>
     <g data-row="" id="gpt2-block-n8t1j-s2">
       <g id="gpt2-block-n8t1j-s2t1" data-sym="O_h" data-dims="T,64">
-        <rect x="135.1" y="105.3" width="28.2" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="O_h|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="149.2" y="120.6">O<tspan font-size="8.1" dy="3.6">h</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="149.2" y="132.2">&lt;T,64&gt;</text>
+        <rect x="135.2" y="105.3" width="28.2" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="O_h|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="149.3" y="120.6">O<tspan font-size="8.1" dy="3.6">h</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="149.3" y="132.2">&lt;T,64&gt;</text>
       </g>
-      <text x="166.9" y="126.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="167" y="126.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
       <g id="gpt2-block-n8t1j-s2t2" data-sym="A" data-dims="T,T">
-        <rect x="177.7" y="105.3" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="190.1" y="120.6">A</text>
-        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="190.1" y="132.2">&lt;T,T&gt;</text>
+        <rect x="177.8" y="105.3" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="190.2" y="120.6">A</text>
+        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="190.2" y="132.2">&lt;T,T&gt;</text>
       </g>
-      <text x="206.2" y="126.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
+      <text x="206.3" y="126.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
       <g id="gpt2-block-n8t1j-s2t3" data-sym="V" data-dims="T,64">
-        <rect x="217" y="105.3" width="28.2" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="V|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="231.1" y="120.6">V</text>
-        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="231.1" y="132.2">&lt;T,64&gt;</text>
+        <rect x="217.1" y="105.3" width="28.2" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="V|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="231.2" y="120.6">V</text>
+        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="231.2" y="132.2">&lt;T,64&gt;</text>
       </g>
     </g>
     <g data-row="" id="gpt2-block-n8t1j-s3">
       <g id="gpt2-block-n8t1j-s3t1" data-sym="A" data-dims="T,T">
-        <rect x="121.9" y="155.3" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="134.3" y="170.6">A</text>
-        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="134.3" y="182.2">&lt;T,T&gt;</text>
+        <rect x="122" y="155.3" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="134.4" y="170.6">A</text>
+        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="134.4" y="182.2">&lt;T,T&gt;</text>
       </g>
-      <text x="150.3" y="176.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
-      <text x="161.1" y="176.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">softmax(</text>
+      <text x="150.4" y="176.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="161.2" y="176.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">softmax(</text>
       <g id="gpt2-block-n8t1j-s3t2" data-sym="S" data-dims="T,T">
-        <rect x="221.9" y="155.3" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="S|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="234.3" y="170.6">S</text>
-        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="234.3" y="182.2">&lt;T,T&gt;</text>
+        <rect x="222" y="155.3" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="S|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="234.4" y="170.6">S</text>
+        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="234.4" y="182.2">&lt;T,T&gt;</text>
       </g>
-      <text x="250.4" y="176.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
+      <text x="250.5" y="176.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
     <g data-row="" id="gpt2-block-n8t1j-s4">
       <g id="gpt2-block-n8t1j-s4t1" data-sym="S" data-dims="T,T">
-        <rect x="138.4" y="205.3" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="S|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="150.8" y="220.6">S</text>
-        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="150.8" y="232.2">&lt;T,T&gt;</text>
+        <rect x="138.5" y="205.3" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="S|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="150.9" y="220.6">S</text>
+        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="150.9" y="232.2">&lt;T,T&gt;</text>
       </g>
-      <text x="166.8" y="226.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="166.9" y="226.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
       <g id="gpt2-block-n8t1j-s4t2" data-sym="S" data-dims="T,T">
-        <rect x="177.6" y="205.3" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="S|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="190" y="220.6">S</text>
-        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="190" y="232.2">&lt;T,T&gt;</text>
+        <rect x="177.7" y="205.3" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="S|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="190.1" y="220.6">S</text>
+        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="190.1" y="232.2">&lt;T,T&gt;</text>
       </g>
-      <text x="206.1" y="226.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <text x="206.2" y="226.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
       <g id="gpt2-block-n8t1j-s4t3" data-sym="M" data-dims="T,T">
-        <rect x="216.9" y="205.3" width="24.8" height="33.4" fill="#CCCCCC" stroke="#666666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="M|13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="229.3" y="220.6">M</text>
-        <text class="tk-sub" font-size="6.2" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="229.3" y="232.2">&lt;T,T&gt;</text>
+        <rect x="217" y="205.3" width="24.8" height="33.4" fill="#CCCCCC" stroke="#666666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="M|13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="229.4" y="220.6">M</text>
+        <text class="tk-sub" font-size="6.2" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="229.4" y="232.2">&lt;T,T&gt;</text>
       </g>
     </g>
-    <g data-row="" id="gpt2-block-n8t1j-s5">
+    <g id="gpt2-block-n8t1j-s5" data-tiles="">
       <g id="gpt2-block-n8t1j-s5t1" data-sym="S" data-dims="T,T">
-        <rect x="115.1" y="255.3" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="S|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="127.5" y="270.6">S</text>
-        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="127.5" y="282.2">&lt;T,T&gt;</text>
+        <rect x="115.2" y="276.5" width="24.8" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="S|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="127.6" y="291.8">S</text>
+        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="127.6" y="303.4">&lt;T,T&gt;</text>
       </g>
-      <text x="143.5" y="276.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="143.5" y="297.9" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
       <g id="gpt2-block-n8t1j-s5t2" data-sym="Q" data-dims="T,64">
-        <rect x="154.3" y="255.3" width="28.2" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Q|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="168.4" y="270.6">Q</text>
-        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="168.4" y="282.2">&lt;T,64&gt;</text>
+        <rect x="154.5" y="258.3" width="28.2" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Q|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="168.6" y="273.6">Q</text>
+        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="168.6" y="285.2">&lt;T,64&gt;</text>
       </g>
-      <text x="186.2" y="276.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
+      <text x="186.3" y="279.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
       <g id="gpt2-block-n8t1j-s5t3" data-sym="K^T" data-dims="64,T">
-        <rect x="197" y="255.3" width="28.2" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="K^T|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="211.1" y="270.6">K<tspan font-size="8.1" dy="-5.9">T</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="211.1" y="282.2">&lt;64,T&gt;</text>
+        <rect x="197.3" y="258.3" width="28.2" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="K^T|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="211.4" y="273.6">K<tspan font-size="8.1" dy="-5.9">T</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="211.4" y="285.2">&lt;64,T&gt;</text>
       </g>
-      <text x="228.8" y="276.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">/ √64</text>
+      <line x1="153.3" y1="293.2" x2="226.4" y2="293.2" stroke="#000000" stroke-width="1.3"></line>
+      <text x="189.85" y="303.83" font-size="11.7" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle">√64</text>
     </g>
     <g data-row="" id="gpt2-block-n8t1j-s6">
       <g id="gpt2-block-n8t1j-s6t1" data-sym="Q" data-dims="T,64">
-        <rect x="26.8" y="305.3" width="28.2" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Q|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="40.9" y="320.6">Q</text>
-        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="40.9" y="332.2">&lt;T,64&gt;</text>
+        <rect x="26.9" y="326.5" width="28.2" height="33.4" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Q|13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="41" y="341.8">Q</text>
+        <text class="tk-sub" font-size="6.2" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="41" y="353.4">&lt;T,64&gt;</text>
       </g>
-      <text x="58.6" y="326.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
-      <text x="69.4" y="326.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">H @</text>
+      <text x="58.7" y="347.9" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="69.5" y="347.9" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">H @</text>
       <g id="gpt2-block-n8t1j-s6t2" data-sym="Ω_Q" data-dims="768,64">
-        <rect x="94.5" y="305.3" width="35" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Ω_Q|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="112" y="320.6">Ω<tspan font-size="8.1" dy="3.6">Q</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="112" y="332.2">&lt;768,64&gt;</text>
+        <rect x="94.6" y="326.5" width="35" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Ω_Q|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="112.1" y="341.8">Ω<tspan font-size="8.1" dy="3.6">Q</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="112.1" y="353.4">&lt;768,64&gt;</text>
       </g>
     </g>
     <g data-row="" id="gpt2-block-n8t1j-s7">
       <g id="gpt2-block-n8t1j-s7t1" data-sym="K" data-dims="T,64">
-        <rect x="143.8" y="305.3" width="28.2" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="K|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="157.9" y="320.6">K</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="157.9" y="332.2">&lt;T,64&gt;</text>
+        <rect x="143.9" y="326.5" width="28.2" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="K|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="158" y="341.8">K</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="158" y="353.4">&lt;T,64&gt;</text>
       </g>
-      <text x="175.6" y="326.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
-      <text x="186.4" y="326.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">H @</text>
+      <text x="175.7" y="347.9" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="186.5" y="347.9" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">H @</text>
       <g id="gpt2-block-n8t1j-s7t2" data-sym="Ω_K" data-dims="768,64">
-        <rect x="211.5" y="305.3" width="35" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Ω_K|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="229" y="320.6">Ω<tspan font-size="8.1" dy="3.6">K</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="229" y="332.2">&lt;768,64&gt;</text>
+        <rect x="211.6" y="326.5" width="35" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Ω_K|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="229.1" y="341.8">Ω<tspan font-size="8.1" dy="3.6">K</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="229.1" y="353.4">&lt;768,64&gt;</text>
       </g>
     </g>
     <g data-row="" id="gpt2-block-n8t1j-s8">
       <g id="gpt2-block-n8t1j-s8t1" data-sym="V" data-dims="T,64">
-        <rect x="260.7" y="305.3" width="28.2" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="V|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="274.8" y="320.6">V</text>
-        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="274.8" y="332.2">&lt;T,64&gt;</text>
+        <rect x="260.8" y="326.5" width="28.2" height="33.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="V|13" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="274.9" y="341.8">V</text>
+        <text class="tk-sub" font-size="6.2" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="274.9" y="353.4">&lt;T,64&gt;</text>
       </g>
-      <text x="292.5" y="326.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
-      <text x="303.3" y="326.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">H @</text>
+      <text x="292.6" y="347.9" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="303.4" y="347.9" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">H @</text>
       <g id="gpt2-block-n8t1j-s8t2" data-sym="Ω_V" data-dims="768,64">
-        <rect x="328.4" y="305.3" width="35" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Ω_V|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="345.9" y="320.6">Ω<tspan font-size="8.1" dy="3.6">V</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="345.9" y="332.2">&lt;768,64&gt;</text>
+        <rect x="328.5" y="326.5" width="35" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Ω_V|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="346" y="341.8">Ω<tspan font-size="8.1" dy="3.6">V</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="346" y="353.4">&lt;768,64&gt;</text>
       </g>
     </g>
     <g data-row="" id="gpt2-block-n8t1j-s9">
       <g id="gpt2-block-n8t1j-s9t1" data-sym="H" data-dims="T,768">
-        <rect x="138.1" y="353.3" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="H|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="153.9" y="368.6">H</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="153.9" y="380.2">&lt;T,768&gt;</text>
+        <rect x="138.2" y="374.5" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="H|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="154" y="389.8">H</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="154" y="401.4">&lt;T,768&gt;</text>
       </g>
-      <text x="173.3" y="374.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
-      <text x="184.1" y="374.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">LN(</text>
+      <text x="173.4" y="395.9" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="184.2" y="395.9" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">LN(</text>
       <g id="gpt2-block-n8t1j-s9t2" data-sym="X" data-dims="T,768">
-        <rect x="209.2" y="353.3" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="225" y="368.6">X</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="225" y="380.2">&lt;T,768&gt;</text>
+        <rect x="209.3" y="374.5" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="225.1" y="389.8">X</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="225.1" y="401.4">&lt;T,768&gt;</text>
       </g>
-      <text x="244.5" y="374.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
+      <text x="244.6" y="395.9" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
     <text x="190.0" y="36.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">to the residual +</text>
     <line x1="392.0" y1="8.0" x2="392.0" y2="384.0" stroke="#CCCCCC" stroke-width="1.00"></line>
@@ -4745,21 +4762,21 @@ z
     <text x="510.0" y="25.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">each word on its own</text>
     <g data-row="" id="gpt2-block-n8t1j-s10">
       <g id="gpt2-block-n8t1j-s10t1" data-sym="F" data-dims="T,768">
-        <rect x="441.5" y="55.3" width="31.6" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="F|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="457.3" y="70.6">F</text>
-        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="457.3" y="82.2">&lt;T,768&gt;</text>
+        <rect x="441.6" y="55.3" width="31.6" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="F|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="457.4" y="70.6">F</text>
+        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="457.4" y="82.2">&lt;T,768&gt;</text>
       </g>
-      <text x="476.7" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="476.8" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
       <g id="gpt2-block-n8t1j-s10t2" data-sym="A" data-dims="T,3072">
-        <rect x="487.5" y="55.3" width="35" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="505" y="70.6">A</text>
-        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="505" y="82.2">&lt;T,3072&gt;</text>
+        <rect x="487.6" y="55.3" width="35" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="505.1" y="70.6">A</text>
+        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="505.1" y="82.2">&lt;T,3072&gt;</text>
       </g>
-      <text x="526.2" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
+      <text x="526.3" y="76.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
       <g id="gpt2-block-n8t1j-s10t3" data-sym="Ω_2" data-dims="3072,768">
-        <rect x="537" y="55.3" width="41.7" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Ω_2|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="557.9" y="70.6">Ω<tspan font-size="8.1" dy="3.6">2</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="557.9" y="82.2">&lt;3072,768&gt;</text>
+        <rect x="537.1" y="55.3" width="41.7" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Ω_2|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="558" y="70.6">Ω<tspan font-size="8.1" dy="3.6">2</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="558" y="82.2">&lt;3072,768&gt;</text>
       </g>
     </g>
     <g data-row="" id="gpt2-block-n8t1j-s11">
@@ -4798,32 +4815,32 @@ z
     </g>
     <g data-row="" id="gpt2-block-n8t1j-s13">
       <g id="gpt2-block-n8t1j-s13t1" data-sym="H" data-dims="T,768">
-        <rect x="453.1" y="205.3" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="H|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="468.9" y="220.6">H</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="468.9" y="232.2">&lt;T,768&gt;</text>
+        <rect x="453.2" y="205.3" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="H|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="469" y="220.6">H</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="469" y="232.2">&lt;T,768&gt;</text>
       </g>
-      <text x="488.3" y="226.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
-      <text x="499.1" y="226.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">LN(</text>
+      <text x="488.4" y="226.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="499.2" y="226.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">LN(</text>
       <g id="gpt2-block-n8t1j-s13t2" data-sym="X" data-dims="T,768">
-        <rect x="524.2" y="205.3" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="540" y="220.6">X</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="540" y="232.2">&lt;T,768&gt;</text>
+        <rect x="524.3" y="205.3" width="31.6" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="540.1" y="220.6">X</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="540.1" y="232.2">&lt;T,768&gt;</text>
       </g>
-      <text x="559.5" y="226.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
+      <text x="559.6" y="226.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <line x1="127.6" y1="255.3" x2="190" y2="238.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s5t1" data-b="gpt2-block-n8t1j-s4t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="127.6" y1="276.5" x2="190" y2="238.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s5t1" data-b="gpt2-block-n8t1j-s4t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="150.9" y1="205.3" x2="234.3" y2="188.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s4t1" data-b="gpt2-block-n8t1j-s3t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="134.4" y1="155.3" x2="190" y2="138.7" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s3t1" data-b="gpt2-block-n8t1j-s2t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="149.2" y1="105.3" x2="208.1" y2="88.7" stroke="#93C47D" stroke-width="1.10" marker-end="url(#ah93C47D-n8t1j)" data-a="gpt2-block-n8t1j-s2t1" data-b="gpt2-block-n8t1j-s1t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="40.9" y1="305.3" x2="168.4" y2="288.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s6t1" data-b="gpt2-block-n8t1j-s5t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="157.9" y1="305.3" x2="211" y2="288.7" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-n8t1j)" data-a="gpt2-block-n8t1j-s7t1" data-b="gpt2-block-n8t1j-s5t3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="195" y1="353.3" x2="78.1" y2="338.7" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="195" y1="353.3" x2="195.1" y2="338.7" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="195" y1="353.3" x2="311.9" y2="338.7" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s8" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="149.2" y1="105.3" x2="208.4" y2="88.7" stroke="#93C47D" stroke-width="1.10" marker-end="url(#ah93C47D-n8t1j)" data-a="gpt2-block-n8t1j-s2t1" data-b="gpt2-block-n8t1j-s1t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="40.9" y1="326.5" x2="168.6" y2="291.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s6t1" data-b="gpt2-block-n8t1j-s5t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="157.9" y1="326.5" x2="211.4" y2="291.7" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-n8t1j)" data-a="gpt2-block-n8t1j-s7t1" data-b="gpt2-block-n8t1j-s5t3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="195" y1="374.5" x2="78.1" y2="359.9" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="195" y1="374.5" x2="195.1" y2="359.9" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="195" y1="374.5" x2="311.9" y2="359.9" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s8" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="110.2" y1="55.3" x2="190.0" y2="40.0" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-n8t1j)" data-a="gpt2-block-n8t1j-s1t1" data-a-at="t:0.500"></line>
     <line x1="510" y1="205.3" x2="510" y2="188.7" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s13" data-b="gpt2-block-n8t1j-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="458.9" y1="155.3" x2="548.6" y2="138.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s12t1" data-b="gpt2-block-n8t1j-s11t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="459.9" y1="105.3" x2="504.8" y2="88.7" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s11t1" data-b="gpt2-block-n8t1j-s10t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="459.9" y1="105.3" x2="505.1" y2="88.7" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s11t1" data-b="gpt2-block-n8t1j-s10t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <line x1="457.2" y1="55.3" x2="510.0" y2="40.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s10t1" data-a-at="t:0.500"></line>
     <text x="510.0" y="36.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">to the residual +</text>
     <line x1="428.2" y1="352.0" x2="584.2" y2="352.0" stroke="#666666" stroke-width="0.80" marker-end="url(#ah666666-n8t1j)"></line>
@@ -4838,7 +4855,7 @@ z
     <text x="461.8" y="320.8" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">GELU dips just</text>
     <text x="461.8" y="329.8" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">below 0 and bends</text>
     <text x="461.8" y="338.8" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">smoothly at 0</text>
-    <polyline points="274.8,305.3 274.8,122.0 247.9,122.0" fill="none" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)"></polyline>
+    <polyline points="274.8,326.5 274.8,122 247.9,122" fill="none" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)"></polyline>
   </svg>
   
   
@@ -4850,47 +4867,47 @@ z
   <svg class="draw" viewBox="0 0 229.2 87.4" style="width: 330pt" role="img" aria-label="The two residual steps as tiles: X = X + Attention(LN(X)), then X = X + FFN(LN(X)), every X of shape 5 by 8." data-b="hhi18">
     <g data-row="" id="res-s4" transform="translate(-1.7 -3.3)">
       <g id="res-s1" data-sym="X" data-dims="T,d">
-        <rect x="5.7" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.1" y="22.6">X</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.1" y="34.2">&lt;5,8&gt;</text>
+        <rect x="5.8" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.2" y="22.6">X</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.2" y="34.2">&lt;5,8&gt;</text>
       </g>
-      <text x="34.1" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="34.2" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
       <g id="res-s2" data-sym="X" data-dims="T,d">
-        <rect x="44.9" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="57.3" y="22.6">X</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="57.3" y="34.2">&lt;5,8&gt;</text>
+        <rect x="45" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="57.4" y="22.6">X</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="57.4" y="34.2">&lt;5,8&gt;</text>
       </g>
-      <text x="73.4" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
-      <text x="84.2" y="28.7" font-size="13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">Attention(</text>
-      <text x="159.2" y="28.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">LN(</text>
+      <text x="73.5" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <text x="84.3" y="28.7" font-size="13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">Attention(</text>
+      <text x="159.3" y="28.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">LN(</text>
       <g id="res-s3" data-sym="X" data-dims="T,d">
-        <rect x="184.3" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="196.7" y="22.6">X</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="196.7" y="34.2">&lt;5,8&gt;</text>
+        <rect x="184.4" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="196.8" y="22.6">X</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="196.8" y="34.2">&lt;5,8&gt;</text>
       </g>
-      <text x="212.7" y="28.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">))</text>
+      <text x="212.8" y="28.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">))</text>
     </g>
     <g data-row="" id="res-s8" transform="translate(-1.7 -3.3)">
       <g id="res-s5" data-sym="X" data-dims="T,d">
-        <rect x="5.7" y="53.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.1" y="68.6">X</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.1" y="80.2">&lt;5,8&gt;</text>
+        <rect x="5.8" y="53.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.2" y="68.6">X</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.2" y="80.2">&lt;5,8&gt;</text>
       </g>
-      <text x="34.1" y="74.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="34.2" y="74.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
       <g id="res-s6" data-sym="X" data-dims="T,d">
-        <rect x="44.9" y="53.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="57.3" y="68.6">X</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="57.3" y="80.2">&lt;5,8&gt;</text>
+        <rect x="45" y="53.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="57.4" y="68.6">X</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="57.4" y="80.2">&lt;5,8&gt;</text>
       </g>
-      <text x="73.4" y="74.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
-      <text x="84.2" y="74.7" font-size="13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">FFN(</text>
-      <text x="116.4" y="74.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">LN(</text>
+      <text x="73.5" y="74.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">+</text>
+      <text x="84.3" y="74.7" font-size="13" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">FFN(</text>
+      <text x="116.5" y="74.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">LN(</text>
       <g id="res-s7" data-sym="X" data-dims="T,d">
-        <rect x="141.4" y="53.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="153.8" y="68.6">X</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="153.8" y="80.2">&lt;5,8&gt;</text>
+        <rect x="141.5" y="53.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="X|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="153.9" y="68.6">X</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="153.9" y="80.2">&lt;5,8&gt;</text>
       </g>
-      <text x="169.9" y="74.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">))</text>
+      <text x="170" y="74.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">))</text>
     </g>
   </svg>
   
@@ -4904,9 +4921,9 @@ z
       </marker>
     </defs>
     <g id="res-block-lful0-s1" data-sym="X" data-showdims="on">
-      <rect x="7.9" y="45.3" width="24.8" height="33.4" rx="5.2" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
-      <text x="20.3" y="60.6" font-size="13.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="X|13">X</text>
-      <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="20.3" y="72.2">&lt;5,8&gt;</text>
+      <rect x="8" y="45.3" width="24.8" height="33.4" rx="5.2" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
+      <text x="20.4" y="60.6" font-size="13.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="X|13">X</text>
+      <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="20.4" y="72.2">&lt;5,8&gt;</text>
     </g>
     <g id="res-block-lful0-s2">
       <rect x="57.0" y="50.0" width="70.0" height="24.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
@@ -4933,9 +4950,9 @@ z
       <text x="540.0" y="65.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="res-block-lful0-s8" data-sym="X" data-showdims="on">
-      <rect x="587.9" y="45.3" width="24.8" height="33.4" rx="5.2" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
-      <text x="600.3" y="60.6" font-size="13.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="X|13">X</text>
-      <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="600.3" y="72.2">&lt;5,8&gt;</text>
+      <rect x="588" y="45.3" width="24.8" height="33.4" rx="5.2" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
+      <text x="600.4" y="60.6" font-size="13.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="X|13">X</text>
+      <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="600.4" y="72.2">&lt;5,8&gt;</text>
     </g>
     <line x1="32.7" y1="62" x2="57.0" y2="62.0" stroke="#E06666" stroke-width="1.20" marker-end="url(#ahE06666-lful0)" data-a="res-block-lful0-s1" data-b="res-block-lful0-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <line x1="127.0" y1="62.0" x2="145.0" y2="62.0" stroke="#002B5B" stroke-width="1.20" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s2" data-b="res-block-lful0-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
@@ -5628,42 +5645,42 @@ L 380.16 96
   <svg class="draw" viewBox="0 0 168.1 87.4" style="width: 190pt" role="img" aria-label="The feed-forward network as tiles: A (5 by 32) = ReLU(H (5 by 8) @ Ω₁ (8 by 32)), then F (5 by 8) = A @ Ω₂ (32 by 8)." data-b="v5x5l">
     <g data-row="" id="ffn-s4" transform="translate(0.1 -3.3)">
       <g id="ffn-s1" data-sym="A" data-dims="T,32">
-        <rect x="3.9" y="7.3" width="28.2" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18" y="22.6">A</text>
-        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18" y="34.2">&lt;5,32&gt;</text>
+        <rect x="4" y="7.3" width="28.2" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.1" y="22.6">A</text>
+        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.1" y="34.2">&lt;5,32&gt;</text>
       </g>
-      <text x="35.7" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
-      <text x="46.5" y="28.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">ReLU(</text>
+      <text x="35.8" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="46.6" y="28.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">ReLU(</text>
       <g id="ffn-s2" data-sym="H" data-dims="T,d">
-        <rect x="85.9" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="H|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="98.3" y="22.6">H</text>
-        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="98.3" y="34.2">&lt;5,8&gt;</text>
+        <rect x="86" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="H|13" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="98.4" y="22.6">H</text>
+        <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="98.4" y="34.2">&lt;5,8&gt;</text>
       </g>
-      <text x="114.3" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
+      <text x="114.4" y="28.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
       <g id="ffn-s3" data-sym="Ω_1" data-dims="d,32">
-        <rect x="125.1" y="7.3" width="28.2" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Ω_1|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="139.2" y="22.6">Ω<tspan font-size="8.1" dy="3.6">1</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="139.2" y="34.2">&lt;8,32&gt;</text>
+        <rect x="125.2" y="7.3" width="28.2" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Ω_1|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="139.3" y="22.6">Ω<tspan font-size="8.1" dy="3.6">1</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="139.3" y="34.2">&lt;8,32&gt;</text>
       </g>
-      <text x="156.9" y="28.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
+      <text x="157" y="28.7" font-size="13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
     <g data-row="" id="ffn-s8" transform="translate(0.1 -3.3)">
       <g id="ffn-s5" data-sym="F" data-dims="T,d">
-        <rect x="5.7" y="53.3" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="F|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.1" y="68.6">F</text>
-        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.1" y="80.2">&lt;5,8&gt;</text>
+        <rect x="5.8" y="53.3" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="F|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="18.2" y="68.6">F</text>
+        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="18.2" y="80.2">&lt;5,8&gt;</text>
       </g>
-      <text x="34.1" y="74.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
+      <text x="34.2" y="74.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">=</text>
       <g id="ffn-s6" data-sym="A" data-dims="T,32">
-        <rect x="44.9" y="53.3" width="28.2" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="59" y="68.6">A</text>
-        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="59" y="80.2">&lt;5,32&gt;</text>
+        <rect x="45" y="53.3" width="28.2" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="A|13" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="59.1" y="68.6">A</text>
+        <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="59.1" y="80.2">&lt;5,32&gt;</text>
       </g>
-      <text x="76.8" y="74.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
+      <text x="76.9" y="74.7" font-size="13" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
       <g id="ffn-s7" data-sym="Ω_2" data-dims="32,d">
-        <rect x="87.5" y="53.3" width="28.2" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
-        <text font-size="13" data-sl="Ω_2|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="101.6" y="68.6">Ω<tspan font-size="8.1" dy="3.6">2</tspan></text>
-        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="101.6" y="80.2">&lt;32,8&gt;</text>
+        <rect x="87.6" y="53.3" width="28.2" height="33.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3" rx="5.2"></rect>
+        <text font-size="13" data-sl="Ω_2|13" fill="#1155CC" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="101.7" y="68.6">Ω<tspan font-size="8.1" dy="3.6">2</tspan></text>
+        <text class="tk-sub" font-size="6.2" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="101.7" y="80.2">&lt;32,8&gt;</text>
       </g>
     </g>
   </svg>
@@ -5691,9 +5708,9 @@ L 380.16 96
       <text x="25.8" y="30.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">cheer</text>
     </g>
     <g id="ffn-rows-k40qo-s2" data-sym="h_1" data-showdims="on">
-      <rect x="90.9" y="15.1" width="18.9" height="25.7" rx="4" fill="#F4CCCC" stroke="#E06666" stroke-width="1"></rect>
-      <text x="100.4" y="26.9" font-size="10.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="h_1|10">h<tspan font-size="6.2" dy="2.8">1</tspan></text>
-      <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.4" y="35.8">&lt;8&gt;</text>
+      <rect x="91" y="15.1" width="18.9" height="25.7" rx="4" fill="#F4CCCC" stroke="#E06666" stroke-width="1"></rect>
+      <text x="100.5" y="26.9" font-size="10.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="h_1|10">h<tspan font-size="6.2" dy="2.8">1</tspan></text>
+      <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.5" y="35.8">&lt;8&gt;</text>
     </g>
     <g id="ffn-rows-k40qo-s3">
       <rect x="162.0" y="16.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
@@ -5722,9 +5739,9 @@ L 380.16 96
       </g>
     </g>
     <g id="ffn-rows-k40qo-s6" data-sym="out_1" data-showdims="on">
-      <rect x="479.5" y="15.1" width="29.9" height="25.7" rx="4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1"></rect>
-      <text x="494.4" y="26.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_1|10">out<tspan font-size="6.2" dy="2.8">1</tspan></text>
-      <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.4" y="35.8">&lt;8&gt;</text>
+      <rect x="479.6" y="15.1" width="29.9" height="25.7" rx="4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1"></rect>
+      <text x="494.6" y="26.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_1|10">out<tspan font-size="6.2" dy="2.8">1</tspan></text>
+      <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.6" y="35.8">&lt;8&gt;</text>
     </g>
     <line x1="254.0" y1="28.0" x2="274.0" y2="28.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s3" data-b="ffn-rows-k40qo-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <line x1="326.0" y1="28.0" x2="344.0" y2="28.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s4" data-b="ffn-rows-k40qo-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
@@ -5733,9 +5750,9 @@ L 380.16 96
       <text x="25.8" y="64.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">cheer</text>
     </g>
     <g id="ffn-rows-k40qo-s8" data-sym="h_2" data-showdims="on">
-      <rect x="90.9" y="49.1" width="18.9" height="25.7" rx="4" fill="#F4CCCC" stroke="#E06666" stroke-width="1"></rect>
-      <text x="100.4" y="60.9" font-size="10.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="h_2|10">h<tspan font-size="6.2" dy="2.8">2</tspan></text>
-      <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.4" y="69.8">&lt;8&gt;</text>
+      <rect x="91" y="49.1" width="18.9" height="25.7" rx="4" fill="#F4CCCC" stroke="#E06666" stroke-width="1"></rect>
+      <text x="100.5" y="60.9" font-size="10.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="h_2|10">h<tspan font-size="6.2" dy="2.8">2</tspan></text>
+      <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.5" y="69.8">&lt;8&gt;</text>
     </g>
     <g id="ffn-rows-k40qo-s9">
       <rect x="162.0" y="50.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
@@ -5764,9 +5781,9 @@ L 380.16 96
       </g>
     </g>
     <g id="ffn-rows-k40qo-s12" data-sym="out_2" data-showdims="on">
-      <rect x="479.5" y="49.1" width="29.9" height="25.7" rx="4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1"></rect>
-      <text x="494.4" y="60.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_2|10">out<tspan font-size="6.2" dy="2.8">2</tspan></text>
-      <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.4" y="69.8">&lt;8&gt;</text>
+      <rect x="479.6" y="49.1" width="29.9" height="25.7" rx="4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1"></rect>
+      <text x="494.6" y="60.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_2|10">out<tspan font-size="6.2" dy="2.8">2</tspan></text>
+      <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.6" y="69.8">&lt;8&gt;</text>
     </g>
     <line x1="254.0" y1="62.0" x2="274.0" y2="62.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s9" data-b="ffn-rows-k40qo-s10" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <line x1="326.0" y1="62.0" x2="344.0" y2="62.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s10" data-b="ffn-rows-k40qo-s11" data-a-at="r:0.500" data-b-at="l:0.500"></line>
@@ -5775,9 +5792,9 @@ L 380.16 96
       <text x="26.1" y="98.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">for</text>
     </g>
     <g id="ffn-rows-k40qo-s14" data-sym="h_3" data-showdims="on">
-      <rect x="90.9" y="83.1" width="18.9" height="25.7" rx="4" fill="#F4CCCC" stroke="#E06666" stroke-width="1"></rect>
-      <text x="100.4" y="94.9" font-size="10.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="h_3|10">h<tspan font-size="6.2" dy="2.8">3</tspan></text>
-      <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.4" y="103.8">&lt;8&gt;</text>
+      <rect x="91" y="83.1" width="18.9" height="25.7" rx="4" fill="#F4CCCC" stroke="#E06666" stroke-width="1"></rect>
+      <text x="100.5" y="94.9" font-size="10.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="h_3|10">h<tspan font-size="6.2" dy="2.8">3</tspan></text>
+      <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.5" y="103.8">&lt;8&gt;</text>
     </g>
     <g id="ffn-rows-k40qo-s15">
       <rect x="162.0" y="84.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
@@ -5806,9 +5823,9 @@ L 380.16 96
       </g>
     </g>
     <g id="ffn-rows-k40qo-s18" data-sym="out_3" data-showdims="on">
-      <rect x="479.5" y="83.1" width="29.9" height="25.7" rx="4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1"></rect>
-      <text x="494.4" y="94.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_3|10">out<tspan font-size="6.2" dy="2.8">3</tspan></text>
-      <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.4" y="103.8">&lt;8&gt;</text>
+      <rect x="479.6" y="83.1" width="29.9" height="25.7" rx="4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1"></rect>
+      <text x="494.6" y="94.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_3|10">out<tspan font-size="6.2" dy="2.8">3</tspan></text>
+      <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.6" y="103.8">&lt;8&gt;</text>
     </g>
     <line x1="254.0" y1="96.0" x2="274.0" y2="96.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s15" data-b="ffn-rows-k40qo-s16" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <line x1="326.0" y1="96.0" x2="344.0" y2="96.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s16" data-b="ffn-rows-k40qo-s17" data-a-at="r:0.500" data-b-at="l:0.500"></line>
@@ -5817,9 +5834,9 @@ L 380.16 96
       <text x="26" y="132.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">old</text>
     </g>
     <g id="ffn-rows-k40qo-s20" data-sym="h_4" data-showdims="on">
-      <rect x="90.9" y="117.1" width="18.9" height="25.7" rx="4" fill="#F4CCCC" stroke="#E06666" stroke-width="1"></rect>
-      <text x="100.4" y="128.9" font-size="10.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="h_4|10">h<tspan font-size="6.2" dy="2.8">4</tspan></text>
-      <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.4" y="137.8">&lt;8&gt;</text>
+      <rect x="91" y="117.1" width="18.9" height="25.7" rx="4" fill="#F4CCCC" stroke="#E06666" stroke-width="1"></rect>
+      <text x="100.5" y="128.9" font-size="10.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="h_4|10">h<tspan font-size="6.2" dy="2.8">4</tspan></text>
+      <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.5" y="137.8">&lt;8&gt;</text>
     </g>
     <g id="ffn-rows-k40qo-s21">
       <rect x="162.0" y="118.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
@@ -5848,9 +5865,9 @@ L 380.16 96
       </g>
     </g>
     <g id="ffn-rows-k40qo-s24" data-sym="out_4" data-showdims="on">
-      <rect x="479.5" y="117.1" width="29.9" height="25.7" rx="4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1"></rect>
-      <text x="494.4" y="128.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_4|10">out<tspan font-size="6.2" dy="2.8">4</tspan></text>
-      <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.4" y="137.8">&lt;8&gt;</text>
+      <rect x="479.6" y="117.1" width="29.9" height="25.7" rx="4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1"></rect>
+      <text x="494.6" y="128.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_4|10">out<tspan font-size="6.2" dy="2.8">4</tspan></text>
+      <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.6" y="137.8">&lt;8&gt;</text>
     </g>
     <line x1="254.0" y1="130.0" x2="274.0" y2="130.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s21" data-b="ffn-rows-k40qo-s22" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <line x1="326.0" y1="130.0" x2="344.0" y2="130.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s22" data-b="ffn-rows-k40qo-s23" data-a-at="r:0.500" data-b-at="l:0.500"></line>
@@ -5901,7 +5918,7 @@ L 380.16 96
       </marker>
     </defs>
     <g id="stack-hr2g0-s1" data-sym="X" data-showdims="on">
-      <rect x="6.7" y="40.5" width="29.5" height="30.9" rx="4.8" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
+      <rect x="6.6" y="40.5" width="29.5" height="30.9" rx="4.8" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="21.4" y="54.6" font-size="12.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="X|12">X</text>
       <text class="tk-sub" font-size="5.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="21.4" y="65.5">&lt;T,768&gt;</text>
     </g>
@@ -5993,7 +6010,7 @@ L 380.16 96
   <h2 data-b="v7j1p">Layer Norm and the Weights</h2>
   <p data-b="b7ymu">One <b class="def">transformer block</b>'s weights, loaded <b class="warn">before training</b>, coloured by the part of the model that uses them, plus the <b class="def">layer norm</b> (grey)</p>
   
-  <b-code lang="python" beside="right" bw="30" files="https://ai.williamtheisen.com/static/data/ai2ai/ai2ai.py https://ai.williamtheisen.com/static/data/ai2ai/tiny-gpt-untrained.npz" data-b="ijc80"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div><div class="src"><div class="ln"><span class="cc blue csym" data-e="W">W</span> = load(<span class="st">"tiny-gpt"</span>, trained=<span class="nu">False</span>)</div><div class="ln"></div><div class="ln blk blk-gray blk-top" data-lk="gray"><span class="kw">def</span> <span class="def">norm</span>(<span class="cc red csym" data-e="X">X</span>):</div><div class="ln blk blk-gray" data-lk="gray">    mean = <span class="cc red csym" data-e="X">X</span>.mean(<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)</div><div class="ln blk blk-gray" data-lk="gray">    var = ((<span class="cc red csym" data-e="X">X</span> - mean) ** <span class="nu nn">2</span>).mean(<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)</div><div class="ln blk blk-gray blk-bot" data-lk="gray">    <span class="ctl">return</span> (<span class="cc red csym" data-e="X">X</span> - mean) / var.sqrt()</div></div></b-code>
+  <b-code lang="python" beside="right" bw="30" files="https://ai.williamtheisen.com/static/data/ai2ai/ai2ai.py https://ai.williamtheisen.com/static/data/ai2ai/tiny-gpt-untrained.npz" data-b="ijc80"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div><div class="src"><div class="ln"><span class="cc blue">W</span> = load(<span class="st">"tiny-gpt"</span>, trained=<span class="nu">False</span>)</div><div class="ln"></div><div class="ln blk blk-gray blk-top" data-lk="gray"><span class="kw">def</span> <span class="def">norm</span>(<span class="cc red csym" data-e="X">X</span>):</div><div class="ln blk blk-gray" data-lk="gray">    mean = <span class="cc red csym" data-e="X">X</span>.mean(<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)</div><div class="ln blk blk-gray" data-lk="gray">    var = ((<span class="cc red csym" data-e="X">X</span> - mean) ** <span class="nu nn">2</span>).mean(<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)</div><div class="ln blk blk-gray blk-bot" data-lk="gray">    <span class="ctl">return</span> (<span class="cc red csym" data-e="X">X</span> - mean) / var.sqrt()</div></div></b-code>
   <b-out wrap="" data-b="lqeie"><div class="label">Output</div><pre><span class="olab f-blue cc csym blue">E</span>   (<span class="nu f-blue">41</span>, <span class="nu f-blue">8</span>)
 <span class="olab f-purple cc csym purple">Q</span>   (<span class="nu f-purple">8</span>, <span class="nu f-purple">8</span>)
 <span class="olab f-red cc csym red">K</span>   (<span class="nu f-red">8</span>, <span class="nu f-red">8</span>)
@@ -6010,7 +6027,7 @@ L 380.16 96
   
   
   
-<p data-b="jq9ya">One <b class="def">transformer block</b>'s weights, loaded <b class="warn">before training</b>, coloured by the part of the model that uses them, plus the <b class="def">layer norm</b> (grey)</p><b-code lang="python" beside="right" bw="30" files="https://ai.williamtheisen.com/static/data/ai2ai/ai2ai.py https://ai.williamtheisen.com/static/data/ai2ai/tiny-gpt-untrained.npz" data-b="t6y2h"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div><div class="src"><div class="ln"><span class="cc blue csym" data-e="W">W</span> = load(<span class="st">"tiny-gpt"</span>, trained=<span class="nu">False</span>)</div><div class="ln"></div><div class="ln blk blk-gray blk-top" data-lk="gray"><span class="kw">def</span> <span class="def">norm</span>(<span class="cc red csym" data-e="X">X</span>):</div><div class="ln blk blk-gray" data-lk="gray">    mean = <span class="cc red csym" data-e="X">X</span>.mean(<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)</div><div class="ln blk blk-gray" data-lk="gray">    var = ((<span class="cc red csym" data-e="X">X</span> - mean) ** <span class="nu nn">2</span>).mean(<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)</div><div class="ln blk blk-gray blk-bot" data-lk="gray">    <span class="ctl">return</span> (<span class="cc red csym" data-e="X">X</span> - mean) / var.sqrt()</div></div></b-code><b-out wrap="" data-b="oci3b"><div class="label">Output</div><pre><span class="olab f-blue cc csym blue">E</span>   (<span class="nu f-blue">41</span>, <span class="nu f-blue">8</span>)
+<p data-b="jq9ya">One <b class="def">transformer block</b>'s weights, loaded <b class="warn">before training</b>, coloured by the part of the model that uses them, plus the <b class="def">layer norm</b> (grey)</p><b-code lang="python" beside="right" bw="30" files="https://ai.williamtheisen.com/static/data/ai2ai/ai2ai.py https://ai.williamtheisen.com/static/data/ai2ai/tiny-gpt-untrained.npz" data-b="t6y2h"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div><div class="src"><div class="ln"><span class="cc blue">W</span> = load(<span class="st">"tiny-gpt"</span>, trained=<span class="nu">False</span>)</div><div class="ln"></div><div class="ln blk blk-gray blk-top" data-lk="gray"><span class="kw">def</span> <span class="def">norm</span>(<span class="cc red csym" data-e="X">X</span>):</div><div class="ln blk blk-gray" data-lk="gray">    mean = <span class="cc red csym" data-e="X">X</span>.mean(<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)</div><div class="ln blk blk-gray" data-lk="gray">    var = ((<span class="cc red csym" data-e="X">X</span> - mean) ** <span class="nu nn">2</span>).mean(<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)</div><div class="ln blk blk-gray blk-bot" data-lk="gray">    <span class="ctl">return</span> (<span class="cc red csym" data-e="X">X</span> - mean) / var.sqrt()</div></div></b-code><b-out wrap="" data-b="oci3b"><div class="label">Output</div><pre><span class="olab f-blue cc csym blue">E</span>   (<span class="nu f-blue">41</span>, <span class="nu f-blue">8</span>)
 <span class="olab f-purple cc csym purple">Q</span>   (<span class="nu f-purple">8</span>, <span class="nu f-purple">8</span>)
 <span class="olab f-red cc csym red">K</span>   (<span class="nu f-red">8</span>, <span class="nu f-red">8</span>)
 <span class="olab f-green cc csym green">V</span>   (<span class="nu f-green">8</span>, <span class="nu f-green">8</span>)
@@ -6021,7 +6038,7 @@ L 380.16 96
 <section class="page s-tight over" id="lec-output" data-part="Writing the Fight Song" data-view="slides workbook" data-topic="output">
   <h2 data-b="yeh7i">The Output Layer</h2>
   
-  <b-code lang="python" beside="right" bw="30" shapes="{&quot;X&quot;:[5,8],&quot;W.E&quot;:[41,8],&quot;H&quot;:[5,8],&quot;Q&quot;:[5,8],&quot;K&quot;:[5,8],&quot;V&quot;:[5,8],&quot;W.Q&quot;:[8,8],&quot;W.K&quot;:[8,8],&quot;W.V&quot;:[8,8],&quot;S&quot;:[5,5],&quot;W.O&quot;:[8,8],&quot;W.E.T&quot;:[8,41]}" data-b="qn5gi" class=""><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div><div>29</div><div>30</div><div>31</div><div>32</div><div>33</div><div>34</div><div>35</div><div>36</div><div>37</div><div>38</div><div>39</div><div>40</div><div>41</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">gpt</span>(<span class="cc red">x</span>, <span class="cc blue csym" data-e="W">W</span>, mask=<span class="nu">True</span>):</div><div class="ln">    T = <span class="bi">len</span>(<span class="cc red">x</span>)</div><div class="ln blk blk-green blk-top blk-bot" data-lk="green">    <span class="cc red csym" data-e="X">X</span> = <span class="cc blue csym" data-e="W">W</span>.<span class="cc blue csym" data-e="W.E">E</span>[<span class="cc red">x</span>]</div><div class="ln">    </div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold">    <span class="cc red csym" data-e="X">X</span> += pos_enc(T)</div><div class="ln">    </div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="H">H</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln">    <span class="cc purple csym" data-e="Q">Q</span>, <span class="cc red csym" data-e="K">K</span>, <span class="cc green csym" data-e="V">V</span> = <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym" data-e="W">W</span>.<span class="cc purple csym" data-e="W.Q">Q</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym" data-e="W">W</span>.<span class="cc red csym" data-e="W.K">K</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym" data-e="W">W</span>.<span class="cc green csym" data-e="W.V">V</span> </div><div class="ln"></div><div class="ln blk blk-red blk-top" data-lk="red">    <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="Q">Q</span> @ <span class="cc red csym" data-e="K">K</span>.T / <span class="nu nn">8</span> ** <span class="nu nn">0.5</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="ctl">if</span> mask:</div><div class="ln blk blk-red" data-lk="red">        <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="S">S</span> + torch.full((T, T), <span class="ty">float</span>(<span class="st">"-inf"</span>)).triu(<span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    attention_scores = torch.softmax(<span class="cc purple csym" data-e="S">S</span>, <span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red">    context_vectors = attention_scores @ <span class="cc green csym" data-e="V">V</span></div><div class="ln blk blk-red blk-bot" data-lk="red">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + context_vectors @ <span class="cc blue csym" data-e="W">W</span>.O</div><div class="ln"></div><div class="ln">    X_resid = <span class="cc red csym" data-e="X">X</span></div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="X">X</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-purple blk-top" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym" data-e="W">W</span>.F1</div><div class="ln blk blk-purple" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = torch.relu(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln blk blk-purple blk-bot" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym" data-e="W">W</span>.F2</div><div class="ln">    </div><div class="ln">    <span class="cc red csym" data-e="X">X</span> += X_resid</div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="X">X</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">    <span class="ctl">return</span> <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym" data-e="W">W</span>.<span class="cc blue csym" data-e="W.E">E</span>.T</div><div class="ln">    </div><div class="ln"><span class="cc red">x</span> = song.ids[:<span class="nu nn">5</span>]        <span class="cm"># cheer cheer for old notre</span></div><div class="ln"></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold"><span class="cc gold">probs</span> = torch.softmax(gpt(<span class="cc red">x</span>, <span class="cc blue csym" data-e="W">W</span>)[-<span class="nu nn">1</span>], <span class="nu nn">0</span>)</div><div class="ln"></div><div class="ln">guess = <span class="cc gold">probs</span>.argmax().item()</div><div class="ln">dame = song.vocab.index(<span class="st">"dame"</span>)</div><div class="ln">p = <span class="bi">round</span>(<span class="cc gold">probs</span>[guess].item(), <span class="nu nn">2</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(song.decode([guess]), p)</div><div class="ln"><span class="bi">print</span>(song.decode([dame]), <span class="bi">round</span>(<span class="cc gold">probs</span>[dame].item(), <span class="nu nn">4</span>))</div></div></b-code>
+  <b-code lang="python" beside="right" bw="30" shapes="{&quot;X&quot;:[5,8],&quot;W.E&quot;:[41,8],&quot;H&quot;:[5,8],&quot;Q&quot;:[5,8],&quot;K&quot;:[5,8],&quot;V&quot;:[5,8],&quot;W.Q&quot;:[8,8],&quot;W.K&quot;:[8,8],&quot;W.V&quot;:[8,8],&quot;S&quot;:[5,5],&quot;W.O&quot;:[8,8],&quot;W.E.T&quot;:[8,41]}" data-b="qn5gi" class=""><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div><div>29</div><div>30</div><div>31</div><div>32</div><div>33</div><div>34</div><div>35</div><div>36</div><div>37</div><div>38</div><div>39</div><div>40</div><div>41</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">gpt</span>(<span class="cc red">x</span>, <span class="cc blue">W</span>, mask=<span class="nu">True</span>):</div><div class="ln">    T = <span class="bi">len</span>(<span class="cc red">x</span>)</div><div class="ln blk blk-green blk-top blk-bot" data-lk="green">    <span class="cc red csym" data-e="X">X</span> = <span class="cc blue csym cbox" data-e="W.E">W.E</span>[<span class="cc red">x</span>]</div><div class="ln">    </div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold">    <span class="cc red csym" data-e="X">X</span> += pos_enc(T)</div><div class="ln">    </div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="H">H</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln">    <span class="cc purple csym" data-e="Q">Q</span>, <span class="cc red csym" data-e="K">K</span>, <span class="cc green csym" data-e="V">V</span> = <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.Q">W.Q</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.K">W.K</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.V">W.V</span> </div><div class="ln"></div><div class="ln blk blk-red blk-top" data-lk="red">    <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="Q">Q</span> @ <span class="cc red csym" data-e="K">K</span>.T / <span class="nu nn">8</span> ** <span class="nu nn">0.5</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="ctl">if</span> mask:</div><div class="ln blk blk-red" data-lk="red">        <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="S">S</span> + torch.full((T, T), <span class="ty">float</span>(<span class="st">"-inf"</span>)).triu(<span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    attention_scores = torch.softmax(<span class="cc purple csym" data-e="S">S</span>, <span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red">    context_vectors = attention_scores @ <span class="cc green csym" data-e="V">V</span></div><div class="ln blk blk-red blk-bot" data-lk="red">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + context_vectors @ <span class="cc blue csym cbox" data-e="W.O">W.O</span></div><div class="ln"></div><div class="ln">    X_resid = <span class="cc red csym" data-e="X">X</span></div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="X">X</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-purple blk-top" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym cbox" data-e="W.F1">W.F1</span></div><div class="ln blk blk-purple" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = torch.relu(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln blk blk-purple blk-bot" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym cbox" data-e="W.F2">W.F2</span></div><div class="ln">    </div><div class="ln">    <span class="cc red csym" data-e="X">X</span> += X_resid</div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="X">X</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">    <span class="ctl">return</span> <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym cbox" data-e="W.E.T">W.E.T</span></div><div class="ln">    </div><div class="ln"><span class="cc red">x</span> = song.ids[:<span class="nu nn">5</span>]        <span class="cm"># cheer cheer for old notre</span></div><div class="ln"></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold"><span class="cc gold">probs</span> = torch.softmax(gpt(<span class="cc red">x</span>, <span class="cc blue">W</span>)[-<span class="nu nn">1</span>], <span class="nu nn">0</span>)</div><div class="ln"></div><div class="ln">guess = <span class="cc gold">probs</span>.argmax().item()</div><div class="ln">dame = song.vocab.index(<span class="st">"dame"</span>)</div><div class="ln">p = <span class="bi">round</span>(<span class="cc gold">probs</span>[guess].item(), <span class="nu nn">2</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(song.decode([guess]), p)</div><div class="ln"><span class="bi">print</span>(song.decode([dame]), <span class="bi">round</span>(<span class="cc gold">probs</span>[dame].item(), <span class="nu nn">4</span>))</div></div></b-code>
   <b-out wrap="" data-b="dsq8z"><div class="label">Output</div><pre>[<span class="otk" data-f="blue"><span class="oq">'</span>odds<span class="oq">'</span></span>] <span class="nu nn">0.26</span>
 [<span class="otk" data-f="blue"><span class="oq">'</span>dame<span class="oq">'</span></span>] <span class="nu nn">0.0008</span></pre></b-out>
   <p data-b="q3v5w">Untrained: <span class="num">26</span>% on <b-tok v="march" t="odds" data-f="blue" title="Victory March words: &quot;odds&quot; = 24"><span class="tk-t">odds</span><span class="tk-id">24</span></b-tok>, <span class="num">0.08</span>% on <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok>, <b class="warn">a thirtieth</b> of guessing evenly (<span class="num">2.4</span>%)</p>
@@ -6034,7 +6051,7 @@ L 380.16 96
   
   
   
-<b-code lang="python" beside="right" bw="30" shapes="{&quot;X&quot;:[5,8],&quot;W.E&quot;:[41,8],&quot;H&quot;:[5,8],&quot;Q&quot;:[5,8],&quot;K&quot;:[5,8],&quot;V&quot;:[5,8],&quot;W.Q&quot;:[8,8],&quot;W.K&quot;:[8,8],&quot;W.V&quot;:[8,8],&quot;S&quot;:[5,5],&quot;W.O&quot;:[8,8],&quot;W.E.T&quot;:[8,41]}" data-b="ba3sr" class=""><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div><div>29</div><div>30</div><div>31</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">gpt</span>(<span class="cc red">x</span>, <span class="cc blue csym" data-e="W">W</span>, mask=<span class="nu">True</span>):</div><div class="ln">    T = <span class="bi">len</span>(<span class="cc red">x</span>)</div><div class="ln blk blk-green blk-top blk-bot" data-lk="green">    <span class="cc red csym" data-e="X">X</span> = <span class="cc blue csym" data-e="W">W</span>.<span class="cc blue csym" data-e="W.E">E</span>[<span class="cc red">x</span>] + pos_enc(T)</div><div class="ln">    </div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="H">H</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-red blk-top" data-lk="red">    <span class="cc purple csym" data-e="Q">Q</span>, <span class="cc red csym" data-e="K">K</span>, <span class="cc green csym" data-e="V">V</span> = <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym" data-e="W">W</span>.<span class="cc purple csym" data-e="W.Q">Q</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym" data-e="W">W</span>.<span class="cc red csym" data-e="W.K">K</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym" data-e="W">W</span>.<span class="cc green csym" data-e="W.V">V</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="Q">Q</span> @ <span class="cc red csym" data-e="K">K</span>.T / <span class="nu nn">8</span> ** <span class="nu nn">0.5</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="ctl">if</span> mask:</div><div class="ln blk blk-red" data-lk="red">        <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="S">S</span> + torch.full((T, T), <span class="ty">float</span>(<span class="st">"-inf"</span>)).triu(<span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    attention_scores = torch.softmax(<span class="cc purple csym" data-e="S">S</span>, <span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red">    context_vectors = attention_scores @ <span class="cc green csym" data-e="V">V</span></div><div class="ln blk blk-red blk-bot" data-lk="red">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + context_vectors @ <span class="cc blue csym" data-e="W">W</span>.O</div><div class="ln">    </div><div class="ln blk blk-purple blk-top blk-bot" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + torch.relu(norm(<span class="cc red csym" data-e="X">X</span>) @ <span class="cc blue csym" data-e="W">W</span>.F1) @ <span class="cc blue csym" data-e="W">W</span>.F2</div><div class="ln">    </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">    <span class="ctl">return</span> norm(<span class="cc red csym" data-e="X">X</span>) @ <span class="cc blue csym" data-e="W">W</span>.<span class="cc blue csym" data-e="W.E">E</span>.T</div><div class="ln">    </div><div class="ln"><span class="cc red">x</span> = song.ids[:<span class="nu nn">5</span>]        <span class="cm"># cheer cheer for old notre</span></div><div class="ln"></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold"><span class="cc gold">probs</span> = torch.softmax(gpt(<span class="cc red">x</span>, <span class="cc blue csym" data-e="W">W</span>)[-<span class="nu nn">1</span>], <span class="nu nn">0</span>)</div><div class="ln"></div><div class="ln">guess = <span class="cc gold">probs</span>.argmax().item()</div><div class="ln">dame = song.vocab.index(<span class="st">"dame"</span>)</div><div class="ln">p = <span class="bi">round</span>(<span class="cc gold">probs</span>[guess].item(), <span class="nu nn">2</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(song.decode([guess]), p)</div><div class="ln"><span class="bi">print</span>(song.decode([dame]), <span class="bi">round</span>(<span class="cc gold">probs</span>[dame].item(), <span class="nu nn">4</span>))</div></div></b-code><b-out wrap="" data-b="lvrpt"><div class="label">Output</div><pre>[<span class="otk" data-f="blue"><span class="oq">'</span>odds<span class="oq">'</span></span>] <span class="nu nn">0.26</span>
+<b-code lang="python" beside="right" bw="30" shapes="{&quot;X&quot;:[5,8],&quot;W.E&quot;:[41,8],&quot;H&quot;:[5,8],&quot;Q&quot;:[5,8],&quot;K&quot;:[5,8],&quot;V&quot;:[5,8],&quot;W.Q&quot;:[8,8],&quot;W.K&quot;:[8,8],&quot;W.V&quot;:[8,8],&quot;S&quot;:[5,5],&quot;W.O&quot;:[8,8],&quot;W.E.T&quot;:[8,41]}" data-b="ba3sr" class=""><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div><div>29</div><div>30</div><div>31</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">gpt</span>(<span class="cc red">x</span>, <span class="cc blue">W</span>, mask=<span class="nu">True</span>):</div><div class="ln">    T = <span class="bi">len</span>(<span class="cc red">x</span>)</div><div class="ln blk blk-green blk-top blk-bot" data-lk="green">    <span class="cc red csym" data-e="X">X</span> = <span class="cc blue csym cbox" data-e="W.E">W.E</span>[<span class="cc red">x</span>] + pos_enc(T)</div><div class="ln">    </div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="H">H</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-red blk-top" data-lk="red">    <span class="cc purple csym" data-e="Q">Q</span>, <span class="cc red csym" data-e="K">K</span>, <span class="cc green csym" data-e="V">V</span> = <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.Q">W.Q</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.K">W.K</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.V">W.V</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="Q">Q</span> @ <span class="cc red csym" data-e="K">K</span>.T / <span class="nu nn">8</span> ** <span class="nu nn">0.5</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="ctl">if</span> mask:</div><div class="ln blk blk-red" data-lk="red">        <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="S">S</span> + torch.full((T, T), <span class="ty">float</span>(<span class="st">"-inf"</span>)).triu(<span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    attention_scores = torch.softmax(<span class="cc purple csym" data-e="S">S</span>, <span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red">    context_vectors = attention_scores @ <span class="cc green csym" data-e="V">V</span></div><div class="ln blk blk-red blk-bot" data-lk="red">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + context_vectors @ <span class="cc blue csym cbox" data-e="W.O">W.O</span></div><div class="ln">    </div><div class="ln blk blk-purple blk-top blk-bot" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + torch.relu(norm(<span class="cc red csym" data-e="X">X</span>) @ <span class="cc blue csym cbox" data-e="W.F1">W.F1</span>) @ <span class="cc blue csym cbox" data-e="W.F2">W.F2</span></div><div class="ln">    </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">    <span class="ctl">return</span> norm(<span class="cc red csym" data-e="X">X</span>) @ <span class="cc blue csym cbox" data-e="W.E.T">W.E.T</span></div><div class="ln">    </div><div class="ln"><span class="cc red">x</span> = song.ids[:<span class="nu nn">5</span>]        <span class="cm"># cheer cheer for old notre</span></div><div class="ln"></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold"><span class="cc gold">probs</span> = torch.softmax(gpt(<span class="cc red">x</span>, <span class="cc blue">W</span>)[-<span class="nu nn">1</span>], <span class="nu nn">0</span>)</div><div class="ln"></div><div class="ln">guess = <span class="cc gold">probs</span>.argmax().item()</div><div class="ln">dame = song.vocab.index(<span class="st">"dame"</span>)</div><div class="ln">p = <span class="bi">round</span>(<span class="cc gold">probs</span>[guess].item(), <span class="nu nn">2</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(song.decode([guess]), p)</div><div class="ln"><span class="bi">print</span>(song.decode([dame]), <span class="bi">round</span>(<span class="cc gold">probs</span>[dame].item(), <span class="nu nn">4</span>))</div></div></b-code><b-out wrap="" data-b="lvrpt"><div class="label">Output</div><pre>[<span class="otk" data-f="blue"><span class="oq">'</span>odds<span class="oq">'</span></span>] <span class="nu nn">0.26</span>
 [<span class="otk" data-f="blue"><span class="oq">'</span>dame<span class="oq">'</span></span>] <span class="nu nn">0.0008</span></pre></b-out><p data-b="hpi6x">Untrained: <span class="num">26</span>% on <b-tok v="march" t="odds" data-f="blue" title="Victory March words: &quot;odds&quot; = 24"><span class="tk-t">odds</span><span class="tk-id">24</span></b-tok>, <span class="num">0.08</span>% on <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok>, <b class="warn">a thirtieth</b> of guessing evenly (<span class="num">2.4</span>%)</p><div class="foot" data-rt=""><span>Transformers · Writing the Fight Song</span><span>21</span></div></section>
 
 <section class="page s-tight" id="lec-train" data-view="slides workbook" data-topic="output" style="--gap: 22pt;">
@@ -6044,7 +6061,7 @@ L 380.16 96
     <eq-row>\lk{red}{ℒ = -\frac{1}{50} \sum_{t=1}^{50} \log \yhat_t[x_{t+1}]}</eq-row>
     <eq-row>\lk{blue}{Ω \leftarrow \mathrm{Adam}\bp{Ω,\; \frac{\partial ℒ}{\partial Ω}}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow class="lk-red"><mrow class="sym sym-CC0000 sa-9-10"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow><mo>=</mo><mo form="prefix" stretchy="false">−</mo><mfrac><mn>1</mn><mn>50</mn></mfrac><msubsup><mo movablelimits="false">∑</mo><mrow><mi mathvariant="normal">t</mi><mo>=</mo><mn>1</mn></mrow><mn>50</mn></msubsup><mrow><mi mathvariant="normal">log</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mrow class="sym sym-DCB439 sa-48-55"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mtext>ŷ</mtext><mi mathvariant="normal">𝐭</mi></msub></mrow></mrow><mrow><mo fence="true" form="prefix" stretchy="false">[</mo><mrow class="sym sym-CC0000 sa-56-63"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#CC0000;"><mi mathvariant="normal">𝐱</mi><mrow><mi mathvariant="normal">𝐭</mi><mo>+</mo><mn>𝟏</mn></mrow></msub></mrow></mrow><mo fence="true" form="postfix" stretchy="false">]</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow class="lk-blue"><mrow class="sym sym-1155CC sa-10-11"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝛀</mi></mrow></mrow><mo stretchy="false">←</mo><mpadded lspace="0"><mi mathvariant="normal">Adam</mi></mpadded><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow class="sym sym-1155CC sa-40-41"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝛀</mi></mrow></mrow><mo separator="true">,</mo><mspace width="0.2778em"></mspace><mfrac><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-CC0000 sa-60-61"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow></mrow><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-1155CC sa-72-73"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝛀</mi></mrow></mrow></mrow></mfrac><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div></div></div></b-eq>
-  <b-code lang="python" beside="right" data-b="unhyy"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch.nn.functional <span class="kw">as</span> <span class="cc gold csym" data-e="F">F</span></div><div class="ln">opt = torch.optim.Adam(<span class="cc blue csym" data-e="W">W</span>.params(), lr=<span class="nu nn">0.03</span>)</div><div class="ln"><span class="cc red">x</span>, y = song.ids[:-<span class="nu nn">1</span>], song.ids[<span class="nu nn">1</span>:]    <span class="cm"># y: the next word</span></div><div class="ln"></div><div class="ln"><span class="ctl">for</span> step <span class="kw">in</span> <span class="bi">range</span>(<span class="nu nn">301</span>):</div><div class="ln blk blk-red blk-top blk-bot" data-lk="red">    <span class="cc red">loss</span> = <span class="cc gold csym" data-e="F">F</span>.cross_entropy(gpt(<span class="cc red">x</span>, <span class="cc blue csym" data-e="W">W</span>), y)</div><div class="ln">    </div><div class="ln blk blk-blue blk-top" data-lk="blue">    opt.zero_grad()</div><div class="ln blk blk-blue" data-lk="blue">    <span class="cc red">loss</span>.backward()</div><div class="ln blk blk-blue blk-bot" data-lk="blue">    opt.step()</div><div class="ln">    </div><div class="ln">    <span class="ctl">if</span> step % <span class="nu nn">100</span> == <span class="nu nn">0</span>:</div><div class="ln">        <span class="bi">print</span>(<span class="st">f"step {step}  loss {loss.item():.3f}"</span>)</div></div></b-code>
+  <b-code lang="python" beside="right" data-b="unhyy"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch.nn.functional <span class="kw">as</span> <span class="cc gold csym" data-e="F">F</span></div><div class="ln">opt = torch.optim.Adam(<span class="cc blue">W</span>.params(), lr=<span class="nu nn">0.03</span>)</div><div class="ln"><span class="cc red">x</span>, y = song.ids[:-<span class="nu nn">1</span>], song.ids[<span class="nu nn">1</span>:]    <span class="cm"># y: the next word</span></div><div class="ln"></div><div class="ln"><span class="ctl">for</span> step <span class="kw">in</span> <span class="bi">range</span>(<span class="nu nn">301</span>):</div><div class="ln blk blk-red blk-top blk-bot" data-lk="red">    <span class="cc red">loss</span> = <span class="cc gold csym" data-e="F">F</span>.cross_entropy(gpt(<span class="cc red">x</span>, <span class="cc blue">W</span>), y)</div><div class="ln">    </div><div class="ln blk blk-blue blk-top" data-lk="blue">    opt.zero_grad()</div><div class="ln blk blk-blue" data-lk="blue">    <span class="cc red">loss</span>.backward()</div><div class="ln blk blk-blue blk-bot" data-lk="blue">    opt.step()</div><div class="ln">    </div><div class="ln">    <span class="ctl">if</span> step % <span class="nu nn">100</span> == <span class="nu nn">0</span>:</div><div class="ln">        <span class="bi">print</span>(<span class="st">f"step {step}  loss {loss.item():.3f}"</span>)</div></div></b-code>
   <b-out wrap="" data-b="eyr6o"><div class="label">Output</div><pre><span class="olab">step</span> <span class="nu nn">0</span>  <span class="cc red">loss</span> <span class="nu nn">7.513</span>
 <span class="olab">step</span> <span class="nu nn">100</span>  <span class="cc red">loss</span> <span class="nu nn">0.077</span>
 <span class="olab">step</span> <span class="nu nn">200</span>  <span class="cc red">loss</span> <span class="nu nn">0.024</span>
@@ -6059,7 +6076,7 @@ L 380.16 96
     <eq-row>\lk{gold}{\mathrm{scores} = \mathrm{GPT}(x_1, \dots, x_T)}</eq-row>
     <eq-row>\lk{blue}{x_{T+1} = \arg\max\; \mathrm{scores}_T}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow class="lk-gold"><mpadded lspace="0"><mi mathvariant="normal">scores</mi></mpadded><mo>=</mo><mpadded lspace="0"><mi mathvariant="normal">GPT</mi></mpadded><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-CC0000 sa-41-44"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#CC0000;"><mi mathvariant="normal">𝐱</mi><mn>𝟏</mn></msub></mrow></mrow><mo separator="true">,</mo><mi mathvariant="normal">…</mi><mo separator="true">,</mo><mrow class="sym sym-CC0000 sa-53-56"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#CC0000;"><mi mathvariant="normal">𝐱</mi><mi mathvariant="normal">𝐓</mi></msub></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow class="lk-blue"><mrow class="sym sym-CC0000 sa-10-17"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#CC0000;"><mi mathvariant="normal">𝐱</mi><mrow><mi mathvariant="normal">𝐓</mi><mo>+</mo><mn>𝟏</mn></mrow></msub></mrow></mrow><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mrow><mi mathvariant="normal">max</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mspace width="0.2778em"></mspace><msub><mpadded lspace="0"><mi mathvariant="normal">scores</mi></mpadded><mi mathvariant="normal">T</mi></msub></mrow></math></div></div></div></b-eq>
-  <b-code lang="python" beside="right" data-b="pk0c5"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">generate</span>(<span class="cc blue csym" data-e="W">W</span>, start, n, mask=<span class="nu">True</span>):</div><div class="ln">    <span class="cc red">x</span> = song.encode(start)</div><div class="ln">    <span class="ctl">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n):  <span class="cm"># greedy decoding</span></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold">        <span class="cc gold">scores</span> = gpt(torch.tensor(<span class="cc red">x</span>), <span class="cc blue csym" data-e="W">W</span>, mask)</div><div class="ln">        </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">        <span class="cc red">x</span>.append(<span class="cc gold">scores</span>[-<span class="nu nn">1</span>].argmax().item())</div><div class="ln">    </div><div class="ln">    <span class="ctl">return</span> song.decode(<span class="cc red">x</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(generate(<span class="cc blue csym" data-e="W">W</span>, <span class="st">"cheer cheer for old notre"</span>, <span class="nu nn">46</span>))</div></div></b-code>
+  <b-code lang="python" beside="right" data-b="pk0c5"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">generate</span>(<span class="cc blue">W</span>, start, n, mask=<span class="nu">True</span>):</div><div class="ln">    <span class="cc red">x</span> = song.encode(start)</div><div class="ln">    <span class="ctl">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(n):  <span class="cm"># greedy decoding</span></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold">        <span class="cc gold">scores</span> = gpt(torch.tensor(<span class="cc red">x</span>), <span class="cc blue">W</span>, mask)</div><div class="ln">        </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">        <span class="cc red">x</span>.append(<span class="cc gold">scores</span>[-<span class="nu nn">1</span>].argmax().item())</div><div class="ln">    </div><div class="ln">    <span class="ctl">return</span> song.decode(<span class="cc red">x</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(generate(<span class="cc blue">W</span>, <span class="st">"cheer cheer for old notre"</span>, <span class="nu nn">46</span>))</div></div></b-code>
   <b-out wrap="" data-b="astfk"><div class="label">Output</div><pre>[<span class="otk" data-f="purple"><span class="oq">'</span>cheer<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>cheer<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>for<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>old<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>notre<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>dame<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>wake<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>up<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>the<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>echoes<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>cheering<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>her<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>name<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>send<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>a<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>volley<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>cheer<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>on<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>high<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>shake<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>down<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>the<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>thunder<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>from<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>the<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>sky<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>what<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>though<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>the<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>odds<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>be<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>great<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>or<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>small<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>old<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>notre<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>dame<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>will<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>win<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>over<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>all<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>while<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>her<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>loyal<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>sons<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>and<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>daughters<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>march<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>on<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>to<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>victory<span class="oq">'</span></span>]</pre></b-out>
   <p data-b="jwd0p"><b class="take">Our GPT writes the fight song</b>. It memorized <span class="num">51</span> words (<b class="name">GPT-3</b> learned from about <span class="num">300</span> billion <b class="def">tokens</b>), but it's the same loop that writes every <b class="name">ChatGPT</b> answer</p>
 <div class="foot" data-rt=""><span>Transformers · Writing the Fight Song</span><span>23</span></div></section>
@@ -6469,7 +6486,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -6497,15 +6514,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -6514,6 +6577,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -6526,9 +6590,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

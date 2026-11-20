@@ -1,68 +1,25 @@
 {
  "_last": {
-  "at": "2026-11-19T17:17:18Z",
+  "at": "2026-11-20T16:55:13Z",
   "event": "schedule",
   "failed": [],
   "ok": [
    "attention",
-   "backprop",
-   "ballm-attention",
-   "ballm-attnvar",
-   "ballm-blocks",
-   "ballm-embeddings",
-   "ballm-evals",
-   "ballm-hdd",
-   "ballm-loss",
-   "ballm-mha",
-   "ballm-moe",
-   "ballm-optim",
-   "ballm-rnn",
-   "bptt",
-   "cnn",
-   "eval",
-   "ffn",
-   "linreg",
-   "optreg",
-   "pca",
-   "rnn",
-   "svm",
    "transformer"
   ],
   "over": {
    "attention": [
     "qkv"
    ],
-   "backprop": [
-    "chain",
-    "lec-p-224uu"
-   ],
-   "ballm-hdd": [
-    "normalization"
-   ],
-   "ballm-loss": [
-    "r-vectors"
-   ],
-   "ballm-optim": [
-    "multilayer-backprop"
-   ],
-   "bptt": [
-    "gates"
-   ],
-   "eval": [
-    "residual-plots"
-   ],
-   "ffn": [
-    "p-qhx95"
-   ],
    "transformer": [
     "lec-output"
    ]
   },
-  "run": "44575365314"
+  "run": "44778012251"
  },
  "attention": {
-  "at": "2026-11-19T17:17:26Z",
-  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
+  "at": "2026-11-20T16:55:23Z",
+  "commit": "a65cdc6a50290039ccd9ebe85bbb4a38124cfeb8",
   "web": "ai2ai/attention"
  },
  "backprop": {
@@ -201,8 +158,8 @@
   "web": "ai2ai/svm"
  },
  "transformer": {
-  "at": "2026-11-19T17:19:58Z",
-  "commit": "ad5761cb5f148269b6f820b602875dbca468e832",
+  "at": "2026-11-20T16:55:34Z",
+  "commit": "a65cdc6a50290039ccd9ebe85bbb4a38124cfeb8",
   "web": "ai2ai/transformer"
  }
 }
