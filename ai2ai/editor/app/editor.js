@@ -3416,11 +3416,29 @@ function pinchShow(p, k) {
   const sl = Math.min(Math.max(0, scR.left + sc.clientLeft + ax - p.cx0), Math.max(0, broad - sc.clientWidth));
   const ox = scR.left + sc.clientLeft - sl + L.offX, oy = scR.top + sc.clientTop - st + L.offY;
   p.tx = ox - L.offX + ax; p.ty = oy - L.offY + ay;   // where the point under the fingers shows
+  // a zoom that changes how many slides fit a row glides them to their new places rather than jumping (Eric,
+  // 2026-11-20: zoomed out to a grid, the slides popped in): each moves from where it shows to where it goes
+  const sig = rows.map(r => r.length).join(','), now = performance.now();
+  if (L.sig && sig !== L.sig) L.items.forEach(it => { if (it.sx != null) { it.fx = it.sx; it.fy = it.sy; it.t0 = now; } });
+  L.sig = sig; p.k = k; p.z1s = z1;
+  L.items.forEach(it => { it.X = ox + it.x; it.Y = oy + it.y; });
+  pinchPaint(p);
+}
+const GLIDE = 200;   // ms
+function pinchPaint(p) {
+  const L = p.lay, k = p.k, now = performance.now(); let moving = false;
   L.items.forEach(it => {
-    const X = ox + it.x, Y = oy + it.y;
+    let X = it.X, Y = it.Y;
+    if (it.t0 != null) {
+      const u = Math.min(1, (now - it.t0) / GLIDE), e = 1 - Math.pow(1 - u, 3);
+      X = it.fx + (X - it.fx) * e; Y = it.fy + (Y - it.fy) * e;
+      if (u < 1) moving = true; else it.t0 = null;
+    }
+    it.sx = X; it.sy = Y;
     it.n.style.transformOrigin = '0 0'; it.n.style.transform = 'translate(' + (X - it.q.left) / it.zf + 'px,' + (Y - it.q.top) / it.zf + 'px) scale(' + k + ')';
-    it.cards.forEach(([e, q]) => { e.style.transform = 'translate(' + (X + (q.left - it.q.left) * k - q.left) + 'px,' + (Y + (q.top - it.q.top) * k - q.top) + 'px) scale(' + z1 + ')'; });
+    it.cards.forEach(([e, q]) => { e.style.transform = 'translate(' + (X + (q.left - it.q.left) * k - q.left) + 'px,' + (Y + (q.top - it.q.top) * k - q.top) + 'px) scale(' + p.z1s + ')'; });
   });
+  if (moving && !p.raf) p.raf = requestAnimationFrame(() => { p.raf = 0; if (pinch === p) pinchPaint(p); });
 }
 // keep the point under the fingers there while the layout settles after a zoom: the Story view redraws its cards
 // between the slides over several passes and equations re-render at the new size, each moving the pages (Eric,
@@ -3434,7 +3452,10 @@ function holdAt(sc, a, x, y) {
   mine.forEach(t => addEventListener(t, stop, true)); setTimeout(stop, 2000);
 }
 function endPinch() {
-  const p = pinch; if (!p) return; pinch = null;
+  const p = pinch; if (!p) return;
+  const t = performance.now();   // slides still gliding to their places: end once they're there (by the clock: rAF stops in a hidden tab)
+  if (p.lay && p.lay.items.some(it => it.t0 != null && t - it.t0 < GLIDE)) { clearTimeout(gridT); gridT = setTimeout(endPinch, 40); return; }
+  pinch = null;
   const z = +p.z1.toFixed(3);
   colZ[p.key] = z; saveColZ();
   if (p.frame) {   // a preview zooms itself and puts the page under the fingers back under them
@@ -3450,6 +3471,7 @@ function endPinch() {
     if (window.Story && document.body.classList.contains('storyweave')) Story.weave();
     const a = p.anchor;
     if (a && a.n.isConnected) holdAt(p.sc, a, p.tx, p.ty);   // where the pinch showed it
+    const arcs = document.querySelector('#storyw svg.sw-arcs'); if (arcs) getComputedStyle(arcs).opacity;   // drawn faded out, so they fade in (not pop in) when .zooming comes off
   }
   document.body.classList.remove('zooming');
   place();
@@ -5105,7 +5127,7 @@ window.eaiReview = {
         c += `<button class="sw-add" data-addend="${hesc(lastPg.id)}">+ question for the next chapter</button>`;
         html += `<div class="sw sw-down" data-for="${hesc(lastPg.id)}">${c}</div>`;
       }
-      box.innerHTML = html;
+      const keepArcs = box.querySelector('svg.sw-arcs'); box.innerHTML = html; if (keepArcs) box.prepend(keepArcs);   // the same lines, redrawn: a fade in carries on
       // widths first: a textarea fitted before its card has its width measures one word per line (Eric, 2026-11-18:
       // "they're like hilariously tall now")
       // the cards zoom with the slides (Eric, 2026-11-20: they kept their size through a pinch, then jumped on release):
@@ -5161,6 +5183,7 @@ window.eaiReview = {
     const lanes = [];   // nest: a longer thread goes further out than the shorter ones inside it
     lines.forEach(l => { const lo = Math.min(l.y0, l.y1), hi = Math.max(l.y0, l.y1); let k = 0; while (lanes[k] && lanes[k].some(([a, b]) => lo < b && a < hi)) k++; (lanes[k] = lanes[k] || []).push([lo, hi]); l.k = k; });
     const step = Math.max(4, Math.min(12, (room - 8) / Math.max(1, lanes.length)));
+    const was = box.querySelector('svg.sw-arcs'); if (was) was.setAttribute('height', 1);   // kept between redraws: out of the height it is sized to
     const svgH = Math.max(S.scrollHeight, ...lines.map(l => Math.max(l.y0, l.y1) + 20));
     let out = '';
     lines.forEach(l => {
