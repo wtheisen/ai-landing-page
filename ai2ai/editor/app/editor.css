@@ -328,8 +328,7 @@ body:not(.phone) #bar #status { width: 70px; min-width: 0; box-sizing: border-bo
 /* while pinching only a transform changes; the editing overlays come back when the zoom is applied */
 body.zooming #blockbar, body.zooming #rsz, body.zooming #rszb, body.zooming #croph, body.zooming #rulers, body.zooming #cmtm, body.zooming #drop { visibility: hidden !important; }
 body.zooming #book > section.page, body.zooming .dpane > section.page, body.zooming #storyw .sw, body.zooming .gcol iframe { will-change: transform; }   /* a pinch moves each slide and card (pinchShow) */
-#storyw svg.sw-arcs { transition: opacity .3s ease-out; }
-body.zooming #storyw svg.sw-arcs { opacity: 0; transition-duration: .12s; }   /* a pinch fades the story's lines out; redrawn for the new layout, they fade back in */
+body.zooming #storyw svg.sw-arcs { visibility: hidden; }   /* redrawn for the new layout at the end */
 #glabels { position: sticky; top: 0; left: 0; height: 0; z-index: 30; pointer-events: none; }
 #glabels[hidden] { display: none; }
 #glabels span { position: absolute; top: 4px; transform: translateX(-50%); white-space: nowrap; font: 600 12px/1 system-ui, sans-serif; color: #555; background: rgba(255,255,255,.9); border: 1px solid #ddd; border-radius: 10px; padding: 4px 10px; }

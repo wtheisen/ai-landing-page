@@ -3450,7 +3450,6 @@ function endPinch() {
     if (window.Story && document.body.classList.contains('storyweave')) Story.weave();
     const a = p.anchor;
     if (a && a.n.isConnected) holdAt(p.sc, a, p.tx, p.ty);   // where the pinch showed it
-    const arcs = document.querySelector('#storyw svg.sw-arcs'); if (arcs) getComputedStyle(arcs).opacity;   // drawn faded out, so they fade in (not pop in) when .zooming comes off
   }
   document.body.classList.remove('zooming');
   place();
@@ -5106,7 +5105,7 @@ window.eaiReview = {
         c += `<button class="sw-add" data-addend="${hesc(lastPg.id)}">+ question for the next chapter</button>`;
         html += `<div class="sw sw-down" data-for="${hesc(lastPg.id)}">${c}</div>`;
       }
-      const keepArcs = box.querySelector('svg.sw-arcs'); box.innerHTML = html; if (keepArcs) box.prepend(keepArcs);   // the same lines, redrawn: a fade in carries on
+      box.innerHTML = html;
       // widths first: a textarea fitted before its card has its width measures one word per line (Eric, 2026-11-18:
       // "they're like hilariously tall now")
       // the cards zoom with the slides (Eric, 2026-11-20: they kept their size through a pinch, then jumped on release):
