@@ -1,21 +1,11 @@
 {
  "_last": {
-  "at": "2026-11-20T16:55:13Z",
+  "at": "2026-11-21T16:06:35Z",
   "event": "schedule",
   "failed": [],
-  "ok": [
-   "attention",
-   "transformer"
-  ],
-  "over": {
-   "attention": [
-    "qkv"
-   ],
-   "transformer": [
-    "lec-output"
-   ]
-  },
-  "run": "44778012251"
+  "ok": [],
+  "over": {},
+  "run": "44922646268"
  },
  "attention": {
   "at": "2026-11-20T16:55:23Z",
