@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -834,8 +845,7 @@ svg.al-clone { z-index: 1; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Principal Component Analysis</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#lec-expansion">Dimensionality</a><a href="#lec-project-axis">PCA</a><a href="#lec-sort">Using PCA</a><a href="#lec-review">Review</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="on">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="pca-chapter.pdf" download>Reading</a><a href="pca-chapter-slides.pdf" download>Lecture</a><a href="pca-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="slides">
 <section class="page cover" id="cover">
-  
-  <svg class="draw" viewBox="0 0 384 230" style="width: 280.9pt" role="img" aria-label="Every Notre Dame game from 2012 to 2022 as a point, standardized total yards against first downs, with two purple arrows through the cloud: a long one along the rising diagonal and a short one across it" data-b="bvfol">
+  <svg class="draw" viewBox="0 0 384 230" role="img" aria-label="Every Notre Dame game from 2012 to 2022 as a point, standardized total yards against first downs, with two purple arrows through the cloud: a long one along the rising diagonal and a short one across it" style="width: 280.9pt" data-b="bvfol">
     <defs>
       <marker id="ah674EA7-bvfol" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#674EA7"></path>
@@ -844,152 +854,153 @@ svg.al-clone { z-index: 1; }
         <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
       </marker>
     </defs>
-    <ellipse cx="213.4" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="172.3" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="144.9" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="123.0" cy="178.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="248.4" cy="22.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="157.2" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="177.0" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="182.1" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="224.9" cy="22.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="178.5" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="247.3" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="195.0" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="145.7" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="232.5" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="184.6" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="181.0" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.1" cy="178.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="153.6" cy="193.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="189.6" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="144.9" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="204.8" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="219.2" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="201.2" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="206.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="131.6" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="214.8" cy="45.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="244.4" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="137.7" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="180.3" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="225.3" cy="61.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="170.2" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="222.8" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="206.2" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="228.9" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="212.3" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="216.3" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="157.6" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="162.6" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="198.6" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="226.7" cy="53.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="202.6" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="201.5" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="282.2" cy="53.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="192.5" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="202.2" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="208.4" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="205.1" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="194.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="138.5" cy="170.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="197.9" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="228.9" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="182.8" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="196.8" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="196.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="181.3" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="229.3" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="272.5" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="77.6" cy="209.3" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="147.5" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="184.9" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="170.2" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="208.4" cy="45.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="198.6" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="183.9" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="255.2" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="132.3" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="257.0" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="164.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="218.1" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="212.3" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="215.9" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="188.9" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.7" cy="53.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="130.9" cy="185.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="154.7" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="186.4" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="169.4" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="145.7" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="186.0" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="173.8" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="240.8" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="235.0" cy="61.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="194.7" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="160.8" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="247.3" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="204.0" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="215.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="203.7" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.3" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="126.2" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="189.3" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="249.8" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="152.5" cy="178.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="152.9" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="243.3" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.3" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="101.7" cy="193.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="196.1" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="205.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="184.6" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="217.4" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="197.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="200.8" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="195.7" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="191.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="236.5" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="158.6" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="193.2" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="190.3" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="223.5" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="237.5" cy="61.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="209.1" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="241.5" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="131.6" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="172.0" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="192.1" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="198.6" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="160.4" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="124.0" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="159.7" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="181.3" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="174.8" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="225.3" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="191.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="189.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="222.0" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="220.2" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="235.4" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="128.0" cy="193.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="163.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="143.9" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="244.4" cy="14.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="215.6" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="145.3" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="191.1" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="167.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="162.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="157.6" cy="170.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="194.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="183.9" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <ellipse cx="237.2" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.00"></ellipse>
-    <polyline points="192.0,115.0 229.7,77.3 266.5,40.5" fill="none" stroke="#674EA7" stroke-width="2.40" marker-end="url(#ah674EA7-bvfol)"></polyline>
-    <polyline points="192.0,115.0 154.3,152.7 117.5,189.5" fill="none" stroke="#674EA7" stroke-width="2.40" marker-end="url(#ah674EA7-bvfol)"></polyline>
-    <polyline points="192.0,115.0 206.1,129.1 219.5,142.5" fill="none" stroke="#8E7CC3" stroke-width="1.60" marker-end="url(#ah8E7CC3-bvfol)"></polyline>
-    <polyline points="192.0,115.0 177.9,100.9 164.5,87.5" fill="none" stroke="#8E7CC3" stroke-width="1.60" marker-end="url(#ah8E7CC3-bvfol)"></polyline>
+    <ellipse cx="213.4" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="172.3" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="144.9" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="123.0" cy="178.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="248.4" cy="22.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="157.2" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="177.0" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="182.1" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="224.9" cy="22.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="178.5" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="247.3" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="195.0" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="145.7" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="232.5" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="184.6" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="181.0" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.1" cy="178.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="153.6" cy="193.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="189.6" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="144.9" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="204.8" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="219.2" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="201.2" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="206.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="131.6" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="214.8" cy="45.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="244.4" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="137.7" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="180.3" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="225.3" cy="61.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="170.2" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="222.8" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="206.2" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="228.9" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="212.3" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="216.3" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="157.6" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="162.6" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="198.6" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="226.7" cy="53.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="202.6" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="201.5" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="282.2" cy="53.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="192.5" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="202.2" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="208.4" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="205.1" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="194.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="138.5" cy="170.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="197.9" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="228.9" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="182.8" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="196.8" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="196.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="181.3" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="229.3" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="272.5" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="77.6" cy="209.3" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="147.5" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="184.9" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="170.2" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="208.4" cy="45.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="198.6" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="183.9" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="255.2" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="132.3" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="257.0" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="164.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="218.1" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="212.3" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="215.9" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="188.9" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.7" cy="53.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="130.9" cy="185.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="154.7" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="186.4" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="169.4" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="145.7" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="186.0" cy="131.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="173.8" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="240.8" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="235.0" cy="61.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="194.7" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="160.8" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="247.3" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="204.0" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="215.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="203.7" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.3" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="126.2" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="189.3" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="249.8" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="152.5" cy="178.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="152.9" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="243.3" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.3" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="101.7" cy="193.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="196.1" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="205.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="184.6" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="217.4" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="197.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="200.8" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="195.7" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="191.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="236.5" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="158.6" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="193.2" cy="68.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="190.3" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="223.5" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="237.5" cy="61.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="209.1" cy="92.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="241.5" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="131.6" cy="146.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="172.0" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="192.1" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="198.6" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="160.4" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="124.0" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="159.7" cy="139.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="181.3" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="174.8" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="225.3" cy="84.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="191.8" cy="123.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="189.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="222.0" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="220.2" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="235.4" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="128.0" cy="193.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="163.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="143.9" cy="154.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="244.4" cy="14.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="215.6" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="145.3" cy="162.4" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="191.1" cy="107.8" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="167.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="162.2" cy="100.0" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="157.6" cy="170.2" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="194.3" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="183.9" cy="115.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <ellipse cx="237.2" cy="76.6" rx="2.0" ry="2.0" fill="#7CA2E3" stroke="#7CA2E3" stroke-width="0.0"></ellipse>
+    <polyline points="192.0,115.0 229.7,77.3 266.5,40.5" fill="none" stroke="#674EA7" stroke-width="2.4" marker-end="url(#ah674EA7-bvfol)"></polyline>
+    <polyline points="192.0,115.0 154.3,152.7 117.5,189.5" fill="none" stroke="#674EA7" stroke-width="2.4" marker-end="url(#ah674EA7-bvfol)"></polyline>
+    <polyline points="192.0,115.0 206.1,129.1 219.5,142.5" fill="none" stroke="#8E7CC3" stroke-width="1.6" marker-end="url(#ah8E7CC3-bvfol)"></polyline>
+    <polyline points="192.0,115.0 177.9,100.9 164.5,87.5" fill="none" stroke="#8E7CC3" stroke-width="1.6" marker-end="url(#ah8E7CC3-bvfol)"></polyline>
   </svg>
+  
   <div class="cover-text" data-b="oi6sv">
     <div class="kicker">Unit 02 · Chapter 1</div>
     <h1>Principal Component Analysis</h1>
@@ -998,7 +1009,7 @@ svg.al-clone { z-index: 1; }
   </div>
 <div class="foot" data-rt=""><span>Principal Component Analysis</span><span>01</span></div></section>
 
-<section class="page" id="lec-expansion" data-part="Dimensionality" data-view="slides workbook" data-topic="dimensionality" style="--gap: 22pt;">
+<section class="page" id="lec-expansion" data-view="slides workbook" data-topic="dimensionality" data-part="Dimensionality" style="--gap: 22pt;">
   <h2 data-b="tl6ya">Dimensionality Expansion</h2>
   <p data-b="kydv7">With the SVM <u class="fill">kernel trick</u> we saw a way of implicitly increasing the dimensionality of our data set.</p>
   <p data-b="z0wxn">This allowed us to fit <b class="take">nonlinear problems</b>.</p>
@@ -1013,7 +1024,7 @@ svg.al-clone { z-index: 1; }
 
 <section class="page" id="lec-curse-2" data-view="slides workbook" data-topic="curse dimensionality" style="--gap: 22pt;">
   <h2 data-b="s1kmq">The Curse of Dimensionality</h2>
-  <b-fig src="fig/curse.svg" data-pool="curse" alt="Every game sorted into 5 cells by total yards (all 5 used), and into 25 cells by total yards and first downs (13 used, the rest empty)" data-b="lgh9r" style="--ar: 3.254;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 118" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
+  <b-fig src="fig/curse.svg" alt="Every game sorted into 5 cells by total yards (all 5 used), and into 25 cells by total yards and first downs (13 used, the rest empty)" data-pool="curse" data-b="lgh9r" style="--ar: 3.254;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 118" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
  <metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTpkZDMyNjUzMC0wZTFiLTRjYmQtYmNkNS05OGI1YzBiNTFmN2IAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaCPsh+N1gu135yLAJYBG6vMAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDpiZjEzNmYwYy0yZWI4LTRjYmYtYWM2My1lNWMyNjRkNGJiOTBscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNo1UbAkVtXMIoCfpQxQ57nsQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggHP1U92CLNujNK9cvsB+lR8YkeLHeQ9bsDHsOk6X/muSkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaNi6wZm2sBWczWCRqbiLldkAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYII7YdhjUWwo/0stIJLwfAF9rqhfhIIhTlcyjYccZ1GXKZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQFxZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmRkMzI2NTMwLTBlMWItNGNiZC1iY2Q1LTk4YjVjMGI1MWY3Yi9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmNhMWRjZWUzLTZmMWItNGQ5OS1hMDcyLTE2Y2I1NTg1NzM5ZXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCAc/VT3YIs26M0r1y+wH6VHxiR4sd5D1uwMew6Tpf+a5KJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggwyTN+dal2gLCQUo1gpJszhqSqacuH9E9G3/EdN8NLCOiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFgg8LLksTl9kwrO9fihvz+DobGbFv1kEwr0mgwO34Fzeu10Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQKSep51IFWzEsnzCgCtcTM7n0+nlBCRDOko1XiH7EfXJb1uPl3I+24WwiIFZ7zsI9hQjr7VJdsWGYbKG4mxx4Eg=</c2pa:manifest>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -1625,58 +1636,58 @@ z
   
 <div class="foot" data-rt=""><span>Principal Component Analysis · Dimensionality</span><span>06</span></div></section>
 
-<section class="page" id="lec-project-axis" data-part="PCA" data-view="slides workbook" data-topic="variance projection" style="--gap: 22pt;">
+<section class="page" id="lec-project-axis" data-view="slides workbook" data-topic="variance projection" data-part="PCA" style="--gap: 22pt;">
   <h2 data-b="i7u3c">Projecting Data onto an Axis</h2>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six students, standardized, dropped onto the X1 axis on the left and onto the X2 axis on the right; the dropped points are gold" data-b="p8bq9">
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="The six students, standardized, dropped onto the X1 axis on the left and onto the X2 axis on the right; the dropped points are gold" style="width: 670.5pt" data-b="p8bq9">
     <defs></defs>
-    <line x1="126.0" y1="33.2" x2="126.0" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="134.3" y1="74.8" x2="134.3" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="109.4" y1="54.0" x2="109.4" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="67.9" y1="95.6" x2="67.9" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="51.3" y1="91.4" x2="51.3" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="59.6" y1="137.2" x2="59.6" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="25.5" y1="81.0" x2="157.5" y2="81.0" stroke="#674EA7" stroke-width="1.60"></line>
-    <line x1="91.5" y1="147.0" x2="91.5" y2="15.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="327.1" y1="33.2" x2="292.5" y2="33.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="335.4" y1="74.8" x2="292.5" y2="74.8" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="310.5" y1="54.0" x2="292.5" y2="54.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="269.0" y1="95.6" x2="292.5" y2="95.6" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="252.4" y1="91.4" x2="292.5" y2="91.4" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="260.7" y1="137.2" x2="292.5" y2="137.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="226.5" y1="81.0" x2="358.5" y2="81.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="292.5" y1="147.0" x2="292.5" y2="15.0" stroke="#674EA7" stroke-width="1.60"></line>
-    <ellipse cx="126.0" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="134.3" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="109.4" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="67.9" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="51.3" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="59.6" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <line x1="126.0" y1="33.2" x2="126.0" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="134.3" y1="74.8" x2="134.3" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="109.4" y1="54.0" x2="109.4" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="67.9" y1="95.6" x2="67.9" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="51.3" y1="91.4" x2="51.3" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="59.6" y1="137.2" x2="59.6" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="25.5" y1="81.0" x2="157.5" y2="81.0" stroke="#674EA7" stroke-width="1.6"></line>
+    <line x1="91.5" y1="147.0" x2="91.5" y2="15.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="327.1" y1="33.2" x2="292.5" y2="33.2" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="335.4" y1="74.8" x2="292.5" y2="74.8" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="310.5" y1="54.0" x2="292.5" y2="54.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="269.0" y1="95.6" x2="292.5" y2="95.6" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="252.4" y1="91.4" x2="292.5" y2="91.4" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="260.7" y1="137.2" x2="292.5" y2="137.2" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="226.5" y1="81.0" x2="358.5" y2="81.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="292.5" y1="147.0" x2="292.5" y2="15.0" stroke="#674EA7" stroke-width="1.6"></line>
+    <ellipse cx="126.0" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="134.3" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="109.4" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="67.9" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="51.3" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="59.6" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
     <text x="155.8" y="75.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
     <text x="94.1" y="22.3" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
     <text x="91.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X1</text>
     <text x="91.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X1</text>
-    <ellipse cx="327.1" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="335.4" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="310.5" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="269.0" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="252.4" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="260.7" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="327.1" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="335.4" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="310.5" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="269.0" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="252.4" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="260.7" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
     <text x="356.9" y="75.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
     <text x="295.2" y="22.3" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
     <text x="292.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X2</text>
     <text x="292.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X2</text>
-    <ellipse cx="126.0" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="134.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="109.4" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="67.9" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="51.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="59.6" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="33.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="74.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="54.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="95.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="91.4" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="137.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="126.0" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="134.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="109.4" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="67.9" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="51.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="59.6" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="33.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="74.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="54.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="95.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="91.4" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="137.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
   </svg>
   
 <div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>07</span></div></section>
@@ -1690,56 +1701,56 @@ z
 
 <section class="page" id="lec-variance-2" data-view="slides workbook" data-topic="variance" style="--gap: 22pt;">
   <h2 data-b="xqt6u">Variance of Data on an Axis</h2>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six students dropped onto the X1 axis and onto the X2 axis" data-b="qvzf0">
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="The six students dropped onto the X1 axis and onto the X2 axis" style="width: 670.5pt" data-b="qvzf0">
     <defs></defs>
-    <line x1="126.0" y1="33.2" x2="126.0" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="134.3" y1="74.8" x2="134.3" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="109.4" y1="54.0" x2="109.4" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="67.9" y1="95.6" x2="67.9" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="51.3" y1="91.4" x2="51.3" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="59.6" y1="137.2" x2="59.6" y2="81.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="25.5" y1="81.0" x2="157.5" y2="81.0" stroke="#674EA7" stroke-width="1.60"></line>
-    <line x1="91.5" y1="147.0" x2="91.5" y2="15.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="327.1" y1="33.2" x2="292.5" y2="33.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="335.4" y1="74.8" x2="292.5" y2="74.8" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="310.5" y1="54.0" x2="292.5" y2="54.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="269.0" y1="95.6" x2="292.5" y2="95.6" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="252.4" y1="91.4" x2="292.5" y2="91.4" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="260.7" y1="137.2" x2="292.5" y2="137.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="226.5" y1="81.0" x2="358.5" y2="81.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="292.5" y1="147.0" x2="292.5" y2="15.0" stroke="#674EA7" stroke-width="1.60"></line>
-    <ellipse cx="126.0" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="134.3" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="109.4" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="67.9" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="51.3" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="59.6" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <line x1="126.0" y1="33.2" x2="126.0" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="134.3" y1="74.8" x2="134.3" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="109.4" y1="54.0" x2="109.4" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="67.9" y1="95.6" x2="67.9" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="51.3" y1="91.4" x2="51.3" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="59.6" y1="137.2" x2="59.6" y2="81.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="25.5" y1="81.0" x2="157.5" y2="81.0" stroke="#674EA7" stroke-width="1.6"></line>
+    <line x1="91.5" y1="147.0" x2="91.5" y2="15.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="327.1" y1="33.2" x2="292.5" y2="33.2" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="335.4" y1="74.8" x2="292.5" y2="74.8" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="310.5" y1="54.0" x2="292.5" y2="54.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="269.0" y1="95.6" x2="292.5" y2="95.6" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="252.4" y1="91.4" x2="292.5" y2="91.4" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="260.7" y1="137.2" x2="292.5" y2="137.2" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="226.5" y1="81.0" x2="358.5" y2="81.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="292.5" y1="147.0" x2="292.5" y2="15.0" stroke="#674EA7" stroke-width="1.6"></line>
+    <ellipse cx="126.0" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="134.3" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="109.4" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="67.9" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="51.3" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="59.6" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
     <text x="155.8" y="75.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
     <text x="94.1" y="22.3" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
     <text x="91.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X1</text>
     <text x="91.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X1</text>
-    <ellipse cx="327.1" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="335.4" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="310.5" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="269.0" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="252.4" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="260.7" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="327.1" cy="33.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="335.4" cy="74.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="310.5" cy="54.0" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="269.0" cy="95.6" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="252.4" cy="91.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="260.7" cy="137.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
     <text x="356.9" y="75.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
     <text x="295.2" y="22.3" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
     <text x="292.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X2</text>
     <text x="292.5" y="12.9" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">onto X2</text>
-    <ellipse cx="126.0" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="134.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="109.4" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="67.9" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="51.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="59.6" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="33.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="74.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="54.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="95.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="91.4" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="292.5" cy="137.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="126.0" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="134.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="109.4" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="67.9" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="51.3" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="59.6" cy="81.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="33.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="74.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="54.0" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="95.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="91.4" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="292.5" cy="137.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
   </svg>
   
 <div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>09</span></div></section>
@@ -1760,39 +1771,39 @@ z
 <section class="page" id="lec-new-axis" data-view="slides workbook" data-topic="projection pca" style="--gap: 22pt;">
   <h2 data-b="wk24k">Projecting Data onto a New Axis</h2>
   <p data-b="u2xem">What if we could find a <b class="take">new axis with higher variance</b>?</p>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six standardized students dropped onto a purple diagonal axis labelled PC1" data-b="ixkz5">
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="The six standardized students dropped onto a purple diagonal axis labelled PC1" style="width: 670.5pt" data-b="ixkz5">
     <defs></defs>
-    <line x1="120.0" y1="75.0" x2="264.0" y2="75.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="141.1" y1="125.9" x2="242.9" y2="24.1" stroke="#674EA7" stroke-width="1.60"></line>
-    <line x1="227.9" y1="25.3" x2="234.8" y2="32.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="236.6" y1="68.5" x2="217.5" y2="49.5" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="210.7" y1="46.9" x2="215.4" y2="51.6" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="167.6" y1="90.1" x2="172.2" y2="94.8" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="150.3" y1="85.8" x2="165.8" y2="101.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="158.9" y1="133.4" x2="146.3" y2="120.7" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="120.0" y1="75.0" x2="264.0" y2="75.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="141.1" y1="125.9" x2="242.9" y2="24.1" stroke="#674EA7" stroke-width="1.6"></line>
+    <line x1="227.9" y1="25.3" x2="234.8" y2="32.2" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="236.6" y1="68.5" x2="217.5" y2="49.5" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="210.7" y1="46.9" x2="215.4" y2="51.6" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="167.6" y1="90.1" x2="172.2" y2="94.8" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="150.3" y1="85.8" x2="165.8" y2="101.2" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="158.9" y1="133.4" x2="146.3" y2="120.7" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
     <text x="246.5" y="20.3" font-size="8.5" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC1</text>
-    <ellipse cx="227.9" cy="25.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="236.6" cy="68.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="210.7" cy="46.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="167.6" cy="90.1" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="150.3" cy="85.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="158.9" cy="133.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="227.9" cy="25.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="236.6" cy="68.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="210.7" cy="46.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="167.6" cy="90.1" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="150.3" cy="85.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="158.9" cy="133.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
     <text x="260.6" y="70.5" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
     <text x="194.7" y="12.1" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
-    <ellipse cx="234.8" cy="32.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="217.5" cy="49.5" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="215.4" cy="51.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="172.2" cy="94.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="165.8" cy="101.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="146.3" cy="120.7" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="234.8" cy="32.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="217.5" cy="49.5" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="215.4" cy="51.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="172.2" cy="94.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="165.8" cy="101.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="146.3" cy="120.7" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
   </svg>
 <div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>11</span></div></section>
 
 <section class="page" id="lec-pca" data-view="slides workbook" data-topic="pca" style="--gap: 22pt;">
   <h2 data-b="ptn7z">Principal Component Analysis (PCA)</h2>
   <p data-b="uihsv"><b class="name">PCA</b> works by discovering the directions (<b class="def"><u class="fill">principal components</u></b>) along which the data <b class="take"><u class="fill">varies the most</u></b>.</p>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six standardized students with PC1 along the rising diagonal and PC2 across it" data-b="qvfpk">
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="The six standardized students with PC1 along the rising diagonal and PC2 across it" style="width: 670.5pt" data-b="qvfpk">
     <defs>
       <marker id="ah674EA7-qvfpk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#674EA7"></path>
@@ -1801,21 +1812,21 @@ z
         <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
       </marker>
     </defs>
-    <line x1="192.0" y1="75.0" x2="145.1" y2="121.9" stroke="#674EA7" stroke-width="1.80" marker-end="url(#ah674EA7-qvfpk)"></line>
-    <line x1="192.0" y1="75.0" x2="238.9" y2="28.1" stroke="#674EA7" stroke-width="1.80" marker-end="url(#ah674EA7-qvfpk)"></line>
-    <line x1="192.0" y1="75.0" x2="239.4" y2="122.4" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-qvfpk)"></line>
-    <polyline points="192.0,75.0 192.0,75.0 144.6,27.6" fill="none" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-qvfpk)"></polyline>
-    <polygon points="192.0,75.0 197.4,69.6 192.0,64.2 186.6,69.6 192.0,75.0" fill="none" stroke="#002B5B" stroke-width="0.80"></polygon>
-    <line x1="112.8" y1="75.0" x2="271.2" y2="75.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="192.0" y1="75.0" x2="145.1" y2="121.9" stroke="#674EA7" stroke-width="1.8" marker-end="url(#ah674EA7-qvfpk)"></line>
+    <line x1="192.0" y1="75.0" x2="238.9" y2="28.1" stroke="#674EA7" stroke-width="1.8" marker-end="url(#ah674EA7-qvfpk)"></line>
+    <line x1="192.0" y1="75.0" x2="239.4" y2="122.4" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-qvfpk)"></line>
+    <polyline points="192.0,75.0 192.0,75.0 144.6,27.6" fill="none" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-qvfpk)"></polyline>
+    <polygon points="192.0,75.0 197.4,69.6 192.0,64.2 186.6,69.6 192.0,75.0" fill="none" stroke="#002B5B" stroke-width="0.8"></polygon>
+    <line x1="112.8" y1="75.0" x2="271.2" y2="75.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.6"></line>
     <text x="244.2" y="24.9" font-size="8.5" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC1</text>
     <text x="139.8" y="24.9" font-size="8.5" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC2</text>
-    <ellipse cx="229.7" cy="22.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="238.8" cy="68.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="211.6" cy="45.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="166.3" cy="90.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="148.2" cy="86.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="157.3" cy="136.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="229.7" cy="22.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="238.8" cy="68.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="211.6" cy="45.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="166.3" cy="90.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="148.2" cy="86.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="157.3" cy="136.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
   </svg>
   
 <div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>12</span></div></section>
@@ -2275,7 +2286,7 @@ z
 
 <section class="page" id="lec-ortho-2" data-view="slides workbook" data-topic="orthogonality" style="--gap: 22pt;">
   <h2 data-b="b2oya">Orthogonality of Principal Components</h2>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six standardized students with PC1 and PC2 at a right angle" data-b="nn46e">
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="The six standardized students with PC1 and PC2 at a right angle" style="width: 670.5pt" data-b="nn46e">
     <defs>
       <marker id="ah674EA7-nn46e" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#674EA7"></path>
@@ -2284,21 +2295,21 @@ z
         <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
       </marker>
     </defs>
-    <line x1="192.0" y1="75.0" x2="145.1" y2="121.9" stroke="#674EA7" stroke-width="1.80" marker-end="url(#ah674EA7-nn46e)"></line>
-    <line x1="192.0" y1="75.0" x2="238.9" y2="28.1" stroke="#674EA7" stroke-width="1.80" marker-end="url(#ah674EA7-nn46e)"></line>
-    <line x1="192.0" y1="75.0" x2="239.4" y2="122.4" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-nn46e)"></line>
-    <polyline points="192.0,75.0 192.0,75.0 144.6,27.6" fill="none" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-nn46e)"></polyline>
-    <polygon points="192.0,75.0 197.4,69.6 192.0,64.2 186.6,69.6 192.0,75.0" fill="none" stroke="#002B5B" stroke-width="0.80"></polygon>
-    <line x1="112.8" y1="75.0" x2="271.2" y2="75.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.60"></line>
+    <line x1="192.0" y1="75.0" x2="145.1" y2="121.9" stroke="#674EA7" stroke-width="1.8" marker-end="url(#ah674EA7-nn46e)"></line>
+    <line x1="192.0" y1="75.0" x2="238.9" y2="28.1" stroke="#674EA7" stroke-width="1.8" marker-end="url(#ah674EA7-nn46e)"></line>
+    <line x1="192.0" y1="75.0" x2="239.4" y2="122.4" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-nn46e)"></line>
+    <polyline points="192.0,75.0 192.0,75.0 144.6,27.6" fill="none" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-nn46e)"></polyline>
+    <polygon points="192.0,75.0 197.4,69.6 192.0,64.2 186.6,69.6 192.0,75.0" fill="none" stroke="#002B5B" stroke-width="0.8"></polygon>
+    <line x1="112.8" y1="75.0" x2="271.2" y2="75.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.6"></line>
     <text x="244.2" y="24.9" font-size="8.5" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC1</text>
     <text x="139.8" y="24.9" font-size="8.5" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC2</text>
-    <ellipse cx="229.7" cy="22.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="238.8" cy="68.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="211.6" cy="45.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="166.3" cy="90.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="148.2" cy="86.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="157.3" cy="136.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="229.7" cy="22.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="238.8" cy="68.2" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="211.6" cy="45.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="166.3" cy="90.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="148.2" cy="86.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="157.3" cy="136.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
   </svg>
 <div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>29</span></div></section>
 
@@ -2308,14 +2319,14 @@ z
   
 <div class="foot" data-rt=""><span>Principal Component Analysis · PCA</span><span>30</span></div></section>
 
-<section class="page" id="lec-sort" data-part="Using PCA" data-view="slides workbook" data-topic="choosing-k" style="--gap: 22pt;">
+<section class="page" id="lec-sort" data-view="slides workbook" data-topic="choosing-k" data-part="Using PCA" style="--gap: 22pt;">
   <h2 data-b="c4fpt">4. and 5.) Sorting and Picking PCAs</h2>
   <p data-b="n29fp">Using <b class="name">PCA</b> we find a number of principal components <b class="take">equal to the number of original features</b> in our dataset, but we typically aren't interested in all of them. Instead we want a <b class="take">minimum set that can explain the majority of the variance</b> in our data.</p>
 <div class="foot" data-rt=""><span>Principal Component Analysis · Using PCA</span><span>31</span></div></section>
 
 <section class="page" id="lec-sort-2" data-view="slides workbook" data-topic="choosing-k" style="--gap: 22pt;">
   <h2 data-b="g6102">4. and 5.) Sorting and Picking PCAs</h2>
-  <b-fig src="fig/scree.svg" data-pool="scree" alt="Scree plot for the 26-stat football box score: the variance on each component falls quickly over the first four, then flattens, and the last four are zero" data-b="on7ak" style="--ar: 3.148;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 122" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
+  <b-fig src="fig/scree.svg" alt="Scree plot for the 26-stat football box score: the variance on each component falls quickly over the first four, then flattens, and the last four are zero" data-pool="scree" data-b="on7ak" style="--ar: 3.148;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 122" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
  <metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTozYTIxMTI0Ny0wMDE0LTRkOWYtYTRiOS0zYjQ2ZWFmNTQ1ZWYAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaFep3d0eV0HKuJJMuXdByGAAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo3NjU3MmRkMC0yYTA1LTQzM2EtODMxZC1mMmYxMDQwMmE2NzFscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoV09wfVR6YRGfWGa0Mt82+AAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggAqFCIx7Dj8LwQSQNF4rcPU4mpuaVEHNVwZuqOsjdJt+kZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaL4FYhqJMv2vPazMqEkU7PYAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIJQzS6wgU0F1uc3tVIImqFZj2Z9uIKIFFqb6CJQYL91QZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQFxZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjNhMjExMjQ3LTAwMTQtNGQ5Zi1hNGI5LTNiNDZlYWY1NDVlZi9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjg4NGExNTQwLTM3ODQtNGQ1YS05Zjc5LWQyOTgzY2YzYzJiYXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCACoUIjHsOPwvBBJA0Xitw9Tiam5pUQc1XBm6o6yN0m36JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFgg+w6DJf55PSU9MwCjL0pStx6xVl9FSAIjCwGa/F+MXyiiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFgg8cSCquWXKZFvcM/9e3j1TVupYL7rDPmIozlo9sH49ZJ0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQB/FlpcRptXgN4aFAdWYwFEZY8gjr/XXO8uIS/Es+FfqlVV9wyfZoMsj0Kiz2ghZgHvVrrbD9siGfgp2JUpT2TQ=</c2pa:manifest>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -2799,32 +2810,32 @@ z
 
 <section class="page" id="lec-project-2" data-view="slides workbook" data-topic="projection" style="--gap: 22pt;">
   <h2 data-b="kw0ku">6. Project Our Data into the PCA Space</h2>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" role="img" aria-label="The six standardized students dropped onto PC1" data-b="tobo4">
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="The six standardized students dropped onto PC1" style="width: 670.5pt" data-b="tobo4">
     <defs></defs>
-    <line x1="120.0" y1="75.0" x2="264.0" y2="75.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.60"></line>
-    <line x1="141.1" y1="125.9" x2="242.9" y2="24.1" stroke="#674EA7" stroke-width="1.60"></line>
-    <line x1="227.9" y1="25.3" x2="234.8" y2="32.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="236.6" y1="68.5" x2="217.5" y2="49.5" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="210.7" y1="46.9" x2="215.4" y2="51.6" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="167.6" y1="90.1" x2="172.2" y2="94.8" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="150.3" y1="85.8" x2="165.8" y2="101.2" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
-    <line x1="158.9" y1="133.4" x2="146.3" y2="120.7" stroke="#666666" stroke-width="0.80" stroke-dasharray="1.6 1.6"></line>
+    <line x1="120.0" y1="75.0" x2="264.0" y2="75.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="192.0" y1="147.0" x2="192.0" y2="3.0" stroke="#9AA5B1" stroke-width="0.6"></line>
+    <line x1="141.1" y1="125.9" x2="242.9" y2="24.1" stroke="#674EA7" stroke-width="1.6"></line>
+    <line x1="227.9" y1="25.3" x2="234.8" y2="32.2" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="236.6" y1="68.5" x2="217.5" y2="49.5" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="210.7" y1="46.9" x2="215.4" y2="51.6" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="167.6" y1="90.1" x2="172.2" y2="94.8" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="150.3" y1="85.8" x2="165.8" y2="101.2" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
+    <line x1="158.9" y1="133.4" x2="146.3" y2="120.7" stroke="#666666" stroke-width="0.8" stroke-dasharray="1.6 1.6"></line>
     <text x="246.5" y="20.3" font-size="8.5" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">PC1</text>
-    <ellipse cx="227.9" cy="25.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="236.6" cy="68.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="210.7" cy="46.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="167.6" cy="90.1" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="150.3" cy="85.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="158.9" cy="133.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
+    <ellipse cx="227.9" cy="25.3" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="236.6" cy="68.5" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="210.7" cy="46.9" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="167.6" cy="90.1" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="150.3" cy="85.8" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="158.9" cy="133.4" rx="2.5" ry="2.5" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
     <text x="260.6" y="70.5" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">X1</text>
     <text x="194.7" y="12.1" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">X2</text>
-    <ellipse cx="234.8" cy="32.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="217.5" cy="49.5" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="215.4" cy="51.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="172.2" cy="94.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="165.8" cy="101.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
-    <ellipse cx="146.3" cy="120.7" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></ellipse>
+    <ellipse cx="234.8" cy="32.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="217.5" cy="49.5" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="215.4" cy="51.6" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="172.2" cy="94.8" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="165.8" cy="101.2" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
+    <ellipse cx="146.3" cy="120.7" rx="2.5" ry="2.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></ellipse>
   </svg>
   
 <div class="foot" data-rt=""><span>Principal Component Analysis · Using PCA</span><span>35</span></div></section>
@@ -2859,7 +2870,7 @@ z
   <p data-b="vqlvi">Oja (<span class="num">1982</span>) showed a single neuron with a Hebbian learning rule ends up finding the first principal component of its inputs.</p>
 <div class="foot" data-rt=""><span>Principal Component Analysis · Using PCA</span><span>39</span></div></section>
 
-<section class="page" id="lec-review" data-part="Review" data-view="slides workbook" data-topic="eigen choosing-k" style="--gap: 22pt;">
+<section class="page" id="lec-review" data-view="slides workbook" data-topic="eigen choosing-k" data-part="Review" style="--gap: 22pt;">
   <h2 data-b="iw2ol">Review</h2>
   <p data-b="nel6x">Complete the review: <b class="def">Eigenvectors</b> identify <u class="fill">the directions of the principal components</u>, <b class="def">eigenvalues</b> quantify <u class="fill">how much variance each component holds</u>. A <b class="def">scree plot</b> helps us choose <u class="fill">how many components to keep</u>.</p>
   
@@ -3429,7 +3440,7 @@ L 380.16 114.8
 </b-fig><div class="ans ghost-only">Use the elbow: the eigenvalues drop sharply from component 1 (about 5.5) to component 2 (about 1.6), then level off, so keep 1 or 2. The later components explain very little variance (mostly noise), and keeping them defeats the purpose of reducing the dimensions.</div></aside>
 <div class="foot" data-rt=""><span>Principal Component Analysis · Review</span><span>45</span></div></section>
 
-<section class="page" id="lec-practice-3" data-view="slides workbook" data-topic="eigen choosing-k svd" style="--gap: 22pt;">
+<section class="page" id="lec-practice-3-2" data-view="slides workbook" data-topic="eigen choosing-k svd" style="--gap: 22pt;">
   <h2 data-b="f448p">Practice Problems, Continued</h2>
   <aside class="qc exam" data-qsrc="oldex01-16" data-b="x9wky"><b>Q56.</b> In Homework03, why did we use SVD during PCA instead of the covariance matrix?<div class="ans ghost-only">The SVD of the centered data gives the principal components directly (the right singular vectors) without ever forming the covariance matrix. Forming XᵀX is more expensive with many features and less numerically stable, so the SVD is faster and more accurate. The variances come from the singular values, σ²/(n − 1).</div></aside>
   
@@ -3835,7 +3846,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -3863,15 +3874,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -3880,6 +3937,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -3892,9 +3950,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

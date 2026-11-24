@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -1088,7 +1099,7 @@ svg.al-clone { z-index: 1; }
 
 
 
-<section class="page" id="counting-params" data-part="The Feed-Forward Network" data-view="reading" data-topic="params" style="">
+<section class="page" id="counting-params" data-view="reading" data-topic="params" data-part="The Feed-Forward Network" style="">
   <h2 data-b="ove9l">Counting Parameters</h2>
   <p data-b="c1uge">By the end of the last chapter attention had stopped being the expensive part of a block, and none of its tricks touched the other half, the <b class="name">feed-forward network</b> (FFN). So where are a model's weights? Counting them is just multiplying shapes, here at irishQwen's default (Qwen3-0.6B) shapes:</p>
   <b-code lang="python" data-b="qfxvt"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div></div><div class="src"><div class="ln"><span class="cm"># irishQwen's default shapes (Qwen3-0.6B)</span></div><div class="ln">V, d, layers = <span class="nu nn">151936</span>, <span class="nu nn">1024</span>, <span class="nu nn">28</span></div><div class="ln">q_dim, kv_dim, ffn = <span class="nu nn">16</span> * <span class="nu nn">128</span>, <span class="nu nn">8</span> * <span class="nu nn">128</span>, <span class="nu nn">3072</span></div><div class="ln"></div><div class="ln">attn = d * q_dim + <span class="nu nn">2</span> * d * kv_dim + q_dim * d</div><div class="ln">ffn_params = <span class="nu nn">3</span> * d * ffn          <span class="cm"># gate, up and down</span></div><div class="ln">embed = V * d                   <span class="cm"># shared with LM head</span></div><div class="ln"></div><div class="ln">total = layers * (attn + ffn_params) + embed</div><div class="ln"><span class="ctl">for</span> name, n <span class="kw">in</span> [(<span class="st">'attention'</span>, layers * attn),</div><div class="ln">                (<span class="st">'FFN'</span>, layers * ffn_params),</div><div class="ln">                (<span class="st">'embeddings'</span>, embed)]:</div><div class="ln">    <span class="bi">print</span>(<span class="st">f'{name:&gt;10}: {n/1e6:6.1f}M  {n/total:.0%}'</span>)</div><div class="ln"><span class="bi">print</span>(<span class="st">f'{"total":&gt;10}: {total/1e6:6.1f}M'</span>)</div></div></b-code>
@@ -1096,7 +1107,7 @@ svg.al-clone { z-index: 1; }
        FFN:  <span class="nu nn">264.2</span>M  <span class="nu nn">44</span>%
 <span class="olab">embeddings:</span>  <span class="nu nn">155.6</span>M  <span class="nu nn">26</span>%
      total:  <span class="nu nn">596.0</span>M</pre></b-out>
-  <b-fig src="fig/params-bar.svg" style="width: 100%; --ar: 5.486;" alt="Parameters: 596.0M. Attention 30%, FFN 44%, embeddings 26%. 28 blocks of attention and FFN, one embedding table shared with the LM head" data-b="v7eqv"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 70">
+  <b-fig src="fig/params-bar.svg" alt="Parameters: 596.0M. Attention 30%, FFN 44%, embeddings 26%. 28 blocks of attention and FFN, one embedding table shared with the LM head" style="width: 100%; --ar: 5.486;" data-b="v7eqv"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 70">
 <defs></defs>
 <rect width="384.0" height="70.0" fill="white"></rect>
 <text x="10.0" y="11.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Parameters: 596.0M</text>
@@ -1116,7 +1127,7 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="x42cv">Counting Compute</h2>
   <p data-b="htnw4">Memory is one cost, the other is the work it takes to produce each token. A weight that gets used costs one multiply and one add, two <b class="def">FLOPs</b> (floating point operations), so every token that goes through a block costs about twice the block's weights. Attention also has to compare the new token's query with every cached key and mix every cached value, which grows with the context.</p>
   <p data-b="s9cak">For one new token with <span class="num">1,024</span> tokens of context, irishQwen at Qwen3-0.6B's shapes does <span class="num">352.3</span> million FLOPs in the attention projections, <span class="num">234.9</span> million comparing with the cache, <span class="num">528.5</span> million in the FFNs and <span class="num">311.2</span> million in the LM head that turns the last vector into scores for all <span class="num">151,936</span> tokens:</p>
-  <b-fig src="fig/flops-bar.svg" style="width: 100%; --ar: 4.174;" alt="FLOPs for one token with 1,024 tokens of context, 1.43 GFLOPs in all: Q, K, V and O projections 25%, attention scores 16%, FFN 37%, LM head 22%" data-b="qjg1d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 92">
+  <b-fig src="fig/flops-bar.svg" alt="FLOPs for one token with 1,024 tokens of context, 1.43 GFLOPs in all: Q, K, V and O projections 25%, attention scores 16%, FFN 37%, LM head 22%" style="width: 100%; --ar: 4.174;" data-b="qjg1d"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 92">
 <defs></defs>
 <rect width="384.0" height="92.0" fill="white"></rect>
 <text x="10.0" y="11.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">FLOPs for one token, 1,024 tokens of context: 1.43 GFLOPs</text>
@@ -1144,142 +1155,149 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="ffn" data-view="reading" data-topic="ffn">
   <h2 data-b="shpsn">The Feed-Forward Network</h2>
   <p data-b="eq31m">So what is all that FFN for? Attention is the only place where tokens talk to each other. Each token comes out of it as a context-aware embedding <b-m tex="Ɛ_{CA}">Ɛ<sub>CA</sub></b-m>, and the FFN then works on <b class="take">each token's row on its own</b>, with the same weights for every token:</p>
-  <svg class="draw" viewBox="0 0 384 196" style="width: 78%" role="img" aria-label="Attention turns Friends, Romans and countrymen into three context-aware embeddings Ɛ_CA of shape 1 by 1,024. Each goes on its own through the same FFN and comes out as Z, also 1 by 1,024" data-b="nsxb8">
-  <defs><marker id="ah8E7CC3-nsxb8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path></marker><marker id="ahE06666-nsxb8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path></marker></defs>
-  <g id="ffn-block-nsxb8-s1">
-  <rect x="77.0" y="2.0" width="230.0" height="28.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="192.0" y="15.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Attention</text>
-  <text x="192.0" y="25.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">every token looks at the ones before it</text>
-  </g>
-  <g id="ffn-block-nsxb8-s2">
-  <rect x="57.0" y="49.0" width="70.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="84.6" y="65.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
-  <text x="91.2" y="68.2" font-size="6.8" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
-  <text x="92.0" y="75.8" font-size="5.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
-  </g>
-  <line x1="92.0" y1="30.0" x2="92.0" y2="49.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s1" data-b="ffn-block-nsxb8-s2"></line>
-  <g id="ffn-block-nsxb8-s3">
-  <rect x="57.0" y="98.0" width="70.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="92.0" y="111.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">FFN</text>
-  <text x="92.0" y="121.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">same weights</text>
-  </g>
-  <line x1="92.0" y1="79.0" x2="92.0" y2="98.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s2" data-b="ffn-block-nsxb8-s3"></line>
-  <g id="ffn-block-nsxb8-s4">
-  <rect x="57.0" y="145.0" width="70.0" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="92.0" y="161.1" font-size="11.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
-  <text x="92.0" y="171.8" font-size="5.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
-  </g>
-  <line x1="92.0" y1="126.0" x2="92.0" y2="145.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-nsxb8)" data-a="ffn-block-nsxb8-s3" data-b="ffn-block-nsxb8-s4"></line>
-  <text x="92.0" y="190.0" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">"Friends"</text>
-  <g id="ffn-block-nsxb8-s5">
-  <rect x="157.0" y="49.0" width="70.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="184.6" y="65.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
-  <text x="191.2" y="68.2" font-size="6.8" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
-  <text x="192.0" y="75.8" font-size="5.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
-  </g>
-  <line x1="192.0" y1="30.0" x2="192.0" y2="49.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s1" data-b="ffn-block-nsxb8-s5"></line>
-  <g id="ffn-block-nsxb8-s6">
-  <rect x="157.0" y="98.0" width="70.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="192.0" y="111.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">FFN</text>
-  <text x="192.0" y="121.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">same weights</text>
-  </g>
-  <line x1="192.0" y1="79.0" x2="192.0" y2="98.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s5" data-b="ffn-block-nsxb8-s6"></line>
-  <g id="ffn-block-nsxb8-s7">
-  <rect x="157.0" y="145.0" width="70.0" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="192.0" y="161.1" font-size="11.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
-  <text x="192.0" y="171.8" font-size="5.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
-  </g>
-  <line x1="192.0" y1="126.0" x2="192.0" y2="145.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-nsxb8)" data-a="ffn-block-nsxb8-s6" data-b="ffn-block-nsxb8-s7"></line>
-  <text x="192.0" y="190.0" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">"Romans"</text>
-  <g id="ffn-block-nsxb8-s8">
-  <rect x="257.0" y="49.0" width="70.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="284.6" y="65.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
-  <text x="291.2" y="68.2" font-size="6.8" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
-  <text x="292.0" y="75.8" font-size="5.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
-  </g>
-  <line x1="292.0" y1="30.0" x2="292.0" y2="49.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s1" data-b="ffn-block-nsxb8-s8"></line>
-  <g id="ffn-block-nsxb8-s9">
-  <rect x="257.0" y="98.0" width="70.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="292.0" y="111.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">FFN</text>
-  <text x="292.0" y="121.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">same weights</text>
-  </g>
-  <line x1="292.0" y1="79.0" x2="292.0" y2="98.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s8" data-b="ffn-block-nsxb8-s9"></line>
-  <g id="ffn-block-nsxb8-s10">
-  <rect x="257.0" y="145.0" width="70.0" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="292.0" y="161.1" font-size="11.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
-  <text x="292.0" y="171.8" font-size="5.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
-  </g>
-  <line x1="292.0" y1="126.0" x2="292.0" y2="145.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-nsxb8)" data-a="ffn-block-nsxb8-s9" data-b="ffn-block-nsxb8-s10"></line>
-  <text x="292.0" y="190.0" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">"countrymen"</text>
-  <text x="10.0" y="116.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">one row</text>
-  <text x="10.0" y="125.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">at a time</text>
+  <svg class="draw" viewBox="0 0 384 196" role="img" aria-label="Attention turns Friends, Romans and countrymen into three context-aware embeddings Ɛ_CA of shape 1 by 1,024. Each goes on its own through the same FFN and comes out as Z, also 1 by 1,024" style="width: 78%" data-b="nsxb8">
+    <defs>
+      <marker id="ah8E7CC3-nsxb8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
+      <marker id="ahE06666-nsxb8" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
+      </marker>
+    </defs>
+    <g id="ffn-block-nsxb8-s1">
+      <rect x="77.0" y="2.0" width="230.0" height="28.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="192.0" y="15.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Attention</text>
+      <text x="192.0" y="25.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">every token looks at the ones before it</text>
+    </g>
+    <g id="ffn-block-nsxb8-s2">
+      <rect x="57.0" y="49.0" width="70.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="84.6" y="65.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
+      <text x="91.2" y="68.2" font-size="6.8" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
+      <text x="92.0" y="75.8" font-size="5.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
+    </g>
+    <line x1="92.0" y1="30.0" x2="92.0" y2="49.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s1" data-b="ffn-block-nsxb8-s2"></line>
+    <g id="ffn-block-nsxb8-s3">
+      <rect x="57.0" y="98.0" width="70.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="92.0" y="111.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">FFN</text>
+      <text x="92.0" y="121.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">same weights</text>
+    </g>
+    <line x1="92.0" y1="79.0" x2="92.0" y2="98.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s2" data-b="ffn-block-nsxb8-s3"></line>
+    <g id="ffn-block-nsxb8-s4">
+      <rect x="57.0" y="145.0" width="70.0" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="92.0" y="161.1" font-size="11.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
+      <text x="92.0" y="171.8" font-size="5.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
+    </g>
+    <line x1="92.0" y1="126.0" x2="92.0" y2="145.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-nsxb8)" data-a="ffn-block-nsxb8-s3" data-b="ffn-block-nsxb8-s4"></line>
+    <text x="92.0" y="190.0" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">"Friends"</text>
+    <g id="ffn-block-nsxb8-s5">
+      <rect x="157.0" y="49.0" width="70.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="184.6" y="65.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
+      <text x="191.2" y="68.2" font-size="6.8" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
+      <text x="192.0" y="75.8" font-size="5.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
+    </g>
+    <line x1="192.0" y1="30.0" x2="192.0" y2="49.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s1" data-b="ffn-block-nsxb8-s5"></line>
+    <g id="ffn-block-nsxb8-s6">
+      <rect x="157.0" y="98.0" width="70.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="192.0" y="111.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">FFN</text>
+      <text x="192.0" y="121.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">same weights</text>
+    </g>
+    <line x1="192.0" y1="79.0" x2="192.0" y2="98.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s5" data-b="ffn-block-nsxb8-s6"></line>
+    <g id="ffn-block-nsxb8-s7">
+      <rect x="157.0" y="145.0" width="70.0" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="192.0" y="161.1" font-size="11.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
+      <text x="192.0" y="171.8" font-size="5.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
+    </g>
+    <line x1="192.0" y1="126.0" x2="192.0" y2="145.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-nsxb8)" data-a="ffn-block-nsxb8-s6" data-b="ffn-block-nsxb8-s7"></line>
+    <text x="192.0" y="190.0" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">"Romans"</text>
+    <g id="ffn-block-nsxb8-s8">
+      <rect x="257.0" y="49.0" width="70.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="284.6" y="65.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
+      <text x="291.2" y="68.2" font-size="6.8" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
+      <text x="292.0" y="75.8" font-size="5.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
+    </g>
+    <line x1="292.0" y1="30.0" x2="292.0" y2="49.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s1" data-b="ffn-block-nsxb8-s8"></line>
+    <g id="ffn-block-nsxb8-s9">
+      <rect x="257.0" y="98.0" width="70.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="292.0" y="111.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">FFN</text>
+      <text x="292.0" y="121.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">same weights</text>
+    </g>
+    <line x1="292.0" y1="79.0" x2="292.0" y2="98.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-nsxb8)" data-a="ffn-block-nsxb8-s8" data-b="ffn-block-nsxb8-s9"></line>
+    <g id="ffn-block-nsxb8-s10">
+      <rect x="257.0" y="145.0" width="70.0" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="292.0" y="161.1" font-size="11.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
+      <text x="292.0" y="171.8" font-size="5.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 1024&gt;</text>
+    </g>
+    <line x1="292.0" y1="126.0" x2="292.0" y2="145.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-nsxb8)" data-a="ffn-block-nsxb8-s9" data-b="ffn-block-nsxb8-s10"></line>
+    <text x="292.0" y="190.0" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">"countrymen"</text>
+    <text x="10.0" y="116.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">one row</text>
+    <text x="10.0" y="125.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">at a time</text>
   </svg>
-  <p data-b="zi0qo">Pictured above are the first words of Antony's speech in <i>Julius Caesar</i>, our example for the rest of the chapter. </p>
+  <p data-b="zi0qo">Pictured above are the first words of Antony's speech in <i>Julius Caesar</i>, our example for the rest of the chapter.</p>
   <p data-b="zbacm">It turns out the FFN is where a lot of what a model "knows" seems to live. Geva and colleagues (2021) found that each FFN hidden unit acts like a small memory, switching on for certain patterns in the text and pushing the prediction toward the words that tend to follow. Later studies changed single facts a model recalls by editing FFN weights (Meng and colleagues, 2022). Nobody can point at the one unit that knows Brutus stabbed Caesar, but this is why bigger models mostly mean bigger FFNs.</p>
 <div class="foot" data-rt=""><span>Mixture of Experts · The Feed-Forward Network</span><span>04</span></div></section>
 
 <section class="page" id="swiglu" data-view="reading" data-topic="ffn swiglu">
   <h2 data-b="uclsb">SwiGLU</h2>
   <p data-b="ektk4">irishQwen's FFN is a <b class="name">SwiGLU</b> (the class in <span class="mono">swiglu.py</span>), the same one Qwen3, Llama and Mistral use. It has three weight matrices and no biases. Two of them take the token up to the hidden size, one through a SiLU (the "gate") and one left alone (the "up"), and the two are multiplied number by number. The third, <b-m tex="Ω_{down}"><span class="c wblue sym" data-at="0,8" data-k="Ω_down"><span class="Om">ω</span><sub>down</sub></span></b-m>, brings the result back down (the shapes below are those of the smaller model we use from here on):</p>
-  <svg class="draw" viewBox="0 0 384 110" style="width: 100%" role="img" aria-label="H of shape 1 by 768 equals SiLU of Ɛ_CA times Ω_gate, multiplied number by number with Ɛ_CA times Ω_up. Then Z of shape 1 by 256 equals H times Ω_down of shape 768 by 256" data-b="gdjig">
-  <defs></defs>
-  <g id="swiglu-gdjig-s1">
-  <rect x="4.0" y="12.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="15.5" y="25.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">H</text>
-  <text x="15.5" y="32.3" font-size="3.9" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 768&gt;</text>
-  </g>
-  <text x="36.3" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <text x="44.5" y="27.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">SiLU(</text>
-  <g id="swiglu-gdjig-s2">
-  <rect x="76.5" y="12.5" width="28.6" height="23.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="84.1" y="25.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
-  <text x="90.1" y="27.8" font-size="6.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
-  <text x="90.8" y="32.3" font-size="3.9" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <text x="114.4" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="swiglu-gdjig-s3">
-  <rect x="120.6" y="12.5" width="50.0" height="23.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="135.2" y="25.0" font-size="10.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
-  <text x="141.2" y="27.8" font-size="6.2" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">gate</text>
-  <text x="145.6" y="32.3" font-size="3.9" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;256, 768&gt;</text>
-  </g>
-  <text x="179.9" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
-  <text x="192.4" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">⊙</text>
-  <text x="204.9" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">(</text>
-  <g id="swiglu-gdjig-s4">
-  <rect x="211.1" y="12.5" width="28.6" height="23.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="218.7" y="25.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
-  <text x="224.7" y="27.8" font-size="6.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
-  <text x="225.4" y="32.3" font-size="3.9" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <text x="249.0" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="swiglu-gdjig-s5">
-  <rect x="255.3" y="12.5" width="44.0" height="23.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="270.5" y="25.0" font-size="10.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
-  <text x="276.5" y="27.8" font-size="6.2" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">up</text>
-  <text x="277.3" y="32.3" font-size="3.9" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;256, 768&gt;</text>
-  </g>
-  <text x="308.5" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
-  <g id="swiglu-gdjig-s6">
-  <rect x="4.0" y="68.5" width="23.0" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="15.5" y="81.0" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
-  <text x="15.5" y="88.3" font-size="3.9" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <text x="36.3" y="83.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="swiglu-gdjig-s7">
-  <rect x="42.5" y="68.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="54.0" y="81.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">H</text>
-  <text x="54.0" y="88.3" font-size="3.9" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 768&gt;</text>
-  </g>
-  <text x="74.8" y="83.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="swiglu-gdjig-s8">
-  <rect x="81.0" y="68.5" width="50.0" height="23.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="95.6" y="81.0" font-size="10.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
-  <text x="101.6" y="83.8" font-size="6.2" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">down</text>
-  <text x="106.0" y="88.3" font-size="3.9" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;768, 256&gt;</text>
-  </g>
-  <text x="200.0" y="76.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">gate: how much</text>
-  <text x="200.0" y="86.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">up: what to let through</text>
+  <svg class="draw" viewBox="0 0 384 110" role="img" aria-label="H of shape 1 by 768 equals SiLU of Ɛ_CA times Ω_gate, multiplied number by number with Ɛ_CA times Ω_up. Then Z of shape 1 by 256 equals H times Ω_down of shape 768 by 256" style="width: 100%" data-b="gdjig">
+    <defs></defs>
+    <g id="swiglu-gdjig-s1">
+      <rect x="4.0" y="12.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="15.5" y="25.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">H</text>
+      <text x="15.5" y="32.3" font-size="3.9" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 768&gt;</text>
+    </g>
+    <text x="36.3" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <text x="44.5" y="27.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">SiLU(</text>
+    <g id="swiglu-gdjig-s2">
+      <rect x="76.5" y="12.5" width="28.6" height="23.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="84.1" y="25.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
+      <text x="90.1" y="27.8" font-size="6.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
+      <text x="90.8" y="32.3" font-size="3.9" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <text x="114.4" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="swiglu-gdjig-s3">
+      <rect x="120.6" y="12.5" width="50.0" height="23.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="135.2" y="25.0" font-size="10.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
+      <text x="141.2" y="27.8" font-size="6.2" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">gate</text>
+      <text x="145.6" y="32.3" font-size="3.9" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;256, 768&gt;</text>
+    </g>
+    <text x="179.9" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
+    <text x="192.4" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">⊙</text>
+    <text x="204.9" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">(</text>
+    <g id="swiglu-gdjig-s4">
+      <rect x="211.1" y="12.5" width="28.6" height="23.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="218.7" y="25.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
+      <text x="224.7" y="27.8" font-size="6.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
+      <text x="225.4" y="32.3" font-size="3.9" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <text x="249.0" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="swiglu-gdjig-s5">
+      <rect x="255.3" y="12.5" width="44.0" height="23.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="270.5" y="25.0" font-size="10.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
+      <text x="276.5" y="27.8" font-size="6.2" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">up</text>
+      <text x="277.3" y="32.3" font-size="3.9" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;256, 768&gt;</text>
+    </g>
+    <text x="308.5" y="27.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">)</text>
+    <g id="swiglu-gdjig-s6">
+      <rect x="4.0" y="68.5" width="23.0" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="15.5" y="81.0" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
+      <text x="15.5" y="88.3" font-size="3.9" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <text x="36.3" y="83.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="swiglu-gdjig-s7">
+      <rect x="42.5" y="68.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="54.0" y="81.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">H</text>
+      <text x="54.0" y="88.3" font-size="3.9" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 768&gt;</text>
+    </g>
+    <text x="74.8" y="83.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="swiglu-gdjig-s8">
+      <rect x="81.0" y="68.5" width="50.0" height="23.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="95.6" y="81.0" font-size="10.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
+      <text x="101.6" y="83.8" font-size="6.2" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">down</text>
+      <text x="106.0" y="88.3" font-size="3.9" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;768, 256&gt;</text>
+    </g>
+    <text x="200.0" y="76.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">gate: how much</text>
+    <text x="200.0" y="86.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">up: what to let through</text>
   </svg>
   <p data-b="g1sd5">The gate is what makes it more than two linear layers. SiLU of a very negative number is about zero, so for each hidden unit the gate branch decides <b class="take">how much of the up branch gets through</b>.</p>
   <p data-b="cbfik">From here on we'll use the class's Shakespeare model, which keeps Qwen3's design at a size we can run in the browser: <span class="num">256</span> numbers per token and <span class="num">768</span> hidden units. Our weights are random (initialized the way irishQwen's <span class="mono">LinearLayer</span> does it), and like <span class="mono">LinearLayer</span> each matrix is stored as (out, in), hence the <span class="mono">.T</span> in the code on the next page.</p>
@@ -1294,130 +1312,134 @@ svg.al-clone { z-index: 1; }
   <p data-b="gu43u">One token in, one token out, the same shape, and <span class="num">589,824</span> weights used along the way. That's one block's FFN, for one token, in a small model.</p>
 <div class="foot" data-rt=""><span>Mixture of Experts · The Feed-Forward Network</span><span>06</span></div></section>
 
-<section class="page" id="experts" data-part="Experts" data-view="reading" data-topic="experts">
+<section class="page" id="experts" data-view="reading" data-topic="experts" data-part="Experts">
   <h2 data-b="u0enr">Experts</h2>
   <p data-b="lir93">Each hidden unit uses only its own row of the gate and up weights and its own column of <b-m tex="Ω_{down}"><span class="c wblue sym" data-at="0,8" data-k="Ω_down"><span class="Om">ω</span><sub>down</sub></span></b-m>, and never looks at another unit. So we can cut them into groups, run each group as a small SwiGLU, and add the results:</p>
-  <svg class="draw" viewBox="0 0 384 119" style="width: 94%" role="img" aria-label="The 768 hidden units cut into eight groups of 96, E1 to E8, each producing its own Z of shape 1 by 256, and Z = Z_E1 + Z_E2 + … + Z_E8" data-b="vchnz">
-  <defs><marker id="ah8E7CC3-vchnz" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path></marker></defs>
-  <text x="12.0" y="101.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">H: 768 hidden units</text>
-  <g id="experts-split-vchnz-s1">
-  <rect x="12.0" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="32.8" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E1</text>
-  <text x="32.8" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
-  </g>
-  <line x1="32.8" y1="35.0" x2="32.8" y2="47.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s1" data-b="experts-split-vchnz-s2"></line>
-  <g id="experts-split-vchnz-s2">
-  <rect x="12.0" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="26.7" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="32.1" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E1</text>
-  <text x="32.8" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <g id="experts-split-vchnz-s3">
-  <rect x="57.5" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="78.2" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E2</text>
-  <text x="78.2" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
-  </g>
-  <line x1="78.2" y1="35.0" x2="78.2" y2="47.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s3" data-b="experts-split-vchnz-s4"></line>
-  <g id="experts-split-vchnz-s4">
-  <rect x="57.5" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="72.2" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="77.6" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E2</text>
-  <text x="78.2" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <g id="experts-split-vchnz-s5">
-  <rect x="103.0" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="123.8" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E3</text>
-  <text x="123.8" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
-  </g>
-  <line x1="123.8" y1="35.0" x2="123.8" y2="47.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s5" data-b="experts-split-vchnz-s6"></line>
-  <g id="experts-split-vchnz-s6">
-  <rect x="103.0" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="117.7" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="123.1" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E3</text>
-  <text x="123.8" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <g id="experts-split-vchnz-s7">
-  <rect x="148.5" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="169.2" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E4</text>
-  <text x="169.2" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
-  </g>
-  <line x1="169.2" y1="35.0" x2="169.2" y2="47.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s7" data-b="experts-split-vchnz-s8"></line>
-  <g id="experts-split-vchnz-s8">
-  <rect x="148.5" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="163.2" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="168.6" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E4</text>
-  <text x="169.2" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <g id="experts-split-vchnz-s9">
-  <rect x="194.0" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="214.8" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E5</text>
-  <text x="214.8" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
-  </g>
-  <line x1="214.8" y1="35.0" x2="214.8" y2="47.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s9" data-b="experts-split-vchnz-s10"></line>
-  <g id="experts-split-vchnz-s10">
-  <rect x="194.0" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="208.7" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="214.1" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E5</text>
-  <text x="214.8" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <g id="experts-split-vchnz-s11">
-  <rect x="239.5" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="260.2" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E6</text>
-  <text x="260.2" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
-  </g>
-  <line x1="260.2" y1="35.0" x2="260.2" y2="47.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s11" data-b="experts-split-vchnz-s12"></line>
-  <g id="experts-split-vchnz-s12">
-  <rect x="239.5" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="254.2" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="259.6" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E6</text>
-  <text x="260.2" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <g id="experts-split-vchnz-s13">
-  <rect x="285.0" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="305.8" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E7</text>
-  <text x="305.8" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
-  </g>
-  <line x1="305.8" y1="35.0" x2="305.8" y2="47.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s13" data-b="experts-split-vchnz-s14"></line>
-  <g id="experts-split-vchnz-s14">
-  <rect x="285.0" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="299.7" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="305.1" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E7</text>
-  <text x="305.8" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <g id="experts-split-vchnz-s15">
-  <rect x="330.5" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="351.2" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E8</text>
-  <text x="351.2" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
-  </g>
-  <line x1="351.2" y1="35.0" x2="351.2" y2="47.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s15" data-b="experts-split-vchnz-s16"></line>
-  <g id="experts-split-vchnz-s16">
-  <rect x="330.5" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="345.2" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="350.6" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E8</text>
-  <text x="351.2" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <g id="experts-split-vchnz-s17">
-  <rect x="120.0" y="91.5" width="23.0" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="131.5" y="106.6" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
-  </g>
-  <text x="152.3" y="106.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="experts-split-vchnz-s18">
-  <rect x="158.5" y="91.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="166.1" y="106.6" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="172.1" y="109.4" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E1</text>
-  </g>
-  <text x="196.4" y="106.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
-  <g id="experts-split-vchnz-s19">
-  <rect x="202.6" y="91.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="210.2" y="106.6" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="216.2" y="109.4" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E2</text>
-  </g>
-  <text x="251.2" y="106.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+ … +</text>
-  <g id="experts-split-vchnz-s20">
-  <rect x="268.2" y="91.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="275.8" y="106.6" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="281.8" y="109.4" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E8</text>
-  </g>
+  <svg class="draw" viewBox="0 0 384 119" role="img" aria-label="The 768 hidden units cut into eight groups of 96, E1 to E8, each producing its own Z of shape 1 by 256, and Z = Z_E1 + Z_E2 + … + Z_E8" style="width: 94%" data-b="vchnz">
+    <defs>
+      <marker id="ah8E7CC3-vchnz" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
+    </defs>
+    <text x="12.0" y="101.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">H: 768 hidden units</text>
+    <g id="experts-split-vchnz-s1">
+      <rect x="12.0" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="32.8" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E1</text>
+      <text x="32.8" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
+    </g>
+    <line x1="32.8" y1="35.0" x2="32.8" y2="47.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s1" data-b="experts-split-vchnz-s2"></line>
+    <g id="experts-split-vchnz-s2">
+      <rect x="12.0" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="26.7" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="32.1" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E1</text>
+      <text x="32.8" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <g id="experts-split-vchnz-s3">
+      <rect x="57.5" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="78.2" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E2</text>
+      <text x="78.2" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
+    </g>
+    <line x1="78.2" y1="35.0" x2="78.2" y2="47.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s3" data-b="experts-split-vchnz-s4"></line>
+    <g id="experts-split-vchnz-s4">
+      <rect x="57.5" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="72.2" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="77.6" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E2</text>
+      <text x="78.2" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <g id="experts-split-vchnz-s5">
+      <rect x="103.0" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="123.8" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E3</text>
+      <text x="123.8" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
+    </g>
+    <line x1="123.8" y1="35.0" x2="123.8" y2="47.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s5" data-b="experts-split-vchnz-s6"></line>
+    <g id="experts-split-vchnz-s6">
+      <rect x="103.0" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="117.7" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="123.1" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E3</text>
+      <text x="123.8" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <g id="experts-split-vchnz-s7">
+      <rect x="148.5" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="169.2" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E4</text>
+      <text x="169.2" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
+    </g>
+    <line x1="169.2" y1="35.0" x2="169.2" y2="47.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s7" data-b="experts-split-vchnz-s8"></line>
+    <g id="experts-split-vchnz-s8">
+      <rect x="148.5" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="163.2" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="168.6" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E4</text>
+      <text x="169.2" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <g id="experts-split-vchnz-s9">
+      <rect x="194.0" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="214.8" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E5</text>
+      <text x="214.8" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
+    </g>
+    <line x1="214.8" y1="35.0" x2="214.8" y2="47.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s9" data-b="experts-split-vchnz-s10"></line>
+    <g id="experts-split-vchnz-s10">
+      <rect x="194.0" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="208.7" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="214.1" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E5</text>
+      <text x="214.8" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <g id="experts-split-vchnz-s11">
+      <rect x="239.5" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="260.2" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E6</text>
+      <text x="260.2" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
+    </g>
+    <line x1="260.2" y1="35.0" x2="260.2" y2="47.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s11" data-b="experts-split-vchnz-s12"></line>
+    <g id="experts-split-vchnz-s12">
+      <rect x="239.5" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="254.2" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="259.6" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E6</text>
+      <text x="260.2" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <g id="experts-split-vchnz-s13">
+      <rect x="285.0" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="305.8" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E7</text>
+      <text x="305.8" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
+    </g>
+    <line x1="305.8" y1="35.0" x2="305.8" y2="47.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s13" data-b="experts-split-vchnz-s14"></line>
+    <g id="experts-split-vchnz-s14">
+      <rect x="285.0" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="299.7" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="305.1" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E7</text>
+      <text x="305.8" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <g id="experts-split-vchnz-s15">
+      <rect x="330.5" y="4.0" width="41.5" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="351.2" y="20.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E8</text>
+      <text x="351.2" y="30.8" font-size="5.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">96 units</text>
+    </g>
+    <line x1="351.2" y1="35.0" x2="351.2" y2="47.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-vchnz)" data-a="experts-split-vchnz-s15" data-b="experts-split-vchnz-s16"></line>
+    <g id="experts-split-vchnz-s16">
+      <rect x="330.5" y="48.0" width="41.5" height="30.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="345.2" y="63.9" font-size="9.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="350.6" y="66.4" font-size="5.6" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E8</text>
+      <text x="351.2" y="74.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <g id="experts-split-vchnz-s17">
+      <rect x="120.0" y="91.5" width="23.0" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="131.5" y="106.6" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
+    </g>
+    <text x="152.3" y="106.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="experts-split-vchnz-s18">
+      <rect x="158.5" y="91.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="166.1" y="106.6" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="172.1" y="109.4" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E1</text>
+    </g>
+    <text x="196.4" y="106.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
+    <g id="experts-split-vchnz-s19">
+      <rect x="202.6" y="91.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="210.2" y="106.6" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="216.2" y="109.4" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E2</text>
+    </g>
+    <text x="251.2" y="106.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+ … +</text>
+    <g id="experts-split-vchnz-s20">
+      <rect x="268.2" y="91.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="275.8" y="106.6" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="281.8" y="109.4" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E8</text>
+    </g>
   </svg>
   <b-code lang="python" chain="" data-b="nyd50"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div></div><div class="src"><div class="ln">n_experts = <span class="nu nn">8</span></div><div class="ln">size = ffn_dim // n_experts     <span class="cm"># 96 hidden units each</span></div><div class="ln"></div><div class="ln"><span class="kw">def</span> <span class="def">expert</span>(i, <span class="cc red">x</span>):</div><div class="ln">    rows = slice(i * size, (i + <span class="nu nn">1</span>) * size)</div><div class="ln">    <span class="cc gold">h</span> = F.silu(<span class="cc red">x</span> @ W_gate[rows].T) * (<span class="cc red">x</span> @ W_up[rows].T)</div><div class="ln">    <span class="ctl">return</span> <span class="cc gold">h</span> @ W_down[:, rows].T</div><div class="ln"></div><div class="ln">z_all = <span class="bi">sum</span>(expert(i, <span class="cc red">x</span>) <span class="ctl">for</span> i <span class="kw">in</span> <span class="bi">range</span>(n_experts))</div><div class="ln"><span class="bi">print</span>(<span class="st">'size of each expert:'</span>, size)</div><div class="ln"><span class="bi">print</span>(<span class="st">'biggest difference:'</span>, (z_all - <span class="cc purple">z</span>).abs().max())</div></div></b-code>
   <b-out data-b="c9pih"><div class="label">Output</div><pre><span class="olab">size of each expert:</span> <span class="nu nn">96</span>
@@ -1432,68 +1454,68 @@ svg.al-clone { z-index: 1; }
   <b-out data-b="iccpb"><div class="label">Output</div><pre><span class="olab">per expert:</span> <span class="nu nn">73728</span>
 <span class="olab">total:</span>      <span class="nu nn">589824</span>
 <span class="olab">active:</span>     <span class="nu nn">147456</span></pre></b-out>
-  <svg class="draw" viewBox="0 0 384 96" style="width: 90%" role="img" aria-label="Dense FFN: 589,824 parameters, all 589,824 active. Eight experts with two in use: 589,824 parameters, 147,456 active" data-b="xw7z6">
-  <defs></defs>
-  <g id="dense-vs-moe-xw7z6-s1">
-  <rect x="11.0" y="12.0" width="130.0" height="36.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="76.0" y="34.0" font-size="11.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Dense FFN</text>
-  </g>
-  <text x="76.0" y="68.0" font-size="8.5" fill="#555555" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">params 589,824</text>
-  <text x="76.0" y="82.0" font-size="8.5" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">active 589,824</text>
-  <g id="dense-vs-moe-xw7z6-s2">
-  <rect x="170.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="2.20"></rect>
-  <text x="181.0" y="28.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="181.0" y="39.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
-  </g>
-  <g id="dense-vs-moe-xw7z6-s3">
-  <rect x="196.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="207.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="207.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">2</text>
-  </g>
-  <g id="dense-vs-moe-xw7z6-s4">
-  <rect x="222.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="233.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="233.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">3</text>
-  </g>
-  <g id="dense-vs-moe-xw7z6-s5">
-  <rect x="248.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="259.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="259.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">4</text>
-  </g>
-  <g id="dense-vs-moe-xw7z6-s6">
-  <rect x="274.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="285.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="285.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">5</text>
-  </g>
-  <g id="dense-vs-moe-xw7z6-s7">
-  <rect x="300.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="311.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="311.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">6</text>
-  </g>
-  <g id="dense-vs-moe-xw7z6-s8">
-  <rect x="326.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="2.20"></rect>
-  <text x="337.0" y="28.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="337.0" y="39.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">7</text>
-  </g>
-  <g id="dense-vs-moe-xw7z6-s9">
-  <rect x="352.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="363.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="363.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">8</text>
-  </g>
-  <text x="274.0" y="68.0" font-size="8.5" fill="#555555" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">params 589,824</text>
-  <text x="274.0" y="82.0" font-size="8.5" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">active 147,456</text>
+  <svg class="draw" viewBox="0 0 384 96" role="img" aria-label="Dense FFN: 589,824 parameters, all 589,824 active. Eight experts with two in use: 589,824 parameters, 147,456 active" style="width: 90%" data-b="xw7z6">
+    <defs></defs>
+    <g id="dense-vs-moe-xw7z6-s1">
+      <rect x="11.0" y="12.0" width="130.0" height="36.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="76.0" y="34.0" font-size="11.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Dense FFN</text>
+    </g>
+    <text x="76.0" y="68.0" font-size="8.5" fill="#555555" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">params 589,824</text>
+    <text x="76.0" y="82.0" font-size="8.5" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">active 589,824</text>
+    <g id="dense-vs-moe-xw7z6-s2">
+      <rect x="170.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="2.2"></rect>
+      <text x="181.0" y="28.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="181.0" y="39.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
+    </g>
+    <g id="dense-vs-moe-xw7z6-s3">
+      <rect x="196.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="207.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="207.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">2</text>
+    </g>
+    <g id="dense-vs-moe-xw7z6-s4">
+      <rect x="222.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="233.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="233.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">3</text>
+    </g>
+    <g id="dense-vs-moe-xw7z6-s5">
+      <rect x="248.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="259.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="259.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">4</text>
+    </g>
+    <g id="dense-vs-moe-xw7z6-s6">
+      <rect x="274.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="285.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="285.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">5</text>
+    </g>
+    <g id="dense-vs-moe-xw7z6-s7">
+      <rect x="300.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="311.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="311.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">6</text>
+    </g>
+    <g id="dense-vs-moe-xw7z6-s8">
+      <rect x="326.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="2.2"></rect>
+      <text x="337.0" y="28.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="337.0" y="39.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">7</text>
+    </g>
+    <g id="dense-vs-moe-xw7z6-s9">
+      <rect x="352.0" y="12.0" width="22.0" height="36.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="363.0" y="28.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="363.0" y="39.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">8</text>
+    </g>
+    <text x="274.0" y="68.0" font-size="8.5" fill="#555555" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">params 589,824</text>
+    <text x="274.0" y="82.0" font-size="8.5" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">active 147,456</text>
   </svg>
   <p data-b="sfaqk">With two experts per token the layer still has all <span class="num">589,824</span> weights, but <b class="take">each token only uses a quarter of them</b>. A layer where every weight is used for every token is <b class="def">dense</b>, one where each token uses only a few pieces is <b class="def">sparse</b>, and a sparse FFN built from experts is a <b class="name">Mixture of Experts</b> (MoE).</p>
   <p data-b="y9xqr">We can't do this to an FFN that was trained dense, skip six of its eight groups and the output is just wrong. An MoE is trained this way from the start, so each expert learns to be useful on its own. Which leaves the question of which experts each token gets.</p>
 <div class="foot" data-rt=""><span>Mixture of Experts · Experts</span><span>08</span></div></section>
 
-<section class="page" id="router" data-part="Routing" data-view="reading" data-topic="router" style="">
+<section class="page" id="router" data-view="reading" data-topic="router" data-part="Routing" style="">
   <h2 data-b="ax0yb">The Router</h2>
   <p data-b="xwk5r">The choice is made by one more small linear layer, the <b class="def">router</b>. Its weights <b-m tex="Ω_R"><span class="c wblue sym" data-at="0,3" data-k="Ω_R"><span class="Om">ω</span><sub>R</sub></span></b-m> turn a token's <b-m tex="Ɛ_{CA}">Ɛ<sub>CA</sub></b-m> into one score per expert, <b-m tex="S = Ɛ_{CA} @ Ω_R">S = Ɛ<sub>CA</sub> @ <span class="c wblue sym" data-at="13,16" data-k="Ω_R"><span class="Om">ω</span><sub>R</sub></span></b-m>, and a higher score means "send me here". For our model <b-m tex="Ω_R"><span class="c wblue sym" data-at="0,3" data-k="Ω_R"><span class="Om">ω</span><sub>R</sub></span></b-m> is <span class="num">256</span> by <span class="num">8</span>, only <span class="num">2,048</span> weights.</p>
   <p data-b="g76pn">With no trained attention layer, a random row stands in for each token's <b-m tex="Ɛ_{CA}">Ɛ<sub>CA</sub></b-m> (one per token in the <span class="num">512</span>-token Shakespeare vocabulary). Token <span class="num">350</span> is " your":</p>
   <b-code lang="python" chain="" data-b="d1jms"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div><div class="src"><div class="ln">E = torch.randn(<span class="nu nn">512</span>, d_model)   <span class="cm"># one row per token</span></div><div class="ln">W_R = init(n_experts, d_model)  <span class="cm"># the router</span></div><div class="ln"></div><div class="ln"><span class="cc red">x</span> = E[[<span class="nu nn">350</span>]]                    <span class="cm"># token 350 is " your"</span></div><div class="ln">s = <span class="cc red">x</span> @ W_R.T                   <span class="cm"># one score per expert</span></div><div class="ln"><span class="bi">print</span>(s)</div></div></b-code>
   <b-out data-b="bviy5"><div class="label">Output</div><pre><span class="ow">tensor</span>([[ <span class="nu nn">0.75</span>, <span class="nu nn">-1.83</span>, <span class="nu nn">-3.04</span>,  <span class="nu nn">0.23</span>, <span class="nu nn">-2.95</span>, <span class="nu nn">-0.90</span>,  <span class="nu nn">0.66</span>, <span class="nu nn">-0.60</span>]])</pre></b-out>
-  <b-fig src="fig/scores-your.svg" style="width: 84%; --ar: 2.560;" alt="The eight routing scores for &quot; your&quot;: E1 0.75, E2 −1.83, E3 −3.04, E4 0.23, E5 −2.95, E6 −0.90, E7 0.66, E8 −0.60. The two largest, E1 and E7, are in gold" data-b="mx87o"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 150">
+  <b-fig src="fig/scores-your.svg" alt="The eight routing scores for &quot; your&quot;: E1 0.75, E2 −1.83, E3 −3.04, E4 0.23, E5 −2.95, E6 −0.90, E7 0.66, E8 −0.60. The two largest, E1 and E7, are in gold" style="width: 84%; --ar: 2.560;" data-b="mx87o"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 150">
 <defs></defs>
 <rect width="384.0" height="150.0" fill="white"></rect>
 <path d="M14.0 78.0 L372.0 78.0" fill="none" stroke="#000000" stroke-width="1.00"></path>
@@ -1530,7 +1552,7 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="t4dz8">Top-k Gating</h2>
   <p data-b="msl3o">We keep the <b-m tex="k">k</b-m> largest scores with <span class="mono">topk</span> and turn just those into weights that add to one with a softmax. These are the <b class="def">gates</b> <b-m tex="g">g</b-m>, how much each chosen expert counts:</p>
   <b-eq data-b="p7an3" class="">
-  <eq-row>g = \mathrm{softmax}\bp{\mathrm{top}_k(S)}</eq-row>
+    <eq-row>g = \mathrm{softmax}\bp{\mathrm{top}_k(S)}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mi mathvariant="normal">g</mi><mo>=</mo><mpadded lspace="0"><mi mathvariant="normal">softmax</mi></mpadded><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><msub><mpadded lspace="0"><mi mathvariant="normal">top</mi></mpadded><mi mathvariant="normal">k</mi></msub><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mi mathvariant="normal">S</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div></div></div></b-eq>
   <b-code lang="python" chain="" data-b="mzzw9"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div></div><div class="src"><div class="ln">top_s, top = torch.topk(s, k)</div><div class="ln">g = torch.softmax(top_s, dim=-<span class="nu nn">1</span>)</div><div class="ln"><span class="bi">print</span>(<span class="st">'experts:'</span>, top + <span class="nu nn">1</span>)      <span class="cm"># E1 ... E8</span></div><div class="ln"><span class="bi">print</span>(<span class="st">'gates:'</span>, g)</div><div class="ln"></div><div class="ln">p = torch.softmax(s, dim=-<span class="nu nn">1</span>)    <span class="cm"># all 8, then rescale</span></div><div class="ln"><span class="bi">print</span>(<span class="st">'same gates:'</span>, p[<span class="nu nn">0</span>, top] / p[<span class="nu nn">0</span>, top].sum())</div></div></b-code>
   <b-out data-b="d1gsa"><div class="label">Output</div><pre><span class="olab">experts:</span> <span class="ow">tensor</span>([[<span class="nu nn">1</span>, <span class="nu nn">7</span>]])
@@ -1543,121 +1565,131 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="mixing" data-view="reading" data-topic="mixing" style="--gap: 22pt;">
   <h2 data-b="gcujl">Mixing the Experts</h2>
   <p data-b="ipnro">Only the chosen experts run, and their outputs are added weighted by their gates, <b-m tex="Z = 0.52 Z_{E1} + 0.48 Z_{E7}">Z = 0.52 Z<sub>E1</sub> + 0.48 Z<sub>E7</sub></b-m>:</p>
-  <svg class="draw" viewBox="0 0 384 230" style="width: 100%" role="img" aria-label="The whole layer for the token your: S = Ɛ_CA @ Ω_R, g = softmax(top_k2(S)) gives E1 0.52 and E7 0.48, Ɛ_CA goes only to experts E1 and E7, and Z = 0.52 × Z_E1 + 0.48 × Z_E7" data-b="abd9x">
-  <defs><marker id="ah8E7CC3-abd9x" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path></marker><marker id="ahDCB439-abd9x" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path></marker><marker id="ahE06666-abd9x" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path></marker></defs>
-  <g id="moe-your-abd9x-s1">
-  <rect x="4.0" y="8.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="15.5" y="21.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">S</text>
-  <text x="15.5" y="28.3" font-size="4.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 8&gt;</text>
-  </g>
-  <text x="36.3" y="23.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="moe-your-abd9x-s2">
-  <rect x="42.5" y="8.5" width="150.0" height="23.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="110.8" y="21.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
-  <text x="116.8" y="23.8" font-size="6.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
-  <text x="117.5" y="28.3" font-size="4.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <text x="201.8" y="23.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="moe-your-abd9x-s3">
-  <rect x="208.0" y="8.5" width="23.0" height="23.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="214.7" y="21.0" font-size="10.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
-  <text x="220.7" y="23.8" font-size="6.2" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">R</text>
-  <text x="219.5" y="28.3" font-size="4.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;256, 8&gt;</text>
-  </g>
-  <g id="moe-your-abd9x-s4">
-  <rect x="4.0" y="50.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="15.5" y="63.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">g</text>
-  <text x="15.5" y="70.3" font-size="4.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
-  </g>
-  <text x="36.3" y="65.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <text x="44.5" y="65.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">softmax(</text>
-  <text x="96.5" y="65.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">top_k</text>
-  <text x="134.5" y="65.8" font-size="10.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">₂(</text>
-  <g id="moe-your-abd9x-s5">
-  <rect x="140.5" y="50.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="152.0" y="63.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">S</text>
-  <text x="152.0" y="70.3" font-size="4.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 8&gt;</text>
-  </g>
-  <text x="174.5" y="65.8" font-size="10.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">))</text>
-  <polyline points="15.5,31.5 15.5,38.0 152.0,38.0 152.0,50.5" fill="none" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-abd9x)"></polyline>
-  <text x="250.0" y="58.0" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E1 0.52</text>
-  <text x="250.0" y="70.0" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E7 0.48</text>
-  <rect x="100.0" y="98.0" width="280.0" height="54.0" rx="10.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.80"></rect>
-  <g id="moe-your-abd9x-s6">
-  <rect x="130.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="2.20"></rect>
-  <text x="143.0" y="123.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="143.0" y="134.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
-  </g>
-  <g id="moe-your-abd9x-s7">
-  <rect x="160.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="173.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="173.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">2</text>
-  </g>
-  <g id="moe-your-abd9x-s8">
-  <rect x="190.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="203.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="203.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">3</text>
-  </g>
-  <g id="moe-your-abd9x-s9">
-  <rect x="220.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="233.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="233.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">4</text>
-  </g>
-  <g id="moe-your-abd9x-s10">
-  <rect x="250.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="263.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="263.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">5</text>
-  </g>
-  <g id="moe-your-abd9x-s11">
-  <rect x="280.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="293.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="293.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">6</text>
-  </g>
-  <g id="moe-your-abd9x-s12">
-  <rect x="310.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="2.20"></rect>
-  <text x="323.0" y="123.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="323.0" y="134.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">7</text>
-  </g>
-  <g id="moe-your-abd9x-s13">
-  <rect x="340.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.20"></rect>
-  <text x="353.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
-  <text x="353.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">8</text>
-  </g>
-  <polyline points="185.0,31.5 185.0,88.0 143.0,88.0 143.0,105.0" fill="none" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-abd9x)"></polyline>
-  <polyline points="185.0,88.0 323.0,88.0 323.0,105.0" fill="none" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-abd9x)"></polyline>
-  <g id="moe-your-abd9x-s14">
-  <rect x="30.0" y="190.5" width="23.0" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="41.5" y="203.0" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
-  <text x="41.5" y="210.3" font-size="4.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <text x="62.3" y="205.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="moe-your-abd9x-s15">
-  <rect x="68.5" y="190.5" width="34.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="85.5" y="205.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.52</text>
-  </g>
-  <text x="111.8" y="205.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">×</text>
-  <g id="moe-your-abd9x-s16">
-  <rect x="118.0" y="190.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="125.6" y="203.0" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="131.6" y="205.8" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E1</text>
-  <text x="132.3" y="210.3" font-size="4.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <text x="155.9" y="205.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
-  <g id="moe-your-abd9x-s17">
-  <rect x="162.1" y="190.5" width="34.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="179.1" y="205.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.48</text>
-  </g>
-  <text x="205.4" y="205.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">×</text>
-  <g id="moe-your-abd9x-s18">
-  <rect x="211.6" y="190.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="219.2" y="203.0" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
-  <text x="225.2" y="205.8" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E7</text>
-  <text x="225.9" y="210.3" font-size="4.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
-  </g>
-  <polyline points="15.5,73.5 15.5,170.0 85.5,170.0 85.5,190.5" fill="none" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-abd9x)"></polyline>
-  <polyline points="15.5,170.0 179.1,170.0 179.1,190.5" fill="none" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-abd9x)"></polyline>
-  <polyline points="143.0,145.0 143.0,176.0 132.3,176.0 132.3,190.5" fill="none" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-abd9x)"></polyline>
-  <polyline points="323.0,145.0 323.0,182.0 225.9,182.0 225.9,190.5" fill="none" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-abd9x)"></polyline>
+  <svg class="draw" viewBox="0 0 384 230" role="img" aria-label="The whole layer for the token your: S = Ɛ_CA @ Ω_R, g = softmax(top_k2(S)) gives E1 0.52 and E7 0.48, Ɛ_CA goes only to experts E1 and E7, and Z = 0.52 × Z_E1 + 0.48 × Z_E7" style="width: 100%" data-b="abd9x">
+    <defs>
+      <marker id="ah8E7CC3-abd9x" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
+      <marker id="ahDCB439-abd9x" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
+      </marker>
+      <marker id="ahE06666-abd9x" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
+      </marker>
+    </defs>
+    <g id="moe-your-abd9x-s1">
+      <rect x="4.0" y="8.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="15.5" y="21.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">S</text>
+      <text x="15.5" y="28.3" font-size="4.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 8&gt;</text>
+    </g>
+    <text x="36.3" y="23.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="moe-your-abd9x-s2">
+      <rect x="42.5" y="8.5" width="150.0" height="23.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="110.8" y="21.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ɛ</text>
+      <text x="116.8" y="23.8" font-size="6.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">CA</text>
+      <text x="117.5" y="28.3" font-size="4.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <text x="201.8" y="23.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="moe-your-abd9x-s3">
+      <rect x="208.0" y="8.5" width="23.0" height="23.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="214.7" y="21.0" font-size="10.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
+      <text x="220.7" y="23.8" font-size="6.2" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">R</text>
+      <text x="219.5" y="28.3" font-size="4.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;256, 8&gt;</text>
+    </g>
+    <g id="moe-your-abd9x-s4">
+      <rect x="4.0" y="50.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="15.5" y="63.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">g</text>
+      <text x="15.5" y="70.3" font-size="4.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
+    </g>
+    <text x="36.3" y="65.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <text x="44.5" y="65.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">softmax(</text>
+    <text x="96.5" y="65.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">top_k</text>
+    <text x="134.5" y="65.8" font-size="10.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">₂(</text>
+    <g id="moe-your-abd9x-s5">
+      <rect x="140.5" y="50.5" width="23.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="152.0" y="63.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">S</text>
+      <text x="152.0" y="70.3" font-size="4.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 8&gt;</text>
+    </g>
+    <text x="174.5" y="65.8" font-size="10.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">))</text>
+    <polyline points="15.5,31.5 15.5,38.0 152.0,38.0 152.0,50.5" fill="none" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-abd9x)"></polyline>
+    <text x="250.0" y="58.0" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E1 0.52</text>
+    <text x="250.0" y="70.0" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E7 0.48</text>
+    <rect x="100.0" y="98.0" width="280.0" height="54.0" rx="10.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.8"></rect>
+    <g id="moe-your-abd9x-s6">
+      <rect x="130.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="2.2"></rect>
+      <text x="143.0" y="123.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="143.0" y="134.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
+    </g>
+    <g id="moe-your-abd9x-s7">
+      <rect x="160.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="173.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="173.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">2</text>
+    </g>
+    <g id="moe-your-abd9x-s8">
+      <rect x="190.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="203.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="203.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">3</text>
+    </g>
+    <g id="moe-your-abd9x-s9">
+      <rect x="220.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="233.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="233.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">4</text>
+    </g>
+    <g id="moe-your-abd9x-s10">
+      <rect x="250.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="263.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="263.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">5</text>
+    </g>
+    <g id="moe-your-abd9x-s11">
+      <rect x="280.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="293.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="293.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">6</text>
+    </g>
+    <g id="moe-your-abd9x-s12">
+      <rect x="310.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="2.2"></rect>
+      <text x="323.0" y="123.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="323.0" y="134.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">7</text>
+    </g>
+    <g id="moe-your-abd9x-s13">
+      <rect x="340.0" y="105.0" width="26.0" height="40.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="2.2"></rect>
+      <text x="353.0" y="123.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">E</text>
+      <text x="353.0" y="134.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">8</text>
+    </g>
+    <polyline points="185.0,31.5 185.0,88.0 143.0,88.0 143.0,105.0" fill="none" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-abd9x)"></polyline>
+    <polyline points="185.0,88.0 323.0,88.0 323.0,105.0" fill="none" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-abd9x)"></polyline>
+    <g id="moe-your-abd9x-s14">
+      <rect x="30.0" y="190.5" width="23.0" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="41.5" y="203.0" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Z</text>
+      <text x="41.5" y="210.3" font-size="4.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <text x="62.3" y="205.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="moe-your-abd9x-s15">
+      <rect x="68.5" y="190.5" width="34.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="85.5" y="205.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.52</text>
+    </g>
+    <text x="111.8" y="205.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">×</text>
+    <g id="moe-your-abd9x-s16">
+      <rect x="118.0" y="190.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="125.6" y="203.0" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="131.6" y="205.8" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E1</text>
+      <text x="132.3" y="210.3" font-size="4.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <text x="155.9" y="205.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
+    <g id="moe-your-abd9x-s17">
+      <rect x="162.1" y="190.5" width="34.0" height="23.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="179.1" y="205.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.48</text>
+    </g>
+    <text x="205.4" y="205.8" font-size="10.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">×</text>
+    <g id="moe-your-abd9x-s18">
+      <rect x="211.6" y="190.5" width="28.6" height="23.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="219.2" y="203.0" font-size="10.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Z</text>
+      <text x="225.2" y="205.8" font-size="6.2" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">E7</text>
+      <text x="225.9" y="210.3" font-size="4.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 256&gt;</text>
+    </g>
+    <polyline points="15.5,73.5 15.5,170.0 85.5,170.0 85.5,190.5" fill="none" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-abd9x)"></polyline>
+    <polyline points="15.5,170.0 179.1,170.0 179.1,190.5" fill="none" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-abd9x)"></polyline>
+    <polyline points="143.0,145.0 143.0,176.0 132.3,176.0 132.3,190.5" fill="none" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-abd9x)"></polyline>
+    <polyline points="323.0,145.0 323.0,182.0 225.9,182.0 225.9,190.5" fill="none" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-abd9x)"></polyline>
   </svg>
   <p data-b="r5txy">The router decides which experts get <b-m tex="Ɛ_{CA}">Ɛ<sub>CA</sub></b-m> at all, and the gates decide how much each one counts in the sum. The six experts that weren't picked do no work for this token.</p>
 <div class="foot" data-rt=""><span>Mixture of Experts · Routing</span><span>11</span></div></section>
@@ -1674,7 +1706,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="routing-line" data-view="reading" data-topic="router topk" style="">
   <h2 data-b="xtt1e">Routing a Line</h2>
   <p data-b="kbuqr">Every token makes its own choice. Here is the router on all <span class="num">25</span> tokens of "Friends, Romans, countrymen, lend me your ears!" (irishQwen's Shakespeare tokenizer splits "Friends" into "F", "ri", "end", "s"):</p>
-  <b-fig src="fig/routing-line.svg" style="width: 72%; --ar: 0.817;" alt="For each of the 25 tokens, the router probabilities over E1 to E8, the two chosen experts in gold, and the gates for those two" data-b="q2qqy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 470">
+  <b-fig src="fig/routing-line.svg" alt="For each of the 25 tokens, the router probabilities over E1 to E8, the two chosen experts in gold, and the gates for those two" style="width: 72%; --ar: 0.817;" data-b="q2qqy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 470">
 <defs></defs>
 <rect width="384.0" height="470.0" fill="white"></rect>
 <text x="61.0" y="12.0" font-size="7.5" fill="#6D9EEB" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">E1</text>
@@ -2141,13 +2173,13 @@ svg.al-clone { z-index: 1; }
   <p data-b="qdk5x">Notice that "s" and "," always go to the same experts. Our stand-in rows are the same every time a token appears, whereas in a real model <b-m tex="Ɛ_{CA}">Ɛ<sub>CA</sub></b-m> has been through attention and "s" in "Friends" and "s" in "ears" would look different.</p>
 <div class="foot" data-rt=""><span>Mixture of Experts · Routing</span><span>13</span></div></section>
 
-<section class="page" id="load-balancing" data-part="Load Balancing" data-view="reading" data-topic="load-balancing" style="">
+<section class="page" id="load-balancing" data-view="reading" data-topic="load-balancing" data-part="Load Balancing" style="">
   <h2 data-b="ltffz">Load Balancing</h2>
   <p data-b="t2iff">Adding up the picks for the whole line, <span class="num">25</span> tokens with <span class="num">2</span> experts each, gives <span class="num">50</span> jobs to share between <span class="num">8</span> experts:</p>
   <b-code lang="python" chain="" data-b="u0xn1"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div></div><div class="src"><div class="ln"><span class="cm"># "Friends, Romans, countrymen, lend me your ears!"</span></div><div class="ln">ids = [<span class="nu nn">70</span>, <span class="nu nn">359</span>, <span class="nu nn">460</span>, <span class="nu nn">115</span>, <span class="nu nn">44</span>, <span class="nu nn">509</span>, <span class="nu nn">305</span>, <span class="nu nn">300</span>, <span class="nu nn">115</span>,</div><div class="ln">       <span class="nu nn">44</span>, <span class="nu nn">283</span>, <span class="nu nn">262</span>, <span class="nu nn">414</span>, <span class="nu nn">498</span>, <span class="nu nn">109</span>, <span class="nu nn">287</span>, <span class="nu nn">44</span>, <span class="nu nn">284</span>,</div><div class="ln">       <span class="nu nn">460</span>, <span class="nu nn">320</span>, <span class="nu nn">350</span>, <span class="nu nn">335</span>, <span class="nu nn">290</span>, <span class="nu nn">115</span>, <span class="nu nn">33</span>]</div><div class="ln"></div><div class="ln">S = E[ids] @ W_R.T              <span class="cm"># &lt;25, 8&gt;</span></div><div class="ln">top_s, top = torch.topk(S, k)</div><div class="ln">G = torch.softmax(top_s, dim=-<span class="nu nn">1</span>)</div><div class="ln"></div><div class="ln">counts = F.one_hot(top.flatten(), n_experts).sum(<span class="nu nn">0</span>)</div><div class="ln"><span class="bi">print</span>(<span class="st">'tokens per expert:'</span>, counts)</div><div class="ln"><span class="bi">print</span>(<span class="st">'ideal:'</span>, <span class="bi">len</span>(ids) * k / n_experts)</div></div></b-code>
   <b-out data-b="tlxxn"><div class="label">Output</div><pre><span class="olab">tokens per expert:</span> <span class="ow">tensor</span>([ <span class="nu nn">7</span>,  <span class="nu nn">7</span>, <span class="nu nn">10</span>,  <span class="nu nn">4</span>,  <span class="nu nn">4</span>,  <span class="nu nn">4</span>,  <span class="nu nn">6</span>,  <span class="nu nn">8</span>])
 <span class="olab">ideal:</span> <span class="nu nn">6.25</span></pre></b-out>
-  <b-fig src="fig/load-bars.svg" style="width: 90%; --ar: 2.560;" alt="Picks per expert for the line: E1 7, E2 7, E3 10, E4 4, E5 4, E6 4, E7 6, E8 8, against an ideal of 6.25" data-b="z46xn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 150">
+  <b-fig src="fig/load-bars.svg" alt="Picks per expert for the line: E1 7, E2 7, E3 10, E4 4, E5 4, E6 4, E7 6, E8 8, against an ideal of 6.25" style="width: 90%; --ar: 2.560;" data-b="z46xn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 150">
 <defs></defs>
 <rect width="384.0" height="150.0" fill="white"></rect>
 <path d="M18.0 124.0 L376.0 124.0" fill="none" stroke="#000000" stroke-width="1.20"></path>
@@ -2189,7 +2221,7 @@ svg.al-clone { z-index: 1; }
   <b-code lang="python" chain="" data-b="fihhz"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div><div class="src"><div class="ln">favor = torch.zeros(n_experts)</div><div class="ln">favor[<span class="nu nn">1</span>] = favor[<span class="nu nn">4</span>] = <span class="nu nn">2.0</span>       <span class="cm"># favor E2 and E5</span></div><div class="ln">top_f = torch.topk(S + favor, k)[<span class="nu nn">1</span>]</div><div class="ln">counts_f = F.one_hot(top_f.flatten(), n_experts).sum(<span class="nu nn">0</span>)</div><div class="ln"><span class="bi">print</span>(<span class="st">'ours:     '</span>, counts)</div><div class="ln"><span class="bi">print</span>(<span class="st">'favoring: '</span>, counts_f)</div></div></b-code>
   <b-out data-b="uspg9"><div class="label">Output</div><pre><span class="olab">ours:</span>      <span class="ow">tensor</span>([ <span class="nu nn">7</span>,  <span class="nu nn">7</span>, <span class="nu nn">10</span>,  <span class="nu nn">4</span>,  <span class="nu nn">4</span>,  <span class="nu nn">4</span>,  <span class="nu nn">6</span>,  <span class="nu nn">8</span>])
 <span class="olab">favoring:</span>  <span class="ow">tensor</span>([ <span class="nu nn">2</span>, <span class="nu nn">16</span>,  <span class="nu nn">4</span>,  <span class="nu nn">3</span>, <span class="nu nn">16</span>,  <span class="nu nn">1</span>,  <span class="nu nn">4</span>,  <span class="nu nn">4</span>])</pre></b-out>
-  <b-fig src="fig/load-compare.svg" style="width: 90%; --ar: 2.286;" alt="Picks per expert. Our router: 7, 7, 10, 4, 4, 4, 6, 8. Favoring E2 and E5: 2, 16, 4, 3, 16, 1, 4, 4" data-b="p69eu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 168">
+  <b-fig src="fig/load-compare.svg" alt="Picks per expert. Our router: 7, 7, 10, 4, 4, 4, 6, 8. Favoring E2 and E5: 2, 16, 4, 3, 16, 1, 4, 4" style="width: 90%; --ar: 2.286;" data-b="p69eu"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 168">
 <defs></defs>
 <rect width="384.0" height="168.0" fill="white"></rect>
 <text x="96.0" y="12.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Our router</text>
@@ -2257,7 +2289,7 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="libjq">The Load-Balancing Loss</h2>
   <p data-b="s2r3a">The usual fix is a second loss that is lowest when the work is shared evenly. For each expert we take <b-m tex="f_i">f<sub>i</sub></b-m>, its share of the picks, and <b-m tex="P_i">P<sub>i</sub></b-m>, its average softmax probability over the tokens:</p>
   <b-eq data-b="c090z" class="">
-  <eq-row>L_{\text{balance}} = N \sum_{i=1}^{N} f_i\,P_i</eq-row>
+    <eq-row>L_{\text{balance}} = N \sum_{i=1}^{N} f_i\,P_i</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><msub><mi mathvariant="normal">L</mi><mtext>balance</mtext></msub><mo>=</mo><mi mathvariant="normal">N</mi><msubsup><mo movablelimits="false">∑</mo><mrow><mi mathvariant="normal">i</mi><mo>=</mo><mn>1</mn></mrow><mi mathvariant="normal">N</mi></msubsup><msub><mi mathvariant="normal">f</mi><mi mathvariant="normal">i</mi></msub><mspace width="0.1667em"></mspace><msub><mi mathvariant="normal">P</mi><mi mathvariant="normal">i</mi></msub></mrow></math></div></div></div></b-eq>
   <b-code lang="python" chain="" data-b="zdog0"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">balance</span>(S):</div><div class="ln">    top = torch.topk(S, k)[<span class="nu nn">1</span>]</div><div class="ln">    counts = F.one_hot(top.flatten(), n_experts).sum(<span class="nu nn">0</span>)</div><div class="ln">    f = counts / counts.sum()   <span class="cm"># share of the picks</span></div><div class="ln">    P = torch.softmax(S, dim=-<span class="nu nn">1</span>).mean(dim=<span class="nu nn">0</span>)</div><div class="ln">    <span class="ctl">return</span> counts, n_experts * (f * P).sum()</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(<span class="st">'ours:     '</span>, balance(S)[<span class="nu nn">1</span>])</div><div class="ln"><span class="bi">print</span>(<span class="st">'favoring: '</span>, balance(S + favor)[<span class="nu nn">1</span>])</div></div></b-code>
   <b-out data-b="lbyc8"><div class="label">Output</div><pre><span class="olab">ours:</span>      <span class="ow">tensor</span>(<span class="nu nn">1.04</span>)
@@ -2277,7 +2309,7 @@ svg.al-clone { z-index: 1; }
   <p data-b="fodxu">So capacity limits how long the other GPUs wait, at the price of sometimes skipping work.</p>
 <div class="foot" data-rt=""><span>Mixture of Experts · Load Balancing</span><span>17</span></div></section>
 
-<section class="page" id="what-experts-learn" data-part="Experts Today" data-view="reading" data-topic="experts specialization" style="--gap: 22pt;">
+<section class="page" id="what-experts-learn" data-view="reading" data-topic="experts specialization" data-part="Experts Today" style="--gap: 22pt;">
   <h2 data-b="mvmyr">What Experts Learn</h2>
   <p data-b="rofod">The name suggests experts on topics, a football expert and a Shakespeare expert, with the router sending each question to the right one. That's a nice intuition, unfortunately it isn't what happens.</p>
   <p data-b="iv4a8">When Mistral looked at which experts Mixtral picked on different kinds of text (arXiv papers, biology, philosophy, maths, code), they found <b class="warn">no obvious pattern by topic</b>. The patterns they did find were about form: the word "self" in Python code tended to go to the same expert, so did indentation, and consecutive tokens often shared an expert. In their words the routing looked "more aligned with the syntax rather than the domain".</p>
@@ -2302,13 +2334,17 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="yd1pe">Mixture of Experts in Today's Models</h2>
   <p data-b="p8if7">The idea is old (Jacobs, Jordan, Nowlan and Hinton's "Adaptive Mixtures of Local Experts" was 1991), and sparse routing in a big network goes back to Shazeer et al. in 2017, who put a layer of up to thousands of experts between LSTMs. Today many of the largest open models are MoEs:</p>
   <table class="tight" data-b="jhgy8">
-  <tbody><tr><th>Model</th><th>Experts</th><th>Per token</th><th>Parameters (active)</th></tr>
-  <tr><td>Mixtral 8x7B</td><td>8</td><td>2</td><td>47B (13B)</td></tr>
-  <tr><td>Qwen3-30B-A3B</td><td>128</td><td>8</td><td>30B (3B)</td></tr>
-  <tr><td>Qwen3-235B-A22B</td><td>128</td><td>8</td><td>235B (22B)</td></tr>
-  <tr><td>DeepSeek-V3</td><td>256 + 1 shared</td><td>8 + 1</td><td>671B (37B)</td></tr>
-  <tr><td>Qwen3-0.6B, irishQwen</td><td colspan="2">dense FFN</td><td>0.6B (0.6B)</td></tr>
-  </tbody></table>
+    <thead>
+      <tr><th>Model</th><th>Experts</th><th>Per token</th><th>Parameters (active)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Mixtral 8x7B</td><td>8</td><td>2</td><td>47B (13B)</td></tr>
+      <tr><td>Qwen3-30B-A3B</td><td>128</td><td>8</td><td>30B (3B)</td></tr>
+      <tr><td>Qwen3-235B-A22B</td><td>128</td><td>8</td><td>235B (22B)</td></tr>
+      <tr><td>DeepSeek-V3</td><td>256 + 1 shared</td><td>8 + 1</td><td>671B (37B)</td></tr>
+      <tr><td>Qwen3-0.6B, irishQwen</td><td>dense FFN</td><td colspan="2">0.6B (0.6B)</td></tr>
+    </tbody>
+  </table>
   <p data-b="o8r7q">Qwen's names say it all, Qwen3-30B-A3B is <span class="num">30</span> billion parameters with <span class="num">3</span> billion active. irishQwen copies the small dense Qwen3, but an MoE layer could swap in for its FFN without changing a single shape.</p>
   <p data-b="lbk75">We now have both halves of a block, attention and the FFN (or a room of experts), and the next chapter puts them together.</p>
 <div class="foot" data-rt=""><span>Mixture of Experts · Experts Today</span><span>21</span></div></section>
@@ -2667,7 +2703,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -2695,15 +2731,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -2712,6 +2794,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -2724,9 +2807,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

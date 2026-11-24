@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -833,88 +844,88 @@ svg.al-clone { z-index: 1; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Backpropagation</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#weights">Gradients</a><a href="#graph">Backpropagation</a><a href="#batch">Training</a><a href="#saturated">Issues</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="on">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="backprop-chapter.pdf" download>Reading</a><a href="backprop-chapter-slides.pdf" download>Lecture</a><a href="backprop-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="reading">
 <section class="page cover" id="cover">
-  
-  <svg class="draw" viewBox="0 0 384 250" style="width: 280.9pt" role="img" aria-label="Green dots and red crosses spread over a background shaded from red at the top left to green at the bottom right, split by a bent navy line" data-b="myakz">
+  <svg class="draw" viewBox="0 0 384 250" role="img" aria-label="Green dots and red crosses spread over a background shaded from red at the top left to green at the bottom right, split by a bent navy line" style="width: 280.9pt" data-b="myakz">
     <defs></defs>
-    <line x1="21.9" y1="90.3" x2="112.1" y2="20.8" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="21.9" y1="159.7" x2="112.1" y2="20.8" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="21.9" y1="90.3" x2="112.1" y2="90.3" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="21.9" y1="159.7" x2="112.1" y2="90.3" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="21.9" y1="90.3" x2="112.1" y2="159.7" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="21.9" y1="159.7" x2="112.1" y2="159.7" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="21.9" y1="90.3" x2="112.1" y2="229.2" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="21.9" y1="159.7" x2="112.1" y2="229.2" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="20.8" x2="202.4" y2="20.8" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="90.3" x2="202.4" y2="20.8" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="159.7" x2="202.4" y2="20.8" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="229.2" x2="202.4" y2="20.8" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="20.8" x2="202.4" y2="90.3" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="90.3" x2="202.4" y2="90.3" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="159.7" x2="202.4" y2="90.3" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="229.2" x2="202.4" y2="90.3" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="20.8" x2="202.4" y2="159.7" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="90.3" x2="202.4" y2="159.7" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="159.7" x2="202.4" y2="159.7" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="229.2" x2="202.4" y2="159.7" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="20.8" x2="202.4" y2="229.2" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="90.3" x2="202.4" y2="229.2" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="159.7" x2="202.4" y2="229.2" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="112.1" y1="229.2" x2="202.4" y2="229.2" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="202.4" y1="20.8" x2="292.7" y2="125.0" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="202.4" y1="90.3" x2="292.7" y2="125.0" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="202.4" y1="159.7" x2="292.7" y2="125.0" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="202.4" y1="229.2" x2="292.7" y2="125.0" stroke="#C9DAF8" stroke-width="0.60"></line>
-    <line x1="292.7" y1="125.0" x2="362.1" y2="125.0" stroke="#000000" stroke-width="1.20"></line>
+    <line x1="21.9" y1="90.3" x2="112.1" y2="20.8" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="21.9" y1="159.7" x2="112.1" y2="20.8" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="21.9" y1="90.3" x2="112.1" y2="90.3" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="21.9" y1="159.7" x2="112.1" y2="90.3" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="21.9" y1="90.3" x2="112.1" y2="159.7" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="21.9" y1="159.7" x2="112.1" y2="159.7" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="21.9" y1="90.3" x2="112.1" y2="229.2" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="21.9" y1="159.7" x2="112.1" y2="229.2" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="20.8" x2="202.4" y2="20.8" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="90.3" x2="202.4" y2="20.8" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="159.7" x2="202.4" y2="20.8" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="229.2" x2="202.4" y2="20.8" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="20.8" x2="202.4" y2="90.3" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="90.3" x2="202.4" y2="90.3" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="159.7" x2="202.4" y2="90.3" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="229.2" x2="202.4" y2="90.3" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="20.8" x2="202.4" y2="159.7" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="90.3" x2="202.4" y2="159.7" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="159.7" x2="202.4" y2="159.7" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="229.2" x2="202.4" y2="159.7" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="20.8" x2="202.4" y2="229.2" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="90.3" x2="202.4" y2="229.2" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="159.7" x2="202.4" y2="229.2" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="112.1" y1="229.2" x2="202.4" y2="229.2" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="202.4" y1="20.8" x2="292.7" y2="125.0" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="202.4" y1="90.3" x2="292.7" y2="125.0" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="202.4" y1="159.7" x2="292.7" y2="125.0" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="202.4" y1="229.2" x2="292.7" y2="125.0" stroke="#C9DAF8" stroke-width="0.6"></line>
+    <line x1="292.7" y1="125.0" x2="362.1" y2="125.0" stroke="#000000" stroke-width="1.2"></line>
     <line x1="21.9" y1="90.3" x2="112.1" y2="20.8" stroke="#ACC3ED" stroke-width="0.72"></line>
     <line x1="21.9" y1="159.7" x2="112.1" y2="20.8" stroke="#B5CAEF" stroke-width="0.55"></line>
     <line x1="21.9" y1="90.3" x2="112.1" y2="90.3" stroke="#8CADE6" stroke-width="1.28"></line>
     <line x1="21.9" y1="159.7" x2="112.1" y2="90.3" stroke="#A0BBEB" stroke-width="0.92"></line>
-    <line x1="21.9" y1="90.3" x2="112.1" y2="159.7" stroke="#B8CCF0" stroke-width="0.50"></line>
-    <line x1="21.9" y1="159.7" x2="112.1" y2="159.7" stroke="#B8CCF0" stroke-width="0.50"></line>
-    <line x1="21.9" y1="90.3" x2="112.1" y2="229.2" stroke="#1D5ECF" stroke-width="3.30"></line>
+    <line x1="21.9" y1="90.3" x2="112.1" y2="159.7" stroke="#B8CCF0" stroke-width="0.5"></line>
+    <line x1="21.9" y1="159.7" x2="112.1" y2="159.7" stroke="#B8CCF0" stroke-width="0.5"></line>
+    <line x1="21.9" y1="90.3" x2="112.1" y2="229.2" stroke="#1D5ECF" stroke-width="3.3"></line>
     <line x1="21.9" y1="159.7" x2="112.1" y2="229.2" stroke="#B5CAEF" stroke-width="0.55"></line>
     <line x1="112.1" y1="20.8" x2="202.4" y2="20.8" stroke="#A7C0EC" stroke-width="0.79"></line>
-    <line x1="112.1" y1="90.3" x2="202.4" y2="20.8" stroke="#B8CCF0" stroke-width="0.50"></line>
-    <line x1="112.1" y1="159.7" x2="202.4" y2="20.8" stroke="#B8CCF0" stroke-width="0.50"></line>
+    <line x1="112.1" y1="90.3" x2="202.4" y2="20.8" stroke="#B8CCF0" stroke-width="0.5"></line>
+    <line x1="112.1" y1="159.7" x2="202.4" y2="20.8" stroke="#B8CCF0" stroke-width="0.5"></line>
     <line x1="112.1" y1="229.2" x2="202.4" y2="20.8" stroke="#94B3E8" stroke-width="1.14"></line>
     <line x1="112.1" y1="20.8" x2="202.4" y2="90.3" stroke="#A3BDEB" stroke-width="0.88"></line>
-    <line x1="112.1" y1="90.3" x2="202.4" y2="90.3" stroke="#B8CCF0" stroke-width="0.50"></line>
-    <line x1="112.1" y1="159.7" x2="202.4" y2="90.3" stroke="#B8CCF0" stroke-width="0.50"></line>
+    <line x1="112.1" y1="90.3" x2="202.4" y2="90.3" stroke="#B8CCF0" stroke-width="0.5"></line>
+    <line x1="112.1" y1="159.7" x2="202.4" y2="90.3" stroke="#B8CCF0" stroke-width="0.5"></line>
     <line x1="112.1" y1="229.2" x2="202.4" y2="90.3" stroke="#88AAE6" stroke-width="1.35"></line>
-    <line x1="112.1" y1="20.8" x2="202.4" y2="159.7" stroke="#B8CCF0" stroke-width="0.50"></line>
-    <line x1="112.1" y1="90.3" x2="202.4" y2="159.7" stroke="#1D5ECF" stroke-width="3.30"></line>
-    <line x1="112.1" y1="159.7" x2="202.4" y2="159.7" stroke="#B8CCF0" stroke-width="0.50"></line>
+    <line x1="112.1" y1="20.8" x2="202.4" y2="159.7" stroke="#B8CCF0" stroke-width="0.5"></line>
+    <line x1="112.1" y1="90.3" x2="202.4" y2="159.7" stroke="#1D5ECF" stroke-width="3.3"></line>
+    <line x1="112.1" y1="159.7" x2="202.4" y2="159.7" stroke="#B8CCF0" stroke-width="0.5"></line>
     <line x1="112.1" y1="229.2" x2="202.4" y2="159.7" stroke="#6B95DF" stroke-width="1.89"></line>
-    <line x1="112.1" y1="20.8" x2="202.4" y2="229.2" stroke="#B8CCF0" stroke-width="0.50"></line>
-    <line x1="112.1" y1="90.3" x2="202.4" y2="229.2" stroke="#B8CCF0" stroke-width="0.50"></line>
-    <line x1="112.1" y1="159.7" x2="202.4" y2="229.2" stroke="#B8CCF0" stroke-width="0.50"></line>
-    <line x1="112.1" y1="229.2" x2="202.4" y2="229.2" stroke="#B8CCF0" stroke-width="0.50"></line>
+    <line x1="112.1" y1="20.8" x2="202.4" y2="229.2" stroke="#B8CCF0" stroke-width="0.5"></line>
+    <line x1="112.1" y1="90.3" x2="202.4" y2="229.2" stroke="#B8CCF0" stroke-width="0.5"></line>
+    <line x1="112.1" y1="159.7" x2="202.4" y2="229.2" stroke="#B8CCF0" stroke-width="0.5"></line>
+    <line x1="112.1" y1="229.2" x2="202.4" y2="229.2" stroke="#B8CCF0" stroke-width="0.5"></line>
     <line x1="202.4" y1="20.8" x2="292.7" y2="125.0" stroke="#92B1E8" stroke-width="1.18"></line>
     <line x1="202.4" y1="90.3" x2="292.7" y2="125.0" stroke="#6390DE" stroke-width="2.03"></line>
-    <line x1="202.4" y1="159.7" x2="292.7" y2="125.0" stroke="#1D5ECF" stroke-width="3.30"></line>
-    <line x1="202.4" y1="229.2" x2="292.7" y2="125.0" stroke="#B8CCF0" stroke-width="0.50"></line>
+    <line x1="202.4" y1="159.7" x2="292.7" y2="125.0" stroke="#1D5ECF" stroke-width="3.3"></line>
+    <line x1="202.4" y1="229.2" x2="292.7" y2="125.0" stroke="#B8CCF0" stroke-width="0.5"></line>
     <polygon points="62.9,163.3 62.5,152.8 71.9,157.4 62.9,163.3" fill="#1D5ECF" stroke="none"></polygon>
     <polygon points="156.6,131.3 152.8,121.5 163.2,122.7 156.6,131.3" fill="#1D5ECF" stroke="none"></polygon>
     <polygon points="160.3,197.0 152.8,197.9 155.5,190.9 160.3,197.0" fill="#6B95DF" stroke="none"></polygon>
     <polygon points="247.9,112.1 243.0,105.9 250.8,104.6 247.9,112.1" fill="#6390DE" stroke="none"></polygon>
     <polygon points="253.4,145.9 243.0,144.1 249.5,135.8 253.4,145.9" fill="#1D5ECF" stroke="none"></polygon>
     <polygon points="333.9,130.0 325.9,125.0 333.9,120.0 333.9,130.0" fill="#000000" stroke="none"></polygon>
-    <ellipse cx="21.9" cy="90.3" rx="13.9" ry="13.9" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></ellipse>
-    <ellipse cx="21.9" cy="159.7" rx="13.9" ry="13.9" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></ellipse>
-    <ellipse cx="112.1" cy="20.8" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></ellipse>
-    <ellipse cx="112.1" cy="90.3" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></ellipse>
-    <ellipse cx="112.1" cy="159.7" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></ellipse>
-    <ellipse cx="112.1" cy="229.2" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></ellipse>
-    <ellipse cx="202.4" cy="20.8" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></ellipse>
-    <ellipse cx="202.4" cy="90.3" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></ellipse>
-    <ellipse cx="202.4" cy="159.7" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></ellipse>
-    <ellipse cx="202.4" cy="229.2" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></ellipse>
-    <ellipse cx="292.7" cy="125.0" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></ellipse>
+    <ellipse cx="21.9" cy="90.3" rx="13.9" ry="13.9" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></ellipse>
+    <ellipse cx="21.9" cy="159.7" rx="13.9" ry="13.9" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></ellipse>
+    <ellipse cx="112.1" cy="20.8" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></ellipse>
+    <ellipse cx="112.1" cy="90.3" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></ellipse>
+    <ellipse cx="112.1" cy="159.7" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></ellipse>
+    <ellipse cx="112.1" cy="229.2" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></ellipse>
+    <ellipse cx="202.4" cy="20.8" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></ellipse>
+    <ellipse cx="202.4" cy="90.3" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></ellipse>
+    <ellipse cx="202.4" cy="159.7" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></ellipse>
+    <ellipse cx="202.4" cy="229.2" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></ellipse>
+    <ellipse cx="292.7" cy="125.0" rx="13.9" ry="13.9" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></ellipse>
     <g id="cover-myakz-s1">
-      <ellipse cx="362.1" cy="125.0" rx="13.9" ry="13.9" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></ellipse>
+      <ellipse cx="362.1" cy="125.0" rx="13.9" ry="13.9" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></ellipse>
       <text x="362.1" y="128.8" font-size="12.0" fill="#CC0000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">ℒ</text>
     </g>
   </svg>
+  
   <div class="cover-text" data-b="s0iwu">
     <div class="kicker">Unit 03 · Chapter 1</div>
     <h1>Backpropagation</h1>
@@ -989,10 +1000,10 @@ svg.al-clone { z-index: 1; }
 
 
 
-<section class="page" id="weights" data-part="Gradients" data-view="reading" data-topic="gradient-descent" style="--gap: 12.8pt;">
+<section class="page" id="weights" data-view="reading" data-topic="gradient-descent" data-part="Gradients" style="--gap: 12.8pt;">
   <h2 data-b="kdlc0">Learning a Network's Weights</h2>
   <p data-b="zq9xs">Feed-Forward Networks ended on the graph PyTorch records as our close-game network runs, every operation from the games to the loss:</p>
-  <svg viewBox="0 0 384.0 268.0" class="draw" style="width: 100%" role="img" aria-label="The graph PyTorch records when the close-game network runs and we take its loss, top to bottom: AddmmBackward0 (X @ W1.T + b1), SigmoidBackward0, AddmmBackward0 (A1 @ W2.T + b2), SigmoidBackward0, SelectBackward0 and BinaryCrossEntropyBackward0, then the loss. Each layer's weight feeds in from the left through TBackward0, its bias from the right" data-b="nxejt">
+  <svg class="draw" viewBox="0 0 384.0 268.0" role="img" aria-label="The graph PyTorch records when the close-game network runs and we take its loss, top to bottom: AddmmBackward0 (X @ W1.T + b1), SigmoidBackward0, AddmmBackward0 (A1 @ W2.T + b2), SigmoidBackward0, SelectBackward0 and BinaryCrossEntropyBackward0, then the loss. Each layer's weight feeds in from the left through TBackward0, its bias from the right" style="width: 100%" data-b="nxejt">
     <defs>
       <marker id="ah-000000-nxejt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
@@ -1011,55 +1022,55 @@ svg.al-clone { z-index: 1; }
       </marker>
     </defs>
     <rect width="384.0" height="268.0" fill="white"></rect>
-    <rect x="143.0" y="4.0" width="150.0" height="28.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.30"></rect>
+    <rect x="143.0" y="4.0" width="150.0" height="28.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3"></rect>
     <text x="218.0" y="15.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">AddmmBackward0</text>
     <text x="218.0" y="27.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#E06666" dy="-0.0">X</tspan><tspan fill="#000000" dy="-0.0"> @ </tspan><tspan fill="#4A86E8" dy="-0.0">W1</tspan><tspan fill="#000000" dy="-0.0">.T + </tspan><tspan fill="#666666" dy="-0.0">b1</tspan><tspan dy="-0.0"></tspan></text>
-    <rect x="143.0" y="40.0" width="150.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></rect>
+    <rect x="143.0" y="40.0" width="150.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></rect>
     <text x="218.0" y="51.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">SigmoidBackward0</text>
     <text x="218.0" y="63.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#000000" dy="-0.0">sigmoid(</tspan><tspan fill="#8E7CC3" dy="-0.0">Z1</tspan><tspan fill="#000000" dy="-0.0">)</tspan><tspan dy="-0.0"></tspan></text>
-    <path d="M218.0 32.0 L218.0 39.0" fill="none" stroke="#8E7CC3" stroke-width="1.30" marker-end="url(#ah-8E7CC3-nxejt)"></path>
-    <rect x="143.0" y="76.0" width="150.0" height="28.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.30"></rect>
+    <path d="M218.0 32.0 L218.0 39.0" fill="none" stroke="#8E7CC3" stroke-width="1.3" marker-end="url(#ah-8E7CC3-nxejt)"></path>
+    <rect x="143.0" y="76.0" width="150.0" height="28.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.3"></rect>
     <text x="218.0" y="87.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">AddmmBackward0</text>
     <text x="218.0" y="99.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#DCB439" dy="-0.0">A1</tspan><tspan fill="#000000" dy="-0.0"> @ </tspan><tspan fill="#4A86E8" dy="-0.0">W2</tspan><tspan fill="#000000" dy="-0.0">.T + </tspan><tspan fill="#666666" dy="-0.0">b2</tspan><tspan dy="-0.0"></tspan></text>
-    <path d="M218.0 68.0 L218.0 75.0" fill="none" stroke="#DCB439" stroke-width="1.30" marker-end="url(#ah-DCB439-nxejt)"></path>
-    <rect x="143.0" y="112.0" width="150.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></rect>
+    <path d="M218.0 68.0 L218.0 75.0" fill="none" stroke="#DCB439" stroke-width="1.3" marker-end="url(#ah-DCB439-nxejt)"></path>
+    <rect x="143.0" y="112.0" width="150.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></rect>
     <text x="218.0" y="123.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">SigmoidBackward0</text>
     <text x="218.0" y="135.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#000000" dy="-0.0">sigmoid(</tspan><tspan fill="#8E7CC3" dy="-0.0">Z2</tspan><tspan fill="#000000" dy="-0.0">)</tspan><tspan dy="-0.0"></tspan></text>
-    <path d="M218.0 104.0 L218.0 111.0" fill="none" stroke="#8E7CC3" stroke-width="1.30" marker-end="url(#ah-8E7CC3-nxejt)"></path>
-    <rect x="143.0" y="148.0" width="150.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></rect>
+    <path d="M218.0 104.0 L218.0 111.0" fill="none" stroke="#8E7CC3" stroke-width="1.3" marker-end="url(#ah-8E7CC3-nxejt)"></path>
+    <rect x="143.0" y="148.0" width="150.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></rect>
     <text x="218.0" y="159.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">SelectBackward0</text>
     <text x="218.0" y="171.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#DCB439" dy="-0.0">y_hat</tspan><tspan fill="#000000" dy="-0.0">[:, 0]</tspan><tspan dy="-0.0"></tspan></text>
-    <path d="M218.0 140.0 L218.0 147.0" fill="none" stroke="#DCB439" stroke-width="1.30" marker-end="url(#ah-DCB439-nxejt)"></path>
-    <rect x="143.0" y="184.0" width="150.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.30"></rect>
+    <path d="M218.0 140.0 L218.0 147.0" fill="none" stroke="#DCB439" stroke-width="1.3" marker-end="url(#ah-DCB439-nxejt)"></path>
+    <rect x="143.0" y="184.0" width="150.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.3"></rect>
     <text x="218.0" y="195.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">BinaryCrossEntropyBackward0</text>
     <text x="218.0" y="207.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#000000" dy="-0.0">BCE(</tspan><tspan fill="#DCB439" dy="-0.0">y_hat</tspan><tspan fill="#000000" dy="-0.0">, </tspan><tspan fill="#6AA84F" dy="-0.0">y</tspan><tspan fill="#000000" dy="-0.0">)</tspan><tspan dy="-0.0"></tspan></text>
-    <path d="M218.0 176.0 L218.0 183.0" fill="none" stroke="#DCB439" stroke-width="1.30" marker-end="url(#ah-DCB439-nxejt)"></path>
-    <rect x="1.0" y="5.0" width="62.0" height="26.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
+    <path d="M218.0 176.0 L218.0 183.0" fill="none" stroke="#DCB439" stroke-width="1.3" marker-end="url(#ah-DCB439-nxejt)"></path>
+    <rect x="1.0" y="5.0" width="62.0" height="26.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
     <text x="32.0" y="18.8" font-size="8.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">fc1.weight</text>
     <text x="32.0" y="27.8" font-size="5.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2, 2&gt;</text>
-    <rect x="72.0" y="4.0" width="62.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.30"></rect>
+    <rect x="72.0" y="4.0" width="62.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3"></rect>
     <text x="103.0" y="15.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">TBackward0</text>
     <text x="103.0" y="27.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#4A86E8" dy="-0.0">W1</tspan><tspan fill="#000000" dy="-0.0">.T</tspan><tspan dy="-0.0"></tspan></text>
-    <path d="M63.0 18.0 L71.0 18.0" fill="none" stroke="#6D9EEB" stroke-width="1.10" marker-end="url(#ah-6D9EEB-nxejt)"></path>
-    <path d="M134.0 18.0 L142.0 18.0" fill="none" stroke="#6D9EEB" stroke-width="1.10" marker-end="url(#ah-6D9EEB-nxejt)"></path>
-    <rect x="304.0" y="5.0" width="62.0" height="26.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+    <path d="M63.0 18.0 L71.0 18.0" fill="none" stroke="#6D9EEB" stroke-width="1.1" marker-end="url(#ah-6D9EEB-nxejt)"></path>
+    <path d="M134.0 18.0 L142.0 18.0" fill="none" stroke="#6D9EEB" stroke-width="1.1" marker-end="url(#ah-6D9EEB-nxejt)"></path>
+    <rect x="304.0" y="5.0" width="62.0" height="26.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
     <text x="335.0" y="18.8" font-size="8.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">fc1.bias</text>
     <text x="335.0" y="27.8" font-size="5.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2&gt;</text>
-    <path d="M304.0 18.0 L294.0 18.0" fill="none" stroke="#666666" stroke-width="1.10" marker-end="url(#ah-666666-nxejt)"></path>
-    <rect x="1.0" y="77.0" width="62.0" height="26.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
+    <path d="M304.0 18.0 L294.0 18.0" fill="none" stroke="#666666" stroke-width="1.1" marker-end="url(#ah-666666-nxejt)"></path>
+    <rect x="1.0" y="77.0" width="62.0" height="26.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
     <text x="32.0" y="90.8" font-size="8.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">fc2.weight</text>
     <text x="32.0" y="99.8" font-size="5.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
-    <rect x="72.0" y="76.0" width="62.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.30"></rect>
+    <rect x="72.0" y="76.0" width="62.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.3"></rect>
     <text x="103.0" y="87.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">TBackward0</text>
     <text x="103.0" y="99.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#4A86E8" dy="-0.0">W2</tspan><tspan fill="#000000" dy="-0.0">.T</tspan><tspan dy="-0.0"></tspan></text>
-    <path d="M63.0 90.0 L71.0 90.0" fill="none" stroke="#6D9EEB" stroke-width="1.10" marker-end="url(#ah-6D9EEB-nxejt)"></path>
-    <path d="M134.0 90.0 L142.0 90.0" fill="none" stroke="#6D9EEB" stroke-width="1.10" marker-end="url(#ah-6D9EEB-nxejt)"></path>
-    <rect x="304.0" y="77.0" width="62.0" height="26.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+    <path d="M63.0 90.0 L71.0 90.0" fill="none" stroke="#6D9EEB" stroke-width="1.1" marker-end="url(#ah-6D9EEB-nxejt)"></path>
+    <path d="M134.0 90.0 L142.0 90.0" fill="none" stroke="#6D9EEB" stroke-width="1.1" marker-end="url(#ah-6D9EEB-nxejt)"></path>
+    <rect x="304.0" y="77.0" width="62.0" height="26.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
     <text x="335.0" y="90.8" font-size="8.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">fc2.bias</text>
     <text x="335.0" y="99.8" font-size="5.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1&gt;</text>
-    <path d="M304.0 90.0 L294.0 90.0" fill="none" stroke="#666666" stroke-width="1.10" marker-end="url(#ah-666666-nxejt)"></path>
-    <path d="M218.0 212.0 L218.0 224.0" fill="none" stroke="#000000" stroke-width="1.30" marker-end="url(#ah-000000-nxejt)"></path>
-    <rect x="188.0" y="225.0" width="60.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+    <path d="M304.0 90.0 L294.0 90.0" fill="none" stroke="#666666" stroke-width="1.1" marker-end="url(#ah-666666-nxejt)"></path>
+    <path d="M218.0 212.0 L218.0 224.0" fill="none" stroke="#000000" stroke-width="1.3" marker-end="url(#ah-000000-nxejt)"></path>
+    <rect x="188.0" y="225.0" width="60.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
     <text x="218.0" y="239.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">loss</text>
   </svg>
   <p data-b="sz8jf">That network gets every game right only because we picked its weights by hand, which worked because we already knew the answer (the margin). For a bigger network, or a question we can't answer ourselves, the weights have to be learned. Gradient descent itself is nothing new, it's how our logistic regression found its weights: work out how the loss changes with every weight, step each weight a little the other way, and repeat.</p>
@@ -1076,39 +1087,39 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="network" data-view="reading" data-topic="forward-pass" style="">
   <h2 data-b="ldhsp">A Small Network</h2>
   <p data-b="po6kc">To keep the arithmetic short we'll keep the close-game network's 2-2-1 shape, but go back to "Did we win?" (the score already says whether a game was close). Ours takes the <b class="def">standardized</b> yard difference and turnover difference (Notre Dame's turnovers minus the opponent's), passes them to two ReLU neurons, and ends in one sigmoid neuron giving the chance of a win:</p>
-  <svg class="draw" viewBox="0 0 384 140" style="width: 382.5pt" role="img" aria-label="Two inputs, the yard difference and the turnover difference, each connected to two ReLU neurons in a hidden layer, which both connect to one sigmoid output giving p, the chance of a win. Starting weights 0.5 and 0.2 into the top neuron, -0.3 and 0.4 into the bottom one, 0.6 and -0.5 into the output, biases 0, 0.1 and 0.2" data-b="d40qf">
+  <svg class="draw" viewBox="0 0 384 140" role="img" aria-label="Two inputs, the yard difference and the turnover difference, each connected to two ReLU neurons in a hidden layer, which both connect to one sigmoid output giving p, the chance of a win. Starting weights 0.5 and 0.2 into the top neuron, -0.3 and 0.4 into the bottom one, 0.6 and -0.5 into the output, biases 0, 0.1 and 0.2" style="width: 382.5pt" data-b="d40qf">
     <defs>
       <marker id="ah666666-d40qf" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
       </marker>
     </defs>
     <g id="network-d40qf-s1">
-      <ellipse cx="91.7" cy="37.3" rx="14.5" ry="14.5" fill="#FFFFFF" stroke="#1155CC" stroke-width="1.40"></ellipse>
+      <ellipse cx="91.7" cy="37.3" rx="14.5" ry="14.5" fill="#FFFFFF" stroke="#1155CC" stroke-width="1.4"></ellipse>
       <text x="91.7" y="39.8" font-size="10.0" fill="#1155CC" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">x₁</text>
     </g>
     <g id="network-d40qf-s2">
-      <ellipse cx="91.7" cy="102.7" rx="14.5" ry="14.5" fill="#FFFFFF" stroke="#1155CC" stroke-width="1.40"></ellipse>
+      <ellipse cx="91.7" cy="102.7" rx="14.5" ry="14.5" fill="#FFFFFF" stroke="#1155CC" stroke-width="1.4"></ellipse>
       <text x="91.7" y="105.1" font-size="10.0" fill="#1155CC" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">x₂</text>
     </g>
     <g id="network-d40qf-s3">
-      <ellipse cx="189.7" cy="37.3" rx="14.5" ry="14.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.40"></ellipse>
+      <ellipse cx="189.7" cy="37.3" rx="14.5" ry="14.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.4"></ellipse>
       <text x="189.7" y="39.3" font-size="8.0" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">ReLU</text>
     </g>
     <g id="network-d40qf-s4">
-      <ellipse cx="189.7" cy="102.7" rx="14.5" ry="14.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.40"></ellipse>
+      <ellipse cx="189.7" cy="102.7" rx="14.5" ry="14.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.4"></ellipse>
       <text x="189.7" y="104.6" font-size="8.0" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">ReLU</text>
     </g>
     <g id="network-d40qf-s5">
-      <ellipse cx="283.0" cy="70.0" rx="14.5" ry="14.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.40"></ellipse>
+      <ellipse cx="283.0" cy="70.0" rx="14.5" ry="14.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.4"></ellipse>
       <text x="283.0" y="72.0" font-size="8.0" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">σ</text>
     </g>
-    <line x1="104.7" y1="37.3" x2="173.7" y2="37.3" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-d40qf)" data-a="network-d40qf-s1" data-b="network-d40qf-s3" data-a-at="r:0.499:-1.4" data-b-at="l:0.499:1.5"></line>
-    <polyline points="102.5,95.5 139.6,70.7 176.3,46.2" fill="none" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-d40qf)"></polyline>
-    <polyline points="102.5,44.5 139.6,69.3 176.3,93.8" fill="none" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-d40qf)"></polyline>
-    <line x1="104.7" y1="102.7" x2="173.7" y2="102.7" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-d40qf)" data-a="network-d40qf-s2" data-b="network-d40qf-s4" data-a-at="r:0.501:-1.4" data-b-at="l:0.501:1.5"></line>
-    <polyline points="201.9,41.6 235.2,53.3 267.9,64.7" fill="none" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-d40qf)"></polyline>
-    <line x1="201.9" y1="98.4" x2="267.9" y2="75.3" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-d40qf)" data-a="network-d40qf-s4" data-b="network-d40qf-s5" data-a-at="r:0.353:-2.2" data-b-at="l:0.683:0.6"></line>
-    <line x1="300.2" y1="70.0" x2="324.3" y2="70.0" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-d40qf)" data-a="network-d40qf-s5" data-a-at="r:0.500:2.7"></line>
+    <line x1="104.7" y1="37.3" x2="173.7" y2="37.3" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-d40qf)" data-a="network-d40qf-s1" data-b="network-d40qf-s3" data-a-at="r:0.499:-1.4" data-b-at="l:0.499:1.5"></line>
+    <polyline points="102.5,95.5 139.6,70.7 176.3,46.2" fill="none" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-d40qf)"></polyline>
+    <polyline points="102.5,44.5 139.6,69.3 176.3,93.8" fill="none" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-d40qf)"></polyline>
+    <line x1="104.7" y1="102.7" x2="173.7" y2="102.7" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-d40qf)" data-a="network-d40qf-s2" data-b="network-d40qf-s4" data-a-at="r:0.501:-1.4" data-b-at="l:0.501:1.5"></line>
+    <polyline points="201.9,41.6 235.2,53.3 267.9,64.7" fill="none" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-d40qf)"></polyline>
+    <line x1="201.9" y1="98.4" x2="267.9" y2="75.3" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-d40qf)" data-a="network-d40qf-s4" data-b="network-d40qf-s5" data-a-at="r:0.353:-2.2" data-b-at="l:0.683:0.6"></line>
+    <line x1="300.2" y1="70.0" x2="324.3" y2="70.0" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-d40qf)" data-a="network-d40qf-s5" data-a-at="r:0.500:2.7"></line>
     <text x="140.7" y="31.4" font-size="8.0" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">0.5</text>
     <text x="159.4" y="60.9" font-size="8.0" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">0.2</text>
     <text x="159.4" y="83.6" font-size="8.0" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">−0.3</text>
@@ -1440,14 +1451,14 @@ z
   
 <div class="foot" data-rt=""><span>Backpropagation · Gradients</span><span>06</span></div></section>
 
-<section class="page" id="graph" data-part="Backpropagation" data-view="reading" data-topic="computational-graph" style="--gap: 12.4pt;">
+<section class="page" id="graph" data-view="reading" data-topic="computational-graph" data-part="Backpropagation" style="--gap: 12.4pt;">
   <h2 data-b="zslc7">Computational Graphs</h2>
   <p data-b="ff7op">Written as a single expression, our network's loss is a function of a function of a function:</p>
   <b-eq data-b="zxfbj" class="">
     <eq-row note="the whole network, nested">ℒ = \text{BCE}\Big(\sigma\big(\text{ReLU}(x\,\Omega_1\T + b_1)\,\Omega_2\T + b_2\big),\ y\Big)</eq-row>
   <div class="eq-ml" data-rt="" style="zoom: 0.865;"><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">the whole network, nested</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-CC0000 sa-0-1"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow><mo>=</mo><mtext>BCE</mtext><mo fence="false" symmetric="true" minsize="1.8em" maxsize="1.8em">(</mo><mrow class="sym sym-DCB439 sa-19-25"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#DCB439;">𝛔</mi></mrow></mrow><mo fence="false" symmetric="true" minsize="1.2em" maxsize="1.2em">(</mo><mtext>ReLU</mtext><mo form="prefix" stretchy="false">(</mo><mrow class="sym sym-CC0000 sa-42-43"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow><mspace width="0.1667em"></mspace><msup><mrow class="sym sym-1155CC sa-45-53"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mn>𝟏</mn></msub></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>+</mo><mrow class="sym sym-666666 sa-58-61"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#666666;"><mi mathvariant="normal">𝐛</mi><mn>𝟏</mn></msub></mrow></mrow><mo form="postfix" stretchy="false">)</mo><mspace width="0.1667em"></mspace><msup><mrow class="sym sym-1155CC sa-64-72"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mn>𝟐</mn></msub></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>+</mo><mrow class="sym sym-666666 sa-77-80"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#666666;"><mi mathvariant="normal">𝐛</mi><mn>𝟐</mn></msub></mrow></mrow><mo fence="false" symmetric="true" minsize="1.2em" maxsize="1.2em">)</mo><mo separator="true">,</mo><mtext>&nbsp;</mtext><mrow class="sym sym-38761D sa-88-89"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow><mo fence="false" symmetric="true" minsize="1.8em" maxsize="1.8em">)</mo></mrow></math></div></div></div></b-eq>
   <p data-b="llgpz">As in Feed-Forward Networks, we can draw it as a <b class="def">computational graph</b>, each operation a box and each value a node. Here's ours, run forward on Clemson, with every value written under its node (Linear is <b-m tex="x Ω\T + b"><span class="c red sym" data-at="0,1" data-k="x">x</span> <span class="c wblue sym" data-at="2,3" data-k="Ω"><span class="Om">ω</span></span><sup>T</sup> + <span class="c gray sym" data-at="8,9" data-k="b">b</span></b-m>, as in PyTorch):</p>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 382.5pt" role="img" aria-label="A row of boxes from left to right: x (0.44, 1.80), Linear (with W1 and b1 coming in from above), z1 (0.58, 0.69), ReLU, a1 (0.58, 0.69), Linear (with W2 and b2 from above), z2 (0.20), sigma, p (0.55), BCE (with y = 0 from below), L (0.80)" data-b="tfey0">
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="A row of boxes from left to right: x (0.44, 1.80), Linear (with W1 and b1 coming in from above), z1 (0.58, 0.69), ReLU, a1 (0.58, 0.69), Linear (with W2 and b2 from above), z2 (0.20), sigma, p (0.55), BCE (with y = 0 from below), L (0.80)" style="width: 382.5pt" data-b="tfey0">
     <defs>
       <marker id="ah38761D-tfey0" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#38761D"></path>
@@ -1457,72 +1468,72 @@ z
       </marker>
     </defs>
     <g id="graph-tfey0-s1">
-      <rect x="8.2" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#1155CC" stroke-width="1.40"></rect>
+      <rect x="8.2" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#1155CC" stroke-width="1.4"></rect>
       <text x="20.6" y="74.4" font-size="10.0" fill="#1155CC" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">x</text>
     </g>
     <g id="graph-tfey0-s2">
-      <rect x="39.4" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="39.4" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="54.9" y="73.7" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Linear</text>
     </g>
     <g id="graph-tfey0-s3">
-      <rect x="76.8" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.40"></rect>
+      <rect x="76.8" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.4"></rect>
       <text x="89.1" y="74.4" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">z₁</text>
     </g>
     <g id="graph-tfey0-s4">
-      <rect x="108.0" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="108.0" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="123.4" y="73.7" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">ReLU</text>
     </g>
     <g id="graph-tfey0-s5">
-      <rect x="145.4" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.40"></rect>
+      <rect x="145.4" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.4"></rect>
       <text x="157.7" y="74.4" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">a₁</text>
     </g>
     <g id="graph-tfey0-s6">
-      <rect x="176.6" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="176.6" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="192.0" y="73.7" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Linear</text>
     </g>
     <g id="graph-tfey0-s7">
-      <rect x="213.9" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.40"></rect>
+      <rect x="213.9" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.4"></rect>
       <text x="226.3" y="74.4" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">z₂</text>
     </g>
     <g id="graph-tfey0-s8">
-      <rect x="245.1" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="245.1" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="260.6" y="73.7" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">σ</text>
     </g>
     <g id="graph-tfey0-s9">
-      <rect x="282.5" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="282.5" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="294.9" y="74.4" font-size="10.0" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">p</text>
     </g>
     <g id="graph-tfey0-s10">
-      <rect x="313.7" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="313.7" y="61.6" width="30.9" height="20.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="329.1" y="73.7" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">BCE</text>
     </g>
     <g id="graph-tfey0-s11">
-      <rect x="351.1" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#CC0000" stroke-width="1.40"></rect>
+      <rect x="351.1" y="59.6" width="24.7" height="24.7" rx="8.0" fill="#FFFFFF" stroke="#CC0000" stroke-width="1.4"></rect>
       <text x="363.4" y="74.4" font-size="10.0" fill="#CC0000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">ℒ</text>
     </g>
-    <line x1="34.3" y1="71.9" x2="37.7" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="34.3" y1="71.9" x2="37.7" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="34.9,70.5 37.7,71.9 34.9,73.3 34.9,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="68.6" y1="71.9" x2="75.1" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="68.6" y1="71.9" x2="75.1" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="72.3,70.5 75.1,71.9 72.3,73.3 72.3,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="102.9" y1="71.9" x2="106.3" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="102.9" y1="71.9" x2="106.3" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="103.5,70.5 106.3,71.9 103.5,73.3 103.5,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="137.1" y1="71.9" x2="143.7" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="137.1" y1="71.9" x2="143.7" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="140.9,70.5 143.7,71.9 140.9,73.3 140.9,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="171.4" y1="71.9" x2="174.9" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="171.4" y1="71.9" x2="174.9" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="172.1,70.5 174.9,71.9 172.1,73.3 172.1,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="205.7" y1="71.9" x2="212.3" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="205.7" y1="71.9" x2="212.3" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="209.5,70.5 212.3,71.9 209.5,73.3 209.5,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="240.0" y1="71.9" x2="243.5" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="240.0" y1="71.9" x2="243.5" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="240.7,70.5 243.5,71.9 240.7,73.3 240.7,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="274.3" y1="71.9" x2="280.8" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="274.3" y1="71.9" x2="280.8" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="278.0,70.5 280.8,71.9 278.0,73.3 278.0,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="308.6" y1="71.9" x2="312.0" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="308.6" y1="71.9" x2="312.0" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="309.2,70.5 312.0,71.9 309.2,73.3 309.2,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="342.9" y1="71.9" x2="349.4" y2="71.9" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="342.9" y1="71.9" x2="349.4" y2="71.9" stroke="#666666" stroke-width="0.9"></line>
     <polygon points="346.6,70.5 349.4,71.9 346.6,73.3 346.6,70.5" fill="#666666" stroke="#666666" stroke-width="0.45"></polygon>
-    <line x1="54.9" y1="30.8" x2="54.9" y2="59.8" stroke="#674EA7" stroke-width="0.90" marker-end="url(#ah674EA7-tfey0)" data-b="graph-tfey0-s2" data-b-at="t:0.501:1.8"></line>
-    <line x1="192.0" y1="30.8" x2="192.0" y2="59.8" stroke="#674EA7" stroke-width="0.90" marker-end="url(#ah674EA7-tfey0)" data-b="graph-tfey0-s6" data-b-at="t:0.500:1.8"></line>
-    <line x1="329.1" y1="121.2" x2="329.1" y2="84.0" stroke="#38761D" stroke-width="0.90" marker-end="url(#ah38761D-tfey0)" data-b="graph-tfey0-s10" data-b-at="b:0.499:1.8"></line>
+    <line x1="54.9" y1="30.8" x2="54.9" y2="59.8" stroke="#674EA7" stroke-width="0.9" marker-end="url(#ah674EA7-tfey0)" data-b="graph-tfey0-s2" data-b-at="t:0.501:1.8"></line>
+    <line x1="192.0" y1="30.8" x2="192.0" y2="59.8" stroke="#674EA7" stroke-width="0.9" marker-end="url(#ah674EA7-tfey0)" data-b="graph-tfey0-s6" data-b-at="t:0.500:1.8"></line>
+    <line x1="329.1" y1="121.2" x2="329.1" y2="84.0" stroke="#38761D" stroke-width="0.9" marker-end="url(#ah38761D-tfey0)" data-b="graph-tfey0-s10" data-b-at="b:0.499:1.8"></line>
     <text x="20.6" y="97.8" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">0.44</text>
     <text x="20.6" y="105.9" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">1.80</text>
     <text x="89.1" y="97.8" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">0.58</text>
@@ -1574,76 +1585,76 @@ z
 <section class="page" id="backprop" data-view="reading" data-topic="backprop">
   <h2 data-b="fphtv">Backpropagation</h2>
   <p data-b="vufi5">Pictured below is everything we just did, drawn on the graph. Starting from <span class="num">1</span> at the loss, each box multiplies the derivative coming in from its right by its local derivative and passes the result left, and the weights' derivatives drop out along the way.</p>
-  <svg class="draw" viewBox="0 0 384 140" style="width: 382.5pt" role="img" aria-label="The same row of boxes with red arrows pointing right to left. Under L is 1, under p 2.23, under z2 0.55, under a1 and z1 0.33 and -0.28. Under the operations: BCE times 2.23, sigma times 0.25, Linear times W2, ReLU times 1, times 1. Above the Linear boxes in red: W2 0.32 0.38 and b2 0.55, W1 0.15 0.59 -0.12 -0.50 and b1 0.33 -0.28" data-b="k10w5">
+  <svg class="draw" viewBox="0 0 384 140" role="img" aria-label="The same row of boxes with red arrows pointing right to left. Under L is 1, under p 2.23, under z2 0.55, under a1 and z1 0.33 and -0.28. Under the operations: BCE times 2.23, sigma times 0.25, Linear times W2, ReLU times 1, times 1. Above the Linear boxes in red: W2 0.32 0.38 and b2 0.55, W1 0.15 0.59 -0.12 -0.50 and b1 0.33 -0.28" style="width: 382.5pt" data-b="k10w5">
     <defs>
       <marker id="ahCC0000-k10w5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#CC0000"></path>
       </marker>
     </defs>
     <g id="graph-back-k10w5-s1">
-      <rect x="8.2" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#1155CC" stroke-width="1.40"></rect>
+      <rect x="8.2" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#1155CC" stroke-width="1.4"></rect>
       <text x="20.6" y="92.9" font-size="10.0" fill="#1155CC" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">x</text>
     </g>
     <g id="graph-back-k10w5-s2">
-      <rect x="39.4" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="39.4" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="54.9" y="92.3" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Linear</text>
     </g>
     <g id="graph-back-k10w5-s3">
-      <rect x="76.8" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.40"></rect>
+      <rect x="76.8" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.4"></rect>
       <text x="89.1" y="92.9" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">z₁</text>
     </g>
     <g id="graph-back-k10w5-s4">
-      <rect x="108.0" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="108.0" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="123.4" y="92.3" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">ReLU</text>
     </g>
     <g id="graph-back-k10w5-s5">
-      <rect x="145.4" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.40"></rect>
+      <rect x="145.4" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.4"></rect>
       <text x="157.7" y="92.9" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">a₁</text>
     </g>
     <g id="graph-back-k10w5-s6">
-      <rect x="176.6" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="176.6" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="192.0" y="92.3" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Linear</text>
     </g>
     <g id="graph-back-k10w5-s7">
-      <rect x="213.9" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.40"></rect>
+      <rect x="213.9" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.4"></rect>
       <text x="226.3" y="92.9" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">z₂</text>
     </g>
     <g id="graph-back-k10w5-s8">
-      <rect x="245.1" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="245.1" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="260.6" y="92.3" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">σ</text>
     </g>
     <g id="graph-back-k10w5-s9">
-      <rect x="282.5" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="282.5" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="294.9" y="92.9" font-size="10.0" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">p</text>
     </g>
     <g id="graph-back-k10w5-s10">
-      <rect x="313.7" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></rect>
+      <rect x="313.7" y="79.7" width="30.9" height="21.5" rx="0.0" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></rect>
       <text x="329.1" y="92.3" font-size="7.5" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">BCE</text>
     </g>
     <g id="graph-back-k10w5-s11">
-      <rect x="351.1" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#CC0000" stroke-width="1.40"></rect>
+      <rect x="351.1" y="77.5" width="24.7" height="25.8" rx="8.0" fill="#FFFFFF" stroke="#CC0000" stroke-width="1.4"></rect>
       <text x="363.4" y="93.0" font-size="10.0" fill="#CC0000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">ℒ</text>
     </g>
-    <line x1="76.1" y1="90.5" x2="69.6" y2="90.5" stroke="#CC0000" stroke-width="0.90"></line>
+    <line x1="76.1" y1="90.5" x2="69.6" y2="90.5" stroke="#CC0000" stroke-width="0.9"></line>
     <polygon points="72.4,91.9 69.6,90.5 72.4,89.1 72.4,91.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.45"></polygon>
-    <line x1="107.3" y1="90.5" x2="103.9" y2="90.5" stroke="#CC0000" stroke-width="0.90"></line>
+    <line x1="107.3" y1="90.5" x2="103.9" y2="90.5" stroke="#CC0000" stroke-width="0.9"></line>
     <polygon points="106.7,91.9 103.9,90.5 106.7,89.1 106.7,91.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.45"></polygon>
-    <line x1="144.7" y1="90.5" x2="138.1" y2="90.5" stroke="#CC0000" stroke-width="0.90"></line>
+    <line x1="144.7" y1="90.5" x2="138.1" y2="90.5" stroke="#CC0000" stroke-width="0.9"></line>
     <polygon points="140.9,91.9 138.1,90.5 140.9,89.1 140.9,91.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.45"></polygon>
-    <line x1="175.9" y1="90.5" x2="172.4" y2="90.5" stroke="#CC0000" stroke-width="0.90"></line>
+    <line x1="175.9" y1="90.5" x2="172.4" y2="90.5" stroke="#CC0000" stroke-width="0.9"></line>
     <polygon points="175.2,91.9 172.4,90.5 175.2,89.1 175.2,91.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.45"></polygon>
-    <line x1="213.3" y1="90.5" x2="206.7" y2="90.5" stroke="#CC0000" stroke-width="0.90"></line>
+    <line x1="213.3" y1="90.5" x2="206.7" y2="90.5" stroke="#CC0000" stroke-width="0.9"></line>
     <polygon points="209.5,91.9 206.7,90.5 209.5,89.1 209.5,91.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.45"></polygon>
-    <line x1="244.5" y1="90.5" x2="241.0" y2="90.5" stroke="#CC0000" stroke-width="0.90"></line>
+    <line x1="244.5" y1="90.5" x2="241.0" y2="90.5" stroke="#CC0000" stroke-width="0.9"></line>
     <polygon points="243.8,91.9 241.0,90.5 243.8,89.1 243.8,91.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.45"></polygon>
-    <line x1="281.8" y1="90.5" x2="275.3" y2="90.5" stroke="#CC0000" stroke-width="0.90"></line>
+    <line x1="281.8" y1="90.5" x2="275.3" y2="90.5" stroke="#CC0000" stroke-width="0.9"></line>
     <polygon points="278.1,91.9 275.3,90.5 278.1,89.1 278.1,91.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.45"></polygon>
-    <line x1="313.0" y1="90.5" x2="309.6" y2="90.5" stroke="#CC0000" stroke-width="0.90"></line>
+    <line x1="313.0" y1="90.5" x2="309.6" y2="90.5" stroke="#CC0000" stroke-width="0.9"></line>
     <polygon points="312.4,91.9 309.6,90.5 312.4,89.1 312.4,91.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.45"></polygon>
-    <line x1="350.4" y1="90.5" x2="343.9" y2="90.5" stroke="#CC0000" stroke-width="0.90"></line>
+    <line x1="350.4" y1="90.5" x2="343.9" y2="90.5" stroke="#CC0000" stroke-width="0.9"></line>
     <polygon points="346.7,91.9 343.9,90.5 346.7,89.1 346.7,91.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.45"></polygon>
-    <line x1="54.9" y1="78.8" x2="54.9" y2="52.7" stroke="#CC0000" stroke-width="0.90" marker-end="url(#ahCC0000-k10w5)" data-a="graph-back-k10w5-s2" data-a-at="t:0.501:0.9"></line>
-    <line x1="192.0" y1="78.8" x2="192.0" y2="52.7" stroke="#CC0000" stroke-width="0.90" marker-end="url(#ahCC0000-k10w5)" data-a="graph-back-k10w5-s6" data-a-at="t:0.500:0.9"></line>
+    <line x1="54.9" y1="78.8" x2="54.9" y2="52.7" stroke="#CC0000" stroke-width="0.9" marker-end="url(#ahCC0000-k10w5)" data-a="graph-back-k10w5-s2" data-a-at="t:0.501:0.9"></line>
+    <line x1="192.0" y1="78.8" x2="192.0" y2="52.7" stroke="#CC0000" stroke-width="0.9" marker-end="url(#ahCC0000-k10w5)" data-a="graph-back-k10w5-s6" data-a-at="t:0.500:0.9"></line>
     <text x="89.1" y="117.3" font-size="7.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">0.33</text>
     <text x="89.1" y="125.4" font-size="7.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">−0.28</text>
     <text x="123.4" y="116.1" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-style="italic">×1, ×1</text>
@@ -1695,7 +1706,7 @@ z
   <p data-b="u33yc">This is called <b class="def">automatic differentiation</b> (autograd in PyTorch), and it's <b class="take">why nobody differentiates a network with millions of weights by hand</b>.</p>
 <div class="foot" data-rt=""><span>Backpropagation · Backpropagation</span><span>13</span></div></section>
 
-<section class="page" id="batch" data-part="Training" data-view="reading" data-topic="training learning-rate" style="--gap: 14.2pt;">
+<section class="page" id="batch" data-view="reading" data-topic="training learning-rate" data-part="Training" style="--gap: 14.2pt;">
   <h2 data-b="wnxh7">Gradients on Every Game</h2>
   <p data-b="v8msr">One step of gradient descent with <b-m tex="α = 0.5">α = 0.5</b-m> moves all nine weights against their derivatives, and the network's chance of beating Clemson drops from <span class="num">55%</span> to <span class="num">27%</span>. Unfortunately a network that's only good at Clemson isn't much use, so as in Logistic Regression we average the loss over all <span class="num">141</span> games. With the games as rows of <b-m tex="X"><span class="c red sym" data-at="0,1" data-k="X">X</span></b-m>, every line of the backward pass works on all of them at once:</p>
   <b-eq data-b="j9c69" class="">
@@ -2287,7 +2298,7 @@ L 336.750703 32.912354
 <section class="page" id="epochs" data-view="reading" data-topic="training" style="">
   <h2 data-b="y80jt">Learning Curves Over Epochs</h2>
   <p data-b="qgza7">Anything fit by gradient descent can be watched while it learns. Here the logistic regression on the <span class="num">15</span> box-score stats from Ensemble Methods is fit to the <span class="num">2012</span> to <span class="num">2019</span> seasons, one step per pass through the training games (a pass is called an <b class="def">epoch</b>), and after each epoch we measure the cross-entropy on those seasons and on <span class="num">2020</span> to <span class="num">2022</span>, which it never trains on:</p>
-  <b-fig src="fig/learning-epochs.svg" style="width: 86%; --ar: 3.072;" alt="Binary cross-entropy against epoch, on a log scale, for logistic regression fit by gradient descent: the training loss falls and flattens, the validation loss falls to its lowest at epoch 55 and then climbs again" data-b="j6ddg"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 125" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/learning-epochs.svg" alt="Binary cross-entropy against epoch, on a log scale, for logistic regression fit by gradient descent: the training loss falls and flattens, the validation loss falls to its lowest at epoch 55 and then climbs again" style="width: 86%; --ar: 3.072;" data-b="j6ddg"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 125" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -3053,7 +3064,7 @@ z
   
 <div class="foot" data-rt=""><span>Backpropagation · Training</span><span>17</span></div></section>
 
-<section class="page" id="saturated" data-part="Issues" data-view="reading" data-topic="gradient-issues" style="--gap: 22pt;">
+<section class="page" id="saturated" data-view="reading" data-topic="gradient-issues" data-part="Issues" style="--gap: 22pt;">
   <h2 data-b="ktygr">Saturated Neurons</h2>
   <p data-b="k5fd5">Getting stuck in a local minimum isn't the only way training can stall. Back on A Small Network we standardized both inputs, so Clemson's <span class="num">136</span> yards became <span class="num">0.44</span>, which looked like housekeeping. Suppose our hidden layer used sigmoids instead of ReLUs and we fed it the raw numbers. With our starting weights Clemson's first hidden neuron gets <b-m tex="z = 0.5(136) + 0.2(3) = 68.6"><span class="c purple sym" data-at="0,1" data-k="z">z</span> = 0.5(136) + 0.2(3) = 68.6</b-m>, and <b-m tex="σ(68.6)"><span class="c gold sym" data-at="0,1" data-k="σ">σ</span>(68.6)</b-m> is <span class="num">1</span> to as many digits as anyone would write down.</p>
   <p data-b="nu9h1">The sigmoid's local derivative <b-m tex="σ(z)(1 − σ(z))"><span class="c gold sym" data-at="0,1" data-k="σ">σ</span>(<span class="c purple sym" data-at="2,3" data-k="z">z</span>)(1 − <span class="c gold sym" data-at="9,10" data-k="σ">σ</span>(<span class="c purple sym" data-at="11,12" data-k="z">z</span>))</b-m> is <span class="num">0.25</span> at <b-m tex="z = 0"><span class="c purple sym" data-at="0,1" data-k="z">z</span> = 0</b-m> and falls off quickly on both sides. At <span class="num">68.6</span> it's about <span class="num">1.6 × 10⁻³⁰</span>, so whatever gradient reaches this neuron gets multiplied by essentially nothing on its way back to <b-m tex="Ω_1"><span class="c wblue sym" data-at="0,3" data-k="Ω"><span class="Om">ω</span><sub>1</sub></span></b-m>. A neuron stuck out on one of the flat ends like this is <b class="def">saturated</b>, and <b class="warn">a saturated neuron barely learns</b>.</p>
@@ -4654,7 +4665,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -4682,15 +4693,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -4699,6 +4756,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -4711,9 +4769,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

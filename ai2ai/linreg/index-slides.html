@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -831,64 +842,64 @@ svg.al-clone { z-index: 1; }
 @page { size: 10in 7.5in; margin: 0; }</style>
 </head>
 <body>
-<nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Linear Regression</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#tasks">Regression</a><a href="#fitting">Fitting the line</a><a href="#p-m5hba">Overfitting</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="on">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="linreg-chapter.pdf" download>Reading</a><a href="linreg-chapter-slides.pdf" download>Lecture</a><a href="linreg-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
+<nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Linear Regression</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#lec-tasks">Regression</a><a href="#lec-fitting">Fitting the line</a><a href="#lec-p-m5hba">Overfitting</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="on">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="linreg-chapter.pdf" download>Reading</a><a href="linreg-chapter-slides.pdf" download>Lecture</a><a href="linreg-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="slides">
 <section class="page cover" id="cover">
-  
-  <svg class="draw" viewBox="0 0 384 230" style="width: 280.9pt" role="img" aria-label="Points scattered around a rising line, with a short gold stick from each point to the line" data-b="sbxxh">
+  <svg class="draw" viewBox="0 0 384 230" role="img" aria-label="Points scattered around a rising line, with a short gold stick from each point to the line" style="width: 280.9pt" data-b="sbxxh">
     <defs>
       <marker id="ah002B5B-sbxxh" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="7.7" y1="225.4" x2="371.0" y2="225.4" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-sbxxh)"></line>
-    <line x1="7.7" y1="225.4" x2="7.7" y2="8.5" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-sbxxh)"></line>
-    <line x1="51.2" y1="171.8" x2="51.2" y2="181.6" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="81.1" y1="166.9" x2="81.1" y2="167.2" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="82.1" y1="135.9" x2="82.1" y2="166.7" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="143.4" y1="169.9" x2="143.4" y2="137.2" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="145.5" y1="133.9" x2="145.5" y2="136.2" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="162.7" y1="142.7" x2="162.7" y2="127.9" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="177.6" y1="103.7" x2="177.6" y2="120.8" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="188.5" y1="153.7" x2="188.5" y2="115.5" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="198.9" y1="114.9" x2="198.9" y2="110.5" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="219.2" y1="94.6" x2="219.2" y2="100.8" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="219.6" y1="126.7" x2="219.6" y2="100.6" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="250.3" y1="64.9" x2="250.3" y2="85.8" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="277.1" y1="67.4" x2="277.1" y2="72.9" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="281.2" y1="49.6" x2="281.2" y2="70.9" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="303.5" y1="39.9" x2="303.5" y2="60.2" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="313.2" y1="72.2" x2="313.2" y2="55.5" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="321.8" y1="64.7" x2="321.8" y2="51.4" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="326.2" y1="51.2" x2="326.2" y2="49.3" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="326.3" y1="33.0" x2="326.3" y2="49.3" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="334.5" y1="27.1" x2="334.5" y2="45.3" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="336.8" y1="55.8" x2="336.8" y2="44.2" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="339.4" y1="52.6" x2="339.4" y2="43.0" stroke="#DCB439" stroke-width="1.40"></line>
-    <line x1="7.7" y1="202.5" x2="362.1" y2="32.0" stroke="#674EA7" stroke-width="3.00"></line>
-    <ellipse cx="51.2" cy="171.8" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="81.1" cy="166.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="82.1" cy="135.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="143.4" cy="169.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="145.5" cy="133.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="162.7" cy="142.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="177.6" cy="103.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="188.5" cy="153.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="198.9" cy="114.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="219.2" cy="94.6" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="219.6" cy="126.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="250.3" cy="64.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="277.1" cy="67.4" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="281.2" cy="49.6" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="303.5" cy="39.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="313.2" cy="72.2" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="321.8" cy="64.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="326.2" cy="51.2" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="326.3" cy="33.0" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="334.5" cy="27.1" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="336.8" cy="55.8" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
-    <ellipse cx="339.4" cy="52.6" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.00"></ellipse>
+    <line x1="7.7" y1="225.4" x2="371.0" y2="225.4" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-sbxxh)"></line>
+    <line x1="7.7" y1="225.4" x2="7.7" y2="8.5" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-sbxxh)"></line>
+    <line x1="51.2" y1="171.8" x2="51.2" y2="181.6" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="81.1" y1="166.9" x2="81.1" y2="167.2" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="82.1" y1="135.9" x2="82.1" y2="166.7" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="143.4" y1="169.9" x2="143.4" y2="137.2" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="145.5" y1="133.9" x2="145.5" y2="136.2" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="162.7" y1="142.7" x2="162.7" y2="127.9" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="177.6" y1="103.7" x2="177.6" y2="120.8" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="188.5" y1="153.7" x2="188.5" y2="115.5" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="198.9" y1="114.9" x2="198.9" y2="110.5" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="219.2" y1="94.6" x2="219.2" y2="100.8" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="219.6" y1="126.7" x2="219.6" y2="100.6" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="250.3" y1="64.9" x2="250.3" y2="85.8" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="277.1" y1="67.4" x2="277.1" y2="72.9" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="281.2" y1="49.6" x2="281.2" y2="70.9" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="303.5" y1="39.9" x2="303.5" y2="60.2" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="313.2" y1="72.2" x2="313.2" y2="55.5" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="321.8" y1="64.7" x2="321.8" y2="51.4" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="326.2" y1="51.2" x2="326.2" y2="49.3" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="326.3" y1="33.0" x2="326.3" y2="49.3" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="334.5" y1="27.1" x2="334.5" y2="45.3" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="336.8" y1="55.8" x2="336.8" y2="44.2" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="339.4" y1="52.6" x2="339.4" y2="43.0" stroke="#DCB439" stroke-width="1.4"></line>
+    <line x1="7.7" y1="202.5" x2="362.1" y2="32.0" stroke="#674EA7" stroke-width="3.0"></line>
+    <ellipse cx="51.2" cy="171.8" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="81.1" cy="166.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="82.1" cy="135.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="143.4" cy="169.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="145.5" cy="133.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="162.7" cy="142.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="177.6" cy="103.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="188.5" cy="153.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="198.9" cy="114.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="219.2" cy="94.6" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="219.6" cy="126.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="250.3" cy="64.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="277.1" cy="67.4" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="281.2" cy="49.6" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="303.5" cy="39.9" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="313.2" cy="72.2" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="321.8" cy="64.7" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="326.2" cy="51.2" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="326.3" cy="33.0" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="334.5" cy="27.1" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="336.8" cy="55.8" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
+    <ellipse cx="339.4" cy="52.6" rx="2.9" ry="2.9" fill="#1155CC" stroke="#FFFFFF" stroke-width="1.0"></ellipse>
   </svg>
+  
   <div class="cover-text" data-b="r8f9g">
     <div class="kicker">Unit 02 · Chapter 5</div>
     <h1>Linear Regression</h1>
@@ -897,14 +908,10 @@ svg.al-clone { z-index: 1; }
   </div>
 <div class="foot" data-rt=""><span>Linear Regression</span><span>01</span></div></section>
 
-<section class="page" id="tasks" data-part="Regression" style="--gap: 22pt;">
-  <h2 data-b="xq2c4">Classification Tasks</h2>
+<section class="page" id="lec-tasks" data-view="slides workbook" data-part="Regression" style="--gap: 22pt;">
+  <h2 data-b="0jz5q">Classification Tasks</h2>
   
-  
-  
-  
-  
-  <b-fig src="fig/winloss.svg" alt="Every Notre Dame game from 2012 to 2022 plotted by Notre Dame's yards and the opponent's yards, wins as green dots and losses as red crosses. On the left kNN shades a wiggly win region, on the right a decision tree shades rectangular ones" data-b="vbx4v" style="--ar: 2.430;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 158" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
+  <b-fig src="fig/winloss.svg" alt="Every Notre Dame game from 2012 to 2022 plotted by Notre Dame's yards and the opponent's yards, wins as green dots and losses as red crosses. On the left kNN shades a wiggly win region, on the right a decision tree shades rectangular ones" data-b="ys0k4" style="--ar: 2.430;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 158" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
  <metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTowNWNlZGMwYS0zNjljLTQ2MjAtOTlkNC0xMmYwOTU2YTkxZWQAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaGJMcSPPhi1tWzTwaxe4D/wAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDozMWViYWExYy05NjJhLTQ3YWItYWMwYi0wMGJiNzY1N2IzODBscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNov/nzdDxtoFh+Va9WvdfzcQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgg/NWW2mFy1EPFVdrawJtfD+6ywhg8VNDI5aCzRpCnb5SkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaMcDYS6hc2kTEM6J1iWVOpYAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIPzoA4prU219X8EPvqi5XUruZDptQKGycXApSAyMmJ20ZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQFxZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjA1Y2VkYzBhLTM2OWMtNDYyMC05OWQ0LTEyZjA5NTZhOTFlZC9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjU1MGIyZWYxLTI1NmYtNDY5My1iNjlkLTgxMDIwNDE3OTU0NXJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCD81ZbaYXLUQ8VV2trAm18P7rLCGDxU0MjloLNGkKdvlKJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggG/5UQDL02m/POYsU+wIup3HuGJ1wuj2ael/bBUQL4SWiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggHNaT/3dPegoi+IYTg2FK2i018LVfCU3kQ3vBPOEb46F0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQFofALAV11C1dVorJ5zsC1AtyzHr+T5YwD8s7xbplkYEmXqSMKzEx23WIHD2FACl7av0GV9Uai4kGfwc3uWoykk=</c2pa:manifest>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -6427,30 +6434,13 @@ L 2.4 2.4
 </b-fig>
   
   
-  
-  
-  
 <div class="foot" data-rt=""><span>Linear Regression · Regression</span><span>02</span></div></section>
 
-<section class="page" id="p-juaml" style="--gap: 22pt;">
+<section class="page" id="lec-p-juaml" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="zu98k">Regression Tasks</h2>
   
   
-  <h2 data-b="le5kg">Regression Tasks</h2>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  <aside class="qc" data-qsrc="lq-linreg-1" data-b="eayq7"><b>Quick check (old exam question):</b> is a regression task supervised or unsupervised learning?<br><div class="ans ghost-only">Supervised: every training sample comes with the true target value, so we can measure how far off each prediction is.</div></aside>
-  
-  
-  
+  <aside class="qc" data-qsrc="lq-linreg-1" data-b="yc12v"><b>Quick check (old exam question):</b> is a regression task supervised or unsupervised learning?<div class="ans ghost-only">Supervised: every training sample comes with the true target value, so we can measure how far off each prediction is.</div></aside>
   
 <div class="foot" data-rt=""><span>Linear Regression · Regression</span><span>03</span></div></section>
 
@@ -6461,153 +6451,78 @@ L 2.4 2.4
   <p data-b="mbd7w"><span class="key">The <u class="fill">line</u> he drew through the data kept the name, which is why fitting a line is called <b class="name">linear regression</b> even when nothing is regressing.</span></p>
 <div class="foot" data-rt=""><span>Linear Regression · Regression</span><span>04</span></div></section>
 
-<section class="page" id="linear-regression">
-  <h2 data-b="z8unh">The Simplest Model: A Line</h2>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+<section class="page" id="lec-linear-regression" data-view="slides workbook">
+  <h2 data-b="wnznr">The Simplest Model: A Line</h2>
   
   
 <div class="foot" data-rt=""><span>Linear Regression · Regression</span><span>05</span></div></section>
 
-<section class="page" id="p-hjjma" style="--gap: 22pt;">
-  <h2 data-b="apy4w">Linear Regression</h2>
-  <p data-b="ptfzf"><span class="key">Unfortunately, because linear regression is so old, <b class="warn">it has a lot of vocab specific to it</b> that has accrued and changed over time, depending on the field using it. This can make it tricky to recognize a linear regression in different contexts.</span></p>
-  
-  
-  
-  
-  
-  
-  <b-eq data-b="xkqnz" class=""><a id="eq-line" data-rt=""></a>
+<section class="page" id="lec-p-hjjma" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="mrt63">Linear Regression</h2>
+  <p data-b="el7tb"><span class="key">Unfortunately, because linear regression is so old, <b class="warn">it has a lot of vocab specific to it</b> that has accrued and changed over time, depending on the field using it. This can make it tricky to recognize a linear regression in different contexts.</span></p>
+  <b-eq data-b="pqhji" class=""><a id="eq-line" data-rt=""></a>
     <eq-row label="line" note="a line with one feature">\lk{yhat}{\yhat} = \lk{slope}{\omega_1 x_1} + \lk{w0}{\omega_0}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[5.1]</div><div class="eqml-e"><div class="eqml-note">a line with one feature</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="lk-yhat"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mtext style="color:#DCB439;">ŷ</mtext></mrow></mrow><mo>=</mo><mrow class="lk-slope"><mrow class="sym sym-674EA7 sa-30-38"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟏</mn></msub></mrow></mrow><mrow class="sym sym-1155CC sa-39-42"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝐱</mi><mn>𝟏</mn></msub></mrow></mrow></mrow><mo>+</mo><mrow class="lk-w0"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟎</mn></msub></mrow></mrow></mrow></math></div></div></div></b-eq>
   
-  
-  
-  
-  <ul class="cases" data-b="zskr1">
+  <ul class="cases" data-b="wl364">
     <li><b-m tex="ŷ"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span></b-m>: <u class="fill">the prediction (predicted target)</u></li>
     <li><b-m tex="ω_1"><span class="c purple sym" data-at="0,3" data-k="ω">ω<sub>1</sub></span></b-m>, <b-m tex="ω_0"><span class="c purple sym" data-at="0,3" data-k="ω">ω<sub>0</sub></span></b-m>: <u class="fill">slope and intercept</u></li>
     <li><b-m tex="x_1"><span class="c blue sym" data-at="0,3" data-k="x">x<sub>1</sub></span></b-m>: <u class="fill">the input feature</u></li>
   </ul>
-  
-  
-  
-  
-  
-  
-  
-  
-  
 <div class="foot" data-rt=""><span>Linear Regression · Regression</span><span>06</span></div></section>
 
-<section class="page" id="fitting" data-part="Fitting the line" style="--gap: 22pt;">
-  <h2 data-b="tm4yd">Finding Our Line</h2>
-  <p data-b="whgx9"><span class="key">How do we actually find the line that "fits" the data the best?</span></p>
-  
-  
-  
-  
-  
-  
+<section class="page" id="lec-fitting" data-view="slides workbook" data-part="Fitting the line" style="--gap: 22pt;">
+  <h2 data-b="cmbj7">Finding Our Line</h2>
+  <p data-b="42na9"><span class="key">How do we actually find the line that "fits" the data the best?</span></p>
   
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>07</span></div></section>
 
-
-
-<section class="page" id="loss-fn" style="--gap: 22pt;">
-  <h2 data-b="f2bk3">Cost and Loss Functions</h2>
+<section class="page" id="lec-loss-fn" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="rltjo">Cost and Loss Functions</h2>
   
-  <b-eq data-b="jchr7" class=""><a id="eq-mse" data-rt=""></a><a id="eq-sse" data-rt=""></a>
+  <b-eq data-b="umpg8" class=""><a id="eq-mse" data-rt=""></a><a id="eq-sse" data-rt=""></a>
     <eq-row label="sse" note="sum of squared errors">\text{SSE}(\omega) = \lk{sum}{\sum_i} \lk{sq}{(\lk{err}{y_i - \lk{yhat}{\yhat_i}})^2}</eq-row>
     <eq-row label="mse" note="mean squared error">\text{MSE}(\omega) = \lk{mean}{\frac{1}{n}\sum_i} (y_i - \yhat_i)^2</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[5.2]</div><div class="eqml-e"><div class="eqml-note">sum of squared errors</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mtext>SSE</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-674EA7 sa-11-17"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><msub class="lk-sum"><mo movablelimits="false">∑</mo><mi mathvariant="normal">i</mi></msub><msup class="lk-sq"><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="lk-err"><mrow class="sym sym-38761D sa-56-59"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#38761D;"><mi mathvariant="normal">𝐲</mi><mi mathvariant="normal">𝐢</mi></msub></mrow></mrow><mo>−</mo><mrow class="lk-yhat"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mtext>ŷ</mtext><mi mathvariant="normal">𝐢</mi></msub></mrow></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></math></div><div class="eqml-n">[5.3]</div><div class="eqml-e"><div class="eqml-note">mean squared error</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mtext>MSE</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-674EA7 sa-11-17"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mrow class="lk-mean"><mfrac><mn>1</mn><mi mathvariant="normal">n</mi></mfrac><msub><mo movablelimits="false">∑</mo><mi mathvariant="normal">i</mi></msub></mrow><msup><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-38761D sa-51-54"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#38761D;"><mi mathvariant="normal">𝐲</mi><mi mathvariant="normal">𝐢</mi></msub></mrow></mrow><mo>−</mo><mrow class="sym sym-DCB439 sa-57-64"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mtext>ŷ</mtext><mi mathvariant="normal">𝐢</mi></msub></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mn>2</mn></msup></mrow></math></div></div></div></b-eq>
   
-  
-  
-  
-  
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>08</span></div></section>
 
-<section class="page" id="mle" style="--gap: 22pt;">
-  
-  
-  
-  
-  <h2 data-b="fk5c5">Why Squares, Again</h2>
-  <p data-b="kfbpe"><span class="key"><b class="def">Maximum likelihood estimation (MLE)</b> is a method of estimating the parameters of an <u class="fill">assumed probability distribution</u>, given some observed data.</span></p>
-  
-  
-  
-  
-  
+<section class="page" id="lec-mle" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="cbjx3">Why Squares, Again</h2>
+  <p data-b="8lrq8"><span class="key"><b class="def">Maximum likelihood estimation (MLE)</b> is a method of estimating the parameters of an <u class="fill">assumed probability distribution</u>, given some observed data.</span></p>
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>09</span></div></section>
 
-<section class="page" id="optimization">
-  
-  <h2 data-b="yuuwm">Optimization Problems</h2>
-  
-  
-  
-  
-  
-  
+<section class="page" id="lec-optimization" data-view="slides workbook">
+  <h2 data-b="arng1">Optimization Problems</h2>
   
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>10</span></div></section>
 
-
-
-<section class="page" id="weights" style="--gap: 22pt;">
-  
-  <h2 data-b="k83jq">Visualizing Loss Functions with Respect to the Weights</h2>
-  <p data-b="z4lum"><span class="key">We can plot the loss function with respect to <b-m tex="ω_1"><span class="c purple sym" data-at="0,3" data-k="ω">ω<sub>1</sub></span></b-m>:</span></p>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 670.5pt" data-view="slides workbook" role="img" aria-label="Empty axes: SSE against the slope w1" data-b="himbg">
+<section class="page" id="lec-weights" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="enk3m">Visualizing Loss Functions with Respect to the Weights</h2>
+  <p data-b="mjrmw"><span class="key">We can plot the loss function with respect to <b-m tex="ω_1"><span class="c purple sym" data-at="0,3" data-k="ω">ω<sub>1</sub></span></b-m>:</span></p>
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="Empty axes: SSE against the slope w1" style="width: 670.5pt" data-view="slides workbook" data-b="himbg">
     <defs>
       <marker id="ah002B5B-himbg" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="21.0" y1="141.0" x2="370.3" y2="141.0" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-himbg)"></line>
-    <line x1="21.0" y1="141.0" x2="21.0" y2="6.1" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-himbg)"></line>
+    <line x1="21.0" y1="141.0" x2="370.3" y2="141.0" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-himbg)"></line>
+    <line x1="21.0" y1="141.0" x2="21.0" y2="6.1" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-himbg)"></line>
     <text x="359.4" y="135.0" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">ω₁ (points per 100 yards)</text>
     <text x="29.5" y="10.7" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">SSE</text>
   </svg>
   
   
-  
-  
-  
-  
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>11</span></div></section>
 
-<section class="page" id="bottom" style="--gap: 22pt;">
-  <h2 data-b="nni0h">Finding the Bottom</h2>
-  <p data-b="bybfh"><span class="key">So given a loss function, our goal is to <u class="fill">minimize</u> it. We do this by finding the value of <b-m tex="ω_1"><span class="c purple sym" data-at="0,3" data-k="ω">ω<sub>1</sub></span></b-m> at the bottom of the bowl.</span></p>
-  
-  
-  
-  
-  
-  
-  
+<section class="page" id="lec-bottom" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="dv0j3">Finding the Bottom</h2>
+  <p data-b="cqo9r"><span class="key">So given a loss function, our goal is to <u class="fill">minimize</u> it. We do this by finding the value of <b-m tex="ω_1"><span class="c purple sym" data-at="0,3" data-k="ω">ω<sub>1</sub></span></b-m> at the bottom of the bowl.</span></p>
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>12</span></div></section>
 
-<section class="page" id="matrix" style="--gap: 22pt;">
-  
-  
-  
-  <h2 data-b="eo1ko">Two Weights at Once</h2>
-  
-  <b-fig style="--fig-h: 105pt; --ar: 1.786;" class="s-xs" src="fig/bowl3d.svg" alt="The SSE of the five games drawn as a surface over the intercept w0 and the slope w1: a long, narrow bowl with its lowest point at w0 = -5.2, w1 = 9.0, and its contour rings drawn as ellipses on the floor" data-b="kheq7"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 215" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<section class="page" id="lec-matrix" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="i53mr">Two Weights at Once</h2>
+  <b-fig src="fig/bowl3d.svg" class="s-xs" alt="The SSE of the five games drawn as a surface over the intercept w0 and the slope w1: a long, narrow bowl with its lowest point at w0 = -5.2, w1 = 9.0, and its contour rings drawn as ellipses on the floor" style="--fig-h: 105pt; --ar: 1.786;" data-b="irhh2"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 215" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -7343,8 +7258,7 @@ iVBORw0KGgoAAAANSUhEUgAAAQ0AAAFyCAYAAADvZo8cAADqR0lEQVR4nOz9e/R1XVYWBj5z7X1+1/f+
  </g>
 </svg>
 </b-fig>
-  
-  <b-fig style="--fig-h: 105pt; --ar: 2.909;" class="s-xs" src="fig/bowl-slices.svg" data-view="slides workbook" alt="Two slices through the lowest point of the bowl: SSE against w0 with w1 held at 9.0, and SSE against w1 with w0 held at -5.2. Both are U-shaped with their lowest point at the best weight" data-b="b19b7"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 132" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/bowl-slices.svg" class="s-xs" alt="Two slices through the lowest point of the bowl: SSE against w0 with w1 held at 9.0, and SSE against w1 with w0 held at -5.2. Both are U-shaped with their lowest point at the best weight" style="--fig-h: 105pt; --ar: 2.909;" data-view="slides workbook" data-b="b19b7"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 132" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -7887,29 +7801,20 @@ L 380.16 105.6
   <p data-view="slides workbook" data-b="mh0f6">That's two equations to solve together, and with ten features it would be eleven. Writing each one out by hand gets old fast.</p>
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>13</span></div></section>
 
-
-
-<section class="page" id="p-1jmit" style="--gap: 22pt;">
-  <h2 data-b="xu4yx">Matrix Notation for Linear Regressions</h2>
-  <p data-b="a42b5"><span class="key">We can instead represent our entire problem as matrices and matrix operations.</span></p>
-  
-  
-  
-  <b-eq data-fill="" data-b="heipg" class=""><a id="eq-predict" data-rt=""></a>
+<section class="page" id="lec-p-1jmit" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="jpxwm">Matrix Notation for Linear Regressions</h2>
+  <p data-b="vy9l2"><span class="key">We can instead represent our entire problem as matrices and matrix operations.</span></p>
+  <b-eq data-fill="" data-b="pvmml" class=""><a id="eq-predict" data-rt=""></a>
     <eq-row label="predict" note="every prediction at once">\lk{yhat}{\yhat} = \lk{X}{X}\,\lk{w}{\omega\T}</eq-row>
-  <div class="eq-ml" data-rt="" style="zoom: 1.5;"><div class="eqml" role="math"><div class="eqml-n">[5.6]</div><div class="eqml-e"><div class="eqml-note">every prediction at once</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="lk-yhat"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mtext style="color:#DCB439;">ŷ</mtext></mrow></mrow><mo>=</mo><mi class="lk-X">X</mi><mspace width="0.1667em"></mspace><msup class="lk-w"><mrow class="sym sym-674EA7 sa-37-43"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup></mrow></math></div></div></div></b-eq>
-  
+  <div class="eq-ml" data-rt="" style="zoom: 1.5;"><div class="eqml" role="math"><div class="eqml-n">[5.4]</div><div class="eqml-e"><div class="eqml-note">every prediction at once</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="lk-yhat"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mtext style="color:#DCB439;">ŷ</mtext></mrow></mrow><mo>=</mo><mi class="lk-X">X</mi><mspace width="0.1667em"></mspace><msup class="lk-w"><mrow class="sym sym-674EA7 sa-37-43"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup></mrow></math></div></div></div></b-eq>
   
   
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>14</span></div></section>
 
-<section class="page" id="ols" style="--gap: 22pt;">
-  <h2 data-b="dqk8m">Ordinary Least Squares</h2>
+<section class="page" id="lec-ols" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="xxtjb">Ordinary Least Squares</h2>
   
-  
-  
-  
-  <b-eq data-fill="" data-b="k47jo" class=""><a id="eq-ols" data-rt=""></a>
+  <b-eq data-fill="" data-b="0coag" class=""><a id="eq-ols" data-rt=""></a>
     <eq-row note="SSE for every sample at once">ℒ(\omega) = \norm{y - X \omega\T}^2</eq-row>
     <eq-step>\text{take the gradient and set it to } 0</eq-step>
     <eq-row>-2\,X\T (y - X \omega\T) = 0</eq-row>
@@ -7917,22 +7822,13 @@ L 380.16 105.6
     <eq-row note="the normal equations">\lk{normal}{X\T X\,\omega\T = X\T y}</eq-row>
     <eq-step>\text{multiply both sides by } (X\T X)^{-1}</eq-step>
     <eq-row label="ols" note="ordinary least squares">\omega\T = \lk{xtx}{(X\T X)^{-1}} \lk{xty}{X\T y}</eq-row>
-  <div class="eq-ml" data-rt="" style="zoom: 1.5;"><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">SSE for every sample at once</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-CC0000 sa-0-1"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-674EA7 sa-2-8"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><msup><mrow><mo fence="true" form="prefix" stretchy="false">‖</mo><mrow class="sym sym-38761D sa-18-19"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow><mo>−</mo><mi mathvariant="normal">X</mi><msup><mrow class="sym sym-674EA7 sa-24-30"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo fence="true" form="postfix" stretchy="false">‖</mo></mrow><mn>2</mn></msup></mrow></math></div><div class="eqml-n"></div><div class="eqml-s"><span class="eqml-arrow">↓</span><math><mrow><mtext>take&nbsp;the&nbsp;gradient&nbsp;and&nbsp;set&nbsp;it&nbsp;to&nbsp;</mtext><mn>0</mn></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mo form="prefix" stretchy="false">−</mo><mn>2</mn><mspace width="0.1667em"></mspace><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-38761D sa-9-10"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow><mo>−</mo><mi mathvariant="normal">X</mi><msup><mrow class="sym sym-674EA7 sa-15-21"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mn>0</mn></mrow></math></div><div class="eqml-n"></div><div class="eqml-s"><span class="eqml-arrow">↓</span><math><mtext>multiply&nbsp;out</mtext></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">the normal equations</div><math display="block" displaystyle="true" style="display:inline-block"><mrow class="lk-normal"><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mspace width="0.1667em"></mspace><msup><mrow class="sym sym-674EA7 sa-19-25"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mrow class="sym sym-38761D sa-34-35"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-s"><span class="eqml-arrow">↓</span><math><mrow><mtext>multiply&nbsp;both&nbsp;sides&nbsp;by&nbsp;</mtext><msup><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mrow><mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo><mn>1</mn></mrow></msup></mrow></math></div><div class="eqml-n">[5.7]</div><div class="eqml-e"><div class="eqml-note">ordinary least squares</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mrow class="sym sym-674EA7 sa-0-6"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><msup class="lk-xtx"><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mrow><mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo><mn>1</mn></mrow></msup><mrow class="lk-xty"><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mrow class="sym sym-38761D sa-47-48"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow></mrow></mrow></math></div></div></div></b-eq>
-  
+  <div class="eq-ml" data-rt="" style="zoom: 1.5;"><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">SSE for every sample at once</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-CC0000 sa-0-1"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-674EA7 sa-2-8"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><msup><mrow><mo fence="true" form="prefix" stretchy="false">‖</mo><mrow class="sym sym-38761D sa-18-19"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow><mo>−</mo><mi mathvariant="normal">X</mi><msup><mrow class="sym sym-674EA7 sa-24-30"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo fence="true" form="postfix" stretchy="false">‖</mo></mrow><mn>2</mn></msup></mrow></math></div><div class="eqml-n"></div><div class="eqml-s"><span class="eqml-arrow">↓</span><math><mrow><mtext>take&nbsp;the&nbsp;gradient&nbsp;and&nbsp;set&nbsp;it&nbsp;to&nbsp;</mtext><mn>0</mn></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mo form="prefix" stretchy="false">−</mo><mn>2</mn><mspace width="0.1667em"></mspace><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-38761D sa-9-10"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow><mo>−</mo><mi mathvariant="normal">X</mi><msup><mrow class="sym sym-674EA7 sa-15-21"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mn>0</mn></mrow></math></div><div class="eqml-n"></div><div class="eqml-s"><span class="eqml-arrow">↓</span><math><mtext>multiply&nbsp;out</mtext></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">the normal equations</div><math display="block" displaystyle="true" style="display:inline-block"><mrow class="lk-normal"><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mspace width="0.1667em"></mspace><msup><mrow class="sym sym-674EA7 sa-19-25"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mrow class="sym sym-38761D sa-34-35"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-s"><span class="eqml-arrow">↓</span><math><mrow><mtext>multiply&nbsp;both&nbsp;sides&nbsp;by&nbsp;</mtext><msup><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mrow><mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo><mn>1</mn></mrow></msup></mrow></math></div><div class="eqml-n">[5.5]</div><div class="eqml-e"><div class="eqml-note">ordinary least squares</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mrow class="sym sym-674EA7 sa-0-6"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><msup class="lk-xtx"><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mrow><mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo><mn>1</mn></mrow></msup><mrow class="lk-xty"><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mrow class="sym sym-38761D sa-47-48"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow></mrow></mrow></math></div></div></div></b-eq>
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>15</span></div></section>
 
-<section class="page" id="p-v4mkp" style="--gap: 22pt;">
+<section class="page" id="lec-p-v4mkp" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="zb1kk">Ordinary Least Squares, Continued</h2>
   
-  
-  
-  <h2 data-b="rt5gc">Ordinary Least Squares, Continued</h2>
-  
-  
-  
-  
-  
-  
-  <h3 data-b="dlh5d">Worked OLS Example</h3>
+  <h3 data-b="firpg">Worked OLS Example</h3>
   
   <table class="tbl small num" data-view="slides workbook" data-b="fi22l">
     <thead>
@@ -7948,51 +7844,38 @@ L 380.16 105.6
   </table>
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>16</span></div></section>
 
-<section class="page" id="ols-hand" style="--gap: 22pt;">
-  
-  <p data-b="ngmua"><span class="key">Give <b-m tex="X">X</b-m> a <b class="def">column of 1s</b> for the intercept, then follow the OLS recipe.</span></p>
-  <b-eq data-fill="" data-b="cavsq" class=""><a id="eq-worked" data-rt=""></a>
+<section class="page" id="lec-ols-hand" data-view="slides workbook" style="--gap: 22pt;">
+  <p data-b="1gx3j"><span class="key">Give <b-m tex="X">X</b-m> a <b class="def">column of 1s</b> for the intercept, then follow the OLS recipe.</span></p>
+  <b-eq data-fill="" data-b="ucj3p" class=""><a id="eq-worked" data-rt=""></a>
     <eq-row note="the data, written on its side (transposed) to save room">X\T = \Bb{\begin{matrix} 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 \\ 2 &amp; 3 &amp; 4 &amp; 5 &amp; 6 \end{matrix}} \qquad y\T = \bb{\begin{matrix} 14 &amp; 20 &amp; 31 &amp; 40 &amp; 49 \end{matrix}}</eq-row>
     <eq-row note="two small products">X\T X = \Bb{\begin{matrix} 5 &amp; 20 \\ 20 &amp; 90 \end{matrix}} \qquad X\T y = \Bb{\begin{matrix} 154 \\ 706 \end{matrix}}</eq-row>
     <eq-row note="2 × 2 inverse: swap, negate, divide by 5·90 − 20·20 = 50">(X\T X)^{-1} = \frac{1}{50}\Bb{\begin{matrix} 90 &amp; -20 \\ -20 &amp; 5 \end{matrix}}</eq-row>
     <eq-row label="worked" note="the weights">\omega\T = \frac{1}{50}\Bb{\begin{matrix} 90\cdot154 - 20\cdot706 \\ -20\cdot154 + 5\cdot706 \end{matrix}} = \Bb{\begin{matrix} -5.2 \\ 9.0 \end{matrix}}</eq-row>
-  <div class="eq-ml" data-rt="" style="zoom: 1.371;"><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">the data, written on its side (transposed) to save room</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>1</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>1</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>1</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>1</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>1</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>2</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>3</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>4</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>5</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>6</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow><mspace width="2em"></mspace><msup><mrow class="sym sym-38761D sa-85-86"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>14</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>20</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>31</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>40</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>49</mn></mtd></mtr></mtable><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">two small products</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>5</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>20</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>20</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>90</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow><mspace width="2em"></mspace><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mrow class="sym sym-38761D sa-70-71"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:0em;"><mn>154</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:0em;"><mn>706</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">2 × 2 inverse: swap, negate, divide by 5·90 − 20·20 = 50</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mrow><mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo><mn>1</mn></mrow></msup><mo>=</mo><mfrac><mn>1</mn><mn>50</mn></mfrac><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>90</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mrow><mo form="prefix" stretchy="false">−</mo><mn>20</mn></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mrow><mo form="prefix" stretchy="false">−</mo><mn>20</mn></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>5</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div><div class="eqml-n">[5.8]</div><div class="eqml-e"><div class="eqml-note">the weights</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mrow class="sym sym-674EA7 sa-0-6"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><mfrac><mn>1</mn><mn>50</mn></mfrac><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:0em;"><mrow><mn>90</mn><mo>⋅</mo><mn>154</mn><mo>−</mo><mn>20</mn><mo>⋅</mo><mn>706</mn></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:0em;"><mrow><mo form="prefix" stretchy="false">−</mo><mn>20</mn><mo>⋅</mo><mn>154</mn><mo>+</mo><mn>5</mn><mo>⋅</mo><mn>706</mn></mrow></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:0em;"><mrow><mo form="prefix" stretchy="false">−</mo><mn>5.2</mn></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:0em;"><mn>9.0</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div></div></div></b-eq>
-  <p data-b="ait6f"><span class="key">So <b-m tex="ŷ = 9.0 x_1 − 5.2"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span> = 9.0 <span class="c blue sym" data-at="8,11" data-k="x">x<sub>1</sub></span> − 5.2</b-m>: about <u class="fill">9 points per 100 yards</u>.</span></p>
+  <div class="eq-ml" data-rt="" style="zoom: 1.371;"><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">the data, written on its side (transposed) to save room</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>1</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>1</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>1</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>1</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>1</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>2</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>3</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>4</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>5</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>6</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow><mspace width="2em"></mspace><msup><mrow class="sym sym-38761D sa-85-86"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>14</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>20</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>31</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>40</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>49</mn></mtd></mtr></mtable><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">two small products</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>5</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>20</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>20</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>90</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow><mspace width="2em"></mspace><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mrow class="sym sym-38761D sa-70-71"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:0em;"><mn>154</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:0em;"><mn>706</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">2 × 2 inverse: swap, negate, divide by 5·90 − 20·20 = 50</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><msup><mi mathvariant="normal">X</mi><mrow class="tml-med-pad"><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mi mathvariant="normal">X</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mrow><mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo><mn>1</mn></mrow></msup><mo>=</mo><mfrac><mn>1</mn><mn>50</mn></mfrac><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>90</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mrow><mo form="prefix" stretchy="false">−</mo><mn>20</mn></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mrow><mo form="prefix" stretchy="false">−</mo><mn>20</mn></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>5</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div><div class="eqml-n">[5.6]</div><div class="eqml-e"><div class="eqml-note">the weights</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mrow class="sym sym-674EA7 sa-0-6"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝛚</mi></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>=</mo><mfrac><mn>1</mn><mn>50</mn></mfrac><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:0em;"><mrow><mn>90</mn><mo>⋅</mo><mn>154</mn><mo>−</mo><mn>20</mn><mo>⋅</mo><mn>706</mn></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:0em;"><mrow><mo form="prefix" stretchy="false">−</mo><mn>20</mn><mo>⋅</mo><mn>154</mn><mo>+</mo><mn>5</mn><mo>⋅</mo><mn>706</mn></mrow></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:0em;"><mrow><mo form="prefix" stretchy="false">−</mo><mn>5.2</mn></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:0em;"><mn>9.0</mn></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div></div></div></b-eq>
+  <p data-b="9dg1k"><span class="key">So <b-m tex="ŷ = 9.0 x_1 − 5.2"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span> = 9.0 <span class="c blue sym" data-at="8,11" data-k="x">x<sub>1</sub></span> − 5.2</b-m>: about <u class="fill">9 points per 100 yards</u>.</span></p>
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>17</span></div></section>
 
-<section class="page" id="ols-result" style="--gap: 22pt;">
-  <h2 data-b="qm85i">What the Line Learned</h2>
-  
-  <aside class="qc" data-qsrc="lq-linreg-2" data-b="w27tp"><b>Quick check:</b> in <span class="num">2018</span> Notre Dame gained <span class="num">550</span> yards against Stanford. What does this line predict, and what is the residual if Notre Dame scored <span class="num">38</span>?<div class="ans ghost-only"><b-m tex="x_1 = 5.5"><span class="c blue sym" data-at="0,3" data-k="x">x<sub>1</sub></span> = 5.5</b-m>, so <b-m tex="ŷ = 9.0 × 5.5 − 6.7 = 42.8"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span> = 9.0 × 5.5 − 6.7 = 42.8</b-m> points. The residual is <b-m tex="y − ŷ = 38 − 42.8 = −4.8"><span class="c green sym" data-at="0,1" data-k="y">y</span> − <span class="c gold sym" data-at="4,5" data-k="ŷ">ŷ</span> = 38 − 42.8 = −4.8</b-m>: Notre Dame scored about <span class="num">5</span> points fewer than its yards suggest.</div></aside>
-  
-  
-  
-  
+<section class="page" id="lec-ols-result" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="fk676">What the Line Learned</h2>
+  <aside class="qc" data-qsrc="lq-linreg-2" data-b="bqr6m"><b>Quick check:</b> in <span class="num">2018</span> Notre Dame gained <span class="num">550</span> yards against Stanford. What does this line predict, and what is the residual if Notre Dame scored <span class="num">38</span>?<div class="ans ghost-only"><b-m tex="x_1 = 5.5"><span class="c blue sym" data-at="0,3" data-k="x">x<sub>1</sub></span> = 5.5</b-m>, so <b-m tex="ŷ = 9.0 × 5.5 − 6.7 = 42.8"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span> = 9.0 × 5.5 − 6.7 = 42.8</b-m> points. The residual is <b-m tex="y − ŷ = 38 − 42.8 = −4.8"><span class="c green sym" data-at="0,1" data-k="y">y</span> − <span class="c gold sym" data-at="4,5" data-k="ŷ">ŷ</span> = 38 − 42.8 = −4.8</b-m>: Notre Dame scored about <span class="num">5</span> points fewer than its yards suggest.</div></aside>
   
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>18</span></div></section>
 
-<section class="page" id="sklearn" style="--gap: 22pt;">
-  <h2 data-b="ru7vg">OLS in sklearn</h2>
-  
-  
-  
-  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ai2ai/nd_football.csv" data-b="r5eog"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div></div><div class="src"><div class="ln"><span class="kw">import</span> pandas <span class="kw">as</span> pd</div><div class="ln"><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression</div><div class="ln"></div><div class="ln">games = pd.read_csv(<span class="st">"nd_football.csv"</span>)</div><div class="ln">X = games[[<span class="st">"nd_total_yards"</span>]] / <span class="nu">100</span>   <span class="cm"># hundreds</span></div><div class="ln">y = games[<span class="st">"nd_points"</span>]</div><div class="ln"></div><div class="ln">model = LinearRegression().fit(X, y)</div><div class="ln"><span class="bi">print</span>(model.coef_.round(<span class="nu">2</span>), model.intercept_.round(<span class="nu">2</span>))</div><div class="ln"><span class="bi">print</span>(<span class="bi">round</span>(model.score(X, y), <span class="nu">2</span>))    <span class="cm"># R²</span></div></div></b-code>
+<section class="page" id="lec-sklearn" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="fe7mm">OLS in sklearn</h2>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ai2ai/nd_football.csv" data-b="0bgnn"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div></div><div class="src"><div class="ln"><span class="kw">import</span> pandas <span class="kw">as</span> pd</div><div class="ln"><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression</div><div class="ln"></div><div class="ln">games = pd.read_csv(<span class="st">"nd_football.csv"</span>)</div><div class="ln">X = games[[<span class="st">"nd_total_yards"</span>]] / <span class="nu">100</span>   <span class="cm"># hundreds</span></div><div class="ln">y = games[<span class="st">"nd_points"</span>]</div><div class="ln"></div><div class="ln">model = LinearRegression().fit(X, y)</div><div class="ln"><span class="bi">print</span>(model.coef_.round(<span class="nu">2</span>), model.intercept_.round(<span class="nu">2</span>))</div><div class="ln"><span class="bi">print</span>(<span class="bi">round</span>(model.score(X, y), <span class="nu">2</span>))    <span class="cm"># R²</span></div></div></b-code>
   <b-out data-b="eh9oz"><div class="label">Output</div><pre>[<span class="nu nn">9.03</span>] <span class="nu nn">-6.73</span>
 <span class="nu nn">0.55</span></pre></b-out>
   
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>19</span></div></section>
 
-<section class="page" id="multiple" style="--gap: 22pt;">
-  <h2 data-b="g9k5p">Multiple Linear Regression</h2>
+<section class="page" id="lec-multiple" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="i26ob">Multiple Linear Regression</h2>
   
   
-  
-  
-  
-  
-  <p data-b="tdpo6"><span class="key">When we perform a linear regression on a dataset with more than one feature, we call this a <u class="fill">multiple linear regression</u>.</span></p>
-  <h3 data-b="idu7h">Hyperplanes</h3>
-  <b-fig style="--fig-h: 120pt; --ar: 2.327;" class="s-xs" src="fig/hyperplane.svg" alt="Left: one feature, points around a line with a stick to the line from each point. Right: two features, points above and below a tilted plane" data-b="xg8cj"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 165" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
+  <p data-b="64e81"><span class="key">When we perform a linear regression on a dataset with more than one feature, we call this a <u class="fill">multiple linear regression</u>.</span></p>
+  <h3 data-b="khyam">Hyperplanes</h3>
+  <b-fig src="fig/hyperplane.svg" class="s-xs" alt="Left: one feature, points around a line with a stick to the line from each point. Right: two features, points above and below a tilted plane" style="--fig-h: 120pt; --ar: 2.327;" data-b="m04s1"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 165" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
  <metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTo4MjY4MTM3Zi1lOWM1LTQ4YmYtYTM4MC1kOTI2MzllMmU4Y2YAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaKIersHypUVhBN8SzhnaiSsAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDoyOTFkZDQ4YS05ZjMwLTQ4NDktYjhhOS01NDVjMmJjNDRhMmJscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNo7l17BWSHrFYwn7dAgBHO3QAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggrg/nY2wMA8uK2KhyQ6qNYTOt8wWEcLlx/WIIhtotK12kZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaKFkV+Kbj6FtPZCKIcJXSbcAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIDx8yji16P1DC/5MC3fJP0bOyvZr5mX5Ihr262dVv17VZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQFxZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjgyNjgxMzdmLWU5YzUtNDhiZi1hMzgwLWQ5MjYzOWUyZThjZi9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmUxOTZmMDQ1LTg2ZmMtNDQ2ZC05NDRkLThmZTNjYzUwMGYwNnJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCCuD+djbAwDy4rYqHJDqo1hM63zBYRwuXH9YgiG2i0rXaJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggQKDt2Hw8fjwkjVga/tb3Oq2bp9c4aZ/NDLZPcK4fY2qiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggN9rUDFlDDlGaZW93FIXwHi5GEVk4anyTVdOZEY4PE/V0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQGrz5U1GtsJKuwsF3jDrnIHYNjiYZp/A4s9mFomcM2yGA0j3bjn50lPeT5A8gdxTeoATTH+YlxvQ8lwEmbt4dno=</c2pa:manifest>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -8493,26 +8376,21 @@ z
  </defs>
 </svg>
 </b-fig>
-  <p data-b="gh091"><span class="key">With one feature the model is a line, with two it's a <b class="def"><u class="fill">plane</u></b> and with more than two it's a <b class="def"><u class="fill">hyperplane</u></b>.</span></p>
-  
-  <aside class="qc" data-qsrc="wb01-linreg-3feat" data-b="w3k4u"><b>Quick check (old exam question):</b> what would the equation look like for a multiple linear regression with three features?<div class="ans ghost-only"><b-m tex="ŷ = ω_1 x_1 + ω_2 x_2 + ω_3 x_3 + ω_0"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span> = <span class="c purple sym" data-at="4,7" data-k="ω">ω<sub>1</sub></span> <span class="c blue sym" data-at="8,11" data-k="x">x<sub>1</sub></span> + <span class="c purple sym" data-at="14,17" data-k="ω">ω<sub>2</sub></span> <span class="c blue sym" data-at="18,21" data-k="x">x<sub>2</sub></span> + <span class="c purple sym" data-at="24,27" data-k="ω">ω<sub>3</sub></span> <span class="c blue sym" data-at="28,31" data-k="x">x<sub>3</sub></span> + <span class="c purple sym" data-at="34,37" data-k="ω">ω<sub>0</sub></span></b-m>: one weight per feature, plus the intercept.</div></aside>
+  <p data-b="aqj0n"><span class="key">With one feature the model is a line, with two it's a <b class="def"><u class="fill">plane</u></b> and with more than two it's a <b class="def"><u class="fill">hyperplane</u></b>.</span></p>
+  <aside class="qc" data-qsrc="wb01-linreg-3feat" data-b="qzh6c"><b>Quick check (old exam question):</b> what would the equation look like for a multiple linear regression with three features?<div class="ans ghost-only"><b-m tex="ŷ = ω_1 x_1 + ω_2 x_2 + ω_3 x_3 + ω_0"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span> = <span class="c purple sym" data-at="4,7" data-k="ω">ω<sub>1</sub></span> <span class="c blue sym" data-at="8,11" data-k="x">x<sub>1</sub></span> + <span class="c purple sym" data-at="14,17" data-k="ω">ω<sub>2</sub></span> <span class="c blue sym" data-at="18,21" data-k="x">x<sub>2</sub></span> + <span class="c purple sym" data-at="24,27" data-k="ω">ω<sub>3</sub></span> <span class="c blue sym" data-at="28,31" data-k="x">x<sub>3</sub></span> + <span class="c purple sym" data-at="34,37" data-k="ω">ω<sub>0</sub></span></b-m>: one weight per feature, plus the intercept.</div></aside>
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>20</span></div></section>
 
-
-
-<section class="page" id="p-ow21o">
-  <h2 data-b="ghbjm">Multiple Linear Regressions</h2>
-  
+<section class="page" id="lec-p-ow21o" data-view="slides workbook">
+  <h2 data-b="09t3x">Multiple Linear Regressions</h2>
   
   
   
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>21</span></div></section>
 
-<section class="page" id="curves" style="--gap: 22pt;">
-  <h2 data-b="npv6r">Representing Curves</h2>
-  <p data-b="olisr"><span class="key">Not every dataset is best represented with a straight line. How could you use a <b class="def">linear regression</b> to model a sine wave?</span></p>
-  
-  <b-fig class="s-xs" src="fig/wave-axes.svg" data-view="slides workbook" alt="Points that rise and fall like a wave" data-b="mufnx" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
+<section class="page" id="lec-curves" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="qyirn">Representing Curves</h2>
+  <p data-b="2xgwt"><span class="key">Not every dataset is best represented with a straight line. How could you use a <b class="def">linear regression</b> to model a sine wave?</span></p>
+  <b-fig src="fig/wave-axes.svg" class="s-xs" alt="Points that rise and fall like a wave" data-view="slides workbook" data-b="mufnx" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
  <metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTo4NmZiOTAyNC1mMjkwLTRlMjUtYjZiMi0wNDY4Y2M4YjlkNjYAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaIjyUF4hT6jXOxVtg2SQzcwAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDphZDkyMDYzMC03ODNhLTQ1MzMtYmNiMy02MWQ5OTE1MWMzZTdscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoEpKRphkoe4YEVbQBcpysBwAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggud/7/ondImEAu+3huNRI82SdKOA0LkBALjXZ7vFisgqkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaHXu/dxWHKfjpUwB1wxI0DAAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIGqQ6b6DFxLIQRjPYo3vGYvcAPvsGRyeyDgCp3vj18KzZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQFxZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjg2ZmI5MDI0LWYyOTAtNGUyNS1iNmIyLTA0NjhjYzhiOWQ2Ni9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjI5YWU5M2I4LTNmODAtNGIxYy1iNmQ3LTc2ZTRkODNhZmY0M3JjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCC53/v+id0iYQC77eG41EjzZJ0o4DQuQEAuNdnu8WKyCqJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggGS7UpISJR6vHskGkl8zBOP6MjUjoDOgDJPcsE1wA9qSiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggJjh0iblJWxUFSn1sFGvp6gSkuyiQ0XVu+J1QXBKeG6V0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQEvJJNjMgtW5xnwx5WQKYGnjqWjUR+/lcqUqehtvT9XESWuzyLlhFnkmUCfm8+FribcNZpW14zriS2G6m0v5V40=</c2pa:manifest>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -8621,50 +8499,24 @@ z
  </defs>
 </svg>
 </b-fig>
-  
-  <p data-b="dkjm9"><span class="key">A linear regression is only linear in its <u class="fill">weights</u>, not in its inputs.</span></p>
-  <b-eq data-fill="" data-b="hjoct" class=""><a id="eq-basis" data-rt=""></a>
+  <p data-b="2f4l4"><span class="key">A linear regression is only linear in its <u class="fill">weights</u>, not in its inputs.</span></p>
+  <b-eq data-fill="" data-b="0uz10" class=""><a id="eq-basis" data-rt=""></a>
     <eq-row label="basis" note="a straight line in new features">\yhat = \omega_0 + \omega_1 x + \omega_2 \sin(1.25x)</eq-row>
-  <div class="eq-ml" data-rt="" style="zoom: 1.5;"><div class="eqml" role="math"><div class="eqml-n">[5.9]</div><div class="eqml-e"><div class="eqml-note">a straight line in new features</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-5"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mtext style="color:#DCB439;">ŷ</mtext></mrow></mrow><mo>=</mo><mrow class="sym sym-674EA7 sa-8-16"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟎</mn></msub></mrow></mrow><mo>+</mo><mrow class="sym sym-674EA7 sa-19-27"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟏</mn></msub></mrow></mrow><mrow class="sym sym-1155CC sa-28-29"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mo>+</mo><mrow class="sym sym-674EA7 sa-32-40"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟐</mn></msub></mrow></mrow><mrow><mspace width="0.1667em"></mspace><mi mathvariant="normal">sin</mi><mo>⁡</mo></mrow><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mn>1.25</mn><mrow class="sym sym-1155CC sa-50-51"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></math></div></div></div></b-eq>
-  
-  
-  
-  
+  <div class="eq-ml" data-rt="" style="zoom: 1.5;"><div class="eqml" role="math"><div class="eqml-n">[5.7]</div><div class="eqml-e"><div class="eqml-note">a straight line in new features</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-5"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mtext style="color:#DCB439;">ŷ</mtext></mrow></mrow><mo>=</mo><mrow class="sym sym-674EA7 sa-8-16"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟎</mn></msub></mrow></mrow><mo>+</mo><mrow class="sym sym-674EA7 sa-19-27"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟏</mn></msub></mrow></mrow><mrow class="sym sym-1155CC sa-28-29"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mo>+</mo><mrow class="sym sym-674EA7 sa-32-40"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟐</mn></msub></mrow></mrow><mrow><mspace width="0.1667em"></mspace><mi mathvariant="normal">sin</mi><mo>⁡</mo></mrow><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mn>1.25</mn><mrow class="sym sym-1155CC sa-50-51"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></math></div></div></div></b-eq>
 <div class="foot" data-rt=""><span>Linear Regression · Fitting the line</span><span>22</span></div></section>
 
-<section class="page" id="p-m5hba" data-part="Overfitting" style="--gap: 22pt;">
-  <h2 data-b="fjqtl">Polynomial Regression</h2>
+<section class="page" id="lec-p-m5hba" data-view="slides workbook" data-part="Overfitting" style="--gap: 22pt;">
+  <h2 data-b="87k96">Polynomial Regression</h2>
   
-  
-  
-  
-  <h3 data-b="hyamt">Overfitting</h3>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+  <h3 data-b="61hws">Overfitting</h3>
   
   
 <div class="foot" data-rt=""><span>Linear Regression · Overfitting</span><span>23</span></div></section>
 
-<section class="page" id="overfitting" style="--gap: 22pt;">
-  <h2 data-b="mze1v">Overfitting</h2>
+<section class="page" id="lec-overfitting" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="rmj5b">Overfitting</h2>
   
-  
-  
-  
-  
-  
-  
-  
-  <b-fig src="fig/overfit-axes.svg" data-view="slides workbook" alt="Notre Dame's points against yards for the 13 games of the 2012 season" data-b="ict2n" style="--ar: 2.076;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 185" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
+  <b-fig src="fig/overfit-axes.svg" alt="Notre Dame's points against yards for the 13 games of the 2012 season" data-view="slides workbook" data-b="ict2n" style="--ar: 2.076;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 185" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
  <metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTphNjE1YzVmYS0wZGRmLTQwODYtYWU3MC1iNWNhMzU3MWM3ZWMAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaAS8eLiZ4j7jhzgowEbkMSEAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDplNzk4NjU1NC1lNjliLTQxM2UtYTM3Yi1kNWUxNmQ4NWVjODdscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNodiujgxAVD/MkIbb/0AYDSAAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggs1TBDVlABEbG0M+0aEfeqN2RO5+MsXTSuyU+09pckwmkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaHFj5s/oq90eZj7koZ0s6RYAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIHFH+KcTcY15LwSxNVwLQUpqUM94ZCaP4ZlV6ttDt66qZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQFxZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmE2MTVjNWZhLTBkZGYtNDA4Ni1hZTcwLWI1Y2EzNTcxYzdlYy9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmZlODY3NzM2LTJhYmQtNDczNi04MGUxLTQzYTFhZjRlMTBkYnJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCCzVMENWUAERsbQz7RoR96o3ZE7n4yxdNK7JT7T2lyTCaJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFgg5G5G22vckaDor+HgydHlCWxYOfPnTuoxiUZLbibCtraiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggFBOTeQnxolUCNqUgdrt6WKp3PqTOUdkwFlL9VaASzzp0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQD1hfQlFlQTwizzEYYquqikb/ABgiprj49EuOZfaaA8XAG5jXbk9WKKH5czv4ir5JdgVP8cGzVhQsGdPHkFZuHA=</c2pa:manifest>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -8891,25 +8743,17 @@ z
 </b-fig>
 <div class="foot" data-rt=""><span>Linear Regression · Overfitting</span><span>24</span></div></section>
 
-<section class="page" id="p-iayin" style="--gap: 22pt;">
-  <h2 data-b="kw1ic">Variance</h2>
+<section class="page" id="lec-p-iayin" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="5hmm0">Variance</h2>
   
-  <h3 data-b="v35ob">Underfitting</h3>
-  
-  
-  
-  
-  
-  
-  
-  
+  <h3 data-b="sjquv">Underfitting</h3>
   
   
 <div class="foot" data-rt=""><span>Linear Regression · Overfitting</span><span>25</span></div></section>
 
-<section class="page" id="underfitting" style="--gap: 22pt;">
-  <h2 data-b="fx3b3">Bias</h2>
-  <b-fig src="fig/wave-axes.svg" data-view="slides workbook" alt="Points that rise and fall like a wave" data-b="e2ysl" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
+<section class="page" id="lec-underfitting" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="uta44">Bias</h2>
+  <b-fig src="fig/wave-axes.svg" alt="Points that rise and fall like a wave" data-view="slides workbook" data-b="e2ysl" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:c2pa="http://c2pa.org/manifest">
  <metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTo4NmZiOTAyNC1mMjkwLTRlMjUtYjZiMi0wNDY4Y2M4YjlkNjYAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaIjyUF4hT6jXOxVtg2SQzcwAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDphZDkyMDYzMC03ODNhLTQ1MzMtYmNiMy02MWQ5OTE1MWMzZTdscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoEpKRphkoe4YEVbQBcpysBwAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggud/7/ondImEAu+3huNRI82SdKOA0LkBALjXZ7vFisgqkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaHXu/dxWHKfjpUwB1wxI0DAAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIGqQ6b6DFxLIQRjPYo3vGYvcAPvsGRyeyDgCp3vj18KzZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQFxZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjg2ZmI5MDI0LWYyOTAtNGUyNS1iNmIyLTA0NjhjYzhiOWQ2Ni9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOjI5YWU5M2I4LTNmODAtNGIxYy1iNmQ3LTc2ZTRkODNhZmY0M3JjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCC53/v+id0iYQC77eG41EjzZJ0o4DQuQEAuNdnu8WKyCqJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggGS7UpISJR6vHskGkl8zBOP6MjUjoDOgDJPcsE1wA9qSiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggJjh0iblJWxUFSn1sFGvp6gSkuyiQ0XVu+J1QXBKeG6V0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQEvJJNjMgtW5xnwx5WQKYGnjqWjUR+/lcqUqehtvT9XESWuzyLlhFnkmUCfm8+FribcNZpW14zriS2G6m0v5V40=</c2pa:manifest>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -9020,32 +8864,26 @@ z
 </b-fig>
   
   
-  
-  
-  
-  
-  
-  <b-eq data-b="t74qc" class="">
+  <b-eq data-b="zg85d" class="">
     <eq-row note="degree 8: nine weights">\yhat = \omega_0 + \omega_1 x + \omega_2 x^2 + \omega_3 x^3 + \omega_4 x^4 + \omega_5 x^5 + \omega_6 x^6 + \omega_7 x^7 + \omega_8 x^8</eq-row>
-  <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">degree 8: nine weights</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-5"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mtext style="color:#DCB439;">ŷ</mtext></mrow></mrow><mo>=</mo><mrow class="sym sym-674EA7 sa-8-16"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟎</mn></msub></mrow></mrow><mo>+</mo><mrow class="sym sym-674EA7 sa-19-27"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟏</mn></msub></mrow></mrow><mrow class="sym sym-1155CC sa-28-29"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mo>+</mo><mrow class="sym sym-674EA7 sa-32-40"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟐</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-41-42"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>2</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-47-55"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟑</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-56-57"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>3</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-62-70"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟒</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-71-72"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>4</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-77-85"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟓</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-86-87"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>5</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-92-100"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟔</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-101-102"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>6</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-107-115"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟕</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-116-117"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>7</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-122-130"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟖</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-131-132"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>8</mn></msup></mrow></math></div></div></div></b-eq>
+  <div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">degree 8: nine weights</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-5"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mtext style="color:#DCB439;">ŷ</mtext></mrow></mrow><mo>=</mo><mrow class="sym sym-674EA7 sa-8-16"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟎</mn></msub></mrow></mrow><mo>+</mo><mrow class="sym sym-674EA7 sa-19-27"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟏</mn></msub></mrow></mrow><mrow class="sym sym-1155CC sa-28-29"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mo>+</mo><mrow class="sym sym-674EA7 sa-32-40"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟐</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-41-42"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>2</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-47-55"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟑</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-56-57"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>3</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-62-70"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟒</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-71-72"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>4</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-77-85"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟓</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-86-87"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>5</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-92-100"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟔</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-101-102"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>6</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-107-115"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟕</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-116-117"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>7</mn></msup><mo>+</mo><mrow class="sym sym-674EA7 sa-122-130"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛚</mi><mn>𝟖</mn></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-131-132"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#1155CC;">𝐱</mi></mrow></mrow><mn>8</mn></msup></mrow></math></div></div></div></b-eq>
   
 <div class="foot" data-rt=""><span>Linear Regression · Overfitting</span><span>26</span></div></section>
 
-<section class="page" id="bias-variance" style="--gap: 22pt;">
-  
-  <h2 data-b="vivc8">The Bias-Variance Tradeoff</h2>
-  <svg class="draw" viewBox="0 0 384 165" style="width: 482.8pt" role="img" aria-label="Error against model complexity: bias squared falls, variance rises, and their total has a lowest point at the best complexity" data-b="hibzs">
+<section class="page" id="lec-bias-variance" data-view="slides workbook" style="--gap: 22pt;">
+  <h2 data-b="vjjz0">The Bias-Variance Tradeoff</h2>
+  <svg class="draw" viewBox="0 0 384 165" role="img" aria-label="Error against model complexity: bias squared falls, variance rises, and their total has a lowest point at the best complexity" style="width: 482.8pt" data-b="ughfe">
     <defs>
       <marker id="ah002B5B-hibzs" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="19.2" y1="151.8" x2="371.1" y2="151.8" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-hibzs)"></line>
-    <line x1="19.2" y1="151.8" x2="19.2" y2="6.5" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-hibzs)"></line>
-    <polyline points="36.4,51.6 38.0,53.1 39.6,54.5 41.3,55.9 42.9,57.3 44.6,58.6 46.2,59.9 47.8,61.3 49.5,62.6 51.1,63.8 52.8,65.1 54.4,66.3 56.0,67.6 57.7,68.8 59.3,69.9 61.0,71.1 62.6,72.3 64.2,73.4 65.9,74.5 67.5,75.6 69.2,76.7 70.8,77.7 72.4,78.8 74.1,79.8 75.7,80.8 77.4,81.8 79.0,82.8 80.6,83.8 82.3,84.7 83.9,85.7 85.5,86.6 87.2,87.5 88.8,88.4 90.5,89.3 92.1,90.2 93.7,91.0 95.4,91.9 97.0,92.7 98.7,93.5 100.3,94.4 101.9,95.1 103.6,95.9 105.2,96.7 106.9,97.5 108.5,98.2 110.1,98.9 111.8,99.7 113.4,100.4 115.1,101.1 116.7,101.8 118.3,102.5 120.0,103.1 121.6,103.8 123.3,104.5 124.9,105.1 126.5,105.7 128.2,106.4 129.8,107.0 131.4,107.6 133.1,108.2 134.7,108.8 136.4,109.3 138.0,109.9 139.6,110.5 141.3,111.0 142.9,111.6 144.6,112.1 146.2,112.6 147.8,113.1 149.5,113.6 151.1,114.1 152.8,114.6 154.4,115.1 156.0,115.6 157.7,116.1 159.3,116.6 161.0,117.0 162.6,117.5 164.2,117.9 165.9,118.3 167.5,118.8 169.2,119.2 170.8,119.6 172.4,120.0 174.1,120.4 175.7,120.8 177.3,121.2 179.0,121.6 180.6,122.0 182.3,122.4 183.9,122.8 185.5,123.1 187.2,123.5 188.8,123.8 190.5,124.2 192.1,124.5 193.7,124.9 195.4,125.2 197.0,125.5 198.7,125.8 200.3,126.2 201.9,126.5 203.6,126.8 205.2,127.1 206.9,127.4 208.5,127.7 210.1,128.0 211.8,128.3 213.4,128.5 215.1,128.8 216.7,129.1 218.3,129.4 220.0,129.6 221.6,129.9 223.2,130.1 224.9,130.4 226.5,130.6 228.2,130.9 229.8,131.1 231.4,131.4 233.1,131.6 234.7,131.8 236.4,132.1 238.0,132.3 239.6,132.5 241.3,132.7 242.9,132.9 244.6,133.2 246.2,133.4 247.8,133.6 249.5,133.8 251.1,134.0 252.8,134.2 254.4,134.3 256.0,134.5 257.7,134.7 259.3,134.9 260.9,135.1 262.6,135.3 264.2,135.4 265.9,135.6 267.5,135.8 269.1,136.0 270.8,136.1 272.4,136.3 274.1,136.4 275.7,136.6 277.3,136.8 279.0,136.9 280.6,137.1 282.3,137.2 283.9,137.4 285.5,137.5 287.2,137.6 288.8,137.8 290.5,137.9 292.1,138.0 293.7,138.2 295.4,138.3 297.0,138.4 298.7,138.6 300.3,138.7 301.9,138.8 303.6,138.9 305.2,139.1 306.8,139.2 308.5,139.3 310.1,139.4 311.8,139.5 313.4,139.6 315.0,139.7 316.7,139.8 318.3,140.0 320.0,140.1 321.6,140.2 323.2,140.3 324.9,140.4 326.5,140.5 328.2,140.6 329.8,140.7 331.4,140.7 333.1,140.8 334.7,140.9 336.4,141.0 338.0,141.1 339.6,141.2 341.3,141.3 342.9,141.4 344.6,141.4 346.2,141.5 347.8,141.6 349.5,141.7 351.1,141.8 352.7,141.8 354.4,141.9 356.0,142.0 357.7,142.1 359.3,142.1 360.9,142.2 362.6,142.3" fill="none" stroke="#CC0000" stroke-width="1.80"></polyline>
-    <polyline points="36.4,145.6 38.0,145.6 39.6,145.6 41.3,145.6 42.9,145.6 44.6,145.5 46.2,145.5 47.8,145.5 49.5,145.5 51.1,145.5 52.8,145.5 54.4,145.5 56.0,145.5 57.7,145.4 59.3,145.4 61.0,145.4 62.6,145.4 64.2,145.4 65.9,145.3 67.5,145.3 69.2,145.3 70.8,145.2 72.4,145.2 74.1,145.2 75.7,145.1 77.4,145.1 79.0,145.0 80.6,145.0 82.3,144.9 83.9,144.9 85.5,144.8 87.2,144.8 88.8,144.7 90.5,144.6 92.1,144.6 93.7,144.5 95.4,144.4 97.0,144.4 98.7,144.3 100.3,144.2 101.9,144.1 103.6,144.0 105.2,143.9 106.9,143.8 108.5,143.7 110.1,143.6 111.8,143.5 113.4,143.4 115.1,143.3 116.7,143.2 118.3,143.1 120.0,142.9 121.6,142.8 123.3,142.7 124.9,142.5 126.5,142.4 128.2,142.2 129.8,142.1 131.4,141.9 133.1,141.7 134.7,141.6 136.4,141.4 138.0,141.2 139.6,141.0 141.3,140.8 142.9,140.7 144.6,140.5 146.2,140.3 147.8,140.0 149.5,139.8 151.1,139.6 152.8,139.4 154.4,139.2 156.0,138.9 157.7,138.7 159.3,138.4 161.0,138.2 162.6,137.9 164.2,137.6 165.9,137.4 167.5,137.1 169.2,136.8 170.8,136.5 172.4,136.2 174.1,135.9 175.7,135.6 177.3,135.3 179.0,135.0 180.6,134.6 182.3,134.3 183.9,133.9 185.5,133.6 187.2,133.2 188.8,132.9 190.5,132.5 192.1,132.1 193.7,131.7 195.4,131.3 197.0,130.9 198.7,130.5 200.3,130.1 201.9,129.7 203.6,129.3 205.2,128.8 206.9,128.4 208.5,127.9 210.1,127.4 211.8,127.0 213.4,126.5 215.1,126.0 216.7,125.5 218.3,125.0 220.0,124.5 221.6,124.0 223.2,123.4 224.9,122.9 226.5,122.4 228.2,121.8 229.8,121.2 231.4,120.7 233.1,120.1 234.7,119.5 236.4,118.9 238.0,118.3 239.6,117.7 241.3,117.0 242.9,116.4 244.6,115.8 246.2,115.1 247.8,114.4 249.5,113.8 251.1,113.1 252.8,112.4 254.4,111.7 256.0,111.0 257.7,110.2 259.3,109.5 260.9,108.8 262.6,108.0 264.2,107.2 265.9,106.5 267.5,105.7 269.1,104.9 270.8,104.1 272.4,103.3 274.1,102.4 275.7,101.6 277.3,100.8 279.0,99.9 280.6,99.0 282.3,98.1 283.9,97.2 285.5,96.3 287.2,95.4 288.8,94.5 290.5,93.6 292.1,92.6 293.7,91.7 295.4,90.7 297.0,89.7 298.7,88.7 300.3,87.7 301.9,86.7 303.6,85.7 305.2,84.6 306.8,83.6 308.5,82.5 310.1,81.4 311.8,80.3 313.4,79.2 315.0,78.1 316.7,77.0 318.3,75.8 320.0,74.7 321.6,73.5 323.2,72.3 324.9,71.1 326.5,69.9 328.2,68.7 329.8,67.5 331.4,66.2 333.1,65.0 334.7,63.7 336.4,62.4 338.0,61.1 339.6,59.8 341.3,58.5 342.9,57.2 344.6,55.8 346.2,54.5 347.8,53.1 349.5,51.7 351.1,50.3 352.7,48.9 354.4,47.4 356.0,46.0 357.7,44.5 359.3,43.0 360.9,41.6 362.6,40.1" fill="none" stroke="#1155CC" stroke-width="1.80"></polyline>
-    <polyline points="36.4,45.4 38.0,46.8 39.6,48.2 41.3,49.6 42.9,51.0 44.6,52.4 46.2,53.7 47.8,55.0 49.5,56.3 51.1,57.5 52.8,58.8 54.4,60.0 56.0,61.2 57.7,62.4 59.3,63.6 61.0,64.7 62.6,65.8 64.2,66.9 65.9,68.0 67.5,69.1 69.2,70.1 70.8,71.2 72.4,72.2 74.1,73.2 75.7,74.2 77.4,75.1 79.0,76.1 80.6,77.0 82.3,77.9 83.9,78.8 85.5,79.6 87.2,80.5 88.8,81.3 90.5,82.2 92.1,83.0 93.7,83.8 95.4,84.5 97.0,85.3 98.7,86.0 100.3,86.8 101.9,87.5 103.6,88.2 105.2,88.8 106.9,89.5 108.5,90.1 110.1,90.8 111.8,91.4 113.4,92.0 115.1,92.6 116.7,93.2 118.3,93.7 120.0,94.3 121.6,94.8 123.3,95.3 124.9,95.8 126.5,96.3 128.2,96.8 129.8,97.2 131.4,97.7 133.1,98.1 134.7,98.5 136.4,98.9 138.0,99.3 139.6,99.7 141.3,100.1 142.9,100.4 144.6,100.7 146.2,101.1 147.8,101.4 149.5,101.7 151.1,102.0 152.8,102.2 154.4,102.5 156.0,102.7 157.7,103.0 159.3,103.2 161.0,103.4 162.6,103.6 164.2,103.7 165.9,103.9 167.5,104.1 169.2,104.2 170.8,104.3 172.4,104.5 174.1,104.6 175.7,104.6 177.3,104.7 179.0,104.8 180.6,104.8 182.3,104.9 183.9,104.9 185.5,104.9 187.2,104.9 188.8,104.9 190.5,104.9 192.1,104.8 193.7,104.8 195.4,104.7 197.0,104.7 198.7,104.6 200.3,104.5 201.9,104.4 203.6,104.2 205.2,104.1 206.9,104.0 208.5,103.8 210.1,103.6 211.8,103.4 213.4,103.2 215.1,103.0 216.7,102.8 218.3,102.6 220.0,102.3 221.6,102.1 223.2,101.8 224.9,101.5 226.5,101.2 228.2,100.9 229.8,100.6 231.4,100.2 233.1,99.9 234.7,99.5 236.4,99.2 238.0,98.8 239.6,98.4 241.3,98.0 242.9,97.5 244.6,97.1 246.2,96.7 247.8,96.2 249.5,95.7 251.1,95.2 252.8,94.7 254.4,94.2 256.0,93.7 257.7,93.2 259.3,92.6 260.9,92.1 262.6,91.5 264.2,90.9 265.9,90.3 267.5,89.7 269.1,89.0 270.8,88.4 272.4,87.7 274.1,87.1 275.7,86.4 277.3,85.7 279.0,85.0 280.6,84.3 282.3,83.5 283.9,82.8 285.5,82.0 287.2,81.3 288.8,80.5 290.5,79.7 292.1,78.9 293.7,78.0 295.4,77.2 297.0,76.3 298.7,75.5 300.3,74.6 301.9,73.7 303.6,72.8 305.2,71.9 306.8,70.9 308.5,70.0 310.1,69.0 311.8,68.0 313.4,67.0 315.0,66.0 316.7,65.0 318.3,64.0 320.0,62.9 321.6,61.9 323.2,60.8 324.9,59.7 326.5,58.6 328.2,57.5 329.8,56.3 331.4,55.2 333.1,54.0 334.7,52.8 336.4,51.7 338.0,50.4 339.6,49.2 341.3,48.0 342.9,46.7 344.6,45.5 346.2,44.2 347.8,42.9 349.5,41.6 351.1,40.2 352.7,38.9 354.4,37.5 356.0,36.2 357.7,34.8 359.3,33.4 360.9,32.0 362.6,30.5" fill="none" stroke="#002B5B" stroke-width="2.20"></polyline>
-    <line x1="187.2" y1="151.8" x2="187.2" y2="15.2" stroke="#666666" stroke-width="1.00" stroke-dasharray="3 2"></line>
+    <line x1="19.2" y1="151.8" x2="371.1" y2="151.8" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-hibzs)"></line>
+    <line x1="19.2" y1="151.8" x2="19.2" y2="6.5" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-hibzs)"></line>
+    <polyline points="36.4,51.6 38.0,53.1 39.6,54.5 41.3,55.9 42.9,57.3 44.6,58.6 46.2,59.9 47.8,61.3 49.5,62.6 51.1,63.8 52.8,65.1 54.4,66.3 56.0,67.6 57.7,68.8 59.3,69.9 61.0,71.1 62.6,72.3 64.2,73.4 65.9,74.5 67.5,75.6 69.2,76.7 70.8,77.7 72.4,78.8 74.1,79.8 75.7,80.8 77.4,81.8 79.0,82.8 80.6,83.8 82.3,84.7 83.9,85.7 85.5,86.6 87.2,87.5 88.8,88.4 90.5,89.3 92.1,90.2 93.7,91.0 95.4,91.9 97.0,92.7 98.7,93.5 100.3,94.4 101.9,95.1 103.6,95.9 105.2,96.7 106.9,97.5 108.5,98.2 110.1,98.9 111.8,99.7 113.4,100.4 115.1,101.1 116.7,101.8 118.3,102.5 120.0,103.1 121.6,103.8 123.3,104.5 124.9,105.1 126.5,105.7 128.2,106.4 129.8,107.0 131.4,107.6 133.1,108.2 134.7,108.8 136.4,109.3 138.0,109.9 139.6,110.5 141.3,111.0 142.9,111.6 144.6,112.1 146.2,112.6 147.8,113.1 149.5,113.6 151.1,114.1 152.8,114.6 154.4,115.1 156.0,115.6 157.7,116.1 159.3,116.6 161.0,117.0 162.6,117.5 164.2,117.9 165.9,118.3 167.5,118.8 169.2,119.2 170.8,119.6 172.4,120.0 174.1,120.4 175.7,120.8 177.3,121.2 179.0,121.6 180.6,122.0 182.3,122.4 183.9,122.8 185.5,123.1 187.2,123.5 188.8,123.8 190.5,124.2 192.1,124.5 193.7,124.9 195.4,125.2 197.0,125.5 198.7,125.8 200.3,126.2 201.9,126.5 203.6,126.8 205.2,127.1 206.9,127.4 208.5,127.7 210.1,128.0 211.8,128.3 213.4,128.5 215.1,128.8 216.7,129.1 218.3,129.4 220.0,129.6 221.6,129.9 223.2,130.1 224.9,130.4 226.5,130.6 228.2,130.9 229.8,131.1 231.4,131.4 233.1,131.6 234.7,131.8 236.4,132.1 238.0,132.3 239.6,132.5 241.3,132.7 242.9,132.9 244.6,133.2 246.2,133.4 247.8,133.6 249.5,133.8 251.1,134.0 252.8,134.2 254.4,134.3 256.0,134.5 257.7,134.7 259.3,134.9 260.9,135.1 262.6,135.3 264.2,135.4 265.9,135.6 267.5,135.8 269.1,136.0 270.8,136.1 272.4,136.3 274.1,136.4 275.7,136.6 277.3,136.8 279.0,136.9 280.6,137.1 282.3,137.2 283.9,137.4 285.5,137.5 287.2,137.6 288.8,137.8 290.5,137.9 292.1,138.0 293.7,138.2 295.4,138.3 297.0,138.4 298.7,138.6 300.3,138.7 301.9,138.8 303.6,138.9 305.2,139.1 306.8,139.2 308.5,139.3 310.1,139.4 311.8,139.5 313.4,139.6 315.0,139.7 316.7,139.8 318.3,140.0 320.0,140.1 321.6,140.2 323.2,140.3 324.9,140.4 326.5,140.5 328.2,140.6 329.8,140.7 331.4,140.7 333.1,140.8 334.7,140.9 336.4,141.0 338.0,141.1 339.6,141.2 341.3,141.3 342.9,141.4 344.6,141.4 346.2,141.5 347.8,141.6 349.5,141.7 351.1,141.8 352.7,141.8 354.4,141.9 356.0,142.0 357.7,142.1 359.3,142.1 360.9,142.2 362.6,142.3" fill="none" stroke="#CC0000" stroke-width="1.8"></polyline>
+    <polyline points="36.4,145.6 38.0,145.6 39.6,145.6 41.3,145.6 42.9,145.6 44.6,145.5 46.2,145.5 47.8,145.5 49.5,145.5 51.1,145.5 52.8,145.5 54.4,145.5 56.0,145.5 57.7,145.4 59.3,145.4 61.0,145.4 62.6,145.4 64.2,145.4 65.9,145.3 67.5,145.3 69.2,145.3 70.8,145.2 72.4,145.2 74.1,145.2 75.7,145.1 77.4,145.1 79.0,145.0 80.6,145.0 82.3,144.9 83.9,144.9 85.5,144.8 87.2,144.8 88.8,144.7 90.5,144.6 92.1,144.6 93.7,144.5 95.4,144.4 97.0,144.4 98.7,144.3 100.3,144.2 101.9,144.1 103.6,144.0 105.2,143.9 106.9,143.8 108.5,143.7 110.1,143.6 111.8,143.5 113.4,143.4 115.1,143.3 116.7,143.2 118.3,143.1 120.0,142.9 121.6,142.8 123.3,142.7 124.9,142.5 126.5,142.4 128.2,142.2 129.8,142.1 131.4,141.9 133.1,141.7 134.7,141.6 136.4,141.4 138.0,141.2 139.6,141.0 141.3,140.8 142.9,140.7 144.6,140.5 146.2,140.3 147.8,140.0 149.5,139.8 151.1,139.6 152.8,139.4 154.4,139.2 156.0,138.9 157.7,138.7 159.3,138.4 161.0,138.2 162.6,137.9 164.2,137.6 165.9,137.4 167.5,137.1 169.2,136.8 170.8,136.5 172.4,136.2 174.1,135.9 175.7,135.6 177.3,135.3 179.0,135.0 180.6,134.6 182.3,134.3 183.9,133.9 185.5,133.6 187.2,133.2 188.8,132.9 190.5,132.5 192.1,132.1 193.7,131.7 195.4,131.3 197.0,130.9 198.7,130.5 200.3,130.1 201.9,129.7 203.6,129.3 205.2,128.8 206.9,128.4 208.5,127.9 210.1,127.4 211.8,127.0 213.4,126.5 215.1,126.0 216.7,125.5 218.3,125.0 220.0,124.5 221.6,124.0 223.2,123.4 224.9,122.9 226.5,122.4 228.2,121.8 229.8,121.2 231.4,120.7 233.1,120.1 234.7,119.5 236.4,118.9 238.0,118.3 239.6,117.7 241.3,117.0 242.9,116.4 244.6,115.8 246.2,115.1 247.8,114.4 249.5,113.8 251.1,113.1 252.8,112.4 254.4,111.7 256.0,111.0 257.7,110.2 259.3,109.5 260.9,108.8 262.6,108.0 264.2,107.2 265.9,106.5 267.5,105.7 269.1,104.9 270.8,104.1 272.4,103.3 274.1,102.4 275.7,101.6 277.3,100.8 279.0,99.9 280.6,99.0 282.3,98.1 283.9,97.2 285.5,96.3 287.2,95.4 288.8,94.5 290.5,93.6 292.1,92.6 293.7,91.7 295.4,90.7 297.0,89.7 298.7,88.7 300.3,87.7 301.9,86.7 303.6,85.7 305.2,84.6 306.8,83.6 308.5,82.5 310.1,81.4 311.8,80.3 313.4,79.2 315.0,78.1 316.7,77.0 318.3,75.8 320.0,74.7 321.6,73.5 323.2,72.3 324.9,71.1 326.5,69.9 328.2,68.7 329.8,67.5 331.4,66.2 333.1,65.0 334.7,63.7 336.4,62.4 338.0,61.1 339.6,59.8 341.3,58.5 342.9,57.2 344.6,55.8 346.2,54.5 347.8,53.1 349.5,51.7 351.1,50.3 352.7,48.9 354.4,47.4 356.0,46.0 357.7,44.5 359.3,43.0 360.9,41.6 362.6,40.1" fill="none" stroke="#1155CC" stroke-width="1.8"></polyline>
+    <polyline points="36.4,45.4 38.0,46.8 39.6,48.2 41.3,49.6 42.9,51.0 44.6,52.4 46.2,53.7 47.8,55.0 49.5,56.3 51.1,57.5 52.8,58.8 54.4,60.0 56.0,61.2 57.7,62.4 59.3,63.6 61.0,64.7 62.6,65.8 64.2,66.9 65.9,68.0 67.5,69.1 69.2,70.1 70.8,71.2 72.4,72.2 74.1,73.2 75.7,74.2 77.4,75.1 79.0,76.1 80.6,77.0 82.3,77.9 83.9,78.8 85.5,79.6 87.2,80.5 88.8,81.3 90.5,82.2 92.1,83.0 93.7,83.8 95.4,84.5 97.0,85.3 98.7,86.0 100.3,86.8 101.9,87.5 103.6,88.2 105.2,88.8 106.9,89.5 108.5,90.1 110.1,90.8 111.8,91.4 113.4,92.0 115.1,92.6 116.7,93.2 118.3,93.7 120.0,94.3 121.6,94.8 123.3,95.3 124.9,95.8 126.5,96.3 128.2,96.8 129.8,97.2 131.4,97.7 133.1,98.1 134.7,98.5 136.4,98.9 138.0,99.3 139.6,99.7 141.3,100.1 142.9,100.4 144.6,100.7 146.2,101.1 147.8,101.4 149.5,101.7 151.1,102.0 152.8,102.2 154.4,102.5 156.0,102.7 157.7,103.0 159.3,103.2 161.0,103.4 162.6,103.6 164.2,103.7 165.9,103.9 167.5,104.1 169.2,104.2 170.8,104.3 172.4,104.5 174.1,104.6 175.7,104.6 177.3,104.7 179.0,104.8 180.6,104.8 182.3,104.9 183.9,104.9 185.5,104.9 187.2,104.9 188.8,104.9 190.5,104.9 192.1,104.8 193.7,104.8 195.4,104.7 197.0,104.7 198.7,104.6 200.3,104.5 201.9,104.4 203.6,104.2 205.2,104.1 206.9,104.0 208.5,103.8 210.1,103.6 211.8,103.4 213.4,103.2 215.1,103.0 216.7,102.8 218.3,102.6 220.0,102.3 221.6,102.1 223.2,101.8 224.9,101.5 226.5,101.2 228.2,100.9 229.8,100.6 231.4,100.2 233.1,99.9 234.7,99.5 236.4,99.2 238.0,98.8 239.6,98.4 241.3,98.0 242.9,97.5 244.6,97.1 246.2,96.7 247.8,96.2 249.5,95.7 251.1,95.2 252.8,94.7 254.4,94.2 256.0,93.7 257.7,93.2 259.3,92.6 260.9,92.1 262.6,91.5 264.2,90.9 265.9,90.3 267.5,89.7 269.1,89.0 270.8,88.4 272.4,87.7 274.1,87.1 275.7,86.4 277.3,85.7 279.0,85.0 280.6,84.3 282.3,83.5 283.9,82.8 285.5,82.0 287.2,81.3 288.8,80.5 290.5,79.7 292.1,78.9 293.7,78.0 295.4,77.2 297.0,76.3 298.7,75.5 300.3,74.6 301.9,73.7 303.6,72.8 305.2,71.9 306.8,70.9 308.5,70.0 310.1,69.0 311.8,68.0 313.4,67.0 315.0,66.0 316.7,65.0 318.3,64.0 320.0,62.9 321.6,61.9 323.2,60.8 324.9,59.7 326.5,58.6 328.2,57.5 329.8,56.3 331.4,55.2 333.1,54.0 334.7,52.8 336.4,51.7 338.0,50.4 339.6,49.2 341.3,48.0 342.9,46.7 344.6,45.5 346.2,44.2 347.8,42.9 349.5,41.6 351.1,40.2 352.7,38.9 354.4,37.5 356.0,36.2 357.7,34.8 359.3,33.4 360.9,32.0 362.6,30.5" fill="none" stroke="#002B5B" stroke-width="2.2"></polyline>
+    <line x1="187.2" y1="151.8" x2="187.2" y2="15.2" stroke="#666666" stroke-width="1.0" stroke-dasharray="3 2"></line>
     <text x="362.6" y="145.5" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">model complexity</text>
     <text x="27.8" y="11.1" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">error</text>
     <text x="187.2" y="12.6" font-size="8.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">best complexity</text>
@@ -9055,35 +8893,77 @@ z
     <text x="32.9" y="124.4" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="start">underfit</text>
     <text x="348.8" y="124.4" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="end">overfit</text>
   </svg>
-  <p data-b="ni2kl"><span class="key">The <b class="def">bias–variance tradeoff</b> describes the relationship between a model's complexity, the accuracy of its predictions (measured as overall error), and how well it can make predictions on unseen data.</span></p>
-  
-  
-  
+  <p data-b="j7ztv"><span class="key">The <b class="def">bias–variance tradeoff</b> describes the relationship between a model's complexity, the accuracy of its predictions (measured as overall error), and how well it can make predictions on unseen data.</span></p>
   
 <div class="foot" data-rt=""><span>Linear Regression · Overfitting</span><span>27</span></div></section>
 
-
-
-<section class="page" id="issue">
-  <h2 data-b="q37io">Issues with Inverses</h2>
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+<section class="page" id="lec-issue" data-view="slides workbook">
+  <h2 data-b="bwsrz">Issues with Inverses</h2>
   
   
 <div class="foot" data-rt=""><span>Linear Regression · Overfitting</span><span>28</span></div></section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 </main>
 <script>(function(){function z(){var W=Math.min(window.innerWidth,document.documentElement.clientWidth||1e9,screen.width||1e9);var w=Math.min(1,(W-32)/960);document.documentElement.style.setProperty('--zoom',w)}z();window.addEventListener('resize',z)})();document.addEventListener('click',function(e){[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){if(!d.contains(e.target))d.open=false})});document.addEventListener('keydown',function(e){if(e.key==='Escape')[].forEach.call(document.querySelectorAll('.navbar details[open]'),function(d){d.open=false})});[].forEach.call(document.querySelectorAll('.navbar .toc a'),function(a){a.addEventListener('click',function(){a.closest('details').open=false})});document.addEventListener('click',function(e){var f=e.target.closest&&e.target.closest('u.fill,[data-fill],.eqfill');if(!f)return;var on=f.classList.toggle('shown'),d=f.id&&f.closest('svg');if(d)[].forEach.call(d.querySelectorAll('[data-rt-fill]'),function(a){if(a.getAttribute('data-rt-fill')===f.id)a.classList.toggle('shown',on)})});addEventListener('message',function(e){var d=e.data;if(!d||d.type!=='eai-embed-height'||!(d.height>100))return;[].forEach.call(document.querySelectorAll('b-embed iframe'),function(f){if(f.contentWindow===e.source)f.style.height=Math.min(d.height,2400)+'px'})});(function(){var fs=[].slice.call(document.querySelectorAll('iframe[data-frame]'));if(!fs.length)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.src=e.target.getAttribute('data-frame');io.unobserve(e.target)}})},{rootMargin:'600px'});fs.forEach(function(f){io.observe(f)})})();function eaiLiveFig(fig){var u=fig.getAttribute('viz');if(fig._viz||!u||!/^https?:\/\//.test(u))return;fig._viz=1;fig.classList.add('viz');var io=new IntersectionObserver(function(es){if(!es.some(function(e){return e.isIntersecting}))return;io.disconnect();var f=document.createElement('iframe');f.className='vizf';f.title=fig.getAttribute('alt')||'Interactive figure';f.setAttribute('scrolling','no');f.src=u+(u.indexOf('?')<0?'?':'&')+'embed=fig&theme=light';var a=document.createElement('a');a.className='vizl';a.href=u;a.target='_blank';a.rel='noopener';a.textContent='Live · open the full tool ↗';addEventListener('message',function on(e){if(e.source!==f.contentWindow||!e.data||e.data.type!=='eai-ready')return;removeEventListener('message',on);fig.classList.add('viz-on')});fig.appendChild(f);fig.appendChild(a)},{rootMargin:'300px'});io.observe(fig)};[].forEach.call(document.querySelectorAll('b-fig[viz]'),eaiLiveFig);
@@ -9439,7 +9319,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -9467,15 +9347,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -9484,6 +9410,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -9496,9 +9423,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

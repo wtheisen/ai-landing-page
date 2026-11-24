@@ -83,6 +83,7 @@ section.page[data-tokids="off"] b-tok .tk-id { display: none; }
 b-tok[ids="on"] .tk-id { display: block !important; }
 b-tok[ids="off"] .tk-id { display: none !important; }
 /* token tiles in code outputs (eaiOutHL): .otk a quoted token, .otid an ID in a list of token IDs */
+b-out .otk .oq { display: none; }   /* the printed quotes, kept for textContent (eaiOutHL tile) */
 b-out .otk { white-space: pre; font-weight: 700; color: #000; padding: 0 .2em; margin: 0 .03em; border: 0; box-shadow: inset 0 0 0 .1em var(--tk-line, #999999); border-radius: .3em; background: var(--tk-fill, #EEEEEE); }
 b-out .otid { font-weight: 700; color: var(--tk-ink, #666666); }
 b-tok[data-f="purple"], b-out [data-f="purple"] { --tk-fill: #D9D2E9; --tk-line: #8E7CC3; --tk-ink: #674EA7; }
@@ -97,6 +98,24 @@ b-m { font-family: var(--font-math); font-size: 1.04em; white-space: nowrap; wor
 b-m sub, b-m sup { font-size: .68em; line-height: 0; }
 b-m sub { vertical-align: -.32em; } b-m sup { vertical-align: .55em; }
 b-m .c { font-weight: 700; }
+/* inline symbols as tiles (Eric, 2026-11-19: "should be like the token system, consistent everywhere"): the fill and line of the drawings' symbol tiles */
+b-m .sym { padding: 0 .1em; margin: 0 .03em; border-radius: .26em; background: var(--sf, color-mix(in srgb, currentColor 15%, #fff)); box-shadow: inset 0 0 0 .085em var(--sl, color-mix(in srgb, currentColor 50%, #fff)); }
+b-m .sym.red { --sf: #F4CCCC; --sl: #E06666; } b-m .sym.purple { --sf: #D9D2E9; --sl: #8E7CC3; } b-m .sym.green { --sf: #D9EAD3; --sl: #93C47D; }
+b-m .sym.gold { --sf: #FFF2CC; --sl: #DCB439; color: #B8920F; } b-m .sym.blue, b-m .sym.wblue { --sf: #C9DAF8; --sl: #6D9EEB; color: #1155CC; } b-m .sym.gray { --sf: #EEEEEE; --sl: #999999; }
+/* every tile the same size (Eric, 2026-11-19), with room for a subscript inside */
+b-m .sym { display: inline-block; box-sizing: border-box; height: 1.3em; min-width: 1em; line-height: 1.24em; margin-block: -.15em; text-align: center; vertical-align: baseline; word-spacing: 0; }   /* the symbol sits on the text's baseline */
+b-m .sym > sub { vertical-align: -.2em; } b-m .sym > sup { vertical-align: .42em; }
+/* \fill{…}: an inline tile left empty in the Lecture until it is filled (tap) or shown, like a drawing's fill part */
+.book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill]:not(.shown) { color: transparent; border: 0; border-radius: .26em; background: var(--sf, #EEEEEE); cursor: pointer; }
+.book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill]:not(.shown) * { color: transparent; }
+.book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill] > * { visibility: visible; }
+.book:is([data-view="slides"], [data-view="workbook"]) b-m .sym[data-fill].shown { color: var(--sk, inherit); }
+b-m .sym.red { --sk: var(--red-text); } b-m .sym.purple { --sk: var(--purple-text); } b-m .sym.green { --sk: var(--green-text); } b-m .sym.gold { --sk: #B8920F; } b-m .sym:is(.blue, .wblue) { --sk: #1155CC; } b-m .sym.gray { --sk: #666666; }
+.book[data-view="reading"] b-m .sym[data-fill], .book.ed b-m .sym[data-fill] { outline: 1pt dashed currentColor; outline-offset: 1pt; }   /* the author sees which tiles are blanks */
+/* a tile with its shape under the symbol (\tile[shape]{X}): taller, the shape small, like a drawing's tile */
+b-m .sym.shp { height: auto; line-height: 1.05; padding-top: .08em; padding-bottom: .12em; vertical-align: -.55em; }
+b-m .sym .tsh { display: block; font-size: .46em; line-height: 1.1; font-family: var(--font-mono, monospace); font-weight: 700; }
+b-m sub .sym, b-m sup .sym, b-m .sym .sym { background: none; box-shadow: none; padding: 0; margin: 0; }
 b-m .fr { display: inline-flex; flex-direction: column; vertical-align: middle; font-size: .8em; line-height: 1.08; text-align: center; margin: 0 .12em; }   /* \frac{a}{b} */
 b-m .fr > span { padding: 0 .1em; } b-m .fr > span + span { border-top: .07em solid currentColor; }
 /* Ω in inline math is the weight matrix: ω stretched to capital height, as in the AI2AI Math font (scale from kit/build_math_font.py) */
@@ -105,6 +124,8 @@ b-m .c .Om { transform: scaleY(1.332); }
 .eqml-note .Om { display: inline-block; line-height: 1; transform: scaleY(1.355); transform-origin: 50% 80%; }   /* Ω in an equation's note: the tall ω too */
 .c.blue { color: var(--blue-text); } .c.gold { color: var(--yellow-text); } .c.purple { color: var(--purple-text); }
 .c.green { color: var(--green-text); } .c.red { color: var(--red-text); } .c.gray { color: #666666; } .c.wblue { color: #1155CC; }
+/* the notation table's other families (book.js SYM_COLS text tones), for inline maths coloured from it */
+.c.pink { color: #A64D79; } .c.orange { color: #B45F06; } .c.brown { color: #783F04; } .c.olive { color: #6B6B00; } .c.teal { color: #134F5C; } .c.magenta { color: #8E2C80; } .c.navy { color: #002B5B; }
 b-eq { display: block; border: 1px solid var(--border); border-radius: 4px; background: #fff; padding: 5pt 4pt; text-align: left; }
 b-eq.answer { border: 2px solid #000; border-radius: 0; box-sizing: border-box; }
 b-eq img { display: inline-block; vertical-align: middle; max-width: 100%; height: auto; }
@@ -196,6 +217,29 @@ b-code .ln { white-space: pre; min-height: 1.42em; }
 b-code :is(.kw, .ctl, .ty, .bi, .st, .nu, .cm, .def) { font-weight: 700; }
 b-code .kw, b-code .bi, b-code .def { color: var(--blue-text); } b-code .ctl { color: var(--yellow-text); } b-code .ty { color: var(--purple-text); }
 b-code .st, b-code .nu { color: var(--red-text); } b-code .cm { color: var(--green-text); }
+/* a notation symbol in code (Q, K, V) is a tile like everywhere else (Eric, 2026-11-19: "ultra consistent"): fill and line only, no padding, so the columns still line up */
+/* the tile is drawn behind the text (::before, z-index -1 in its line), so it never covers a neighbouring "(" or "." */
+:is(b-code, b-out) .cc.csym { position: relative; }
+:is(b-code .ln, b-out pre) { position: relative; z-index: 0; }
+:is(b-code, b-out) .cc.csym::before { content: ""; position: absolute; z-index: -1; left: -.12em; right: -.12em; top: -.02em; bottom: -.04em; border-radius: .22em; background: var(--sf, #EEEEEE); box-shadow: inset 0 0 0 .08em var(--sl, #999999); }
+/* a cell showing shapes (Book.paintShapes): every line taller by the same amount, the shape small inside the bottom of each tile */
+b-code.code-shapes { line-height: 2.5; }
+b-code.code-shapes .ln { min-height: 2.5em; }   /* an empty line as tall as the rest, so the gutter's numbers stay beside their lines */
+/* a tile with its shape is a little column, letter over shape, that takes its own room (Eric, 2026-11-19: the box drawn behind
+   bled into the characters beside it). Its baseline is the letter's, and the top padding matches the shape's height below,
+   so the box is centred on the line's text. */
+b-code.code-shapes .cc.csym[data-shape] { display: inline-flex; flex-direction: column; align-items: center; vertical-align: baseline; line-height: 1; padding: .5em .14em .06em; margin: 0 .04em; }
+b-code.code-shapes .cc.csym[data-shape]::before { left: 0; right: 0; top: 0; bottom: 0; }
+b-code.code-shapes .cc.csym[data-shape]::after { content: attr(data-shape); font-size: .44em; line-height: 1; margin-top: .1em; white-space: nowrap; font-weight: 700; }
+/* while the code is being edited it is plain code again: no shapes, ordinary line height (Eric, 2026-11-19: the tall
+   gutter and the short typed lines went out of step) */
+b-code.code-shapes.ed-editing { line-height: 1.4; }
+b-code.code-shapes.ed-editing .ln { min-height: 0; }
+b-code.code-shapes.ed-editing .cc.csym[data-shape] { display: inline; padding: 0; margin: 0; }
+b-code.code-shapes.ed-editing .cc.csym[data-shape]::before { left: -.12em; right: -.12em; top: -.02em; bottom: -.04em; }
+b-code.code-shapes.ed-editing .cc.csym[data-shape]::after { content: none; }
+:is(b-code, b-out) .cc.csym.red { --sf: #F4CCCC; --sl: #E06666; } :is(b-code, b-out) .cc.csym.purple { --sf: #D9D2E9; --sl: #8E7CC3; } :is(b-code, b-out) .cc.csym.green { --sf: #D9EAD3; --sl: #93C47D; }
+:is(b-code, b-out) .cc.csym.gold { --sf: #FFF2CC; --sl: #DCB439; color: #B8920F; } :is(b-code, b-out) .cc.csym:is(.blue, .wblue) { --sf: #C9DAF8; --sl: #6D9EEB; } :is(b-code, b-out) .cc.csym.gray { --sf: #EEEEEE; --sl: #999999; }
 b-code .cc { font-weight: 700; } b-code .cc.red { color: #CC0000; } b-code .cc.blue { color: #1155CC; } b-code .cc.gray { color: #666666; }
 b-code .cc.purple { color: #674EA7; } b-code .cc.gold { color: #DCB439; } b-code .cc.green { color: #38761D; } b-code .nu.nn { color: #434343; }
 :is(b-code, b-out) mark { background: var(--yellow-fill); box-shadow: 0 0 0 1px var(--yellow-line); border-radius: 2px; color: inherit; }
@@ -203,6 +247,29 @@ b-code .cc.purple { color: #674EA7; } b-code .cc.gold { color: #DCB439; } b-code
 :is(b-code, b-out) mark.teal { background: #d5ecf1; box-shadow: 0 0 0 1px #5aabbc; } :is(b-code, b-out) mark.gray { background: #e6e6e6; box-shadow: 0 0 0 1px #999; }
 :is(b-code, b-out) mark.orange { background: #f7e0d7; box-shadow: 0 0 0 1px #d97757; }
 :is(b-code, b-out) mark.purple { background: #d9d2e9; box-shadow: 0 0 0 1px #8e7cc3; } :is(b-code, b-out) mark.red { background: #f4cccc; box-shadow: 0 0 0 1px #e06666; }
+/* Colour blocks (Eric, 2026-11-17): a run of lines ending "#~ purple" (book.js codeBlocks) is one block in a drawing tile's
+   colours, matching the equation piece \lk{purple}{…} (server.py lk_paint) or the tile it implements. Insets only, so
+   the lines keep their height and stay level with the line numbers and the typing layer. */
+b-code .ln.blk { background: var(--bf); margin: 0 -4pt; padding: 0 4pt; box-shadow: inset 1pt 0 0 var(--bl), inset -1pt 0 0 var(--bl); }
+b-code .ln.blk.blk-top { border-top-left-radius: 3pt; border-top-right-radius: 3pt; box-shadow: inset 1pt 0 0 var(--bl), inset -1pt 0 0 var(--bl), inset 0 1pt 0 var(--bl); }
+b-code .ln.blk.blk-bot { border-bottom-left-radius: 3pt; border-bottom-right-radius: 3pt; box-shadow: inset 1pt 0 0 var(--bl), inset -1pt 0 0 var(--bl), inset 0 -1pt 0 var(--bl); }
+b-code .ln.blk.blk-top.blk-bot { box-shadow: inset 0 0 0 1pt var(--bl); }
+.blk-purple { --bf: #D9D2E9; --bl: #8E7CC3; } .blk-green { --bf: #D9EAD3; --bl: #93C47D; } .blk-gold { --bf: #FFF2CC; --bl: #DCB439; }
+.blk-red { --bf: #F4CCCC; --bl: #E06666; } .blk-blue { --bf: #C9DAF8; --bl: #6D9EEB; } .blk-gray { --bf: #EFEFEF; --bl: #999999; } .blk-teal { --bf: #D5ECF1; --bl: #5AABBC; }
+/* every coloured symbol in a typeset equation is a tile too (Eric, 2026-11-19), not in sub/superscripts */
+.eq-ml .sym { background: var(--sf); box-shadow: inset 0 0 0 0.8pt var(--sl, #999999); border-radius: 2.4pt; padding: 0 1.2pt; }
+.eq-ml .sym { --sf: color-mix(in srgb, currentColor 15%, #fff); --sl: color-mix(in srgb, currentColor 50%, #fff); }   /* eqml.js names the colour by its hex */
+.eq-ml .sym-CC0000 { --sf: #F4CCCC; --sl: #E06666; } .eq-ml .sym-674EA7 { --sf: #D9D2E9; --sl: #8E7CC3; } .eq-ml .sym-38761D { --sf: #D9EAD3; --sl: #93C47D; }
+.eq-ml .sym-DCB439 { --sf: #FFF2CC; --sl: #DCB439; } .eq-ml .sym-1155CC { --sf: #C9DAF8; --sl: #6D9EEB; } .eq-ml .sym-666666 { --sf: #EEEEEE; --sl: #999999; }
+.eq-ml :is(msub, msup, msubsup) > :not(:first-child) .sym, .eq-ml :is(msub, msup, msubsup) > .sym:not(:first-child), .eq-ml .sym .sym { background: none; box-shadow: none; padding: 0; }
+/* \fill{…} in a typeset equation (2026-11-19): the tile stays, its symbol is left out in the Lecture and Workbook until shown */
+.book:is([data-view="slides"], [data-view="workbook"]) .eq-ml .eqfill:not(.shown), .book:is([data-view="slides"], [data-view="workbook"]) .eq-ml .eqfill:not(.shown) * { color: transparent !important; cursor: pointer; }
+.eq-ml .eqfill:not(.sym):not(:has(.sym)) { background: #EEEEEE; box-shadow: inset 0 0 0 0.8pt #999999; border-radius: 2.4pt; padding: 0 1.2pt; }
+.book[data-view="reading"] .eq-ml .eqfill, .book.ed .eq-ml .eqfill { outline: 1pt dashed #999; outline-offset: 1pt; }
+/* the same pieces typeset by Temml (hosted editor, eqml.js): \lk{purple}{…} is class lk-purple */
+.eq-ml :is(.lk-purple, .lk-green, .lk-gold, .lk-yellow, .lk-red, .lk-blue, .lk-gray, .lk-grey, .lk-teal) { background: var(--bf); box-shadow: 0 0 0 0.9pt var(--bl); border-radius: 2.4pt; padding: 0 1pt; }
+.eq-ml .lk-purple { --bf: #D9D2E9; --bl: #8E7CC3; } .eq-ml .lk-green { --bf: #D9EAD3; --bl: #93C47D; } .eq-ml :is(.lk-gold, .lk-yellow) { --bf: #FFF2CC; --bl: #DCB439; }
+.eq-ml .lk-red { --bf: #F4CCCC; --bl: #E06666; } .eq-ml .lk-blue { --bf: #C9DAF8; --bl: #6D9EEB; } .eq-ml :is(.lk-gray, .lk-grey) { --bf: #EFEFEF; --bl: #999999; } .eq-ml .lk-teal { --bf: #D5ECF1; --bl: #5AABBC; }
 /* Output colours (book.js eaiOutHL, Eric 2026-11-01): the network colours of the diagrams and equations (f-<family> on a
    line's label and its numbers; gold and grey a shade darker so plain text stays readable), unnamed labels bold navy,
    numbers bold (Eric, 2026-11-01), other numbers dark grey (red means an input), tensor( / array( wrappers grey; mark = a pre-registered highlight */
@@ -211,6 +278,9 @@ b-out .olab { font-weight: 700; color: #002B5B; } b-out .cc { font-weight: 700; 
 b-out :is(.cc, .olab, .nu).red, b-out .f-red { color: #CC0000; } b-out :is(.cc, .olab, .nu).blue, b-out .f-blue { color: #1155CC; }
 b-out :is(.cc, .olab, .nu).gray, b-out .f-gray { color: #666666; } b-out :is(.cc, .olab, .nu).purple, b-out .f-purple { color: #674EA7; }
 b-out :is(.cc, .olab, .nu).gold, b-out .f-gold { color: #B8920F; } b-out :is(.cc, .olab, .nu).green, b-out .f-green { color: #38761D; }
+/* the notation table's other families (2026-11-18: outputs and code colour from it too) */
+b-out :is(.cc, .olab, .nu).pink, b-out .f-pink { color: #A64D79; } b-out :is(.cc, .olab, .nu).orange, b-out .f-orange { color: #B45F06; } b-out :is(.cc, .olab, .nu).brown, b-out .f-brown { color: #783F04; } b-out :is(.cc, .olab, .nu).olive, b-out .f-olive { color: #6B6B00; } b-out :is(.cc, .olab, .nu).teal, b-out .f-teal { color: #134F5C; } b-out :is(.cc, .olab, .nu).magenta, b-out .f-magenta { color: #8E2C80; } b-out :is(.cc, .olab, .nu).navy, b-out .f-navy { color: #002B5B; } b-out :is(.cc, .olab, .nu).wblue, b-out .f-wblue { color: #1155CC; }
+b-code .cc.pink { color: #A64D79; } b-code .cc.orange { color: #B45F06; } b-code .cc.brown { color: #783F04; } b-code .cc.olive { color: #6B6B00; } b-code .cc.teal { color: #134F5C; } b-code .cc.magenta { color: #8E2C80; } b-code .cc.navy { color: #002B5B; } b-code .cc.wblue { color: #1155CC; }
 b-out { display: block; border: 1px solid var(--border); border-radius: 0 0 4px 4px; }
 b-out .label { padding: 2pt 7pt; font-size: 7.5pt; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-muted); border-bottom: 1px solid var(--border); }
 b-out pre { margin: 0; padding: 4pt 7pt; font-family: var(--font-mono); font-size: 9.4pt; line-height: 1.4; }
@@ -301,20 +371,26 @@ u.fill { text-decoration: none; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill { cursor: pointer; }
 .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown { color: var(--navy); } .book:is([data-view="slides"], [data-view="workbook"]) u.fill.shown * { color: inherit !important; }
 u.fill.blank { display: inline-block; vertical-align: baseline; }
+/* a blank never breaks across two lines (Eric, 2026-11-16: the iPad pad put the handwriting for attention's
+   "long-term dependency" way off: a wrapped blank's box spans both lines, so the pad anchored at the second line's
+   left edge on the first line's baseline) */
+.book:is([data-view="slides"], [data-view="workbook"]) u.fill:not(b-code u.fill, b-out u.fill, :is(td, th) u.fill) { white-space: nowrap; }
 /* a code blank filled in by hand in the Lecture (Book.fillBlank): the writing in place of the answer, underlined green,
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -519,7 +595,17 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
+  html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
   html.ink-ghost .book[data-view="slides"] svg.draw [data-fill="label"]:not(.shown) > text,
   html.ink-ghost .book[data-view="slides"] svg.draw g[data-fill="all"]:not(.shown) > * { opacity: .28; }
@@ -540,7 +626,8 @@ span.wrapf { display: block; pointer-events: none; -webkit-user-select: none; us
 .page > [data-ed-wl] > li { display: flow-root; }   /* list items step clear of a left picture, bullets included */
 
 /* equations typeset in the browser (eqml.js): laid out like the TeX images (kit/preamble_mathfont.tex) */
-b-eq > .eq-ml { display: inline-block; vertical-align: middle; max-width: 100%; overflow-x: auto; }
+b-eq > .eq-ml { display: inline-block; vertical-align: middle; }   /* BEq.fit shrinks it to the box */
+b-eq { min-width: 0; }   /* in a grid (code beside) the box keeps its column, so fit can shrink the equation */
 .eqml.flush { grid-template-columns: 0 auto; column-gap: 0; }
 .eqml { display: grid; grid-template-columns: 3.6em auto; column-gap: 0.5em; row-gap: 5.6pt; align-items: center; font-size: 16pt; line-height: 1.2; color: #000; }
 .eqml math { font-family: 'AI2AI Math', math; font-size: 16pt; }
@@ -572,8 +659,9 @@ b-eq > .eq-ml { display: inline-block; vertical-align: middle; max-width: 100%; 
 :is(ul, ol):not(.cases):not(.tight) li + li { margin-top: .25em; }
 /* presenting the Lecture (?lecture=1): code output hidden, its space kept, until run live or clicked (book.js eaiRunCode) */
 html.present-out .book[data-view="slides"] b-out:not(.shown) > pre, html.present-out .book[data-view="slides"] b-out:not(.shown) > .run-figs { visibility: hidden; }
-html.present-out .book[data-view="slides"] b-out:not(.shown) { cursor: pointer; }
-html.present-out .book[data-view="slides"] b-out:not(.shown) > .label::after { content: "  · run it, or tap to show"; text-transform: none; letter-spacing: 0; }
+/* the instructor's crib (html.ink-ghost: the iPad app sets it on its own Lecture page, and the answers link; never the projector's copy, html.eai-proj, which the app also gives ink-ghost): a stored output shows faint, like the answers, until run or tapped */
+html.present-out.ink-ghost:not(.eai-proj) .book[data-view="slides"] b-out:not(.shown) > pre, html.present-out.ink-ghost:not(.eai-proj) .book[data-view="slides"] b-out:not(.shown) > .run-figs { visibility: visible; opacity: .28; }
+html.present-out .book[data-view="slides"] b-out:not(.shown) > .label::after { content: "  · run it to show"; text-transform: none; letter-spacing: 0; }
 @media print { html.present-out .book b-out > pre { visibility: visible !important; } }
 /* Lecture mode (?lecture=…, ink.js lectureZoom): the pen bar alone at the top, the pages scroll (and zoom) in their own box */
 html.lect, html.lect body { height: 100%; overflow: hidden; overscroll-behavior: none; }
@@ -670,16 +758,47 @@ b-out.run-new .run-bar .run-status { font-size: 7.5pt; }
 .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="70"]:has(+ b-out:not(.run-new)) { grid-column: 1 / span 14; } .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="70"] + b-out:not(.run-new) { grid-column: 15 / -1; }
 .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="75"]:has(+ b-out:not(.run-new)) { grid-column: 1 / span 15; } .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="75"] + b-out:not(.run-new) { grid-column: 16 / -1; }
 .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="80"]:has(+ b-out:not(.run-new)) { grid-column: 1 / span 16; } .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code[cw="80"] + b-out:not(.run-new) { grid-column: 17 / -1; }
-/* Lecture code and output boxes scroll, sideways and down, when their text doesn't fit (Eric, 2026-10-29: "let me
-   scroll both horizontally and vertically in the code boxes instead of screwing with the fonts"). A box is at most
-   340pt tall on a slide; the line numbers stay put while the code scrolls sideways. On paper (PDF) they are cut off as before.
-   No overscroll-behavior (Eric, 2026-11-01): a wheel over a box scrolls it to its end, then the deck carries on, and a
-   box with nothing to scroll never holds the deck back. */
+/* beside="left|right" on a b-code (Eric, 2026-11-17, from his students: fewer slides that are only code): on a slide the
+   block before it (a drawing, an equation, a figure) sits on that side of the code and its output, which goes under the
+   code, so the slide shows the picture next to the code that implements it. bw="N" is the picture's share of the width
+   (20-60%, default 40). A 20-track grid, filled densely so the code goes up level with a picture on its right. The
+   Workbook and the Reading stack them as usual. */
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside]) { grid-template-columns: repeat(20, minmax(0, 1fr)); column-gap: 0; grid-auto-flow: row dense; --pw: 8; --cs: 9; --ps: 13; --cw: 12; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside][bw="20"]) { --pw: 4; --cs: 5; --ps: 17; --cw: 16; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside][bw="25"]) { --pw: 5; --cs: 6; --ps: 16; --cw: 15; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside][bw="30"]) { --pw: 6; --cs: 7; --ps: 15; --cw: 14; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside][bw="35"]) { --pw: 7; --cs: 8; --ps: 14; --cw: 13; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside][bw="45"]) { --pw: 9; --cs: 10; --ps: 12; --cw: 11; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside][bw="50"]) { --pw: 10; --cs: 11; --ps: 11; --cw: 10; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside][bw="55"]) { --pw: 11; --cs: 12; --ps: 10; --cw: 9; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside][bw="60"]) { --pw: 12; --cs: 13; --ps: 9; --cw: 8; }
+.book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ b-code[beside="left"]), :has(+ .cmt + b-code[beside="left"])) { grid-column: 1 / span var(--pw) !important; margin-right: 14pt; }
+.book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ b-code[beside="right"]), :has(+ .cmt + b-code[beside="right"])) { grid-column: var(--ps) / -1 !important; margin-left: 14pt; }
+.book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ b-code[beside]), :has(+ .cmt + b-code[beside])) { align-self: center; justify-self: center; min-width: 0; max-width: 100%; box-sizing: border-box; }
+.book[data-view="slides"] .page:not(.cover) > :not(.cmt):is(:has(+ b-code[beside] + b-out:not(.run-new)), :has(+ .cmt + b-code[beside] + b-out:not(.run-new))) { grid-row: span 2; }
+.book[data-view="slides"] .page:not(.cover) > svg.draw:is(:has(+ b-code[beside]), :has(+ .cmt + b-code[beside])) { height: auto; }
+/* an equation beside code fills its column (up to twice its size), so it reads at the size of the code next to it */
+.book[data-view="slides"] .page:not(.cover) > b-eq:is(:has(+ b-code[beside]), :has(+ .cmt + b-code[beside])) { width: auto; justify-self: stretch; }
+.book[data-view="slides"] .page:not(.cover) > b-eq:is(:has(+ b-code[beside]), :has(+ .cmt + b-code[beside])) > img { width: 100%; max-width: none; max-height: 260pt; object-fit: contain; }
+.book[data-view="slides"] .page:not(.cover) > b-code[beside="left"], .book[data-view="slides"] .page:not(.cover) > b-code[beside="left"] + b-out:not(.run-new) { grid-column: var(--cs) / -1 !important; }
+.book[data-view="slides"] .page:not(.cover) > b-code[beside="right"], .book[data-view="slides"] .page:not(.cover) > b-code[beside="right"] + b-out:not(.run-new) { grid-column: 1 / span var(--cw) !important; }
+.book[data-view="slides"] .page:not(.cover) > b-code[beside] { min-width: 0; align-self: end !important; }   /* down against its output when the picture is the taller */
+.book[data-view="slides"] .page:not(.cover) > b-code[beside]:has(+ b-out:not(.run-new)) { border-radius: 4px 4px 0 0; }
+.book[data-view="slides"] .page:not(.cover) > b-code[beside] + b-out:not(.run-new) { margin-left: 0 !important; margin-top: calc(-1 * var(--gap, 10pt)) !important; border-top: 0; border-radius: 0 0 4px 4px; min-width: 0; align-self: start; }
+.book[data-view="slides"] .page:not(.cover) > b-code[beside] + b-out:not(.run-new) > .label > .run-bar { position: static; }
+/* other code on such a slide keeps its output beside it, in the 20 tracks */
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside]) > b-code:not([beside]):not([out="below"]):has(+ b-out:not(.run-new)) { grid-column: 1 / span 13; min-width: 0; }
+.book[data-view="slides"] .page:not(.cover):has(> b-code[beside]) > b-code:not([beside]):not([out="below"]) + b-out:not(.run-new) { grid-column: 14 / -1; margin-left: 10pt; }
+/* Lecture code and output boxes scroll sideways when a line doesn't fit (Eric, 2026-10-29: "let me scroll both
+   horizontally and vertically in the code boxes instead of screwing with the fonts"). Since 2026-11-17 they no longer
+   scroll down: a slide grows as tall as its code needs (tall slides, Book.refresh), so every line shows. The line
+   numbers stay put while the code scrolls sideways. On paper (PDF) they are cut off at the right as before.
+   No overscroll-behavior (Eric, 2026-11-01): a wheel over a box never holds the deck back. */
 @media screen {
-  .book[data-view="slides"] b-code { max-height: 340pt; overflow: auto; }
+  .book[data-view="slides"] b-code { overflow-x: auto; overflow-y: hidden; }   /* the slide grows to fit the code (tall slides, 2026-11-17): only sideways scrolling */
   .book[data-view="slides"] b-code .src { overflow: visible; flex: 1 0 auto; }
   .book[data-view="slides"] b-code .gutter { position: sticky; left: 0; background: var(--surface, #fff); z-index: 1; align-self: flex-start; min-height: 100%; }
-  .book[data-view="slides"] b-out pre { max-height: 340pt; overflow: auto !important; }
+  .book[data-view="slides"] b-out pre { overflow-x: auto !important; overflow-y: hidden !important; }
   .book[data-view="slides"] .page:not(.cover):has(> b-code[cw] + b-out:not(.run-new)) > b-code:has(+ b-out:not(.run-new)) { overflow: auto; }   /* beats the cw rule's overflow: hidden */
   .book[data-view="slides"] b-code.ed-editing, .book[data-view="slides"] .page:not(.cover) > b-code.ed-editing { max-height: none; overflow: visible; }
 }
@@ -714,6 +833,11 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
 /* Saved plots under an Output (b-out figs, 2026-11-10) on a 6 × 9 Workbook page: no taller than 120pt, so a plot
    saved for a slide doesn't push the page over (rnn p-043pd: 647 of 622 at full column width) */
 .book[data-view="workbook"] b-out > .run-figs img { max-height: 120pt; width: auto; }
+
+/* a drawing re-spaced to line up with the code beside it (Book.alignBeside): the copy is shown, the drawing kept for editing */
+svg.draw[data-ed-al]:not(.ed-sel) > :not(defs):not(marker) { visibility: hidden; }
+.page:has(> svg.draw.ed-sel[data-ed-al]) > svg.al-clone { display: none; }
+svg.al-clone { z-index: 1; }
 </style>
 </head>
 <body>
@@ -805,14 +929,14 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
 
 
 
-<section class="page" id="verifiable" data-part="Thinking Before Answering" data-view="reading" data-topic="today" style="--gap: 22pt;">
+<section class="page" id="verifiable" data-view="reading" data-topic="today" data-part="Thinking Before Answering" style="--gap: 22pt;">
   <h2 data-b="m9flx">Verifiable Rewards</h2>
   <p data-b="oefr1">The RLHF chapter ended with a reward that didn't need any people. For a prompt like "What is <span class="num">17 * 3</span>?" a few lines of code can check the answer, and <b class="name">GRPO</b> can train on that <span class="num">1</span> or <span class="num">0</span> by comparing each answer with the rest of its group. That is how <b class="name">DeepSeek-R1-Zero</b> was trained, straight from a base model.</p>
   <p data-b="pof8s">A checker only looks at the final answer. It doesn't care how the model got there, how long it took, or whether it showed any work at all. So it's a fair question what a model actually learns when the only thing it's ever told is "right" or "wrong".</p>
   <p data-b="r3ux3">It turns out the answer is that it <b class="take">learns to write a lot more before it answers</b>. To see why that helps we first need to look at what a model does when it doesn't, starting with our own model, <b class="name">Qwen3-0.6B</b>, and a grade-school math problem.</p>
 <div class="foot" data-rt=""><span>Reasoning Models · Thinking Before Answering</span><span>02</span></div></section>
 
-<section class="page" id="answering-directly" data-part="One Pass per Token" data-view="reading" data-topic="one-pass" style="--gap: 22pt;">
+<section class="page" id="answering-directly" data-view="reading" data-topic="one-pass" data-part="One Pass per Token" style="--gap: 22pt;">
   <h2 data-b="ec7np">Answering Directly</h2>
   <p data-b="p1ngi"><b class="ex">GSM8K</b> is a set of grade-school math word problems, each with a single number as its answer. The first problem in its test set, which we'll use for the rest of the chapter, is <b class="ex">Janet's ducks</b>:</p>
   <table class="tbl" data-b="w1mnd">
@@ -828,62 +952,62 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
 <section class="page" id="forward-pass" data-view="reading" data-topic="one-pass">
   <h2 data-b="tcqqf">Forward Pass</h2>
   <p data-b="dlpc3">Every token a transformer writes comes out of one <b class="def">forward pass</b>: the context goes in, through all <span class="num">28</span> blocks of Qwen3-0.6B, and out comes a distribution over the next token. Each of the model's <span class="num">596.0 M</span> weights gets used once along the way (the embedding matrix is tied, so it's used again as the output layer).</p>
-  <svg class="draw" viewBox="0 0 560 268" style="width: 382.5pt" role="img" aria-label="Two copies of Qwen3-0.6B, each a stack of 28 blocks. One reads '... sat on' and writes ' the', the other reads the question about the farmers' market and writes the first digit of the answer. The two cost the same." data-b="vnu4t">
+  <svg class="draw" viewBox="0 0 560 268" role="img" aria-label="Two copies of Qwen3-0.6B, each a stack of 28 blocks. One reads '... sat on' and writes ' the', the other reads the question about the farmers' market and writes the first digit of the answer. The two cost the same." style="width: 382.5pt" data-b="vnu4t">
     <defs>
       <marker id="ah000000-vnu4t" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
       </marker>
     </defs>
     <g id="one-pass-vnu4t-s1">
-      <rect x="40.0" y="205.0" width="200.0" height="34.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="40.0" y="205.0" width="200.0" height="34.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="140.0" y="221.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">... sat on</text>
       <text x="140.0" y="231.0" font-size="7.3" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">the text so far</text>
     </g>
     <g id="one-pass-vnu4t-s2">
-      <rect x="50.0" y="62.0" width="180.0" height="126.0" rx="8.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <rect x="70.0" y="162.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
+      <rect x="50.0" y="62.0" width="180.0" height="126.0" rx="8.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <rect x="70.0" y="162.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
       <text x="140.0" y="173.5" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block 1</text>
-      <rect x="70.0" y="142.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
+      <rect x="70.0" y="142.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
       <text x="140.0" y="153.5" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block 2</text>
-      <rect x="70.0" y="122.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
+      <rect x="70.0" y="122.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
       <text x="140.0" y="133.5" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block 3</text>
-      <rect x="70.0" y="90.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
+      <rect x="70.0" y="90.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
       <text x="140.0" y="101.5" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block 28</text>
       <text x="140.0" y="117.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">⋮</text>
       <text x="140.0" y="79.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Qwen3-0.6B</text>
     </g>
-    <line x1="140.0" y1="204.0" x2="140.0" y2="190.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-vnu4t)" data-a="one-pass-vnu4t-s1" data-b="one-pass-vnu4t-s2" data-a-at="t:0.500:1" data-b-at="b:0.500:2"></line>
+    <line x1="140.0" y1="204.0" x2="140.0" y2="190.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-vnu4t)" data-a="one-pass-vnu4t-s1" data-b="one-pass-vnu4t-s2" data-a-at="t:0.500:1" data-b-at="b:0.500:2"></line>
     <g id="one-pass-vnu4t-s3">
-      <rect x="110.0" y="23.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="110.0" y="23.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="140.0" y="43.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">the</text>
     </g>
-    <line x1="140.0" y1="61.0" x2="140.0" y2="54.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-vnu4t)" data-a="one-pass-vnu4t-s2" data-b="one-pass-vnu4t-s3" data-a-at="t:0.500:1" data-b-at="b:0.500:1"></line>
+    <line x1="140.0" y1="61.0" x2="140.0" y2="54.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-vnu4t)" data-a="one-pass-vnu4t-s2" data-b="one-pass-vnu4t-s3" data-a-at="t:0.500:1" data-b-at="b:0.500:1"></line>
     <text x="180.0" y="42.0" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">easy</text>
     <g id="one-pass-vnu4t-s4">
-      <rect x="320.0" y="205.0" width="200.0" height="34.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="320.0" y="205.0" width="200.0" height="34.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="420.0" y="221.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">... at the farmers' market?</text>
       <text x="420.0" y="231.0" font-size="7.3" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">the text so far</text>
     </g>
     <g id="one-pass-vnu4t-s5">
-      <rect x="330.0" y="62.0" width="180.0" height="126.0" rx="8.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-      <rect x="350.0" y="162.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
+      <rect x="330.0" y="62.0" width="180.0" height="126.0" rx="8.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <rect x="350.0" y="162.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
       <text x="420.0" y="173.5" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block 1</text>
-      <rect x="350.0" y="142.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
+      <rect x="350.0" y="142.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
       <text x="420.0" y="153.5" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block 2</text>
-      <rect x="350.0" y="122.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
+      <rect x="350.0" y="122.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
       <text x="420.0" y="133.5" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block 3</text>
-      <rect x="350.0" y="90.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
+      <rect x="350.0" y="90.0" width="140.0" height="16.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
       <text x="420.0" y="101.5" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block 28</text>
       <text x="420.0" y="117.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">⋮</text>
       <text x="420.0" y="79.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Qwen3-0.6B</text>
     </g>
-    <line x1="420.0" y1="204.0" x2="420.0" y2="190.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-vnu4t)" data-a="one-pass-vnu4t-s4" data-b="one-pass-vnu4t-s5" data-a-at="t:0.500:1" data-b-at="b:0.500:2"></line>
+    <line x1="420.0" y1="204.0" x2="420.0" y2="190.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-vnu4t)" data-a="one-pass-vnu4t-s4" data-b="one-pass-vnu4t-s5" data-a-at="t:0.500:1" data-b-at="b:0.500:2"></line>
     <g id="one-pass-vnu4t-s6">
-      <rect x="390.0" y="23.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="390.0" y="23.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="420.0" y="43.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
     </g>
     <text x="380.0" y="42.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">first digit</text>
-    <line x1="420.0" y1="61.0" x2="420.0" y2="54.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-vnu4t)" data-a="one-pass-vnu4t-s5" data-b="one-pass-vnu4t-s6" data-a-at="t:0.500:1" data-b-at="b:0.500:1"></line>
+    <line x1="420.0" y1="61.0" x2="420.0" y2="54.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-vnu4t)" data-a="one-pass-vnu4t-s5" data-b="one-pass-vnu4t-s6" data-a-at="t:0.500:1" data-b-at="b:0.500:1"></line>
     <text x="460.0" y="42.0" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">hard</text>
     <text x="280.0" y="128.0" font-size="22.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">=</text>
     <text x="280.0" y="262.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">one pass each: all 28 blocks, every one of the 596.0 M weights used once</text>
@@ -908,7 +1032,7 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
 <section class="page" id="why-cot-works" data-view="reading" data-topic="one-pass" style="--gap: 14.4pt;">
   <h2 data-b="vmtiz">Why Chain of Thought Works</h2>
   <p data-b="zp22c">A language model reads everything it has written so far. Every token it produces <b class="take">goes back in as input</b> for the next one, so each step token buys another full forward pass, and whatever it worked out along the way stays in the context where attention can find it.</p>
-  <svg class="draw" viewBox="0 0 560 220" style="width: 382.5pt" role="img" aria-label="Answering right away: question, then 16 after 5 tokens, wrong. Showing the work: question, then 16 - 3 - 4 = 9 ... 18, each token feeding back in as the next input, right." data-b="g8032">
+  <svg class="draw" viewBox="0 0 560 220" role="img" aria-label="Answering right away: question, then 16 after 5 tokens, wrong. Showing the work: question, then 16 - 3 - 4 = 9 ... 18, each token feeding back in as the next input, right." style="width: 382.5pt" data-b="g8032">
     <defs>
       <marker id="ah000000-g8032" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
@@ -919,66 +1043,66 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
     </defs>
     <text x="10.0" y="22.0" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">answer right away</text>
     <g id="scratch-g8032-s1">
-      <rect x="20.0" y="39.0" width="100.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="20.0" y="39.0" width="100.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="70.0" y="55.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">question</text>
     </g>
     <g id="scratch-g8032-s2">
-      <rect x="162.0" y="39.0" width="46.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="162.0" y="39.0" width="46.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="185.0" y="55.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">16</text>
     </g>
-    <line x1="120.0" y1="52.0" x2="160.0" y2="52.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-g8032)" data-a="scratch-g8032-s1" data-b="scratch-g8032-s2" data-a-at="r:0.500" data-b-at="l:0.500:2"></line>
+    <line x1="120.0" y1="52.0" x2="160.0" y2="52.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-g8032)" data-a="scratch-g8032-s1" data-b="scratch-g8032-s2" data-a-at="r:0.500" data-b-at="l:0.500:2"></line>
     <text x="140.0" y="44.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">5 tokens</text>
     <text x="222.0" y="56.0" font-size="9.0" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">wrong</text>
     <text x="10.0" y="104.0" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">show the work (250 tokens)</text>
     <g id="scratch-g8032-s3">
-      <rect x="20.0" y="121.0" width="100.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="20.0" y="121.0" width="100.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="70.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">question</text>
     </g>
     <g id="scratch-g8032-s4">
-      <rect x="139.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="139.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="156.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">16</text>
     </g>
-    <polyline points="158.0,150.0 158.0,166.0 198.0,166.0 198.0,150.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-g8032)"></polyline>
+    <polyline points="158.0,150.0 158.0,166.0 198.0,166.0 198.0,150.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-g8032)"></polyline>
     <g id="scratch-g8032-s5">
-      <rect x="183.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="183.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="200.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">-</text>
     </g>
-    <polyline points="202.0,150.0 202.0,166.0 242.0,166.0 242.0,150.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-g8032)"></polyline>
+    <polyline points="202.0,150.0 202.0,166.0 242.0,166.0 242.0,150.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-g8032)"></polyline>
     <g id="scratch-g8032-s6">
-      <rect x="227.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="227.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="244.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">3</text>
     </g>
-    <polyline points="246.0,150.0 246.0,166.0 286.0,166.0 286.0,150.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-g8032)"></polyline>
+    <polyline points="246.0,150.0 246.0,166.0 286.0,166.0 286.0,150.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-g8032)"></polyline>
     <g id="scratch-g8032-s7">
-      <rect x="271.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="271.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="288.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">-</text>
     </g>
-    <polyline points="290.0,150.0 290.0,166.0 330.0,166.0 330.0,150.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-g8032)"></polyline>
+    <polyline points="290.0,150.0 290.0,166.0 330.0,166.0 330.0,150.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-g8032)"></polyline>
     <g id="scratch-g8032-s8">
-      <rect x="315.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="315.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="332.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">4</text>
     </g>
-    <polyline points="334.0,150.0 334.0,166.0 374.0,166.0 374.0,150.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-g8032)"></polyline>
+    <polyline points="334.0,150.0 334.0,166.0 374.0,166.0 374.0,150.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-g8032)"></polyline>
     <g id="scratch-g8032-s9">
-      <rect x="359.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="359.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="376.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">=</text>
     </g>
-    <polyline points="378.0,150.0 378.0,166.0 418.0,166.0 418.0,150.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-g8032)"></polyline>
+    <polyline points="378.0,150.0 378.0,166.0 418.0,166.0 418.0,150.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-g8032)"></polyline>
     <g id="scratch-g8032-s10">
-      <rect x="403.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="403.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="420.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">9</text>
     </g>
-    <polyline points="422.0,150.0 422.0,166.0 462.0,166.0 462.0,150.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-g8032)"></polyline>
+    <polyline points="422.0,150.0 422.0,166.0 462.0,166.0 462.0,150.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-g8032)"></polyline>
     <g id="scratch-g8032-s11">
-      <rect x="447.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="447.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="464.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">…</text>
     </g>
-    <polyline points="466.0,150.0 466.0,166.0 506.0,166.0 506.0,150.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-g8032)"></polyline>
+    <polyline points="466.0,150.0 466.0,166.0 506.0,166.0 506.0,150.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-g8032)"></polyline>
     <g id="scratch-g8032-s12">
-      <rect x="491.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="491.0" y="121.0" width="34.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="508.0" y="137.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">18</text>
     </g>
-    <line x1="120.0" y1="134.0" x2="138.0" y2="134.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-g8032)" data-a="scratch-g8032-s3" data-b="scratch-g8032-s4" data-a-at="r:0.500" data-b-at="l:0.500:1"></line>
+    <line x1="120.0" y1="134.0" x2="138.0" y2="134.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-g8032)" data-a="scratch-g8032-s3" data-b="scratch-g8032-s4" data-a-at="r:0.500" data-b-at="l:0.500:1"></line>
     <text x="546.0" y="138.0" font-size="9.0" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">right</text>
     <text x="280.0" y="190.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">every token written goes back in as input: each step token is one more pass,</text>
     <text x="280.0" y="204.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">and the answer can attend to every step before it</text>
@@ -987,12 +1111,14 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
   <p data-b="d32af">We can think of the tokens as <b class="def">scratch paper</b>. A person who's asked for <span class="num">16 − 3 − 4</span> then times <span class="num">2</span> in their head, instantly, will mess it up more often than one who's allowed to write <span class="num">9</span> down first. The model is no different, it just has a lot more patience for writing things down.</p>
 <div class="foot" data-rt=""><span>Reasoning Models · One Pass per Token</span><span>06</span></div></section>
 
-<section class="page" id="cot-prompting" data-part="Asking for Steps" data-view="reading" data-topic="prompting" style="--gap: 22pt;">
+<section class="page" id="cot-prompting" data-view="reading" data-topic="prompting" data-part="Asking for Steps" style="--gap: 22pt;">
   <h2 data-b="alcm8">Chain-of-Thought Prompting</h2>
   <p data-b="lucb1">Getting a model to write its steps used to take some coaxing. In <span class="num">2022</span> Wei et al. put a few worked examples in front of each question, with every step written out, and the model copied the format. Giving a model examples that show their steps, so it shows its steps, is <b class="def">chain-of-thought prompting</b>.</p>
   <table class="tbl" data-b="cgr0i">
-    <tbody>
+    <thead>
       <tr><th>GSM8K</th><th>examples with just answers</th><th>examples with the steps</th></tr>
+    </thead>
+    <tbody>
       <tr><td><b class="name">GPT-3</b> (<span class="num">175B</span>)</td><td><span class="num">15.6%</span></td><td><span class="num">46.9%</span></td></tr>
       <tr><td><b class="name">PaLM</b> (<span class="num">540B</span>)</td><td><span class="num">17.9%</span></td><td><span class="num">56.9%</span></td></tr>
     </tbody>
@@ -1011,8 +1137,10 @@ b-out[wrap] .otk { white-space: pre; overflow-wrap: normal; }
   <h2 data-b="fx2e7">Zero-Shot Chain of Thought</h2>
   <p data-b="th3vw">A few months after Wei et al., Kojima et al. (<span class="num">2022</span>) dropped the worked examples entirely and added a single sentence where the answer should start, "<b class="take">Let's think step by step.</b>" No examples at all is "zero-shot", so this became <b class="def">zero-shot chain of thought</b>.</p>
   <table class="tbl" data-b="cc1ui">
-    <tbody>
+    <thead>
       <tr><th><b class="name">text-davinci-002</b></th><th>just answer</th><th>"Let's think step by step."</th></tr>
+    </thead>
+    <tbody>
       <tr><td><b class="ex">MultiArith</b></td><td><span class="num">17.7%</span></td><td><span class="num">78.7%</span></td></tr>
       <tr><td><b class="ex">GSM8K</b></td><td><span class="num">10.4%</span></td><td><span class="num">40.7%</span></td></tr>
     </tbody>
@@ -1227,7 +1355,7 @@ L 380.16 152
 <section class="page" id="self-consistency" data-view="reading" data-topic="prompting" style="--gap: 22pt;">
   <h2 data-b="nitmw">Self-Consistency</h2>
   <p data-b="r8mzb">Janet's ducks is a little too easy for this next idea, so here's problem <span class="num">11</span>, <b class="ex">Toula's pastries</b> (<span class="num">3</span> dozen at <span class="num">$68</span>, <span class="num">2</span> at <span class="num">$80</span> and <span class="num">6</span> at <span class="num">$55</span>, so <span class="num">694</span>). These are the eight step-by-step answers our model sampled for it:</p>
-  <svg class="draw" viewBox="0 0 560 220" style="width: 382.5pt" role="img" aria-label="Toula's pastries, thinking off, 8 samples: 2938, 694, 694, 7328, 694, 8328, 694, 694. Three are wrong in three different ways, five say 694, so the majority vote is 694." data-b="mz30w">
+  <svg class="draw" viewBox="0 0 560 220" role="img" aria-label="Toula's pastries, thinking off, 8 samples: 2938, 694, 694, 7328, 694, 8328, 694, 694. Three are wrong in three different ways, five say 694, so the majority vote is 694." style="width: 382.5pt" data-b="mz30w">
     <defs>
       <marker id="ah000000-mz30w" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
@@ -1237,69 +1365,69 @@ L 380.16 152
       </marker>
     </defs>
     <g id="vote-mz30w-s1">
-      <rect x="8.0" y="90.0" width="124.0" height="40.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="8.0" y="90.0" width="124.0" height="40.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="70.0" y="109.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Toula's pastries</text>
       <text x="70.0" y="119.0" font-size="7.3" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">thinking off, 8 samples</text>
     </g>
     <g id="vote-mz30w-s2">
-      <rect x="215.0" y="12.0" width="70.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="215.0" y="12.0" width="70.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="250.0" y="25.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">2938</text>
     </g>
-    <line x1="133.0" y1="110.0" x2="213.0" y2="22.0" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s2" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
-    <line x1="286.0" y1="22.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="133.0" y1="110.0" x2="213.0" y2="22.0" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s2" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="286.0" y1="22.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.9"></line>
     <g id="vote-mz30w-s3">
-      <rect x="215.0" y="37.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="215.0" y="37.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="250.0" y="50.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">694</text>
     </g>
-    <line x1="133.0" y1="110.0" x2="213.0" y2="47.0" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s3" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
-    <line x1="286.0" y1="47.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="133.0" y1="110.0" x2="213.0" y2="47.0" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s3" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="286.0" y1="47.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.9"></line>
     <g id="vote-mz30w-s4">
-      <rect x="215.0" y="62.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="215.0" y="62.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="250.0" y="75.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">694</text>
     </g>
-    <line x1="133.0" y1="110.0" x2="213.0" y2="72.0" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s4" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
-    <line x1="286.0" y1="72.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="133.0" y1="110.0" x2="213.0" y2="72.0" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s4" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="286.0" y1="72.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.9"></line>
     <g id="vote-mz30w-s5">
-      <rect x="215.0" y="87.0" width="70.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="215.0" y="87.0" width="70.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="250.0" y="100.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">7328</text>
     </g>
-    <line x1="133.0" y1="110.0" x2="213.0" y2="97.0" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s5" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
-    <line x1="286.0" y1="97.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="133.0" y1="110.0" x2="213.0" y2="97.0" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s5" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="286.0" y1="97.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.9"></line>
     <g id="vote-mz30w-s6">
-      <rect x="215.0" y="112.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="215.0" y="112.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="250.0" y="125.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">694</text>
     </g>
-    <line x1="133.0" y1="110.0" x2="213.0" y2="122.0" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s6" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
-    <line x1="286.0" y1="122.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="133.0" y1="110.0" x2="213.0" y2="122.0" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s6" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="286.0" y1="122.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.9"></line>
     <g id="vote-mz30w-s7">
-      <rect x="215.0" y="137.0" width="70.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="215.0" y="137.0" width="70.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="250.0" y="150.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">8328</text>
     </g>
-    <line x1="133.0" y1="110.0" x2="213.0" y2="147.0" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s7" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
-    <line x1="286.0" y1="147.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="133.0" y1="110.0" x2="213.0" y2="147.0" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s7" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="286.0" y1="147.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.9"></line>
     <g id="vote-mz30w-s8">
-      <rect x="215.0" y="162.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="215.0" y="162.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="250.0" y="175.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">694</text>
     </g>
-    <line x1="133.0" y1="110.0" x2="213.0" y2="172.0" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s8" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
-    <line x1="286.0" y1="172.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="133.0" y1="110.0" x2="213.0" y2="172.0" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s8" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="286.0" y1="172.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.9"></line>
     <g id="vote-mz30w-s9">
-      <rect x="215.0" y="187.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="215.0" y="187.0" width="70.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="250.0" y="200.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">694</text>
     </g>
-    <line x1="133.0" y1="110.0" x2="213.0" y2="197.0" stroke="#666666" stroke-width="0.90" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s9" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
-    <line x1="286.0" y1="197.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.90"></line>
+    <line x1="133.0" y1="110.0" x2="213.0" y2="197.0" stroke="#666666" stroke-width="0.9" marker-end="url(#ah666666-mz30w)" data-a="vote-mz30w-s1" data-b="vote-mz30w-s9" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="286.0" y1="197.0" x2="380.0" y2="110.0" stroke="#666666" stroke-width="0.9"></line>
     <text x="250.0" y="216.0" font-size="8.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">one sample: right 5 times in 8</text>
     <g id="vote-mz30w-s10">
-      <rect x="380.0" y="90.0" width="100.0" height="40.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="380.0" y="90.0" width="100.0" height="40.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="430.0" y="109.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">majority vote</text>
       <text x="430.0" y="119.0" font-size="7.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">694 × 5</text>
     </g>
     <g id="vote-mz30w-s11">
-      <rect x="492.0" y="95.0" width="56.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="492.0" y="95.0" width="56.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="520.0" y="114.2" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">694</text>
     </g>
-    <line x1="481.0" y1="110.0" x2="490.0" y2="110.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-mz30w)" data-a="vote-mz30w-s10" data-b="vote-mz30w-s11" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="481.0" y1="110.0" x2="490.0" y2="110.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-mz30w)" data-a="vote-mz30w-s10" data-b="vote-mz30w-s11" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
   </svg>
   <p data-b="lfrtf">Any one sample is wrong three times in eight, but the three wrong answers are <b class="take">wrong in three different ways</b>, while the right ones all agree. Sampling several chains of thought and taking a majority vote on the final answers is <b class="def">self-consistency</b> (Wang et al., <span class="num">2022</span>). With <span class="num">40</span> samples it took PaLM from <span class="num">56.5%</span> to <span class="num">74.4%</span> on GSM8K.</p>
 <div class="foot" data-rt=""><span>Reasoning Models · Asking for Steps</span><span>11</span></div></section>
@@ -1314,72 +1442,72 @@ L 380.16 152
   <p data-b="uatdj">The cost grows with every sample, eight answers is eight times the tokens. That's worth keeping in mind for later, because it isn't the only way to spend more tokens on a question.</p>
 <div class="foot" data-rt=""><span>Reasoning Models · Asking for Steps</span><span>12</span></div></section>
 
-<section class="page" id="r1-zero" data-part="Training a Reasoner" data-view="reading" data-topic="r1" style="--gap: 22pt;">
+<section class="page" id="r1-zero" data-view="reading" data-topic="r1" data-part="Training a Reasoner" style="--gap: 22pt;">
   <h2 data-b="gstcy">DeepSeek-R1-Zero</h2>
   <p data-b="khm8v">Prompting only draws out steps a model already knows how to write. <b class="name">DeepSeek-R1-Zero</b> (DeepSeek-AI, <span class="num">2025</span>) asked whether RL with a checker could teach a model to reason without ever showing it a chain of thought. It started from a base model, DeepSeek-V3-Base, with <b class="warn">no SFT at all</b>, and a template asking it to put its reasoning between think tags and then answer.</p>
-  <svg class="draw" viewBox="0 0 560 220" style="width: 382.5pt" role="img" aria-label="The base model, DeepSeek-V3-Base, given a template asking for the reasoning inside think tags, samples a group of answers to one prompt. Rule-based rewards: is the final answer right, did it use the tags. Answers better than the group become more likely (GRPO)." data-b="f9hal">
+  <svg class="draw" viewBox="0 0 560 220" role="img" aria-label="The base model, DeepSeek-V3-Base, given a template asking for the reasoning inside think tags, samples a group of answers to one prompt. Rule-based rewards: is the final answer right, did it use the tags. Answers better than the group become more likely (GRPO)." style="width: 382.5pt" data-b="f9hal">
     <defs>
       <marker id="ah000000-f9hal" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
       </marker>
     </defs>
     <g id="r1zero-f9hal-s1">
-      <rect x="10.0" y="50.0" width="120.0" height="40.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+      <rect x="10.0" y="50.0" width="120.0" height="40.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
       <text x="70.0" y="69.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">base model</text>
       <text x="70.0" y="79.0" font-size="7.7" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">DeepSeek-V3-Base</text>
     </g>
     <g id="r1zero-f9hal-s2">
-      <rect x="5.0" y="140.0" width="130.0" height="40.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="5.0" y="140.0" width="130.0" height="40.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="70.0" y="159.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">template</text>
       <text x="70.0" y="169.0" font-size="7.7" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">&lt;think&gt; … &lt;/think&gt; answer</text>
     </g>
-    <line x1="70.0" y1="140.0" x2="70.0" y2="92.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s2" data-b="r1zero-f9hal-s1" data-a-at="t:0.500" data-b-at="b:0.500:2"></line>
+    <line x1="70.0" y1="140.0" x2="70.0" y2="92.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s2" data-b="r1zero-f9hal-s1" data-a-at="t:0.500" data-b-at="b:0.500:2"></line>
     <g id="r1zero-f9hal-s3">
-      <rect x="160.0" y="27.0" width="210.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="160.0" y="27.0" width="210.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="265.0" y="43.1" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">&lt;think&gt; … &lt;/think&gt; right answer</text>
     </g>
-    <line x1="131.0" y1="70.0" x2="163.0" y2="40.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s1" data-b="r1zero-f9hal-s3" data-a-at="r:0.500:1" data-b-at="l:0.500:-3"></line>
+    <line x1="131.0" y1="70.0" x2="163.0" y2="40.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s1" data-b="r1zero-f9hal-s3" data-a-at="r:0.500:1" data-b-at="l:0.500:-3"></line>
     <g id="r1zero-f9hal-s4">
-      <rect x="392.0" y="28.0" width="56.0" height="24.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
+      <rect x="392.0" y="28.0" width="56.0" height="24.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
       <text x="420.0" y="43.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">r = 1</text>
     </g>
-    <line x1="366.0" y1="40.0" x2="390.0" y2="40.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s3" data-b="r1zero-f9hal-s4" data-a-at="r:0.500:-4" data-b-at="l:0.500:2"></line>
+    <line x1="366.0" y1="40.0" x2="390.0" y2="40.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s3" data-b="r1zero-f9hal-s4" data-a-at="r:0.500:-4" data-b-at="l:0.500:2"></line>
     <g id="r1zero-f9hal-s5">
-      <rect x="160.0" y="61.0" width="210.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="160.0" y="61.0" width="210.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="265.0" y="77.2" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">&lt;think&gt; … &lt;/think&gt; wrong answer</text>
     </g>
-    <line x1="131.0" y1="70.0" x2="163.0" y2="74.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s1" data-b="r1zero-f9hal-s5" data-a-at="r:0.500:1" data-b-at="l:0.500:-3"></line>
+    <line x1="131.0" y1="70.0" x2="163.0" y2="74.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s1" data-b="r1zero-f9hal-s5" data-a-at="r:0.500:1" data-b-at="l:0.500:-3"></line>
     <g id="r1zero-f9hal-s6">
-      <rect x="392.0" y="62.0" width="56.0" height="24.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
+      <rect x="392.0" y="62.0" width="56.0" height="24.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
       <text x="420.0" y="77.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">r = 0</text>
     </g>
-    <line x1="366.0" y1="74.0" x2="390.0" y2="74.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s5" data-b="r1zero-f9hal-s6" data-a-at="r:0.500:-4" data-b-at="l:0.500:2"></line>
+    <line x1="366.0" y1="74.0" x2="390.0" y2="74.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s5" data-b="r1zero-f9hal-s6" data-a-at="r:0.500:-4" data-b-at="l:0.500:2"></line>
     <g id="r1zero-f9hal-s7">
-      <rect x="160.0" y="95.0" width="210.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="160.0" y="95.0" width="210.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="265.0" y="111.2" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">right answer, no tags</text>
     </g>
-    <line x1="131.0" y1="70.0" x2="163.0" y2="108.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s1" data-b="r1zero-f9hal-s7" data-a-at="r:0.500:1" data-b-at="l:0.500:-3"></line>
+    <line x1="131.0" y1="70.0" x2="163.0" y2="108.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s1" data-b="r1zero-f9hal-s7" data-a-at="r:0.500:1" data-b-at="l:0.500:-3"></line>
     <g id="r1zero-f9hal-s8">
-      <rect x="392.0" y="96.0" width="56.0" height="24.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
+      <rect x="392.0" y="96.0" width="56.0" height="24.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
       <text x="420.0" y="111.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">r = 0</text>
     </g>
-    <line x1="366.0" y1="108.0" x2="390.0" y2="108.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s7" data-b="r1zero-f9hal-s8" data-a-at="r:0.500:-4" data-b-at="l:0.500:2"></line>
+    <line x1="366.0" y1="108.0" x2="390.0" y2="108.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s7" data-b="r1zero-f9hal-s8" data-a-at="r:0.500:-4" data-b-at="l:0.500:2"></line>
     <g id="r1zero-f9hal-s9">
-      <rect x="160.0" y="129.0" width="210.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="160.0" y="129.0" width="210.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="265.0" y="145.2" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">&lt;think&gt; … wait, … &lt;/think&gt; right answer</text>
     </g>
-    <line x1="131.0" y1="70.0" x2="163.0" y2="142.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s1" data-b="r1zero-f9hal-s9" data-a-at="r:0.500:1" data-b-at="l:0.500:-3"></line>
+    <line x1="131.0" y1="70.0" x2="163.0" y2="142.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s1" data-b="r1zero-f9hal-s9" data-a-at="r:0.500:1" data-b-at="l:0.500:-3"></line>
     <g id="r1zero-f9hal-s10">
-      <rect x="392.0" y="130.0" width="56.0" height="24.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
+      <rect x="392.0" y="130.0" width="56.0" height="24.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
       <text x="420.0" y="145.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">r = 1</text>
     </g>
-    <line x1="366.0" y1="142.0" x2="390.0" y2="142.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s9" data-b="r1zero-f9hal-s10" data-a-at="r:0.500:-4" data-b-at="l:0.500:2"></line>
+    <line x1="366.0" y1="142.0" x2="390.0" y2="142.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s9" data-b="r1zero-f9hal-s10" data-a-at="r:0.500:-4" data-b-at="l:0.500:2"></line>
     <g id="r1zero-f9hal-s11">
-      <rect x="335.0" y="170.0" width="170.0" height="40.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="335.0" y="170.0" width="170.0" height="40.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="420.0" y="189.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">rule-based rewards</text>
       <text x="420.0" y="199.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">right answer? used the tags?</text>
     </g>
-    <line x1="420.0" y1="170.0" x2="420.0" y2="146.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s11" data-b="r1zero-f9hal-s10" data-a-at="t:0.500" data-b-at="b:0.500:-8"></line>
+    <line x1="420.0" y1="170.0" x2="420.0" y2="146.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-f9hal)" data-a="r1zero-f9hal-s11" data-b="r1zero-f9hal-s10" data-a-at="t:0.500" data-b-at="b:0.500:-8"></line>
     <text x="500.0" y="92.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">GRPO:</text>
     <text x="500.0" y="106.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start">better than</text>
     <text x="500.0" y="118.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start">the group →</text>
@@ -1400,7 +1528,7 @@ L 380.16 152
 <section class="page" id="deepseek-r1" data-view="reading" data-topic="r1" style="--gap: 22pt;">
   <h2 data-b="nehit">DeepSeek-R1</h2>
   <p data-b="sgf31">The released <b class="name">DeepSeek-R1</b> fixed R1-Zero's readability by going back to the post-training steps we already know, in four stages:</p>
-  <svg class="draw" viewBox="0 0 560 200" style="width: 382.5pt" role="img" aria-label="DeepSeek-R1's four stages: cold-start SFT on thousands of long, readable chains of thought, reasoning RL with a checker like R1-Zero, rejection sampling into about 800 thousand SFT examples, RL again on every kind of prompt. 79.8% on AIME 2024. The 800 thousand examples also fine-tuned distilled Qwen and Llama models from 1.5B to 70B." data-b="c8xb5">
+  <svg class="draw" viewBox="0 0 560 200" role="img" aria-label="DeepSeek-R1's four stages: cold-start SFT on thousands of long, readable chains of thought, reasoning RL with a checker like R1-Zero, rejection sampling into about 800 thousand SFT examples, RL again on every kind of prompt. 79.8% on AIME 2024. The 800 thousand examples also fine-tuned distilled Qwen and Llama models from 1.5B to 70B." style="width: 382.5pt" data-b="c8xb5">
     <defs>
       <marker id="ah000000-c8xb5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
@@ -1410,44 +1538,44 @@ L 380.16 152
       </marker>
     </defs>
     <g id="r1-recipe-c8xb5-s1">
-      <rect x="8.0" y="20.0" width="124.0" height="70.0" rx="8.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="8.0" y="20.0" width="124.0" height="70.0" rx="8.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="70.0" y="42.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Cold start</text>
       <text x="70.0" y="62.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">SFT on thousands of</text>
       <text x="70.0" y="75.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">long, readable CoTs</text>
     </g>
-    <line x1="133.0" y1="55.0" x2="147.0" y2="55.0" stroke="#000000" stroke-width="1.40" marker-end="url(#ah000000-c8xb5)" data-a="r1-recipe-c8xb5-s1" data-b="r1-recipe-c8xb5-s2" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
+    <line x1="133.0" y1="55.0" x2="147.0" y2="55.0" stroke="#000000" stroke-width="1.4" marker-end="url(#ah000000-c8xb5)" data-a="r1-recipe-c8xb5-s1" data-b="r1-recipe-c8xb5-s2" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
     <g id="r1-recipe-c8xb5-s2">
-      <rect x="148.0" y="20.0" width="124.0" height="70.0" rx="8.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
+      <rect x="148.0" y="20.0" width="124.0" height="70.0" rx="8.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
       <text x="210.0" y="42.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Reasoning RL</text>
       <text x="210.0" y="62.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">GRPO with a checker,</text>
       <text x="210.0" y="75.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">like R1-Zero</text>
     </g>
-    <line x1="273.0" y1="55.0" x2="287.0" y2="55.0" stroke="#000000" stroke-width="1.40" marker-end="url(#ah000000-c8xb5)" data-a="r1-recipe-c8xb5-s2" data-b="r1-recipe-c8xb5-s3" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
+    <line x1="273.0" y1="55.0" x2="287.0" y2="55.0" stroke="#000000" stroke-width="1.4" marker-end="url(#ah000000-c8xb5)" data-a="r1-recipe-c8xb5-s2" data-b="r1-recipe-c8xb5-s3" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
     <g id="r1-recipe-c8xb5-s3">
-      <rect x="288.0" y="20.0" width="124.0" height="70.0" rx="8.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="288.0" y="20.0" width="124.0" height="70.0" rx="8.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="350.0" y="42.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Rejection sampling</text>
       <text x="350.0" y="62.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">keep the good answers:</text>
       <text x="350.0" y="75.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">~800 K examples, SFT</text>
     </g>
-    <line x1="413.0" y1="55.0" x2="427.0" y2="55.0" stroke="#000000" stroke-width="1.40" marker-end="url(#ah000000-c8xb5)" data-a="r1-recipe-c8xb5-s3" data-b="r1-recipe-c8xb5-s4" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
+    <line x1="413.0" y1="55.0" x2="427.0" y2="55.0" stroke="#000000" stroke-width="1.4" marker-end="url(#ah000000-c8xb5)" data-a="r1-recipe-c8xb5-s3" data-b="r1-recipe-c8xb5-s4" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
     <g id="r1-recipe-c8xb5-s4">
-      <rect x="428.0" y="20.0" width="124.0" height="70.0" rx="8.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
+      <rect x="428.0" y="20.0" width="124.0" height="70.0" rx="8.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
       <text x="490.0" y="42.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RL again</text>
       <text x="490.0" y="62.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">every kind of prompt,</text>
       <text x="490.0" y="75.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">checkers + reward models</text>
     </g>
     <g id="r1-recipe-c8xb5-s5">
-      <rect x="428.0" y="130.0" width="124.0" height="40.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="428.0" y="130.0" width="124.0" height="40.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="490.0" y="149.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">DeepSeek-R1</text>
       <text x="490.0" y="159.0" font-size="7.7" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">79.8% on AIME 2024</text>
     </g>
-    <line x1="490.0" y1="91.0" x2="490.0" y2="128.0" stroke="#000000" stroke-width="1.40" marker-end="url(#ah000000-c8xb5)" data-a="r1-recipe-c8xb5-s4" data-b="r1-recipe-c8xb5-s5" data-a-at="b:0.500:1" data-b-at="t:0.500:2"></line>
+    <line x1="490.0" y1="91.0" x2="490.0" y2="128.0" stroke="#000000" stroke-width="1.4" marker-end="url(#ah000000-c8xb5)" data-a="r1-recipe-c8xb5-s4" data-b="r1-recipe-c8xb5-s5" data-a-at="b:0.500:1" data-b-at="t:0.500:2"></line>
     <g id="r1-recipe-c8xb5-s6">
-      <rect x="135.0" y="130.0" width="230.0" height="40.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+      <rect x="135.0" y="130.0" width="230.0" height="40.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
       <text x="250.0" y="149.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">distilled models</text>
       <text x="250.0" y="159.0" font-size="7.7" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Qwen and Llama, 1.5 B to 70 B: SFT only</text>
     </g>
-    <line x1="350.0" y1="91.0" x2="330.0" y2="128.0" stroke="#666666" stroke-width="1.20" stroke-dasharray="4 3" marker-end="url(#ah666666-c8xb5)" data-a="r1-recipe-c8xb5-s3" data-b="r1-recipe-c8xb5-s6" data-a-at="b:0.500:1" data-b-at="t:0.848:2"></line>
+    <line x1="350.0" y1="91.0" x2="330.0" y2="128.0" stroke="#666666" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#ah666666-c8xb5)" data-a="r1-recipe-c8xb5-s3" data-b="r1-recipe-c8xb5-s6" data-a-at="b:0.500:1" data-b-at="t:0.848:2"></line>
     <text x="250.0" y="186.0" font-size="8.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Friday's distillation: small students fine-tuned on the teacher's answers</text>
   </svg>
   <p data-b="nmc1t">A <b class="def">cold start</b> of a few thousand long, readable chains of thought (SFT) gave RL a better place to begin. After reasoning RL, <b class="def">rejection sampling</b> kept only the model's good answers, about <span class="num">800 K</span> of them, for another round of SFT, and a last round of RL covered every kind of prompt. R1 scored <span class="num">79.8%</span> on AIME 2024.</p>
@@ -1467,153 +1595,153 @@ L 380.16 152
   <p data-b="ppfm9">That's why our <span class="num">0.6B</span> model can use its steps when <span class="num">2022</span>'s small models couldn't. It learned to reason by copying models up to a few hundred times its size.</p>
 <div class="foot" data-rt=""><span>Reasoning Models · Training a Reasoner</span><span>17</span></div></section>
 
-<section class="page" id="think-block" data-part="Thinking in irishQwen" data-view="reading" data-topic="irishqwen" style="--gap: 22pt;">
+<section class="page" id="think-block" data-view="reading" data-topic="irishqwen" data-part="Thinking in irishQwen" style="--gap: 22pt;">
   <h2 data-b="knq54">The Think Block</h2>
   <p data-b="fjk00">Thinking mode is nothing more than a few special tokens. Here's Qwen3's chat template around a short question, as Qwen3-0.6B's tokenizer splits it (notice each digit of <span class="num">17</span> is its own token):</p>
-  <svg class="draw" viewBox="0 0 560 236" style="width: 382.5pt" role="img" aria-label="Qwen3's chat template as Qwen3-0.6B tokenizes 'What is 17 * 3?', with token ids. Thinking on: the model writes think, its thinking, /think, then the answer. Thinking off: the template already holds an empty think block and the model's first token is the answer." data-b="h61c6">
+  <svg class="draw" viewBox="0 0 560 236" role="img" aria-label="Qwen3's chat template as Qwen3-0.6B tokenizes 'What is 17 * 3?', with token ids. Thinking on: the model writes think, its thinking, /think, then the answer. Thinking off: the template already holds an empty think block and the model's first token is the answer." style="width: 382.5pt" data-b="h61c6">
     <defs></defs>
     <text x="8.0" y="16.0" font-size="9.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">the prompt (the same either way)</text>
     <g id="think-block-h61c6-s1">
-      <rect x="8.0" y="24.0" width="74.8" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="8.0" y="24.0" width="74.8" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="45.4" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;|im_start|&gt;</text>
       <text x="45.4" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">151644</text>
     </g>
     <g id="think-block-h61c6-s2">
-      <rect x="85.8" y="24.0" width="31.6" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="85.8" y="24.0" width="31.6" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="101.6" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">user</text>
       <text x="101.6" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">872</text>
     </g>
     <g id="think-block-h61c6-s3">
-      <rect x="120.4" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="120.4" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="132.4" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">↵</text>
       <text x="132.4" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">198</text>
     </g>
     <g id="think-block-h61c6-s4">
-      <rect x="147.4" y="24.0" width="31.6" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></rect>
+      <rect x="147.4" y="24.0" width="31.6" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="163.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">What</text>
       <text x="163.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">3838</text>
     </g>
     <g id="think-block-h61c6-s5">
-      <rect x="182.0" y="24.0" width="26.2" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></rect>
+      <rect x="182.0" y="24.0" width="26.2" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="195.1" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">is</text>
       <text x="195.1" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">374</text>
     </g>
     <g id="think-block-h61c6-s6">
-      <rect x="211.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></rect>
+      <rect x="211.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="223.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
       <text x="223.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">220</text>
     </g>
     <g id="think-block-h61c6-s7">
-      <rect x="238.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></rect>
+      <rect x="238.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="250.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
       <text x="250.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">16</text>
     </g>
     <g id="think-block-h61c6-s8">
-      <rect x="265.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></rect>
+      <rect x="265.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="277.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">7</text>
       <text x="277.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">22</text>
     </g>
     <g id="think-block-h61c6-s9">
-      <rect x="292.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></rect>
+      <rect x="292.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="304.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">*</text>
       <text x="304.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">353</text>
     </g>
     <g id="think-block-h61c6-s10">
-      <rect x="319.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></rect>
+      <rect x="319.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="331.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
       <text x="331.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">220</text>
     </g>
     <g id="think-block-h61c6-s11">
-      <rect x="346.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></rect>
+      <rect x="346.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="358.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">3</text>
       <text x="358.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">18</text>
     </g>
     <g id="think-block-h61c6-s12">
-      <rect x="373.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></rect>
+      <rect x="373.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="385.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">?</text>
       <text x="385.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">30</text>
     </g>
     <g id="think-block-h61c6-s13">
-      <rect x="400.2" y="24.0" width="64.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="400.2" y="24.0" width="64.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="432.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;|im_end|&gt;</text>
       <text x="432.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">151645</text>
     </g>
     <g id="think-block-h61c6-s14">
-      <rect x="467.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="467.2" y="24.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="479.2" y="38.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">↵</text>
       <text x="479.2" y="49.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">198</text>
     </g>
     <g id="think-block-h61c6-s15">
-      <rect x="8.0" y="60.0" width="74.8" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="8.0" y="60.0" width="74.8" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="45.4" y="74.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;|im_start|&gt;</text>
       <text x="45.4" y="85.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">151644</text>
     </g>
     <g id="think-block-h61c6-s16">
-      <rect x="85.8" y="60.0" width="58.6" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="85.8" y="60.0" width="58.6" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="115.1" y="74.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">assistant</text>
       <text x="115.1" y="85.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">77091</text>
     </g>
     <g id="think-block-h61c6-s17">
-      <rect x="147.4" y="60.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="147.4" y="60.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="159.4" y="74.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">↵</text>
       <text x="159.4" y="85.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">198</text>
     </g>
     <text x="8.0" y="112.0" font-size="9.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">thinking on: the model writes the block</text>
     <g id="think-block-h61c6-s18">
-      <rect x="8.0" y="120.0" width="47.8" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="8.0" y="120.0" width="47.8" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="31.9" y="134.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;think&gt;</text>
       <text x="31.9" y="145.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">151667</text>
     </g>
     <g id="think-block-h61c6-s19">
-      <rect x="58.8" y="120.0" width="139.6" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30" stroke-dasharray="4 3"></rect>
+      <rect x="58.8" y="120.0" width="139.6" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" stroke-dasharray="4 3"></rect>
       <text x="128.6" y="134.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">… the model's thinking …</text>
     </g>
     <g id="think-block-h61c6-s20">
-      <rect x="201.4" y="120.0" width="53.2" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="201.4" y="120.0" width="53.2" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="228.0" y="134.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;/think&gt;</text>
       <text x="228.0" y="145.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">151668</text>
     </g>
     <g id="think-block-h61c6-s21">
-      <rect x="257.6" y="120.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="257.6" y="120.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="269.6" y="134.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">↵↵</text>
       <text x="269.6" y="145.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">271</text>
     </g>
     <g id="think-block-h61c6-s22">
-      <rect x="284.6" y="120.0" width="64.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.30" stroke-dasharray="4 3"></rect>
+      <rect x="284.6" y="120.0" width="64.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" stroke-dasharray="4 3"></rect>
       <text x="316.6" y="134.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">the answer</text>
     </g>
     <g id="think-block-h61c6-s23">
-      <rect x="351.6" y="120.0" width="64.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="351.6" y="120.0" width="64.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="383.6" y="134.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;|im_end|&gt;</text>
       <text x="383.6" y="145.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">151645</text>
     </g>
     <text x="8.0" y="172.0" font-size="9.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">thinking off: the template holds an empty block</text>
     <g id="think-block-h61c6-s24">
-      <rect x="8.0" y="180.0" width="47.8" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="8.0" y="180.0" width="47.8" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="31.9" y="194.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;think&gt;</text>
       <text x="31.9" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">151667</text>
     </g>
     <g id="think-block-h61c6-s25">
-      <rect x="58.8" y="180.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="58.8" y="180.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="70.8" y="194.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">↵↵</text>
       <text x="70.8" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">271</text>
     </g>
     <g id="think-block-h61c6-s26">
-      <rect x="85.8" y="180.0" width="53.2" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="85.8" y="180.0" width="53.2" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="112.4" y="194.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;/think&gt;</text>
       <text x="112.4" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">151668</text>
     </g>
     <g id="think-block-h61c6-s27">
-      <rect x="142.0" y="180.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="142.0" y="180.0" width="24.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="154.0" y="194.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">↵↵</text>
       <text x="154.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">271</text>
     </g>
     <g id="think-block-h61c6-s28">
-      <rect x="169.0" y="180.0" width="64.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.30" stroke-dasharray="4 3"></rect>
+      <rect x="169.0" y="180.0" width="64.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.3" stroke-dasharray="4 3"></rect>
       <text x="201.0" y="194.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">the answer</text>
     </g>
     <g id="think-block-h61c6-s29">
-      <rect x="236.0" y="180.0" width="64.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.30"></rect>
+      <rect x="236.0" y="180.0" width="64.0" height="30.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.3"></rect>
       <text x="268.0" y="194.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;|im_end|&gt;</text>
       <text x="268.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">151645</text>
     </g>
@@ -1650,51 +1778,51 @@ What is <span class="nu nn">17</span> * <span class="nu nn">3</span>?&lt;|im_end
 <section class="page" id="budget-forcing" data-view="reading" data-topic="irishqwen" style="--gap: 22pt;">
   <h2 data-b="g30c0">Budget Forcing</h2>
   <p data-b="o2ifz">Since thinking is just tokens, we can decide how many it gets. Once the think block reaches a <b class="def">thinking budget</b> of <span class="num">B</span> tokens, we stop sampling and force the end of the block ourselves, so the model has to answer from whatever thinking it got done.</p>
-  <svg class="draw" viewBox="0 0 560 200" style="width: 382.5pt" role="img" aria-label="A thinking budget of 6 tokens: after think, the first six thinking tokens on Janet's ducks are sampled, then the cutoff sentence and /think are forced one token at a time, then the answer is sampled as usual." data-b="ioyul">
+  <svg class="draw" viewBox="0 0 560 200" role="img" aria-label="A thinking budget of 6 tokens: after think, the first six thinking tokens on Janet's ducks are sampled, then the cutoff sentence and /think are forced one token at a time, then the answer is sampled as usual." style="width: 382.5pt" data-b="ioyul">
     <defs></defs>
     <text x="10.0" y="20.0" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">thinking budget B = 6 tokens</text>
     <g id="budget-ioyul-s1">
-      <rect x="12.0" y="40.0" width="49.2" height="26.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+      <rect x="12.0" y="40.0" width="49.2" height="26.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
       <text x="36.6" y="57.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;think&gt;</text>
     </g>
     <g id="budget-ioyul-s2">
-      <rect x="66.2" y="40.0" width="26.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="66.2" y="40.0" width="26.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="79.2" y="57.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">↵</text>
     </g>
     <g id="budget-ioyul-s3">
-      <rect x="97.2" y="40.0" width="32.4" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="97.2" y="40.0" width="32.4" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="113.4" y="57.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Okay</text>
     </g>
     <g id="budget-ioyul-s4">
-      <rect x="134.6" y="40.0" width="26.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="134.6" y="40.0" width="26.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="147.6" y="57.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">,</text>
     </g>
     <g id="budget-ioyul-s5">
-      <rect x="165.6" y="40.0" width="32.4" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="165.6" y="40.0" width="32.4" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="181.8" y="57.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">let</text>
     </g>
     <g id="budget-ioyul-s6">
-      <rect x="203.0" y="40.0" width="26.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="203.0" y="40.0" width="26.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="216.0" y="57.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">'s</text>
     </g>
     <g id="budget-ioyul-s7">
-      <rect x="234.0" y="40.0" width="32.4" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="234.0" y="40.0" width="32.4" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="250.2" y="57.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">try</text>
     </g>
-    <polyline points="66.2,76.0 66.2,82.0 266.4,82.0 266.4,76.0" fill="none" stroke="#002B5B" stroke-width="1.20"></polyline>
+    <polyline points="66.2,76.0 66.2,82.0 266.4,82.0 266.4,76.0" fill="none" stroke="#002B5B" stroke-width="1.2"></polyline>
     <text x="166.3" y="96.0" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">sampled: 6 of 6 used</text>
     <g id="budget-ioyul-s8">
-      <rect x="271.4" y="40.0" width="161.2" height="26.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40" stroke-dasharray="4 3"></rect>
+      <rect x="271.4" y="40.0" width="161.2" height="26.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4" stroke-dasharray="4 3"></rect>
       <text x="352.0" y="57.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Considering … directly now.</text>
     </g>
     <g id="budget-ioyul-s9">
-      <rect x="437.6" y="40.0" width="54.8" height="26.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+      <rect x="437.6" y="40.0" width="54.8" height="26.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
       <text x="465.0" y="57.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;/think&gt;</text>
     </g>
     <text x="382.4" y="96.0" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">forced, one token at a time</text>
     <text x="10.0" y="132.0" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">then the answer, from whatever thinking got done</text>
     <g id="budget-ioyul-s10">
-      <rect x="20.0" y="142.0" width="260.0" height="36.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="20.0" y="142.0" width="260.0" height="36.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="150.0" y="159.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">answer</text>
       <text x="150.0" y="169.0" font-size="7.7" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">sampled as usual, up to &lt;|im_end|&gt;</text>
     </g>
@@ -1713,7 +1841,7 @@ What is <span class="nu nn">17</span> * <span class="nu nn">3</span>?&lt;|im_end
   <p data-b="h03cj">When <span class="mono">used &gt;= budget</span>, <span class="mono">pick_next_token</span> stops sampling and returns the <b class="def">cutoff tokens</b> one per step. Forcing only <span class="mono">&lt;/think&gt;</span> works, but the model <b class="warn">never saw thoughts that stop mid-sentence</b>, so in our run we forced Qwen's suggested sentence first ("Considering the limited time by the user, …").</p>
 <div class="foot" data-rt=""><span>Reasoning Models · Thinking in irishQwen</span><span>22</span></div></section>
 
-<section class="page" id="test-time-compute" data-part="Spending More Tokens" data-view="reading" data-topic="scaling" style="--gap: 21.6pt;">
+<section class="page" id="test-time-compute" data-view="reading" data-topic="scaling" data-part="Spending More Tokens" style="--gap: 21.6pt;">
   <h2 data-b="xqdtb">Test-Time Compute</h2>
   <p data-b="wx3sg">To see what the budget buys, we took each problem's thinking from the free run and cut the same thinking off after <span class="num">B</span> tokens, forced the cutoff, and let the model answer:</p>
   <b-fig src="fig/budget-curve.svg" alt="Qwen3-0.6B on 100 GSM8K problems, the same thinking cut off at different budgets: 0 tokens 59%, 32 61%, 64 61%, 128 72%, 256 66%, 512 74%, 1024 77%, 2048 81%, no limit 81%." data-b="pr4ja" style="--ar: 1.920;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 200" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -2342,8 +2470,10 @@ L 239.8275 162.616406
   <h2 data-b="d8an4">Train-Time and Test-Time Compute</h2>
   <p data-b="mgfyz">For years the way to a better model was more <b class="def">train-time compute</b>, a bigger model trained on more data for longer. OpenAI's <b class="name">o1</b> (September <span class="num">2024</span>) was the first big model sold on the other knob: its accuracy kept improving with more RL during training and also with more time spent thinking at <b class="def">test-time</b>.</p>
   <table class="tbl" data-b="y1bjj">
-    <tbody>
+    <thead>
       <tr><th>AIME 2024</th><th>one answer</th><th>consensus of <span class="num">64</span></th></tr>
+    </thead>
+    <tbody>
       <tr><td><b class="name">GPT-4o</b></td><td><span class="num">9.3%</span></td><td><span class="num">13.4%</span></td></tr>
       <tr><td><b class="name">o1</b></td><td><span class="num">74.4%</span></td><td><span class="num">83.3%</span></td></tr>
     </tbody>
@@ -2351,12 +2481,14 @@ L 239.8275 162.616406
   <p data-b="wruwp">OpenAI didn't say how o1 was trained, which is a big part of why R1's paper landed the way it did. Our Qwen3-0.6B shows the same thing on a small scale, the same weights got <span class="num">64%</span> or <span class="num">81%</span> depending on how long they were allowed to think.</p>
 <div class="foot" data-rt=""><span>Reasoning Models · Spending More Tokens</span><span>25</span></div></section>
 
-<section class="page" id="cost-of-thinking" data-part="What It Costs" data-view="reading" data-topic="costs" style="--gap: 22pt;">
+<section class="page" id="cost-of-thinking" data-view="reading" data-topic="costs" data-part="What It Costs" style="--gap: 22pt;">
   <h2 data-b="j2vfj">The Cost of Thinking</h2>
   <p data-b="dzx9v">Every token is a full forward pass, about <span class="num">0.6</span> billion multiply-adds for Qwen3-0.6B (one per weight, ignoring attention's share, which grows with the context). Per problem, on our run:</p>
   <table class="tbl" data-b="dbe8w">
-    <tbody>
+    <thead>
       <tr><th>Qwen3-0.6B, 100 problems</th><th>right</th><th>tokens per problem</th><th>multiply-adds</th><th>on our T4</th></tr>
+    </thead>
+    <tbody>
       <tr><td><b class="warn">answer right away</b></td><td><span class="num">4</span></td><td><span class="num">6</span></td><td><span class="num">3.6 B</span></td><td><span class="num">4</span> s</td></tr>
       <tr><td><b class="purple">show the steps</b></td><td><span class="num">64</span></td><td><span class="num">264</span></td><td><span class="num">157 B</span></td><td><span class="num">95</span> s</td></tr>
       <tr><td><b class="def">think first</b></td><td><span class="num">81</span></td><td><span class="num">1,696</span></td><td><span class="num">1.0 T</span></td><td><span class="num">32</span> min</td></tr>
@@ -3173,38 +3305,38 @@ z
 <section class="page" id="faithfulness" data-view="reading" data-topic="costs" style="--gap: 22pt;">
   <h2 data-b="e44j9">Faithfulness</h2>
   <p data-b="fyboc">It's tempting to read a thinking trace as a window into the model. Chen et al. (Anthropic, <span class="num">2025</span>) tested that by slipping hints into questions ("the answer is (C)") and keeping the cases where the hint changed the model's answer. Then they checked whether the chain of thought mentioned the hint at all.</p>
-  <svg class="draw" viewBox="0 0 560 210" style="width: 382.5pt" role="img" aria-label="The same question with and without a hint saying the answer is (C). With the hint the model answers (C) instead of (B). Does its chain of thought mention the hint? Claude 3.7 Sonnet did 25% of the time, DeepSeek-R1 39%." data-b="abjao">
+  <svg class="draw" viewBox="0 0 560 210" role="img" aria-label="The same question with and without a hint saying the answer is (C). With the hint the model answers (C) instead of (B). Does its chain of thought mention the hint? Claude 3.7 Sonnet did 25% of the time, DeepSeek-R1 39%." style="width: 382.5pt" data-b="abjao">
     <defs>
       <marker id="ah000000-abjao" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
       </marker>
     </defs>
     <g id="faithful-abjao-s1">
-      <rect x="15.0" y="30.0" width="150.0" height="40.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="15.0" y="30.0" width="150.0" height="40.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="90.0" y="49.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">question</text>
       <text x="90.0" y="59.0" font-size="7.7" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">without a hint</text>
     </g>
     <g id="faithful-abjao-s2">
-      <rect x="270.0" y="35.0" width="120.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="270.0" y="35.0" width="120.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="330.0" y="53.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">answer: (B)</text>
     </g>
-    <line x1="166.0" y1="50.0" x2="268.0" y2="50.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-abjao)" data-a="faithful-abjao-s1" data-b="faithful-abjao-s2" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="166.0" y1="50.0" x2="268.0" y2="50.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-abjao)" data-a="faithful-abjao-s1" data-b="faithful-abjao-s2" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
     <g id="faithful-abjao-s3">
-      <rect x="15.0" y="110.0" width="150.0" height="40.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="15.0" y="110.0" width="150.0" height="40.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="90.0" y="129.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">question + a hint</text>
       <text x="90.0" y="139.0" font-size="7.7" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">"the answer is (C)"</text>
     </g>
     <g id="faithful-abjao-s4">
-      <rect x="270.0" y="115.0" width="120.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="270.0" y="115.0" width="120.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="330.0" y="133.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">answer: (C)</text>
     </g>
-    <line x1="166.0" y1="130.0" x2="268.0" y2="130.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-abjao)" data-a="faithful-abjao-s3" data-b="faithful-abjao-s4" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
+    <line x1="166.0" y1="130.0" x2="268.0" y2="130.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-abjao)" data-a="faithful-abjao-s3" data-b="faithful-abjao-s4" data-a-at="r:0.500:1" data-b-at="l:0.500:2"></line>
     <g id="faithful-abjao-s5">
-      <rect x="230.0" y="167.0" width="200.0" height="38.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="230.0" y="167.0" width="200.0" height="38.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="330.0" y="185.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">its chain of thought</text>
       <text x="330.0" y="195.0" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">does it mention the hint?</text>
     </g>
-    <line x1="330.0" y1="146.0" x2="330.0" y2="166.0" stroke="#000000" stroke-width="1.20" marker-end="url(#ah000000-abjao)" data-a="faithful-abjao-s4" data-b="faithful-abjao-s5" data-a-at="b:0.500:1" data-b-at="t:0.500:1"></line>
+    <line x1="330.0" y1="146.0" x2="330.0" y2="166.0" stroke="#000000" stroke-width="1.2" marker-end="url(#ah000000-abjao)" data-a="faithful-abjao-s4" data-b="faithful-abjao-s5" data-a-at="b:0.500:1" data-b-at="t:0.500:1"></line>
     <text x="470.0" y="116.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">the hint changed</text>
     <text x="470.0" y="130.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">the answer</text>
     <text x="500.0" y="172.0" font-size="9.0" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Claude 3.7 Sonnet: 25%</text>
@@ -3213,40 +3345,40 @@ z
   <p data-b="ue5ag">On average <b class="name">Claude 3.7 Sonnet</b> mentioned it <span class="num">25%</span> of the time and <b class="name">DeepSeek-R1</b> <span class="num">39%</span>. Whether a chain of thought shows what actually decided the answer is its <b class="def">faithfulness</b>, and these weren't very faithful. The trace is text the model was <b class="warn">rewarded for producing</b>, useful, but not a transcript of the weights.</p>
 <div class="foot" data-rt=""><span>Reasoning Models · What It Costs</span><span>28</span></div></section>
 
-<section class="page" id="thinking-limits" data-part="Next" data-view="reading" data-topic="next" style="--gap: 22pt;">
+<section class="page" id="thinking-limits" data-view="reading" data-topic="next" data-part="Next" style="--gap: 22pt;">
   <h2 data-b="fzgth">Thinking Without Tools</h2>
   <p data-b="kp715">A <b class="def">reasoning model</b> is one trained to think at length before it answers, and the whole chapter comes down to one idea: <b class="take">every token is another forward pass</b>, so a model that writes more can work through more.</p>
   <p data-b="gauxr">All of that thinking happens inside the model's own context, though. Our Qwen3-0.6B still answered Toula's pastries with <span class="num">2,938</span>, <span class="num">7,328</span> and <span class="num">8,328</span> some of the time, and no amount of thinking will tell it today's date or what's in a file it has never seen. A person in the same spot would reach for a calculator or look it up.</p>
-  <svg class="draw" viewBox="0 0 560 170" style="width: 382.5pt" role="img" aria-label="A loop: the model thinks, calls a tool (python: 16 - 3 - 4), reads the result (9) back into its context and keeps thinking, then answers." data-b="rkwwj">
+  <svg class="draw" viewBox="0 0 560 170" role="img" aria-label="A loop: the model thinks, calls a tool (python: 16 - 3 - 4), reads the result (9) back into its context and keeps thinking, then answers." style="width: 382.5pt" data-b="rkwwj">
     <defs>
       <marker id="ah000000-rkwwj" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
       </marker>
     </defs>
     <g id="harness-rkwwj-s1">
-      <rect x="20.0" y="50.0" width="120.0" height="40.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="20.0" y="50.0" width="120.0" height="40.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="80.0" y="69.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">think</text>
       <text x="80.0" y="79.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">tokens in &lt;think&gt;</text>
     </g>
     <g id="harness-rkwwj-s2">
-      <rect x="175.0" y="50.0" width="130.0" height="40.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
+      <rect x="175.0" y="50.0" width="130.0" height="40.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
       <text x="240.0" y="69.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">call a tool</text>
       <text x="240.0" y="79.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">python: 16 - 3 - 4</text>
     </g>
     <g id="harness-rkwwj-s3">
-      <rect x="335.0" y="50.0" width="130.0" height="40.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
+      <rect x="335.0" y="50.0" width="130.0" height="40.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
       <text x="400.0" y="69.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">read the result</text>
       <text x="400.0" y="79.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">9</text>
     </g>
-    <line x1="141.0" y1="70.0" x2="174.0" y2="70.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-rkwwj)" data-a="harness-rkwwj-s1" data-b="harness-rkwwj-s2" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
-    <line x1="306.0" y1="70.0" x2="334.0" y2="70.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-rkwwj)" data-a="harness-rkwwj-s2" data-b="harness-rkwwj-s3" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
-    <polyline points="400.0,91.0 400.0,120.0 80.0,120.0 80.0,92.0" fill="none" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-rkwwj)"></polyline>
+    <line x1="141.0" y1="70.0" x2="174.0" y2="70.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-rkwwj)" data-a="harness-rkwwj-s1" data-b="harness-rkwwj-s2" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
+    <line x1="306.0" y1="70.0" x2="334.0" y2="70.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-rkwwj)" data-a="harness-rkwwj-s2" data-b="harness-rkwwj-s3" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
+    <polyline points="400.0,91.0 400.0,120.0 80.0,120.0 80.0,92.0" fill="none" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-rkwwj)"></polyline>
     <text x="240.0" y="136.0" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">back into the context, keep thinking</text>
     <g id="harness-rkwwj-s4">
-      <rect x="475.0" y="55.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="475.0" y="55.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="510.0" y="74.2" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">answer</text>
     </g>
-    <line x1="466.0" y1="70.0" x2="474.0" y2="70.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-rkwwj)" data-a="harness-rkwwj-s3" data-b="harness-rkwwj-s4" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
+    <line x1="466.0" y1="70.0" x2="474.0" y2="70.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-rkwwj)" data-a="harness-rkwwj-s3" data-b="harness-rkwwj-s4" data-a-at="r:0.500:1" data-b-at="l:0.500:1"></line>
     <text x="280.0" y="18.0" font-size="9.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">the model writes, the harness runs the tool and pastes the result back in</text>
   </svg>
   <p data-b="qftoh">Letting the model stop mid-thought, call a tool, and read the result back into its context is the job of the code wrapped around it, which is where we go next.</p>
@@ -3420,7 +3552,7 @@ function eaiOutHL(text, cc, hl, tok) {
   function name(t) {   // outside labels: codeColors names, and the longer DEF names (not single letters in running output)
     if (WRAP[t]) return 'ow'; if (CONST[t]) return nuCls;
     var parts = t.split('.');
-    for (var i = parts.length - 1; i >= 0; i--) { var w = parts[i]; if (cc[w]) return 'cc ' + cc[w]; if (w.length > 2 && DEF[w]) return 'cc ' + DEF[w]; }
+    for (var i = parts.length - 1; i >= 0; i--) { var w = parts[i]; if (cc[w]) return 'cc ' + cc[w] + (/^[A-Z]$/.test(w) ? ' csym' : ''); if (w.length > 2 && DEF[w]) return 'cc ' + DEF[w]; }
     return null;
   }
   function famOf(label) {   // the family of a label: its first word that names one (single letters only in a one-word label)
@@ -3435,7 +3567,14 @@ function eaiOutHL(text, cc, hl, tok) {
     var body = q.slice(1, -1);
     return body.replace(/\\(n|t|r|'|"|\\)/g, function (_, c) { return c === 'n' ? '\n' : c === 't' ? '\t' : c === 'r' ? '\r' : c; });
   }
-  function tile(t, f) { return '<span class="otk" data-f="' + f + '">' + esc(t.replace(/\n/g, '\u21b5').replace(/\t/g, '\u2192')) + '</span>'; }
+  // raw: the repr as printed. Its quotes ride along hidden (span.oq), so the tile's textContent is still the printed
+  // text: the iPad app mirrors outputs to the projector as textContent, and without them the projector's copy had no
+  // quoted words left to make tiles of (Eric, 2026-11-18: "on the external projector it loses it")
+  function tile(t, f, raw) {
+    var shown = esc(t.replace(/\n/g, '\u21b5').replace(/\t/g, '\u2192')), m = raw && /^(b?['"])([\s\S]*)(['"])$/.exec(raw);
+    if (m && m[2] === t) return '<span class="otk" data-f="' + f + '"><span class="oq">' + esc(m[1]) + '</span>' + shown + '<span class="oq">' + esc(m[3]) + '</span></span>';
+    return '<span class="otk" data-f="' + f + '">' + shown + '</span>';
+  }
   function auto(seg, fam, noTok) {
     if (tok && tok.map && !noTok) {   // tokens first: quoted strings and ID lists
       var TT = /((?:\bb)?(?:'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*"))|(\[\s*\d+(?:\s*,\s*\d+)*\s*,?\s*\])/g, o = '', last = 0, q;   // b'…': a bytes repr
@@ -3443,7 +3582,7 @@ function eaiOutHL(text, cc, hl, tok) {
         var piece = null;
         if (q[1] !== undefined) {
           var t = unq(q[1].replace(/^b/, '')), hit = Object.prototype.hasOwnProperty.call(tok.map, t) ? tok.map[t] : null;
-          if (hit) piece = tile(t, hit[1]);
+          if (hit) piece = tile(t, hit[1], q[1]);
           else if (tok.ids !== false && /^0x[0-9a-fA-F]+$|^0b[01]+$/.test(t)) {   // hex(b) / bin(b) of an ID: coloured like the ID
             var v = parseInt(t.slice(2), t[1] === 'x' ? 16 : 2);
             if (v < tok.n && tok.byId[v]) piece = '<span class="otid" data-f="' + tok.byId[v] + '">' + esc(q[1]) + '</span>';
@@ -3481,7 +3620,7 @@ function eaiOutHL(text, cc, hl, tok) {
     if (!lab) { if (!/^\s/.test(line)) fam = null; return marked(line, fam); }   // a wrapped tensor's next lines keep the family
     fam = famOf(lab[1]);
     // a later label on the same line that names a family ("… loss: tensor(0.70)") colours what follows it (Eric, 2026-11-03)
-    var rest = line.slice(lab[1].length), out = '<span class="olab' + (fam ? ' f-' + fam : '') + '">' + marked(lab[1], fam, !!fam) + '</span>', MID = /(\s)([A-Za-z_][A-Za-z_ ]{0,30}:)(?=\s)/g, mm, from = 0, f2 = fam;
+    var rest = line.slice(lab[1].length), out = '<span class="olab' + (fam ? ' f-' + fam + (/^[A-Z]$/.test(lab[1]) ? ' cc csym ' + fam : '') : '') + '">' + marked(lab[1], fam, !!fam) + '</span>', MID = /(\s)([A-Za-z_][A-Za-z_ ]{0,30}:)(?=\s)/g, mm, from = 0, f2 = fam;
     while ((mm = MID.exec(rest))) {
       var mf = famOf(mm[2]); if (!mf) continue;
       var at = mm.index + mm[1].length;
@@ -3523,14 +3662,12 @@ function eaiRunCode() {
     return boot;
   }
   // Presenting (the Lecture opened with ?lecture=1, the editor home's Lecture button): outputs are hidden, their space
-  // kept, until the code is run live or the output is clicked (click again to hide it), like the fill-in blanks.
-  if (/[?&]lecture=1\b/.test(location.search) && !document.documentElement.classList.contains('present-out')) {
-    document.documentElement.classList.add('present-out');
-    document.addEventListener('click', function (e) {
-      var o = e.target.closest && e.target.closest('b-out'); if (!o || e.target.closest('.run-bar, .run-editor')) return;
-      var bk = o.closest('.book'); if (!bk || bk.getAttribute('data-view') !== 'slides') return;
-      o.classList.toggle('shown');
-    });
+  // kept, until the code is run live. No tap to show them (Eric, 2026-11-18: "I'll definitely do it by accident").
+  // Also the iPad app's projector copy (lecture=show) and the answers link (lecture=answers, the iPad's crib, where
+  // book.css draws them faint like the answers): the projector showed every stored output from the start (Eric,
+  // 2026-11-18: "during lecture I don't want them visible unless I run a cell"). The page itself keeps them.
+  if (/[?&]lecture=(1|show|answers)\b/.test(location.search) && !document.documentElement.classList.contains('present-out-on')) {
+    document.documentElement.classList.add('present-out', 'present-out-on');
   }
   function source(block) { return [].map.call(block.querySelectorAll('.ln'), function (l) { return l.textContent.replace(/ /g, ' '); }).join('\n'); }
   // What runs before a block's own code: its hidden setup (setup="…", imports and data a slide leaves out), and, for a
@@ -3601,7 +3738,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -3612,7 +3749,7 @@ function eaiRunCode() {
     function show(text, err, figs) {
       out._ran = true;   // this run's output, not the stored one (Book.renderOuts leaves it alone)
       out.classList.toggle('run-new', !printed && !storedFigs && !text && !(figs && figs.length));
-      var pre = out.querySelector('pre'); if (!err && typeof eaiOutHL === 'function') pre.innerHTML = eaiOutHL(text, window.EAI_CC || (window.Book && window.Book.meta && window.Book.meta.codeColors), out.getAttribute('hl'), typeof eaiOutTok === 'function' ? eaiOutTok(out) : null); else pre.textContent = text; pre.classList.toggle('run-err', !!err);
+      var pre = out.querySelector('pre'); if (!err && typeof eaiOutHL === 'function') pre.innerHTML = eaiOutHL(text, window.EAI_CC || (window.Book && window.Book.outColors ? window.Book.outColors() : null), out.getAttribute('hl'), typeof eaiOutTok === 'function' ? eaiOutTok(out) : null); else pre.textContent = text; pre.classList.toggle('run-err', !!err);
       var old = out.querySelector('.run-figs'); if (old) old.remove();
       if (figs && figs.length) { var d = document.createElement('div'); d.className = 'run-figs'; figs.forEach(function (b) { var im = document.createElement('img'); im.src = /^(data:|https?:|\/)/.test(b) ? b : 'data:image/png;base64,' + b; im.alt = 'Plot from the code above'; d.appendChild(im); }); out.appendChild(d); }
     }
@@ -3629,15 +3766,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -3646,6 +3829,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -3658,9 +3842,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';
@@ -3690,9 +3875,10 @@ function eaiRunCode() {
             status.textContent = 'Running…';
             py.setStdout({ batched: function (t) { lines.push(t); } }); py.setStderr({ batched: function (t) { lines.push(t); } });
             var home = bk || document; if (g) home._eaiG = g; else if (!home._eaiG) home._eaiG = py.globals.get('dict')();
+            if (window.Book && Book.startShapes) Book.startShapes(py, block);
             return py.runPythonAsync(code, { globals: home._eaiG });
           })
-          .then(function (r) { ok = true; block._eaiRan = (bk || document)._eaiG; var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed && !storedFigs) { show(''); tell({ src: own, out: '', figs: [] }); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
+          .then(function (r) { ok = true; block._eaiRan = (bk || document)._eaiG; if (window.Book && Book.readShapes) { var shp = Book.readShapes(py, (bk || document)._eaiG, block); if (shp) block.setAttribute('shapes', JSON.stringify(shp)); } var v = shown(py, r), f = figures(py); if (v) lines.push(v); if (!lines.length && !f.length && !printed && !storedFigs) { show(''); tell({ src: own, out: '', figs: [] }); status.innerHTML = '<span class="run-ok" title="Ran in your browser (no output)" style="color:#38761D;font-weight:700;font-size:10pt;line-height:1">\u2713</span>'; return; }   // nothing printed: keep the output closed, a green tick by Run
           var txt = lines.join('\n') || (f.length ? '' : '(no output)'); show(txt, false, f); out.classList.add('shown'); status.textContent = 'Ran in your browser'; tell({ src: own, out: txt, figs: f }); },
                 function (e) { var m = String(e && e.message || e).trim().replace(/(File "<exec>", line )(\d+)/g, function (x, a, n) { return +n > off ? a + (n - off) : a + n + ' (setup)'; }).split('\n'), k = -1; m.forEach(function (l, i) { if (l.indexOf('File "<exec>"') >= 0 && k < 0) k = i; }); m = k >= 0 ? ['Traceback (most recent call last):'].concat(m.slice(k)) : m.slice(-4); var etxt = (lines.length ? lines.join('\n') + '\n' : '') + m.join('\n'), ef = figures(window._eaiPy); show(etxt, true, ef); out.classList.add('shown'); status.textContent = 'Error'; tell({ src: own, out: etxt, err: true, figs: ef }); });
       }, function (e) { status.textContent = String(e.message || e); })
@@ -3876,16 +4062,34 @@ function eaiDual() {
   // links: hovering (or tapping) a linked code line shows the equation with its piece lit; hovering a lit piece of
   // the equation shows the code that computes it. Both are floating cards, so nothing on the page moves.
   pairs.forEach(function (box) {
-    var eq = box.querySelector('b-eq'), img = eq && eq.querySelector('img'), lines = box.querySelectorAll('b-code .ln[data-lk]');
+    var eq = box.querySelector('b-eq'), img = eq && eq.querySelector('img, .eq-ml'), lines = box.querySelectorAll('b-code .ln[data-lk]');
     if (!img || !lines.length) return;
-    fetch(img.src).then(function (r) { return r.text(); }).then(function (sv) {
-      var m = /<metadata id="eai-links">([\s\S]*?)<\/metadata>/.exec(sv), vb = /viewBox="[\d.\s-]*?([\d.]+)\s+([\d.]+)"/.exec(sv);
-      if (!m || !vb) return;
-      var L = JSON.parse(m[1]), W = +vb[1], card = null;
+    // a typeset equation (2026-11-19): its \lk{name}{…} pieces are elements (class lk-name), boxes measured in place;
+    // an old picture carries them in its metadata
+    (img.tagName === 'IMG' ? fetch(img.src).then(function (r) { return r.text(); }) : Promise.resolve(null)).then(function (sv) {
+      var L, W;
+      var live = sv === null;
+      function measure() {   // the pieces where they are now (the equation may have been hidden or resized since)
+        L = {}; W = img.clientWidth || 1; var o = img.getBoundingClientRect();
+        [].forEach.call(lines, function (ln) { (ln.getAttribute('data-lk') || '').split(' ').forEach(function (n) {
+          if (!n || L[n]) return; var els = img.querySelectorAll('.lk-' + n.replace(/[^\w-]/g, ''));
+          if (els.length) L[n] = [].map.call(els, function (e) { var r = e.getBoundingClientRect(); return [r.left - o.left, r.top - o.top, r.width, r.height]; });
+        }); });
+      }
+      if (live) {
+        measure();
+        if (!Object.keys(L).length) [].forEach.call(lines, function (ln) { (ln.getAttribute('data-lk') || '').split(' ').forEach(function (n) { if (n && img.querySelector('.lk-' + n.replace(/[^\w-]/g, ''))) L[n] = []; }); });
+      } else {
+        var m = /<metadata id="eai-links">([\s\S]*?)<\/metadata>/.exec(sv), vb = /viewBox="[\d.\s-]*?([\d.]+)\s+([\d.]+)"/.exec(sv);
+        if (!m || !vb) return;
+        L = JSON.parse(m[1]); W = +vb[1];
+      }
+      var card = null;
       box.classList.add('linked');
       function names(el) { return (el.getAttribute('data-lk') || '').split(' ').filter(function (n) { return L[n]; }); }
       function lit(host, pic, ns) {   // gold boxes over the named pieces of an equation picture
         [].forEach.call(host.querySelectorAll('.lk-hl'), function (d) { d.remove(); });
+        if (live) { var keep = img; img = pic; measure(); img = keep; }
         var k = pic.clientWidth / W, ox = pic.offsetLeft, oy = pic.offsetTop;
         ns.forEach(function (n) { (L[n] || []).forEach(function (r) {
           var d = document.createElement('div'); d.className = 'lk-hl';
@@ -3903,10 +4107,11 @@ function eaiDual() {
         hide(); ln.classList.add('lk-on');
         [].forEach.call(lines, function (o) { if (o !== ln && names(o).some(function (n) { return ns.indexOf(n) >= 0; })) o.classList.add('lk-on'); });
         card = document.createElement('div'); card.className = 'lk-card';
-        var pic = document.createElement('img'); pic.src = img.src; pic.alt = img.alt; card.appendChild(pic); box.appendChild(card);
-        var go = function () { lit(card, pic, ns); place(ln); }; if (pic.complete) go(); else pic.onload = go;
+        var pic = live ? img.cloneNode(true) : document.createElement('img'); if (!live) { pic.src = img.src; pic.alt = img.alt; } card.appendChild(pic); box.appendChild(card);
+        var go = function () { lit(card, pic, ns); place(ln); }; if (live || pic.complete) go(); else pic.onload = go;
       }
       function fromEq(e) {
+        if (live && !eq._lk) measure();
         var r = img.getBoundingClientRect(), k = W / r.width, x = (e.clientX - r.left) * k, y = (e.clientY - r.top) * k, best = null, area = 1e9;
         Object.keys(L).forEach(function (n) { L[n].forEach(function (q) { if (x >= q[0] && x <= q[0] + q[2] && y >= q[1] && y <= q[1] + q[3] && q[2] * q[3] < area) { area = q[2] * q[3]; best = n; } }); });
         if (best === eq._lk) return; eq._lk = best; hide();
@@ -5071,6 +5276,7 @@ function eaiInk(opts) {
     native({ ink: { editing: editing, tool: editing ? tool : 'hand', color: color, width: width, teacher: teacher(),
       drafting: !!(target && target !== mine), undo: undo.length } });
   }
+  var BLANK_INK = 0.7;   // text blanks: their handwriting at 0.7 of the weight the pad sends (fill below)
   function nativeInk() {
     var H = document.documentElement; H.classList.add('native-ink');
     var vp = document.querySelector('meta[name=viewport]');
@@ -5130,7 +5336,11 @@ function eaiInk(opts) {
         ensureTarget(); if (!target || !key) return false;
         var old = target.strokes.filter(function (s) { return s.f === key; }); old.forEach(unStroke);
         var add = (list || []).filter(function (s) { return s && s.p && document.getElementById(s.p) && s.pts && s.pts.length; }).map(function (s) {
-          var st = { p: s.p, c: s.c, w: s.w, pts: s.pts, f: key }; if (s.o) st.o = s.o;
+          // a text blank's handwriting is a little lighter than the pad sends it (Eric, 2026-11-18: "a little too thick,
+          // it makes it tricky to read when it shrinks"): the pad sends its old heavier weights (TextPad padWeight), so
+          // 0.7 brings it near the bar's own width; never under 1 pt (PencilKit draws nothing thinner, TextPad thinnest)
+          var w = s.w; if (key.indexOf(':') < 0 && w) w = Math.max(1, Math.round(w * BLANK_INK * 100) / 100);
+          var st = { p: s.p, c: s.c, w: w, pts: s.pts, f: key }; if (s.o) st.o = s.o;
           drawStroke(st); target.strokes.push(st); return st;
         });
         var u = undo[undo.length - 1];

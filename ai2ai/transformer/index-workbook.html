@@ -844,7 +844,6 @@ svg.al-clone { z-index: 1; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Transformers</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#lec-gpt">GPT</a><a href="#lec-pos-rnn">Position</a><a href="#lec-train-all">Masking</a><a href="#lec-diagram">The Transformer Block</a><a href="#lec-output">Writing the Fight Song</a><a href="#lec-output-github">Writing the Fight Song</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="on">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="transformer-chapter.pdf" download>Reading</a><a href="transformer-chapter-slides.pdf" download>Lecture</a><a href="transformer-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="workbook">
 <section class="page cover" id="cover">
-  
   <b-fig src="fig/cover.svg" class="cover-art" alt="A triangle of small gold and navy cells: the attention weights of a tiny untrained transformer on the 51 words of the Victory March chorus, each word looking back at the words before it, everything above the diagonal masked" data-b="xr4yy" style="--ar: 1.745;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 220" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -1405,6 +1404,7 @@ L 384 0
  </defs>
 </svg>
 </b-fig>
+  
   <div class="cover-text" data-b="sae9i">
     <div class="kicker">Unit 03 · Chapter 6</div>
     <h1>Transformers</h1>
@@ -1413,7 +1413,7 @@ L 384 0
   </div>
 <div class="foot" data-rt=""><span>Transformers</span><span>01</span></div></section>
 
-<section class="page" id="lec-gpt" data-part="GPT" data-view="slides workbook" data-topic="gpt" style="--gap: 22pt;">
+<section class="page" id="lec-gpt" data-view="slides workbook" data-topic="gpt" data-part="GPT" style="--gap: 22pt;">
   <h2 data-b="z1dhj">Generative Pre-trained Transformer (GPT)</h2>
   <p data-b="nzi2s"><b class="name">ChatGPT</b> writes its answer <b class="take">one word at a time</b>: each word is a guess at what comes next, given everything before it</p>
   <p data-align="center" data-b="w6c15"><b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="for" data-f="green" title="Victory March words: &quot;for&quot; = 1"><span class="tk-t">for</span><span class="tk-id">1</span></b-tok> <b-tok v="march" t="old" data-f="yellow" title="Victory March words: &quot;old&quot; = 2"><span class="tk-t">old</span><span class="tk-id">2</span></b-tok> <b-tok v="march" t="notre" data-f="red" title="Victory March words: &quot;notre&quot; = 3"><span class="tk-t">notre</span><span class="tk-id">3</span></b-tok> <u class="fill blank" style="width: 40pt;">&nbsp;</u></p>
@@ -1425,8 +1425,10 @@ L 384 0
   <h2 data-b="g1ugo">Next-Token Prediction</h2>
   <p data-b="a7dsm">The first line of the chorus is already <span class="num">5</span> guesses to learn from:</p>
   <table data-b="vvd8w">
-    <tbody>
+    <thead>
       <tr><th>the words so far</th><th>the next word</th></tr>
+    </thead>
+    <tbody>
       <tr><td><b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok></td><td><b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok></td></tr>
       <tr><td><b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok></td><td><b-tok v="march" t="for" data-f="green" title="Victory March words: &quot;for&quot; = 1"><span class="tk-t">for</span><span class="tk-id">1</span></b-tok></td></tr>
       <tr><td><b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="for" data-f="green" title="Victory March words: &quot;for&quot; = 1"><span class="tk-t">for</span><span class="tk-id">1</span></b-tok></td><td><b-tok v="march" t="old" data-f="yellow" title="Victory March words: &quot;old&quot; = 2"><span class="tk-t">old</span><span class="tk-id">2</span></b-tok></td></tr>
@@ -1441,7 +1443,7 @@ L 384 0
 <section class="page" id="p-tz6ij" data-view="slides workbook" data-topic="gpt" style="--gap: 22pt;">
   <h2 data-b="dpeh6">Self-Attention</h2>
   
-  <svg class="draw" viewBox="0 0 235.9 62.6" style="width: 380pt" role="img" aria-label="The attention equation as tiles with their shapes for our five words: A of shape 5 by 8 = softmax of Q (5 by 8) times K transposed (8 by 5) over the square root of 8, times V (5 by 8)." data-b="wa22w">
+  <svg class="draw" viewBox="0 0 235.9 62.6" role="img" aria-label="The attention equation as tiles with their shapes for our five words: A of shape 5 by 8 = softmax of Q (5 by 8) times K transposed (8 by 5) over the square root of 8, times V (5 by 8)." style="width: 380pt" data-b="wa22w">
     <g id="att-s5" transform="translate(-1.7 -3.3)" data-tiles="">
       <g id="att-s1" data-sym="A" data-dims="T,d">
         <rect x="5.8" y="28.5" width="24.8" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
@@ -1477,7 +1479,7 @@ L 384 0
     <li><b-m tex="K = X @ Ω_K"><span class="c red sym" data-at="0,1" data-k="K">K</span> = <span class="c red sym" data-at="4,5" data-k="X">X</span> @ <span class="c wblue sym" data-at="8,11" data-k="Ω_K"><span class="Om">ω</span><sub>K</sub></span></b-m>, the <b class="def"><u class="fill blank" style="width: 26.7pt;">&nbsp;</u></b>: what it <b class="ex">offers to be matched against</b></li>
     <li><b-m tex="V = X @ Ω_V"><span class="c green sym" data-at="0,1" data-k="V">V</span> = <span class="c red sym" data-at="4,5" data-k="X">X</span> @ <span class="c wblue sym" data-at="8,11" data-k="Ω_V"><span class="Om">ω</span><sub>V</sub></span></b-m>, the <b class="def"><u class="fill blank" style="width: 40.9pt;">&nbsp;</u></b>: what it <b class="ex">passes along</b></li>
   </ul>
-  <b-fig src="fig/attn-heatmap.svg" style="width: 50%; --ar: 1.670;" alt="Monday's grid: the attention weights of wake up the echoes cheering her name, one row per query and one column per key, shaded red for the smallest, yellow for the median and green for the largest. The biggest are cheering to her and name to her, both 0.51." data-b="zcgq3"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 230" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/attn-heatmap.svg" alt="Monday's grid: the attention weights of wake up the echoes cheering her name, one row per query and one column per key, shaded red for the smallest, yellow for the median and green for the largest. The biggest are cheering to her and name to her, both 0.51." style="width: 50%; --ar: 1.670;" data-b="zcgq3"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 230" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -1952,7 +1954,7 @@ z
 
 <section class="page" id="lec-whole" data-view="slides workbook" data-topic="gpt" style="--gap: 22pt;">
   <h2 data-b="k7g7e">The Whole Model</h2>
-  <svg class="draw" viewBox="0 30 444 328.18" style="width: 583.6pt" role="img" aria-label="Left: the decoder-only transformer from bottom to top: the text, a tokenizer, embeddings plus positional encoding, transformer blocks 1 to N, a layer normalization, a linear layer and a softmax giving the next word. Right: one block, layer normalization, masked self-attention and a residual add, then layer normalization, a feed-forward MLP and a second residual add" data-b="gf99y">
+  <svg class="draw" viewBox="0 30 444 328.18" role="img" aria-label="Left: the decoder-only transformer from bottom to top: the text, a tokenizer, embeddings plus positional encoding, transformer blocks 1 to N, a layer normalization, a linear layer and a softmax giving the next word. Right: one block, layer normalization, masked self-attention and a residual add, then layer normalization, a feed-forward MLP and a second residual add" style="width: 583.6pt" data-b="gf99y">
     <defs>
       <marker id="ah002B5B-c738g" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -1979,46 +1981,46 @@ z
       <text x="119.4" y="328.2" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">notre</text>
     </g>
     <g id="gpt-c738g-s2">
-      <rect x="16.0" y="291.5" width="112.0" height="17.0" rx="4.0" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="16.0" y="291.5" width="112.0" height="17.0" rx="4.0" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="72.0" y="302.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Tokenizer</text>
     </g>
     <g id="gpt-c738g-s3">
-      <rect x="16.0" y="265.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="16.0" y="265.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="72.0" y="276.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Embeddings</text>
     </g>
     <g id="gpt-c738g-s4">
-      <ellipse cx="72.0" cy="249.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.20"></ellipse>
+      <ellipse cx="72.0" cy="249.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.2"></ellipse>
       <text x="72.0" y="252.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="gpt-c738g-s5">
-      <rect x="1.0" y="238.0" width="38.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="1.0" y="238.0" width="38.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="20.0" y="247.5" font-size="6.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Positional</text>
       <text x="20.0" y="254.7" font-size="6.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Encoding</text>
     </g>
     <g id="gpt-c738g-s6">
-      <rect x="16.0" y="213.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="16.0" y="213.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="72.0" y="224.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Transformer Block 1</text>
     </g>
     <g id="gpt-c738g-s7">
-      <rect x="16.0" y="187.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="16.0" y="187.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="72.0" y="198.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Transformer Block 2</text>
     </g>
     <text x="72.0" y="176.0" font-size="11.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">⋮</text>
     <g id="gpt-c738g-s8">
-      <rect x="16.0" y="147.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="16.0" y="147.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="72.0" y="158.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Transformer Block N</text>
     </g>
     <text x="66.1" y="183.8" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">× N</text>
     <g id="gpt-c738g-s9">
-      <rect x="16.0" y="121.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="16.0" y="121.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="72.0" y="132.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization</text>
     </g>
     <g id="gpt-c738g-s10">
-      <rect x="16.0" y="95.5" width="112.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="16.0" y="95.5" width="112.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="72.0" y="106.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Linear</text>
     </g>
     <g id="gpt-c738g-s11">
-      <rect x="16.0" y="69.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="16.0" y="69.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="72.0" y="80.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Softmax</text>
     </g>
     <g id="gpt-c738g-s12" data-tok="march" data-t="dame">
@@ -2026,26 +2028,26 @@ z
       <text x="86.1" y="48.2" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">dame</text>
     </g>
     <text x="70.0" y="48.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="end">next word:</text>
-    <line x1="25" y1="320.2" x2="72.0" y2="308.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s1" data-b="gpt-c738g-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="291.5" x2="72.0" y2="282.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s2" data-b="gpt-c738g-s3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="265.5" x2="72.0" y2="256.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s3" data-b="gpt-c738g-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="242.0" x2="72.0" y2="230.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s4" data-b="gpt-c738g-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="213.5" x2="72.0" y2="204.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s6" data-b="gpt-c738g-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="147.5" x2="72.0" y2="138.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s8" data-b="gpt-c738g-s9" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="121.5" x2="72.0" y2="112.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s9" data-b="gpt-c738g-s10" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="95.5" x2="72.0" y2="86.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s10" data-b="gpt-c738g-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="69.5" x2="86" y2="51.7" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s11" data-b="gpt-c738g-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="39.0" y1="249.0" x2="65.0" y2="249.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s5" data-b="gpt-c738g-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <rect x="228.0" y="120.0" width="200.0" height="216.18" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
-    <line x1="128.0" y1="213.5" x2="228.0" y2="120.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="3 2"></line>
-    <line x1="128.0" y1="230.5" x2="228.0" y2="336.18" stroke="#666666" stroke-width="0.80" stroke-dasharray="3 2"></line>
+    <line x1="25" y1="320.2" x2="72.0" y2="308.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s1" data-b="gpt-c738g-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="291.5" x2="72.0" y2="282.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s2" data-b="gpt-c738g-s3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="265.5" x2="72.0" y2="256.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s3" data-b="gpt-c738g-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="242.0" x2="72.0" y2="230.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s4" data-b="gpt-c738g-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="213.5" x2="72.0" y2="204.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s6" data-b="gpt-c738g-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="147.5" x2="72.0" y2="138.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s8" data-b="gpt-c738g-s9" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="121.5" x2="72.0" y2="112.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s9" data-b="gpt-c738g-s10" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="95.5" x2="72.0" y2="86.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s10" data-b="gpt-c738g-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="69.5" x2="86" y2="51.7" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s11" data-b="gpt-c738g-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="39.0" y1="249.0" x2="65.0" y2="249.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s5" data-b="gpt-c738g-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <rect x="228.0" y="120.0" width="200.0" height="216.18" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
+    <line x1="128.0" y1="213.5" x2="228.0" y2="120.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="3 2"></line>
+    <line x1="128.0" y1="230.5" x2="228.0" y2="336.18" stroke="#666666" stroke-width="0.8" stroke-dasharray="3 2"></line>
     <text x="318.0" y="350.18" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block input (one row per word)</text>
     <g id="gpt-c738g-s13">
-      <rect x="258.0" y="301.68" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="258.0" y="301.68" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="318.0" y="312.78" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization</text>
     </g>
     <g id="gpt-c738g-s14">
-      <rect x="242.1" y="248.5" width="151.9" height="43.18" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="242.1" y="248.5" width="151.9" height="43.18" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="318.0" y="259.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Masked Self-Attention</text>
       <g id="gf99y-r9" data-tiles="">
         <text x="246.1" y="283.35" font-size="8.5" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">softmax</text>
@@ -2073,31 +2075,31 @@ z
       </g>
     </g>
     <g id="gpt-c738g-s15">
-      <ellipse cx="318.0" cy="236.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.20"></ellipse>
+      <ellipse cx="318.0" cy="236.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.2"></ellipse>
       <text x="318.0" y="239.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="gpt-c738g-s16">
-      <rect x="258.0" y="195.5" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="258.0" y="195.5" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="318.0" y="206.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization</text>
     </g>
     <g id="gpt-c738g-s17">
-      <rect x="258.0" y="165.5" width="120.0" height="17.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="258.0" y="165.5" width="120.0" height="17.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <text x="318.0" y="176.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Feed-Forward (MLP)</text>
     </g>
     <g id="gpt-c738g-s18">
-      <ellipse cx="318.0" cy="142.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.20"></ellipse>
+      <ellipse cx="318.0" cy="142.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.2"></ellipse>
       <text x="318.0" y="145.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <text x="318.0" y="106.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block output</text>
-    <line x1="318.0" y1="342.18" x2="318.0" y2="318.68" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-b="gpt-c738g-s13" data-b-at="b:0.500"></line>
-    <line x1="318.0" y1="301.68" x2="318" y2="291.68" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s13" data-b="gpt-c738g-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="318" y1="248.5" x2="318.0" y2="243.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s14" data-b="gpt-c738g-s15" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="318.0" y1="229.0" x2="318.0" y2="212.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s15" data-b="gpt-c738g-s16" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="318.0" y1="195.5" x2="318.0" y2="182.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s16" data-b="gpt-c738g-s17" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="318.0" y1="165.5" x2="318.0" y2="149.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s17" data-b="gpt-c738g-s18" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="318.0" y1="135.0" x2="318.0" y2="112.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s18" data-a-at="t:0.500"></line>
-    <polyline points="318.0,330.18 410.0,330.18 410.0,236 325.0,236" fill="none" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)"></polyline>
-    <polyline points="318.0,222.0 410.0,222.0 410.0,142.0 325.0,142.0" fill="none" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-c738g)"></polyline>
+    <line x1="318.0" y1="342.18" x2="318.0" y2="318.68" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-b="gpt-c738g-s13" data-b-at="b:0.500"></line>
+    <line x1="318.0" y1="301.68" x2="318" y2="291.68" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s13" data-b="gpt-c738g-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="318" y1="248.5" x2="318.0" y2="243.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s14" data-b="gpt-c738g-s15" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="318.0" y1="229.0" x2="318.0" y2="212.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s15" data-b="gpt-c738g-s16" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="318.0" y1="195.5" x2="318.0" y2="182.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s16" data-b="gpt-c738g-s17" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="318.0" y1="165.5" x2="318.0" y2="149.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s17" data-b="gpt-c738g-s18" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="318.0" y1="135.0" x2="318.0" y2="112.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)" data-a="gpt-c738g-s18" data-a-at="t:0.500"></line>
+    <polyline points="318.0,330.18 410.0,330.18 410.0,236 325.0,236" fill="none" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)"></polyline>
+    <polyline points="318.0,222.0 410.0,222.0 410.0,142.0 325.0,142.0" fill="none" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-c738g)"></polyline>
     <text x="406.0" y="314.18" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">residual</text>
     <text x="406.0" y="184.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">residual</text>
   </svg>
@@ -2111,7 +2113,7 @@ z
   <p data-b="akbe7">Shuffle our line: <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> <b-tok v="march" t="cheering" data-f="blue" title="Victory March words: &quot;cheering&quot; = 9"><span class="tk-t">cheering</span><span class="tk-id">9</span></b-tok> <b-tok v="march" t="echoes" data-f="red" title="Victory March words: &quot;echoes&quot; = 8"><span class="tk-t">echoes</span><span class="tk-id">8</span></b-tok> <b-tok v="march" t="name" data-f="purple" title="Victory March words: &quot;name&quot; = 11"><span class="tk-t">name</span><span class="tk-id">11</span></b-tok> <b-tok v="march" t="her" data-f="green" title="Victory March words: &quot;her&quot; = 10"><span class="tk-t">her</span><span class="tk-id">10</span></b-tok> <b-tok v="march" t="wake" data-f="purple" title="Victory March words: &quot;wake&quot; = 5"><span class="tk-t">wake</span><span class="tk-id">5</span></b-tok> <b-tok v="march" t="up" data-f="green" title="Victory March words: &quot;up&quot; = 6"><span class="tk-t">up</span><span class="tk-id">6</span></b-tok>. Every <b class="def">token</b> gets <b class="warn">the same output, just in a different row</b></p>
   <p data-b="koscs"><b class="def">Self-attention</b> treats a sentence as a <u class="fill blank" style="width: 99.5pt;">&nbsp;</u>: <b class="ex">wake up the echoes</b> = <b class="ex">the echoes wake up</b></p>
   
-  <svg class="draw" viewBox="0 0 630 196" style="width: 620pt" role="img" aria-label="Two attention grids with no positions. Left: wake up the echoes. Right: the shuffled the echoes wake up. Every weight is the same, just moved to another row and column: wake to up is 0.37 in both." data-b="fdunz">
+  <svg class="draw" viewBox="0 0 630 196" role="img" aria-label="Two attention grids with no positions. Left: wake up the echoes. Right: the shuffled the echoes wake up. Every weight is the same, just moved to another row and column: wake to up is 0.37 in both." style="width: 620pt" data-b="fdunz">
     <defs>
       <marker id="ah002B5B-fdunz" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -2139,19 +2141,19 @@ z
       <text x="60" y="60.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">wake</text>
     </g>
     <g id="order-grids-fdunz-s6">
-      <rect x="90.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#EFD464" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="90.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#EFD464" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="111.0" y="60.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.26</text>
     </g>
     <g id="order-grids-fdunz-s7">
-      <rect x="132.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#CBC85E" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="132.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#CBC85E" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="153.0" y="60.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.37</text>
     </g>
     <g id="order-grids-fdunz-s8">
-      <rect x="174.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#E8D262" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="174.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#E8D262" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="195.0" y="60.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.28</text>
     </g>
     <g id="order-grids-fdunz-s9">
-      <rect x="216.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#EB9066" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="216.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#EB9066" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="237.0" y="60.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.09</text>
     </g>
     <g id="order-grids-fdunz-s10" data-tok="march" data-t="up">
@@ -2159,19 +2161,19 @@ z
       <text x="60" y="84.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">up</text>
     </g>
     <g id="order-grids-fdunz-s11">
-      <rect x="90.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="90.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="111.0" y="84.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.21</text>
     </g>
     <g id="order-grids-fdunz-s12">
-      <rect x="132.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#F0A366" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="132.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#F0A366" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="153.0" y="84.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.12</text>
     </g>
     <g id="order-grids-fdunz-s13">
-      <rect x="174.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#7AAD52" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="174.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#7AAD52" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="195.0" y="84.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.62</text>
     </g>
     <g id="order-grids-fdunz-s14">
-      <rect x="216.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#E77E66" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="216.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#E77E66" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="237.0" y="84.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.06</text>
     </g>
     <g id="order-grids-fdunz-s15" data-tok="march" data-t="the">
@@ -2179,19 +2181,19 @@ z
       <text x="60" y="108.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">the</text>
     </g>
     <g id="order-grids-fdunz-s16">
-      <rect x="90.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#E88466" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="90.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#E88466" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="111.0" y="108.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.07</text>
     </g>
     <g id="order-grids-fdunz-s17">
-      <rect x="132.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#E77E66" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="132.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#E77E66" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="153.0" y="108.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.06</text>
     </g>
     <g id="order-grids-fdunz-s18">
-      <rect x="174.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="174.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="195.0" y="108.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.21</text>
     </g>
     <g id="order-grids-fdunz-s19">
-      <rect x="216.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#6AA84F" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="216.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#6AA84F" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="237.0" y="108.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.67</text>
     </g>
     <g id="order-grids-fdunz-s20" data-tok="march" data-t="echoes">
@@ -2199,22 +2201,22 @@ z
       <text x="60" y="132.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">echoes</text>
     </g>
     <g id="order-grids-fdunz-s21">
-      <rect x="90.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#EFD464" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="90.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#EFD464" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="111.0" y="132.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.26</text>
     </g>
     <g id="order-grids-fdunz-s22">
-      <rect x="132.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#C1C55C" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="132.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#C1C55C" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="153.0" y="132.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.40</text>
     </g>
     <g id="order-grids-fdunz-s23">
-      <rect x="174.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#DBCD60" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="174.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#DBCD60" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="195.0" y="132.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.32</text>
     </g>
     <g id="order-grids-fdunz-s24">
-      <rect x="216.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#E06666" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="216.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#E06666" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="237.0" y="132.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.02</text>
     </g>
-    <rect x="132.0" y="46.0" width="42.0" height="24.0" rx="2.0" fill="none" stroke="#002B5B" stroke-width="2.20"></rect>
+    <rect x="132.0" y="46.0" width="42.0" height="24.0" rx="2.0" fill="none" stroke="#002B5B" stroke-width="2.2"></rect>
     <text x="504.0" y="12.0" font-size="9.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">the echoes wake up</text>
     <g id="order-grids-fdunz-s25" data-tok="march" data-t="the">
       <rect x="432" y="25.8" width="18" height="12.4" rx="3" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
@@ -2237,19 +2239,19 @@ z
       <text x="390" y="60.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">the</text>
     </g>
     <g id="order-grids-fdunz-s30">
-      <rect x="420.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="420.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="441.0" y="60.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.21</text>
     </g>
     <g id="order-grids-fdunz-s31">
-      <rect x="462.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#6AA84F" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="462.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#6AA84F" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="483.0" y="60.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.67</text>
     </g>
     <g id="order-grids-fdunz-s32">
-      <rect x="504.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#E88466" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="504.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#E88466" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="525.0" y="60.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.07</text>
     </g>
     <g id="order-grids-fdunz-s33">
-      <rect x="546.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#E77E66" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="546.0" y="46.0" width="42.0" height="24.0" rx="0.0" fill="#E77E66" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="567.0" y="60.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.06</text>
     </g>
     <g id="order-grids-fdunz-s34" data-tok="march" data-t="echoes">
@@ -2257,19 +2259,19 @@ z
       <text x="390" y="84.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">echoes</text>
     </g>
     <g id="order-grids-fdunz-s35">
-      <rect x="420.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#DBCD60" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="420.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#DBCD60" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="441.0" y="84.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.32</text>
     </g>
     <g id="order-grids-fdunz-s36">
-      <rect x="462.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#E06666" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="462.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#E06666" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="483.0" y="84.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.02</text>
     </g>
     <g id="order-grids-fdunz-s37">
-      <rect x="504.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#EFD464" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="504.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#EFD464" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="525.0" y="84.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.26</text>
     </g>
     <g id="order-grids-fdunz-s38">
-      <rect x="546.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#C1C55C" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="546.0" y="70.0" width="42.0" height="24.0" rx="0.0" fill="#C1C55C" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="567.0" y="84.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.40</text>
     </g>
     <g id="order-grids-fdunz-s39" data-tok="march" data-t="wake">
@@ -2277,19 +2279,19 @@ z
       <text x="390.1" y="108.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">wake</text>
     </g>
     <g id="order-grids-fdunz-s40">
-      <rect x="420.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#E8D262" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="420.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#E8D262" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="441.0" y="108.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.28</text>
     </g>
     <g id="order-grids-fdunz-s41">
-      <rect x="462.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#EB9066" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="462.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#EB9066" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="483.0" y="108.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.09</text>
     </g>
     <g id="order-grids-fdunz-s42">
-      <rect x="504.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#EFD464" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="504.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#EFD464" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="525.0" y="108.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.26</text>
     </g>
     <g id="order-grids-fdunz-s43">
-      <rect x="546.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#CBC85E" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="546.0" y="94.0" width="42.0" height="24.0" rx="0.0" fill="#CBC85E" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="567.0" y="108.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.37</text>
     </g>
     <g id="order-grids-fdunz-s44" data-tok="march" data-t="up">
@@ -2297,33 +2299,33 @@ z
       <text x="389.9" y="132.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">up</text>
     </g>
     <g id="order-grids-fdunz-s45">
-      <rect x="420.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#7AAD52" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="420.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#7AAD52" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="441.0" y="132.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.62</text>
     </g>
     <g id="order-grids-fdunz-s46">
-      <rect x="462.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#E77E66" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="462.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#E77E66" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="483.0" y="132.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.06</text>
     </g>
     <g id="order-grids-fdunz-s47">
-      <rect x="504.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="504.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="525.0" y="132.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.21</text>
     </g>
     <g id="order-grids-fdunz-s48">
-      <rect x="546.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#F0A366" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="546.0" y="118.0" width="42.0" height="24.0" rx="0.0" fill="#F0A366" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="567.0" y="132.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.12</text>
     </g>
-    <rect x="546.0" y="94.0" width="42.0" height="24.0" rx="2.0" fill="none" stroke="#002B5B" stroke-width="2.20"></rect>
-    <line x1="275.0" y1="94.0" x2="345.0" y2="94.0" stroke="#002B5B" stroke-width="1.40" marker-end="url(#ah002B5B-fdunz)"></line>
+    <rect x="546.0" y="94.0" width="42.0" height="24.0" rx="2.0" fill="none" stroke="#002B5B" stroke-width="2.2"></rect>
+    <line x1="275.0" y1="94.0" x2="345.0" y2="94.0" stroke="#002B5B" stroke-width="1.4" marker-end="url(#ah002B5B-fdunz)"></line>
     <text x="310.0" y="86.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">shuffle</text>
     <text x="315.0" y="168.0" font-size="8.0" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">wake → up is 0.37 in both: every weight is the same, just moved to another row and column</text>
     <text x="315.0" y="182.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">one row per query, one column per key (no positions)</text>
   </svg>
 <div class="foot" data-rt=""><span>Transformers · GPT</span><span>06</span></div></section>
 
-<section class="page" id="lec-pos-rnn" data-part="Position" data-view="slides workbook" data-topic="positional" style="--gap: 22pt;">
+<section class="page" id="lec-pos-rnn" data-view="slides workbook" data-topic="positional" data-part="Position" style="--gap: 22pt;">
   <h2 data-b="vq9ga">Positional Embeddings</h2>
   <p data-b="x7yw9">Same problem in the chorus: it starts <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok>, and both get exactly the same output. <b class="def">Attention</b> <b class="warn">can't tell the first <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> from the second</b></p>
-  <svg class="draw" viewBox="0 0 600 152" style="width: 600pt" role="img" aria-label="Left: an RNN reads cheer, cheer, for one step at a time, its state c1, c2, c3 carrying the order. Right: the self-attention weights of cheer, cheer, for (one row per query, one column per key) with no positions: the two cheer rows are the same (0.34, 0.34, 0.32), so v1 = v2." data-b="ki1uh">
+  <svg class="draw" viewBox="0 0 600 152" role="img" aria-label="Left: an RNN reads cheer, cheer, for one step at a time, its state c1, c2, c3 carrying the order. Right: the self-attention weights of cheer, cheer, for (one row per query, one column per key) with no positions: the two cheer rows are the same (0.34, 0.34, 0.32), so v1 = v2." style="width: 600pt" data-b="ki1uh">
     <defs>
       <marker id="ah000000-ki1uh" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
@@ -2338,41 +2340,41 @@ z
       <text x="60" y="134.9" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">cheer</text>
     </g>
     <g id="pos-order-ki1uh-s2">
-      <rect x="30.0" y="57.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="30.0" y="57.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="60.0" y="71.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RNN cell</text>
       <text x="60.0" y="81.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">step 1</text>
     </g>
-    <line x1="60" y1="124.6" x2="60.0" y2="87.0" stroke="#000000" stroke-width="1.20" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s1" data-b="pos-order-ki1uh-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="60" y1="124.6" x2="60.0" y2="87.0" stroke="#000000" stroke-width="1.2" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s1" data-b="pos-order-ki1uh-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="pos-order-ki1uh-s3" data-tok="march" data-t="cheer">
       <rect x="123.9" y="124.6" width="32.1" height="14.8" rx="3.6" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9"></rect>
       <text x="140" y="134.9" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">cheer</text>
     </g>
     <g id="pos-order-ki1uh-s4">
-      <rect x="110.0" y="57.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="110.0" y="57.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="140.0" y="71.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RNN cell</text>
       <text x="140.0" y="81.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">step 2</text>
     </g>
-    <line x1="140" y1="124.6" x2="140.0" y2="87.0" stroke="#000000" stroke-width="1.20" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s3" data-b="pos-order-ki1uh-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="140" y1="124.6" x2="140.0" y2="87.0" stroke="#000000" stroke-width="1.2" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s3" data-b="pos-order-ki1uh-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="pos-order-ki1uh-s5" data-tok="march" data-t="for">
       <rect x="210" y="124.6" width="20.1" height="14.8" rx="3.6" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.9"></rect>
       <text x="220.1" y="134.9" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">for</text>
     </g>
     <g id="pos-order-ki1uh-s6">
-      <rect x="190.0" y="57.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="190.0" y="57.0" width="60.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="220.0" y="71.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RNN cell</text>
       <text x="220.0" y="81.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">step 3</text>
     </g>
-    <line x1="220.1" y1="124.6" x2="220.0" y2="87.0" stroke="#000000" stroke-width="1.20" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s5" data-b="pos-order-ki1uh-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="90.0" y1="72.0" x2="110.0" y2="72.0" stroke="#000000" stroke-width="1.20" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s2" data-b="pos-order-ki1uh-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="220.1" y1="124.6" x2="220.0" y2="87.0" stroke="#000000" stroke-width="1.2" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s5" data-b="pos-order-ki1uh-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="90.0" y1="72.0" x2="110.0" y2="72.0" stroke="#000000" stroke-width="1.2" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s2" data-b="pos-order-ki1uh-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <text x="95.9" y="66.0" font-size="9.0" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">c</text>
     <text x="100.9" y="68.7" font-size="5.9" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">1</text>
-    <line x1="170.0" y1="72.0" x2="190.0" y2="72.0" stroke="#000000" stroke-width="1.20" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s4" data-b="pos-order-ki1uh-s6" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="170.0" y1="72.0" x2="190.0" y2="72.0" stroke="#000000" stroke-width="1.2" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s4" data-b="pos-order-ki1uh-s6" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <text x="175.9" y="66.0" font-size="9.0" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">c</text>
     <text x="180.9" y="68.7" font-size="5.9" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">2</text>
-    <line x1="250.0" y1="72.0" x2="274.0" y2="72.0" stroke="#000000" stroke-width="1.20" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s6" data-a-at="r:0.500"></line>
+    <line x1="250.0" y1="72.0" x2="274.0" y2="72.0" stroke="#000000" stroke-width="1.2" marker-end="url(#ah000000-ki1uh)" data-a="pos-order-ki1uh-s6" data-a-at="r:0.500"></line>
     <text x="257.9" y="66.0" font-size="9.0" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">c</text>
     <text x="262.9" y="68.7" font-size="5.9" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">3</text>
-    <line x1="300.0" y1="6.0" x2="300.0" y2="146.0" stroke="#CCCCCC" stroke-width="1.00"></line>
+    <line x1="300.0" y1="6.0" x2="300.0" y2="146.0" stroke="#CCCCCC" stroke-width="1.0"></line>
     <text x="455.0" y="12.0" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Attention: every word at once</text>
     <g id="pos-order-ki1uh-s7" data-tok="march" data-t="cheer">
       <rect x="405.7" y="29.4" width="28.5" height="13.2" rx="3.2" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
@@ -2391,15 +2393,15 @@ z
       <text x="373.9" y="64.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">cheer</text>
     </g>
     <g id="pos-order-ki1uh-s11">
-      <rect x="400.0" y="50.0" width="40.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="400.0" y="50.0" width="40.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="420.0" y="64.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.34</text>
     </g>
     <g id="pos-order-ki1uh-s12">
-      <rect x="440.0" y="50.0" width="40.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="440.0" y="50.0" width="40.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="460.0" y="64.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.34</text>
     </g>
     <g id="pos-order-ki1uh-s13">
-      <rect x="480.0" y="50.0" width="40.0" height="24.0" rx="0.0" fill="#FBCB66" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="480.0" y="50.0" width="40.0" height="24.0" rx="0.0" fill="#FBCB66" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="500.0" y="64.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.32</text>
     </g>
     <g id="pos-order-ki1uh-s14" data-sym="v_1">
@@ -2411,15 +2413,15 @@ z
       <text x="373.9" y="88.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">cheer</text>
     </g>
     <g id="pos-order-ki1uh-s16">
-      <rect x="400.0" y="74.0" width="40.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="400.0" y="74.0" width="40.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="420.0" y="88.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.34</text>
     </g>
     <g id="pos-order-ki1uh-s17">
-      <rect x="440.0" y="74.0" width="40.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="440.0" y="74.0" width="40.0" height="24.0" rx="0.0" fill="#FFD966" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="460.0" y="88.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.34</text>
     </g>
     <g id="pos-order-ki1uh-s18">
-      <rect x="480.0" y="74.0" width="40.0" height="24.0" rx="0.0" fill="#FBCB66" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="480.0" y="74.0" width="40.0" height="24.0" rx="0.0" fill="#FBCB66" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="500.0" y="88.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.32</text>
     </g>
     <g id="pos-order-ki1uh-s19" data-sym="v_2">
@@ -2431,22 +2433,22 @@ z
       <text x="374" y="112.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">for</text>
     </g>
     <g id="pos-order-ki1uh-s21">
-      <rect x="400.0" y="98.0" width="40.0" height="24.0" rx="0.0" fill="#6AA84F" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="400.0" y="98.0" width="40.0" height="24.0" rx="0.0" fill="#6AA84F" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="420.0" y="112.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.41</text>
     </g>
     <g id="pos-order-ki1uh-s22">
-      <rect x="440.0" y="98.0" width="40.0" height="24.0" rx="0.0" fill="#6AA84F" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="440.0" y="98.0" width="40.0" height="24.0" rx="0.0" fill="#6AA84F" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="460.0" y="112.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.41</text>
     </g>
     <g id="pos-order-ki1uh-s23">
-      <rect x="480.0" y="98.0" width="40.0" height="24.0" rx="0.0" fill="#E06666" stroke="#FFFFFF" stroke-width="1.00"></rect>
+      <rect x="480.0" y="98.0" width="40.0" height="24.0" rx="0.0" fill="#E06666" stroke="#FFFFFF" stroke-width="1.0"></rect>
       <text x="500.0" y="112.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.17</text>
     </g>
     <g id="pos-order-ki1uh-s24" data-sym="v_3">
       <rect x="545.1" y="101.3" width="18.9" height="17.5" rx="4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1"></rect>
       <text x="554.6" y="113.1" font-size="10.0" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="v_3|10">v<tspan font-size="6.2" dy="2.8">3</tspan></text>
     </g>
-    <rect x="399.0" y="49.0" width="122.0" height="50.0" rx="2.0" fill="none" stroke="#CC0000" stroke-width="1.60"></rect>
+    <rect x="399.0" y="49.0" width="122.0" height="50.0" rx="2.0" fill="none" stroke="#CC0000" stroke-width="1.6"></rect>
     <g data-row="" id="ki1uh-r76">
       <text x="372.7" y="136.1" font-size="7.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" font-weight="bold">the two cheer rows are the same, so</text>
       <g id="ki1uh-r73" data-sym="v_1">
@@ -2459,9 +2461,9 @@ z
         <text font-size="9.4" data-sl="v_2|9.4" fill="#38761D" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" x="538.5" y="136.3">v<tspan font-size="5.8" dy="2.6">2</tspan></text>
       </g>
     </g>
-    <line x1="522.0" y1="62.0" x2="545.1" y2="62.1" stroke="#93C47D" stroke-width="1.00" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s13" data-b="pos-order-ki1uh-s14" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
-    <line x1="522.0" y1="86.0" x2="545.1" y2="86.1" stroke="#93C47D" stroke-width="1.00" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s18" data-b="pos-order-ki1uh-s19" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
-    <line x1="522.0" y1="110.0" x2="545.1" y2="110.1" stroke="#93C47D" stroke-width="1.00" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s23" data-b="pos-order-ki1uh-s24" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
+    <line x1="522.0" y1="62.0" x2="545.1" y2="62.1" stroke="#93C47D" stroke-width="1.0" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s13" data-b="pos-order-ki1uh-s14" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
+    <line x1="522.0" y1="86.0" x2="545.1" y2="86.1" stroke="#93C47D" stroke-width="1.0" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s18" data-b="pos-order-ki1uh-s19" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
+    <line x1="522.0" y1="110.0" x2="545.1" y2="110.1" stroke="#93C47D" stroke-width="1.0" marker-end="url(#ah93C47D-ki1uh)" data-a="pos-order-ki1uh-s23" data-b="pos-order-ki1uh-s24" data-a-at="r:0.500:2" data-b-at="l:0.500"></line>
     <text x="460.0" y="147.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">one row per query, one column per key</text>
   </svg>
   
@@ -2481,7 +2483,7 @@ z
 <p data-b="uto7g">So we put the position back in ourselves: each <b class="def">token</b>'s position goes through <u class="fill blank" style="width: 111.2pt;">&nbsp;</u> functions, each column with a different frequency, and the result is <b class="name">added to its embedding</b></p><b-eq data-b="k4e8u" class=""><a id="eq-pe" data-rt=""></a>
     <eq-row label="pe" note="even columns">P_{pos,\,2i} = \sin\bp{\lk{gold}{pos \,/\, 10000^{2i/d}}}</eq-row>
     <eq-row note="odd columns">P_{pos,\,2i+1} = \cos\bp{\lk{gold}{pos \,/\, 10000^{2i/d}}}</eq-row>
-  <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[6.1]</div><div class="eqml-e"><div class="eqml-note">even columns</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-12"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐏</mi><mrow><mi mathvariant="normal">𝐩</mi><mi mathvariant="normal">𝐨</mi><mi mathvariant="normal">𝐬</mi><mo separator="true">,</mo><mspace width="0.1667em"></mspace><mn>𝟐</mn><mi mathvariant="normal">𝐢</mi></mrow></msub></mrow></mrow><mo>=</mo><mrow><mrow style="color:#1155CC;"><mi mathvariant="normal">sin</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow class="lk-gold"><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mspace width="0.1667em"></mspace><mi mathvariant="normal">/</mi><mspace width="0.1667em"></mspace><msup><mn>10000</mn><mrow><mn>2</mn><mi mathvariant="normal">i</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi></mrow></msup></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">odd columns</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-14"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐏</mi><mrow><mi mathvariant="normal">𝐩</mi><mi mathvariant="normal">𝐨</mi><mi mathvariant="normal">𝐬</mi><mo separator="true">,</mo><mspace width="0.1667em"></mspace><mn>𝟐</mn><mi mathvariant="normal">𝐢</mi><mo>+</mo><mn>𝟏</mn></mrow></msub></mrow></mrow><mo>=</mo><mrow><mrow style="color:#674EA7;"><mi mathvariant="normal">cos</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow class="lk-gold"><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mspace width="0.1667em"></mspace><mi mathvariant="normal">/</mi><mspace width="0.1667em"></mspace><msup><mn>10000</mn><mrow><mn>2</mn><mi mathvariant="normal">i</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi></mrow></msup></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div></div></div></b-eq><svg class="draw" viewBox="0 6 136 36" style="width: 196pt" role="img" aria-label="X (5 by 8) = E_x, the words’ embeddings (5 by 8), + P, their positions (5 by 8)." data-b="xsh8d">
+  <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[6.1]</div><div class="eqml-e"><div class="eqml-note">even columns</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-12"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐏</mi><mrow><mi mathvariant="normal">𝐩</mi><mi mathvariant="normal">𝐨</mi><mi mathvariant="normal">𝐬</mi><mo separator="true">,</mo><mspace width="0.1667em"></mspace><mn>𝟐</mn><mi mathvariant="normal">𝐢</mi></mrow></msub></mrow></mrow><mo>=</mo><mrow><mrow style="color:#1155CC;"><mi mathvariant="normal">sin</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow class="lk-gold"><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mspace width="0.1667em"></mspace><mi mathvariant="normal">/</mi><mspace width="0.1667em"></mspace><msup><mn>10000</mn><mrow><mn>2</mn><mi mathvariant="normal">i</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi></mrow></msup></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">odd columns</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-14"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐏</mi><mrow><mi mathvariant="normal">𝐩</mi><mi mathvariant="normal">𝐨</mi><mi mathvariant="normal">𝐬</mi><mo separator="true">,</mo><mspace width="0.1667em"></mspace><mn>𝟐</mn><mi mathvariant="normal">𝐢</mi><mo>+</mo><mn>𝟏</mn></mrow></msub></mrow></mrow><mo>=</mo><mrow><mrow style="color:#674EA7;"><mi mathvariant="normal">cos</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow class="lk-gold"><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mspace width="0.1667em"></mspace><mi mathvariant="normal">/</mi><mspace width="0.1667em"></mspace><msup><mn>10000</mn><mrow><mn>2</mn><mi mathvariant="normal">i</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi></mrow></msup></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div></div></div></b-eq><svg class="draw" viewBox="0 6 136 36" role="img" aria-label="X (5 by 8) = E_x, the words’ embeddings (5 by 8), + P, their positions (5 by 8)." style="width: 196pt" data-b="xsh8d">
     <g data-row="" id="pos-s4">
       <g id="pos-s1" data-sym="X" data-dims="T,d">
         <rect x="5.8" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
@@ -2501,7 +2503,7 @@ z
         <text class="tk-sub" font-size="6.2" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="96.7" y="34.2">&lt;5,8&gt;</text>
       </g>
     </g>
-  </svg><p data-b="dsqiq" data-align="center">This is referred to as <b>Sinusoidal Position Encoding</b></p><svg class="draw" viewBox="0 0 630 98" style="width: 600pt" role="img" aria-label="The two cheers at positions 0 and 1: the same embedding row E[cheer], different position rows P0 and P1, so different inputs X = E[x] + P." data-b="vcg6o">
+  </svg><p data-align="center" data-b="dsqiq">This is referred to as <b>Sinusoidal Position Encoding</b></p><svg class="draw" viewBox="0 0 630 98" role="img" aria-label="The two cheers at positions 0 and 1: the same embedding row E[cheer], different position rows P0 and P1, so different inputs X = E[x] + P." style="width: 600pt" data-b="vcg6o">
     <defs></defs>
     <text x="147.0" y="12.0" font-size="9.0" fill="#6AA84F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">E[x]: the word</text>
     <text x="341.0" y="12.0" font-size="9.0" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">P: its position</text>
@@ -2527,17 +2529,17 @@ z
     </g>
     <text x="25.0" y="52.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">position 0</text>
     <g id="pos-add-vcg6o-s2">
-      <rect x="58.0" y="24.0" width="178.0" height="20.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="58.0" y="24.0" width="178.0" height="20.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="147.0" y="36.3" font-size="6.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.04 −0.73 −1.33 −0.37 0.54 0.27 −1.40 0.06</text>
     </g>
     <text x="244.0" y="38.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     <g id="pos-add-vcg6o-s3">
-      <rect x="252.0" y="24.0" width="178.0" height="20.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="252.0" y="24.0" width="178.0" height="20.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="341.0" y="36.3" font-size="6.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.00 1.00 0.00 1.00 0.00 1.00 0.00 1.00</text>
     </g>
     <text x="438.0" y="38.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">=</text>
     <g id="pos-add-vcg6o-s4">
-      <rect x="446.0" y="24.0" width="178.0" height="20.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="446.0" y="24.0" width="178.0" height="20.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="535.0" y="36.3" font-size="6.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.04 0.27 −1.33 0.63 0.54 1.27 −1.40 1.06</text>
     </g>
     <g id="pos-add-vcg6o-s5" data-tok="march" data-t="cheer">
@@ -2546,17 +2548,17 @@ z
     </g>
     <text x="25.0" y="92.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">position 1</text>
     <g id="pos-add-vcg6o-s6">
-      <rect x="58.0" y="64.0" width="178.0" height="20.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="58.0" y="64.0" width="178.0" height="20.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="147.0" y="76.3" font-size="6.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.04 −0.73 −1.33 −0.37 0.54 0.27 −1.40 0.06</text>
     </g>
     <text x="244.0" y="78.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     <g id="pos-add-vcg6o-s7">
-      <rect x="252.0" y="64.0" width="178.0" height="20.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="252.0" y="64.0" width="178.0" height="20.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="341.0" y="76.3" font-size="6.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.84 0.54 0.10 1.00 0.01 1.00 0.00 1.00</text>
     </g>
     <text x="438.0" y="78.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">=</text>
     <g id="pos-add-vcg6o-s8">
-      <rect x="446.0" y="64.0" width="178.0" height="20.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="446.0" y="64.0" width="178.0" height="20.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="535.0" y="76.3" font-size="6.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.88 −0.19 −1.23 0.62 0.55 1.27 −1.39 1.06</text>
     </g>
   </svg><p data-align="center" data-b="fdpkt"><span class="note"><b class="gray">NOTE:</b> Modern LLMs use something called RoPE that doesn't actually modify the original embeddings</span></p><div class="foot" data-rt=""><span>Transformers · Position</span><span>08</span></div></section>
@@ -3567,9 +3569,9 @@ L 242.338438 121.402772
   </clipPath>
  </defs>
 </svg>
-</b-fig><p data-b="rvjn6" data-align="center">So the two <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok>s now go in as <b class="take">different positions</b></p><div class="foot" data-rt=""><span>Transformers · Position</span><span>09</span></div></section>
+</b-fig><p data-align="center" data-b="rvjn6">So the two <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok>s now go in as <b class="take">different positions</b></p><div class="foot" data-rt=""><span>Transformers · Position</span><span>09</span></div></section>
 
-<section class="page" id="lec-train-all" data-part="Masking" data-view="slides workbook" data-topic="masking" style="--gap: 22pt;">
+<section class="page" id="lec-train-all" data-view="slides workbook" data-topic="masking" data-part="Masking" style="--gap: 22pt;">
   <h2 data-b="k3fez">Training on Every Word at Once</h2>
   <p data-b="qiw9t">We don't want to run the model <span class="num">50</span> times. Instead we give it the whole chorus and ask <b class="take">every row to guess the word after it</b>, <span class="num">50</span> guesses in one pass:</p>
   <table data-b="rz9r0">
@@ -4575,13 +4577,13 @@ z
  </defs>
 </svg>
 </b-fig>
-  <p data-b="s3a58" data-align="center"><span class="note"><b class="gray">NOTE:</b> <b-m tex="e^{−∞} = 0">e<sup>−∞</sup> = 0</b-m>, so <b-tok v="march" t="notre" data-f="red" title="Victory March words: &quot;notre&quot; = 3"><span class="tk-t">notre</span><span class="tk-id">3</span></b-tok> weighs the words up to itself (<span class="num">0.03</span>, <span class="num">0.03</span>, <span class="num">0.50</span>, <span class="num">0.28</span>, <span class="num">0.16</span>), and <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok> gets <b class="take">0</b></span></p>
+  <p data-align="center" data-b="s3a58"><span class="note"><b class="gray">NOTE:</b> <b-m tex="e^{−∞} = 0">e<sup>−∞</sup> = 0</b-m>, so <b-tok v="march" t="notre" data-f="red" title="Victory March words: &quot;notre&quot; = 3"><span class="tk-t">notre</span><span class="tk-id">3</span></b-tok> weighs the words up to itself (<span class="num">0.03</span>, <span class="num">0.03</span>, <span class="num">0.50</span>, <span class="num">0.28</span>, <span class="num">0.16</span>), and <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok> gets <b class="take">0</b></span></p>
 <div class="foot" data-rt=""><span>Transformers · Masking</span><span>11</span></div></section>
 
-<section class="page" id="lec-diagram" data-part="The Transformer Block" data-view="slides workbook" data-topic="block" style="--gap: 22pt;">
+<section class="page" id="lec-diagram" data-view="slides workbook" data-topic="block" data-part="The Transformer Block" style="--gap: 22pt;">
   <h2 data-b="sggh4">Simple Decoder/Generative Transformer Diagram</h2>
   <p data-b="peb0r">The <b class="def">mask</b> lives in the block's <b class="def">attention</b>. One <b class="def">transformer block</b>, at <b class="name">GPT-2</b> small's size:</p>
-  <svg class="draw" data-vars="T=T" viewBox="0 0 620 411.2" style="width: 569.1pt" role="img" aria-label="One GPT-2 small transformer block, bottom to top. Masked self-attention, 12 heads of 64 columns: H = LN(X) of shape T by 768; Q, K and V = H times their weights, T by 64; the scores Q K transposed over the square root of 64, T by T; plus the mask M, minus infinity above the diagonal; softmax of each row, the attention weights; weights times V; the 12 heads joined and times Ω_O, back to T by 768, to the residual plus. Feed-forward, each word on its own: H = LN(X), H Ω₁ to 3072, GELU (ours uses ReLU), times Ω₂ back to 768, to the residual plus. Below it, ReLU (dashed grey) and GELU (gold) from −3 to 3: GELU dips just below zero and bends smoothly at zero." data-b="n8t1j">
+  <svg class="draw" viewBox="0 0 620 411.2" role="img" aria-label="One GPT-2 small transformer block, bottom to top. Masked self-attention, 12 heads of 64 columns: H = LN(X) of shape T by 768; Q, K and V = H times their weights, T by 64; the scores Q K transposed over the square root of 64, T by T; plus the mask M, minus infinity above the diagonal; softmax of each row, the attention weights; weights times V; the 12 heads joined and times Ω_O, back to T by 768, to the residual plus. Feed-forward, each word on its own: H = LN(X), H Ω₁ to 3072, GELU (ours uses ReLU), times Ω₂ back to 768, to the residual plus. Below it, ReLU (dashed grey) and GELU (gold) from −3 to 3: GELU dips just below zero and bends smoothly at zero." data-vars="T=T" style="width: 569.1pt" data-b="n8t1j">
     <defs>
       <marker id="ah002B5B-n8t1j" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -4757,7 +4759,7 @@ z
       <text x="244.6" y="395.9" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
     <text x="190.0" y="36.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">to the residual +</text>
-    <line x1="392.0" y1="8.0" x2="392.0" y2="384.0" stroke="#CCCCCC" stroke-width="1.00"></line>
+    <line x1="392.0" y1="8.0" x2="392.0" y2="384.0" stroke="#CCCCCC" stroke-width="1.0"></line>
     <text x="510.0" y="12.0" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Feed-Forward</text>
     <text x="510.0" y="25.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">each word on its own</text>
     <g data-row="" id="gpt2-block-n8t1j-s10">
@@ -4828,34 +4830,34 @@ z
       </g>
       <text x="559.6" y="226.7" font-size="13" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
     </g>
-    <line x1="127.6" y1="276.5" x2="190" y2="238.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s5t1" data-b="gpt2-block-n8t1j-s4t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="150.9" y1="205.3" x2="234.3" y2="188.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s4t1" data-b="gpt2-block-n8t1j-s3t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="134.4" y1="155.3" x2="190" y2="138.7" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s3t1" data-b="gpt2-block-n8t1j-s2t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="149.2" y1="105.3" x2="208.4" y2="88.7" stroke="#93C47D" stroke-width="1.10" marker-end="url(#ah93C47D-n8t1j)" data-a="gpt2-block-n8t1j-s2t1" data-b="gpt2-block-n8t1j-s1t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="40.9" y1="326.5" x2="168.6" y2="291.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s6t1" data-b="gpt2-block-n8t1j-s5t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="157.9" y1="326.5" x2="211.4" y2="291.7" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-n8t1j)" data-a="gpt2-block-n8t1j-s7t1" data-b="gpt2-block-n8t1j-s5t3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="195" y1="374.5" x2="78.1" y2="359.9" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="195" y1="374.5" x2="195.1" y2="359.9" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="195" y1="374.5" x2="311.9" y2="359.9" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s8" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="110.2" y1="55.3" x2="190.0" y2="40.0" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-n8t1j)" data-a="gpt2-block-n8t1j-s1t1" data-a-at="t:0.500"></line>
-    <line x1="510" y1="205.3" x2="510" y2="188.7" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s13" data-b="gpt2-block-n8t1j-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="458.9" y1="155.3" x2="548.6" y2="138.7" stroke="#8E7CC3" stroke-width="1.10" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s12t1" data-b="gpt2-block-n8t1j-s11t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="459.9" y1="105.3" x2="505.1" y2="88.7" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s11t1" data-b="gpt2-block-n8t1j-s10t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="457.2" y1="55.3" x2="510.0" y2="40.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s10t1" data-a-at="t:0.500"></line>
+    <line x1="127.6" y1="276.5" x2="190" y2="238.7" stroke="#8E7CC3" stroke-width="1.1" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s5t1" data-b="gpt2-block-n8t1j-s4t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="150.9" y1="205.3" x2="234.3" y2="188.7" stroke="#8E7CC3" stroke-width="1.1" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s4t1" data-b="gpt2-block-n8t1j-s3t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="134.4" y1="155.3" x2="190" y2="138.7" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s3t1" data-b="gpt2-block-n8t1j-s2t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="149.2" y1="105.3" x2="208.4" y2="88.7" stroke="#93C47D" stroke-width="1.1" marker-end="url(#ah93C47D-n8t1j)" data-a="gpt2-block-n8t1j-s2t1" data-b="gpt2-block-n8t1j-s1t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="40.9" y1="326.5" x2="168.6" y2="291.7" stroke="#8E7CC3" stroke-width="1.1" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s6t1" data-b="gpt2-block-n8t1j-s5t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="157.9" y1="326.5" x2="211.4" y2="291.7" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-n8t1j)" data-a="gpt2-block-n8t1j-s7t1" data-b="gpt2-block-n8t1j-s5t3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="195" y1="374.5" x2="78.1" y2="359.9" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="195" y1="374.5" x2="195.1" y2="359.9" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="195" y1="374.5" x2="311.9" y2="359.9" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s9" data-b="gpt2-block-n8t1j-s8" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="110.2" y1="55.3" x2="190.0" y2="40.0" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-n8t1j)" data-a="gpt2-block-n8t1j-s1t1" data-a-at="t:0.500"></line>
+    <line x1="510" y1="205.3" x2="510" y2="188.7" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-n8t1j)" data-a="gpt2-block-n8t1j-s13" data-b="gpt2-block-n8t1j-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="458.9" y1="155.3" x2="548.6" y2="138.7" stroke="#8E7CC3" stroke-width="1.1" marker-end="url(#ah8E7CC3-n8t1j)" data-a="gpt2-block-n8t1j-s12t1" data-b="gpt2-block-n8t1j-s11t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="459.9" y1="105.3" x2="505.1" y2="88.7" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s11t1" data-b="gpt2-block-n8t1j-s10t2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="457.2" y1="55.3" x2="510.0" y2="40.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-n8t1j)" data-a="gpt2-block-n8t1j-s10t1" data-a-at="t:0.500"></line>
     <text x="510.0" y="36.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">to the residual +</text>
-    <line x1="428.2" y1="352.0" x2="584.2" y2="352.0" stroke="#666666" stroke-width="0.80" marker-end="url(#ah666666-n8t1j)"></line>
-    <line x1="505.0" y1="366.4" x2="505.0" y2="270.4" stroke="#666666" stroke-width="0.80" marker-end="url(#ah666666-n8t1j)"></line>
+    <line x1="428.2" y1="352.0" x2="584.2" y2="352.0" stroke="#666666" stroke-width="0.8" marker-end="url(#ah666666-n8t1j)"></line>
+    <line x1="505.0" y1="366.4" x2="505.0" y2="270.4" stroke="#666666" stroke-width="0.8" marker-end="url(#ah666666-n8t1j)"></line>
     <text x="457.0" y="362.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">-2</text>
     <text x="553.0" y="362.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">2</text>
     <text x="499.0" y="306.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">2</text>
-    <polyline points="433.0,352.0 434.2,352.0 435.4,352.0 436.6,352.0 437.8,352.0 439.0,352.0 440.2,352.0 441.4,352.0 442.6,352.0 443.8,352.0 445.0,352.0 446.2,352.0 447.4,352.0 448.6,352.0 449.8,352.0 451.0,352.0 452.2,352.0 453.4,352.0 454.6,352.0 455.8,352.0 457.0,352.0 458.2,352.0 459.4,352.0 460.6,352.0 461.8,352.0 463.0,352.0 464.2,352.0 465.4,352.0 466.6,352.0 467.8,352.0 469.0,352.0 470.2,352.0 471.4,352.0 472.6,352.0 473.8,352.0 475.0,352.0 476.2,352.0 477.4,352.0 478.6,352.0 479.8,352.0 481.0,352.0 482.2,352.0 483.4,352.0 484.6,352.0 485.8,352.0 487.0,352.0 488.2,352.0 489.4,352.0 490.6,352.0 491.8,352.0 493.0,352.0 494.2,352.0 495.4,352.0 496.6,352.0 497.8,352.0 499.0,352.0 500.2,352.0 501.4,352.0 502.6,352.0 503.8,352.0 505.0,352.0 506.2,350.8 507.4,349.6 508.6,348.4 509.8,347.2 511.0,346.0 512.2,344.8 513.4,343.6 514.6,342.4 515.8,341.2 517.0,340.0 518.2,338.8 519.4,337.6 520.6,336.4 521.8,335.2 523.0,334.0 524.2,332.8 525.4,331.6 526.6,330.4 527.8,329.2 529.0,328.0 530.2,326.8 531.4,325.6 532.6,324.4 533.8,323.2 535.0,322.0 536.2,320.8 537.4,319.6 538.6,318.4 539.8,317.2 541.0,316.0 542.2,314.8 543.4,313.6 544.6,312.4 545.8,311.2 547.0,310.0 548.2,308.8 549.4,307.6 550.6,306.4 551.8,305.2 553.0,304.0 554.2,302.8 555.4,301.6 556.6,300.4 557.8,299.2 559.0,298.0 560.2,296.8 561.4,295.6 562.6,294.4 563.8,293.2 565.0,292.0 566.2,290.8 567.4,289.6 568.6,288.4 569.8,287.2 571.0,286.0 572.2,284.8 573.4,283.6 574.6,282.4 575.8,281.2 577.0,280.0" fill="none" stroke="#999999" stroke-width="1.60" stroke-dasharray="4 3"></polyline>
-    <polyline points="433.0,352.1 434.2,352.1 435.4,352.1 436.6,352.1 437.8,352.2 439.0,352.2 440.2,352.2 441.4,352.3 442.6,352.3 443.8,352.3 445.0,352.4 446.2,352.4 447.4,352.5 448.6,352.5 449.8,352.6 451.0,352.7 452.2,352.7 453.4,352.8 454.6,352.9 455.8,353.0 457.0,353.1 458.2,353.2 459.4,353.3 460.6,353.4 461.8,353.6 463.0,353.7 464.2,353.8 465.4,354.0 466.6,354.1 467.8,354.3 469.0,354.4 470.2,354.6 471.4,354.7 472.6,354.9 473.8,355.0 475.0,355.2 476.2,355.3 477.4,355.5 478.6,355.6 479.8,355.7 481.0,355.8 482.2,355.9 483.4,356.0 484.6,356.0 485.8,356.1 487.0,356.1 488.2,356.1 489.4,356.0 490.6,355.9 491.8,355.8 493.0,355.7 494.2,355.5 495.4,355.3 496.6,355.1 497.8,354.8 499.0,354.4 500.2,354.0 501.4,353.6 502.6,353.1 503.8,352.6 505.0,352.0 506.2,351.4 507.4,350.7 508.6,350.0 509.8,349.2 511.0,348.4 512.2,347.6 513.4,346.7 514.6,345.7 515.8,344.7 517.0,343.7 518.2,342.6 519.4,341.5 520.6,340.4 521.8,339.3 523.0,338.1 524.2,336.9 525.4,335.6 526.6,334.4 527.8,333.1 529.0,331.8 530.2,330.5 531.4,329.2 532.6,327.9 533.8,326.5 535.0,325.2 536.2,323.8 537.4,322.5 538.6,321.1 539.8,319.8 541.0,318.4 542.2,317.1 543.4,315.7 544.6,314.4 545.8,313.0 547.0,311.7 548.2,310.4 549.4,309.0 550.6,307.7 551.8,306.4 553.0,305.1 554.2,303.8 555.4,302.5 556.6,301.2 557.8,299.9 559.0,298.7 560.2,297.4 561.4,296.1 562.6,294.9 563.8,293.6 565.0,292.4 566.2,291.1 567.4,289.9 568.6,288.7 569.8,287.4 571.0,286.2 572.2,285.0 573.4,283.7 574.6,282.5 575.8,281.3 577.0,280.1" fill="none" stroke="#DCB439" stroke-width="1.80"></polyline>
+    <polyline points="433.0,352.0 434.2,352.0 435.4,352.0 436.6,352.0 437.8,352.0 439.0,352.0 440.2,352.0 441.4,352.0 442.6,352.0 443.8,352.0 445.0,352.0 446.2,352.0 447.4,352.0 448.6,352.0 449.8,352.0 451.0,352.0 452.2,352.0 453.4,352.0 454.6,352.0 455.8,352.0 457.0,352.0 458.2,352.0 459.4,352.0 460.6,352.0 461.8,352.0 463.0,352.0 464.2,352.0 465.4,352.0 466.6,352.0 467.8,352.0 469.0,352.0 470.2,352.0 471.4,352.0 472.6,352.0 473.8,352.0 475.0,352.0 476.2,352.0 477.4,352.0 478.6,352.0 479.8,352.0 481.0,352.0 482.2,352.0 483.4,352.0 484.6,352.0 485.8,352.0 487.0,352.0 488.2,352.0 489.4,352.0 490.6,352.0 491.8,352.0 493.0,352.0 494.2,352.0 495.4,352.0 496.6,352.0 497.8,352.0 499.0,352.0 500.2,352.0 501.4,352.0 502.6,352.0 503.8,352.0 505.0,352.0 506.2,350.8 507.4,349.6 508.6,348.4 509.8,347.2 511.0,346.0 512.2,344.8 513.4,343.6 514.6,342.4 515.8,341.2 517.0,340.0 518.2,338.8 519.4,337.6 520.6,336.4 521.8,335.2 523.0,334.0 524.2,332.8 525.4,331.6 526.6,330.4 527.8,329.2 529.0,328.0 530.2,326.8 531.4,325.6 532.6,324.4 533.8,323.2 535.0,322.0 536.2,320.8 537.4,319.6 538.6,318.4 539.8,317.2 541.0,316.0 542.2,314.8 543.4,313.6 544.6,312.4 545.8,311.2 547.0,310.0 548.2,308.8 549.4,307.6 550.6,306.4 551.8,305.2 553.0,304.0 554.2,302.8 555.4,301.6 556.6,300.4 557.8,299.2 559.0,298.0 560.2,296.8 561.4,295.6 562.6,294.4 563.8,293.2 565.0,292.0 566.2,290.8 567.4,289.6 568.6,288.4 569.8,287.2 571.0,286.0 572.2,284.8 573.4,283.6 574.6,282.4 575.8,281.2 577.0,280.0" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="4 3"></polyline>
+    <polyline points="433.0,352.1 434.2,352.1 435.4,352.1 436.6,352.1 437.8,352.2 439.0,352.2 440.2,352.2 441.4,352.3 442.6,352.3 443.8,352.3 445.0,352.4 446.2,352.4 447.4,352.5 448.6,352.5 449.8,352.6 451.0,352.7 452.2,352.7 453.4,352.8 454.6,352.9 455.8,353.0 457.0,353.1 458.2,353.2 459.4,353.3 460.6,353.4 461.8,353.6 463.0,353.7 464.2,353.8 465.4,354.0 466.6,354.1 467.8,354.3 469.0,354.4 470.2,354.6 471.4,354.7 472.6,354.9 473.8,355.0 475.0,355.2 476.2,355.3 477.4,355.5 478.6,355.6 479.8,355.7 481.0,355.8 482.2,355.9 483.4,356.0 484.6,356.0 485.8,356.1 487.0,356.1 488.2,356.1 489.4,356.0 490.6,355.9 491.8,355.8 493.0,355.7 494.2,355.5 495.4,355.3 496.6,355.1 497.8,354.8 499.0,354.4 500.2,354.0 501.4,353.6 502.6,353.1 503.8,352.6 505.0,352.0 506.2,351.4 507.4,350.7 508.6,350.0 509.8,349.2 511.0,348.4 512.2,347.6 513.4,346.7 514.6,345.7 515.8,344.7 517.0,343.7 518.2,342.6 519.4,341.5 520.6,340.4 521.8,339.3 523.0,338.1 524.2,336.9 525.4,335.6 526.6,334.4 527.8,333.1 529.0,331.8 530.2,330.5 531.4,329.2 532.6,327.9 533.8,326.5 535.0,325.2 536.2,323.8 537.4,322.5 538.6,321.1 539.8,319.8 541.0,318.4 542.2,317.1 543.4,315.7 544.6,314.4 545.8,313.0 547.0,311.7 548.2,310.4 549.4,309.0 550.6,307.7 551.8,306.4 553.0,305.1 554.2,303.8 555.4,302.5 556.6,301.2 557.8,299.9 559.0,298.7 560.2,297.4 561.4,296.1 562.6,294.9 563.8,293.6 565.0,292.4 566.2,291.1 567.4,289.9 568.6,288.7 569.8,287.4 571.0,286.2 572.2,285.0 573.4,283.7 574.6,282.5 575.8,281.3 577.0,280.1" fill="none" stroke="#DCB439" stroke-width="1.8"></polyline>
     <text x="557.8" y="280.0" font-size="7.5" fill="#999999" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">ReLU</text>
     <text x="564.2" y="311.2" font-size="7.5" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">GELU</text>
     <text x="461.8" y="320.8" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">GELU dips just</text>
     <text x="461.8" y="329.8" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">below 0 and bends</text>
     <text x="461.8" y="338.8" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">smoothly at 0</text>
-    <polyline points="274.8,326.5 274.8,122 247.9,122" fill="none" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-n8t1j)"></polyline>
+    <polyline points="274.8,326.5 274.8,122 247.9,122" fill="none" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-n8t1j)"></polyline>
   </svg>
   
   
@@ -4864,7 +4866,7 @@ z
 <section class="page" id="lec-residual" data-view="slides workbook" data-topic="block" style="--gap: 22pt;">
   <h2 data-b="kjmbh">Residual Connections, Again</h2>
   <p data-b="pm8dc">Monday we added <b-m tex="Z"><span class="c purple sym" data-at="0,1" data-k="Z">Z</span></b-m> back onto <b-m tex="X"><span class="c red sym" data-at="0,1" data-k="X">X</span></b-m>. A <b class="def">transformer block</b> does that twice, once around each half:</p>
-  <svg class="draw" viewBox="0 0 229.2 87.4" style="width: 330pt" role="img" aria-label="The two residual steps as tiles: X = X + Attention(LN(X)), then X = X + FFN(LN(X)), every X of shape 5 by 8." data-b="hhi18">
+  <svg class="draw" viewBox="0 0 229.2 87.4" role="img" aria-label="The two residual steps as tiles: X = X + Attention(LN(X)), then X = X + FFN(LN(X)), every X of shape 5 by 8." style="width: 330pt" data-b="hhi18">
     <g data-row="" id="res-s4" transform="translate(-1.7 -3.3)">
       <g id="res-s1" data-sym="X" data-dims="T,d">
         <rect x="5.8" y="7.3" width="24.8" height="33.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3" rx="5.2"></rect>
@@ -4911,7 +4913,7 @@ z
     </g>
   </svg>
   
-  <svg class="draw" viewBox="0 0 624 90" style="width: 620pt" role="img" aria-label="One transformer block left to right: X, layer norm, masked self-attention, a plus, layer norm, feed-forward, a plus, X. Two residual paths run over the top, each carrying the input around its half to the plus. Under the first half: X ← X + Attention(LN(X)); under the second: X ← X + FFN(LN(X))." data-b="lful0">
+  <svg class="draw" viewBox="0 0 624 90" role="img" aria-label="One transformer block left to right: X, layer norm, masked self-attention, a plus, layer norm, feed-forward, a plus, X. Two residual paths run over the top, each carrying the input around its half to the plus. Under the first half: X ← X + Attention(LN(X)); under the second: X ← X + FFN(LN(X))." style="width: 620pt" data-b="lful0">
     <defs>
       <marker id="ah002B5B-lful0" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -4926,27 +4928,27 @@ z
       <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="20.4" y="72.2">&lt;5,8&gt;</text>
     </g>
     <g id="res-block-lful0-s2">
-      <rect x="57.0" y="50.0" width="70.0" height="24.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="57.0" y="50.0" width="70.0" height="24.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="92.0" y="64.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer norm</text>
     </g>
     <g id="res-block-lful0-s3">
-      <rect x="145.0" y="50.0" width="120.0" height="24.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="145.0" y="50.0" width="120.0" height="24.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="205.0" y="64.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Masked Self-Attention</text>
     </g>
     <g id="res-block-lful0-s4">
-      <ellipse cx="292.0" cy="62.0" rx="8.0" ry="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.20"></ellipse>
+      <ellipse cx="292.0" cy="62.0" rx="8.0" ry="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.2"></ellipse>
       <text x="292.0" y="65.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="res-block-lful0-s5">
-      <rect x="327.0" y="50.0" width="70.0" height="24.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="327.0" y="50.0" width="70.0" height="24.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="362.0" y="64.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer norm</text>
     </g>
     <g id="res-block-lful0-s6">
-      <rect x="416.0" y="50.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="416.0" y="50.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <text x="462.0" y="64.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Feed-Forward</text>
     </g>
     <g id="res-block-lful0-s7">
-      <ellipse cx="540.0" cy="62.0" rx="8.0" ry="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.20"></ellipse>
+      <ellipse cx="540.0" cy="62.0" rx="8.0" ry="8.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.2"></ellipse>
       <text x="540.0" y="65.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="res-block-lful0-s8" data-sym="X" data-showdims="on">
@@ -4954,15 +4956,15 @@ z
       <text x="600.4" y="60.6" font-size="13.0" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="X|13">X</text>
       <text class="tk-sub" font-size="6.2" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="600.4" y="72.2">&lt;5,8&gt;</text>
     </g>
-    <line x1="32.7" y1="62" x2="57.0" y2="62.0" stroke="#E06666" stroke-width="1.20" marker-end="url(#ahE06666-lful0)" data-a="res-block-lful0-s1" data-b="res-block-lful0-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="127.0" y1="62.0" x2="145.0" y2="62.0" stroke="#002B5B" stroke-width="1.20" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s2" data-b="res-block-lful0-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="265.0" y1="62.0" x2="284.0" y2="62.0" stroke="#002B5B" stroke-width="1.20" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s3" data-b="res-block-lful0-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="300.0" y1="62.0" x2="327.0" y2="62.0" stroke="#002B5B" stroke-width="1.20" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s4" data-b="res-block-lful0-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="397.0" y1="62.0" x2="416.0" y2="62.0" stroke="#002B5B" stroke-width="1.20" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s5" data-b="res-block-lful0-s6" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="508.0" y1="62.0" x2="532.0" y2="62.0" stroke="#002B5B" stroke-width="1.20" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s6" data-b="res-block-lful0-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="548.0" y1="62.0" x2="587.9" y2="62" stroke="#E06666" stroke-width="1.20" marker-end="url(#ahE06666-lful0)" data-a="res-block-lful0-s7" data-b="res-block-lful0-s8" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <polyline points="44.0,62.0 44.0,22.0 292.0,22.0 292.0,54.0" fill="none" stroke="#002B5B" stroke-width="1.20" marker-end="url(#ah002B5B-lful0)"></polyline>
-    <polyline points="314.0,62.0 314.0,22.0 540.0,22.0 540.0,54.0" fill="none" stroke="#002B5B" stroke-width="1.20" marker-end="url(#ah002B5B-lful0)"></polyline>
+    <line x1="32.7" y1="62" x2="57.0" y2="62.0" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-lful0)" data-a="res-block-lful0-s1" data-b="res-block-lful0-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="127.0" y1="62.0" x2="145.0" y2="62.0" stroke="#002B5B" stroke-width="1.2" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s2" data-b="res-block-lful0-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="265.0" y1="62.0" x2="284.0" y2="62.0" stroke="#002B5B" stroke-width="1.2" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s3" data-b="res-block-lful0-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="300.0" y1="62.0" x2="327.0" y2="62.0" stroke="#002B5B" stroke-width="1.2" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s4" data-b="res-block-lful0-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="397.0" y1="62.0" x2="416.0" y2="62.0" stroke="#002B5B" stroke-width="1.2" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s5" data-b="res-block-lful0-s6" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="508.0" y1="62.0" x2="532.0" y2="62.0" stroke="#002B5B" stroke-width="1.2" marker-end="url(#ah002B5B-lful0)" data-a="res-block-lful0-s6" data-b="res-block-lful0-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="548.0" y1="62.0" x2="587.9" y2="62" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-lful0)" data-a="res-block-lful0-s7" data-b="res-block-lful0-s8" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <polyline points="44.0,62.0 44.0,22.0 292.0,22.0 292.0,54.0" fill="none" stroke="#002B5B" stroke-width="1.2" marker-end="url(#ah002B5B-lful0)"></polyline>
+    <polyline points="314.0,62.0 314.0,22.0 540.0,22.0 540.0,54.0" fill="none" stroke="#002B5B" stroke-width="1.2" marker-end="url(#ah002B5B-lful0)"></polyline>
     <text x="168.0" y="17.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">residual</text>
     <text x="427.0" y="17.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">residual</text>
   </svg>
@@ -4977,8 +4979,10 @@ z
     <eq-row>\mathrm{LN}(x) = \frac{\lk{purple}{x - \mathrm{mean}(x)}}{\lk{gold}{\mathrm{std}(x)}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><mpadded lspace="0" style="color:#666666;"><mi mathvariant="normal">LN</mi></mpadded></mrow><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-CC0000 sa-12-13"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mfrac><mrow class="lk-purple"><mrow class="sym sym-CC0000 sa-35-36"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow><mo>−</mo><mpadded lspace="0"><mi mathvariant="normal">mean</mi></mpadded><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-CC0000 sa-53-54"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow><mrow class="lk-gold"><mpadded lspace="0"><mi mathvariant="normal">std</mi></mpadded><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-CC0000 sa-81-82"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></mfrac></mrow></math></div></div></div></b-eq>
   <table class="tbl small num vocab" data-b="yw5dg">
-    <tbody>
+    <thead>
       <tr><th><b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok></th><th>x₁</th><th>x₂</th><th>x₃</th><th>x₄</th><th>x₅</th><th>x₆</th><th>x₇</th><th>x₈</th><th>mean</th><th>std</th></tr>
+    </thead>
+    <tbody>
       <tr><td><b class="gray">before</b></td><td><span class="num">−1.86</span></td><td><span class="num">−0.17</span></td><td><span class="num">−0.09</span></td><td><span class="num">0.42</span></td><td><span class="num">−0.47</span></td><td><span class="num">1.73</span></td><td><span class="num">0.48</span></td><td><span class="num">−0.56</span></td><td><b class="gray">−0.06</b></td><td><b class="gray">0.96</b></td></tr>
       <tr><td><b class="take">after</b></td><td><span class="num">−1.87</span></td><td><span class="num">−0.11</span></td><td><span class="num">−0.02</span></td><td><span class="num">0.50</span></td><td><span class="num">−0.42</span></td><td><span class="num">1.86</span></td><td><span class="num">0.57</span></td><td><span class="num">−0.52</span></td><td><b class="take">0</b></td><td><b class="take">1</b></td></tr>
     </tbody>
@@ -4986,7 +4990,7 @@ z
   
   <p data-b="gsher">Why: every block <b class="warn">adds onto the rows</b>, so their scale drifts as the blocks stack up, and big numbers make <b class="def">softmax</b> give <b class="warn">nearly all attention to one token</b></p>
   
-  <b-fig src="fig/ln-scale.svg" style="width: 80%; --ar: 3.200;" alt="Three bar charts of notre's attention over cheer cheer for old notre. As they are: 0.03, 0.03, 0.50, 0.28, 0.16. With rows twice as big, so scores 4 times: 0.91 on for. With rows four times as big, scores 16 times: 1.00 on for, 0 on the rest." data-b="qtwdi"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 120" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/ln-scale.svg" alt="Three bar charts of notre's attention over cheer cheer for old notre. As they are: 0.03, 0.03, 0.50, 0.28, 0.16. With rows twice as big, so scores 4 times: 0.91 on for. With rows four times as big, scores 16 times: 1.00 on for, 0 on the rest." style="width: 80%; --ar: 3.200;" data-b="qtwdi"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 120" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -5642,7 +5646,7 @@ L 380.16 96
 <section class="page" id="lec-ffn" data-view="slides workbook" data-topic="block" style="--gap: 22pt;">
   <h2 data-b="vs68k">The Feed-Forward Sublayer</h2>
   <p data-b="p6o1c"><b class="def">Attention</b> mixes the words together. Then a small <b class="def">feed-forward network</b> works on <b class="take">each word by itself</b>:</p>
-  <svg class="draw" viewBox="0 0 168.1 87.4" style="width: 190pt" role="img" aria-label="The feed-forward network as tiles: A (5 by 32) = ReLU(H (5 by 8) @ Ω₁ (8 by 32)), then F (5 by 8) = A @ Ω₂ (32 by 8)." data-b="v5x5l">
+  <svg class="draw" viewBox="0 0 168.1 87.4" role="img" aria-label="The feed-forward network as tiles: A (5 by 32) = ReLU(H (5 by 8) @ Ω₁ (8 by 32)), then F (5 by 8) = A @ Ω₂ (32 by 8)." style="width: 190pt" data-b="v5x5l">
     <g data-row="" id="ffn-s4" transform="translate(0.1 -3.3)">
       <g id="ffn-s1" data-sym="A" data-dims="T,32">
         <rect x="4" y="7.3" width="28.2" height="33.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3" rx="5.2"></rect>
@@ -5691,7 +5695,7 @@ L 380.16 96
   </ul>
   <p data-b="u6u0y">It's the <b class="name">feed-forward network</b> from a few weeks ago, run on every word's row on its own</p>
   
-  <svg class="draw" viewBox="0 0 530 170" style="width: 480pt" role="img" aria-label="Four words, cheer, cheer, for, old, each with its row h of 8 numbers going through its own copy of the same network: times Ω₁ to 32 numbers, ReLU, times Ω₂ back to 8. No arrows between the rows." data-b="k40qo">
+  <svg class="draw" viewBox="0 0 530 170" role="img" aria-label="Four words, cheer, cheer, for, old, each with its row h of 8 numbers going through its own copy of the same network: times Ω₁ to 32 numbers, ReLU, times Ω₂ back to 8. No arrows between the rows." style="width: 480pt" data-b="k40qo">
     <defs>
       <marker id="ah000000-k40qo" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
@@ -5713,7 +5717,7 @@ L 380.16 96
       <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.5" y="35.8">&lt;8&gt;</text>
     </g>
     <g id="ffn-rows-k40qo-s3">
-      <rect x="162.0" y="16.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="162.0" y="16.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <g data-row="" id="k40qo-r53">
         <text x="193.9" y="31.4" font-size="9.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
         <g id="k40qo-r52" data-sym="Ω_1" data-dims="8,32" data-showdims="on">
@@ -5724,11 +5728,11 @@ L 380.16 96
       </g>
     </g>
     <g id="ffn-rows-k40qo-s4">
-      <rect x="274.0" y="16.0" width="52.0" height="24.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="274.0" y="16.0" width="52.0" height="24.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="300.0" y="30.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">ReLU</text>
     </g>
     <g id="ffn-rows-k40qo-s5">
-      <rect x="344.0" y="16.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="344.0" y="16.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <g data-row="" id="k40qo-r61">
         <text x="375.9" y="31.4" font-size="9.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
         <g id="k40qo-r60" data-sym="Ω_2" data-dims="32,8" data-showdims="on">
@@ -5743,8 +5747,8 @@ L 380.16 96
       <text x="494.6" y="26.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_1|10">out<tspan font-size="6.2" dy="2.8">1</tspan></text>
       <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.6" y="35.8">&lt;8&gt;</text>
     </g>
-    <line x1="254.0" y1="28.0" x2="274.0" y2="28.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s3" data-b="ffn-rows-k40qo-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="326.0" y1="28.0" x2="344.0" y2="28.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s4" data-b="ffn-rows-k40qo-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="254.0" y1="28.0" x2="274.0" y2="28.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s3" data-b="ffn-rows-k40qo-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="326.0" y1="28.0" x2="344.0" y2="28.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s4" data-b="ffn-rows-k40qo-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="ffn-rows-k40qo-s7" data-tok="march" data-t="cheer">
       <rect x="11.5" y="55.4" width="28.5" height="13.2" rx="3.2" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
       <text x="25.8" y="64.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">cheer</text>
@@ -5755,7 +5759,7 @@ L 380.16 96
       <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.5" y="69.8">&lt;8&gt;</text>
     </g>
     <g id="ffn-rows-k40qo-s9">
-      <rect x="162.0" y="50.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="162.0" y="50.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <g data-row="" id="k40qo-r55">
         <text x="193.9" y="65.4" font-size="9.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
         <g id="k40qo-r54" data-sym="Ω_1" data-dims="8,32" data-showdims="on">
@@ -5766,11 +5770,11 @@ L 380.16 96
       </g>
     </g>
     <g id="ffn-rows-k40qo-s10">
-      <rect x="274.0" y="50.0" width="52.0" height="24.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="274.0" y="50.0" width="52.0" height="24.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="300.0" y="64.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">ReLU</text>
     </g>
     <g id="ffn-rows-k40qo-s11">
-      <rect x="344.0" y="50.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="344.0" y="50.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <g data-row="" id="k40qo-r63">
         <text x="375.9" y="65.4" font-size="9.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
         <g id="k40qo-r62" data-sym="Ω_2" data-dims="32,8" data-showdims="on">
@@ -5785,8 +5789,8 @@ L 380.16 96
       <text x="494.6" y="60.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_2|10">out<tspan font-size="6.2" dy="2.8">2</tspan></text>
       <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.6" y="69.8">&lt;8&gt;</text>
     </g>
-    <line x1="254.0" y1="62.0" x2="274.0" y2="62.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s9" data-b="ffn-rows-k40qo-s10" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="326.0" y1="62.0" x2="344.0" y2="62.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s10" data-b="ffn-rows-k40qo-s11" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="254.0" y1="62.0" x2="274.0" y2="62.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s9" data-b="ffn-rows-k40qo-s10" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="326.0" y1="62.0" x2="344.0" y2="62.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s10" data-b="ffn-rows-k40qo-s11" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="ffn-rows-k40qo-s13" data-tok="march" data-t="for">
       <rect x="17.1" y="89.4" width="17.9" height="13.2" rx="3.2" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
       <text x="26.1" y="98.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">for</text>
@@ -5797,7 +5801,7 @@ L 380.16 96
       <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.5" y="103.8">&lt;8&gt;</text>
     </g>
     <g id="ffn-rows-k40qo-s15">
-      <rect x="162.0" y="84.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="162.0" y="84.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <g data-row="" id="k40qo-r57">
         <text x="193.9" y="99.4" font-size="9.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
         <g id="k40qo-r56" data-sym="Ω_1" data-dims="8,32" data-showdims="on">
@@ -5808,11 +5812,11 @@ L 380.16 96
       </g>
     </g>
     <g id="ffn-rows-k40qo-s16">
-      <rect x="274.0" y="84.0" width="52.0" height="24.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="274.0" y="84.0" width="52.0" height="24.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="300.0" y="98.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">ReLU</text>
     </g>
     <g id="ffn-rows-k40qo-s17">
-      <rect x="344.0" y="84.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="344.0" y="84.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <g data-row="" id="k40qo-r65">
         <text x="375.9" y="99.4" font-size="9.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
         <g id="k40qo-r64" data-sym="Ω_2" data-dims="32,8" data-showdims="on">
@@ -5827,8 +5831,8 @@ L 380.16 96
       <text x="494.6" y="94.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_3|10">out<tspan font-size="6.2" dy="2.8">3</tspan></text>
       <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.6" y="103.8">&lt;8&gt;</text>
     </g>
-    <line x1="254.0" y1="96.0" x2="274.0" y2="96.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s15" data-b="ffn-rows-k40qo-s16" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="326.0" y1="96.0" x2="344.0" y2="96.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s16" data-b="ffn-rows-k40qo-s17" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="254.0" y1="96.0" x2="274.0" y2="96.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s15" data-b="ffn-rows-k40qo-s16" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="326.0" y1="96.0" x2="344.0" y2="96.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s16" data-b="ffn-rows-k40qo-s17" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="ffn-rows-k40qo-s19" data-tok="march" data-t="old">
       <rect x="16.4" y="123.4" width="19.2" height="13.2" rx="3.2" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
       <text x="26" y="132.6" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">old</text>
@@ -5839,7 +5843,7 @@ L 380.16 96
       <text class="tk-sub" font-size="4.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="100.5" y="137.8">&lt;8&gt;</text>
     </g>
     <g id="ffn-rows-k40qo-s21">
-      <rect x="162.0" y="118.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="162.0" y="118.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <g data-row="" id="k40qo-r59">
         <text x="193.9" y="133.4" font-size="9.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
         <g id="k40qo-r58" data-sym="Ω_1" data-dims="8,32" data-showdims="on">
@@ -5850,11 +5854,11 @@ L 380.16 96
       </g>
     </g>
     <g id="ffn-rows-k40qo-s22">
-      <rect x="274.0" y="118.0" width="52.0" height="24.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="274.0" y="118.0" width="52.0" height="24.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="300.0" y="132.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">ReLU</text>
     </g>
     <g id="ffn-rows-k40qo-s23">
-      <rect x="344.0" y="118.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="344.0" y="118.0" width="92.0" height="24.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <g data-row="" id="k40qo-r67">
         <text x="375.9" y="133.4" font-size="9.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">@</text>
         <g id="k40qo-r66" data-sym="Ω_2" data-dims="32,8" data-showdims="on">
@@ -5869,8 +5873,8 @@ L 380.16 96
       <text x="494.6" y="128.9" font-size="10.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="out_4|10">out<tspan font-size="6.2" dy="2.8">4</tspan></text>
       <text class="tk-sub" font-size="4.8" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="494.6" y="137.8">&lt;8&gt;</text>
     </g>
-    <line x1="254.0" y1="130.0" x2="274.0" y2="130.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s21" data-b="ffn-rows-k40qo-s22" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="326.0" y1="130.0" x2="344.0" y2="130.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s22" data-b="ffn-rows-k40qo-s23" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="254.0" y1="130.0" x2="274.0" y2="130.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s21" data-b="ffn-rows-k40qo-s22" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="326.0" y1="130.0" x2="344.0" y2="130.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-k40qo)" data-a="ffn-rows-k40qo-s22" data-b="ffn-rows-k40qo-s23" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g data-row="" id="k40qo-r72">
       <text x="79.4" y="158" font-size="8.0" fill="#38761D" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" font-weight="bold">the same</text>
       <g id="k40qo-r68" data-sym="Ω_1">
@@ -5884,18 +5888,18 @@ L 380.16 96
       </g>
       <text x="174.4" y="158" font-size="8.0" fill="#38761D" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" font-weight="bold">for every word, and no arrows between the rows: each word on its own</text>
     </g>
-    <line x1="40.2" y1="28" x2="90.9" y2="28" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s1" data-b="ffn-rows-k40qo-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="109.8" y1="28" x2="162.0" y2="28.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s2" data-b="ffn-rows-k40qo-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="436.0" y1="28.0" x2="479.5" y2="28" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-k40qo)" data-a="ffn-rows-k40qo-s5" data-b="ffn-rows-k40qo-s6" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="40.2" y1="62" x2="90.9" y2="62" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s7" data-b="ffn-rows-k40qo-s8" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="109.8" y1="62" x2="162.0" y2="62.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s8" data-b="ffn-rows-k40qo-s9" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="436.0" y1="62.0" x2="479.5" y2="62" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-k40qo)" data-a="ffn-rows-k40qo-s11" data-b="ffn-rows-k40qo-s12" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="35" y1="96" x2="90.9" y2="95.9" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s13" data-b="ffn-rows-k40qo-s14" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="109.8" y1="95.9" x2="162.0" y2="96.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s14" data-b="ffn-rows-k40qo-s15" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="436.0" y1="96.0" x2="479.5" y2="95.9" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-k40qo)" data-a="ffn-rows-k40qo-s17" data-b="ffn-rows-k40qo-s18" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="35.6" y1="130" x2="90.9" y2="129.9" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s19" data-b="ffn-rows-k40qo-s20" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="109.8" y1="129.9" x2="162.0" y2="130.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s20" data-b="ffn-rows-k40qo-s21" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="436.0" y1="130.0" x2="479.5" y2="129.9" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-k40qo)" data-a="ffn-rows-k40qo-s23" data-b="ffn-rows-k40qo-s24" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="40.2" y1="28" x2="90.9" y2="28" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s1" data-b="ffn-rows-k40qo-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="109.8" y1="28" x2="162.0" y2="28.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s2" data-b="ffn-rows-k40qo-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="436.0" y1="28.0" x2="479.5" y2="28" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-k40qo)" data-a="ffn-rows-k40qo-s5" data-b="ffn-rows-k40qo-s6" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="40.2" y1="62" x2="90.9" y2="62" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s7" data-b="ffn-rows-k40qo-s8" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="109.8" y1="62" x2="162.0" y2="62.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s8" data-b="ffn-rows-k40qo-s9" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="436.0" y1="62.0" x2="479.5" y2="62" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-k40qo)" data-a="ffn-rows-k40qo-s11" data-b="ffn-rows-k40qo-s12" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="35" y1="96" x2="90.9" y2="95.9" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s13" data-b="ffn-rows-k40qo-s14" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="109.8" y1="95.9" x2="162.0" y2="96.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s14" data-b="ffn-rows-k40qo-s15" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="436.0" y1="96.0" x2="479.5" y2="95.9" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-k40qo)" data-a="ffn-rows-k40qo-s17" data-b="ffn-rows-k40qo-s18" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="35.6" y1="130" x2="90.9" y2="129.9" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s19" data-b="ffn-rows-k40qo-s20" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="109.8" y1="129.9" x2="162.0" y2="130.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k40qo)" data-a="ffn-rows-k40qo-s20" data-b="ffn-rows-k40qo-s21" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="436.0" y1="130.0" x2="479.5" y2="129.9" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-k40qo)" data-a="ffn-rows-k40qo-s23" data-b="ffn-rows-k40qo-s24" data-a-at="r:0.500" data-b-at="l:0.500"></line>
   </svg>
 <div class="foot" data-rt=""><span>Transformers · The Transformer Block</span><span>15</span></div></section>
 
@@ -5908,7 +5912,7 @@ L 380.16 96
     <li><b class="name">GPT-3</b>: <span class="num">96</span> blocks</li>
   </ul>
   
-  <svg class="draw" data-vars="d=768 T=T" viewBox="0 0 624 112" style="width: 620pt" role="img" aria-label="GPT-2 small left to right: X of shape T by 768, Block 1, Block 2, dots, Block 12, each a gold block holding attention and feed-forward, the same shape T by 768 on every arrow between them, then a layer norm and the scores." data-b="hr2g0">
+  <svg class="draw" viewBox="0 0 624 112" role="img" aria-label="GPT-2 small left to right: X of shape T by 768, Block 1, Block 2, dots, Block 12, each a gold block holding attention and feed-forward, the same shape T by 768 on every arrow between them, then a layer norm and the scores." data-vars="d=768 T=T" style="width: 620pt" data-b="hr2g0">
     <defs>
       <marker id="ah002B5B-hr2g0" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -5923,54 +5927,54 @@ L 380.16 96
       <text class="tk-sub" font-size="5.8" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="21.4" y="65.5">&lt;T,768&gt;</text>
     </g>
     <g id="stack-hr2g0-s2">
-      <rect x="81.0" y="19.0" width="78.0" height="74.0" rx="6.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="81.0" y="19.0" width="78.0" height="74.0" rx="6.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="120.0" y="58.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle"></text>
     </g>
     <text x="120.0" y="30.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Block 1</text>
     <g id="stack-hr2g0-s3">
-      <rect x="89.0" y="43.0" width="62.0" height="16.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="89.0" y="43.0" width="62.0" height="16.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="120.0" y="53.5" font-size="7.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Attention</text>
     </g>
     <g id="stack-hr2g0-s4">
-      <rect x="89.0" y="65.0" width="62.0" height="16.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="89.0" y="65.0" width="62.0" height="16.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <text x="120.0" y="75.5" font-size="7.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Feed-Forward</text>
     </g>
     <g id="stack-hr2g0-s5">
-      <rect x="201.0" y="19.0" width="78.0" height="74.0" rx="6.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="201.0" y="19.0" width="78.0" height="74.0" rx="6.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="240.0" y="58.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle"></text>
     </g>
     <text x="240.0" y="30.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Block 2</text>
     <g id="stack-hr2g0-s6">
-      <rect x="209.0" y="43.0" width="62.0" height="16.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="209.0" y="43.0" width="62.0" height="16.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="240.0" y="53.5" font-size="7.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Attention</text>
     </g>
     <g id="stack-hr2g0-s7">
-      <rect x="209.0" y="65.0" width="62.0" height="16.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="209.0" y="65.0" width="62.0" height="16.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <text x="240.0" y="75.5" font-size="7.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Feed-Forward</text>
     </g>
     <text x="318.0" y="60.0" font-size="14.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">· · ·</text>
     <g id="stack-hr2g0-s8">
-      <rect x="361.0" y="19.0" width="78.0" height="74.0" rx="6.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="361.0" y="19.0" width="78.0" height="74.0" rx="6.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="400.0" y="58.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle"></text>
     </g>
     <text x="400.0" y="30.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Block 12</text>
     <g id="stack-hr2g0-s9">
-      <rect x="369.0" y="43.0" width="62.0" height="16.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="369.0" y="43.0" width="62.0" height="16.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="400.0" y="53.5" font-size="7.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Attention</text>
     </g>
     <g id="stack-hr2g0-s10">
-      <rect x="369.0" y="65.0" width="62.0" height="16.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="369.0" y="65.0" width="62.0" height="16.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <text x="400.0" y="75.5" font-size="7.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Feed-Forward</text>
     </g>
     <g id="stack-hr2g0-s11">
-      <rect x="477.0" y="43.0" width="66.0" height="26.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="477.0" y="43.0" width="66.0" height="26.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="510.0" y="58.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer norm</text>
     </g>
     <g id="stack-hr2g0-s12">
-      <rect x="562.0" y="43.0" width="56.0" height="26.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="562.0" y="43.0" width="56.0" height="26.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="590.0" y="58.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Scores</text>
     </g>
-    <line x1="159.0" y1="56.0" x2="201.0" y2="56.0" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-hr2g0)" data-a="stack-hr2g0-s2" data-b="stack-hr2g0-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="159.0" y1="56.0" x2="201.0" y2="56.0" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-hr2g0)" data-a="stack-hr2g0-s2" data-b="stack-hr2g0-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g data-row="" id="hr2g0-r82">
       <g id="hr2g0-r81" data-sym="X" data-dims="T,d" data-showdims="on">
         <rect x="171.4" y="39" width="17.2" height="18.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.7" rx="2.8"></rect>
@@ -5978,9 +5982,9 @@ L 380.16 96
         <text class="tk-sub" font-size="3.4" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="180" y="53.6">&lt;T,768&gt;</text>
       </g>
     </g>
-    <line x1="279.0" y1="56.0" x2="300.0" y2="56.0" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-hr2g0)" data-a="stack-hr2g0-s5" data-a-at="r:0.500"></line>
-    <line x1="336.0" y1="56.0" x2="361.0" y2="56.0" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-hr2g0)" data-b="stack-hr2g0-s8" data-b-at="l:0.500"></line>
-    <line x1="439.0" y1="56.0" x2="477.0" y2="56.0" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-hr2g0)" data-a="stack-hr2g0-s8" data-b="stack-hr2g0-s11" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="279.0" y1="56.0" x2="300.0" y2="56.0" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-hr2g0)" data-a="stack-hr2g0-s5" data-a-at="r:0.500"></line>
+    <line x1="336.0" y1="56.0" x2="361.0" y2="56.0" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-hr2g0)" data-b="stack-hr2g0-s8" data-b-at="l:0.500"></line>
+    <line x1="439.0" y1="56.0" x2="477.0" y2="56.0" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-hr2g0)" data-a="stack-hr2g0-s8" data-b="stack-hr2g0-s11" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g data-row="" id="hr2g0-r83">
       <g id="hr2g0-r82" data-sym="X" data-dims="T,d" data-showdims="on">
         <rect x="449.4" y="39" width="17.2" height="18.1" fill="#F4CCCC" stroke="#E06666" stroke-width="0.7" rx="2.8"></rect>
@@ -5988,8 +5992,8 @@ L 380.16 96
         <text class="tk-sub" font-size="3.4" fill="#CC0000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="458" y="53.6">&lt;T,768&gt;</text>
       </g>
     </g>
-    <line x1="36.3" y1="56" x2="81.0" y2="56.0" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-hr2g0)" data-a="stack-hr2g0-s1" data-b="stack-hr2g0-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="543.0" y1="56.0" x2="562.0" y2="56.0" stroke="#002B5B" stroke-width="1.10" marker-end="url(#ah002B5B-hr2g0)" data-a="stack-hr2g0-s11" data-b="stack-hr2g0-s12" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="36.3" y1="56" x2="81.0" y2="56.0" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-hr2g0)" data-a="stack-hr2g0-s1" data-b="stack-hr2g0-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="543.0" y1="56.0" x2="562.0" y2="56.0" stroke="#002B5B" stroke-width="1.1" marker-end="url(#ah002B5B-hr2g0)" data-a="stack-hr2g0-s11" data-b="stack-hr2g0-s12" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <text x="312.0" y="108.0" font-size="7.5" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">every block gives back the same shape it was given, so they stack: GPT-2 small has 12, GPT-3 96</text>
   </svg>
   <p data-b="gm7mb">Each block mixes the words again, so later blocks work on rows that <b class="take">already know about their neighbors</b></p>
@@ -6021,8 +6025,8 @@ L 380.16 96
 <div class="foot" data-rt=""><span>Transformers · The Transformer Block</span><span>18</span></div></section>
 
 <section class="page s-tight" id="lec-code-weights-github" data-view="slides workbook" data-topic="block" data-clash="github" style="--gap: 22pt;">
-  
   <h2 data-b="f9umy">Layer Norm and the Weights</h2>
+  
   
   
   
@@ -6035,23 +6039,23 @@ L 380.16 96
 <span class="olab">F1</span>  (<span class="nu nn">8</span>, <span class="nu nn">32</span>)
 <span class="olab">F2</span>  (<span class="nu nn">32</span>, <span class="nu nn">8</span>)</pre></b-out><div class="foot" data-rt=""><span>Transformers · The Transformer Block</span><span>19</span></div></section>
 
-<section class="page s-tight over" id="lec-output" data-part="Writing the Fight Song" data-view="slides workbook" data-topic="output">
+<section class="page s-tight over" id="lec-output" data-view="slides workbook" data-topic="output" data-part="Writing the Fight Song">
   <h2 data-b="yeh7i">The Output Layer</h2>
   
-  <b-code lang="python" beside="right" bw="30" shapes="{&quot;X&quot;:[5,8],&quot;W.E&quot;:[41,8],&quot;H&quot;:[5,8],&quot;Q&quot;:[5,8],&quot;K&quot;:[5,8],&quot;V&quot;:[5,8],&quot;W.Q&quot;:[8,8],&quot;W.K&quot;:[8,8],&quot;W.V&quot;:[8,8],&quot;S&quot;:[5,5],&quot;W.O&quot;:[8,8],&quot;W.E.T&quot;:[8,41]}" data-b="qn5gi" class=""><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div><div>29</div><div>30</div><div>31</div><div>32</div><div>33</div><div>34</div><div>35</div><div>36</div><div>37</div><div>38</div><div>39</div><div>40</div><div>41</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">gpt</span>(<span class="cc red">x</span>, <span class="cc blue">W</span>, mask=<span class="nu">True</span>):</div><div class="ln">    T = <span class="bi">len</span>(<span class="cc red">x</span>)</div><div class="ln blk blk-green blk-top blk-bot" data-lk="green">    <span class="cc red csym" data-e="X">X</span> = <span class="cc blue csym cbox" data-e="W.E">W.E</span>[<span class="cc red">x</span>]</div><div class="ln">    </div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold">    <span class="cc red csym" data-e="X">X</span> += pos_enc(T)</div><div class="ln">    </div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="H">H</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln">    <span class="cc purple csym" data-e="Q">Q</span>, <span class="cc red csym" data-e="K">K</span>, <span class="cc green csym" data-e="V">V</span> = <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.Q">W.Q</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.K">W.K</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.V">W.V</span> </div><div class="ln"></div><div class="ln blk blk-red blk-top" data-lk="red">    <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="Q">Q</span> @ <span class="cc red csym" data-e="K">K</span>.T / <span class="nu nn">8</span> ** <span class="nu nn">0.5</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="ctl">if</span> mask:</div><div class="ln blk blk-red" data-lk="red">        <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="S">S</span> + torch.full((T, T), <span class="ty">float</span>(<span class="st">"-inf"</span>)).triu(<span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    attention_scores = torch.softmax(<span class="cc purple csym" data-e="S">S</span>, <span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red">    context_vectors = attention_scores @ <span class="cc green csym" data-e="V">V</span></div><div class="ln blk blk-red blk-bot" data-lk="red">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + context_vectors @ <span class="cc blue csym cbox" data-e="W.O">W.O</span></div><div class="ln"></div><div class="ln">    X_resid = <span class="cc red csym" data-e="X">X</span></div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="X">X</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-purple blk-top" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym cbox" data-e="W.F1">W.F1</span></div><div class="ln blk blk-purple" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = torch.relu(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln blk blk-purple blk-bot" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym cbox" data-e="W.F2">W.F2</span></div><div class="ln">    </div><div class="ln">    <span class="cc red csym" data-e="X">X</span> += X_resid</div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="X">X</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">    <span class="ctl">return</span> <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym cbox" data-e="W.E.T">W.E.T</span></div><div class="ln">    </div><div class="ln"><span class="cc red">x</span> = song.ids[:<span class="nu nn">5</span>]        <span class="cm"># cheer cheer for old notre</span></div><div class="ln"></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold"><span class="cc gold">probs</span> = torch.softmax(gpt(<span class="cc red">x</span>, <span class="cc blue">W</span>)[-<span class="nu nn">1</span>], <span class="nu nn">0</span>)</div><div class="ln"></div><div class="ln">guess = <span class="cc gold">probs</span>.argmax().item()</div><div class="ln">dame = song.vocab.index(<span class="st">"dame"</span>)</div><div class="ln">p = <span class="bi">round</span>(<span class="cc gold">probs</span>[guess].item(), <span class="nu nn">2</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(song.decode([guess]), p)</div><div class="ln"><span class="bi">print</span>(song.decode([dame]), <span class="bi">round</span>(<span class="cc gold">probs</span>[dame].item(), <span class="nu nn">4</span>))</div></div></b-code>
+  <b-code lang="python" beside="right" bw="30" shapes="{&quot;X&quot;:[5,8],&quot;W.E&quot;:[41,8],&quot;H&quot;:[5,8],&quot;Q&quot;:[5,8],&quot;K&quot;:[5,8],&quot;V&quot;:[5,8],&quot;W.Q&quot;:[8,8],&quot;W.K&quot;:[8,8],&quot;W.V&quot;:[8,8],&quot;S&quot;:[5,5],&quot;W.O&quot;:[8,8],&quot;W.E.T&quot;:[8,41]}" class="" data-b="qn5gi"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div><div>29</div><div>30</div><div>31</div><div>32</div><div>33</div><div>34</div><div>35</div><div>36</div><div>37</div><div>38</div><div>39</div><div>40</div><div>41</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">gpt</span>(<span class="cc red">x</span>, <span class="cc blue">W</span>, mask=<span class="nu">True</span>):</div><div class="ln">    T = <span class="bi">len</span>(<span class="cc red">x</span>)</div><div class="ln blk blk-green blk-top blk-bot" data-lk="green">    <span class="cc red csym" data-e="X">X</span> = <span class="cc blue csym cbox" data-e="W.E">W.E</span>[<span class="cc red">x</span>]</div><div class="ln">    </div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold">    <span class="cc red csym" data-e="X">X</span> += pos_enc(T)</div><div class="ln">    </div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="H">H</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln">    <span class="cc purple csym" data-e="Q">Q</span>, <span class="cc red csym" data-e="K">K</span>, <span class="cc green csym" data-e="V">V</span> = <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.Q">W.Q</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.K">W.K</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.V">W.V</span> </div><div class="ln"></div><div class="ln blk blk-red blk-top" data-lk="red">    <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="Q">Q</span> @ <span class="cc red csym" data-e="K">K</span>.T / <span class="nu nn">8</span> ** <span class="nu nn">0.5</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="ctl">if</span> mask:</div><div class="ln blk blk-red" data-lk="red">        <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="S">S</span> + torch.full((T, T), <span class="ty">float</span>(<span class="st">"-inf"</span>)).triu(<span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    attention_scores = torch.softmax(<span class="cc purple csym" data-e="S">S</span>, <span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red">    context_vectors = attention_scores @ <span class="cc green csym" data-e="V">V</span></div><div class="ln blk blk-red blk-bot" data-lk="red">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + context_vectors @ <span class="cc blue csym cbox" data-e="W.O">W.O</span></div><div class="ln"></div><div class="ln">    X_resid = <span class="cc red csym" data-e="X">X</span></div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="X">X</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-purple blk-top" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym cbox" data-e="W.F1">W.F1</span></div><div class="ln blk blk-purple" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = torch.relu(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln blk blk-purple blk-bot" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym cbox" data-e="W.F2">W.F2</span></div><div class="ln">    </div><div class="ln">    <span class="cc red csym" data-e="X">X</span> += X_resid</div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="X">X</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">    <span class="ctl">return</span> <span class="cc red csym" data-e="X">X</span> @ <span class="cc blue csym cbox" data-e="W.E.T">W.E.T</span></div><div class="ln">    </div><div class="ln"><span class="cc red">x</span> = song.ids[:<span class="nu nn">5</span>]        <span class="cm"># cheer cheer for old notre</span></div><div class="ln"></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold"><span class="cc gold">probs</span> = torch.softmax(gpt(<span class="cc red">x</span>, <span class="cc blue">W</span>)[-<span class="nu nn">1</span>], <span class="nu nn">0</span>)</div><div class="ln"></div><div class="ln">guess = <span class="cc gold">probs</span>.argmax().item()</div><div class="ln">dame = song.vocab.index(<span class="st">"dame"</span>)</div><div class="ln">p = <span class="bi">round</span>(<span class="cc gold">probs</span>[guess].item(), <span class="nu nn">2</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(song.decode([guess]), p)</div><div class="ln"><span class="bi">print</span>(song.decode([dame]), <span class="bi">round</span>(<span class="cc gold">probs</span>[dame].item(), <span class="nu nn">4</span>))</div></div></b-code>
   <b-out wrap="" data-b="dsq8z"><div class="label">Output</div><pre>[<span class="otk" data-f="blue"><span class="oq">'</span>odds<span class="oq">'</span></span>] <span class="nu nn">0.26</span>
 [<span class="otk" data-f="blue"><span class="oq">'</span>dame<span class="oq">'</span></span>] <span class="nu nn">0.0008</span></pre></b-out>
   <p data-b="q3v5w">Untrained: <span class="num">26</span>% on <b-tok v="march" t="odds" data-f="blue" title="Victory March words: &quot;odds&quot; = 24"><span class="tk-t">odds</span><span class="tk-id">24</span></b-tok>, <span class="num">0.08</span>% on <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok>, <b class="warn">a thirtieth</b> of guessing evenly (<span class="num">2.4</span>%)</p>
 <div class="foot" data-rt=""><span>Transformers · Writing the Fight Song</span><span>20</span></div></section>
 
-<section class="page s-tight" id="lec-output-github" data-part="Writing the Fight Song" data-view="slides workbook" data-topic="output" data-clash="github" style="--gap: 13.1pt;">
-  
+<section class="page s-tight" id="lec-output-github" data-view="slides workbook" data-topic="output" data-part="Writing the Fight Song" data-clash="github" style="--gap: 13.1pt;">
   <h2 data-b="fq8p0">The Output Layer</h2>
   
   
   
   
-<b-code lang="python" beside="right" bw="30" shapes="{&quot;X&quot;:[5,8],&quot;W.E&quot;:[41,8],&quot;H&quot;:[5,8],&quot;Q&quot;:[5,8],&quot;K&quot;:[5,8],&quot;V&quot;:[5,8],&quot;W.Q&quot;:[8,8],&quot;W.K&quot;:[8,8],&quot;W.V&quot;:[8,8],&quot;S&quot;:[5,5],&quot;W.O&quot;:[8,8],&quot;W.E.T&quot;:[8,41]}" data-b="ba3sr" class=""><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div><div>29</div><div>30</div><div>31</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">gpt</span>(<span class="cc red">x</span>, <span class="cc blue">W</span>, mask=<span class="nu">True</span>):</div><div class="ln">    T = <span class="bi">len</span>(<span class="cc red">x</span>)</div><div class="ln blk blk-green blk-top blk-bot" data-lk="green">    <span class="cc red csym" data-e="X">X</span> = <span class="cc blue csym cbox" data-e="W.E">W.E</span>[<span class="cc red">x</span>] + pos_enc(T)</div><div class="ln">    </div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="H">H</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-red blk-top" data-lk="red">    <span class="cc purple csym" data-e="Q">Q</span>, <span class="cc red csym" data-e="K">K</span>, <span class="cc green csym" data-e="V">V</span> = <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.Q">W.Q</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.K">W.K</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.V">W.V</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="Q">Q</span> @ <span class="cc red csym" data-e="K">K</span>.T / <span class="nu nn">8</span> ** <span class="nu nn">0.5</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="ctl">if</span> mask:</div><div class="ln blk blk-red" data-lk="red">        <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="S">S</span> + torch.full((T, T), <span class="ty">float</span>(<span class="st">"-inf"</span>)).triu(<span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    attention_scores = torch.softmax(<span class="cc purple csym" data-e="S">S</span>, <span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red">    context_vectors = attention_scores @ <span class="cc green csym" data-e="V">V</span></div><div class="ln blk blk-red blk-bot" data-lk="red">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + context_vectors @ <span class="cc blue csym cbox" data-e="W.O">W.O</span></div><div class="ln">    </div><div class="ln blk blk-purple blk-top blk-bot" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + torch.relu(norm(<span class="cc red csym" data-e="X">X</span>) @ <span class="cc blue csym cbox" data-e="W.F1">W.F1</span>) @ <span class="cc blue csym cbox" data-e="W.F2">W.F2</span></div><div class="ln">    </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">    <span class="ctl">return</span> norm(<span class="cc red csym" data-e="X">X</span>) @ <span class="cc blue csym cbox" data-e="W.E.T">W.E.T</span></div><div class="ln">    </div><div class="ln"><span class="cc red">x</span> = song.ids[:<span class="nu nn">5</span>]        <span class="cm"># cheer cheer for old notre</span></div><div class="ln"></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold"><span class="cc gold">probs</span> = torch.softmax(gpt(<span class="cc red">x</span>, <span class="cc blue">W</span>)[-<span class="nu nn">1</span>], <span class="nu nn">0</span>)</div><div class="ln"></div><div class="ln">guess = <span class="cc gold">probs</span>.argmax().item()</div><div class="ln">dame = song.vocab.index(<span class="st">"dame"</span>)</div><div class="ln">p = <span class="bi">round</span>(<span class="cc gold">probs</span>[guess].item(), <span class="nu nn">2</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(song.decode([guess]), p)</div><div class="ln"><span class="bi">print</span>(song.decode([dame]), <span class="bi">round</span>(<span class="cc gold">probs</span>[dame].item(), <span class="nu nn">4</span>))</div></div></b-code><b-out wrap="" data-b="lvrpt"><div class="label">Output</div><pre>[<span class="otk" data-f="blue"><span class="oq">'</span>odds<span class="oq">'</span></span>] <span class="nu nn">0.26</span>
+  
+<b-code lang="python" beside="right" bw="30" shapes="{&quot;X&quot;:[5,8],&quot;W.E&quot;:[41,8],&quot;H&quot;:[5,8],&quot;Q&quot;:[5,8],&quot;K&quot;:[5,8],&quot;V&quot;:[5,8],&quot;W.Q&quot;:[8,8],&quot;W.K&quot;:[8,8],&quot;W.V&quot;:[8,8],&quot;S&quot;:[5,5],&quot;W.O&quot;:[8,8],&quot;W.E.T&quot;:[8,41]}" class="" data-b="ba3sr"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div><div>26</div><div>27</div><div>28</div><div>29</div><div>30</div><div>31</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">gpt</span>(<span class="cc red">x</span>, <span class="cc blue">W</span>, mask=<span class="nu">True</span>):</div><div class="ln">    T = <span class="bi">len</span>(<span class="cc red">x</span>)</div><div class="ln blk blk-green blk-top blk-bot" data-lk="green">    <span class="cc red csym" data-e="X">X</span> = <span class="cc blue csym cbox" data-e="W.E">W.E</span>[<span class="cc red">x</span>] + pos_enc(T)</div><div class="ln">    </div><div class="ln blk blk-gray blk-top blk-bot" data-lk="gray">    <span class="cc red csym" data-e="H">H</span> = norm(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">    </div><div class="ln blk blk-red blk-top" data-lk="red">    <span class="cc purple csym" data-e="Q">Q</span>, <span class="cc red csym" data-e="K">K</span>, <span class="cc green csym" data-e="V">V</span> = <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.Q">W.Q</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.K">W.K</span>, <span class="cc red csym" data-e="H">H</span> @ <span class="cc blue csym cbox" data-e="W.V">W.V</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="Q">Q</span> @ <span class="cc red csym" data-e="K">K</span>.T / <span class="nu nn">8</span> ** <span class="nu nn">0.5</span></div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    <span class="ctl">if</span> mask:</div><div class="ln blk blk-red" data-lk="red">        <span class="cc purple csym" data-e="S">S</span> = <span class="cc purple csym" data-e="S">S</span> + torch.full((T, T), <span class="ty">float</span>(<span class="st">"-inf"</span>)).triu(<span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red"></div><div class="ln blk blk-red" data-lk="red">    attention_scores = torch.softmax(<span class="cc purple csym" data-e="S">S</span>, <span class="nu nn">1</span>)</div><div class="ln blk blk-red" data-lk="red">    context_vectors = attention_scores @ <span class="cc green csym" data-e="V">V</span></div><div class="ln blk blk-red blk-bot" data-lk="red">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + context_vectors @ <span class="cc blue csym cbox" data-e="W.O">W.O</span></div><div class="ln">    </div><div class="ln blk blk-purple blk-top blk-bot" data-lk="purple">    <span class="cc red csym" data-e="X">X</span> = <span class="cc red csym" data-e="X">X</span> + torch.relu(norm(<span class="cc red csym" data-e="X">X</span>) @ <span class="cc blue csym cbox" data-e="W.F1">W.F1</span>) @ <span class="cc blue csym cbox" data-e="W.F2">W.F2</span></div><div class="ln">    </div><div class="ln blk blk-blue blk-top blk-bot" data-lk="blue">    <span class="ctl">return</span> norm(<span class="cc red csym" data-e="X">X</span>) @ <span class="cc blue csym cbox" data-e="W.E.T">W.E.T</span></div><div class="ln">    </div><div class="ln"><span class="cc red">x</span> = song.ids[:<span class="nu nn">5</span>]        <span class="cm"># cheer cheer for old notre</span></div><div class="ln"></div><div class="ln blk blk-gold blk-top blk-bot" data-lk="gold"><span class="cc gold">probs</span> = torch.softmax(gpt(<span class="cc red">x</span>, <span class="cc blue">W</span>)[-<span class="nu nn">1</span>], <span class="nu nn">0</span>)</div><div class="ln"></div><div class="ln">guess = <span class="cc gold">probs</span>.argmax().item()</div><div class="ln">dame = song.vocab.index(<span class="st">"dame"</span>)</div><div class="ln">p = <span class="bi">round</span>(<span class="cc gold">probs</span>[guess].item(), <span class="nu nn">2</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(song.decode([guess]), p)</div><div class="ln"><span class="bi">print</span>(song.decode([dame]), <span class="bi">round</span>(<span class="cc gold">probs</span>[dame].item(), <span class="nu nn">4</span>))</div></div></b-code><b-out wrap="" data-b="lvrpt"><div class="label">Output</div><pre>[<span class="otk" data-f="blue"><span class="oq">'</span>odds<span class="oq">'</span></span>] <span class="nu nn">0.26</span>
 [<span class="otk" data-f="blue"><span class="oq">'</span>dame<span class="oq">'</span></span>] <span class="nu nn">0.0008</span></pre></b-out><p data-b="hpi6x">Untrained: <span class="num">26</span>% on <b-tok v="march" t="odds" data-f="blue" title="Victory March words: &quot;odds&quot; = 24"><span class="tk-t">odds</span><span class="tk-id">24</span></b-tok>, <span class="num">0.08</span>% on <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok>, <b class="warn">a thirtieth</b> of guessing evenly (<span class="num">2.4</span>%)</p><div class="foot" data-rt=""><span>Transformers · Writing the Fight Song</span><span>21</span></div></section>
 
 <section class="page s-tight" id="lec-train" data-view="slides workbook" data-topic="output" style="--gap: 22pt;">
@@ -6066,7 +6070,7 @@ L 380.16 96
 <span class="olab">step</span> <span class="nu nn">100</span>  <span class="cc red">loss</span> <span class="nu nn">0.077</span>
 <span class="olab">step</span> <span class="nu nn">200</span>  <span class="cc red">loss</span> <span class="nu nn">0.024</span>
 <span class="olab">step</span> <span class="nu nn">300</span>  <span class="cc red">loss</span> <span class="nu nn">0.013</span></pre></b-out>
-  <p data-b="us2rk" data-align="center">From <b class="warn">7.513</b> to <b class="take">0.013 </b>in <span class="num">300</span> steps of <b class="name">Adam</b></p>
+  <p data-align="center" data-b="us2rk">From <b class="warn">7.513</b> to <b class="take">0.013 </b>in <span class="num">300</span> steps of <b class="name">Adam</b></p>
 <div class="foot" data-rt=""><span>Transformers · Writing the Fight Song</span><span>22</span></div></section>
 
 <section class="page s-tight" id="lec-generate" data-view="slides workbook" data-topic="gpt" style="--gap: 19.7pt;">

@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -938,96 +949,103 @@ svg.al-clone { z-index: 1; }
 
 
 
-<section class="page" id="attention" data-part="Looking Back" data-view="reading" data-topic="attention">
+<section class="page" id="attention" data-view="reading" data-topic="attention" data-part="Looking Back">
   <h2 data-b="rbpg9">Attention</h2>
   <p data-b="qvjnb">Our RNN from Recurrent Neural Networks guessed "men" after "so are they all, all honorable", but the word that told it we meant more than one person had to survive three updates of <b-m tex="h">h</b-m> on the way. It also had to read the prompt one token at a time, since every <b-m tex="h">h</b-m> needed the one before it.</p>
-  <svg class="draw" viewBox="0 0 384 196" style="width: 72%" role="img" aria-label="Top, RNN: the six tokens so, are, they, all, all, honorable feed a chain of context boxes h1 to h5, and only h5 reaches honorable. Bottom, Attention: lines run from honorable straight back to every earlier token" data-b="wpfed">
-  <defs><marker id="ah8E7CC3-wpfed" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path></marker><marker id="ahDCB439-wpfed" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path></marker></defs>
-  <text x="4.0" y="14.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">RNN</text>
-  <g id="look-back-wpfed-s1">
-  <rect x="3.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="30.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
-  </g>
-  <g id="look-back-wpfed-s2">
-  <rect x="48.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="61.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₁</text>
-  </g>
-  <line x1="30.0" y1="50.0" x2="52.0" y2="61.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s1" data-b="look-back-wpfed-s2"></line>
-  <g id="look-back-wpfed-s3">
-  <rect x="65.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="92.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
-  </g>
-  <g id="look-back-wpfed-s4">
-  <rect x="110.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="123.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₂</text>
-  </g>
-  <line x1="92.0" y1="50.0" x2="114.0" y2="61.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s3" data-b="look-back-wpfed-s4"></line>
-  <line x1="74.0" y1="70.0" x2="110.0" y2="70.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s2" data-b="look-back-wpfed-s4"></line>
-  <g id="look-back-wpfed-s5">
-  <rect x="127.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="154.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
-  </g>
-  <g id="look-back-wpfed-s6">
-  <rect x="172.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="185.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₃</text>
-  </g>
-  <line x1="154.0" y1="50.0" x2="176.0" y2="61.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s5" data-b="look-back-wpfed-s6"></line>
-  <line x1="136.0" y1="70.0" x2="172.0" y2="70.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s4" data-b="look-back-wpfed-s6"></line>
-  <g id="look-back-wpfed-s7">
-  <rect x="189.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="216.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  </g>
-  <g id="look-back-wpfed-s8">
-  <rect x="234.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="247.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₄</text>
-  </g>
-  <line x1="216.0" y1="50.0" x2="238.0" y2="61.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s7" data-b="look-back-wpfed-s8"></line>
-  <line x1="198.0" y1="70.0" x2="234.0" y2="70.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s6" data-b="look-back-wpfed-s8"></line>
-  <g id="look-back-wpfed-s9">
-  <rect x="251.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="278.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  </g>
-  <g id="look-back-wpfed-s10">
-  <rect x="296.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="309.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₅</text>
-  </g>
-  <line x1="278.0" y1="50.0" x2="300.0" y2="61.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s9" data-b="look-back-wpfed-s10"></line>
-  <line x1="260.0" y1="70.0" x2="296.0" y2="70.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s8" data-b="look-back-wpfed-s10"></line>
-  <g id="look-back-wpfed-s11">
-  <rect x="313.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="340.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honorable</text>
-  </g>
-  <polyline points="322.0,70.0 338.0,70.0 338.0,50.0" fill="none" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-wpfed)"></polyline>
-  <text x="4.0" y="112.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Attention</text>
-  <g id="look-back-wpfed-s12">
-  <rect x="3.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="30.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
-  </g>
-  <g id="look-back-wpfed-s13">
-  <rect x="65.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="92.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
-  </g>
-  <g id="look-back-wpfed-s14">
-  <rect x="127.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="154.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
-  </g>
-  <g id="look-back-wpfed-s15">
-  <rect x="189.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="216.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  </g>
-  <g id="look-back-wpfed-s16">
-  <rect x="251.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="278.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  </g>
-  <g id="look-back-wpfed-s17">
-  <rect x="313.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="340.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honorable</text>
-  </g>
-  <polyline points="350.0,166.0 350.0,120.0 30.0,120.0 30.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
-  <polyline points="346.0,166.0 346.0,128.0 92.0,128.0 92.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
-  <polyline points="342.0,166.0 342.0,136.0 154.0,136.0 154.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
-  <polyline points="338.0,166.0 338.0,144.0 216.0,144.0 216.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
-  <polyline points="334.0,166.0 334.0,152.0 278.0,152.0 278.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
+  <svg class="draw" viewBox="0 0 384 196" role="img" aria-label="Top, RNN: the six tokens so, are, they, all, all, honorable feed a chain of context boxes h1 to h5, and only h5 reaches honorable. Bottom, Attention: lines run from honorable straight back to every earlier token" style="width: 72%" data-b="wpfed">
+    <defs>
+      <marker id="ah8E7CC3-wpfed" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
+      <marker id="ahDCB439-wpfed" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
+      </marker>
+    </defs>
+    <text x="4.0" y="14.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">RNN</text>
+    <g id="look-back-wpfed-s1">
+      <rect x="3.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="30.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
+    </g>
+    <g id="look-back-wpfed-s2">
+      <rect x="48.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="61.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₁</text>
+    </g>
+    <line x1="30.0" y1="50.0" x2="52.0" y2="61.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s1" data-b="look-back-wpfed-s2"></line>
+    <g id="look-back-wpfed-s3">
+      <rect x="65.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="92.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
+    </g>
+    <g id="look-back-wpfed-s4">
+      <rect x="110.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="123.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₂</text>
+    </g>
+    <line x1="92.0" y1="50.0" x2="114.0" y2="61.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s3" data-b="look-back-wpfed-s4"></line>
+    <line x1="74.0" y1="70.0" x2="110.0" y2="70.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s2" data-b="look-back-wpfed-s4"></line>
+    <g id="look-back-wpfed-s5">
+      <rect x="127.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="154.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
+    </g>
+    <g id="look-back-wpfed-s6">
+      <rect x="172.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="185.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₃</text>
+    </g>
+    <line x1="154.0" y1="50.0" x2="176.0" y2="61.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s5" data-b="look-back-wpfed-s6"></line>
+    <line x1="136.0" y1="70.0" x2="172.0" y2="70.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s4" data-b="look-back-wpfed-s6"></line>
+    <g id="look-back-wpfed-s7">
+      <rect x="189.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="216.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    </g>
+    <g id="look-back-wpfed-s8">
+      <rect x="234.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="247.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₄</text>
+    </g>
+    <line x1="216.0" y1="50.0" x2="238.0" y2="61.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s7" data-b="look-back-wpfed-s8"></line>
+    <line x1="198.0" y1="70.0" x2="234.0" y2="70.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s6" data-b="look-back-wpfed-s8"></line>
+    <g id="look-back-wpfed-s9">
+      <rect x="251.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="278.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    </g>
+    <g id="look-back-wpfed-s10">
+      <rect x="296.0" y="61.0" width="26.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="309.0" y="72.9" font-size="8.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">h₅</text>
+    </g>
+    <line x1="278.0" y1="50.0" x2="300.0" y2="61.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s9" data-b="look-back-wpfed-s10"></line>
+    <line x1="260.0" y1="70.0" x2="296.0" y2="70.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)" data-a="look-back-wpfed-s8" data-b="look-back-wpfed-s10"></line>
+    <g id="look-back-wpfed-s11">
+      <rect x="313.0" y="30.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="340.0" y="43.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honorable</text>
+    </g>
+    <polyline points="322.0,70.0 338.0,70.0 338.0,50.0" fill="none" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-wpfed)"></polyline>
+    <text x="4.0" y="112.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Attention</text>
+    <g id="look-back-wpfed-s12">
+      <rect x="3.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="30.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
+    </g>
+    <g id="look-back-wpfed-s13">
+      <rect x="65.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="92.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
+    </g>
+    <g id="look-back-wpfed-s14">
+      <rect x="127.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="154.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
+    </g>
+    <g id="look-back-wpfed-s15">
+      <rect x="189.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="216.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    </g>
+    <g id="look-back-wpfed-s16">
+      <rect x="251.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="278.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    </g>
+    <g id="look-back-wpfed-s17">
+      <rect x="313.0" y="166.0" width="54.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="340.0" y="179.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honorable</text>
+    </g>
+    <polyline points="350.0,166.0 350.0,120.0 30.0,120.0 30.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
+    <polyline points="346.0,166.0 346.0,128.0 92.0,128.0 92.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
+    <polyline points="342.0,166.0 342.0,136.0 154.0,136.0 154.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
+    <polyline points="338.0,166.0 338.0,144.0 216.0,144.0 216.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
+    <polyline points="334.0,166.0 334.0,152.0 278.0,152.0 278.0,166.0" fill="none" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-wpfed)"></polyline>
   </svg>
   <p data-b="qt4hn">Pictured above is the alternative we ended on: <b class="take">every token looks straight back at all the tokens before it</b> and pulls in whatever it needs, so nothing has to survive a chain of updates and no token waits for another.</p>
   <p data-b="spx6w">This works because some parts of the context matter much more than others. For "honorable", whether we are talking about one person or several matters a lot, and "so" hardly matters at all. Letting a token decide how much each earlier token matters to it is called <b class="def">attention</b>, and it needs two things: a way to score how much each token matters, and a way to use the scores.</p>
@@ -1045,7 +1063,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="attention-weights" data-view="reading" data-topic="attention" style="--gap: 22pt;">
   <h2 data-b="jj20w">Attention Weights</h2>
   <p data-b="vq4s3">Scores that can be anything are hard to use. What we really want is a budget: "honorable" has a fixed amount of attention to spend and each token gets a share of it. That's exactly what the softmax from High Dimensional Data does, it turns any list of scores into positive numbers that add up to <span class="num">1</span>:</p>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="zix8r"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div></div><div class="src"><div class="ln"><span class="cc blue">weights</span> = torch.softmax(scores, dim=<span class="nu nn">0</span>)</div><div class="ln"><span class="bi">print</span>(<span class="cc blue">weights</span>)</div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="zix8r"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div></div><div class="src"><div class="ln"><span class="cc blue">weights</span> = torch.softmax(scores, dim=<span class="nu nn">0</span>)</div><div class="ln"><span class="bi">print</span>(<span class="cc blue">weights</span>)</div></div></b-code>
   <b-out data-b="c5ywu"><div class="label">Output</div><pre><span class="ow">tensor</span>([ <span class="nu nn">1.06</span>,  <span class="nu nn">3.08</span>, <span class="nu nn">-6.58</span>, <span class="nu nn">-5.69</span>, <span class="nu nn">-5.69</span>,  <span class="nu nn">8.51</span>])
 <span class="ow">tensor</span>([<span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">1.00</span>])</pre></b-out>
   <p data-b="upcos">These shares are the <b class="def">attention weights</b>. Here "honorable" spends <b class="warn">all of its attention on itself</b>. Its own score (<span class="num">8.51</span>) is <span class="num">5.43</span> higher than the next best (<span class="num">3.08</span> for "are"), and the softmax turns that gap into a factor of about <span class="num">230</span> (<b-m tex="e^{5.43}">e<sup>5.43</sup></b-m>), so every other weight rounds to <span class="num">0.00</span>.</p>
@@ -1054,7 +1072,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="context" data-view="reading" data-topic="attention">
   <h2 data-b="x1xox">Context</h2>
   <p data-b="cfx3r">The weights say how much of each token "honorable" should take, so the natural thing to do with them is take it. The <b class="def">context</b> for "honorable" is the average of the tokens' embeddings, each weighted by its attention weight. A row of weights times the matrix of embeddings is exactly that weighted average:</p>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="whkzg"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div></div><div class="src"><div class="ln">context = <span class="cc blue">weights</span> @ emb           <span class="cm"># a weighted mix of rows</span></div><div class="ln"><span class="bi">print</span>(context[:<span class="nu nn">4</span>])</div><div class="ln"><span class="bi">print</span>(emb[-<span class="nu nn">1</span>, :<span class="nu nn">4</span>])                <span class="cm"># honorable on its own</span></div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="whkzg"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div></div><div class="src"><div class="ln">context = <span class="cc blue">weights</span> @ emb           <span class="cm"># a weighted mix of rows</span></div><div class="ln"><span class="bi">print</span>(context[:<span class="nu nn">4</span>])</div><div class="ln"><span class="bi">print</span>(emb[-<span class="nu nn">1</span>, :<span class="nu nn">4</span>])                <span class="cm"># honorable on its own</span></div></div></b-code>
   <b-out data-b="t6hwn"><div class="label">Output</div><pre><span class="ow">tensor</span>([ <span class="nu nn">1.06</span>,  <span class="nu nn">3.08</span>, <span class="nu nn">-6.58</span>, <span class="nu nn">-5.69</span>, <span class="nu nn">-5.69</span>,  <span class="nu nn">8.51</span>])
 <span class="ow">tensor</span>([<span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">1.00</span>])
 <span class="ow">tensor</span>([<span class="nu nn">-0.43</span>,  <span class="nu nn">0.54</span>, <span class="nu nn">-0.24</span>,  <span class="nu nn">0.21</span>])
@@ -1063,7 +1081,7 @@ svg.al-clone { z-index: 1; }
   <p data-b="sjtpf">Unfortunately this will almost always happen. The dot product of a vector with itself is the sum of its squared numbers, which is hard for another, unrelated vector to beat, so a token scored by its raw embedding nearly always finds itself the most interesting token in the room. Comparing embeddings asks "which token is most like me?", and that's the wrong question. "Honorable" needs to ask something more like "which token tells me how many people we're talking about?".</p>
 <div class="foot" data-rt=""><span>Self-Attention · Looking Back</span><span>05</span></div></section>
 
-<section class="page" id="queries-and-keys" data-part="Queries, Keys and Values" data-view="reading" data-topic="qkv" style="--gap: 22pt;">
+<section class="page" id="queries-and-keys" data-view="reading" data-topic="qkv" data-part="Queries, Keys and Values" style="--gap: 22pt;">
   <h2 data-b="wkq2b">Queries and Keys</h2>
   <p data-b="kdib1">The fix is to let what a token is looking for be different from what it has to offer. We multiply every embedding by two different weight matrices. <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b> turns each embedding into a <b class="def">query</b> (what this token is looking for), and <b class="warn"><b-m tex="Ω_K"><span class="Om">ω</span><sub>K</sub></b-m></b> turns each one into a <b class="def">key</b> (what this token has). The attention score is then a query dot a key, not an embedding dot an embedding.</p>
   <p data-b="zq27c">On the slides this is a dictionary lookup: we compare what we're looking for with every entry's headword and read the entries that match. Our <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b> and <b class="warn"><b-m tex="Ω_K"><span class="Om">ω</span><sub>K</sub></b-m></b> are <span class="num">16</span> × <span class="num">4</span>, so every query and key has <span class="num">4</span> numbers (<span class="num">64</span> on the slides).</p>
@@ -1072,7 +1090,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="queries-keys-code" data-view="reading" data-topic="qkv" style="--gap: 22pt;">
   <h2 data-b="i6jj6">Queries and Keys in Code</h2>
   <p data-b="hjviq">In code we write <span class="mono">Wq</span> and <span class="mono">Wk</span>, since <b class="c wblue"><b-m tex="Ω"><span class="Om">ω</span></b-m></b> is hard to type. Carrying on from the context code, the query of "honorable" now goes against every key:</p>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="ek9h9"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div></div><div class="src"><div class="ln">torch.manual_seed(<span class="nu nn">1</span>)</div><div class="ln"><span class="cc purple">Wq</span> = torch.randn(<span class="nu nn">16</span>, <span class="nu nn">4</span>) * <span class="nu nn">0.25</span>    <span class="cm"># Ω_Q</span></div><div class="ln"><span class="cc red">Wk</span> = torch.randn(<span class="nu nn">16</span>, <span class="nu nn">4</span>) * <span class="nu nn">0.25</span>    <span class="cm"># Ω_K</span></div><div class="ln"><span class="cc purple">Q</span> = emb @ <span class="cc purple">Wq</span></div><div class="ln"><span class="cc red">K</span> = emb @ <span class="cc red">Wk</span></div><div class="ln">scores = <span class="cc purple">Q</span>[-<span class="nu nn">1</span>] @ <span class="cc red">K</span>.T              <span class="cm"># honorable's query</span></div><div class="ln"><span class="bi">print</span>(scores)                     <span class="cm"># vs. every key</span></div><div class="ln"><span class="bi">print</span>(torch.softmax(scores, dim=<span class="nu nn">0</span>))</div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="ek9h9"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div></div><div class="src"><div class="ln">torch.manual_seed(<span class="nu nn">1</span>)</div><div class="ln"><span class="cc purple">Wq</span> = torch.randn(<span class="nu nn">16</span>, <span class="nu nn">4</span>) * <span class="nu nn">0.25</span>    <span class="cm"># Ω_Q</span></div><div class="ln"><span class="cc red">Wk</span> = torch.randn(<span class="nu nn">16</span>, <span class="nu nn">4</span>) * <span class="nu nn">0.25</span>    <span class="cm"># Ω_K</span></div><div class="ln"><span class="cc purple">Q</span> = emb @ <span class="cc purple">Wq</span></div><div class="ln"><span class="cc red">K</span> = emb @ <span class="cc red">Wk</span></div><div class="ln">scores = <span class="cc purple">Q</span>[-<span class="nu nn">1</span>] @ <span class="cc red">K</span>.T              <span class="cm"># honorable's query</span></div><div class="ln"><span class="bi">print</span>(scores)                     <span class="cm"># vs. every key</span></div><div class="ln"><span class="bi">print</span>(torch.softmax(scores, dim=<span class="nu nn">0</span>))</div></div></b-code>
   <b-out data-b="lmsp9"><div class="label">Output</div><pre><span class="ow">tensor</span>([ <span class="nu nn">1.06</span>,  <span class="nu nn">3.08</span>, <span class="nu nn">-6.58</span>, <span class="nu nn">-5.69</span>, <span class="nu nn">-5.69</span>,  <span class="nu nn">8.51</span>])
 <span class="ow">tensor</span>([<span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">1.00</span>])
 <span class="ow">tensor</span>([<span class="nu nn">-0.43</span>,  <span class="nu nn">0.54</span>, <span class="nu nn">-0.24</span>,  <span class="nu nn">0.21</span>])
@@ -1085,64 +1103,64 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="values" data-view="reading" data-topic="values">
   <h2 data-b="ner8e">Values</h2>
   <p data-b="knswv">Once "honorable" has decided which tokens to look at, it still has to take something from them. That something doesn't have to be the raw embedding either, so a third weight matrix <b class="take"><b-m tex="Ω_V"><span class="Om">ω</span><sub>V</sub></b-m></b> turns every embedding into a <b class="def">value</b>, what the token actually hands over when it gets attention. Our <b class="take"><b-m tex="Ω_V"><span class="Om">ω</span><sub>V</sub></b-m></b> is <span class="num">16</span> × <span class="num">16</span>, so a value has as many numbers as an embedding:</p>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 56%" role="img" aria-label="Three rows: the embeddings Ɛ (6 by 16) times Ω_Q (16 by 4) gives Q (6 by 4), times Ω_K (16 by 4) gives K (6 by 4), and times Ω_V (16 by 16) gives V (6 by 16)" data-b="z0pc6">
-  <defs></defs>
-  <g id="qkv-z0pc6-s1">
-  <rect x="72.0" y="7.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="100.0" y="26.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
-  <text x="100.0" y="39.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 16&gt;</text>
-  </g>
-  <text x="146.0" y="29.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="qkv-z0pc6-s2">
-  <rect x="168.0" y="7.0" width="56.0" height="36.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="189.2" y="26.4" font-size="14.0" fill="#8E7CC3" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
-  <text x="197.6" y="30.3" font-size="8.7" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Q</text>
-  <text x="196.0" y="39.8" font-size="6.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;16, 4&gt;</text>
-  </g>
-  <text x="246.0" y="29.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="qkv-z0pc6-s3">
-  <rect x="268.0" y="7.0" width="56.0" height="36.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="296.0" y="26.4" font-size="14.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Q</text>
-  <text x="296.0" y="39.8" font-size="6.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 4&gt;</text>
-  </g>
-  <g id="qkv-z0pc6-s4">
-  <rect x="72.0" y="55.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="100.0" y="74.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
-  <text x="100.0" y="87.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 16&gt;</text>
-  </g>
-  <text x="146.0" y="77.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="qkv-z0pc6-s5">
-  <rect x="168.0" y="55.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="189.2" y="74.4" font-size="14.0" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
-  <text x="197.6" y="78.3" font-size="8.7" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">K</text>
-  <text x="196.0" y="87.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;16, 4&gt;</text>
-  </g>
-  <text x="246.0" y="77.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="qkv-z0pc6-s6">
-  <rect x="268.0" y="55.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="296.0" y="74.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">K</text>
-  <text x="296.0" y="87.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 4&gt;</text>
-  </g>
-  <g id="qkv-z0pc6-s7">
-  <rect x="72.0" y="103.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="100.0" y="122.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
-  <text x="100.0" y="135.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 16&gt;</text>
-  </g>
-  <text x="146.0" y="125.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="qkv-z0pc6-s8">
-  <rect x="168.0" y="103.0" width="56.0" height="36.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="189.2" y="122.4" font-size="14.0" fill="#93C47D" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
-  <text x="197.6" y="126.3" font-size="8.7" fill="#93C47D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">V</text>
-  <text x="196.0" y="135.8" font-size="6.0" fill="#93C47D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;16, 16&gt;</text>
-  </g>
-  <text x="246.0" y="125.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="qkv-z0pc6-s9">
-  <rect x="268.0" y="103.0" width="56.0" height="36.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="296.0" y="122.4" font-size="14.0" fill="#93C47D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">V</text>
-  <text x="296.0" y="135.8" font-size="6.0" fill="#93C47D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 16&gt;</text>
-  </g>
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="Three rows: the embeddings Ɛ (6 by 16) times Ω_Q (16 by 4) gives Q (6 by 4), times Ω_K (16 by 4) gives K (6 by 4), and times Ω_V (16 by 16) gives V (6 by 16)" style="width: 56%" data-b="z0pc6">
+    <defs></defs>
+    <g id="qkv-z0pc6-s1">
+      <rect x="72.0" y="7.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="100.0" y="26.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
+      <text x="100.0" y="39.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 16&gt;</text>
+    </g>
+    <text x="146.0" y="29.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="qkv-z0pc6-s2">
+      <rect x="168.0" y="7.0" width="56.0" height="36.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="189.2" y="26.4" font-size="14.0" fill="#8E7CC3" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
+      <text x="197.6" y="30.3" font-size="8.7" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Q</text>
+      <text x="196.0" y="39.8" font-size="6.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;16, 4&gt;</text>
+    </g>
+    <text x="246.0" y="29.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="qkv-z0pc6-s3">
+      <rect x="268.0" y="7.0" width="56.0" height="36.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="296.0" y="26.4" font-size="14.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Q</text>
+      <text x="296.0" y="39.8" font-size="6.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 4&gt;</text>
+    </g>
+    <g id="qkv-z0pc6-s4">
+      <rect x="72.0" y="55.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="100.0" y="74.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
+      <text x="100.0" y="87.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 16&gt;</text>
+    </g>
+    <text x="146.0" y="77.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="qkv-z0pc6-s5">
+      <rect x="168.0" y="55.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="189.2" y="74.4" font-size="14.0" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
+      <text x="197.6" y="78.3" font-size="8.7" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">K</text>
+      <text x="196.0" y="87.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;16, 4&gt;</text>
+    </g>
+    <text x="246.0" y="77.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="qkv-z0pc6-s6">
+      <rect x="268.0" y="55.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="296.0" y="74.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">K</text>
+      <text x="296.0" y="87.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 4&gt;</text>
+    </g>
+    <g id="qkv-z0pc6-s7">
+      <rect x="72.0" y="103.0" width="56.0" height="36.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="100.0" y="122.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
+      <text x="100.0" y="135.8" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 16&gt;</text>
+    </g>
+    <text x="146.0" y="125.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="qkv-z0pc6-s8">
+      <rect x="168.0" y="103.0" width="56.0" height="36.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="189.2" y="122.4" font-size="14.0" fill="#93C47D" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Ω</text>
+      <text x="197.6" y="126.3" font-size="8.7" fill="#93C47D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">V</text>
+      <text x="196.0" y="135.8" font-size="6.0" fill="#93C47D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;16, 16&gt;</text>
+    </g>
+    <text x="246.0" y="125.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="qkv-z0pc6-s9">
+      <rect x="268.0" y="103.0" width="56.0" height="36.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="296.0" y="122.4" font-size="14.0" fill="#93C47D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">V</text>
+      <text x="296.0" y="135.8" font-size="6.0" fill="#93C47D" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 16&gt;</text>
+    </g>
   </svg>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="n9rm4"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div></div><div class="src"><div class="ln"><span class="cc green">Wv</span> = torch.randn(<span class="nu nn">16</span>, <span class="nu nn">16</span>) * <span class="nu nn">0.25</span>   <span class="cm"># Ω_V</span></div><div class="ln"><span class="cc green">V</span> = emb @ <span class="cc green">Wv</span></div><div class="ln"><span class="cc blue">weights</span> = torch.softmax(<span class="cc purple">Q</span>[-<span class="nu nn">1</span>] @ <span class="cc red">K</span>.T, dim=<span class="nu nn">0</span>)</div><div class="ln">context = <span class="cc blue">weights</span> @ <span class="cc green">V</span></div><div class="ln"><span class="bi">print</span>(context[:<span class="nu nn">4</span>])</div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="n9rm4"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div></div><div class="src"><div class="ln"><span class="cc green">Wv</span> = torch.randn(<span class="nu nn">16</span>, <span class="nu nn">16</span>) * <span class="nu nn">0.25</span>   <span class="cm"># Ω_V</span></div><div class="ln"><span class="cc green">V</span> = emb @ <span class="cc green">Wv</span></div><div class="ln"><span class="cc blue">weights</span> = torch.softmax(<span class="cc purple">Q</span>[-<span class="nu nn">1</span>] @ <span class="cc red">K</span>.T, dim=<span class="nu nn">0</span>)</div><div class="ln">context = <span class="cc blue">weights</span> @ <span class="cc green">V</span></div><div class="ln"><span class="bi">print</span>(context[:<span class="nu nn">4</span>])</div></div></b-code>
   <b-out data-b="gt0zi"><div class="label">Output</div><pre><span class="ow">tensor</span>([ <span class="nu nn">1.06</span>,  <span class="nu nn">3.08</span>, <span class="nu nn">-6.58</span>, <span class="nu nn">-5.69</span>, <span class="nu nn">-5.69</span>,  <span class="nu nn">8.51</span>])
 <span class="ow">tensor</span>([<span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">1.00</span>])
 <span class="ow">tensor</span>([<span class="nu nn">-0.43</span>,  <span class="nu nn">0.54</span>, <span class="nu nn">-0.24</span>,  <span class="nu nn">0.21</span>])
@@ -1166,7 +1184,7 @@ svg.al-clone { z-index: 1; }
   <p data-b="ex3rf">Row <b-m tex="i">i</b-m> holds token <b-m tex="i">i</b-m>'s scores against every key (the last row is "honorable" again), and all <span class="num">36</span> come out of one multiplication with no loop over the tokens. That fixes <b class="take">the RNN's second weakness</b>.</p>
 <div class="foot" data-rt=""><span>Self-Attention · Queries, Keys and Values</span><span>09</span></div></section>
 
-<section class="page" id="looking-ahead" data-part="Causal Masking" data-view="reading" data-topic="masking" style="--gap: 22pt;">
+<section class="page" id="looking-ahead" data-view="reading" data-topic="masking" data-part="Causal Masking" style="--gap: 22pt;">
   <h2 data-b="pvh8a">Looking Ahead</h2>
   <p data-b="qzc7y">Notice that rows <span class="num">4</span> and <span class="num">5</span> of that grid are identical. Both are "all", with the same embedding and so the same query and key, and nothing here knows which one came first. Attention on its own doesn't know about word order at all (Transformer Blocks fixes that with positional encodings and RoPE).</p>
   <p data-b="ctg3n">Now look at the first row. "So" has scores against "are", "they" and every other token after it, so its context would include words that come later in the prompt.</p>
@@ -1177,7 +1195,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="causal-masking" data-view="reading" data-topic="masking" style="--gap: 22pt;">
   <h2 data-b="u8h5i">Causal Masking</h2>
   <p data-b="gu0cj">The trick is to change the scores before the softmax. Any score set to <b-m tex="−∞">−∞</b-m> gets a weight of exactly <span class="num">0</span>, since <b-m tex="e^{−∞}">e<sup>−∞</sup></b-m> is <span class="num">0</span>. <span class="mono">torch.tril</span> makes a lower triangle of ones (a token and everything before it), and <span class="mono">masked_fill</span> puts <b-m tex="−∞">−∞</b-m> everywhere else:</p>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="ap9mx"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div></div><div class="src"><div class="ln">mask = torch.tril(torch.ones(<span class="nu nn">6</span>, <span class="nu nn">6</span>))</div><div class="ln">scores = scores.masked_fill(mask == <span class="nu nn">0</span>, <span class="ty">float</span>(<span class="st">"-inf"</span>))</div><div class="ln"><span class="bi">print</span>(scores)</div><div class="ln"><span class="bi">print</span>(torch.softmax(scores, dim=-<span class="nu nn">1</span>))</div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="ap9mx"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div></div><div class="src"><div class="ln">mask = torch.tril(torch.ones(<span class="nu nn">6</span>, <span class="nu nn">6</span>))</div><div class="ln">scores = scores.masked_fill(mask == <span class="nu nn">0</span>, <span class="ty">float</span>(<span class="st">"-inf"</span>))</div><div class="ln"><span class="bi">print</span>(scores)</div><div class="ln"><span class="bi">print</span>(torch.softmax(scores, dim=-<span class="nu nn">1</span>))</div></div></b-code>
   <b-out data-b="cevbe"><div class="label">Output</div><pre><span class="ow">tensor</span>([[<span class="nu nn">-0.06</span>, <span class="nu nn">-2.45</span>,  <span class="nu nn">0.58</span>,  <span class="nu nn">0.89</span>,  <span class="nu nn">0.89</span>, <span class="nu nn">-1.39</span>],
         [<span class="nu nn">-0.14</span>,  <span class="nu nn">2.20</span>, <span class="nu nn">-2.67</span>, <span class="nu nn">-0.96</span>, <span class="nu nn">-0.96</span>,  <span class="nu nn">1.38</span>],
         [<span class="nu nn">-1.72</span>, <span class="nu nn">-0.56</span>,  <span class="nu nn">0.01</span>,  <span class="nu nn">1.79</span>,  <span class="nu nn">1.79</span>, <span class="nu nn">-0.41</span>],
@@ -1226,10 +1244,21 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="aqsx1">The Attention Equation</h2>
   <p data-b="ca2gl">Put together, self-attention is one line, the equation from "Attention Is All You Need" (Vaswani and others, 2017), the paper that introduced the transformer. Scores from queries and keys, scaled, masked, a softmax across each row, and the weights times the values:</p>
   <b-eq data-b="i3itq" class=""><a id="eq-attn" data-rt=""></a>
-  <eq-row label="attn" note="one row of context per token">\text{Context} = \text{softmax}\bp{\frac{\purple{Q}\,\red{K}^{T}}{\sqrt{d_k}}}\,\green{V}</eq-row>
+    <eq-row label="attn" note="one row of context per token">\text{Context} = \text{softmax}\bp{\frac{\purple{Q}\,\red{K}^{T}}{\sqrt{d_k}}}\,\green{V}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[8.1]</div><div class="eqml-e"><div class="eqml-note">one row of context per token</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mtext>Context</mtext><mrow><mspace width="0.2778em"></mspace><mo>=</mo><mspace width="0.2778em"></mspace></mrow><mtext>softmax</mtext><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mfrac><mrow><mrow><mi style="color:#674EA7;">𝐐</mi></mrow><mspace width="0.1667em"></mspace><msup><mrow><mi style="color:#CC0000;">𝐊</mi></mrow><mi mathvariant="normal">T</mi></msup></mrow><msqrt><msub><mi mathvariant="normal">d</mi><mi mathvariant="normal">k</mi></msub></msqrt></mfrac><mo fence="true" form="postfix" stretchy="true">)</mo></mrow><mspace width="0.1667em"></mspace><mrow><mi style="color:#38761D;">𝐕</mi></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="ajkof">The mask isn't written in the equation, it's applied to the scores just before the softmax. For our prompt the shapes are:</p>
-  <table class="tight" data-b="p2618"><tbody><tr><th>matrix</th><th>ours</th><th>on the slides</th></tr><tr><td><b-m tex="Ɛ">Ɛ</b-m></td><td><span class="mono">&lt;6, 16&gt;</span></td><td><span class="mono">&lt;7, 768&gt;</span></td></tr><tr><td><b-m tex="Q">Q</b-m>, <b-m tex="K">K</b-m></td><td><span class="mono">&lt;6, 4&gt;</span></td><td><span class="mono">&lt;7, 64&gt;</span></td></tr><tr><td><b-m tex="V">V</b-m></td><td><span class="mono">&lt;6, 16&gt;</span></td><td><span class="mono">&lt;7, 768&gt;</span></td></tr><tr><td>attention weights</td><td><span class="mono">&lt;6, 6&gt;</span></td><td><span class="mono">&lt;7, 7&gt;</span></td></tr><tr><td>Context</td><td><span class="mono">&lt;6, 16&gt;</span></td><td><span class="mono">&lt;7, 768&gt;</span></td></tr></tbody></table>
+  <table class="tight" data-b="p2618">
+    <thead>
+      <tr><th>matrix</th><th>ours</th><th>on the slides</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><b-m tex="Ɛ">Ɛ</b-m></td><td><span class="mono">&lt;6, 16&gt;</span></td><td><span class="mono">&lt;7, 768&gt;</span></td></tr>
+      <tr><td><b-m tex="Q">Q</b-m>, <b-m tex="K">K</b-m></td><td><span class="mono">&lt;6, 4&gt;</span></td><td><span class="mono">&lt;7, 64&gt;</span></td></tr>
+      <tr><td><b-m tex="V">V</b-m></td><td><span class="mono">&lt;6, 16&gt;</span></td><td><span class="mono">&lt;7, 768&gt;</span></td></tr>
+      <tr><td>attention weights</td><td><span class="mono">&lt;6, 6&gt;</span></td><td><span class="mono">&lt;7, 7&gt;</span></td></tr>
+      <tr><td>Context</td><td><span class="mono">&lt;6, 16&gt;</span></td><td><span class="mono">&lt;7, 768&gt;</span></td></tr>
+    </tbody>
+  </table>
   <p data-b="bmxuj">Notice that the attention weights are always tokens × tokens, whatever the size of the embeddings, and the context always has the same shape as <b-m tex="Ɛ">Ɛ</b-m>. Every token gets <b class="take">one row of context, the same size as its embedding</b>.</p>
 <div class="foot" data-rt=""><span>Self-Attention · Causal Masking</span><span>14</span></div></section>
 
@@ -1245,11 +1274,11 @@ svg.al-clone { z-index: 1; }
         [<span class="nu nn">0.43</span>, <span class="nu nn">0.24</span>, <span class="nu nn">0.06</span>, <span class="nu nn">0.04</span>, <span class="nu nn">0.04</span>, <span class="nu nn">0.20</span>]])</pre></b-out>
 <div class="foot" data-rt=""><span>Self-Attention · Causal Masking</span><span>15</span></div></section>
 
-<section class="page" id="residual-connections" data-part="Context-Aware Embeddings" data-view="reading" data-topic="residual" style="--gap: 22pt;">
+<section class="page" id="residual-connections" data-view="reading" data-topic="residual" data-part="Context-Aware Embeddings" style="--gap: 22pt;">
   <h2 data-b="q8j3u">Residual Connections</h2>
   <p data-b="phvla">The context is what each token gathered from the others, but we don't want it to replace the token. With random weights "honorable" takes <span class="num">43%</span> of its context from "so", and we'd hate for the model to forget which word it's actually sitting on. So we add the context to the embeddings instead:</p>
   <b-eq data-b="gi9t5" class=""><a id="eq-ca" data-rt=""></a>
-  <eq-row label="ca" note="the context is added back to the embeddings">\red{\text{Ɛ}_{\text{CA}}} = \red{\text{Ɛ}} + \text{Context}</eq-row>
+    <eq-row label="ca" note="the context is added back to the embeddings">\red{\text{Ɛ}_{\text{CA}}} = \red{\text{Ɛ}} + \text{Context}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[8.2]</div><div class="eqml-e"><div class="eqml-note">the context is added back to the embeddings</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><msub style="color:#CC0000;"><mtext>Ɛ</mtext><mtext>𝐂𝐀</mtext></msub></mrow><mo>=</mo><mrow><mtext style="color:#CC0000;">Ɛ</mtext></mrow><mo>+</mo><mtext>Context</mtext></mrow></math></div></div></div></b-eq>
   <p data-b="ldox3">Adding the input back to the output like this is called a <b class="def">residual connection</b>, and the results are <b class="def">context-aware embeddings</b>, <b-m tex="Ɛ_{CA}">Ɛ<sub>CA</sub></b-m>.</p>
 <div class="foot" data-rt=""><span>Self-Attention · Context-Aware Embeddings</span><span>16</span></div></section>
@@ -1257,7 +1286,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="context-aware-embeddings" data-view="reading" data-topic="residual" style="--gap: 22pt;">
   <h2 data-b="c4q0w">Context-Aware Embeddings</h2>
   <p data-b="gm8dp">Here are the first four numbers of the two "all"s before and after:</p>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="tq5yy"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div></div><div class="src"><div class="ln">emb_ca = emb + ctx                <span class="cm"># residual connection</span></div><div class="ln"><span class="bi">print</span>(emb[<span class="nu nn">3</span>, :<span class="nu nn">4</span>], emb[<span class="nu nn">4</span>, :<span class="nu nn">4</span>])     <span class="cm"># the two "all"s</span></div><div class="ln"><span class="bi">print</span>(emb_ca[<span class="nu nn">3</span>, :<span class="nu nn">4</span>], emb_ca[<span class="nu nn">4</span>, :<span class="nu nn">4</span>])</div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="tq5yy"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div></div><div class="src"><div class="ln">emb_ca = emb + ctx                <span class="cm"># residual connection</span></div><div class="ln"><span class="bi">print</span>(emb[<span class="nu nn">3</span>, :<span class="nu nn">4</span>], emb[<span class="nu nn">4</span>, :<span class="nu nn">4</span>])     <span class="cm"># the two "all"s</span></div><div class="ln"><span class="bi">print</span>(emb_ca[<span class="nu nn">3</span>, :<span class="nu nn">4</span>], emb_ca[<span class="nu nn">4</span>, :<span class="nu nn">4</span>])</div></div></b-code>
   <b-out data-b="pq20x"><div class="label">Output</div><pre><span class="ow">tensor</span>([[<span class="nu nn">1.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>],
         [<span class="nu nn">0.24</span>, <span class="nu nn">0.76</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>],
         [<span class="nu nn">0.19</span>, <span class="nu nn">0.35</span>, <span class="nu nn">0.46</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>, <span class="nu nn">0.00</span>],
@@ -1273,14 +1302,14 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="r3z5y">Producing Output</h2>
   <p data-b="ulry6">To predict the next word we do what the RNN did with <b-m tex="h_t">h<sub>t</sub></b-m>. We take the last row of <b-m tex="Ɛ_{CA}">Ɛ<sub>CA</sub></b-m>, multiply by <b class="c wblue"><b-m tex="Ω_y"><span class="Om">ω</span><sub><span class="c green sym" data-at="0,1" data-k="y">y</span></sub></b-m></b> (<span class="num">16</span> × <span class="num">135</span>), add a bias <b-m tex="b_y"><span class="c gray sym" data-at="0,3" data-k="b_y">b<sub>y</sub></span></b-m>, and a softmax turns the <span class="num">135</span> scores into probabilities:</p>
   <b-eq data-b="lowco" class=""><a id="eq-out" data-rt=""></a>
-  <eq-row label="out" note="one probability per word in the vocabulary">\yhat = \text{softmax}\bp{\red{\text{Ɛ}_{\text{CA}}}[-1]\,\blue{\Omega_{\text{y}}} + b_y}</eq-row>
+    <eq-row label="out" note="one probability per word in the vocabulary">\yhat = \text{softmax}\bp{\red{\text{Ɛ}_{\text{CA}}}[-1]\,\blue{\Omega_{\text{y}}} + b_y}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[8.3]</div><div class="eqml-e"><div class="eqml-note">one probability per word in the vocabulary</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-5"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mtext style="color:#DCB439;">ŷ</mtext></mrow></mrow><mo>=</mo><mtext>softmax</mtext><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow><msub style="color:#CC0000;"><mtext>Ɛ</mtext><mtext>𝐂𝐀</mtext></msub></mrow><mrow><mo fence="true" form="prefix" stretchy="false">[</mo><mo form="prefix" stretchy="false">−</mo><mn>1</mn><mo fence="true" form="postfix" stretchy="false">]</mo></mrow><mspace width="0.1667em"></mspace><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mtext>𝐲</mtext></msub></mrow><mo>+</mo><mrow class="sym sym-666666 sa-85-88"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#666666;"><mi mathvariant="normal">𝐛</mi><mi mathvariant="normal">𝐲</mi></msub></mrow></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="aw27x">The other rows aren't wasted. Row <b-m tex="t">t</b-m> of <b-m tex="Ɛ_{CA}">Ɛ<sub>CA</sub></b-m> has seen tokens <span class="num">1</span> to <b-m tex="t">t</b-m>, so it can predict token <b-m tex="t + 1">t + 1</b-m>, and thanks to the mask it never saw the answer. During training <b class="take">every row makes a prediction</b>, eight per window of eight words, all from one pass of attention.</p>
   <p data-b="zuwvm">That is the whole model: embeddings, one self-attention, a residual connection and an output layer. It has <span class="num">4,839</span> weights, about a third of our RNN's <span class="num">16,119</span>, most of them in the embeddings and <b class="c wblue"><b-m tex="Ω_y"><span class="Om">ω</span><sub><span class="c green sym" data-at="0,1" data-k="y">y</span></sub></b-m></b>.</p>
   <p data-b="h7bu5">irishQwen's attention (in <span class="mono">grouped_query_attention.py</span>) does the same steps with the same names, <span class="mono">scores</span>, <span class="mono">tril</span>, <span class="mono">attn</span> and <span class="mono">ctx</span>, just with much bigger matrices and a few extra pieces we'll meet later.</p>
 <div class="foot" data-rt=""><span>Self-Attention · Context-Aware Embeddings</span><span>18</span></div></section>
 
-<section class="page" id="training-samples" data-part="Training" data-view="reading" data-topic="training">
+<section class="page" id="training-samples" data-view="reading" data-topic="training" data-part="Training">
   <h2 data-b="rhrrt">Training Samples</h2>
   <p data-b="wb0rp">We train on the same samples as the RNN: every window of <span class="num">8</span> words in the speech is an input, and the same window moved one word along is its target, <span class="num">260</span> windows from the speech's <span class="num">268</span> words. Here they are, along with every weight starting out small and random (the bias at zero, and the embedding <span class="mono">E</span> is learned too):</p>
   <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="j3iwi"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div><div>22</div><div>23</div><div>24</div><div>25</div></div><div class="src"><div class="ln"><span class="kw">import</span> re, math, torch</div><div class="ln"><span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F</div><div class="ln"></div><div class="ln">text = <span class="bi">open</span>(<span class="st">"shakespeare.txt"</span>).read()</div><div class="ln">speech = text[text.find(<span class="st">"Friends, Romans"</span>):]</div><div class="ln">speech = speech[:speech.find(<span class="st">"come back to me."</span>) + <span class="nu nn">16</span>]</div><div class="ln">words = re.findall(<span class="st">r"[a-z']+"</span>, speech.lower())</div><div class="ln">vocab = <span class="bi">sorted</span>(<span class="ty">set</span>(words))</div><div class="ln">ids = torch.tensor([vocab.index(w) <span class="ctl">for</span> w <span class="kw">in</span> words])</div><div class="ln">starts = <span class="bi">range</span>(<span class="bi">len</span>(ids) - <span class="nu nn">8</span>)</div><div class="ln"><span class="cc red">X</span> = torch.stack([ids[i:i + <span class="nu nn">8</span>] <span class="ctl">for</span> i <span class="kw">in</span> starts])</div><div class="ln">Y = torch.stack([ids[i + <span class="nu nn">1</span>:i + <span class="nu nn">9</span>] <span class="ctl">for</span> i <span class="kw">in</span> starts])</div><div class="ln"></div><div class="ln">torch.manual_seed(<span class="nu nn">0</span>)</div><div class="ln">n = <span class="bi">len</span>(vocab)</div><div class="ln">E = torch.randn(n, <span class="nu nn">16</span>) * <span class="nu nn">0.1</span></div><div class="ln"><span class="cc purple">Wq</span> = torch.randn(<span class="nu nn">16</span>, <span class="nu nn">4</span>) * <span class="nu nn">0.1</span></div><div class="ln"><span class="cc red">Wk</span> = torch.randn(<span class="nu nn">16</span>, <span class="nu nn">4</span>) * <span class="nu nn">0.1</span></div><div class="ln"><span class="cc green">Wv</span> = torch.randn(<span class="nu nn">16</span>, <span class="nu nn">16</span>) * <span class="nu nn">0.1</span></div><div class="ln"><span class="cc blue">Wy</span> = torch.randn(<span class="nu nn">16</span>, n) * <span class="nu nn">0.1</span></div><div class="ln">by = torch.zeros(n)</div><div class="ln">params = [E, <span class="cc purple">Wq</span>, <span class="cc red">Wk</span>, <span class="cc green">Wv</span>, <span class="cc blue">Wy</span>, by]</div><div class="ln"><span class="ctl">for</span> p <span class="kw">in</span> params:</div><div class="ln">    p.requires_grad_()</div><div class="ln"><span class="bi">print</span>(<span class="cc red">X</span>.shape, Y.shape)</div></div></b-code>
@@ -1290,7 +1319,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="training-self-attention" data-view="reading" data-topic="training" style="--gap: 17.8pt;">
   <h2 data-b="do19j">Training Self-Attention</h2>
   <p data-b="sgl7j">Attention runs on all <span class="num">260</span> windows at once (hence <span class="mono">transpose(-2, -1)</span> instead of <span class="mono">.T</span>):</p>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="xwsab"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">attention</span>(emb):</div><div class="ln">    T = emb.shape[-<span class="nu nn">2</span>]</div><div class="ln">    <span class="cc purple">Q</span>, <span class="cc red">K</span>, <span class="cc green">V</span> = emb @ <span class="cc purple">Wq</span>, emb @ <span class="cc red">Wk</span>, emb @ <span class="cc green">Wv</span></div><div class="ln">    scores = <span class="cc purple">Q</span> @ <span class="cc red">K</span>.transpose(-<span class="nu nn">2</span>, -<span class="nu nn">1</span>) / math.sqrt(<span class="nu nn">4</span>)</div><div class="ln">    tril = torch.tril(torch.ones(T, T))</div><div class="ln">    scores = scores.masked_fill(tril == <span class="nu nn">0</span>, <span class="ty">float</span>(<span class="st">"-inf"</span>))</div><div class="ln">    attn = torch.softmax(scores, dim=-<span class="nu nn">1</span>)</div><div class="ln">    <span class="ctl">return</span> emb + attn @ <span class="cc green">V</span>, attn   <span class="cm"># residual</span></div><div class="ln"></div><div class="ln">opt = torch.optim.Adam(params, lr=<span class="nu nn">0.01</span>)</div><div class="ln"><span class="ctl">for</span> step <span class="kw">in</span> <span class="bi">range</span>(<span class="nu nn">301</span>):</div><div class="ln">    emb_ca, attn = attention(E[<span class="cc red">X</span>])</div><div class="ln">    <span class="cc purple">logits</span> = emb_ca @ <span class="cc blue">Wy</span> + by     <span class="cm"># every position</span></div><div class="ln">    loss = F.cross_entropy(<span class="cc purple">logits</span>.reshape(-<span class="nu nn">1</span>, n),</div><div class="ln">                           Y.reshape(-<span class="nu nn">1</span>))</div><div class="ln">    opt.zero_grad()</div><div class="ln">    loss.backward()</div><div class="ln">    opt.step()</div><div class="ln">    <span class="ctl">if</span> step % <span class="nu nn">100</span> == <span class="nu nn">0</span>:</div><div class="ln">        <span class="bi">print</span>(<span class="st">"step"</span>, step, <span class="st">"loss"</span>, <span class="bi">round</span>(loss.item(), <span class="nu nn">3</span>))</div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="xwsab"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">attention</span>(emb):</div><div class="ln">    T = emb.shape[-<span class="nu nn">2</span>]</div><div class="ln">    <span class="cc purple">Q</span>, <span class="cc red">K</span>, <span class="cc green">V</span> = emb @ <span class="cc purple">Wq</span>, emb @ <span class="cc red">Wk</span>, emb @ <span class="cc green">Wv</span></div><div class="ln">    scores = <span class="cc purple">Q</span> @ <span class="cc red">K</span>.transpose(-<span class="nu nn">2</span>, -<span class="nu nn">1</span>) / math.sqrt(<span class="nu nn">4</span>)</div><div class="ln">    tril = torch.tril(torch.ones(T, T))</div><div class="ln">    scores = scores.masked_fill(tril == <span class="nu nn">0</span>, <span class="ty">float</span>(<span class="st">"-inf"</span>))</div><div class="ln">    attn = torch.softmax(scores, dim=-<span class="nu nn">1</span>)</div><div class="ln">    <span class="ctl">return</span> emb + attn @ <span class="cc green">V</span>, attn   <span class="cm"># residual</span></div><div class="ln"></div><div class="ln">opt = torch.optim.Adam(params, lr=<span class="nu nn">0.01</span>)</div><div class="ln"><span class="ctl">for</span> step <span class="kw">in</span> <span class="bi">range</span>(<span class="nu nn">301</span>):</div><div class="ln">    emb_ca, attn = attention(E[<span class="cc red">X</span>])</div><div class="ln">    <span class="cc purple">logits</span> = emb_ca @ <span class="cc blue">Wy</span> + by     <span class="cm"># every position</span></div><div class="ln">    loss = F.cross_entropy(<span class="cc purple">logits</span>.reshape(-<span class="nu nn">1</span>, n),</div><div class="ln">                           Y.reshape(-<span class="nu nn">1</span>))</div><div class="ln">    opt.zero_grad()</div><div class="ln">    loss.backward()</div><div class="ln">    opt.step()</div><div class="ln">    <span class="ctl">if</span> step % <span class="nu nn">100</span> == <span class="nu nn">0</span>:</div><div class="ln">        <span class="bi">print</span>(<span class="st">"step"</span>, step, <span class="st">"loss"</span>, <span class="bi">round</span>(loss.item(), <span class="nu nn">3</span>))</div></div></b-code>
   <b-out data-b="fl3xf"><div class="label">Output</div><pre>torch.Size([<span class="nu nn">260</span>, <span class="nu nn">8</span>]) torch.Size([<span class="nu nn">260</span>, <span class="nu nn">8</span>])
 <span class="olab">step</span> <span class="nu nn">0</span> <span class="cc red">loss</span> <span class="nu nn">4.901</span>
 <span class="olab">step</span> <span class="nu nn">100</span> <span class="cc red">loss</span> <span class="nu nn">0.434</span>
@@ -1302,7 +1331,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="what-it-predicts" data-view="reading" data-topic="training">
   <h2 data-b="x11k8">What It Predicts</h2>
   <p data-b="rb9uq">Here are the trained model's two favorite next words for a few prompts, with their probabilities:</p>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="k7ffm"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">predict</span>(prompt):</div><div class="ln">    p = torch.tensor([vocab.index(w) <span class="ctl">for</span> w <span class="kw">in</span> prompt])</div><div class="ln">    emb_ca, attn = attention(E[p])</div><div class="ln">    <span class="cc gold">probs</span> = torch.softmax(emb_ca[-<span class="nu nn">1</span>] @ <span class="cc blue">Wy</span> + by, dim=<span class="nu nn">0</span>)</div><div class="ln">    <span class="ctl">return</span> <span class="cc gold">probs</span>, attn[-<span class="nu nn">1</span>]</div><div class="ln"></div><div class="ln"><span class="ctl">with</span> torch.no_grad():</div><div class="ln">    <span class="ctl">for</span> prompt <span class="kw">in</span> [<span class="st">"honorable"</span>,</div><div class="ln">                   <span class="st">"and brutus is an honorable"</span>,</div><div class="ln">                   <span class="st">"so are they all all honorable"</span>,</div><div class="ln">                   <span class="st">"lend me your"</span>]:</div><div class="ln">        p, i = predict(prompt.split())[<span class="nu nn">0</span>].topk(<span class="nu nn">2</span>)</div><div class="ln">        a, b = p.tolist()</div><div class="ln">        <span class="bi">print</span>(prompt.rjust(<span class="nu nn">29</span>), vocab[i[<span class="nu nn">0</span>]], <span class="bi">round</span>(a, <span class="nu nn">3</span>),</div><div class="ln">              vocab[i[<span class="nu nn">1</span>]], <span class="bi">round</span>(b, <span class="nu nn">3</span>))</div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="k7ffm"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">predict</span>(prompt):</div><div class="ln">    p = torch.tensor([vocab.index(w) <span class="ctl">for</span> w <span class="kw">in</span> prompt])</div><div class="ln">    emb_ca, attn = attention(E[p])</div><div class="ln">    <span class="cc gold">probs</span> = torch.softmax(emb_ca[-<span class="nu nn">1</span>] @ <span class="cc blue">Wy</span> + by, dim=<span class="nu nn">0</span>)</div><div class="ln">    <span class="ctl">return</span> <span class="cc gold">probs</span>, attn[-<span class="nu nn">1</span>]</div><div class="ln"></div><div class="ln"><span class="ctl">with</span> torch.no_grad():</div><div class="ln">    <span class="ctl">for</span> prompt <span class="kw">in</span> [<span class="st">"honorable"</span>,</div><div class="ln">                   <span class="st">"and brutus is an honorable"</span>,</div><div class="ln">                   <span class="st">"so are they all all honorable"</span>,</div><div class="ln">                   <span class="st">"lend me your"</span>]:</div><div class="ln">        p, i = predict(prompt.split())[<span class="nu nn">0</span>].topk(<span class="nu nn">2</span>)</div><div class="ln">        a, b = p.tolist()</div><div class="ln">        <span class="bi">print</span>(prompt.rjust(<span class="nu nn">29</span>), vocab[i[<span class="nu nn">0</span>]], <span class="bi">round</span>(a, <span class="nu nn">3</span>),</div><div class="ln">              vocab[i[<span class="nu nn">1</span>]], <span class="bi">round</span>(b, <span class="nu nn">3</span>))</div></div></b-code>
   <b-out data-b="p252g"><div class="label">Output</div><pre>torch.Size([<span class="nu nn">260</span>, <span class="nu nn">8</span>]) torch.Size([<span class="nu nn">260</span>, <span class="nu nn">8</span>])
 <span class="olab">step</span> <span class="nu nn">0</span> <span class="cc red">loss</span> <span class="nu nn">4.901</span>
 <span class="olab">step</span> <span class="nu nn">100</span> <span class="cc red">loss</span> <span class="nu nn">0.434</span>
@@ -1318,7 +1347,7 @@ so are they all all honorable men <span class="nu nn">0.999</span> i <span class
 <section class="page" id="where-it-looks" data-view="reading" data-topic="training" style="--gap: 22pt;">
   <h2 data-b="lup23">Where It Looks</h2>
   <p data-b="hj1rl">To see how it stopped hedging we can print the last row of the attention weights, where "honorable" looked:</p>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="vanm7"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div></div><div class="src"><div class="ln"><span class="ctl">with</span> torch.no_grad():</div><div class="ln">    <span class="ctl">for</span> prompt <span class="kw">in</span> [<span class="st">"and brutus is an honorable"</span>,</div><div class="ln">                   <span class="st">"so are they all all honorable"</span>]:</div><div class="ln">        attn = predict(prompt.split())[<span class="nu nn">1</span>]</div><div class="ln">        <span class="bi">print</span>([<span class="bi">round</span>(a, <span class="nu nn">2</span>) <span class="ctl">for</span> a <span class="kw">in</span> attn.tolist()])</div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="vanm7"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div></div><div class="src"><div class="ln"><span class="ctl">with</span> torch.no_grad():</div><div class="ln">    <span class="ctl">for</span> prompt <span class="kw">in</span> [<span class="st">"and brutus is an honorable"</span>,</div><div class="ln">                   <span class="st">"so are they all all honorable"</span>]:</div><div class="ln">        attn = predict(prompt.split())[<span class="nu nn">1</span>]</div><div class="ln">        <span class="bi">print</span>([<span class="bi">round</span>(a, <span class="nu nn">2</span>) <span class="ctl">for</span> a <span class="kw">in</span> attn.tolist()])</div></div></b-code>
   <b-out data-b="welam"><div class="label">Output</div><pre>torch.Size([<span class="nu nn">260</span>, <span class="nu nn">8</span>]) torch.Size([<span class="nu nn">260</span>, <span class="nu nn">8</span>])
 <span class="olab">step</span> <span class="nu nn">0</span> <span class="cc red">loss</span> <span class="nu nn">4.901</span>
 <span class="olab">step</span> <span class="nu nn">100</span> <span class="cc red">loss</span> <span class="nu nn">0.434</span>
@@ -1336,7 +1365,7 @@ so are they all all honorable men <span class="nu nn">0.999</span> i <span class
 <section class="page" id="attention-during-training" data-view="reading" data-topic="training" style="--gap: 22pt;">
   <h2 data-b="k1tpa">Attention During Training</h2>
   <p data-b="no0rn">Pictured below is that same row as training goes on, for both prompts:</p>
-  <b-fig src="fig/attn-training.svg" style="width: 100%; --ar: 2.560;" alt="Attention weights from honorable for two prompts at four stages. Untrained, every token gets the same share (0.20 or 0.17). By step 100, an gets 0.69 in the first prompt and each all gets 0.40 in the second. Trained: an 0.49 and honorable 0.47, each all 0.36 and honorable 0.27" data-b="xsiv2"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/attn-training.svg" alt="Attention weights from honorable for two prompts at four stages. Untrained, every token gets the same share (0.20 or 0.17). By step 100, an gets 0.69 in the first prompt and each all gets 0.40 in the second. Trained: an 0.49 and honorable 0.47, each all 0.36 and honorable 0.27" style="width: 100%; --ar: 2.560;" data-b="xsiv2"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -1918,7 +1947,7 @@ z
 <section class="page" id="generating-text" data-view="reading" data-topic="generation">
   <h2 data-b="aw2iw">Generating Text</h2>
   <p data-b="tu6ex">To generate text we do what we did with the RNN. Predict the next word, append it to the prompt, run attention again on the longer prompt, and repeat. Each new word is predicted from the words before it, including the ones the model wrote itself, which is called <b class="def">auto-regressive</b> generation. Starting from "friends romans" and always taking the most likely word (the model only ever saw windows of <span class="num">8</span>, so we give it the last <span class="num">8</span>):</p>
-  <b-code lang="python" chain="" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" data-b="bxzz8"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div></div><div class="src"><div class="ln">text = [<span class="st">"friends"</span>, <span class="st">"romans"</span>]</div><div class="ln"><span class="ctl">with</span> torch.no_grad():</div><div class="ln">    <span class="ctl">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(<span class="nu nn">20</span>):</div><div class="ln">        <span class="cc gold">probs</span> = predict(text[-<span class="nu nn">8</span>:])[<span class="nu nn">0</span>]   <span class="cm"># last 8 words</span></div><div class="ln">        text.append(vocab[<span class="cc gold">probs</span>.argmax().item()])</div><div class="ln"><span class="bi">print</span>(<span class="st">" "</span>.join(text[:<span class="nu nn">11</span>]))</div><div class="ln"><span class="bi">print</span>(<span class="st">" "</span>.join(text[<span class="nu nn">11</span>:]))</div></div></b-code>
+  <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ballm/shakespeare.txt" chain="" data-b="bxzz8"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div></div><div class="src"><div class="ln">text = [<span class="st">"friends"</span>, <span class="st">"romans"</span>]</div><div class="ln"><span class="ctl">with</span> torch.no_grad():</div><div class="ln">    <span class="ctl">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(<span class="nu nn">20</span>):</div><div class="ln">        <span class="cc gold">probs</span> = predict(text[-<span class="nu nn">8</span>:])[<span class="nu nn">0</span>]   <span class="cm"># last 8 words</span></div><div class="ln">        text.append(vocab[<span class="cc gold">probs</span>.argmax().item()])</div><div class="ln"><span class="bi">print</span>(<span class="st">" "</span>.join(text[:<span class="nu nn">11</span>]))</div><div class="ln"><span class="bi">print</span>(<span class="st">" "</span>.join(text[<span class="nu nn">11</span>:]))</div></div></b-code>
   <b-out data-b="yw9j5"><div class="label">Output</div><pre>torch.Size([<span class="nu nn">260</span>, <span class="nu nn">8</span>]) torch.Size([<span class="nu nn">260</span>, <span class="nu nn">8</span>])
 <span class="olab">step</span> <span class="nu nn">0</span> <span class="cc red">loss</span> <span class="nu nn">4.901</span>
 <span class="olab">step</span> <span class="nu nn">100</span> <span class="cc red">loss</span> <span class="nu nn">0.434</span>
@@ -1935,7 +1964,7 @@ bury caesar not to praise him the evil that men do</pre></b-out>
   <p data-b="ruh3h">That's the speech, nearly. Antony says "I come to bury Caesar", and our model <b class="warn">slips in an extra "i"</b>, then recovers. With <span class="num">4,839</span> weights and <span class="num">260</span> windows it has mostly memorized the speech, which is all we asked of it.</p>
 <div class="foot" data-rt=""><span>Self-Attention · Training</span><span>24</span></div></section>
 
-<section class="page" id="one-question" data-part="One Head" data-view="reading" data-topic="one-head" style="--gap: 22pt;">
+<section class="page" id="one-question" data-view="reading" data-topic="one-head" data-part="One Head" style="--gap: 22pt;">
   <h2 data-b="fgc6u">One Question per Token</h2>
   <p data-b="gsgkl">Look back at where "honorable" looked in "so are they all, all honorable": <span class="num">0.36</span> on each "all", <span class="num">0.27</span> on itself and nothing on "they". That was enough here, since "all" answers the one question the model needed answered, one person or several.</p>
   <p data-b="lsbbw">Unfortunately a token gets just one row of attention weights, and it adds up to <span class="num">1</span>. If "honorable" also needed to know who is being described, every bit of attention it spent on "they" would have to come away from "all". <b class="warn">One row of weights can only strike one balance</b> between the questions a token has.</p>
@@ -2296,7 +2325,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -2324,15 +2353,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -2341,6 +2416,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -2353,9 +2429,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

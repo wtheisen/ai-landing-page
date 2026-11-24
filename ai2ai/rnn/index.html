@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -833,67 +844,66 @@ svg.al-clone { z-index: 1; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Recurrent Neural Networks</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#sequence">Sequence Data</a><a href="#tokenization">Tokenization</a><a href="#one-hot">Word Embeddings</a><a href="#context">Recurrent Neural Networks</a><a href="#scratch-rnn">An RNN From Scratch</a><a href="#uses">Uses of RNNs</a><a href="#pros-cons">Pros and Cons</a><a href="#gates">Gating</a><a href="#bottleneck">Attention</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="on">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="rnn-chapter.pdf" download>Reading</a><a href="rnn-chapter-slides.pdf" download>Lecture</a><a href="rnn-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="reading">
 <section class="page cover" id="cover">
-  
-  <svg class="draw" viewBox="0 0 384 230" style="width: 280.9pt" role="img" aria-label="An RNN unrolled over six words: under each step two red input circles, above them two gold hidden circles joined by blue weights to the next step's, and a small gold output circle on top; the words cheer cheer for old notre dame under the steps in red, and the next word above each output in green" data-b="xt1vs">
+  <svg class="draw" viewBox="0 0 384 230" role="img" aria-label="An RNN unrolled over six words: under each step two red input circles, above them two gold hidden circles joined by blue weights to the next step's, and a small gold output circle on top; the words cheer cheer for old notre dame under the steps in red, and the next word above each output in green" style="width: 280.9pt" data-b="xt1vs">
     <defs></defs>
-    <line x1="69.3" y1="192.1" x2="76.6" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="69.3" y1="192.1" x2="76.6" y2="110.8" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="23.3" y1="110.8" x2="76.6" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="97.3" y1="192.1" x2="76.6" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="36.7" y1="88.4" x2="76.6" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="76.6" y1="110.8" x2="83.3" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
     <line x1="69.3" y1="192.1" x2="90.0" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="23.3" y1="110.8" x2="90.0" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
-    <line x1="97.3" y1="192.1" x2="90.0" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="97.3" y1="192.1" x2="90.0" y2="88.4" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="36.7" y1="88.4" x2="90.0" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="90.0" y1="88.4" x2="83.3" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
-    <line x1="122.6" y1="192.1" x2="129.9" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="122.6" y1="192.1" x2="129.9" y2="110.8" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="76.6" y1="110.8" x2="129.9" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="150.6" y1="192.1" x2="129.9" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="90.0" y1="88.4" x2="129.9" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="129.9" y1="110.8" x2="136.6" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
     <line x1="122.6" y1="192.1" x2="143.3" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="76.6" y1="110.8" x2="143.3" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
-    <line x1="150.6" y1="192.1" x2="143.3" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="150.6" y1="192.1" x2="143.3" y2="88.4" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="90.0" y1="88.4" x2="143.3" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="143.3" y1="88.4" x2="136.6" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
-    <line x1="175.9" y1="192.1" x2="183.2" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="175.9" y1="192.1" x2="183.2" y2="110.8" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="129.9" y1="110.8" x2="183.2" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="203.9" y1="192.1" x2="183.2" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="143.3" y1="88.4" x2="183.2" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="183.2" y1="110.8" x2="189.9" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
     <line x1="175.9" y1="192.1" x2="196.6" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="129.9" y1="110.8" x2="196.6" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
-    <line x1="203.9" y1="192.1" x2="196.6" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="203.9" y1="192.1" x2="196.6" y2="88.4" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="143.3" y1="88.4" x2="196.6" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="196.6" y1="88.4" x2="189.9" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
-    <line x1="229.2" y1="192.1" x2="236.5" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="229.2" y1="192.1" x2="236.5" y2="110.8" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="183.2" y1="110.8" x2="236.5" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="257.2" y1="192.1" x2="236.5" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="196.6" y1="88.4" x2="236.5" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="236.5" y1="110.8" x2="243.2" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
     <line x1="229.2" y1="192.1" x2="249.9" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="183.2" y1="110.8" x2="249.9" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
-    <line x1="257.2" y1="192.1" x2="249.9" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="257.2" y1="192.1" x2="249.9" y2="88.4" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="196.6" y1="88.4" x2="249.9" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="249.9" y1="88.4" x2="243.2" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
-    <line x1="282.5" y1="192.1" x2="289.8" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="282.5" y1="192.1" x2="289.8" y2="110.8" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="236.5" y1="110.8" x2="289.8" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="310.5" y1="192.1" x2="289.8" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="249.9" y1="88.4" x2="289.8" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="289.8" y1="110.8" x2="296.5" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
     <line x1="282.5" y1="192.1" x2="303.2" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="236.5" y1="110.8" x2="303.2" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
-    <line x1="310.5" y1="192.1" x2="303.2" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="310.5" y1="192.1" x2="303.2" y2="88.4" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="249.9" y1="88.4" x2="303.2" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="303.2" y1="88.4" x2="296.5" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
-    <line x1="335.8" y1="192.1" x2="343.0" y2="110.8" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="335.8" y1="192.1" x2="343.0" y2="110.8" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="289.8" y1="110.8" x2="343.0" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="363.8" y1="192.1" x2="343.0" y2="110.8" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="303.2" y1="88.4" x2="343.0" y2="110.8" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="343.0" y1="110.8" x2="349.8" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
     <line x1="335.8" y1="192.1" x2="356.5" y2="88.4" stroke="#7CA8ED" stroke-width="1.05"></line>
     <line x1="289.8" y1="110.8" x2="356.5" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
-    <line x1="363.8" y1="192.1" x2="356.5" y2="88.4" stroke="#7CA8ED" stroke-width="1.60"></line>
+    <line x1="363.8" y1="192.1" x2="356.5" y2="88.4" stroke="#7CA8ED" stroke-width="1.6"></line>
     <line x1="303.2" y1="88.4" x2="356.5" y2="88.4" stroke="#92B6F0" stroke-width="1.05"></line>
     <line x1="356.5" y1="88.4" x2="349.8" y2="32.3" stroke="#A7C5F3" stroke-width="0.89"></line>
     <text x="83.3" y="215.6" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cheer</text>
@@ -908,39 +918,40 @@ svg.al-clone { z-index: 1; }
     <text x="296.5" y="18.6" font-size="8.5" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">dame</text>
     <text x="349.8" y="215.6" font-size="8.5" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">dame</text>
     <text x="349.8" y="18.6" font-size="8.5" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">wake</text>
-    <ellipse cx="23.3" cy="110.8" rx="7.6" ry="7.6" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="36.7" cy="88.4" rx="7.6" ry="7.6" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="69.3" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="97.3" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="76.6" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="90.0" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="83.3" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="122.6" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="150.6" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="129.9" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="143.3" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="136.6" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="175.9" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="203.9" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="183.2" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="196.6" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="189.9" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="229.2" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="257.2" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="236.5" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="249.9" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="243.2" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="282.5" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="310.5" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="289.8" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="303.2" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="296.5" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="335.8" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="363.8" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.30"></ellipse>
-    <ellipse cx="343.0" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="356.5" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
-    <ellipse cx="349.8" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.30"></ellipse>
+    <ellipse cx="23.3" cy="110.8" rx="7.6" ry="7.6" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="36.7" cy="88.4" rx="7.6" ry="7.6" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="69.3" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="97.3" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="76.6" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="90.0" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="83.3" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="122.6" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="150.6" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="129.9" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="143.3" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="136.6" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="175.9" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="203.9" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="183.2" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="196.6" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="189.9" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="229.2" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="257.2" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="236.5" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="249.9" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="243.2" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="282.5" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="310.5" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="289.8" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="303.2" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="296.5" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="335.8" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="363.8" cy="192.1" rx="7.6" ry="7.6" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></ellipse>
+    <ellipse cx="343.0" cy="110.8" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="356.5" cy="88.4" rx="7.6" ry="7.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
+    <ellipse cx="349.8" cy="32.3" rx="5.6" ry="5.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.3"></ellipse>
   </svg>
+  
   <div class="cover-text" data-b="f0v2n">
     <div class="kicker">Unit 03 · Chapter 3</div>
     <h1>Recurrent Neural Networks</h1>
@@ -1024,7 +1035,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="sequence" data-view="reading" data-topic="sequence-data" data-part="Sequence Data" style="">
   <h2 data-b="qxz8a">Sequence Data</h2>
   <p data-b="o4h27">Our convolutional network looked at one <span class="num">32</span> × <span class="num">32</span> photo at a time and said what was in it. Each photo was classified completely on its own, so if we shuffle the <span class="num">10,000</span> unseen photos every one of them still gets the same answer.</p>
-  <b-fig src="fig/photos-words.svg" style="width: 80%; --ar: 2.883;" alt="Four CIFAR-10 photos labeled airplane, cat, ship and truck, and the same four shuffled with the same labels; below, the words cheer cheer for old notre dame, and the same words shuffled into notre cheer for cheer dame old" data-b="v9f47"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 133.2" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/photos-words.svg" alt="Four CIFAR-10 photos labeled airplane, cat, ship and truck, and the same four shuffled with the same labels; below, the words cheer cheer for old notre dame, and the same words shuffled into notre cheer for cheer dame old" style="width: 80%; --ar: 2.883;" data-b="v9f47"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 133.2" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -1469,18 +1480,18 @@ z
 <section class="page" id="subword" data-view="reading" data-topic="tokenization-levels" style="--gap: 22pt;">
   <h2 data-b="ko8lm">Subword Tokenizers</h2>
   <p data-b="gwqzn">A <b class="def">subword</b> tokenizer gives common words a token of their own and builds rarer ones out of pieces, which keeps both the vocabulary and the sequences reasonably small, and nearly every modern language model uses one. Below is how one splits our first two lines, the tokenizer of irishQwen (the small language model built in CSE <span class="num">10124</span>), whose <span class="num">512</span> tokens were made from Shakespeare.</p>
-  <p data-align="center" class="tiles" data-b="xpidd"><b-tok v="irishqwen" t="C" data-f="yellow" title="irishQwen (CSE 10124): &quot;C&quot; = 67"><span class="tk-t">C</span><span class="tk-id">67</span></b-tok><b-tok v="irishqwen" t="he" data-f="purple" title="irishQwen (CSE 10124): &quot;he&quot; = 260"><span class="tk-t">he</span><span class="tk-id">260</span></b-tok><b-tok v="irishqwen" t="er" data-f="green" title="irishQwen (CSE 10124): &quot;er&quot; = 274"><span class="tk-t">er</span><span class="tk-id">274</span></b-tok><b-tok v="irishqwen" t="," data-f="blue" title="irishQwen (CSE 10124): &quot;,&quot; = 44"><span class="tk-t">,</span><span class="tk-id">44</span></b-tok><b-tok v="irishqwen" t=" c" data-f="red" title="irishQwen (CSE 10124): &quot; c&quot; = 283"><span class="tk-t"> c</span><span class="tk-id">283</span></b-tok><b-tok v="irishqwen" t="he" data-f="purple" title="irishQwen (CSE 10124): &quot;he&quot; = 260"><span class="tk-t">he</span><span class="tk-id">260</span></b-tok><b-tok v="irishqwen" t="er" data-f="green" title="irishQwen (CSE 10124): &quot;er&quot; = 274"><span class="tk-t">er</span><span class="tk-id">274</span></b-tok><b-tok v="irishqwen" t=" for" data-f="yellow" title="irishQwen (CSE 10124): &quot; for&quot; = 336"><span class="tk-t"> for</span><span class="tk-id">336</span></b-tok><b-tok v="irishqwen" t=" o" data-f="purple" title="irishQwen (CSE 10124): &quot; o&quot; = 285"><span class="tk-t"> o</span><span class="tk-id">285</span></b-tok><b-tok v="irishqwen" t="ld" data-f="red" title="irishQwen (CSE 10124): &quot;ld&quot; = 318"><span class="tk-t">ld</span><span class="tk-id">318</span></b-tok><b-tok v="irishqwen" t=" N" data-f="purple" title="irishQwen (CSE 10124): &quot; N&quot; = 438"><span class="tk-t"> N</span><span class="tk-id">438</span></b-tok><b-tok v="irishqwen" t="ot" data-f="red" title="irishQwen (CSE 10124): &quot;ot&quot; = 298"><span class="tk-t">ot</span><span class="tk-id">298</span></b-tok><b-tok v="irishqwen" t="re" data-f="purple" title="irishQwen (CSE 10124): &quot;re&quot; = 267"><span class="tk-t">re</span><span class="tk-id">267</span></b-tok><b-tok v="irishqwen" t=" D" data-f="green" title="irishQwen (CSE 10124): &quot; D&quot; = 434"><span class="tk-t"> D</span><span class="tk-id">434</span></b-tok><b-tok v="irishqwen" t="am" data-f="blue" title="irishQwen (CSE 10124): &quot;am&quot; = 389"><span class="tk-t">am</span><span class="tk-id">389</span></b-tok><b-tok v="irishqwen" t="e" data-f="green" title="irishQwen (CSE 10124): &quot;e&quot; = 101"><span class="tk-t">e</span><span class="tk-id">101</span></b-tok><b-tok v="irishqwen" t="," data-f="blue" title="irishQwen (CSE 10124): &quot;,&quot; = 44"><span class="tk-t">,</span><span class="tk-id">44</span></b-tok><br><b-tok v="irishqwen" t="W" data-f="yellow" title="irishQwen (CSE 10124): &quot;W&quot; = 87"><span class="tk-t">W</span><span class="tk-id">87</span></b-tok><b-tok v="irishqwen" t="ake" data-f="blue" title="irishQwen (CSE 10124): &quot;ake&quot; = 429"><span class="tk-t">ake</span><span class="tk-id">429</span></b-tok><b-tok v="irishqwen" t=" up" data-f="red" title="irishQwen (CSE 10124): &quot; up&quot; = 468"><span class="tk-t"> up</span><span class="tk-id">468</span></b-tok><b-tok v="irishqwen" t=" the" data-f="purple" title="irishQwen (CSE 10124): &quot; the&quot; = 270"><span class="tk-t"> the</span><span class="tk-id">270</span></b-tok><b-tok v="irishqwen" t=" e" data-f="green" title="irishQwen (CSE 10124): &quot; e&quot; = 335"><span class="tk-t"> e</span><span class="tk-id">335</span></b-tok><b-tok v="irishqwen" t="ch" data-f="purple" title="irishQwen (CSE 10124): &quot;ch&quot; = 325"><span class="tk-t">ch</span><span class="tk-id">325</span></b-tok><b-tok v="irishqwen" t="o" data-f="green" title="irishQwen (CSE 10124): &quot;o&quot; = 111"><span class="tk-t">o</span><span class="tk-id">111</span></b-tok><b-tok v="irishqwen" t="es" data-f="purple" title="irishQwen (CSE 10124): &quot;es&quot; = 281"><span class="tk-t">es</span><span class="tk-id">281</span></b-tok><b-tok v="irishqwen" t=" c" data-f="red" title="irishQwen (CSE 10124): &quot; c&quot; = 283"><span class="tk-t"> c</span><span class="tk-id">283</span></b-tok><b-tok v="irishqwen" t="he" data-f="purple" title="irishQwen (CSE 10124): &quot;he&quot; = 260"><span class="tk-t">he</span><span class="tk-id">260</span></b-tok><b-tok v="irishqwen" t="er" data-f="green" title="irishQwen (CSE 10124): &quot;er&quot; = 274"><span class="tk-t">er</span><span class="tk-id">274</span></b-tok><b-tok v="irishqwen" t="ing" data-f="yellow" title="irishQwen (CSE 10124): &quot;ing&quot; = 302"><span class="tk-t">ing</span><span class="tk-id">302</span></b-tok><b-tok v="irishqwen" t=" her" data-f="blue" title="irishQwen (CSE 10124): &quot; her&quot; = 415"><span class="tk-t"> her</span><span class="tk-id">415</span></b-tok><b-tok v="irishqwen" t=" n" data-f="red" title="irishQwen (CSE 10124): &quot; n&quot; = 288"><span class="tk-t"> n</span><span class="tk-id">288</span></b-tok><b-tok v="irishqwen" t="am" data-f="blue" title="irishQwen (CSE 10124): &quot;am&quot; = 389"><span class="tk-t">am</span><span class="tk-id">389</span></b-tok><b-tok v="irishqwen" t="e" data-f="green" title="irishQwen (CSE 10124): &quot;e&quot; = 101"><span class="tk-t">e</span><span class="tk-id">101</span></b-tok><b-tok v="irishqwen" t="," data-f="blue" title="irishQwen (CSE 10124): &quot;,&quot; = 44"><span class="tk-t">,</span><span class="tk-id">44</span></b-tok></p>
+  <p class="tiles" data-align="center" data-b="xpidd"><b-tok v="irishqwen" t="C" data-f="yellow" title="irishQwen (CSE 10124): &quot;C&quot; = 67"><span class="tk-t">C</span><span class="tk-id">67</span></b-tok><b-tok v="irishqwen" t="he" data-f="purple" title="irishQwen (CSE 10124): &quot;he&quot; = 260"><span class="tk-t">he</span><span class="tk-id">260</span></b-tok><b-tok v="irishqwen" t="er" data-f="green" title="irishQwen (CSE 10124): &quot;er&quot; = 274"><span class="tk-t">er</span><span class="tk-id">274</span></b-tok><b-tok v="irishqwen" t="," data-f="blue" title="irishQwen (CSE 10124): &quot;,&quot; = 44"><span class="tk-t">,</span><span class="tk-id">44</span></b-tok><b-tok v="irishqwen" t=" c" data-f="red" title="irishQwen (CSE 10124): &quot; c&quot; = 283"><span class="tk-t"> c</span><span class="tk-id">283</span></b-tok><b-tok v="irishqwen" t="he" data-f="purple" title="irishQwen (CSE 10124): &quot;he&quot; = 260"><span class="tk-t">he</span><span class="tk-id">260</span></b-tok><b-tok v="irishqwen" t="er" data-f="green" title="irishQwen (CSE 10124): &quot;er&quot; = 274"><span class="tk-t">er</span><span class="tk-id">274</span></b-tok><b-tok v="irishqwen" t=" for" data-f="yellow" title="irishQwen (CSE 10124): &quot; for&quot; = 336"><span class="tk-t"> for</span><span class="tk-id">336</span></b-tok><b-tok v="irishqwen" t=" o" data-f="purple" title="irishQwen (CSE 10124): &quot; o&quot; = 285"><span class="tk-t"> o</span><span class="tk-id">285</span></b-tok><b-tok v="irishqwen" t="ld" data-f="red" title="irishQwen (CSE 10124): &quot;ld&quot; = 318"><span class="tk-t">ld</span><span class="tk-id">318</span></b-tok><b-tok v="irishqwen" t=" N" data-f="purple" title="irishQwen (CSE 10124): &quot; N&quot; = 438"><span class="tk-t"> N</span><span class="tk-id">438</span></b-tok><b-tok v="irishqwen" t="ot" data-f="red" title="irishQwen (CSE 10124): &quot;ot&quot; = 298"><span class="tk-t">ot</span><span class="tk-id">298</span></b-tok><b-tok v="irishqwen" t="re" data-f="purple" title="irishQwen (CSE 10124): &quot;re&quot; = 267"><span class="tk-t">re</span><span class="tk-id">267</span></b-tok><b-tok v="irishqwen" t=" D" data-f="green" title="irishQwen (CSE 10124): &quot; D&quot; = 434"><span class="tk-t"> D</span><span class="tk-id">434</span></b-tok><b-tok v="irishqwen" t="am" data-f="blue" title="irishQwen (CSE 10124): &quot;am&quot; = 389"><span class="tk-t">am</span><span class="tk-id">389</span></b-tok><b-tok v="irishqwen" t="e" data-f="green" title="irishQwen (CSE 10124): &quot;e&quot; = 101"><span class="tk-t">e</span><span class="tk-id">101</span></b-tok><b-tok v="irishqwen" t="," data-f="blue" title="irishQwen (CSE 10124): &quot;,&quot; = 44"><span class="tk-t">,</span><span class="tk-id">44</span></b-tok><br><b-tok v="irishqwen" t="W" data-f="yellow" title="irishQwen (CSE 10124): &quot;W&quot; = 87"><span class="tk-t">W</span><span class="tk-id">87</span></b-tok><b-tok v="irishqwen" t="ake" data-f="blue" title="irishQwen (CSE 10124): &quot;ake&quot; = 429"><span class="tk-t">ake</span><span class="tk-id">429</span></b-tok><b-tok v="irishqwen" t=" up" data-f="red" title="irishQwen (CSE 10124): &quot; up&quot; = 468"><span class="tk-t"> up</span><span class="tk-id">468</span></b-tok><b-tok v="irishqwen" t=" the" data-f="purple" title="irishQwen (CSE 10124): &quot; the&quot; = 270"><span class="tk-t"> the</span><span class="tk-id">270</span></b-tok><b-tok v="irishqwen" t=" e" data-f="green" title="irishQwen (CSE 10124): &quot; e&quot; = 335"><span class="tk-t"> e</span><span class="tk-id">335</span></b-tok><b-tok v="irishqwen" t="ch" data-f="purple" title="irishQwen (CSE 10124): &quot;ch&quot; = 325"><span class="tk-t">ch</span><span class="tk-id">325</span></b-tok><b-tok v="irishqwen" t="o" data-f="green" title="irishQwen (CSE 10124): &quot;o&quot; = 111"><span class="tk-t">o</span><span class="tk-id">111</span></b-tok><b-tok v="irishqwen" t="es" data-f="purple" title="irishQwen (CSE 10124): &quot;es&quot; = 281"><span class="tk-t">es</span><span class="tk-id">281</span></b-tok><b-tok v="irishqwen" t=" c" data-f="red" title="irishQwen (CSE 10124): &quot; c&quot; = 283"><span class="tk-t"> c</span><span class="tk-id">283</span></b-tok><b-tok v="irishqwen" t="he" data-f="purple" title="irishQwen (CSE 10124): &quot;he&quot; = 260"><span class="tk-t">he</span><span class="tk-id">260</span></b-tok><b-tok v="irishqwen" t="er" data-f="green" title="irishQwen (CSE 10124): &quot;er&quot; = 274"><span class="tk-t">er</span><span class="tk-id">274</span></b-tok><b-tok v="irishqwen" t="ing" data-f="yellow" title="irishQwen (CSE 10124): &quot;ing&quot; = 302"><span class="tk-t">ing</span><span class="tk-id">302</span></b-tok><b-tok v="irishqwen" t=" her" data-f="blue" title="irishQwen (CSE 10124): &quot; her&quot; = 415"><span class="tk-t"> her</span><span class="tk-id">415</span></b-tok><b-tok v="irishqwen" t=" n" data-f="red" title="irishQwen (CSE 10124): &quot; n&quot; = 288"><span class="tk-t"> n</span><span class="tk-id">288</span></b-tok><b-tok v="irishqwen" t="am" data-f="blue" title="irishQwen (CSE 10124): &quot;am&quot; = 389"><span class="tk-t">am</span><span class="tk-id">389</span></b-tok><b-tok v="irishqwen" t="e" data-f="green" title="irishQwen (CSE 10124): &quot;e&quot; = 101"><span class="tk-t">e</span><span class="tk-id">101</span></b-tok><b-tok v="irishqwen" t="," data-f="blue" title="irishQwen (CSE 10124): &quot;,&quot; = 44"><span class="tk-t">,</span><span class="tk-id">44</span></b-tok></p>
   <p data-b="ag0hb">With only <span class="num">512</span> tokens to go around, just the most common words (<b-tok v="irishqwen" t=" for" data-f="yellow" title="irishQwen (CSE 10124): &quot; for&quot; = 336"><span class="tk-t"> for</span><span class="tk-id">336</span></b-tok> <b-tok v="irishqwen" t=" up" data-f="red" title="irishQwen (CSE 10124): &quot; up&quot; = 468"><span class="tk-t"> up</span><span class="tk-id">468</span></b-tok> <b-tok v="irishqwen" t=" the" data-f="purple" title="irishQwen (CSE 10124): &quot; the&quot; = 270"><span class="tk-t"> the</span><span class="tk-id">270</span></b-tok> <b-tok v="irishqwen" t=" her" data-f="blue" title="irishQwen (CSE 10124): &quot; her&quot; = 415"><span class="tk-t"> her</span><span class="tk-id">415</span></b-tok> <b-tok v="irishqwen" t=" on" data-f="green" title="irishQwen (CSE 10124): &quot; on&quot; = 376"><span class="tk-t"> on</span><span class="tk-id">376</span></b-tok> <b-tok v="irishqwen" t=" from" data-f="purple" title="irishQwen (CSE 10124): &quot; from&quot; = 495"><span class="tk-t"> from</span><span class="tk-id">495</span></b-tok>) get one of their own. Even "cheer" is three pieces, <span class="tkw"><b-tok v="irishqwen" t="c" data-f="blue" title="irishQwen (CSE 10124): &quot;c&quot; = 99"><span class="tk-t">c</span><span class="tk-id">99</span></b-tok><b-tok v="irishqwen" t="he" data-f="purple" title="irishQwen (CSE 10124): &quot;he&quot; = 260"><span class="tk-t">he</span><span class="tk-id">260</span></b-tok><b-tok v="irishqwen" t="er" data-f="green" title="irishQwen (CSE 10124): &quot;er&quot; = 274"><span class="tk-t">er</span><span class="tk-id">274</span></b-tok></span>, and "cheering" is the same three plus <b-tok v="irishqwen" t="ing" data-f="yellow" title="irishQwen (CSE 10124): &quot;ing&quot; = 302"><span class="tk-t">ing</span><span class="tk-id">302</span></b-tok>. Tokenizers for real language models have <span class="num">100,000</span> or more.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · Tokenization</span><span>05</span></div></section>
 
 <section class="page" id="token-ids" data-view="reading" data-topic="tokenization embeddings" style="--gap: 22pt;">
   <h2 data-b="gnx5f">Token IDs</h2>
-  <p data-align="center" class="tiles tokids" data-b="ag2ua"><b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="for" data-f="green" title="Victory March words: &quot;for&quot; = 1"><span class="tk-t">for</span><span class="tk-id">1</span></b-tok> <b-tok v="march" t="old" data-f="yellow" title="Victory March words: &quot;old&quot; = 2"><span class="tk-t">old</span><span class="tk-id">2</span></b-tok> <b-tok v="march" t="notre" data-f="red" title="Victory March words: &quot;notre&quot; = 3"><span class="tk-t">notre</span><span class="tk-id">3</span></b-tok> <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok><br><b-tok v="march" t="wake" data-f="purple" title="Victory March words: &quot;wake&quot; = 5"><span class="tk-t">wake</span><span class="tk-id">5</span></b-tok> <b-tok v="march" t="up" data-f="green" title="Victory March words: &quot;up&quot; = 6"><span class="tk-t">up</span><span class="tk-id">6</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> <b-tok v="march" t="echoes" data-f="red" title="Victory March words: &quot;echoes&quot; = 8"><span class="tk-t">echoes</span><span class="tk-id">8</span></b-tok> <b-tok v="march" t="cheering" data-f="blue" title="Victory March words: &quot;cheering&quot; = 9"><span class="tk-t">cheering</span><span class="tk-id">9</span></b-tok> <b-tok v="march" t="her" data-f="green" title="Victory March words: &quot;her&quot; = 10"><span class="tk-t">her</span><span class="tk-id">10</span></b-tok> <b-tok v="march" t="name" data-f="purple" title="Victory March words: &quot;name&quot; = 11"><span class="tk-t">name</span><span class="tk-id">11</span></b-tok><br><b-tok v="march" t="send" data-f="yellow" title="Victory March words: &quot;send&quot; = 12"><span class="tk-t">send</span><span class="tk-id">12</span></b-tok> <b-tok v="march" t="a" data-f="red" title="Victory March words: &quot;a&quot; = 13"><span class="tk-t">a</span><span class="tk-id">13</span></b-tok> <b-tok v="march" t="volley" data-f="blue" title="Victory March words: &quot;volley&quot; = 14"><span class="tk-t">volley</span><span class="tk-id">14</span></b-tok> <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="on" data-f="green" title="Victory March words: &quot;on&quot; = 15"><span class="tk-t">on</span><span class="tk-id">15</span></b-tok> <b-tok v="march" t="high" data-f="purple" title="Victory March words: &quot;high&quot; = 16"><span class="tk-t">high</span><span class="tk-id">16</span></b-tok><br><b-tok v="march" t="shake" data-f="yellow" title="Victory March words: &quot;shake&quot; = 17"><span class="tk-t">shake</span><span class="tk-id">17</span></b-tok> <b-tok v="march" t="down" data-f="red" title="Victory March words: &quot;down&quot; = 18"><span class="tk-t">down</span><span class="tk-id">18</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> <b-tok v="march" t="thunder" data-f="blue" title="Victory March words: &quot;thunder&quot; = 19"><span class="tk-t">thunder</span><span class="tk-id">19</span></b-tok> <b-tok v="march" t="from" data-f="purple" title="Victory March words: &quot;from&quot; = 20"><span class="tk-t">from</span><span class="tk-id">20</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> <b-tok v="march" t="sky" data-f="green" title="Victory March words: &quot;sky&quot; = 21"><span class="tk-t">sky</span><span class="tk-id">21</span></b-tok></p>
+  <p class="tiles tokids" data-align="center" data-b="ag2ua"><b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="for" data-f="green" title="Victory March words: &quot;for&quot; = 1"><span class="tk-t">for</span><span class="tk-id">1</span></b-tok> <b-tok v="march" t="old" data-f="yellow" title="Victory March words: &quot;old&quot; = 2"><span class="tk-t">old</span><span class="tk-id">2</span></b-tok> <b-tok v="march" t="notre" data-f="red" title="Victory March words: &quot;notre&quot; = 3"><span class="tk-t">notre</span><span class="tk-id">3</span></b-tok> <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok><br><b-tok v="march" t="wake" data-f="purple" title="Victory March words: &quot;wake&quot; = 5"><span class="tk-t">wake</span><span class="tk-id">5</span></b-tok> <b-tok v="march" t="up" data-f="green" title="Victory March words: &quot;up&quot; = 6"><span class="tk-t">up</span><span class="tk-id">6</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> <b-tok v="march" t="echoes" data-f="red" title="Victory March words: &quot;echoes&quot; = 8"><span class="tk-t">echoes</span><span class="tk-id">8</span></b-tok> <b-tok v="march" t="cheering" data-f="blue" title="Victory March words: &quot;cheering&quot; = 9"><span class="tk-t">cheering</span><span class="tk-id">9</span></b-tok> <b-tok v="march" t="her" data-f="green" title="Victory March words: &quot;her&quot; = 10"><span class="tk-t">her</span><span class="tk-id">10</span></b-tok> <b-tok v="march" t="name" data-f="purple" title="Victory March words: &quot;name&quot; = 11"><span class="tk-t">name</span><span class="tk-id">11</span></b-tok><br><b-tok v="march" t="send" data-f="yellow" title="Victory March words: &quot;send&quot; = 12"><span class="tk-t">send</span><span class="tk-id">12</span></b-tok> <b-tok v="march" t="a" data-f="red" title="Victory March words: &quot;a&quot; = 13"><span class="tk-t">a</span><span class="tk-id">13</span></b-tok> <b-tok v="march" t="volley" data-f="blue" title="Victory March words: &quot;volley&quot; = 14"><span class="tk-t">volley</span><span class="tk-id">14</span></b-tok> <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> <b-tok v="march" t="on" data-f="green" title="Victory March words: &quot;on&quot; = 15"><span class="tk-t">on</span><span class="tk-id">15</span></b-tok> <b-tok v="march" t="high" data-f="purple" title="Victory March words: &quot;high&quot; = 16"><span class="tk-t">high</span><span class="tk-id">16</span></b-tok><br><b-tok v="march" t="shake" data-f="yellow" title="Victory March words: &quot;shake&quot; = 17"><span class="tk-t">shake</span><span class="tk-id">17</span></b-tok> <b-tok v="march" t="down" data-f="red" title="Victory March words: &quot;down&quot; = 18"><span class="tk-t">down</span><span class="tk-id">18</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> <b-tok v="march" t="thunder" data-f="blue" title="Victory March words: &quot;thunder&quot; = 19"><span class="tk-t">thunder</span><span class="tk-id">19</span></b-tok> <b-tok v="march" t="from" data-f="purple" title="Victory March words: &quot;from&quot; = 20"><span class="tk-t">from</span><span class="tk-id">20</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> <b-tok v="march" t="sky" data-f="green" title="Victory March words: &quot;sky&quot; = 21"><span class="tk-t">sky</span><span class="tk-id">21</span></b-tok></p>
   <p data-b="vx75f">Above are all <span class="num">26</span> of our word-level tokens. There are only <span class="num">22</span> different words, since <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> and <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> each turn up three times. The list of different tokens is our <b class="def">vocabulary</b>, and a token's position in it (in order of first appearance) is its <b class="def">token ID</b>, written under each tile.</p>
   <p data-b="g2pcf">So now every token is a number. Are we actually gaining anything from this? Not much, yet. The IDs are just positions in a list, so if we handed them to a network as they are, it would decide that <b-tok v="march" t="thunder" data-f="blue" title="Victory March words: &quot;thunder&quot; = 19"><span class="tk-t">thunder</span><span class="tk-id">19</span></b-tok> (<span class="num">19</span>) is much more like <b-tok v="march" t="sky" data-f="green" title="Victory March words: &quot;sky&quot; = 21"><span class="tk-t">sky</span><span class="tk-id">21</span></b-tok> (<span class="num">21</span>) than like <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> (<span class="num">0</span>), and that <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> is worth seven <b-tok v="march" t="for" data-f="green" title="Victory March words: &quot;for&quot; = 1"><span class="tk-t">for</span><span class="tk-id">1</span></b-tok>s. <b class="warn">The numbers say nothing about the words</b>.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · Tokenization</span><span>06</span></div></section>
 
-<section class="page" id="one-hot" data-part="Word Embeddings" data-view="reading" data-topic="tokenization embeddings" style="--gap: 22pt;">
+<section class="page" id="one-hot" data-view="reading" data-topic="tokenization embeddings" data-part="Word Embeddings" style="--gap: 22pt;">
   <h2 data-b="f7agt">One-Hot Encoding</h2>
   <p data-b="kltce">The usual fix is a <b class="def">one-hot</b> vector, a list of <span class="num">22</span> zeros with a single <span class="num">1</span> in the token's position. <b-tok v="march" t="for" data-f="green" title="Victory March words: &quot;for&quot; = 1"><span class="tk-t">for</span><span class="tk-id">1</span></b-tok> (ID <span class="num">1</span>) becomes</p>
   <b-eq data-b="reysp" class="">
@@ -1501,7 +1512,7 @@ z
 <section class="page" id="cosine" data-view="reading" data-topic="embeddings" style="--gap: 22pt;">
   <h2 data-b="i67vy">Cosine Similarity</h2>
   <p data-b="ii3l0">To compare two words we scale both vectors to length <span class="num">1</span> and take their dot product, the <b class="def">cosine similarity</b> (<span class="num">1</span> means they point the same way, <span class="num">0</span> means unrelated). One matrix product gives us every pair at once, and we can ask which of our <span class="num">22</span> words sits closest to each.</p>
-  <b-code lang="python" chain="true" data-b="po6r8"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div></div><div class="src"><div class="ln"><span class="cc blue">E</span> = <span class="cc blue">E</span> / <span class="cc blue">E</span>.norm(dim=<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)  <span class="cm"># length 1</span></div><div class="ln">S = <span class="cc blue">E</span> @ <span class="cc blue">E</span>.T  <span class="cm"># cosine similarity of every pair</span></div><div class="ln">S = S - <span class="nu nn">2</span> * torch.eye(<span class="nu nn">22</span>)  <span class="cm"># not its own neighbor</span></div><div class="ln"><span class="ctl">for</span> w <span class="kw">in</span> [<span class="st">"cheer"</span>, <span class="st">"notre"</span>, <span class="st">"up"</span>, <span class="st">"thunder"</span>]:</div><div class="ln">    s = S[vocab.index(w)]</div><div class="ln">    best = vocab[s.argmax()]</div><div class="ln">    <span class="bi">print</span>(<span class="st">f"{w!r:9} {best!r:10} {s.max():.2f}"</span>)</div></div></b-code>
+  <b-code lang="python" chain="" data-b="po6r8"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div></div><div class="src"><div class="ln"><span class="cc blue">E</span> = <span class="cc blue">E</span> / <span class="cc blue">E</span>.norm(dim=<span class="nu nn">1</span>, keepdim=<span class="nu">True</span>)  <span class="cm"># length 1</span></div><div class="ln">S = <span class="cc blue">E</span> @ <span class="cc blue">E</span>.T  <span class="cm"># cosine similarity of every pair</span></div><div class="ln">S = S - <span class="nu nn">2</span> * torch.eye(<span class="nu nn">22</span>)  <span class="cm"># not its own neighbor</span></div><div class="ln"><span class="ctl">for</span> w <span class="kw">in</span> [<span class="st">"cheer"</span>, <span class="st">"notre"</span>, <span class="st">"up"</span>, <span class="st">"thunder"</span>]:</div><div class="ln">    s = S[vocab.index(w)]</div><div class="ln">    best = vocab[s.argmax()]</div><div class="ln">    <span class="bi">print</span>(<span class="st">f"{w!r:9} {best!r:10} {s.max():.2f}"</span>)</div></div></b-code>
   <b-out data-b="jecat"><div class="label">Output</div><pre><span class="otk" data-f="purple"><span class="oq">'</span>cheer<span class="oq">'</span></span>   <span class="otk" data-f="blue"><span class="oq">'</span>cheering<span class="oq">'</span></span> <span class="nu nn">0.61</span>
 <span class="otk" data-f="red"><span class="oq">'</span>notre<span class="oq">'</span></span>   <span class="otk" data-f="blue"><span class="oq">'</span>dame<span class="oq">'</span></span>     <span class="nu nn">0.91</span>
 <span class="otk" data-f="green"><span class="oq">'</span>up<span class="oq">'</span></span>      <span class="otk" data-f="red"><span class="oq">'</span>down<span class="oq">'</span></span>     <span class="nu nn">0.75</span>
@@ -1511,7 +1522,7 @@ z
 
 <section class="page" id="embedding-space" data-view="reading" data-topic="embeddings" style="--gap: 22pt;">
   <h2 data-b="xoe63">Embedding Space</h2>
-  <b-fig src="fig/glove-march.svg" style="width: 70%; --ar: 2.021;" alt="The 22 words of the Victory March as GloVe embeddings, squashed from 300 numbers to 2 with PCA: notre and dame together far to the bottom right, cheer and cheering together at the top with thunder, sky, volley, shake and echoes nearby, up and down next to each other on the left among the small words a, for, on, old, her, the, from and name" data-b="wvxyy"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 190" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/glove-march.svg" alt="The 22 words of the Victory March as GloVe embeddings, squashed from 300 numbers to 2 with PCA: notre and dame together far to the bottom right, cheer and cheering together at the top with thunder, sky, volley, shake and echoes nearby, up and down next to each other on the left among the small words a, for, on, old, her, the, from and name" style="width: 70%; --ar: 2.021;" data-b="wvxyy"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 190" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -2289,7 +2300,7 @@ z
 <section class="page" id="embedding-bias" data-view="reading" data-topic="embeddings" style="--gap: 20pt;">
   <h2 data-b="vbuak">Bias in Embeddings</h2>
   <p data-b="z39w2">Unfortunately, the patterns include the text's biases. If we take the direction from "man" to "woman" in GloVe (the vector for "woman" minus the vector for "man") and see how far along it other words sit, jobs and ideas line up the way the articles talked about them. "nurse", "homemaker" and "receptionist" land far toward "woman", "engineer", "programmer" and "power" toward "man".</p>
-  <b-fig src="fig/glove-bias.svg" style="width: 80%; --ar: 1.829;" alt="Sixteen words placed along the direction from man to woman in GloVe: power, football, gun, engineer, money, programmer and success fall on the man side, scientist, human, politician, doctor, cooking, teacher, receptionist, homemaker and nurse on the woman side, nurse furthest" data-b="ju0j1"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 210" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/glove-bias.svg" alt="Sixteen words placed along the direction from man to woman in GloVe: power, football, gun, engineer, money, programmer and success fall on the man side, scientist, human, politician, doctor, cooking, teacher, receptionist, homemaker and nurse on the woman side, nurse furthest" style="width: 80%; --ar: 1.829;" data-b="ju0j1"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 210" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -2609,11 +2620,11 @@ L 143.584865 2.1
   <p data-b="m2ctj">None of this was put there on purpose, the embedding only counted which words were used together. Embeddings learned from Google News articles went as far as answering "man is to computer programmer as woman is to ___" with "homemaker" (Bolukbasi and colleagues, <span class="num">2016</span>, who named their paper after it). <b class="warn">A model built on top of embeddings inherits whatever they learned</b>.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · Word Embeddings</span><span>11</span></div></section>
 
-<section class="page" id="context" data-part="Recurrent Neural Networks" data-view="reading" data-topic="sequence-data rnn" style="--gap: 16.3pt;">
+<section class="page" id="context" data-view="reading" data-topic="sequence-data rnn" data-part="Recurrent Neural Networks" style="--gap: 16.3pt;">
   <h2 data-b="nr6th">Context</h2>
   <p data-b="w798t">Now that words are numbers, let's give a network a job, predicting the next word. A feed-forward network takes one fixed-size input, so the natural thing to give it is the current word's embedding. Given <b-tok v="march" t="notre" data-f="red" title="Victory March words: &quot;notre&quot; = 3"><span class="tk-t">notre</span><span class="tk-id">3</span></b-tok> it would learn to say <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok>, since in our song <b-tok v="march" t="dame" data-f="blue" title="Victory March words: &quot;dame&quot; = 4"><span class="tk-t">dame</span><span class="tk-id">4</span></b-tok> is the only word that ever follows <b-tok v="march" t="notre" data-f="red" title="Victory March words: &quot;notre&quot; = 3"><span class="tk-t">notre</span><span class="tk-id">3</span></b-tok>.</p>
   <p data-b="utzna">Unfortunately, <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> is followed by <b-tok v="march" t="echoes" data-f="red" title="Victory March words: &quot;echoes&quot; = 8"><span class="tk-t">echoes</span><span class="tk-id">8</span></b-tok> once, <b-tok v="march" t="thunder" data-f="blue" title="Victory March words: &quot;thunder&quot; = 19"><span class="tk-t">thunder</span><span class="tk-id">19</span></b-tok> once and <b-tok v="march" t="sky" data-f="green" title="Victory March words: &quot;sky&quot; = 21"><span class="tk-t">sky</span><span class="tk-id">21</span></b-tok> once. A network that only sees <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> gets exactly the same input all three times, so <b class="warn">the best it can ever do is guess</b> (a third each). One more word back would settle it: <b-tok v="march" t="up" data-f="green" title="Victory March words: &quot;up&quot; = 6"><span class="tk-t">up</span><span class="tk-id">6</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> is followed by <b-tok v="march" t="echoes" data-f="red" title="Victory March words: &quot;echoes&quot; = 8"><span class="tk-t">echoes</span><span class="tk-id">8</span></b-tok>, <b-tok v="march" t="down" data-f="red" title="Victory March words: &quot;down&quot; = 18"><span class="tk-t">down</span><span class="tk-id">18</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> by <b-tok v="march" t="thunder" data-f="blue" title="Victory March words: &quot;thunder&quot; = 19"><span class="tk-t">thunder</span><span class="tk-id">19</span></b-tok> and <b-tok v="march" t="from" data-f="purple" title="Victory March words: &quot;from&quot; = 20"><span class="tk-t">from</span><span class="tk-id">20</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> by <b-tok v="march" t="sky" data-f="green" title="Victory March words: &quot;sky&quot; = 21"><span class="tk-t">sky</span><span class="tk-id">21</span></b-tok>.</p>
-  <svg class="draw" viewBox="0 0 384 104" style="width: 382.5pt" role="img" aria-label="Left, one word of context: the, with arrows to echoes, thunder and sky, a third each. Right, two words of context: up the to echoes, down the to thunder, from the to sky" data-b="qv1lw">
+  <svg class="draw" viewBox="0 0 384 104" role="img" aria-label="Left, one word of context: the, with arrows to echoes, thunder and sky, a third each. Right, two words of context: up the to echoes, down the to thunder, from the to sky" style="width: 382.5pt" data-b="qv1lw">
     <defs>
       <marker id="ah666666-qv1lw" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
@@ -2629,19 +2640,19 @@ L 143.584865 2.1
       <rect x="131.5" y="23" width="36.9" height="14" rx="3.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.7"></rect>
       <text x="149.9" y="32.8" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">echoes</text>
     </g>
-    <line x1="52.7" y1="54.8" x2="129.6" y2="35.2" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-qv1lw)" data-a="next-words-qv1lw-s1" data-b="next-words-qv1lw-s2" data-a-at="r:0.284:1.9" data-b-at="b:0.000:-1.8"></line>
+    <line x1="52.7" y1="54.8" x2="129.6" y2="35.2" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-qv1lw)" data-a="next-words-qv1lw-s1" data-b="next-words-qv1lw-s2" data-a-at="r:0.284:1.9" data-b-at="b:0.000:-1.8"></line>
     <text x="197.0" y="33.0" font-size="8.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1/3</text>
     <g data-em="" id="next-words-qv1lw-s3" data-tok="march" data-t="thunder">
       <rect x="130.4" y="51" width="39.2" height="14" rx="3.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.7"></rect>
       <text x="150" y="60.8" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">thunder</text>
     </g>
-    <line x1="52.8" y1="58" x2="128.4" y2="58" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-qv1lw)" data-a="next-words-qv1lw-s1" data-b="next-words-qv1lw-s3" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="52.8" y1="58" x2="128.4" y2="58" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-qv1lw)" data-a="next-words-qv1lw-s1" data-b="next-words-qv1lw-s3" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <text x="197.0" y="61.0" font-size="8.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1/3</text>
     <g data-em="" id="next-words-qv1lw-s4" data-tok="march" data-t="sky">
       <rect x="139.1" y="79" width="21.8" height="14" rx="3.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.7"></rect>
       <text x="150" y="88.8" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">sky</text>
     </g>
-    <line x1="52.7" y1="61.2" x2="137.2" y2="82.7" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-qv1lw)" data-a="next-words-qv1lw-s1" data-b="next-words-qv1lw-s4" data-a-at="r:0.716:1.9" data-b-at="l:0.264:1.9"></line>
+    <line x1="52.7" y1="61.2" x2="137.2" y2="82.7" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-qv1lw)" data-a="next-words-qv1lw-s1" data-b="next-words-qv1lw-s4" data-a-at="r:0.716:1.9" data-b-at="l:0.264:1.9"></line>
     <text x="197.0" y="89.0" font-size="8.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1/3</text>
     <g id="next-words-qv1lw-s5" data-tok="march" data-t="up">
       <rect x="246.6" y="23" width="18" height="14" rx="3.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.9"></rect>
@@ -2651,7 +2662,7 @@ L 143.584865 2.1
       <rect x="269" y="23" width="20.4" height="14" rx="3.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
       <text x="279.2" y="32.8" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">the</text>
     </g>
-    <line x1="291.4" y1="30" x2="335.5" y2="30" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-qv1lw)" data-a="tk-7on77m" data-b="next-words-qv1lw-s6" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="291.4" y1="30" x2="335.5" y2="30" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-qv1lw)" data-a="tk-7on77m" data-b="next-words-qv1lw-s6" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g data-em="" id="next-words-qv1lw-s6" data-tok="march" data-t="echoes">
       <rect x="337.5" y="23" width="36.9" height="14" rx="3.4" fill="#F4CCCC" stroke="#E06666" stroke-width="1.7"></rect>
       <text x="355.9" y="32.8" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">echoes</text>
@@ -2664,7 +2675,7 @@ L 143.584865 2.1
       <rect x="274.8" y="51" width="20.4" height="14" rx="3.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
       <text x="285" y="60.8" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">the</text>
     </g>
-    <line x1="297.2" y1="58" x2="334.4" y2="58" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-qv1lw)" data-a="tk-kt2hv7" data-b="next-words-qv1lw-s8" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="297.2" y1="58" x2="334.4" y2="58" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-qv1lw)" data-a="tk-kt2hv7" data-b="next-words-qv1lw-s8" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g data-em="" id="next-words-qv1lw-s8" data-tok="march" data-t="thunder">
       <rect x="336.4" y="51" width="39.2" height="14" rx="3.4" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.7"></rect>
       <text x="356" y="60.8" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">thunder</text>
@@ -2677,7 +2688,7 @@ L 143.584865 2.1
       <rect x="273.2" y="79" width="20.4" height="14" rx="3.4" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
       <text x="283.4" y="88.8" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">the</text>
     </g>
-    <line x1="295.6" y1="86" x2="343.1" y2="86" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-qv1lw)" data-a="tk-vv84o8" data-b="next-words-qv1lw-s10" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="295.6" y1="86" x2="343.1" y2="86" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-qv1lw)" data-a="tk-vv84o8" data-b="next-words-qv1lw-s10" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g data-em="" id="next-words-qv1lw-s10" data-tok="march" data-t="sky">
       <rect x="345.1" y="79" width="21.8" height="14" rx="3.4" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.7"></rect>
       <text x="356" y="88.8" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">sky</text>
@@ -2697,7 +2708,7 @@ L 143.584865 2.1
 
 <section class="page" id="rnn-cell" data-view="reading" data-topic="rnn" style="--gap: 22pt;">
   <h2 data-b="cvont">The RNN Cell</h2>
-  <svg class="draw" viewBox="0 0 384 318" style="width: 74%" role="img" aria-label="One step of the RNN as a computation graph: x of t and c of t minus 1 are each multiplied by their weights, Omega x and Omega c, added with the bias b c and passed through tanh to give c of t, which goes on to the next step; c of t is also multiplied by Omega y, added to b y and passed through a softmax to give y hat of t" data-b="cflgq">
+  <svg class="draw" viewBox="0 0 384 318" role="img" aria-label="One step of the RNN as a computation graph: x of t and c of t minus 1 are each multiplied by their weights, Omega x and Omega c, added with the bias b c and passed through tanh to give c of t, which goes on to the next step; c of t is also multiplied by Omega y, added to b y and passed through a softmax to give y hat of t" style="width: 74%" data-b="cflgq">
     <defs>
       <marker id="ah666666-cflgq" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
@@ -2716,90 +2727,90 @@ L 143.584865 2.1
       </marker>
     </defs>
     <g id="rnn-cell-cflgq-s1">
-      <rect x="127.1" y="10.0" width="45.8" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="127.1" y="10.0" width="45.8" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="150.0" y="23.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">xₜ</text>
       <text x="150.0" y="30.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
     </g>
     <g id="rnn-cell-cflgq-s2">
-      <rect x="203.7" y="10.0" width="60.6" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="203.7" y="10.0" width="60.6" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="234.0" y="23.2" font-size="12.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ₋₁</text>
       <text x="234.0" y="30.8" font-size="4.3" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
     </g>
     <g id="rnn-cell-cflgq-s3">
-      <rect x="50.8" y="54.0" width="38.3" height="24.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
+      <rect x="50.8" y="54.0" width="38.3" height="24.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
       <text x="70.0" y="67.2" font-size="12.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
       <text x="70.0" y="74.8" font-size="4.3" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2, 2&gt;</text>
     </g>
     <g id="rnn-cell-cflgq-s4">
-      <rect x="294.8" y="54.0" width="38.3" height="24.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
+      <rect x="294.8" y="54.0" width="38.3" height="24.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
       <text x="314.0" y="67.2" font-size="12.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
       <text x="314.0" y="74.8" font-size="4.3" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2, 2&gt;</text>
     </g>
     <g id="rnn-cell-cflgq-s5">
-      <rect x="125.0" y="55.0" width="50.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="125.0" y="55.0" width="50.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="150.0" y="69.0" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">@ Ωᵀ</text>
     </g>
     <g id="rnn-cell-cflgq-s6">
-      <rect x="209.0" y="55.0" width="50.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="209.0" y="55.0" width="50.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="234.0" y="69.0" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">@ Ωᵀ</text>
     </g>
     <g id="rnn-cell-cflgq-s7">
-      <rect x="175.0" y="97.0" width="34.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="175.0" y="97.0" width="34.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="192.0" y="111.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="rnn-cell-cflgq-s8">
-      <rect x="298.6" y="96.0" width="30.9" height="24.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+      <rect x="298.6" y="96.0" width="30.9" height="24.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
       <text x="314.0" y="109.2" font-size="12.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
       <text x="314.0" y="116.8" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2&gt;</text>
     </g>
     <g id="rnn-cell-cflgq-s9">
-      <rect x="167.0" y="135.0" width="50.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="167.0" y="135.0" width="50.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="192.0" y="149.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">tanh</text>
     </g>
     <g id="rnn-cell-cflgq-s10">
-      <rect x="169.1" y="174.0" width="45.8" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="169.1" y="174.0" width="45.8" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="192.0" y="187.2" font-size="12.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ</text>
       <text x="192.0" y="194.8" font-size="4.3" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
     </g>
     <text x="324.0" y="172.0" font-size="7.0" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">to the next step</text>
     <g id="rnn-cell-cflgq-s11">
-      <rect x="50.8" y="216.0" width="38.3" height="24.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
+      <rect x="50.8" y="216.0" width="38.3" height="24.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
       <text x="70.0" y="229.2" font-size="12.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
       <text x="70.0" y="236.8" font-size="4.3" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;22, 2&gt;</text>
     </g>
     <g id="rnn-cell-cflgq-s12">
-      <rect x="167.0" y="217.0" width="50.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="167.0" y="217.0" width="50.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="192.0" y="231.0" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">@ Ωᵀ</text>
     </g>
     <g id="rnn-cell-cflgq-s13">
-      <rect x="153.0" y="251.0" width="78.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="153.0" y="251.0" width="78.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="192.0" y="265.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+ softmax</text>
     </g>
     <g id="rnn-cell-cflgq-s14">
-      <rect x="298.6" y="250.0" width="30.9" height="24.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+      <rect x="298.6" y="250.0" width="30.9" height="24.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
       <text x="314.0" y="263.2" font-size="12.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">bᵧ</text>
       <text x="314.0" y="270.8" font-size="4.3" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;22&gt;</text>
     </g>
     <g id="rnn-cell-cflgq-s15">
-      <rect x="169.1" y="288.0" width="45.8" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="169.1" y="288.0" width="45.8" height="24.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="192.0" y="301.2" font-size="12.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷₜ</text>
       <text x="192.0" y="308.8" font-size="4.3" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 22&gt;</text>
     </g>
-    <line x1="150.0" y1="38.0" x2="150.0" y2="55.0" stroke="#E06666" stroke-width="1.20" marker-end="url(#ahE06666-cflgq)" data-b="rnn-cell-cflgq-s5" data-b-at="t:0.500"></line>
-    <line x1="234.0" y1="38.0" x2="234.0" y2="55.0" stroke="#DCB439" stroke-width="1.20" marker-end="url(#ahDCB439-cflgq)" data-b="rnn-cell-cflgq-s6" data-b-at="t:0.500"></line>
-    <line x1="92.0" y1="66.0" x2="125.0" y2="66.0" stroke="#6D9EEB" stroke-width="1.20" marker-end="url(#ah6D9EEB-cflgq)" data-a="rnn-cell-cflgq-s3" data-b="rnn-cell-cflgq-s5" data-a-at="r:0.500:2.9" data-b-at="l:0.500"></line>
-    <line x1="292.0" y1="66.0" x2="259.0" y2="66.0" stroke="#6D9EEB" stroke-width="1.20" marker-end="url(#ah6D9EEB-cflgq)" data-a="rnn-cell-cflgq-s4" data-b="rnn-cell-cflgq-s6" data-a-at="l:0.500:2.8" data-b-at="r:0.500"></line>
-    <line x1="150.0" y1="77.0" x2="182.0" y2="97.0" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-cflgq)" data-a="rnn-cell-cflgq-s5" data-b="rnn-cell-cflgq-s7" data-a-at="b:0.500" data-b-at="t:0.206"></line>
-    <line x1="234.0" y1="77.0" x2="202.0" y2="97.0" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-cflgq)" data-a="rnn-cell-cflgq-s6" data-b="rnn-cell-cflgq-s7" data-a-at="b:0.500" data-b-at="t:0.794"></line>
-    <line x1="297.0" y1="108.0" x2="209.0" y2="108.0" stroke="#666666" stroke-width="1.20" marker-end="url(#ah666666-cflgq)" data-a="rnn-cell-cflgq-s8" data-b="rnn-cell-cflgq-s7" data-a-at="l:0.500:1.6" data-b-at="r:0.500"></line>
-    <line x1="192.0" y1="119.0" x2="192.0" y2="135.0" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-cflgq)" data-a="rnn-cell-cflgq-s7" data-b="rnn-cell-cflgq-s9" data-a-at="b:0.500" data-b-at="t:0.500"></line>
-    <line x1="192.0" y1="157.0" x2="192.0" y2="170.0" stroke="#DCB439" stroke-width="1.20" marker-end="url(#ahDCB439-cflgq)" data-a="rnn-cell-cflgq-s9" data-a-at="b:0.500"></line>
-    <line x1="214.0" y1="186.0" x2="354.0" y2="186.0" stroke="#DCB439" stroke-width="1.20" marker-end="url(#ahDCB439-cflgq)" data-a="rnn-cell-cflgq-s10" data-a-at="r:0.500:-0.9"></line>
-    <line x1="192.0" y1="202.0" x2="192.0" y2="217.0" stroke="#DCB439" stroke-width="1.20" marker-end="url(#ahDCB439-cflgq)" data-b="rnn-cell-cflgq-s12" data-b-at="t:0.500"></line>
-    <line x1="94.0" y1="228.0" x2="167.0" y2="228.0" stroke="#6D9EEB" stroke-width="1.20" marker-end="url(#ah6D9EEB-cflgq)" data-b="rnn-cell-cflgq-s12" data-b-at="l:0.500"></line>
-    <line x1="192.0" y1="239.0" x2="192.0" y2="251.0" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-cflgq)" data-a="rnn-cell-cflgq-s12" data-b="rnn-cell-cflgq-s13" data-a-at="b:0.500" data-b-at="t:0.500"></line>
-    <line x1="297.0" y1="262.0" x2="231.0" y2="262.0" stroke="#666666" stroke-width="1.20" marker-end="url(#ah666666-cflgq)" data-a="rnn-cell-cflgq-s14" data-b="rnn-cell-cflgq-s13" data-a-at="l:0.500:1.6" data-b-at="r:0.500"></line>
-    <line x1="192.0" y1="273.0" x2="192.0" y2="284.0" stroke="#DCB439" stroke-width="1.20" marker-end="url(#ahDCB439-cflgq)" data-a="rnn-cell-cflgq-s13" data-a-at="b:0.500"></line>
+    <line x1="150.0" y1="38.0" x2="150.0" y2="55.0" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-cflgq)" data-b="rnn-cell-cflgq-s5" data-b-at="t:0.500"></line>
+    <line x1="234.0" y1="38.0" x2="234.0" y2="55.0" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-cflgq)" data-b="rnn-cell-cflgq-s6" data-b-at="t:0.500"></line>
+    <line x1="92.0" y1="66.0" x2="125.0" y2="66.0" stroke="#6D9EEB" stroke-width="1.2" marker-end="url(#ah6D9EEB-cflgq)" data-a="rnn-cell-cflgq-s3" data-b="rnn-cell-cflgq-s5" data-a-at="r:0.500:2.9" data-b-at="l:0.500"></line>
+    <line x1="292.0" y1="66.0" x2="259.0" y2="66.0" stroke="#6D9EEB" stroke-width="1.2" marker-end="url(#ah6D9EEB-cflgq)" data-a="rnn-cell-cflgq-s4" data-b="rnn-cell-cflgq-s6" data-a-at="l:0.500:2.8" data-b-at="r:0.500"></line>
+    <line x1="150.0" y1="77.0" x2="182.0" y2="97.0" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-cflgq)" data-a="rnn-cell-cflgq-s5" data-b="rnn-cell-cflgq-s7" data-a-at="b:0.500" data-b-at="t:0.206"></line>
+    <line x1="234.0" y1="77.0" x2="202.0" y2="97.0" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-cflgq)" data-a="rnn-cell-cflgq-s6" data-b="rnn-cell-cflgq-s7" data-a-at="b:0.500" data-b-at="t:0.794"></line>
+    <line x1="297.0" y1="108.0" x2="209.0" y2="108.0" stroke="#666666" stroke-width="1.2" marker-end="url(#ah666666-cflgq)" data-a="rnn-cell-cflgq-s8" data-b="rnn-cell-cflgq-s7" data-a-at="l:0.500:1.6" data-b-at="r:0.500"></line>
+    <line x1="192.0" y1="119.0" x2="192.0" y2="135.0" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-cflgq)" data-a="rnn-cell-cflgq-s7" data-b="rnn-cell-cflgq-s9" data-a-at="b:0.500" data-b-at="t:0.500"></line>
+    <line x1="192.0" y1="157.0" x2="192.0" y2="170.0" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-cflgq)" data-a="rnn-cell-cflgq-s9" data-a-at="b:0.500"></line>
+    <line x1="214.0" y1="186.0" x2="354.0" y2="186.0" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-cflgq)" data-a="rnn-cell-cflgq-s10" data-a-at="r:0.500:-0.9"></line>
+    <line x1="192.0" y1="202.0" x2="192.0" y2="217.0" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-cflgq)" data-b="rnn-cell-cflgq-s12" data-b-at="t:0.500"></line>
+    <line x1="94.0" y1="228.0" x2="167.0" y2="228.0" stroke="#6D9EEB" stroke-width="1.2" marker-end="url(#ah6D9EEB-cflgq)" data-b="rnn-cell-cflgq-s12" data-b-at="l:0.500"></line>
+    <line x1="192.0" y1="239.0" x2="192.0" y2="251.0" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-cflgq)" data-a="rnn-cell-cflgq-s12" data-b="rnn-cell-cflgq-s13" data-a-at="b:0.500" data-b-at="t:0.500"></line>
+    <line x1="297.0" y1="262.0" x2="231.0" y2="262.0" stroke="#666666" stroke-width="1.2" marker-end="url(#ah666666-cflgq)" data-a="rnn-cell-cflgq-s14" data-b="rnn-cell-cflgq-s13" data-a-at="l:0.500:1.6" data-b-at="r:0.500"></line>
+    <line x1="192.0" y1="273.0" x2="192.0" y2="284.0" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-cflgq)" data-a="rnn-cell-cflgq-s13" data-a-at="b:0.500"></line>
   </svg>
   <p data-b="vi1fh">Pictured above is one step of our RNN, drawn as a computation graph in the same colors as our earlier networks. The top half is the equation on the last page, and the hidden state it makes goes on to the next step. The bottom half turns the hidden state into a prediction, which we'll come back to.</p>
   <p data-b="yhb6w">The idea goes back to at least <span class="num">1986</span> (Michael Irwin Jordan, no relation), and Jeffrey Elman's <span class="num">1990</span> network fed back its hidden layer, as ours does. One step like this is usually called a <b class="def">cell</b>, since the same one is used again for every word.</p>
@@ -3284,7 +3295,7 @@ L 380.16 124.5
 <section class="page" id="unrolling" data-view="reading" data-topic="unrolling" style="--gap: 22pt;">
   <h2 data-b="k0sdk">Unrolling</h2>
   <p data-b="f8dp6">Because the hidden state loops back into the same cell, an RNN is usually drawn <b class="def">unrolled</b>, with one copy of the cell for each word, side by side. Pictured below are our first four words.</p>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 382.5pt" role="img" aria-label="Four identical cells in a row reading cheer, cheer, for and old from below, each word with its embedding (0.10, -0.10 for cheer, 0.60, 0.10 for for, -0.50, 0.40 for old); c 0 is 0, 0 and the hidden state above each cell is 0.05 -0.15, 0.15 -0.20, 0.68 -0.22 and 0.15 0.71" data-b="z6i9c">
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="Four identical cells in a row reading cheer, cheer, for and old from below, each word with its embedding (0.10, -0.10 for cheer, 0.60, 0.10 for for, -0.50, 0.40 for old); c 0 is 0, 0 and the hidden state above each cell is 0.05 -0.15, 0.15 -0.20, 0.68 -0.22 and 0.15 0.71" style="width: 382.5pt" data-b="z6i9c">
     <defs>
       <marker id="ahDCB439-z6i9c" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
@@ -3294,16 +3305,16 @@ L 380.16 124.5
       </marker>
     </defs>
     <g id="unrolled-march-z6i9c-s1">
-      <rect x="4.0" y="57.0" width="44.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="4.0" y="57.0" width="44.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="26.0" y="71.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">c₀</text>
       <text x="26.0" y="81.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">[0, 0]</text>
     </g>
     <g id="unrolled-march-z6i9c-s2">
-      <rect x="75.0" y="58.0" width="42.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="75.0" y="58.0" width="42.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="96.0" y="75.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cell</text>
     </g>
     <g id="unrolled-march-z6i9c-s3">
-      <rect x="61.0" y="7.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="61.0" y="7.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="96.0" y="21.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">c₁</text>
       <text x="96.0" y="31.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">[0.05, −0.15]</text>
     </g>
@@ -3312,15 +3323,15 @@ L 380.16 124.5
       <text x="96" y="123.2" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">cheer</text>
       <text x="96" y="130.3" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" class="tk-sub">[0.10, −0.10]</text>
     </g>
-    <line x1="96" y1="111.4" x2="96" y2="88" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-z6i9c)" data-a="unrolled-march-z6i9c-s4" data-b="unrolled-march-z6i9c-s2" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="96" y1="56" x2="96" y2="39" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s2" data-b="unrolled-march-z6i9c-s3" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="50" y1="72" x2="73" y2="72" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s1" data-b="unrolled-march-z6i9c-s2" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="96" y1="111.4" x2="96" y2="88" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-z6i9c)" data-a="unrolled-march-z6i9c-s4" data-b="unrolled-march-z6i9c-s2" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="96" y1="56" x2="96" y2="39" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s2" data-b="unrolled-march-z6i9c-s3" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="50" y1="72" x2="73" y2="72" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s1" data-b="unrolled-march-z6i9c-s2" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g id="unrolled-march-z6i9c-s5">
-      <rect x="159.0" y="58.0" width="42.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="159.0" y="58.0" width="42.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="180.0" y="75.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cell</text>
     </g>
     <g id="unrolled-march-z6i9c-s6">
-      <rect x="145.0" y="7.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="145.0" y="7.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="180.0" y="21.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">c₂</text>
       <text x="180.0" y="31.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">[0.15, −0.20]</text>
     </g>
@@ -3329,15 +3340,15 @@ L 380.16 124.5
       <text x="180" y="123.2" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">cheer</text>
       <text x="180" y="130.3" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" class="tk-sub">[0.10, −0.10]</text>
     </g>
-    <line x1="180" y1="111.4" x2="180" y2="88" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-z6i9c)" data-a="unrolled-march-z6i9c-s7" data-b="unrolled-march-z6i9c-s5" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="180" y1="56" x2="180" y2="39" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s5" data-b="unrolled-march-z6i9c-s6" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="119" y1="72" x2="157" y2="72" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s2" data-b="unrolled-march-z6i9c-s5" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="180" y1="111.4" x2="180" y2="88" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-z6i9c)" data-a="unrolled-march-z6i9c-s7" data-b="unrolled-march-z6i9c-s5" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="180" y1="56" x2="180" y2="39" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s5" data-b="unrolled-march-z6i9c-s6" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="119" y1="72" x2="157" y2="72" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s2" data-b="unrolled-march-z6i9c-s5" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g id="unrolled-march-z6i9c-s8">
-      <rect x="243.0" y="58.0" width="42.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="243.0" y="58.0" width="42.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="264.0" y="75.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cell</text>
     </g>
     <g id="unrolled-march-z6i9c-s9">
-      <rect x="229.0" y="7.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="229.0" y="7.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="264.0" y="21.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">c₃</text>
       <text x="264.0" y="31.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">[0.68, −0.22]</text>
     </g>
@@ -3346,15 +3357,15 @@ L 380.16 124.5
       <text x="263.9" y="123.2" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">for</text>
       <text x="263.9" y="130.3" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" class="tk-sub">[0.60, 0.10]</text>
     </g>
-    <line x1="264" y1="111.4" x2="264" y2="88" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-z6i9c)" data-a="unrolled-march-z6i9c-s10" data-b="unrolled-march-z6i9c-s8" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="264" y1="56" x2="264" y2="39" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s8" data-b="unrolled-march-z6i9c-s9" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="203" y1="72" x2="241" y2="72" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s5" data-b="unrolled-march-z6i9c-s8" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="264" y1="111.4" x2="264" y2="88" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-z6i9c)" data-a="unrolled-march-z6i9c-s10" data-b="unrolled-march-z6i9c-s8" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="264" y1="56" x2="264" y2="39" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s8" data-b="unrolled-march-z6i9c-s9" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="203" y1="72" x2="241" y2="72" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s5" data-b="unrolled-march-z6i9c-s8" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g id="unrolled-march-z6i9c-s11">
-      <rect x="327.0" y="58.0" width="42.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="327.0" y="58.0" width="42.0" height="28.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="348.0" y="75.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cell</text>
     </g>
     <g id="unrolled-march-z6i9c-s12">
-      <rect x="313.0" y="7.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="313.0" y="7.0" width="70.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="348.0" y="21.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">c₄</text>
       <text x="348.0" y="31.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">[0.15, 0.71]</text>
     </g>
@@ -3363,9 +3374,9 @@ L 380.16 124.5
       <text x="348" y="123.2" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">old</text>
       <text x="348" y="130.3" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" class="tk-sub">[−0.50, 0.40]</text>
     </g>
-    <line x1="348" y1="111.4" x2="348" y2="88" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-z6i9c)" data-a="unrolled-march-z6i9c-s13" data-b="unrolled-march-z6i9c-s11" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="348" y1="56" x2="348" y2="39" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s11" data-b="unrolled-march-z6i9c-s12" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="287" y1="72" x2="325" y2="72" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s8" data-b="unrolled-march-z6i9c-s11" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="348" y1="111.4" x2="348" y2="88" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-z6i9c)" data-a="unrolled-march-z6i9c-s13" data-b="unrolled-march-z6i9c-s11" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="348" y1="56" x2="348" y2="39" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s11" data-b="unrolled-march-z6i9c-s12" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="287" y1="72" x2="325" y2="72" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-z6i9c)" data-a="unrolled-march-z6i9c-s8" data-b="unrolled-march-z6i9c-s11" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
   </svg>
   <p data-b="r8oz3">It's important to remember that this isn't four different layers. <b class="take">Every box uses the same weights</b>, so an RNN that reads <span class="num">26</span> words has exactly as many weights as one that reads <span class="num">4</span>. The numbers under each word are its embedding (from a random table, since our network hasn't been trained) and the numbers above each cell are the hidden state it hands to the next step.</p>
   <p data-b="xivbq">Notice that <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok> goes in twice with the same embedding and comes out with two different hidden states.</p>
@@ -4878,50 +4889,50 @@ L 380.16 86.4
   <p data-b="di9pr">It thinks the next word is most likely <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> (<span class="num">0.165</span>) and gives <b-tok v="march" t="echoes" data-f="red" title="Victory March words: &quot;echoes&quot; = 8"><span class="tk-t">echoes</span><span class="tk-id">8</span></b-tok> <span class="num">0.090</span>. Averaged over the <span class="num">25</span> words that have a next word, it gives the right one a probability of <span class="num">0.051</span>, which is <b class="warn">barely better than picking at random</b> (<span class="num">1/22</span> = <span class="num">0.045</span>). That's what made-up weights get us.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · Recurrent Neural Networks</span><span>22</span></div></section>
 
-<section class="page" id="scratch-rnn" data-part="An RNN From Scratch" data-view="reading" data-topic="rnn-equations,rnn-pytorch" style="--gap: 22pt;">
+<section class="page" id="scratch-rnn" data-view="reading" data-topic="rnn-equations rnn-pytorch" data-part="An RNN From Scratch" style="--gap: 22pt;">
   <h2 data-b="fdqnp">An RNN From Scratch</h2>
   <p data-b="kiqo0">In Backpropagation we wrote each layer of a network as a small class with a <span class="mono">forward</span> method, and in CNNs we added a convolutional layer and pooling the same way. An RNN needs two new layers. The first is the <b class="def">embedding layer</b>:</p>
   <b-code lang="python" data-b="eb8h4"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch</div><div class="ln"></div><div class="ln"><span class="kw">class</span> <span class="def">Embedding</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_tokens, d):</div><div class="ln">        self.<span class="cc blue">E</span> = torch.randn(n_tokens, d) * <span class="nu nn">0.1</span></div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, ids):  <span class="cm"># (B, T) token IDs</span></div><div class="ln">        self.ids = ids       <span class="cm"># keep for backward</span></div><div class="ln">        <span class="ctl">return</span> self.<span class="cc blue">E</span>[ids]   <span class="cm"># (B, T, d): one row per ID</span></div></div></b-code>
   <p data-b="kowbi">It holds the embedding table, one row per token in the vocabulary, and its <span class="mono">forward</span> is <b class="take">a lookup</b>: a batch of token IDs, shape <span class="mono">(B, T)</span>, becomes a batch of vectors, shape <span class="mono">(B, T, d)</span>. That is the same as multiplying each one-hot vector by the table (One-Hot Encoding), without building the one-hot vectors.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · An RNN From Scratch</span><span>23</span></div></section>
 
-<section class="page" id="scratch-cell" data-view="reading" data-topic="rnn-equations,rnn-pytorch" style="--gap: 22pt;">
+<section class="page" id="scratch-cell" data-view="reading" data-topic="rnn-equations rnn-pytorch" style="--gap: 22pt;">
   <h2 data-b="py2k2">The Recurrent Layer</h2>
   <p data-b="sclyo">The second is the <b class="def">recurrent layer</b>, our cell run over the words in order:</p>
-  <b-code lang="python" chain="true" data-b="zl6y8"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">RNNLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_h):</div><div class="ln">        self.<span class="cc blue">Wx</span> = torch.randn(n_h, n_in) / n_in**<span class="nu nn">0.5</span></div><div class="ln">        self.<span class="cc blue">Wc</span> = torch.randn(n_h, n_h) / n_h**<span class="nu nn">0.5</span></div><div class="ln">        self.<span class="cc gray">b</span> = torch.zeros(n_h)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">step</span>(self, <span class="cc red">x_t</span>, <span class="cc gold">c_prev</span>):  <span class="cm"># one word, c_t</span></div><div class="ln">        <span class="ctl">return</span> torch.tanh(<span class="cc red">x_t</span> @ self.<span class="cc blue">Wx</span>.T</div><div class="ln">                          + <span class="cc gold">c_prev</span> @ self.<span class="cc blue">Wc</span>.T + self.<span class="cc gray">b</span>)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, X):  <span class="cm"># (B, T, n_in)</span></div><div class="ln">        B, T, _ = X.shape</div><div class="ln">        <span class="cc gold">c</span> = torch.zeros(B, self.<span class="cc blue">Wc</span>.shape[<span class="nu nn">0</span>])  <span class="cm"># c_0</span></div><div class="ln">        self.states = [<span class="cc gold">c</span>]  <span class="cm"># keep every c_t for BPTT</span></div><div class="ln">        <span class="ctl">for</span> t <span class="kw">in</span> <span class="bi">range</span>(T):  <span class="cm"># one word at a time</span></div><div class="ln">            <span class="cc gold">c</span> = self.step(X[:, t], <span class="cc gold">c</span>)  <span class="cm"># same weights</span></div><div class="ln">            self.states.append(<span class="cc gold">c</span>)</div><div class="ln">        <span class="ctl">return</span> torch.stack(self.states[<span class="nu nn">1</span>:], dim=<span class="nu nn">1</span>)</div></div></b-code>
+  <b-code lang="python" chain="" data-b="zl6y8"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">RNNLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_h):</div><div class="ln">        self.<span class="cc blue">Wx</span> = torch.randn(n_h, n_in) / n_in**<span class="nu nn">0.5</span></div><div class="ln">        self.<span class="cc blue">Wc</span> = torch.randn(n_h, n_h) / n_h**<span class="nu nn">0.5</span></div><div class="ln">        self.<span class="cc gray">b</span> = torch.zeros(n_h)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">step</span>(self, <span class="cc red">x_t</span>, <span class="cc gold">c_prev</span>):  <span class="cm"># one word, c_t</span></div><div class="ln">        <span class="ctl">return</span> torch.tanh(<span class="cc red">x_t</span> @ self.<span class="cc blue">Wx</span>.T</div><div class="ln">                          + <span class="cc gold">c_prev</span> @ self.<span class="cc blue">Wc</span>.T + self.<span class="cc gray">b</span>)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, X):  <span class="cm"># (B, T, n_in)</span></div><div class="ln">        B, T, _ = X.shape</div><div class="ln">        <span class="cc gold">c</span> = torch.zeros(B, self.<span class="cc blue">Wc</span>.shape[<span class="nu nn">0</span>])  <span class="cm"># c_0</span></div><div class="ln">        self.states = [<span class="cc gold">c</span>]  <span class="cm"># keep every c_t for BPTT</span></div><div class="ln">        <span class="ctl">for</span> t <span class="kw">in</span> <span class="bi">range</span>(T):  <span class="cm"># one word at a time</span></div><div class="ln">            <span class="cc gold">c</span> = self.step(X[:, t], <span class="cc gold">c</span>)  <span class="cm"># same weights</span></div><div class="ln">            self.states.append(<span class="cc gold">c</span>)</div><div class="ln">        <span class="ctl">return</span> torch.stack(self.states[<span class="nu nn">1</span>:], dim=<span class="nu nn">1</span>)</div></div></b-code>
   <p data-b="vhbtv">The <span class="mono">step</span> method is the equation from The RNN Cell, for a whole batch of sequences at once. The <span class="mono">forward</span> method is our loop from The Forward Pass: it starts from a hidden state of zeros and calls the same <span class="mono">step</span>, with the same <span class="mono">Wx</span> and <span class="mono">Wc</span>, for every word. It also keeps every hidden state in <span class="mono">self.states</span>, since training will need them in the next chapter.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · An RNN From Scratch</span><span>24</span></div></section>
 
-<section class="page" id="scratch-net" data-view="reading" data-topic="rnn-equations,rnn-pytorch" style="--gap: 22pt;">
+<section class="page" id="scratch-net" data-view="reading" data-topic="rnn-equations rnn-pytorch" style="--gap: 22pt;">
   <h2 data-b="m3aiz">The Rest of the Network</h2>
   <p data-b="xlwnk">The output layer from the last page is a linear layer, and we already have one. <span class="mono">LinearLayer</span> and <span class="mono">Network</span> are the classes from Backpropagation, with only their <span class="mono">forward</span> methods for now:</p>
-  <b-code lang="python" chain="true" data-b="o5scn"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">LinearLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_out):</div><div class="ln">        self.<span class="cc blue">W</span> = torch.randn(n_out, n_in) * (<span class="nu nn">2</span>/n_in)**<span class="nu nn">0.5</span></div><div class="ln">        self.<span class="cc gray">b</span> = torch.zeros(n_out)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, X):  <span class="cm"># every c_t at once</span></div><div class="ln">        self.X = X         <span class="cm"># keep for backward</span></div><div class="ln">        <span class="ctl">return</span> X @ self.<span class="cc blue">W</span>.T + self.<span class="cc gray">b</span></div><div class="ln"></div><div class="ln"><span class="kw">class</span> <span class="def">Network</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, layers):</div><div class="ln">        self.layers = layers</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, X):</div><div class="ln">        <span class="ctl">for</span> layer <span class="kw">in</span> self.layers:</div><div class="ln">            X = layer.forward(X)</div><div class="ln">        <span class="ctl">return</span> X  <span class="cm"># logits</span></div></div></b-code>
+  <b-code lang="python" chain="" data-b="o5scn"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">LinearLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_out):</div><div class="ln">        self.<span class="cc blue">W</span> = torch.randn(n_out, n_in) * (<span class="nu nn">2</span>/n_in)**<span class="nu nn">0.5</span></div><div class="ln">        self.<span class="cc gray">b</span> = torch.zeros(n_out)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, X):  <span class="cm"># every c_t at once</span></div><div class="ln">        self.X = X         <span class="cm"># keep for backward</span></div><div class="ln">        <span class="ctl">return</span> X @ self.<span class="cc blue">W</span>.T + self.<span class="cc gray">b</span></div><div class="ln"></div><div class="ln"><span class="kw">class</span> <span class="def">Network</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, layers):</div><div class="ln">        self.layers = layers</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, X):</div><div class="ln">        <span class="ctl">for</span> layer <span class="kw">in</span> self.layers:</div><div class="ln">            X = layer.forward(X)</div><div class="ln">        <span class="ctl">return</span> X  <span class="cm"># logits</span></div></div></b-code>
   <p data-b="itwge">The recurrent layer hands on a hidden state for every word, shape <span class="mono">(B, T, n_h)</span>, and <span class="mono">@</span> multiplies the last dimension, so the linear layer scores <b class="take">every word's next word at once</b>. <span class="mono">Network</span> doesn't care what kind of layers it holds.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · An RNN From Scratch</span><span>25</span></div></section>
 
-<section class="page" id="scratch-run" data-view="reading" data-topic="rnn-equations,rnn-pytorch">
+<section class="page" id="scratch-run" data-view="reading" data-topic="rnn-equations rnn-pytorch">
   <h2 data-b="x9ful">Running Our RNN From Scratch</h2>
   <p data-b="xuncr">Below we put the four lines through an embedding layer, a recurrent layer with two hidden numbers and a linear layer back out to our 22 words, all with random weights:</p>
-  <b-code lang="python" chain="true" data-b="ufb7x"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div></div><div class="src"><div class="ln"><span class="kw">import</span> re</div><div class="ln">text = <span class="st">"""Cheer, cheer for old Notre Dame,</span></div><div class="ln"><span class="st">Wake up the echoes cheering her name,</span></div><div class="ln"><span class="st">Send a volley cheer on high,</span></div><div class="ln"><span class="st">Shake down the thunder from the sky."""</span></div><div class="ln">tokens = re.sub(<span class="st">r"[^a-z ]"</span>, <span class="st">" "</span>, text.lower()).split()</div><div class="ln">vocab = <span class="ty">list</span>(<span class="ty">dict</span>.fromkeys(tokens))</div><div class="ln">X = torch.tensor([[vocab.index(t) <span class="ctl">for</span> t <span class="kw">in</span> tokens]])</div><div class="ln">torch.manual_seed(<span class="nu nn">0</span>)</div><div class="ln">model = Network([Embedding(<span class="nu nn">22</span>, <span class="nu nn">2</span>), RNNLayer(<span class="nu nn">2</span>, <span class="nu nn">2</span>),</div><div class="ln">                 LinearLayer(<span class="nu nn">2</span>, <span class="nu nn">22</span>)])</div><div class="ln">logits = model.forward(X)</div><div class="ln">emb, rnn, <span class="cc gold">out</span> = model.layers</div><div class="ln"><span class="bi">print</span>(<span class="st">"IDs"</span>, <span class="ty">tuple</span>(X.shape), <span class="st">"-&gt; logits"</span>,</div><div class="ln">      <span class="ty">tuple</span>(logits.shape))</div><div class="ln"><span class="bi">print</span>(<span class="st">"hidden states:"</span>, <span class="bi">len</span>(rnn.states))</div><div class="ln">n = [emb.<span class="cc blue">E</span>, rnn.<span class="cc blue">Wx</span>, rnn.<span class="cc blue">Wc</span>, rnn.<span class="cc gray">b</span>, <span class="cc gold">out</span>.<span class="cc blue">W</span>, <span class="cc gold">out</span>.<span class="cc gray">b</span>]</div><div class="ln"><span class="bi">print</span>(<span class="st">"weights:"</span>, <span class="bi">sum</span>(w.numel() <span class="ctl">for</span> w <span class="kw">in</span> n))</div></div></b-code>
+  <b-code lang="python" chain="" data-b="ufb7x"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div></div><div class="src"><div class="ln"><span class="kw">import</span> re</div><div class="ln">text = <span class="st">"""Cheer, cheer for old Notre Dame,</span></div><div class="ln"><span class="st">Wake up the echoes cheering her name,</span></div><div class="ln"><span class="st">Send a volley cheer on high,</span></div><div class="ln"><span class="st">Shake down the thunder from the sky."""</span></div><div class="ln">tokens = re.sub(<span class="st">r"[^a-z ]"</span>, <span class="st">" "</span>, text.lower()).split()</div><div class="ln">vocab = <span class="ty">list</span>(<span class="ty">dict</span>.fromkeys(tokens))</div><div class="ln">X = torch.tensor([[vocab.index(t) <span class="ctl">for</span> t <span class="kw">in</span> tokens]])</div><div class="ln">torch.manual_seed(<span class="nu nn">0</span>)</div><div class="ln">model = Network([Embedding(<span class="nu nn">22</span>, <span class="nu nn">2</span>), RNNLayer(<span class="nu nn">2</span>, <span class="nu nn">2</span>),</div><div class="ln">                 LinearLayer(<span class="nu nn">2</span>, <span class="nu nn">22</span>)])</div><div class="ln">logits = model.forward(X)</div><div class="ln">emb, rnn, <span class="cc gold">out</span> = model.layers</div><div class="ln"><span class="bi">print</span>(<span class="st">"IDs"</span>, <span class="ty">tuple</span>(X.shape), <span class="st">"-&gt; logits"</span>,</div><div class="ln">      <span class="ty">tuple</span>(logits.shape))</div><div class="ln"><span class="bi">print</span>(<span class="st">"hidden states:"</span>, <span class="bi">len</span>(rnn.states))</div><div class="ln">n = [emb.<span class="cc blue">E</span>, rnn.<span class="cc blue">Wx</span>, rnn.<span class="cc blue">Wc</span>, rnn.<span class="cc gray">b</span>, <span class="cc gold">out</span>.<span class="cc blue">W</span>, <span class="cc gold">out</span>.<span class="cc gray">b</span>]</div><div class="ln"><span class="bi">print</span>(<span class="st">"weights:"</span>, <span class="bi">sum</span>(w.numel() <span class="ctl">for</span> w <span class="kw">in</span> n))</div></div></b-code>
   <b-out data-b="y62h7"><div class="label">Output</div><pre><span class="olab">IDs</span> (<span class="nu nn">1</span>, <span class="nu nn">26</span>) -&gt; <span class="cc purple">logits</span> (<span class="nu nn">1</span>, <span class="nu nn">26</span>, <span class="nu nn">22</span>)
 <span class="olab f-gold">hidden states:</span> <span class="nu f-gold">27</span>
 <span class="olab f-blue">weights:</span> <span class="nu f-blue">120</span></pre></b-out>
   <p data-b="jezpk">One song of <span class="num">26</span> words comes out as <span class="num">26</span> rows of <span class="num">22</span> scores, one for each next word, and the recurrent layer kept <span class="num">27</span> hidden states. The network has <span class="num">120</span> weights: <span class="num">44</span> in the embedding table, <span class="num">10</span> in the cell and <span class="num">66</span> in the output layer. <b class="take">None of them depend on how long the song is</b>.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · An RNN From Scratch</span><span>26</span></div></section>
 
-<section class="page" id="scratch-ours" data-view="reading" data-topic="rnn-equations,rnn-pytorch" style="--gap: 22pt;">
+<section class="page" id="scratch-ours" data-view="reading" data-topic="rnn-equations rnn-pytorch" style="--gap: 22pt;">
   <h2 data-b="gzkr0">Our Weights, From Scratch</h2>
   <p data-b="diiqd">To check our classes, we can give them the weights from the earlier pages (the same seed for the embedding table and <b-m tex="Ω_y"><span class="c wblue sym" data-at="0,3" data-k="Ω_y"><span class="Om">ω</span><sub>y</sub></span></b-m>, our <b-m tex="Ω_x"><span class="c wblue sym" data-at="0,3" data-k="Ω_x"><span class="Om">ω</span><sub>x</sub></span></b-m> and <b-m tex="Ω_c"><span class="c wblue sym" data-at="0,3" data-k="Ω_c"><span class="Om">ω</span><sub>c</sub></span></b-m>, and zero biases) and run the song again:</p>
-  <b-code lang="python" chain="true" data-b="ux3d3"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div></div><div class="src"><div class="ln"><span class="kw">import</span> numpy <span class="kw">as</span> np</div><div class="ln">rng = np.random.default_rng(<span class="nu nn">0</span>)  <span class="cm"># earlier slides' weights</span></div><div class="ln"><span class="cc blue">E</span> = rng.normal(size=(<span class="nu nn">22</span>, <span class="nu nn">2</span>)).round(<span class="nu nn">1</span>)</div><div class="ln"><span class="cc blue">W_y</span> = rng.normal(size=(<span class="nu nn">22</span>, <span class="nu nn">2</span>)).round(<span class="nu nn">1</span>)</div><div class="ln">emb.<span class="cc blue">E</span> = torch.tensor(<span class="cc blue">E</span>, dtype=torch.float32)</div><div class="ln">rnn.<span class="cc blue">Wx</span> = torch.tensor([[<span class="nu nn">1.0</span>, <span class="nu nn">0.5</span>], [-<span class="nu nn">0.5</span>, <span class="nu nn">1.0</span>]])</div><div class="ln">rnn.<span class="cc blue">Wc</span> = torch.tensor([[<span class="nu nn">0.5</span>, -<span class="nu nn">0.5</span>], [<span class="nu nn">0.5</span>, <span class="nu nn">0.5</span>]])</div><div class="ln">rnn.<span class="cc gray">b</span> = torch.zeros(<span class="nu nn">2</span>)</div><div class="ln"><span class="cc gold">out</span>.<span class="cc blue">W</span> = torch.tensor(<span class="cc blue">W_y</span>, dtype=torch.float32)</div><div class="ln"><span class="cc gold">out</span>.<span class="cc gray">b</span> = torch.zeros(<span class="nu nn">22</span>)</div><div class="ln"></div><div class="ln">p = torch.softmax(model.forward(X), dim=-<span class="nu nn">1</span>)</div><div class="ln"><span class="cc gold">c</span> = rnn.states[<span class="nu nn">9</span>]  <span class="cm"># after "wake up the"</span></div><div class="ln"><span class="bi">print</span>(<span class="st">"c:"</span>, <span class="cc gold">c</span>.round(decimals=<span class="nu nn">3</span>))</div><div class="ln">echoes = p[<span class="nu nn">0</span>, <span class="nu nn">8</span>, vocab.index(<span class="st">"echoes"</span>)]</div><div class="ln"><span class="bi">print</span>(<span class="st">"p('echoes'):"</span>, echoes.round(decimals=<span class="nu nn">3</span>))</div></div></b-code>
+  <b-code lang="python" chain="" data-b="ux3d3"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div></div><div class="src"><div class="ln"><span class="kw">import</span> numpy <span class="kw">as</span> np</div><div class="ln">rng = np.random.default_rng(<span class="nu nn">0</span>)  <span class="cm"># earlier slides' weights</span></div><div class="ln"><span class="cc blue">E</span> = rng.normal(size=(<span class="nu nn">22</span>, <span class="nu nn">2</span>)).round(<span class="nu nn">1</span>)</div><div class="ln"><span class="cc blue">W_y</span> = rng.normal(size=(<span class="nu nn">22</span>, <span class="nu nn">2</span>)).round(<span class="nu nn">1</span>)</div><div class="ln">emb.<span class="cc blue">E</span> = torch.tensor(<span class="cc blue">E</span>, dtype=torch.float32)</div><div class="ln">rnn.<span class="cc blue">Wx</span> = torch.tensor([[<span class="nu nn">1.0</span>, <span class="nu nn">0.5</span>], [-<span class="nu nn">0.5</span>, <span class="nu nn">1.0</span>]])</div><div class="ln">rnn.<span class="cc blue">Wc</span> = torch.tensor([[<span class="nu nn">0.5</span>, -<span class="nu nn">0.5</span>], [<span class="nu nn">0.5</span>, <span class="nu nn">0.5</span>]])</div><div class="ln">rnn.<span class="cc gray">b</span> = torch.zeros(<span class="nu nn">2</span>)</div><div class="ln"><span class="cc gold">out</span>.<span class="cc blue">W</span> = torch.tensor(<span class="cc blue">W_y</span>, dtype=torch.float32)</div><div class="ln"><span class="cc gold">out</span>.<span class="cc gray">b</span> = torch.zeros(<span class="nu nn">22</span>)</div><div class="ln"></div><div class="ln">p = torch.softmax(model.forward(X), dim=-<span class="nu nn">1</span>)</div><div class="ln"><span class="cc gold">c</span> = rnn.states[<span class="nu nn">9</span>]  <span class="cm"># after "wake up the"</span></div><div class="ln"><span class="bi">print</span>(<span class="st">"c:"</span>, <span class="cc gold">c</span>.round(decimals=<span class="nu nn">3</span>))</div><div class="ln">echoes = p[<span class="nu nn">0</span>, <span class="nu nn">8</span>, vocab.index(<span class="st">"echoes"</span>)]</div><div class="ln"><span class="bi">print</span>(<span class="st">"p('echoes'):"</span>, echoes.round(decimals=<span class="nu nn">3</span>))</div></div></b-code>
   <b-out data-b="h3cmi"><div class="label">Output</div><pre><span class="olab f-gold">c:</span> <span class="ow">tensor</span>([[<span class="nu f-gold">-0.9790</span>, <span class="nu f-gold">-0.3550</span>]])
 <span class="olab">p(<span class="otk" data-f="red"><span class="oq">'</span>echoes<span class="oq">'</span></span>):</span> <span class="ow">tensor</span>(<span class="nu nn">0.0900</span>)</pre></b-out>
   <p data-b="d41j7">After wake up the we get the hidden state from The Forward Pass and the <span class="num">0.090</span> for echoes from Outputs, so <b class="take">our classes compute the same network</b> as the loop.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · An RNN From Scratch</span><span>27</span></div></section>
 
-<section class="page" id="scratch-check" data-view="reading" data-topic="rnn-equations,rnn-pytorch" style="--gap: 22pt;">
+<section class="page" id="scratch-check" data-view="reading" data-topic="rnn-equations rnn-pytorch" style="--gap: 22pt;">
   <h2 data-b="qxs94">Checking Against PyTorch</h2>
   <p data-b="phla0">We can check against PyTorch the same way we did for the loop, by copying our weights into <span class="mono">nn.Embedding</span>, <span class="mono">nn.RNN</span> and <span class="mono">nn.Linear</span>:</p>
-  <b-code lang="python" chain="true" data-b="q5b0m"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div></div><div class="src"><div class="ln"><span class="kw">from</span> torch <span class="kw">import</span> nn</div><div class="ln">emb_t = nn.Embedding(<span class="nu nn">22</span>, <span class="nu nn">2</span>)</div><div class="ln">rnn_t = nn.RNN(<span class="nu nn">2</span>, <span class="nu nn">2</span>, batch_first=<span class="nu">True</span>)</div><div class="ln">out_t = nn.Linear(<span class="nu nn">2</span>, <span class="nu nn">22</span>)</div><div class="ln"><span class="ctl">with</span> torch.no_grad():  <span class="cm"># copy our weights in</span></div><div class="ln">    emb_t.<span class="cc blue">weight</span>.copy_(emb.<span class="cc blue">E</span>)</div><div class="ln">    rnn_t.weight_ih_l0.copy_(rnn.<span class="cc blue">Wx</span>)</div><div class="ln">    rnn_t.weight_hh_l0.copy_(rnn.<span class="cc blue">Wc</span>)</div><div class="ln">    rnn_t.bias_ih_l0.copy_(rnn.<span class="cc gray">b</span>)</div><div class="ln">    rnn_t.bias_hh_l0.zero_()  <span class="cm"># PyTorch has two biases</span></div><div class="ln">    out_t.<span class="cc blue">weight</span>.copy_(<span class="cc gold">out</span>.<span class="cc blue">W</span>)</div><div class="ln">    out_t.<span class="cc gray">bias</span>.copy_(<span class="cc gold">out</span>.<span class="cc gray">b</span>)</div><div class="ln">    hidden, _ = rnn_t(emb_t(X))</div><div class="ln">    logits_t = out_t(hidden)</div><div class="ln">diff = (logits_t - model.forward(X)).abs().max()</div><div class="ln"><span class="bi">print</span>(<span class="st">"largest difference:"</span>, diff)</div></div></b-code>
+  <b-code lang="python" chain="" data-b="q5b0m"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div></div><div class="src"><div class="ln"><span class="kw">from</span> torch <span class="kw">import</span> nn</div><div class="ln">emb_t = nn.Embedding(<span class="nu nn">22</span>, <span class="nu nn">2</span>)</div><div class="ln">rnn_t = nn.RNN(<span class="nu nn">2</span>, <span class="nu nn">2</span>, batch_first=<span class="nu">True</span>)</div><div class="ln">out_t = nn.Linear(<span class="nu nn">2</span>, <span class="nu nn">22</span>)</div><div class="ln"><span class="ctl">with</span> torch.no_grad():  <span class="cm"># copy our weights in</span></div><div class="ln">    emb_t.<span class="cc blue">weight</span>.copy_(emb.<span class="cc blue">E</span>)</div><div class="ln">    rnn_t.weight_ih_l0.copy_(rnn.<span class="cc blue">Wx</span>)</div><div class="ln">    rnn_t.weight_hh_l0.copy_(rnn.<span class="cc blue">Wc</span>)</div><div class="ln">    rnn_t.bias_ih_l0.copy_(rnn.<span class="cc gray">b</span>)</div><div class="ln">    rnn_t.bias_hh_l0.zero_()  <span class="cm"># PyTorch has two biases</span></div><div class="ln">    out_t.<span class="cc blue">weight</span>.copy_(<span class="cc gold">out</span>.<span class="cc blue">W</span>)</div><div class="ln">    out_t.<span class="cc gray">bias</span>.copy_(<span class="cc gold">out</span>.<span class="cc gray">b</span>)</div><div class="ln">    hidden, _ = rnn_t(emb_t(X))</div><div class="ln">    logits_t = out_t(hidden)</div><div class="ln">diff = (logits_t - model.forward(X)).abs().max()</div><div class="ln"><span class="bi">print</span>(<span class="st">"largest difference:"</span>, diff)</div></div></b-code>
   <b-out data-b="whcir"><div class="label">Output</div><pre><span class="olab">largest difference:</span> <span class="ow">tensor</span>(<span class="nu nn">0.</span>)</pre></b-out>
   <p data-b="xsxr8">The scores are identical. PyTorch keeps a second bias in the cell (Inside nn.RNN), which we set to zero, and otherwise <b class="take"><span class="mono">nn.RNN</span> is our loop</b>, written in faster code. When we train an RNN in the next chapter, our classes will need a <span class="mono">backward</span> method, while PyTorch will work the gradients out for us.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · An RNN From Scratch</span><span>28</span></div></section>
@@ -4929,7 +4940,7 @@ L 380.16 86.4
 <section class="page" id="uses" data-view="reading" data-topic="uses" data-part="Uses of RNNs" style="--gap: 22pt;">
   <h2 data-b="tx9vz">Uses of RNNs</h2>
   <p data-b="h4yfo">Our network gives an output after every word, a guess at the next one. That isn't the only way to wire an RNN up, and which outputs we keep (and what we feed in) decides what it can be used for.</p>
-  <svg class="draw" viewBox="0 0 384 250" style="width: 382.5pt" role="img" aria-label="Four RNNs: many to one, five inputs and one output at the end; many to many, an output after every input; generation, one input and each output fed back in as the next input; encoder-decoder, one RNN reads three inputs and hands its last hidden state to a second RNN that writes three outputs" data-b="qcrw1">
+  <svg class="draw" viewBox="0 0 384 250" role="img" aria-label="Four RNNs: many to one, five inputs and one output at the end; many to many, an output after every input; generation, one input and each output fed back in as the next input; encoder-decoder, one RNN reads three inputs and hands its last hidden state to a second RNN that writes three outputs" style="width: 382.5pt" data-b="qcrw1">
     <defs>
       <marker id="ah666666-qcrw1" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
@@ -4943,274 +4954,274 @@ L 380.16 86.4
     </defs>
     <text x="92.0" y="22.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">many to one: label a sentence</text>
     <g id="shapes-qcrw1-s1">
-      <rect x="13.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="13.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="24.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="shapes-qcrw1-s2">
-      <rect x="16.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="16.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="24.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="24.0" y1="98.0" x2="24.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s2" data-b="shapes-qcrw1-s1" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="24.0" y1="98.0" x2="24.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s2" data-b="shapes-qcrw1-s1" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s3">
-      <rect x="47.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="47.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="58.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="35.0" y1="70.0" x2="47.0" y2="70.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s1" data-b="shapes-qcrw1-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="35.0" y1="70.0" x2="47.0" y2="70.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s1" data-b="shapes-qcrw1-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s4">
-      <rect x="50.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="50.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="58.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="58.0" y1="98.0" x2="58.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s4" data-b="shapes-qcrw1-s3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="58.0" y1="98.0" x2="58.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s4" data-b="shapes-qcrw1-s3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s5">
-      <rect x="81.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="81.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="92.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="69.0" y1="70.0" x2="81.0" y2="70.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s3" data-b="shapes-qcrw1-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="69.0" y1="70.0" x2="81.0" y2="70.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s3" data-b="shapes-qcrw1-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s6">
-      <rect x="84.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="84.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="92.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="92.0" y1="98.0" x2="92.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s6" data-b="shapes-qcrw1-s5" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="92.0" y1="98.0" x2="92.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s6" data-b="shapes-qcrw1-s5" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s7">
-      <rect x="115.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="115.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="126.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="103.0" y1="70.0" x2="115.0" y2="70.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s5" data-b="shapes-qcrw1-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="103.0" y1="70.0" x2="115.0" y2="70.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s5" data-b="shapes-qcrw1-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s8">
-      <rect x="118.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="118.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="126.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="126.0" y1="98.0" x2="126.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s8" data-b="shapes-qcrw1-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="126.0" y1="98.0" x2="126.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s8" data-b="shapes-qcrw1-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s9">
-      <rect x="149.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="149.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="160.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="137.0" y1="70.0" x2="149.0" y2="70.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s7" data-b="shapes-qcrw1-s9" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="137.0" y1="70.0" x2="149.0" y2="70.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s7" data-b="shapes-qcrw1-s9" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s10">
-      <rect x="152.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="152.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="160.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="160.0" y1="98.0" x2="160.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s10" data-b="shapes-qcrw1-s9" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="160.0" y1="98.0" x2="160.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s10" data-b="shapes-qcrw1-s9" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s11">
-      <rect x="152.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="152.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="160.0" y="43.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="160.0" y1="61.0" x2="160.0" y2="46.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s9" data-b="shapes-qcrw1-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="160.0" y1="61.0" x2="160.0" y2="46.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s9" data-b="shapes-qcrw1-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="284.0" y="22.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">many to many: predict every next word</text>
     <g id="shapes-qcrw1-s12">
-      <rect x="205.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="205.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="216.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="shapes-qcrw1-s13">
-      <rect x="208.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="208.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="216.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="216.0" y1="98.0" x2="216.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s13" data-b="shapes-qcrw1-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="216.0" y1="98.0" x2="216.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s13" data-b="shapes-qcrw1-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s14">
-      <rect x="208.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="208.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="216.0" y="43.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="216.0" y1="61.0" x2="216.0" y2="46.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s12" data-b="shapes-qcrw1-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="216.0" y1="61.0" x2="216.0" y2="46.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s12" data-b="shapes-qcrw1-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s15">
-      <rect x="239.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="239.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="250.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="227.0" y1="70.0" x2="239.0" y2="70.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s12" data-b="shapes-qcrw1-s15" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="227.0" y1="70.0" x2="239.0" y2="70.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s12" data-b="shapes-qcrw1-s15" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s16">
-      <rect x="242.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="242.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="250.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="250.0" y1="98.0" x2="250.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s16" data-b="shapes-qcrw1-s15" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="250.0" y1="98.0" x2="250.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s16" data-b="shapes-qcrw1-s15" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s17">
-      <rect x="242.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="242.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="250.0" y="43.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="250.0" y1="61.0" x2="250.0" y2="46.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s15" data-b="shapes-qcrw1-s17" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="250.0" y1="61.0" x2="250.0" y2="46.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s15" data-b="shapes-qcrw1-s17" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s18">
-      <rect x="273.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="273.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="284.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="261.0" y1="70.0" x2="273.0" y2="70.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s15" data-b="shapes-qcrw1-s18" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="261.0" y1="70.0" x2="273.0" y2="70.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s15" data-b="shapes-qcrw1-s18" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s19">
-      <rect x="276.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="276.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="284.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="284.0" y1="98.0" x2="284.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s19" data-b="shapes-qcrw1-s18" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="284.0" y1="98.0" x2="284.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s19" data-b="shapes-qcrw1-s18" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s20">
-      <rect x="276.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="276.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="284.0" y="43.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="284.0" y1="61.0" x2="284.0" y2="46.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s18" data-b="shapes-qcrw1-s20" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="284.0" y1="61.0" x2="284.0" y2="46.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s18" data-b="shapes-qcrw1-s20" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s21">
-      <rect x="307.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="307.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="318.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="295.0" y1="70.0" x2="307.0" y2="70.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s18" data-b="shapes-qcrw1-s21" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="295.0" y1="70.0" x2="307.0" y2="70.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s18" data-b="shapes-qcrw1-s21" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s22">
-      <rect x="310.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="310.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="318.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="318.0" y1="98.0" x2="318.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s22" data-b="shapes-qcrw1-s21" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="318.0" y1="98.0" x2="318.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s22" data-b="shapes-qcrw1-s21" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s23">
-      <rect x="310.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="310.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="318.0" y="43.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="318.0" y1="61.0" x2="318.0" y2="46.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s21" data-b="shapes-qcrw1-s23" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="318.0" y1="61.0" x2="318.0" y2="46.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s21" data-b="shapes-qcrw1-s23" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s24">
-      <rect x="341.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="341.0" y="61.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="352.0" y="73.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="329.0" y1="70.0" x2="341.0" y2="70.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s21" data-b="shapes-qcrw1-s24" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="329.0" y1="70.0" x2="341.0" y2="70.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s21" data-b="shapes-qcrw1-s24" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s25">
-      <rect x="344.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="344.0" y="98.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="352.0" y="107.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="352.0" y1="98.0" x2="352.0" y2="79.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s25" data-b="shapes-qcrw1-s24" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="352.0" y1="98.0" x2="352.0" y2="79.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s25" data-b="shapes-qcrw1-s24" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s26">
-      <rect x="344.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="344.0" y="34.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="352.0" y="43.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="352.0" y1="61.0" x2="352.0" y2="46.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s24" data-b="shapes-qcrw1-s26" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="352.0" y1="61.0" x2="352.0" y2="46.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s24" data-b="shapes-qcrw1-s26" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="92.0" y="142.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">generation: write one word at a time</text>
     <g id="shapes-qcrw1-s27">
-      <rect x="13.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="13.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="24.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="shapes-qcrw1-s28">
-      <rect x="16.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="16.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="24.0" y="227.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="24.0" y1="218.0" x2="24.0" y2="199.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s28" data-b="shapes-qcrw1-s27" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="24.0" y1="218.0" x2="24.0" y2="199.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s28" data-b="shapes-qcrw1-s27" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s29">
-      <rect x="16.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="16.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="24.0" y="163.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="24.0" y1="181.0" x2="24.0" y2="166.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s27" data-b="shapes-qcrw1-s29" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <polyline points="32.0,160.0 41.0,160.0 41.0,224.0 50.0,224.0" fill="none" stroke="#666666" stroke-width="0.90" stroke-dasharray="2 2" marker-end="url(#ah666666-qcrw1)"></polyline>
+    <line x1="24.0" y1="181.0" x2="24.0" y2="166.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s27" data-b="shapes-qcrw1-s29" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <polyline points="32.0,160.0 41.0,160.0 41.0,224.0 50.0,224.0" fill="none" stroke="#666666" stroke-width="0.9" stroke-dasharray="2 2" marker-end="url(#ah666666-qcrw1)"></polyline>
     <g id="shapes-qcrw1-s30">
-      <rect x="47.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="47.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="58.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="35.0" y1="190.0" x2="47.0" y2="190.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s27" data-b="shapes-qcrw1-s30" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="35.0" y1="190.0" x2="47.0" y2="190.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s27" data-b="shapes-qcrw1-s30" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s31">
-      <rect x="50.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="50.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="58.0" y="227.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="58.0" y1="218.0" x2="58.0" y2="199.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s31" data-b="shapes-qcrw1-s30" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="58.0" y1="218.0" x2="58.0" y2="199.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s31" data-b="shapes-qcrw1-s30" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s32">
-      <rect x="50.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="50.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="58.0" y="163.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="58.0" y1="181.0" x2="58.0" y2="166.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s30" data-b="shapes-qcrw1-s32" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <polyline points="66.0,160.0 75.0,160.0 75.0,224.0 84.0,224.0" fill="none" stroke="#666666" stroke-width="0.90" stroke-dasharray="2 2" marker-end="url(#ah666666-qcrw1)"></polyline>
+    <line x1="58.0" y1="181.0" x2="58.0" y2="166.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s30" data-b="shapes-qcrw1-s32" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <polyline points="66.0,160.0 75.0,160.0 75.0,224.0 84.0,224.0" fill="none" stroke="#666666" stroke-width="0.9" stroke-dasharray="2 2" marker-end="url(#ah666666-qcrw1)"></polyline>
     <g id="shapes-qcrw1-s33">
-      <rect x="81.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="81.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="92.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="69.0" y1="190.0" x2="81.0" y2="190.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s30" data-b="shapes-qcrw1-s33" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="69.0" y1="190.0" x2="81.0" y2="190.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s30" data-b="shapes-qcrw1-s33" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s34">
-      <rect x="84.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="84.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="92.0" y="227.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="92.0" y1="218.0" x2="92.0" y2="199.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s34" data-b="shapes-qcrw1-s33" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="92.0" y1="218.0" x2="92.0" y2="199.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s34" data-b="shapes-qcrw1-s33" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s35">
-      <rect x="84.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="84.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="92.0" y="163.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="92.0" y1="181.0" x2="92.0" y2="166.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s33" data-b="shapes-qcrw1-s35" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <polyline points="100.0,160.0 109.0,160.0 109.0,224.0 118.0,224.0" fill="none" stroke="#666666" stroke-width="0.90" stroke-dasharray="2 2" marker-end="url(#ah666666-qcrw1)"></polyline>
+    <line x1="92.0" y1="181.0" x2="92.0" y2="166.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s33" data-b="shapes-qcrw1-s35" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <polyline points="100.0,160.0 109.0,160.0 109.0,224.0 118.0,224.0" fill="none" stroke="#666666" stroke-width="0.9" stroke-dasharray="2 2" marker-end="url(#ah666666-qcrw1)"></polyline>
     <g id="shapes-qcrw1-s36">
-      <rect x="115.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="115.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="126.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="103.0" y1="190.0" x2="115.0" y2="190.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s33" data-b="shapes-qcrw1-s36" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="103.0" y1="190.0" x2="115.0" y2="190.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s33" data-b="shapes-qcrw1-s36" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s37">
-      <rect x="118.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="118.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="126.0" y="227.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="126.0" y1="218.0" x2="126.0" y2="199.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s37" data-b="shapes-qcrw1-s36" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="126.0" y1="218.0" x2="126.0" y2="199.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s37" data-b="shapes-qcrw1-s36" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s38">
-      <rect x="118.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="118.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="126.0" y="163.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="126.0" y1="181.0" x2="126.0" y2="166.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s36" data-b="shapes-qcrw1-s38" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <polyline points="134.0,160.0 143.0,160.0 143.0,224.0 152.0,224.0" fill="none" stroke="#666666" stroke-width="0.90" stroke-dasharray="2 2" marker-end="url(#ah666666-qcrw1)"></polyline>
+    <line x1="126.0" y1="181.0" x2="126.0" y2="166.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s36" data-b="shapes-qcrw1-s38" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <polyline points="134.0,160.0 143.0,160.0 143.0,224.0 152.0,224.0" fill="none" stroke="#666666" stroke-width="0.9" stroke-dasharray="2 2" marker-end="url(#ah666666-qcrw1)"></polyline>
     <g id="shapes-qcrw1-s39">
-      <rect x="149.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="149.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="160.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="137.0" y1="190.0" x2="149.0" y2="190.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s36" data-b="shapes-qcrw1-s39" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="137.0" y1="190.0" x2="149.0" y2="190.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s36" data-b="shapes-qcrw1-s39" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s40">
-      <rect x="152.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="152.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="160.0" y="227.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="160.0" y1="218.0" x2="160.0" y2="199.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s40" data-b="shapes-qcrw1-s39" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="160.0" y1="218.0" x2="160.0" y2="199.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s40" data-b="shapes-qcrw1-s39" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s41">
-      <rect x="152.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="152.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="160.0" y="163.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="160.0" y1="181.0" x2="160.0" y2="166.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s39" data-b="shapes-qcrw1-s41" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="160.0" y1="181.0" x2="160.0" y2="166.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s39" data-b="shapes-qcrw1-s41" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="236.0" y="142.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     <g id="shapes-qcrw1-s42">
-      <rect x="195.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="195.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="206.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="shapes-qcrw1-s43">
-      <rect x="198.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="198.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="206.0" y="227.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="206.0" y1="218.0" x2="206.0" y2="199.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s43" data-b="shapes-qcrw1-s42" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="206.0" y1="218.0" x2="206.0" y2="199.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s43" data-b="shapes-qcrw1-s42" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s44">
-      <rect x="225.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="225.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="236.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="217.0" y1="190.0" x2="225.0" y2="190.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s42" data-b="shapes-qcrw1-s44" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="217.0" y1="190.0" x2="225.0" y2="190.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s42" data-b="shapes-qcrw1-s44" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s45">
-      <rect x="228.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="228.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="236.0" y="227.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="236.0" y1="218.0" x2="236.0" y2="199.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s45" data-b="shapes-qcrw1-s44" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="236.0" y1="218.0" x2="236.0" y2="199.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s45" data-b="shapes-qcrw1-s44" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s46">
-      <rect x="255.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="255.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="266.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="247.0" y1="190.0" x2="255.0" y2="190.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s44" data-b="shapes-qcrw1-s46" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="247.0" y1="190.0" x2="255.0" y2="190.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s44" data-b="shapes-qcrw1-s46" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s47">
-      <rect x="258.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="258.0" y="218.0" width="16.0" height="12.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="266.0" y="227.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="266.0" y1="218.0" x2="266.0" y2="199.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s47" data-b="shapes-qcrw1-s46" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="266.0" y1="218.0" x2="266.0" y2="199.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-qcrw1)" data-a="shapes-qcrw1-s47" data-b="shapes-qcrw1-s46" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="330.0" y="142.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     <g id="shapes-qcrw1-s48">
-      <rect x="289.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="289.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="300.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="shapes-qcrw1-s49">
-      <rect x="292.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="292.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="300.0" y="163.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="300.0" y1="181.0" x2="300.0" y2="166.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s48" data-b="shapes-qcrw1-s49" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="300.0" y1="181.0" x2="300.0" y2="166.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s48" data-b="shapes-qcrw1-s49" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s50">
-      <rect x="319.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="319.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="330.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="311.0" y1="190.0" x2="319.0" y2="190.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s48" data-b="shapes-qcrw1-s50" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="311.0" y1="190.0" x2="319.0" y2="190.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s48" data-b="shapes-qcrw1-s50" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s51">
-      <rect x="322.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="322.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="330.0" y="163.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="330.0" y1="181.0" x2="330.0" y2="166.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s50" data-b="shapes-qcrw1-s51" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="330.0" y1="181.0" x2="330.0" y2="166.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s50" data-b="shapes-qcrw1-s51" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <g id="shapes-qcrw1-s52">
-      <rect x="349.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="349.0" y="181.0" width="22.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="360.0" y="193.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="341.0" y1="190.0" x2="349.0" y2="190.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s50" data-b="shapes-qcrw1-s52" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="341.0" y1="190.0" x2="349.0" y2="190.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s50" data-b="shapes-qcrw1-s52" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="shapes-qcrw1-s53">
-      <rect x="352.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="352.0" y="154.0" width="16.0" height="12.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="360.0" y="163.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="360.0" y1="181.0" x2="360.0" y2="166.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s52" data-b="shapes-qcrw1-s53" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="277.0" y1="190.0" x2="289.0" y2="190.0" stroke="#DCB439" stroke-width="1.60" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s46" data-b="shapes-qcrw1-s48" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="360.0" y1="181.0" x2="360.0" y2="166.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s52" data-b="shapes-qcrw1-s53" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="277.0" y1="190.0" x2="289.0" y2="190.0" stroke="#DCB439" stroke-width="1.6" marker-end="url(#ahDCB439-qcrw1)" data-a="shapes-qcrw1-s46" data-b="shapes-qcrw1-s48" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <text x="282.9" y="142.0" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">encoder-decoder: translation</text>
     <text x="236.0" y="236.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">reads</text>
     <text x="330.0" y="236.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">writes</text>
@@ -5243,7 +5254,7 @@ L 380.16 86.4
   <p data-b="rdcsr">Everything the decoder knows about the original sentence is in that one hidden state, which is why it's often called the <b class="def">context vector</b>. It's also called an <b class="name">encoder-decoder</b> (or sequence-to-sequence) model, and with LSTMs in place of our plain cells, plus the attention of a few pages on, it was good enough that in <span class="num">2016</span> Google Translate switched to one.</p>
 <div class="foot" data-rt=""><span>Recurrent Neural Networks · Uses of RNNs</span><span>32</span></div></section>
 
-<section class="page" id="pros-cons" data-part="Pros and Cons" data-view="reading" data-topic="pros-cons" style="--gap: 22pt;">
+<section class="page" id="pros-cons" data-view="reading" data-topic="pros-cons" data-part="Pros and Cons" style="--gap: 22pt;">
   <h2 data-b="u89ni">Pros and Cons of RNNs</h2>
   <p data-b="al67m">An RNN reads a sequence of any length with one fixed set of weights. Ours has <span class="num">120</span> numbers to learn (<span class="num">44</span> in the embedding table, <span class="num">10</span> in the cell and <span class="num">66</span> in the output layer), whether it reads four words or four thousand. Its hidden state carries along the context a feed-forward network never sees, and it can give an output after every word, or only after the last one (to label a whole sentence, say).</p>
   <p data-b="ih39t">Unfortunately, <b class="warn">it can only read one word at a time</b>. Each step needs the hidden state from the step before, so <span class="num">26</span> words means <span class="num">26</span> steps, one after another. Our CNN can label a thousand photos at once, because none of them needs the others' answers, but an RNN can't start on word <span class="num">10</span> until it has finished word <span class="num">9</span>. On long texts and big GPUs that makes RNNs slow to train.</p>
@@ -5252,7 +5263,7 @@ L 380.16 86.4
 <section class="page" id="long-term" data-view="reading" data-topic="pros-cons" style="--gap: 22pt;">
   <h2 data-b="z51pu">Long-Term Dependencies</h2>
   <p data-b="t6dlq">Worse, it forgets. Below we run the forward pass twice, on the song as written and with <b-tok v="march" t="sky" data-f="green" title="Victory March words: &quot;sky&quot; = 21"><span class="tk-t">sky</span><span class="tk-id">21</span></b-tok> in place of the first <b-tok v="march" t="cheer" data-f="purple" title="Victory March words: &quot;cheer&quot; = 0"><span class="tk-t">cheer</span><span class="tk-id">0</span></b-tok>, and measure how far apart the two hidden states are after each word.</p>
-  <b-fig src="fig/forget.svg" style="width: 74%; --ar: 2.560;" alt="Bar chart of the distance between the two runs' hidden states after each of the first twelve words: 0.93 after the changed first word, then 0.63, 0.42, 0.26, 0.07, 0.05, 0.02, and 0.00 from up onwards" data-b="fuqde"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/forget.svg" alt="Bar chart of the distance between the two runs' hidden states after each of the first twelve words: 0.93 after the changed first word, then 0.63, 0.42, 0.26, 0.07, 0.05, 0.02, and 0.00 from up onwards" style="width: 74%; --ar: 2.560;" data-b="fuqde"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -5719,7 +5730,7 @@ z
     <eq-row note="keep z of the old state, take 1 − z of the new">c_{t} = z_{t} \odot c_{t-1} + \bp{1 - z_{t}} \odot \tilde{c}_{t}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">keep z of the old state, take 1 − z of the new</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-5"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐜</mi><mi mathvariant="normal">𝐭</mi></msub></mrow></mrow><mo>=</mo><msub><mi mathvariant="normal">z</mi><mi mathvariant="normal">t</mi></msub><mo>⊙</mo><mrow class="sym sym-DCB439 sa-20-27"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐜</mi><mrow><mi mathvariant="normal">𝐭</mi><mo>−</mo><mn>𝟏</mn></mrow></msub></mrow></mrow><mo>+</mo><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mn>1</mn><mo>−</mo><msub><mi mathvariant="normal">z</mi><mi mathvariant="normal">t</mi></msub><mo fence="true" form="postfix" stretchy="true">)</mo></mrow><mo>⊙</mo><msub><mover><mrow class="sym sym-DCB439 sa-58-59"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#DCB439;">𝐜</mi></mrow></mrow><mo stretchy="false" style="math-depth:0;">~</mo></mover><mi mathvariant="normal">t</mi></msub></mrow></math></div></div></div></b-eq>
   <p data-b="cxum6">A vector like <b-m tex="z_{t}">z<sub>t</sub></b-m> that multiplies something number by number (⊙) is called a <b class="def">gate</b>. Pictured below is our forgetting experiment again, with a gate that always keeps <span class="num">0.9</span> of the old state:</p>
-  <b-fig src="fig/gated-forget.svg" style="width: 92%; --ar: 2.400;" alt="How much of the first word's difference is left after each word: the plain RNN falls to almost nothing by the eighth word, the gated RNN falls slowly, to about 0.59 at the ninth word and 0.21 at the last" data-b="axmsv"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 160" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/gated-forget.svg" alt="How much of the first word's difference is left after each word: the plain RNN falls to almost nothing by the eighth word, the gated RNN falls slowly, to about 0.59 at the ninth word and 0.21 at the last" style="width: 92%; --ar: 2.400;" data-b="axmsv"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 160" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -6511,7 +6522,7 @@ L 268.637969 23.815527
 <section class="page" id="attn-weights" data-view="reading" data-topic="attention" style="--gap: 22pt;">
   <h2 data-b="pyois">Attention Weights</h2>
   <p data-b="buqvr">We have no decoder, but we can let our network look back the same way. At the last <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok> (word <span class="num">25</span>) we score its hidden state against the hidden states after each of the <span class="num">24</span> words before it:</p>
-  <b-fig src="fig/attn-weights.svg" style="width: 92%; --ar: 2.560;" alt="Attention weights over the 24 earlier words, between about 0.014 and 0.084, highest for up, then the two other the's (darker gold), with a dashed line at 1/24" data-b="ejk2s"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/attn-weights.svg" alt="Attention weights over the 24 earlier words, between about 0.014 and 0.084, highest for up, then the two other the's (darker gold), with a dashed line at 1/24" style="width: 92%; --ar: 2.560;" data-b="ejk2s"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -7616,7 +7627,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -7644,15 +7655,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -7661,6 +7718,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -7673,9 +7731,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

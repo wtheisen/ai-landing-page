@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -834,30 +845,30 @@ svg.al-clone { z-index: 1; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Support Vector Machines</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#lec-perceptron-line">Margins</a><a href="#lec-fits">Bias and Variance</a><a href="#lec-hard-def">The Math</a><a href="#lec-nonlinear">Kernels</a><a href="#lec-matching">Review</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="on">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="svm-chapter.pdf" download>Reading</a><a href="svm-chapter-slides.pdf" download>Lecture</a><a href="svm-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="slides">
 <section class="page cover" id="cover">
-  
-  
-  <svg class="draw" viewBox="0 0 384 230" style="width: 280.9pt" role="img" aria-label="Notre Dame's 2016 games as blue dots and red triangles, a navy line down the middle of a gold street between them, and three games on the edges of the street ringed in gold" data-b="wyy2i">
+  <svg class="draw" viewBox="0 0 384 230" role="img" aria-label="Notre Dame's 2016 games as blue dots and red triangles, a navy line down the middle of a gold street between them, and three games on the edges of the street ringed in gold" style="width: 280.9pt" data-b="wyy2i">
     <defs></defs>
-    <polygon points="-48.0,290.2 -48.0,334.1 -38.2,326.3 -28.4,318.6 -18.6,310.9 -8.8,303.1 1.0,295.4 10.8,287.6 20.6,279.9 30.4,272.1 40.2,264.4 50.0,256.6 59.8,248.9 69.6,241.1 79.3,233.4 89.1,225.6 98.9,217.9 108.7,210.2 118.5,202.4 128.3,194.7 138.1,186.9 147.9,179.2 157.7,171.4 167.5,163.7 177.3,155.9 187.1,148.2 196.9,140.4 206.7,132.7 216.5,124.9 226.3,117.2 236.1,109.5 245.9,101.7 255.7,94.0 265.5,86.2 275.3,78.5 285.1,70.7 294.9,63.0 304.7,55.2 314.4,47.5 324.2,39.7 334.0,32.0 343.8,24.2 353.6,16.5 363.4,8.7 373.2,1.0 383.0,-6.7 392.8,-14.5 402.6,-22.2 412.4,-30.0 422.2,-37.7 432.0,-45.5 432.0,-89.3 432.0,-89.3 422.2,-81.6 412.4,-73.8 402.6,-66.1 392.8,-58.3 383.0,-50.6 373.2,-42.8 363.4,-35.1 353.6,-27.4 343.8,-19.6 334.0,-11.9 324.2,-4.1 314.4,3.6 304.7,11.4 294.9,19.1 285.1,26.9 275.3,34.6 265.5,42.4 255.7,50.1 245.9,57.9 236.1,65.6 226.3,73.3 216.5,81.1 206.7,88.8 196.9,96.6 187.1,104.3 177.3,112.1 167.5,119.8 157.7,127.6 147.9,135.3 138.1,143.1 128.3,150.8 118.5,158.6 108.7,166.3 98.9,174.0 89.1,181.8 79.3,189.5 69.6,197.3 59.8,205.0 50.0,212.8 40.2,220.5 30.4,228.3 20.6,236.0 10.8,243.8 1.0,251.5 -8.8,259.3 -18.6,267.0 -28.4,274.7 -38.2,282.5 -48.0,290.2" fill="#F8F0D7" stroke="#F8F0D7" stroke-width="0.00"></polygon>
-    <polyline points="-48.0,312.2 -38.2,304.4 -28.4,296.7 -18.6,288.9 -8.8,281.2 1.0,273.4 10.8,265.7 20.6,257.9 30.4,250.2 40.2,242.5 50.0,234.7 59.8,227.0 69.6,219.2 79.3,211.5 89.1,203.7 98.9,196.0 108.7,188.2 118.5,180.5 128.3,172.7 138.1,165.0 147.9,157.2 157.7,149.5 167.5,141.7 177.3,134.0 187.1,126.3 196.9,118.5 206.7,110.8 216.5,103.0 226.3,95.3 236.1,87.5 245.9,79.8 255.7,72.0 265.5,64.3 275.3,56.5 285.1,48.8 294.9,41.0 304.7,33.3 314.4,25.6 324.2,17.8 334.0,10.1 343.8,2.3 353.6,-5.4 363.4,-13.2 373.2,-20.9 383.0,-28.7 392.8,-36.4 402.6,-44.2 412.4,-51.9 422.2,-59.7 432.0,-67.4" fill="none" stroke="#002B5B" stroke-width="2.00"></polyline>
-    <polyline points="-48.0,334.1 -38.2,326.3 -28.4,318.6 -18.6,310.9 -8.8,303.1 1.0,295.4 10.8,287.6 20.6,279.9 30.4,272.1 40.2,264.4 50.0,256.6 59.8,248.9 69.6,241.1 79.3,233.4 89.1,225.6 98.9,217.9 108.7,210.2 118.5,202.4 128.3,194.7 138.1,186.9 147.9,179.2 157.7,171.4 167.5,163.7 177.3,155.9 187.1,148.2 196.9,140.4 206.7,132.7 216.5,124.9 226.3,117.2 236.1,109.5 245.9,101.7 255.7,94.0 265.5,86.2 275.3,78.5 285.1,70.7 294.9,63.0 304.7,55.2 314.4,47.5 324.2,39.7 334.0,32.0 343.8,24.2 353.6,16.5 363.4,8.7 373.2,1.0 383.0,-6.7 392.8,-14.5 402.6,-22.2 412.4,-30.0 422.2,-37.7 432.0,-45.5" fill="none" stroke="#002B5B" stroke-width="1.00" stroke-dasharray="3.7 1.6"></polyline>
-    <polyline points="-48.0,290.2 -38.2,282.5 -28.4,274.7 -18.6,267.0 -8.8,259.3 1.0,251.5 10.8,243.8 20.6,236.0 30.4,228.3 40.2,220.5 50.0,212.8 59.8,205.0 69.6,197.3 79.3,189.5 89.1,181.8 98.9,174.0 108.7,166.3 118.5,158.6 128.3,150.8 138.1,143.1 147.9,135.3 157.7,127.6 167.5,119.8 177.3,112.1 187.1,104.3 196.9,96.6 206.7,88.8 216.5,81.1 226.3,73.3 236.1,65.6 245.9,57.9 255.7,50.1 265.5,42.4 275.3,34.6 285.1,26.9 294.9,19.1 304.7,11.4 314.4,3.6 324.2,-4.1 334.0,-11.9 343.8,-19.6 353.6,-27.4 363.4,-35.1 373.2,-42.8 383.0,-50.6 392.8,-58.3 402.6,-66.1 412.4,-73.8 422.2,-81.6 432.0,-89.3" fill="none" stroke="#002B5B" stroke-width="1.00" stroke-dasharray="3.7 1.6"></polyline>
-    <ellipse cx="218.4" cy="142.4" rx="3.9" ry="3.9" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="344.4" cy="38.9" rx="3.9" ry="3.9" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="198.6" cy="139.1" rx="3.9" ry="3.9" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <ellipse cx="237.6" cy="174.1" rx="3.9" ry="3.9" fill="#1155CC" stroke="#1155CC" stroke-width="0.00"></ellipse>
-    <polygon points="218.4,19.4 214.2,27.7 222.6,27.7 218.4,19.4" fill="#CC0000" stroke="#CC0000" stroke-width="0.00"></polygon>
-    <polygon points="192.6,28.1 188.4,36.5 196.8,36.5 192.6,28.1" fill="#CC0000" stroke="#CC0000" stroke-width="0.00"></polygon>
-    <polygon points="272.4,29.8 268.2,38.1 276.6,38.1 272.4,29.8" fill="#CC0000" stroke="#CC0000" stroke-width="0.00"></polygon>
-    <polygon points="19.8,194.1 15.6,202.4 24.0,202.4 19.8,194.1" fill="#CC0000" stroke="#CC0000" stroke-width="0.00"></polygon>
-    <polygon points="136.2,140.4 132.0,148.8 140.4,148.8 136.2,140.4" fill="#CC0000" stroke="#CC0000" stroke-width="0.00"></polygon>
-    <polygon points="174.0,101.0 169.8,109.3 178.2,109.3 174.0,101.0" fill="#CC0000" stroke="#CC0000" stroke-width="0.00"></polygon>
-    <polygon points="221.4,73.0 217.2,81.4 225.6,81.4 221.4,73.0" fill="#CC0000" stroke="#CC0000" stroke-width="0.00"></polygon>
-    <polygon points="196.8,76.9 192.6,85.2 201.0,85.2 196.8,76.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.00"></polygon>
-    <ellipse cx="136.2" cy="144.6" rx="8.1" ry="8.1" fill="none" stroke="#DCB439" stroke-width="2.00"></ellipse>
-    <ellipse cx="221.4" cy="77.2" rx="8.1" ry="8.1" fill="none" stroke="#DCB439" stroke-width="2.00"></ellipse>
-    <ellipse cx="198.6" cy="139.1" rx="8.1" ry="8.1" fill="none" stroke="#DCB439" stroke-width="2.00"></ellipse>
+    <polygon points="-48.0,290.2 -48.0,334.1 -38.2,326.3 -28.4,318.6 -18.6,310.9 -8.8,303.1 1.0,295.4 10.8,287.6 20.6,279.9 30.4,272.1 40.2,264.4 50.0,256.6 59.8,248.9 69.6,241.1 79.3,233.4 89.1,225.6 98.9,217.9 108.7,210.2 118.5,202.4 128.3,194.7 138.1,186.9 147.9,179.2 157.7,171.4 167.5,163.7 177.3,155.9 187.1,148.2 196.9,140.4 206.7,132.7 216.5,124.9 226.3,117.2 236.1,109.5 245.9,101.7 255.7,94.0 265.5,86.2 275.3,78.5 285.1,70.7 294.9,63.0 304.7,55.2 314.4,47.5 324.2,39.7 334.0,32.0 343.8,24.2 353.6,16.5 363.4,8.7 373.2,1.0 383.0,-6.7 392.8,-14.5 402.6,-22.2 412.4,-30.0 422.2,-37.7 432.0,-45.5 432.0,-89.3 432.0,-89.3 422.2,-81.6 412.4,-73.8 402.6,-66.1 392.8,-58.3 383.0,-50.6 373.2,-42.8 363.4,-35.1 353.6,-27.4 343.8,-19.6 334.0,-11.9 324.2,-4.1 314.4,3.6 304.7,11.4 294.9,19.1 285.1,26.9 275.3,34.6 265.5,42.4 255.7,50.1 245.9,57.9 236.1,65.6 226.3,73.3 216.5,81.1 206.7,88.8 196.9,96.6 187.1,104.3 177.3,112.1 167.5,119.8 157.7,127.6 147.9,135.3 138.1,143.1 128.3,150.8 118.5,158.6 108.7,166.3 98.9,174.0 89.1,181.8 79.3,189.5 69.6,197.3 59.8,205.0 50.0,212.8 40.2,220.5 30.4,228.3 20.6,236.0 10.8,243.8 1.0,251.5 -8.8,259.3 -18.6,267.0 -28.4,274.7 -38.2,282.5 -48.0,290.2" fill="#F8F0D7" stroke="#F8F0D7" stroke-width="0.0"></polygon>
+    <polyline points="-48.0,312.2 -38.2,304.4 -28.4,296.7 -18.6,288.9 -8.8,281.2 1.0,273.4 10.8,265.7 20.6,257.9 30.4,250.2 40.2,242.5 50.0,234.7 59.8,227.0 69.6,219.2 79.3,211.5 89.1,203.7 98.9,196.0 108.7,188.2 118.5,180.5 128.3,172.7 138.1,165.0 147.9,157.2 157.7,149.5 167.5,141.7 177.3,134.0 187.1,126.3 196.9,118.5 206.7,110.8 216.5,103.0 226.3,95.3 236.1,87.5 245.9,79.8 255.7,72.0 265.5,64.3 275.3,56.5 285.1,48.8 294.9,41.0 304.7,33.3 314.4,25.6 324.2,17.8 334.0,10.1 343.8,2.3 353.6,-5.4 363.4,-13.2 373.2,-20.9 383.0,-28.7 392.8,-36.4 402.6,-44.2 412.4,-51.9 422.2,-59.7 432.0,-67.4" fill="none" stroke="#002B5B" stroke-width="2.0"></polyline>
+    <polyline points="-48.0,334.1 -38.2,326.3 -28.4,318.6 -18.6,310.9 -8.8,303.1 1.0,295.4 10.8,287.6 20.6,279.9 30.4,272.1 40.2,264.4 50.0,256.6 59.8,248.9 69.6,241.1 79.3,233.4 89.1,225.6 98.9,217.9 108.7,210.2 118.5,202.4 128.3,194.7 138.1,186.9 147.9,179.2 157.7,171.4 167.5,163.7 177.3,155.9 187.1,148.2 196.9,140.4 206.7,132.7 216.5,124.9 226.3,117.2 236.1,109.5 245.9,101.7 255.7,94.0 265.5,86.2 275.3,78.5 285.1,70.7 294.9,63.0 304.7,55.2 314.4,47.5 324.2,39.7 334.0,32.0 343.8,24.2 353.6,16.5 363.4,8.7 373.2,1.0 383.0,-6.7 392.8,-14.5 402.6,-22.2 412.4,-30.0 422.2,-37.7 432.0,-45.5" fill="none" stroke="#002B5B" stroke-width="1.0" stroke-dasharray="3.7 1.6"></polyline>
+    <polyline points="-48.0,290.2 -38.2,282.5 -28.4,274.7 -18.6,267.0 -8.8,259.3 1.0,251.5 10.8,243.8 20.6,236.0 30.4,228.3 40.2,220.5 50.0,212.8 59.8,205.0 69.6,197.3 79.3,189.5 89.1,181.8 98.9,174.0 108.7,166.3 118.5,158.6 128.3,150.8 138.1,143.1 147.9,135.3 157.7,127.6 167.5,119.8 177.3,112.1 187.1,104.3 196.9,96.6 206.7,88.8 216.5,81.1 226.3,73.3 236.1,65.6 245.9,57.9 255.7,50.1 265.5,42.4 275.3,34.6 285.1,26.9 294.9,19.1 304.7,11.4 314.4,3.6 324.2,-4.1 334.0,-11.9 343.8,-19.6 353.6,-27.4 363.4,-35.1 373.2,-42.8 383.0,-50.6 392.8,-58.3 402.6,-66.1 412.4,-73.8 422.2,-81.6 432.0,-89.3" fill="none" stroke="#002B5B" stroke-width="1.0" stroke-dasharray="3.7 1.6"></polyline>
+    <ellipse cx="218.4" cy="142.4" rx="3.9" ry="3.9" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="344.4" cy="38.9" rx="3.9" ry="3.9" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="198.6" cy="139.1" rx="3.9" ry="3.9" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <ellipse cx="237.6" cy="174.1" rx="3.9" ry="3.9" fill="#1155CC" stroke="#1155CC" stroke-width="0.0"></ellipse>
+    <polygon points="218.4,19.4 214.2,27.7 222.6,27.7 218.4,19.4" fill="#CC0000" stroke="#CC0000" stroke-width="0.0"></polygon>
+    <polygon points="192.6,28.1 188.4,36.5 196.8,36.5 192.6,28.1" fill="#CC0000" stroke="#CC0000" stroke-width="0.0"></polygon>
+    <polygon points="272.4,29.8 268.2,38.1 276.6,38.1 272.4,29.8" fill="#CC0000" stroke="#CC0000" stroke-width="0.0"></polygon>
+    <polygon points="19.8,194.1 15.6,202.4 24.0,202.4 19.8,194.1" fill="#CC0000" stroke="#CC0000" stroke-width="0.0"></polygon>
+    <polygon points="136.2,140.4 132.0,148.8 140.4,148.8 136.2,140.4" fill="#CC0000" stroke="#CC0000" stroke-width="0.0"></polygon>
+    <polygon points="174.0,101.0 169.8,109.3 178.2,109.3 174.0,101.0" fill="#CC0000" stroke="#CC0000" stroke-width="0.0"></polygon>
+    <polygon points="221.4,73.0 217.2,81.4 225.6,81.4 221.4,73.0" fill="#CC0000" stroke="#CC0000" stroke-width="0.0"></polygon>
+    <polygon points="196.8,76.9 192.6,85.2 201.0,85.2 196.8,76.9" fill="#CC0000" stroke="#CC0000" stroke-width="0.0"></polygon>
+    <ellipse cx="136.2" cy="144.6" rx="8.1" ry="8.1" fill="none" stroke="#DCB439" stroke-width="2.0"></ellipse>
+    <ellipse cx="221.4" cy="77.2" rx="8.1" ry="8.1" fill="none" stroke="#DCB439" stroke-width="2.0"></ellipse>
+    <ellipse cx="198.6" cy="139.1" rx="8.1" ry="8.1" fill="none" stroke="#DCB439" stroke-width="2.0"></ellipse>
   </svg>
+  
+  
   <div class="cover-text" data-b="ah7p2">
     <div class="kicker">Unit 02 · Chapter 9</div>
     <h1>Support Vector Machines</h1>
@@ -866,32 +877,32 @@ svg.al-clone { z-index: 1; }
   </div>
 <div class="foot" data-rt=""><span>Support Vector Machines</span><span>01</span></div></section>
 
-<section class="page" id="lec-perceptron-line" data-part="Margins" data-view="slides workbook" data-topic="margin" style="--gap: 22pt;">
+<section class="page" id="lec-perceptron-line" data-view="slides workbook" data-topic="margin" data-part="Margins" style="--gap: 22pt;">
   <h2 data-b="zp6c5">Linear Classifiers (exercise)</h2>
   <p data-b="c87bu">Given the dataset below, <b class="take">where would a Perceptron draw a separating line?</b></p>
-  <svg class="draw" viewBox="0 0 384 170" style="width: 670.5pt" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" data-b="q4e36">
+  <svg class="draw" viewBox="0 0 384 170" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" style="width: 670.5pt" data-b="q4e36">
     <defs>
       <marker id="ah002B5B-q4e36" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-q4e36)"></line>
-    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-q4e36)"></line>
-    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
+    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-q4e36)"></line>
+    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-q4e36)"></line>
+    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
   </svg>
   
 <div class="foot" data-rt=""><span>Support Vector Machines · Margins</span><span>02</span></div></section>
@@ -899,86 +910,86 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="lec-logreg-line" data-view="slides workbook" data-topic="margin" style="--gap: 22pt;">
   <h2 data-b="zemoz">Linear Classifiers</h2>
   <p data-b="acf03">Given the dataset below, <b class="take">where would a Logistic Regression draw a separating line?</b></p>
-  <svg class="draw" viewBox="0 0 384 170" style="width: 670.5pt" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" data-b="t3rjj">
+  <svg class="draw" viewBox="0 0 384 170" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" style="width: 670.5pt" data-b="t3rjj">
     <defs>
       <marker id="ah002B5B-t3rjj" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-t3rjj)"></line>
-    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-t3rjj)"></line>
-    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
+    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-t3rjj)"></line>
+    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-t3rjj)"></line>
+    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
   </svg>
 <div class="foot" data-rt=""><span>Support Vector Machines · Margins</span><span>03</span></div></section>
 
 <section class="page" id="lec-margin" data-view="slides workbook" data-topic="margin" style="--gap: 22pt;">
   <h2 data-b="ijuti">Margin Classifier</h2>
-  <svg class="draw" viewBox="0 0 384 170" style="width: 670.5pt" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" data-b="i6xd4">
+  <svg class="draw" viewBox="0 0 384 170" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" style="width: 670.5pt" data-b="i6xd4">
     <defs>
       <marker id="ah002B5B-i6xd4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-i6xd4)"></line>
-    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-i6xd4)"></line>
-    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
+    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-i6xd4)"></line>
+    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-i6xd4)"></line>
+    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
   </svg>
 <div class="foot" data-rt=""><span>Support Vector Machines · Margins</span><span>04</span></div></section>
 
 <section class="page" id="lec-support-vectors" data-view="slides workbook" data-topic="support-vectors" style="--gap: 22pt;">
   <h2 data-b="qa28y">Support Vectors</h2>
   <p data-b="kpl4d"><b class="name">Support Vectors</b> are the points <u class="fill">on</u> or <u class="fill">inside</u> the <b class="def">margin</b> that define the <b class="take">decision boundary</b></p>
-  <svg class="draw" viewBox="0 0 384 170" style="width: 670.5pt" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" data-b="ogska">
+  <svg class="draw" viewBox="0 0 384 170" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" style="width: 670.5pt" data-b="ogska">
     <defs>
       <marker id="ah002B5B-ogska" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-ogska)"></line>
-    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-ogska)"></line>
-    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
+    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-ogska)"></line>
+    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-ogska)"></line>
+    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
   </svg>
   
 <div class="foot" data-rt=""><span>Support Vector Machines · Margins</span><span>05</span></div></section>
@@ -998,7 +1009,7 @@ svg.al-clone { z-index: 1; }
 
 <section class="page" id="lec-hard-soft" data-view="slides workbook" data-topic="hard-margin soft-margin" style="--gap: 22pt;">
   <h2 data-b="bhpgv">Hard-Margin vs. Soft-Margin SVMs</h2>
-  <svg class="draw" viewBox="0 0 384 110" style="width: 670.5pt" role="img" aria-label="Two number lines. Hard margin: one stray triangle among the circles squeezes the street to almost nothing. Soft margin: the stray triangle is ringed as a mistake and the street stays wide between the two groups" data-b="jhk9s">
+  <svg class="draw" viewBox="0 0 384 110" role="img" aria-label="Two number lines. Hard margin: one stray triangle among the circles squeezes the street to almost nothing. Soft margin: the stray triangle is ringed as a mistake and the street stays wide between the two groups" style="width: 670.5pt" data-b="jhk9s">
     <defs>
       <marker id="ah002B5B-jhk9s" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -1006,46 +1017,46 @@ svg.al-clone { z-index: 1; }
     </defs>
     <rect x="110.7" y="43.1" width="11.8" height="37.0" rx="0.0" fill="#F9F2DB" stroke="none"></rect>
     <rect x="256.5" y="43.1" width="60.8" height="37.0" rx="0.0" fill="#F9F2DB" stroke="none"></rect>
-    <line x1="116.6" y1="80.8" x2="116.6" y2="42.3" stroke="#002B5B" stroke-width="1.60"></line>
-    <line x1="110.7" y1="77.0" x2="110.7" y2="46.2" stroke="#002B5B" stroke-width="0.90" stroke-dasharray="3.33 1.44"></line>
-    <line x1="122.5" y1="77.0" x2="122.5" y2="46.2" stroke="#002B5B" stroke-width="0.90" stroke-dasharray="3.33 1.44"></line>
-    <line x1="286.8" y1="80.8" x2="286.8" y2="42.3" stroke="#002B5B" stroke-width="1.60"></line>
-    <line x1="256.5" y1="77.0" x2="256.5" y2="46.2" stroke="#002B5B" stroke-width="0.90" stroke-dasharray="3.33 1.44"></line>
-    <line x1="317.2" y1="77.0" x2="317.2" y2="46.2" stroke="#002B5B" stroke-width="0.90" stroke-dasharray="3.33 1.44"></line>
-    <line x1="94.6" y1="61.6" x2="14.6" y2="61.6" stroke="#002B5B" stroke-width="1.40" marker-end="url(#ah002B5B-jhk9s)"></line>
-    <line x1="94.6" y1="61.6" x2="174.6" y2="61.6" stroke="#002B5B" stroke-width="1.40" marker-end="url(#ah002B5B-jhk9s)"></line>
-    <line x1="289.4" y1="61.6" x2="209.4" y2="61.6" stroke="#002B5B" stroke-width="1.40" marker-end="url(#ah002B5B-jhk9s)"></line>
-    <line x1="289.4" y1="61.6" x2="369.4" y2="61.6" stroke="#002B5B" stroke-width="1.40" marker-end="url(#ah002B5B-jhk9s)"></line>
+    <line x1="116.6" y1="80.8" x2="116.6" y2="42.3" stroke="#002B5B" stroke-width="1.6"></line>
+    <line x1="110.7" y1="77.0" x2="110.7" y2="46.2" stroke="#002B5B" stroke-width="0.9" stroke-dasharray="3.33 1.44"></line>
+    <line x1="122.5" y1="77.0" x2="122.5" y2="46.2" stroke="#002B5B" stroke-width="0.9" stroke-dasharray="3.33 1.44"></line>
+    <line x1="286.8" y1="80.8" x2="286.8" y2="42.3" stroke="#002B5B" stroke-width="1.6"></line>
+    <line x1="256.5" y1="77.0" x2="256.5" y2="46.2" stroke="#002B5B" stroke-width="0.9" stroke-dasharray="3.33 1.44"></line>
+    <line x1="317.2" y1="77.0" x2="317.2" y2="46.2" stroke="#002B5B" stroke-width="0.9" stroke-dasharray="3.33 1.44"></line>
+    <line x1="94.6" y1="61.6" x2="14.6" y2="61.6" stroke="#002B5B" stroke-width="1.4" marker-end="url(#ah002B5B-jhk9s)"></line>
+    <line x1="94.6" y1="61.6" x2="174.6" y2="61.6" stroke="#002B5B" stroke-width="1.4" marker-end="url(#ah002B5B-jhk9s)"></line>
+    <line x1="289.4" y1="61.6" x2="209.4" y2="61.6" stroke="#002B5B" stroke-width="1.4" marker-end="url(#ah002B5B-jhk9s)"></line>
+    <line x1="289.4" y1="61.6" x2="369.4" y2="61.6" stroke="#002B5B" stroke-width="1.4" marker-end="url(#ah002B5B-jhk9s)"></line>
     <text x="94.6" y="13.1" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">hard margin</text>
     <text x="94.6" y="13.1" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">hard margin</text>
     <text x="289.4" y="13.1" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">soft margin</text>
     <text x="289.4" y="13.1" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">soft margin</text>
-    <polygon points="21.2,57.7 17.3,65.5 25.1,65.5 21.2,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="34.7,57.7 30.8,65.5 38.6,65.5 34.7,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="48.2,57.7 44.3,65.5 52.1,65.5 48.2,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="61.7,57.7 57.8,65.5 65.6,65.5 61.7,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <ellipse cx="122.5" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="136.0" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="149.5" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="163.0" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <polygon points="110.7,57.7 106.8,65.5 114.5,65.5 110.7,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="215.9,57.7 212.1,65.5 219.8,65.5 215.9,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="229.4,57.7 225.6,65.5 233.3,65.5 229.4,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="243.0,57.7 239.1,65.5 246.8,65.5 243.0,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="256.5,57.7 252.6,65.5 260.3,65.5 256.5,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <ellipse cx="317.2" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="330.7" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="344.2" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="357.7" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <polygon points="305.4,57.7 301.5,65.5 309.3,65.5 305.4,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <ellipse cx="305.4" cy="61.6" rx="6.5" ry="6.5" fill="none" stroke="#CC0000" stroke-width="1.10"></ellipse>
+    <polygon points="21.2,57.7 17.3,65.5 25.1,65.5 21.2,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="34.7,57.7 30.8,65.5 38.6,65.5 34.7,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="48.2,57.7 44.3,65.5 52.1,65.5 48.2,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="61.7,57.7 57.8,65.5 65.6,65.5 61.7,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <ellipse cx="122.5" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="136.0" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="149.5" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="163.0" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <polygon points="110.7,57.7 106.8,65.5 114.5,65.5 110.7,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="215.9,57.7 212.1,65.5 219.8,65.5 215.9,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="229.4,57.7 225.6,65.5 233.3,65.5 229.4,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="243.0,57.7 239.1,65.5 246.8,65.5 243.0,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="256.5,57.7 252.6,65.5 260.3,65.5 256.5,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <ellipse cx="317.2" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="330.7" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="344.2" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="357.7" cy="61.6" rx="3.7" ry="3.7" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <polygon points="305.4,57.7 301.5,65.5 309.3,65.5 305.4,57.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <ellipse cx="305.4" cy="61.6" rx="6.5" ry="6.5" fill="none" stroke="#CC0000" stroke-width="1.1"></ellipse>
   </svg>
   <p data-b="ta6jo"><b class="name">Hard-Margin SVMs</b> <b class="warn">allow no misclassifications</b>, much like a Perceptron</p>
   <p data-b="xr34p"><b class="name">Soft-Margin SVMs</b> <b class="take">allow for some misclassifications</b> to allow for a more robust decision boundary</p>
   
 <div class="foot" data-rt=""><span>Support Vector Machines · Margins</span><span>08</span></div></section>
 
-<section class="page" id="lec-fits" data-part="Bias and Variance" data-view="slides workbook" data-topic="bias-variance" style="--gap: 22pt;">
+<section class="page" id="lec-fits" data-view="slides workbook" data-topic="bias-variance" data-part="Bias and Variance" style="--gap: 22pt;">
   <h2 data-b="r0amm">Underfitting and Overfitting</h2>
   <b-fig src="fig/fits-grid.svg" alt="Six small panels. Top row: points along a U fit by a line (underfitting), a parabola (about right) and a wildly swinging curve (overfitting). Bottom row: a ring of red triangles around blue dots split by a straight line, a circle, and loops around single points" data-b="c6dho" style="--ar: 1.670;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 230" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
@@ -7476,14 +7487,14 @@ L 380.16 125.969231
 
 <section class="page" id="lec-bv-axes" data-view="slides workbook" data-topic="bias-variance" style="--gap: 22pt;">
   <h2 data-b="okh1h">The bias-variance tradeoff (reading)</h2>
-  <svg class="draw" viewBox="0 0 384 160" style="width: 670.5pt" role="img" aria-label="Empty axes: error against model complexity" data-b="hx3bq">
+  <svg class="draw" viewBox="0 0 384 160" role="img" aria-label="Empty axes: error against model complexity" style="width: 670.5pt" data-b="hx3bq">
     <defs>
       <marker id="ah002B5B-hx3bq" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="7.7" y1="156.8" x2="371.0" y2="156.8" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-hx3bq)"></line>
-    <line x1="7.7" y1="156.8" x2="7.7" y2="6.5" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-hx3bq)"></line>
+    <line x1="7.7" y1="156.8" x2="371.0" y2="156.8" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-hx3bq)"></line>
+    <line x1="7.7" y1="156.8" x2="7.7" y2="6.5" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-hx3bq)"></line>
     <text x="362.1" y="150.3" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">model complexity</text>
     <text x="16.5" y="11.1" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">error</text>
   </svg>
@@ -7506,31 +7517,31 @@ L 380.16 125.969231
   
 <div class="foot" data-rt=""><span>Support Vector Machines · Bias and Variance</span><span>13</span></div></section>
 
-<section class="page" id="lec-hard-def" data-part="The Math" data-view="slides workbook" data-topic="hard-margin" style="--gap: 22pt;">
+<section class="page" id="lec-hard-def" data-view="slides workbook" data-topic="hard-margin" data-part="The Math" style="--gap: 22pt;">
   <h2 data-b="gujik">Hard-Margin Classifier Definition</h2>
-  <svg class="draw" viewBox="0 0 384 170" style="width: 670.5pt" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" data-b="bhdcu">
+  <svg class="draw" viewBox="0 0 384 170" role="img" aria-label="Two classes on hand-drawn axes: gold triangles in the lower left and green circles in the upper right, with a clear gap between them" style="width: 670.5pt" data-b="bhdcu">
     <defs>
       <marker id="ah002B5B-bhdcu" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-bhdcu)"></line>
-    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-bhdcu)"></line>
-    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
+    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-bhdcu)"></line>
+    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-bhdcu)"></line>
+    <ellipse cx="179.4" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="31.6" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="198.3" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="218.7" cy="47.3" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="207.7" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="235.9" cy="63.0" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="245.4" cy="88.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <polygon points="135.5,79.2 131.3,87.6 139.7,87.6 135.5,79.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,91.8 147.0,100.2 155.4,100.2 151.2,91.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="132.4,102.8 128.2,111.2 136.6,111.2 132.4,102.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="165.3,109.1 161.1,117.4 169.5,117.4 165.3,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="130.8,124.8 126.6,133.1 135.0,133.1 130.8,124.8" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="151.2,129.5 147.0,137.8 155.4,137.8 151.2,129.5" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="140.2,143.6 136.0,152.0 144.4,152.0 140.2,143.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="174.7,134.2 170.6,142.5 178.9,142.5 174.7,134.2" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
   </svg>
 <div class="foot" data-rt=""><span>Support Vector Machines · The Math</span><span>14</span></div></section>
 
@@ -7592,30 +7603,30 @@ L 380.16 125.969231
 <section class="page" id="lec-perceptron-overlap" data-view="slides workbook" data-topic="soft-margin" style="--gap: 22pt;">
   <h2 data-b="bzsrn">Linear Classifiers (exercise)</h2>
   <p data-b="kni03">Given the dataset below, <b class="take">where would a Perceptron draw a separating line?</b></p>
-  <svg class="draw" viewBox="0 0 384 170" style="width: 670.5pt" role="img" aria-label="The two classes again, but now a few triangles sit among the circles and a few circles among the triangles, so no straight line separates them" data-b="p7d3w">
+  <svg class="draw" viewBox="0 0 384 170" role="img" aria-label="The two classes again, but now a few triangles sit among the circles and a few circles among the triangles, so no straight line separates them" style="width: 670.5pt" data-b="p7d3w">
     <defs>
       <marker id="ah002B5B-p7d3w" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-p7d3w)"></line>
-    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-p7d3w)"></line>
-    <ellipse cx="182.6" cy="30.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="214.0" cy="30.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="196.7" cy="50.5" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="173.2" cy="72.4" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="201.4" cy="78.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="220.2" cy="99.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="166.9" cy="119.5" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="235.9" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <polygon points="166.9,46.3 162.7,54.7 171.1,54.7 166.9,46.3" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="162.2,93.4 158.0,101.7 166.4,101.7 162.2,93.4" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="135.5,109.1 131.3,117.4 139.7,117.4 135.5,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="184.2,105.9 180.0,114.3 188.3,114.3 184.2,105.9" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="132.4,132.6 128.2,141.0 136.6,141.0 132.4,132.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="154.3,135.7 150.2,144.1 158.5,144.1 154.3,135.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="143.4,148.3 139.2,156.7 147.5,156.7 143.4,148.3" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
-    <polygon points="203.0,93.4 198.8,101.7 207.2,101.7 203.0,93.4" fill="#DCB439" stroke="#DCB439" stroke-width="0.00"></polygon>
+    <line x1="110.4" y1="166.6" x2="270.2" y2="166.6" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-p7d3w)"></line>
+    <line x1="110.4" y1="166.6" x2="110.4" y2="6.8" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-p7d3w)"></line>
+    <ellipse cx="182.6" cy="30.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="214.0" cy="30.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="196.7" cy="50.5" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="173.2" cy="72.4" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="201.4" cy="78.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="220.2" cy="99.1" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="166.9" cy="119.5" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="235.9" cy="67.7" rx="3.9" ry="3.9" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <polygon points="166.9,46.3 162.7,54.7 171.1,54.7 166.9,46.3" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="162.2,93.4 158.0,101.7 166.4,101.7 162.2,93.4" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="135.5,109.1 131.3,117.4 139.7,117.4 135.5,109.1" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="184.2,105.9 180.0,114.3 188.3,114.3 184.2,105.9" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="132.4,132.6 128.2,141.0 136.6,141.0 132.4,132.6" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="154.3,135.7 150.2,144.1 158.5,144.1 154.3,135.7" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="143.4,148.3 139.2,156.7 147.5,156.7 143.4,148.3" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
+    <polygon points="203.0,93.4 198.8,101.7 207.2,101.7 203.0,93.4" fill="#DCB439" stroke="#DCB439" stroke-width="0.0"></polygon>
   </svg>
   
 <div class="foot" data-rt=""><span>Support Vector Machines · The Math</span><span>19</span></div></section>
@@ -7633,9 +7644,9 @@ L 380.16 125.969231
   
 <div class="foot" data-rt=""><span>Support Vector Machines · The Math</span><span>20</span></div></section>
 
-<section class="page" id="lec-nonlinear" data-part="Kernels" data-view="slides workbook" data-topic="nonlinear" style="--gap: 22pt;">
+<section class="page" id="lec-nonlinear" data-view="slides workbook" data-topic="nonlinear" data-part="Kernels" style="--gap: 22pt;">
   <h2 data-b="ugch4">Non-Linearly Separable Data (reading)</h2>
-  <b-fig src="fig/close-1d.svg" alt="Every game on a number line by yard difference, from -300 to +400 yards: green close games stacked below the line bunch between -150 and +220, red blowouts stacked above it spread across the whole line and fill both ends" class="s-sm" data-pool="close-1d" data-b="m9eu9" style="--ar: 3.491;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 110" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/close-1d.svg" class="s-sm" alt="Every game on a number line by yard difference, from -300 to +400 yards: green close games stacked below the line bunch between -150 and +220, red blowouts stacked above it spread across the whole line and fill both ends" data-pool="close-1d" data-b="m9eu9" style="--ar: 3.491;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 110" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -8525,7 +8536,7 @@ z
 
 <section class="page" id="lec-nonlinear-2" data-view="slides workbook" data-topic="nonlinear" style="--gap: 22pt;">
   <h2 data-b="yg1vg">Non-Linearly Separable Data (reading)</h2>
-  <b-fig src="fig/lift-close.svg" alt="Each game at its yard difference x and x squared, so the games sit on a parabola. The SVM's straight boundary cuts across the bottom of it, and dotted lines drop from where it crosses to -102 and +126 yards" class="s-sm" data-pool="lift-close" data-b="vedub" style="--ar: 2.259;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 170" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/lift-close.svg" class="s-sm" alt="Each game at its yard difference x and x squared, so the games sit on a parabola. The SVM's straight boundary cuts across the bottom of it, and dotted lines drop from where it crosses to -102 and +126 yards" data-pool="lift-close" data-b="vedub" style="--ar: 2.259;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 170" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -9560,7 +9571,7 @@ z
 
 <section class="page" id="lec-visualization" data-view="slides workbook" data-topic="kernels" style="--gap: 22pt;">
   <h2 data-b="sj2nu">Visualization</h2>
-  <b-fig src="fig/moons-rbf.svg" viz="https://ai.williamtheisen.com/svm.html" alt="Two interleaved half-moons of red and blue points, split by a curved RBF boundary with dashed margin lines and the support vectors ringed" data-b="mjr34" style="--ar: 1.920;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 200" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/moons-rbf.svg" alt="Two interleaved half-moons of red and blue points, split by a curved RBF boundary with dashed margin lines and the support vectors ringed" viz="https://ai.williamtheisen.com/svm.html" data-b="mjr34" style="--ar: 1.920;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 200" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -13092,7 +13103,7 @@ z
   
 <div class="foot" data-rt=""><span>Support Vector Machines · Kernels</span><span>26</span></div></section>
 
-<section class="page" id="lec-matching" data-part="Review" data-view="slides workbook" data-topic="margin support-vectors kernels" style="--gap: 22pt;">
+<section class="page" id="lec-matching" data-view="slides workbook" data-topic="margin support-vectors kernels" data-part="Review" style="--gap: 22pt;">
   <h2 data-b="izlqy">Matching: Support Vector Machines</h2>
   
   <table class="tbl small" data-b="hdacu">
@@ -13533,7 +13544,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -13561,15 +13572,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -13578,6 +13635,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -13590,9 +13648,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -833,108 +844,108 @@ svg.al-clone { z-index: 1; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Backpropagation Through Time</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#unrolled">Backpropagation Through Time</a><a href="#vanishing">Vanishing and Exploding Gradients</a><a href="#gate-gradient">LSTMs and GRUs</a><a href="#clipping">Gradient Clipping</a><a href="#static">Toward Attention</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="on">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="bptt-chapter.pdf" download>Reading</a><a href="bptt-chapter-slides.pdf" download>Lecture</a><a href="bptt-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="reading">
 <section class="page cover" id="cover">
-  <svg class="draw" viewBox="0 0 384 220" style="width: 280.9pt" role="img" aria-label="A row of 50 gold bars, one per word of the chorus, shrinking and fading from right to left, with a row of navy dots underneath" data-b="d2a27">
+  <svg class="draw" viewBox="0 0 384 220" role="img" aria-label="A row of 50 gold bars, one per word of the chorus, shrinking and fading from right to left, with a row of navy dots underneath" style="width: 280.9pt" data-b="d2a27">
     <defs></defs>
     <rect x="5.2" y="175.5" width="4.7" height="16.2" rx="0.0" fill="#F9F2DB" stroke="none"></rect>
-    <ellipse cx="7.5" cy="205.8" rx="1.5" ry="1.5" fill="#D1D9E1" stroke="#D1D9E1" stroke-width="0.00"></ellipse>
+    <ellipse cx="7.5" cy="205.8" rx="1.5" ry="1.5" fill="#D1D9E1" stroke="#D1D9E1" stroke-width="0.0"></ellipse>
     <rect x="12.7" y="170.8" width="4.7" height="20.9" rx="0.0" fill="#F8F0D8" stroke="none"></rect>
-    <ellipse cx="15.1" cy="205.8" rx="1.5" ry="1.5" fill="#CDD5DF" stroke="#CDD5DF" stroke-width="0.00"></ellipse>
+    <ellipse cx="15.1" cy="205.8" rx="1.5" ry="1.5" fill="#CDD5DF" stroke="#CDD5DF" stroke-width="0.0"></ellipse>
     <rect x="20.3" y="168.5" width="4.7" height="23.2" rx="0.0" fill="#F8EFD5" stroke="none"></rect>
-    <ellipse cx="22.6" cy="205.8" rx="1.5" ry="1.5" fill="#C9D2DC" stroke="#C9D2DC" stroke-width="0.00"></ellipse>
+    <ellipse cx="22.6" cy="205.8" rx="1.5" ry="1.5" fill="#C9D2DC" stroke="#C9D2DC" stroke-width="0.0"></ellipse>
     <rect x="27.8" y="166.8" width="4.7" height="24.9" rx="0.0" fill="#F7EED1" stroke="none"></rect>
-    <ellipse cx="30.1" cy="205.8" rx="1.5" ry="1.5" fill="#C4CED9" stroke="#C4CED9" stroke-width="0.00"></ellipse>
+    <ellipse cx="30.1" cy="205.8" rx="1.5" ry="1.5" fill="#C4CED9" stroke="#C4CED9" stroke-width="0.0"></ellipse>
     <rect x="35.3" y="162.2" width="4.7" height="29.5" rx="0.0" fill="#F6ECCE" stroke="none"></rect>
-    <ellipse cx="37.6" cy="205.8" rx="1.5" ry="1.5" fill="#C0CBD7" stroke="#C0CBD7" stroke-width="0.00"></ellipse>
+    <ellipse cx="37.6" cy="205.8" rx="1.5" ry="1.5" fill="#C0CBD7" stroke="#C0CBD7" stroke-width="0.0"></ellipse>
     <rect x="42.8" y="155.4" width="4.7" height="36.3" rx="0.0" fill="#F6EBCB" stroke="none"></rect>
-    <ellipse cx="45.2" cy="205.8" rx="1.5" ry="1.5" fill="#BCC7D4" stroke="#BCC7D4" stroke-width="0.00"></ellipse>
+    <ellipse cx="45.2" cy="205.8" rx="1.5" ry="1.5" fill="#BCC7D4" stroke="#BCC7D4" stroke-width="0.0"></ellipse>
     <rect x="50.4" y="150.9" width="4.7" height="40.7" rx="0.0" fill="#F5EAC7" stroke="none"></rect>
-    <ellipse cx="52.7" cy="205.8" rx="1.5" ry="1.5" fill="#B7C4D1" stroke="#B7C4D1" stroke-width="0.00"></ellipse>
+    <ellipse cx="52.7" cy="205.8" rx="1.5" ry="1.5" fill="#B7C4D1" stroke="#B7C4D1" stroke-width="0.0"></ellipse>
     <rect x="57.9" y="150.1" width="4.7" height="41.6" rx="0.0" fill="#F5E9C4" stroke="none"></rect>
-    <ellipse cx="60.2" cy="205.8" rx="1.5" ry="1.5" fill="#B3C0CE" stroke="#B3C0CE" stroke-width="0.00"></ellipse>
+    <ellipse cx="60.2" cy="205.8" rx="1.5" ry="1.5" fill="#B3C0CE" stroke="#B3C0CE" stroke-width="0.0"></ellipse>
     <rect x="65.4" y="149.1" width="4.7" height="42.6" rx="0.0" fill="#F4E7C1" stroke="none"></rect>
-    <ellipse cx="67.8" cy="205.8" rx="1.5" ry="1.5" fill="#AFBCCC" stroke="#AFBCCC" stroke-width="0.00"></ellipse>
+    <ellipse cx="67.8" cy="205.8" rx="1.5" ry="1.5" fill="#AFBCCC" stroke="#AFBCCC" stroke-width="0.0"></ellipse>
     <rect x="73.0" y="145.9" width="4.7" height="45.8" rx="0.0" fill="#F3E6BE" stroke="none"></rect>
-    <ellipse cx="75.3" cy="205.8" rx="1.5" ry="1.5" fill="#ABB9C9" stroke="#ABB9C9" stroke-width="0.00"></ellipse>
+    <ellipse cx="75.3" cy="205.8" rx="1.5" ry="1.5" fill="#ABB9C9" stroke="#ABB9C9" stroke-width="0.0"></ellipse>
     <rect x="80.5" y="141.2" width="4.7" height="50.5" rx="0.0" fill="#F3E5BA" stroke="none"></rect>
-    <ellipse cx="82.8" cy="205.8" rx="1.5" ry="1.5" fill="#A6B5C6" stroke="#A6B5C6" stroke-width="0.00"></ellipse>
+    <ellipse cx="82.8" cy="205.8" rx="1.5" ry="1.5" fill="#A6B5C6" stroke="#A6B5C6" stroke-width="0.0"></ellipse>
     <rect x="88.0" y="138.4" width="4.7" height="53.2" rx="0.0" fill="#F2E4B7" stroke="none"></rect>
-    <ellipse cx="90.4" cy="205.8" rx="1.5" ry="1.5" fill="#A2B2C3" stroke="#A2B2C3" stroke-width="0.00"></ellipse>
+    <ellipse cx="90.4" cy="205.8" rx="1.5" ry="1.5" fill="#A2B2C3" stroke="#A2B2C3" stroke-width="0.0"></ellipse>
     <rect x="95.5" y="138.9" width="4.7" height="52.8" rx="0.0" fill="#F2E2B4" stroke="none"></rect>
-    <ellipse cx="97.9" cy="205.8" rx="1.5" ry="1.5" fill="#9EAEC1" stroke="#9EAEC1" stroke-width="0.00"></ellipse>
+    <ellipse cx="97.9" cy="205.8" rx="1.5" ry="1.5" fill="#9EAEC1" stroke="#9EAEC1" stroke-width="0.0"></ellipse>
     <rect x="103.1" y="134.6" width="4.7" height="57.1" rx="0.0" fill="#F1E1B0" stroke="none"></rect>
-    <ellipse cx="105.4" cy="205.8" rx="1.5" ry="1.5" fill="#9AABBE" stroke="#9AABBE" stroke-width="0.00"></ellipse>
+    <ellipse cx="105.4" cy="205.8" rx="1.5" ry="1.5" fill="#9AABBE" stroke="#9AABBE" stroke-width="0.0"></ellipse>
     <rect x="110.6" y="129.7" width="4.7" height="62.0" rx="0.0" fill="#F0E0AD" stroke="none"></rect>
-    <ellipse cx="112.9" cy="205.8" rx="1.5" ry="1.5" fill="#95A7BB" stroke="#95A7BB" stroke-width="0.00"></ellipse>
+    <ellipse cx="112.9" cy="205.8" rx="1.5" ry="1.5" fill="#95A7BB" stroke="#95A7BB" stroke-width="0.0"></ellipse>
     <rect x="118.1" y="127.4" width="4.7" height="64.3" rx="0.0" fill="#F0DFAA" stroke="none"></rect>
-    <ellipse cx="120.5" cy="205.8" rx="1.5" ry="1.5" fill="#91A4B8" stroke="#91A4B8" stroke-width="0.00"></ellipse>
+    <ellipse cx="120.5" cy="205.8" rx="1.5" ry="1.5" fill="#91A4B8" stroke="#91A4B8" stroke-width="0.0"></ellipse>
     <rect x="125.7" y="126.3" width="4.7" height="65.4" rx="0.0" fill="#EFDDA6" stroke="none"></rect>
-    <ellipse cx="128.0" cy="205.8" rx="1.5" ry="1.5" fill="#8DA0B6" stroke="#8DA0B6" stroke-width="0.00"></ellipse>
+    <ellipse cx="128.0" cy="205.8" rx="1.5" ry="1.5" fill="#8DA0B6" stroke="#8DA0B6" stroke-width="0.0"></ellipse>
     <rect x="133.2" y="125.1" width="4.7" height="66.6" rx="0.0" fill="#EFDCA3" stroke="none"></rect>
-    <ellipse cx="135.5" cy="205.8" rx="1.5" ry="1.5" fill="#899DB3" stroke="#899DB3" stroke-width="0.00"></ellipse>
+    <ellipse cx="135.5" cy="205.8" rx="1.5" ry="1.5" fill="#899DB3" stroke="#899DB3" stroke-width="0.0"></ellipse>
     <rect x="140.7" y="118.6" width="4.7" height="73.1" rx="0.0" fill="#EEDBA0" stroke="none"></rect>
-    <ellipse cx="143.1" cy="205.8" rx="1.5" ry="1.5" fill="#8499B0" stroke="#8499B0" stroke-width="0.00"></ellipse>
+    <ellipse cx="143.1" cy="205.8" rx="1.5" ry="1.5" fill="#8499B0" stroke="#8499B0" stroke-width="0.0"></ellipse>
     <rect x="148.3" y="112.3" width="4.7" height="79.4" rx="0.0" fill="#EEDA9C" stroke="none"></rect>
-    <ellipse cx="150.6" cy="205.8" rx="1.5" ry="1.5" fill="#8095AD" stroke="#8095AD" stroke-width="0.00"></ellipse>
+    <ellipse cx="150.6" cy="205.8" rx="1.5" ry="1.5" fill="#8095AD" stroke="#8095AD" stroke-width="0.0"></ellipse>
     <rect x="155.8" y="110.5" width="4.7" height="81.2" rx="0.0" fill="#EDD899" stroke="none"></rect>
-    <ellipse cx="158.1" cy="205.8" rx="1.5" ry="1.5" fill="#7C92AB" stroke="#7C92AB" stroke-width="0.00"></ellipse>
+    <ellipse cx="158.1" cy="205.8" rx="1.5" ry="1.5" fill="#7C92AB" stroke="#7C92AB" stroke-width="0.0"></ellipse>
     <rect x="163.3" y="109.1" width="4.7" height="82.6" rx="0.0" fill="#ECD796" stroke="none"></rect>
-    <ellipse cx="165.6" cy="205.8" rx="1.5" ry="1.5" fill="#778EA8" stroke="#778EA8" stroke-width="0.00"></ellipse>
+    <ellipse cx="165.6" cy="205.8" rx="1.5" ry="1.5" fill="#778EA8" stroke="#778EA8" stroke-width="0.0"></ellipse>
     <rect x="170.8" y="105.2" width="4.7" height="86.5" rx="0.0" fill="#ECD692" stroke="none"></rect>
-    <ellipse cx="173.2" cy="205.8" rx="1.5" ry="1.5" fill="#738BA5" stroke="#738BA5" stroke-width="0.00"></ellipse>
+    <ellipse cx="173.2" cy="205.8" rx="1.5" ry="1.5" fill="#738BA5" stroke="#738BA5" stroke-width="0.0"></ellipse>
     <rect x="178.4" y="98.5" width="4.7" height="93.2" rx="0.0" fill="#EBD58F" stroke="none"></rect>
-    <ellipse cx="180.7" cy="205.8" rx="1.5" ry="1.5" fill="#6F87A2" stroke="#6F87A2" stroke-width="0.00"></ellipse>
+    <ellipse cx="180.7" cy="205.8" rx="1.5" ry="1.5" fill="#6F87A2" stroke="#6F87A2" stroke-width="0.0"></ellipse>
     <rect x="185.9" y="94.4" width="4.7" height="97.3" rx="0.0" fill="#EBD38C" stroke="none"></rect>
-    <ellipse cx="188.2" cy="205.8" rx="1.5" ry="1.5" fill="#6B84A0" stroke="#6B84A0" stroke-width="0.00"></ellipse>
+    <ellipse cx="188.2" cy="205.8" rx="1.5" ry="1.5" fill="#6B84A0" stroke="#6B84A0" stroke-width="0.0"></ellipse>
     <rect x="193.4" y="94.9" width="4.7" height="96.8" rx="0.0" fill="#EAD289" stroke="none"></rect>
-    <ellipse cx="195.8" cy="205.8" rx="1.5" ry="1.5" fill="#66809D" stroke="#66809D" stroke-width="0.00"></ellipse>
+    <ellipse cx="195.8" cy="205.8" rx="1.5" ry="1.5" fill="#66809D" stroke="#66809D" stroke-width="0.0"></ellipse>
     <rect x="201.0" y="90.3" width="4.7" height="101.4" rx="0.0" fill="#E9D185" stroke="none"></rect>
-    <ellipse cx="203.3" cy="205.8" rx="1.5" ry="1.5" fill="#627D9A" stroke="#627D9A" stroke-width="0.00"></ellipse>
+    <ellipse cx="203.3" cy="205.8" rx="1.5" ry="1.5" fill="#627D9A" stroke="#627D9A" stroke-width="0.0"></ellipse>
     <rect x="208.5" y="84.0" width="4.7" height="107.6" rx="0.0" fill="#E9D082" stroke="none"></rect>
-    <ellipse cx="210.8" cy="205.8" rx="1.5" ry="1.5" fill="#5E7997" stroke="#5E7997" stroke-width="0.00"></ellipse>
+    <ellipse cx="210.8" cy="205.8" rx="1.5" ry="1.5" fill="#5E7997" stroke="#5E7997" stroke-width="0.0"></ellipse>
     <rect x="216.0" y="80.4" width="4.7" height="111.3" rx="0.0" fill="#E8CE7F" stroke="none"></rect>
-    <ellipse cx="218.4" cy="205.8" rx="1.5" ry="1.5" fill="#5A7695" stroke="#5A7695" stroke-width="0.00"></ellipse>
+    <ellipse cx="218.4" cy="205.8" rx="1.5" ry="1.5" fill="#5A7695" stroke="#5A7695" stroke-width="0.0"></ellipse>
     <rect x="223.5" y="78.1" width="4.7" height="113.6" rx="0.0" fill="#E8CD7B" stroke="none"></rect>
-    <ellipse cx="225.9" cy="205.8" rx="1.5" ry="1.5" fill="#557292" stroke="#557292" stroke-width="0.00"></ellipse>
+    <ellipse cx="225.9" cy="205.8" rx="1.5" ry="1.5" fill="#557292" stroke="#557292" stroke-width="0.0"></ellipse>
     <rect x="231.1" y="76.5" width="4.7" height="115.2" rx="0.0" fill="#E7CC78" stroke="none"></rect>
-    <ellipse cx="233.4" cy="205.8" rx="1.5" ry="1.5" fill="#516E8F" stroke="#516E8F" stroke-width="0.00"></ellipse>
+    <ellipse cx="233.4" cy="205.8" rx="1.5" ry="1.5" fill="#516E8F" stroke="#516E8F" stroke-width="0.0"></ellipse>
     <rect x="238.6" y="69.8" width="4.7" height="121.9" rx="0.0" fill="#E7CB75" stroke="none"></rect>
-    <ellipse cx="240.9" cy="205.8" rx="1.5" ry="1.5" fill="#4D6B8C" stroke="#4D6B8C" stroke-width="0.00"></ellipse>
+    <ellipse cx="240.9" cy="205.8" rx="1.5" ry="1.5" fill="#4D6B8C" stroke="#4D6B8C" stroke-width="0.0"></ellipse>
     <rect x="246.1" y="66.3" width="4.7" height="125.3" rx="0.0" fill="#E6C971" stroke="none"></rect>
-    <ellipse cx="248.5" cy="205.8" rx="1.5" ry="1.5" fill="#49678A" stroke="#49678A" stroke-width="0.00"></ellipse>
+    <ellipse cx="248.5" cy="205.8" rx="1.5" ry="1.5" fill="#49678A" stroke="#49678A" stroke-width="0.0"></ellipse>
     <rect x="253.7" y="66.0" width="4.7" height="125.7" rx="0.0" fill="#E5C86E" stroke="none"></rect>
-    <ellipse cx="256.0" cy="205.8" rx="1.5" ry="1.5" fill="#446487" stroke="#446487" stroke-width="0.00"></ellipse>
+    <ellipse cx="256.0" cy="205.8" rx="1.5" ry="1.5" fill="#446487" stroke="#446487" stroke-width="0.0"></ellipse>
     <rect x="261.2" y="64.0" width="4.7" height="127.7" rx="0.0" fill="#E5C76B" stroke="none"></rect>
-    <ellipse cx="263.5" cy="205.8" rx="1.5" ry="1.5" fill="#406084" stroke="#406084" stroke-width="0.00"></ellipse>
+    <ellipse cx="263.5" cy="205.8" rx="1.5" ry="1.5" fill="#406084" stroke="#406084" stroke-width="0.0"></ellipse>
     <rect x="268.7" y="57.9" width="4.7" height="133.8" rx="0.0" fill="#E4C667" stroke="none"></rect>
-    <ellipse cx="271.1" cy="205.8" rx="1.5" ry="1.5" fill="#3C5D81" stroke="#3C5D81" stroke-width="0.00"></ellipse>
+    <ellipse cx="271.1" cy="205.8" rx="1.5" ry="1.5" fill="#3C5D81" stroke="#3C5D81" stroke-width="0.0"></ellipse>
     <rect x="276.3" y="49.4" width="4.7" height="142.2" rx="0.0" fill="#E4C464" stroke="none"></rect>
-    <ellipse cx="278.6" cy="205.8" rx="1.5" ry="1.5" fill="#37597F" stroke="#37597F" stroke-width="0.00"></ellipse>
+    <ellipse cx="278.6" cy="205.8" rx="1.5" ry="1.5" fill="#37597F" stroke="#37597F" stroke-width="0.0"></ellipse>
     <rect x="283.8" y="47.0" width="4.7" height="144.7" rx="0.0" fill="#E3C361" stroke="none"></rect>
-    <ellipse cx="286.1" cy="205.8" rx="1.5" ry="1.5" fill="#33567C" stroke="#33567C" stroke-width="0.00"></ellipse>
+    <ellipse cx="286.1" cy="205.8" rx="1.5" ry="1.5" fill="#33567C" stroke="#33567C" stroke-width="0.0"></ellipse>
     <rect x="291.3" y="45.4" width="4.7" height="146.3" rx="0.0" fill="#E2C25D" stroke="none"></rect>
-    <ellipse cx="293.6" cy="205.8" rx="1.5" ry="1.5" fill="#2F5279" stroke="#2F5279" stroke-width="0.00"></ellipse>
+    <ellipse cx="293.6" cy="205.8" rx="1.5" ry="1.5" fill="#2F5279" stroke="#2F5279" stroke-width="0.0"></ellipse>
     <rect x="298.8" y="43.2" width="4.7" height="148.4" rx="0.0" fill="#E2C15A" stroke="none"></rect>
-    <ellipse cx="301.2" cy="205.8" rx="1.5" ry="1.5" fill="#2B4E76" stroke="#2B4E76" stroke-width="0.00"></ellipse>
+    <ellipse cx="301.2" cy="205.8" rx="1.5" ry="1.5" fill="#2B4E76" stroke="#2B4E76" stroke-width="0.0"></ellipse>
     <rect x="306.4" y="37.9" width="4.7" height="153.8" rx="0.0" fill="#E1BF57" stroke="none"></rect>
-    <ellipse cx="308.7" cy="205.8" rx="1.5" ry="1.5" fill="#264B74" stroke="#264B74" stroke-width="0.00"></ellipse>
+    <ellipse cx="308.7" cy="205.8" rx="1.5" ry="1.5" fill="#264B74" stroke="#264B74" stroke-width="0.0"></ellipse>
     <rect x="313.9" y="33.1" width="4.7" height="158.6" rx="0.0" fill="#E1BE54" stroke="none"></rect>
-    <ellipse cx="316.2" cy="205.8" rx="1.5" ry="1.5" fill="#224771" stroke="#224771" stroke-width="0.00"></ellipse>
+    <ellipse cx="316.2" cy="205.8" rx="1.5" ry="1.5" fill="#224771" stroke="#224771" stroke-width="0.0"></ellipse>
     <rect x="321.4" y="27.9" width="4.7" height="163.8" rx="0.0" fill="#E0BD50" stroke="none"></rect>
-    <ellipse cx="323.8" cy="205.8" rx="1.5" ry="1.5" fill="#1E446E" stroke="#1E446E" stroke-width="0.00"></ellipse>
+    <ellipse cx="323.8" cy="205.8" rx="1.5" ry="1.5" fill="#1E446E" stroke="#1E446E" stroke-width="0.0"></ellipse>
     <rect x="329.0" y="27.5" width="4.7" height="164.2" rx="0.0" fill="#E0BC4D" stroke="none"></rect>
-    <ellipse cx="331.3" cy="205.8" rx="1.5" ry="1.5" fill="#1A406B" stroke="#1A406B" stroke-width="0.00"></ellipse>
+    <ellipse cx="331.3" cy="205.8" rx="1.5" ry="1.5" fill="#1A406B" stroke="#1A406B" stroke-width="0.0"></ellipse>
     <rect x="336.5" y="23.0" width="4.7" height="168.7" rx="0.0" fill="#DFBA4A" stroke="none"></rect>
-    <ellipse cx="338.8" cy="205.8" rx="1.5" ry="1.5" fill="#153D69" stroke="#153D69" stroke-width="0.00"></ellipse>
+    <ellipse cx="338.8" cy="205.8" rx="1.5" ry="1.5" fill="#153D69" stroke="#153D69" stroke-width="0.0"></ellipse>
     <rect x="344.0" y="16.5" width="4.7" height="175.2" rx="0.0" fill="#DEB946" stroke="none"></rect>
-    <ellipse cx="346.4" cy="205.8" rx="1.5" ry="1.5" fill="#113966" stroke="#113966" stroke-width="0.00"></ellipse>
+    <ellipse cx="346.4" cy="205.8" rx="1.5" ry="1.5" fill="#113966" stroke="#113966" stroke-width="0.0"></ellipse>
     <rect x="351.5" y="16.8" width="4.7" height="174.9" rx="0.0" fill="#DEB843" stroke="none"></rect>
-    <ellipse cx="353.9" cy="205.8" rx="1.5" ry="1.5" fill="#0D3663" stroke="#0D3663" stroke-width="0.00"></ellipse>
+    <ellipse cx="353.9" cy="205.8" rx="1.5" ry="1.5" fill="#0D3663" stroke="#0D3663" stroke-width="0.0"></ellipse>
     <rect x="359.1" y="15.6" width="4.7" height="176.1" rx="0.0" fill="#DDB740" stroke="none"></rect>
-    <ellipse cx="361.4" cy="205.8" rx="1.5" ry="1.5" fill="#093260" stroke="#093260" stroke-width="0.00"></ellipse>
+    <ellipse cx="361.4" cy="205.8" rx="1.5" ry="1.5" fill="#093260" stroke="#093260" stroke-width="0.0"></ellipse>
     <rect x="366.6" y="12.6" width="4.7" height="179.1" rx="0.0" fill="#DDB53C" stroke="none"></rect>
-    <ellipse cx="368.9" cy="205.8" rx="1.5" ry="1.5" fill="#042F5E" stroke="#042F5E" stroke-width="0.00"></ellipse>
+    <ellipse cx="368.9" cy="205.8" rx="1.5" ry="1.5" fill="#042F5E" stroke="#042F5E" stroke-width="0.0"></ellipse>
     <rect x="374.1" y="12.1" width="4.7" height="179.6" rx="0.0" fill="#DCB439" stroke="none"></rect>
-    <ellipse cx="376.5" cy="205.8" rx="1.5" ry="1.5" fill="#002B5B" stroke="#002B5B" stroke-width="0.00"></ellipse>
+    <ellipse cx="376.5" cy="205.8" rx="1.5" ry="1.5" fill="#002B5B" stroke="#002B5B" stroke-width="0.0"></ellipse>
   </svg>
   <div class="cover-text" data-b="nz1vz">
     <div class="kicker">Unit 03 · Chapter 4</div>
@@ -1014,7 +1025,7 @@ svg.al-clone { z-index: 1; }
 
 
 
-<section class="page" id="unrolled" data-part="Backpropagation Through Time" data-view="reading" data-topic="unrolling" style="--gap: 18.1pt;">
+<section class="page" id="unrolled" data-view="reading" data-topic="unrolling" data-part="Backpropagation Through Time" style="--gap: 18.1pt;">
   <h2 data-b="lfv3a">Training an RNN</h2>
   <p data-b="tbrwd">Last chapter's <b class="name">recurrent neural network</b> read the Victory March one word at a time, mixing each word with a hidden state carried over from the word before:</p>
   <b-eq data-pool="rnn-eq" data-b="o5is0" class=""><a id="eq-rnn-out" data-rt=""></a><a id="eq-rnn" data-rt=""></a>
@@ -1022,7 +1033,7 @@ svg.al-clone { z-index: 1; }
     <eq-row label="rnn-out" note="the prediction">\yhat_{t} = \operatorname{softmax}\bp{c_{t} \Omega_{y}\T + b_y}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[4.1]</div><div class="eqml-e"><div class="eqml-note">the new hidden state</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-5"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐜</mi><mi mathvariant="normal">𝐭</mi></msub></mrow></mrow><mo>=</mo><mrow><mi mathvariant="normal">tanh</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow class="sym sym-CC0000 sa-17-22"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#CC0000;"><mi mathvariant="normal">𝐱</mi><mi mathvariant="normal">𝐭</mi></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-23-33"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐱</mi></msub></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>+</mo><mrow class="sym sym-DCB439 sa-38-45"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐜</mi><mrow><mi mathvariant="normal">𝐭</mi><mo>−</mo><mn>𝟏</mn></mrow></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-46-56"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐜</mi></msub></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>+</mo><mrow class="sym sym-666666 sa-61-64"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#666666;"><mi mathvariant="normal">𝐛</mi><mi mathvariant="normal">𝐜</mi></msub></mrow></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div><div class="eqml-n">[4.2]</div><div class="eqml-e"><div class="eqml-note">the prediction</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-6B6B00 sa-0-9"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#6B6B00;"><mtext>ŷ</mtext><mi mathvariant="normal">𝐭</mi></msub></mrow></mrow><mo>=</mo><mi mathvariant="normal">softmax</mi><mo>⁡</mo><mspace width="0.1667em"></mspace><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow class="sym sym-DCB439 sa-38-43"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐜</mi><mi mathvariant="normal">𝐭</mi></msub></mrow></mrow><msup><mrow class="sym sym-1155CC sa-44-54"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐲</mi></msub></mrow></mrow><mrow><mi mathvariant="normal">T</mi><mspace></mspace></mrow></msup><mo>+</mo><mrow class="sym sym-666666 sa-59-62"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#666666;"><mi mathvariant="normal">𝐛</mi><mi mathvariant="normal">𝐲</mi></msub></mrow></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="ib8pt">Unfortunately its weights were made up, so it forgot how the song started within a few words. To learn real ones, this chapter gives the network more room: the whole chorus, <span class="num">51</span> words and <span class="num">41</span> different ones, tokenized the same way, and a hidden state of <span class="num">16</span> numbers. Each word comes in one-hot, so <b-m tex="x_{t} Ω_x\T"><span class="c red sym" data-at="0,5" data-k="x">x<sub>t</sub></span> <span class="c wblue sym" data-at="6,9" data-k="Ω_x"><span class="Om">ω</span><sub>x</sub></span><sup>T</sup></b-m> picks out the word's column of <b-m tex="Ω_x"><span class="c wblue sym" data-at="0,3" data-k="Ω_x"><span class="Om">ω</span><sub>x</sub></span></b-m>, which makes <b-m tex="Ω_x"><span class="c wblue sym" data-at="0,3" data-k="Ω_x"><span class="Om">ω</span><sub>x</sub></span></b-m> the embedding table, learned with everything else. At every word the job is to <b class="take">predict the next one</b>:</p>
-  <svg class="draw" viewBox="0 0 384 158" style="width: 86%" role="img" aria-label="The RNN unrolled over the chorus: hidden states c1 to c4, a dashed arrow for words 5 to 49, then c50, each reading its word from below (cheer, cheer, for, old, to) and making a prediction above (of cheer, for, old, notre, victory), joined left to right by arrows labelled with the same weights" data-b="dfql9">
+  <svg class="draw" viewBox="0 0 384 158" role="img" aria-label="The RNN unrolled over the chorus: hidden states c1 to c4, a dashed arrow for words 5 to 49, then c50, each reading its word from below (cheer, cheer, for, old, to) and making a prediction above (of cheer, for, old, notre, victory), joined left to right by arrows labelled with the same weights" style="width: 86%" data-b="dfql9">
     <defs>
       <marker id="ahDCB439-dfql9" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
@@ -1032,109 +1043,109 @@ svg.al-clone { z-index: 1; }
       </marker>
     </defs>
     <g id="unrolled-dfql9-s1">
-      <rect x="9.6" y="68.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="9.6" y="68.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="30.0" y="79.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₀</text>
       <text x="30.0" y="84.8" font-size="3.6" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0</text>
     </g>
     <g id="unrolled-dfql9-s2">
-      <rect x="63.6" y="69.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="63.6" y="69.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="84.0" y="81.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₁</text>
     </g>
     <g id="unrolled-dfql9-s3">
-      <rect x="63.6" y="124.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="63.6" y="124.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="84.0" y="135.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₁</text>
       <text x="84.0" y="140.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
     <g id="unrolled-dfql9-s4">
-      <rect x="63.6" y="12.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="63.6" y="12.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="84.0" y="23.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₁</text>
       <text x="84.0" y="28.8" font-size="3.6" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
-    <line x1="84.0" y1="124.0" x2="84.0" y2="86.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s3" data-b="unrolled-dfql9-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="84.0" y1="69.5" x2="84.0" y2="32.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s2" data-b="unrolled-dfql9-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="84.0" y1="124.0" x2="84.0" y2="86.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s3" data-b="unrolled-dfql9-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="84.0" y1="69.5" x2="84.0" y2="32.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s2" data-b="unrolled-dfql9-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="88.0" y="108.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="88.0" y="53.8" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="50.4" y1="78.0" x2="63.6" y2="78.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s1" data-b="unrolled-dfql9-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="50.4" y1="78.0" x2="63.6" y2="78.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s1" data-b="unrolled-dfql9-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <text x="57.0" y="74.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
     <g id="unrolled-dfql9-s5">
-      <rect x="125.6" y="69.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="125.6" y="69.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="146.0" y="81.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₂</text>
     </g>
     <g id="unrolled-dfql9-s6">
-      <rect x="125.6" y="124.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="125.6" y="124.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="146.0" y="135.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₂</text>
       <text x="146.0" y="140.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
     <g id="unrolled-dfql9-s7">
-      <rect x="125.6" y="12.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="125.6" y="12.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="146.0" y="23.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₂</text>
       <text x="146.0" y="28.8" font-size="3.6" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">for</text>
     </g>
-    <line x1="146.0" y1="124.0" x2="146.0" y2="86.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s6" data-b="unrolled-dfql9-s5" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="146.0" y1="69.5" x2="146.0" y2="32.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s5" data-b="unrolled-dfql9-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="146.0" y1="124.0" x2="146.0" y2="86.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s6" data-b="unrolled-dfql9-s5" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="146.0" y1="69.5" x2="146.0" y2="32.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s5" data-b="unrolled-dfql9-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="150.0" y="108.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="150.0" y="53.8" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="104.4" y1="78.0" x2="125.6" y2="78.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s2" data-b="unrolled-dfql9-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="104.4" y1="78.0" x2="125.6" y2="78.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s2" data-b="unrolled-dfql9-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <text x="115.0" y="74.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
     <g id="unrolled-dfql9-s8">
-      <rect x="187.6" y="69.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="187.6" y="69.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="208.0" y="81.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₃</text>
     </g>
     <g id="unrolled-dfql9-s9">
-      <rect x="187.6" y="124.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="187.6" y="124.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="208.0" y="135.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₃</text>
       <text x="208.0" y="140.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">for</text>
     </g>
     <g id="unrolled-dfql9-s10">
-      <rect x="187.6" y="12.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="187.6" y="12.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="208.0" y="23.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₃</text>
       <text x="208.0" y="28.8" font-size="3.6" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">old</text>
     </g>
-    <line x1="208.0" y1="124.0" x2="208.0" y2="86.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s9" data-b="unrolled-dfql9-s8" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="208.0" y1="69.5" x2="208.0" y2="32.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s8" data-b="unrolled-dfql9-s10" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="208.0" y1="124.0" x2="208.0" y2="86.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s9" data-b="unrolled-dfql9-s8" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="208.0" y1="69.5" x2="208.0" y2="32.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s8" data-b="unrolled-dfql9-s10" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="212.0" y="108.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="212.0" y="53.8" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="166.4" y1="78.0" x2="187.6" y2="78.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s5" data-b="unrolled-dfql9-s8" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="166.4" y1="78.0" x2="187.6" y2="78.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s5" data-b="unrolled-dfql9-s8" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <text x="177.0" y="74.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
     <g id="unrolled-dfql9-s11">
-      <rect x="249.6" y="69.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="249.6" y="69.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="270.0" y="81.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₄</text>
     </g>
     <g id="unrolled-dfql9-s12">
-      <rect x="249.6" y="124.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="249.6" y="124.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="270.0" y="135.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₄</text>
       <text x="270.0" y="140.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">old</text>
     </g>
     <g id="unrolled-dfql9-s13">
-      <rect x="249.6" y="12.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="249.6" y="12.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="270.0" y="23.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₄</text>
       <text x="270.0" y="28.8" font-size="3.6" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">notre</text>
     </g>
-    <line x1="270.0" y1="124.0" x2="270.0" y2="86.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s12" data-b="unrolled-dfql9-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="270.0" y1="69.5" x2="270.0" y2="32.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s11" data-b="unrolled-dfql9-s13" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="270.0" y1="124.0" x2="270.0" y2="86.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s12" data-b="unrolled-dfql9-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="270.0" y1="69.5" x2="270.0" y2="32.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s11" data-b="unrolled-dfql9-s13" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="274.0" y="108.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="274.0" y="53.8" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="228.4" y1="78.0" x2="249.6" y2="78.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s8" data-b="unrolled-dfql9-s11" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="228.4" y1="78.0" x2="249.6" y2="78.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s8" data-b="unrolled-dfql9-s11" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <text x="239.0" y="74.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
     <g id="unrolled-dfql9-s14">
-      <rect x="328.5" y="69.5" width="47.0" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="328.5" y="69.5" width="47.0" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="352.0" y="81.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₅₀</text>
     </g>
     <g id="unrolled-dfql9-s15">
-      <rect x="328.5" y="124.0" width="47.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="328.5" y="124.0" width="47.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="352.0" y="135.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₅₀</text>
       <text x="352.0" y="140.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">to</text>
     </g>
     <g id="unrolled-dfql9-s16">
-      <rect x="328.5" y="12.0" width="47.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="328.5" y="12.0" width="47.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="352.0" y="23.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₅₀</text>
       <text x="352.0" y="28.8" font-size="3.6" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">victory</text>
     </g>
-    <line x1="352.0" y1="124.0" x2="352.0" y2="86.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s15" data-b="unrolled-dfql9-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="352.0" y1="69.5" x2="352.0" y2="32.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s14" data-b="unrolled-dfql9-s16" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="352.0" y1="124.0" x2="352.0" y2="86.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-dfql9)" data-a="unrolled-dfql9-s15" data-b="unrolled-dfql9-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="352.0" y1="69.5" x2="352.0" y2="32.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s14" data-b="unrolled-dfql9-s16" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="356.0" y="108.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="356.0" y="53.8" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="290.4" y1="78.0" x2="328.5" y2="78.0" stroke="#DCB439" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s11" data-b="unrolled-dfql9-s14" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="290.4" y1="78.0" x2="328.5" y2="78.0" stroke="#DCB439" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahDCB439-dfql9)" data-a="unrolled-dfql9-s11" data-b="unrolled-dfql9-s14" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <text x="309.4" y="74.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
   </svg>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Backpropagation Through Time</span><span>02</span></div></section>
@@ -1161,7 +1172,7 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="qvb3u">Backpropagation Through Time</h2>
   <p data-b="exsh6">To train it we need the gradient of <b-m tex="ℒ"><span class="c red sym" data-at="0,1" data-k="ℒ">ℒ</span></b-m> for <b-m tex="Ω_x"><span class="c wblue sym" data-at="0,3" data-k="Ω_x"><span class="Om">ω</span><sub>x</sub></span></b-m>, <b-m tex="Ω_c"><span class="c wblue sym" data-at="0,3" data-k="Ω_c"><span class="Om">ω</span><sub>c</sub></span></b-m> and <b-m tex="Ω_y"><span class="c wblue sym" data-at="0,3" data-k="Ω_y"><span class="Om">ω</span><sub>y</sub></span></b-m>. We get it by running the chain rule backward through the unrolled network, from the last word to the first, which is called <b class="def">backpropagation through time</b> (BPTT). Really <b class="take">it's just backpropagation on a very long network</b>.</p>
   <p data-b="fkue1">The output end is familiar. Through a softmax, the cross-entropy's derivative is <b-m tex="ŷ_{t} − y_{t}"><span class="c olive sym" data-at="0,5" data-k="ŷ">ŷ<sub>t</sub></span> − <span class="c green sym" data-at="8,13" data-k="y">y<sub>t</sub></span></b-m> (with <b-m tex="y_{t}"><span class="c green sym" data-at="0,5" data-k="y">y<sub>t</sub></span></b-m> one-hot), the same "prediction minus truth" as logistic regression. What's new is that each <b-m tex="c_{t}"><span class="c gold sym" data-at="0,5" data-k="c">c<sub>t</sub></span></b-m> (pictured below) feeds its own prediction and the next copy, so its gradient comes from both:</p>
-  <svg class="draw" viewBox="0 0 384 196" style="width: 76%" role="img" aria-label="The unrolled RNN with a loss above each prediction: solid arrows carry the forward pass up and to the right, dashed red arrows carry the gradient down from each loss into its hidden state and back from each hidden state to the one before" data-b="b39zm">
+  <svg class="draw" viewBox="0 0 384 196" role="img" aria-label="The unrolled RNN with a loss above each prediction: solid arrows carry the forward pass up and to the right, dashed red arrows carry the gradient down from each loss into its hidden state and back from each hidden state to the one before" style="width: 76%" data-b="b39zm">
     <defs>
       <marker id="ahDCB439-b39zm" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
@@ -1171,149 +1182,149 @@ svg.al-clone { z-index: 1; }
       </marker>
     </defs>
     <g id="bptt-flow-b39zm-s1">
-      <rect x="9.6" y="104.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="9.6" y="104.0" width="40.8" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="30.0" y="115.0" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₀</text>
       <text x="30.0" y="120.8" font-size="3.6" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0</text>
     </g>
     <g id="bptt-flow-b39zm-s2">
-      <rect x="63.6" y="105.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="63.6" y="105.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="84.0" y="117.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₁</text>
     </g>
     <g id="bptt-flow-b39zm-s3">
-      <rect x="63.6" y="162.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="63.6" y="162.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="84.0" y="173.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₁</text>
       <text x="84.0" y="178.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
     <g id="bptt-flow-b39zm-s4">
-      <rect x="63.6" y="53.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="63.6" y="53.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="84.0" y="65.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₁</text>
     </g>
-    <line x1="91.0" y1="162.0" x2="91.0" y2="122.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s3" data-b="bptt-flow-b39zm-s2" data-a-at="t:0.672" data-b-at="b:0.672"></line>
-    <line x1="91.0" y1="105.5" x2="91.0" y2="70.5" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s2" data-b="bptt-flow-b39zm-s4" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="91.0" y1="162.0" x2="91.0" y2="122.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s3" data-b="bptt-flow-b39zm-s2" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="91.0" y1="105.5" x2="91.0" y2="70.5" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s2" data-b="bptt-flow-b39zm-s4" data-a-at="t:0.672" data-b-at="b:0.672"></line>
     <text x="95.0" y="145.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="95.0" y="91.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="50.4" y1="107.0" x2="63.6" y2="107.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s1" data-b="bptt-flow-b39zm-s2" data-a-at="r:0.150" data-b-at="l:0.088"></line>
+    <line x1="50.4" y1="107.0" x2="63.6" y2="107.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s1" data-b="bptt-flow-b39zm-s2" data-a-at="r:0.150" data-b-at="l:0.088"></line>
     <text x="57.0" y="103.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
-    <line x1="77.0" y1="70.5" x2="77.0" y2="105.5" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s4" data-b="bptt-flow-b39zm-s2" data-a-at="b:0.328" data-b-at="t:0.328"></line>
+    <line x1="77.0" y1="70.5" x2="77.0" y2="105.5" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s4" data-b="bptt-flow-b39zm-s2" data-a-at="b:0.328" data-b-at="t:0.328"></line>
     <g id="bptt-flow-b39zm-s5">
-      <rect x="125.6" y="105.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="125.6" y="105.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="146.0" y="117.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₂</text>
     </g>
     <g id="bptt-flow-b39zm-s6">
-      <rect x="125.6" y="162.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="125.6" y="162.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="146.0" y="173.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₂</text>
       <text x="146.0" y="178.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
     <g id="bptt-flow-b39zm-s7">
-      <rect x="125.6" y="53.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="125.6" y="53.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="146.0" y="65.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₂</text>
     </g>
-    <line x1="153.0" y1="162.0" x2="153.0" y2="122.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s6" data-b="bptt-flow-b39zm-s5" data-a-at="t:0.672" data-b-at="b:0.672"></line>
-    <line x1="153.0" y1="105.5" x2="153.0" y2="70.5" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s5" data-b="bptt-flow-b39zm-s7" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="153.0" y1="162.0" x2="153.0" y2="122.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s6" data-b="bptt-flow-b39zm-s5" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="153.0" y1="105.5" x2="153.0" y2="70.5" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s5" data-b="bptt-flow-b39zm-s7" data-a-at="t:0.672" data-b-at="b:0.672"></line>
     <text x="157.0" y="145.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="157.0" y="91.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="104.4" y1="107.0" x2="125.6" y2="107.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s2" data-b="bptt-flow-b39zm-s5" data-a-at="r:0.088" data-b-at="l:0.088"></line>
+    <line x1="104.4" y1="107.0" x2="125.6" y2="107.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s2" data-b="bptt-flow-b39zm-s5" data-a-at="r:0.088" data-b-at="l:0.088"></line>
     <text x="115.0" y="103.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
-    <line x1="125.6" y1="121.0" x2="104.4" y2="121.0" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s5" data-b="bptt-flow-b39zm-s2" data-a-at="l:0.912" data-b-at="r:0.912"></line>
-    <line x1="139.0" y1="70.5" x2="139.0" y2="105.5" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s7" data-b="bptt-flow-b39zm-s5" data-a-at="b:0.328" data-b-at="t:0.328"></line>
+    <line x1="125.6" y1="121.0" x2="104.4" y2="121.0" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s5" data-b="bptt-flow-b39zm-s2" data-a-at="l:0.912" data-b-at="r:0.912"></line>
+    <line x1="139.0" y1="70.5" x2="139.0" y2="105.5" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s7" data-b="bptt-flow-b39zm-s5" data-a-at="b:0.328" data-b-at="t:0.328"></line>
     <g id="bptt-flow-b39zm-s8">
-      <rect x="187.6" y="105.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="187.6" y="105.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="208.0" y="117.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₃</text>
     </g>
     <g id="bptt-flow-b39zm-s9">
-      <rect x="187.6" y="162.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="187.6" y="162.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="208.0" y="173.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₃</text>
       <text x="208.0" y="178.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">for</text>
     </g>
     <g id="bptt-flow-b39zm-s10">
-      <rect x="187.6" y="53.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="187.6" y="53.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="208.0" y="65.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₃</text>
     </g>
-    <line x1="215.0" y1="162.0" x2="215.0" y2="122.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s9" data-b="bptt-flow-b39zm-s8" data-a-at="t:0.672" data-b-at="b:0.672"></line>
-    <line x1="215.0" y1="105.5" x2="215.0" y2="70.5" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s8" data-b="bptt-flow-b39zm-s10" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="215.0" y1="162.0" x2="215.0" y2="122.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s9" data-b="bptt-flow-b39zm-s8" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="215.0" y1="105.5" x2="215.0" y2="70.5" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s8" data-b="bptt-flow-b39zm-s10" data-a-at="t:0.672" data-b-at="b:0.672"></line>
     <text x="219.0" y="145.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="219.0" y="91.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="166.4" y1="107.0" x2="187.6" y2="107.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s5" data-b="bptt-flow-b39zm-s8" data-a-at="r:0.088" data-b-at="l:0.088"></line>
+    <line x1="166.4" y1="107.0" x2="187.6" y2="107.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s5" data-b="bptt-flow-b39zm-s8" data-a-at="r:0.088" data-b-at="l:0.088"></line>
     <text x="177.0" y="103.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
-    <line x1="187.6" y1="121.0" x2="166.4" y2="121.0" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s8" data-b="bptt-flow-b39zm-s5" data-a-at="l:0.912" data-b-at="r:0.912"></line>
-    <line x1="201.0" y1="70.5" x2="201.0" y2="105.5" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s10" data-b="bptt-flow-b39zm-s8" data-a-at="b:0.328" data-b-at="t:0.328"></line>
+    <line x1="187.6" y1="121.0" x2="166.4" y2="121.0" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s8" data-b="bptt-flow-b39zm-s5" data-a-at="l:0.912" data-b-at="r:0.912"></line>
+    <line x1="201.0" y1="70.5" x2="201.0" y2="105.5" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s10" data-b="bptt-flow-b39zm-s8" data-a-at="b:0.328" data-b-at="t:0.328"></line>
     <g id="bptt-flow-b39zm-s11">
-      <rect x="249.6" y="105.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="249.6" y="105.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="270.0" y="117.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₄</text>
     </g>
     <g id="bptt-flow-b39zm-s12">
-      <rect x="249.6" y="162.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="249.6" y="162.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="270.0" y="173.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₄</text>
       <text x="270.0" y="178.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">old</text>
     </g>
     <g id="bptt-flow-b39zm-s13">
-      <rect x="249.6" y="53.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="249.6" y="53.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="270.0" y="65.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₄</text>
     </g>
-    <line x1="277.0" y1="162.0" x2="277.0" y2="122.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s12" data-b="bptt-flow-b39zm-s11" data-a-at="t:0.672" data-b-at="b:0.672"></line>
-    <line x1="277.0" y1="105.5" x2="277.0" y2="70.5" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s11" data-b="bptt-flow-b39zm-s13" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="277.0" y1="162.0" x2="277.0" y2="122.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s12" data-b="bptt-flow-b39zm-s11" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="277.0" y1="105.5" x2="277.0" y2="70.5" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s11" data-b="bptt-flow-b39zm-s13" data-a-at="t:0.672" data-b-at="b:0.672"></line>
     <text x="281.0" y="145.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="281.0" y="91.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="228.4" y1="107.0" x2="249.6" y2="107.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s8" data-b="bptt-flow-b39zm-s11" data-a-at="r:0.088" data-b-at="l:0.088"></line>
+    <line x1="228.4" y1="107.0" x2="249.6" y2="107.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s8" data-b="bptt-flow-b39zm-s11" data-a-at="r:0.088" data-b-at="l:0.088"></line>
     <text x="239.0" y="103.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
-    <line x1="249.6" y1="121.0" x2="228.4" y2="121.0" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s11" data-b="bptt-flow-b39zm-s8" data-a-at="l:0.912" data-b-at="r:0.912"></line>
-    <line x1="263.0" y1="70.5" x2="263.0" y2="105.5" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s13" data-b="bptt-flow-b39zm-s11" data-a-at="b:0.328" data-b-at="t:0.328"></line>
+    <line x1="249.6" y1="121.0" x2="228.4" y2="121.0" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s11" data-b="bptt-flow-b39zm-s8" data-a-at="l:0.912" data-b-at="r:0.912"></line>
+    <line x1="263.0" y1="70.5" x2="263.0" y2="105.5" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s13" data-b="bptt-flow-b39zm-s11" data-a-at="b:0.328" data-b-at="t:0.328"></line>
     <g id="bptt-flow-b39zm-s14">
-      <rect x="328.5" y="105.5" width="47.0" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="328.5" y="105.5" width="47.0" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="352.0" y="117.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₅₀</text>
     </g>
     <g id="bptt-flow-b39zm-s15">
-      <rect x="328.5" y="162.0" width="47.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="328.5" y="162.0" width="47.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="352.0" y="173.0" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x₅₀</text>
       <text x="352.0" y="178.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">to</text>
     </g>
     <g id="bptt-flow-b39zm-s16">
-      <rect x="328.5" y="53.5" width="47.0" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="328.5" y="53.5" width="47.0" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="352.0" y="65.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ₅₀</text>
     </g>
-    <line x1="359.0" y1="162.0" x2="359.0" y2="122.5" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s15" data-b="bptt-flow-b39zm-s14" data-a-at="t:0.649" data-b-at="b:0.649"></line>
-    <line x1="359.0" y1="105.5" x2="359.0" y2="70.5" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s14" data-b="bptt-flow-b39zm-s16" data-a-at="t:0.649" data-b-at="b:0.649"></line>
+    <line x1="359.0" y1="162.0" x2="359.0" y2="122.5" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s15" data-b="bptt-flow-b39zm-s14" data-a-at="t:0.649" data-b-at="b:0.649"></line>
+    <line x1="359.0" y1="105.5" x2="359.0" y2="70.5" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s14" data-b="bptt-flow-b39zm-s16" data-a-at="t:0.649" data-b-at="b:0.649"></line>
     <text x="363.0" y="145.2" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">x</tspan></text>
     <text x="363.0" y="91.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
-    <line x1="290.4" y1="107.0" x2="328.5" y2="107.0" stroke="#DCB439" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s11" data-b="bptt-flow-b39zm-s14" data-a-at="r:0.088" data-b-at="l:0.088"></line>
+    <line x1="290.4" y1="107.0" x2="328.5" y2="107.0" stroke="#DCB439" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s11" data-b="bptt-flow-b39zm-s14" data-a-at="r:0.088" data-b-at="l:0.088"></line>
     <text x="309.4" y="103.0" font-size="7.0" fill="#4A86E8" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Ω<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
-    <line x1="328.5" y1="121.0" x2="290.4" y2="121.0" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s14" data-b="bptt-flow-b39zm-s11" data-a-at="l:0.912" data-b-at="r:0.912"></line>
-    <line x1="345.0" y1="70.5" x2="345.0" y2="105.5" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s16" data-b="bptt-flow-b39zm-s14" data-a-at="b:0.351" data-b-at="t:0.351"></line>
+    <line x1="328.5" y1="121.0" x2="290.4" y2="121.0" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s14" data-b="bptt-flow-b39zm-s11" data-a-at="l:0.912" data-b-at="r:0.912"></line>
+    <line x1="345.0" y1="70.5" x2="345.0" y2="105.5" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s16" data-b="bptt-flow-b39zm-s14" data-a-at="b:0.351" data-b-at="t:0.351"></line>
     <g id="bptt-flow-b39zm-s17">
-      <rect x="63.6" y="8.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="63.6" y="8.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="84.0" y="19.0" font-size="10.0" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#CC0000">ℒ</tspan>₁</text>
       <text x="84.0" y="24.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
-    <line x1="91.0" y1="53.0" x2="91.0" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s4" data-b="bptt-flow-b39zm-s17" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
-    <line x1="77.0" y1="28.0" x2="77.0" y2="53.0" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s17" data-b="bptt-flow-b39zm-s4" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
+    <line x1="91.0" y1="53.0" x2="91.0" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s4" data-b="bptt-flow-b39zm-s17" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
+    <line x1="77.0" y1="28.0" x2="77.0" y2="53.0" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s17" data-b="bptt-flow-b39zm-s4" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
     <g id="bptt-flow-b39zm-s18">
-      <rect x="125.6" y="8.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="125.6" y="8.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="146.0" y="19.0" font-size="10.0" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#CC0000">ℒ</tspan>₂</text>
       <text x="146.0" y="24.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">for</text>
     </g>
-    <line x1="153.0" y1="53.0" x2="153.0" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s7" data-b="bptt-flow-b39zm-s18" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
-    <line x1="139.0" y1="28.0" x2="139.0" y2="53.0" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s18" data-b="bptt-flow-b39zm-s7" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
+    <line x1="153.0" y1="53.0" x2="153.0" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s7" data-b="bptt-flow-b39zm-s18" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
+    <line x1="139.0" y1="28.0" x2="139.0" y2="53.0" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s18" data-b="bptt-flow-b39zm-s7" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
     <g id="bptt-flow-b39zm-s19">
-      <rect x="187.6" y="8.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="187.6" y="8.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="208.0" y="19.0" font-size="10.0" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#CC0000">ℒ</tspan>₃</text>
       <text x="208.0" y="24.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">old</text>
     </g>
-    <line x1="215.0" y1="53.0" x2="215.0" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s10" data-b="bptt-flow-b39zm-s19" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
-    <line x1="201.0" y1="28.0" x2="201.0" y2="53.0" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s19" data-b="bptt-flow-b39zm-s10" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
+    <line x1="215.0" y1="53.0" x2="215.0" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s10" data-b="bptt-flow-b39zm-s19" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
+    <line x1="201.0" y1="28.0" x2="201.0" y2="53.0" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s19" data-b="bptt-flow-b39zm-s10" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
     <g id="bptt-flow-b39zm-s20">
-      <rect x="249.6" y="8.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="249.6" y="8.0" width="40.8" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="270.0" y="19.0" font-size="10.0" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#CC0000">ℒ</tspan>₄</text>
       <text x="270.0" y="24.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">notre</text>
     </g>
-    <line x1="277.0" y1="53.0" x2="277.0" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s13" data-b="bptt-flow-b39zm-s20" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
-    <line x1="263.0" y1="28.0" x2="263.0" y2="53.0" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s20" data-b="bptt-flow-b39zm-s13" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
+    <line x1="277.0" y1="53.0" x2="277.0" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s13" data-b="bptt-flow-b39zm-s20" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
+    <line x1="263.0" y1="28.0" x2="263.0" y2="53.0" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s20" data-b="bptt-flow-b39zm-s13" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
     <g id="bptt-flow-b39zm-s21">
-      <rect x="328.5" y="8.0" width="47.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="328.5" y="8.0" width="47.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="352.0" y="19.0" font-size="10.0" fill="#E06666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"><tspan fill="#CC0000">ℒ</tspan>₅₀</text>
       <text x="352.0" y="24.8" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">victory</text>
     </g>
-    <line x1="359.0" y1="53.0" x2="359.0" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s16" data-b="bptt-flow-b39zm-s21" data-a-at="t:0.649:0.5" data-b-at="b:0.649"></line>
-    <line x1="345.0" y1="28.0" x2="345.0" y2="53.0" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s21" data-b="bptt-flow-b39zm-s16" data-a-at="b:0.351" data-b-at="t:0.351:0.5"></line>
+    <line x1="359.0" y1="53.0" x2="359.0" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-b39zm)" data-a="bptt-flow-b39zm-s16" data-b="bptt-flow-b39zm-s21" data-a-at="t:0.649:0.5" data-b-at="b:0.649"></line>
+    <line x1="345.0" y1="28.0" x2="345.0" y2="53.0" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-b39zm)" data-a="bptt-flow-b39zm-s21" data-b="bptt-flow-b39zm-s16" data-a-at="b:0.351" data-b-at="t:0.351:0.5"></line>
   </svg>
   <b-eq data-pool="bptt-eq" data-b="pvcto" class=""><a id="eq-bptt-z" data-rt=""></a><a id="eq-bptt-a" data-rt=""></a>
     <eq-row label="bptt-a" note="from its own prediction, and from the next copy">\frac{\partial ℒ}{\partial c_{t}} = \bp{\yhat_{t} - y_{t}} \Omega_{y} + \frac{\partial ℒ}{\partial z_{t+1}}\, \Omega_{c}</eq-row>
@@ -1370,14 +1381,14 @@ svg.al-clone { z-index: 1; }
   <p data-b="jnmj8">Unfortunately, most text does. Last chapter our made-up RNN had forgotten how the song started by the ninth word, and teaching a network to hold on longer means sending the gradient back at least that far.</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Backpropagation Through Time</span><span>10</span></div></section>
 
-<section class="page" id="vanishing" data-part="Vanishing and Exploding Gradients" data-view="reading" data-topic="vanishing" style="--gap: 11.4pt;">
+<section class="page" id="vanishing" data-view="reading" data-topic="vanishing" data-part="Vanishing and Exploding Gradients" style="--gap: 11.4pt;">
   <h2 data-b="uhoch">Vanishing Gradients</h2>
   <p data-b="fip72">Each word we walk back multiplies the gradient by the tanh's derivative, never more than <span class="num">1</span>, and by <b-m tex="Ω_c"><span class="c wblue sym" data-at="0,3" data-k="Ω_c"><span class="Om">ω</span><sub>c</sub></span></b-m>. Following the last word's loss back to word <b-m tex="k">k</b-m> repeats that pair of factors (<b-m tex="D_t">D<sub>t</sub></b-m> is a diagonal matrix of the <b-m tex="1 − (c_{t})^2">1 − (<span class="c gold sym" data-at="5,10" data-k="c">c<sub>t</sub></span>)<sup>2</sup></b-m>):</p>
   <b-eq data-pool="vanish-eq" data-b="htf9j" class=""><a id="eq-vanish" data-rt=""></a>
     <eq-row label="vanish" note="one tanh derivative and one Ω_c per word">\frac{\partial ℒ_{50}}{\partial c_{k}} = \frac{\partial ℒ_{50}}{\partial c_{50}}\; D_{50} \Omega_{c}\; D_{49} \Omega_{c} \cdots D_{k+1} \Omega_{c}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[4.7]</div><div class="eqml-e"><div class="eqml-note">one tanh derivative and one <span class="Om">ω</span>_c per word</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mfrac><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-CC0000 sa-15-21"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#CC0000;"><mi class="mathcal">ℒ</mi><mn>𝟓𝟎</mn></msub></mrow></mrow></mrow><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-DCB439 sa-32-37"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐜</mi><mi mathvariant="normal">𝐤</mi></msub></mrow></mrow></mrow></mfrac><mo>=</mo><mfrac><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-CC0000 sa-56-62"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#CC0000;"><mi class="mathcal">ℒ</mi><mn>𝟓𝟎</mn></msub></mrow></mrow></mrow><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-DCB439 sa-73-79"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mi mathvariant="normal">𝐜</mi><mn>𝟓𝟎</mn></msub></mrow></mrow></mrow></mfrac><mspace width="0.2778em"></mspace><msub><mi mathvariant="normal">D</mi><mn>50</mn></msub><mrow class="sym sym-1155CC sa-90-100"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐜</mi></msub></mrow></mrow><mspace width="0.2778em"></mspace><msub><mi mathvariant="normal">D</mi><mn>49</mn></msub><mrow class="sym sym-1155CC sa-110-120"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐜</mi></msub></mrow></mrow><mi mathvariant="normal">⋯</mi><msub><mi mathvariant="normal">D</mi><mrow><mi mathvariant="normal">k</mi><mo>+</mo><mn>1</mn></mrow></msub><mrow class="sym sym-1155CC sa-136-146"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐜</mi></msub></mrow></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="xt732">Pictured below is its size for our untrained RNN:</p>
-  <b-fig src="fig/vanish.svg" data-pool="vanish" alt="The size of the gradient of the last word's loss at each hidden state before it, log scale, from 0 to 49 words back: the usual weights fall from about 1 to about 0.0001 (vanishing), weights three times bigger rise to about 50,000 (exploding)" data-b="qtzf9" style="--ar: 2.743;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 140" xmlns="http://www.w3.org/2000/svg" version="1.1"><style>@font-face{font-family:"AI2AI Omega";src:url(data:font/ttf;base64,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) format("truetype")}</style>
+  <b-fig src="fig/vanish.svg" alt="The size of the gradient of the last word's loss at each hidden state before it, log scale, from 0 to 49 words back: the usual weights fall from about 1 to about 0.0001 (vanishing), weights three times bigger rise to about 50,000 (exploding)" data-pool="vanish" data-b="qtzf9" style="--ar: 2.743;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 140" xmlns="http://www.w3.org/2000/svg" version="1.1"><style>@font-face{font-family:"AI2AI Omega";src:url(data:font/ttf;base64,AAEAAAAOAIAAAwBgR0RFRgARAAIAAAZEAAAAFkdQT1MAGQAMAAAGXAAAABBHU1VCbYx0fwAABmwAAAAaT1MvMiNbID0AAAFoAAAAYGNtYXAD+wPmAAAB1AAAADxnYXNw//8AAwAABjwAAAAIZ2x5ZgRFc8AAAAIYAAABjmhlYWQiLIeEAAAA7AAAADZoaGVhD9ENMQAAASQAAAAkaG10eAORACMAAAHIAAAACmxvY2EAegDHAAACEAAAAAhtYXhwAHMA/gAAAUgAAAAgbmFtZTX+VZcAAAOoAAACdHBvc3T/JwAoAAAGHAAAACAAAQAAAAH1gV5nKOBfDzz1AAsD6AAAAADQL2WkAAAAAOb86Yb77vQMD/IN6AAAAAgAAgAAAAAAAAABAAADJv8+AMgP8vvu/f4P8gABAAAAAAAAAAAAAAAAAAAAAgABAAAAAwDPACkAKwADAAIAAAABAAEAAABAAAAAAgABAAQCkQGQAAUADAKKArsAAACMAooCuwAAAd8AMQECAAACAAUDAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAwAOpA8kDJv8+AMgN6Av0AAAAAQAAAAABrwKrAAAAIAABARgAAAJWACMAIwAAAAAAAgAAAAMAAAAUAAMAAQAAABQABAAoAAAABgAEAAEAAgOpA8n//wAAA6kDyf///Fj8OQABAAAAAAAAAAAAAAB6AMcAAQAj//4CNgLQAFQAADcyNzUzFxQzMjc2NTQnJicuAScuAScuASczFB4BFxYXFhcWFRQHBgcGBwYrASInJicGBwYrASInJicmJyY9ATQ3Njc+ATc2MTMOAQcGBwYHBgcGFRC8QwNNAUolExQCAgMBBQEBBwMDBwFQAgQCBAkHBAQICBoNIiAiAhcfIhYVIiAXAiEfIRAZBwcFBQUCBwIHUQIHAgcFAQcGAQJl6J+f6EpNbRAmLBgNLAkIOBUUOQkBDxYMFjosODU+UT49UCoaGRMVIB8VFBkbKUIyMEQ0MERDIA44CzELOhM2HwRANw0mD/7/AAEAI//+AjYCEwA4AAA3Mjc1MxcUMzI2NTQuAyczHgMVFAYHDgErASImJw4BKwEiJicuAT0BND4CNzMOBBUUvEMDTQFKJScDCAYQA1ABDgwJDxsOQiECFkAYF0AXAiBAERgPCQsMAVEEDwgJBEqrdnarblITKTwlWRMHPDpZKT5WPSAlHBkYHSUgMEswJilaOD8FF1QqOioSvgAAAAAACgB+AAMAAQQJAAAA7gAAAAMAAQQJAAEAFgDuAAMAAQQJAAIACAEEAAMAAQQJAAMACgEMAAMAAQQJAAQAFgDuAAMAAQQJAAUAGgEWAAMAAQQJAAYAFgEwAAMAAQQJAAcAogFGAAMAAQQJABAAFgDuAAMAAQQJABEADgHoAEIAdQBpAGwAdAAgAGYAcgBvAG0AIABMAGEAdABpAG4AIABNAG8AZABlAHIAbgAgAE0AYQB0AGgAIAAoAEcAVQBTAFQAIABGAG8AbgB0ACAATABpAGMAZQBuAHMAZQApACAAYQBuAGQAIABJAG4AYwBvAG4AcwBvAGwAYQB0AGEAIABMAEcAQwAgACgAUwBJAEwAIABPAEYATAAgADEALgAxACkAOwAgAGgAYQBuAGQALQBkAHIAYQB3AG4AIABvAHAAZQByAGEAdABvAHIAcwAgAGIAeQAgAFcALgAgAFQAaABlAGkAcwBlAG4ALgBBAEkAMgBBAEkAIABPAG0AZQBnAGEATQBhAHQAaAAxAC4AOQA1ADkAVgBlAHIAcwBpAG8AbgAgADEALgA5ADUAOQBBAEkAMgBBAEkALQBPAG0AZQBnAGEAUABsAGUAYQBzAGUAIAByAGUAZgBlAHIAIAB0AG8AIAB0AGgAZQAgAEMAbwBwAHkAcgBpAGcAaAB0ACAAcwBlAGMAdABpAG8AbgAgAGYAbwByACAAdABoAGUAIABmAG8AbgB0ACAAdAByAGEAZABlAG0AYQByAGsAIABhAHQAdAByAGkAYgB1AHQAaQBvAG4AIABuAG8AdABpAGMAZQBzAC4AUgBlAGcAdQBsAGEAcgADAAAAAAAA/yQAKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//AAIAAQAAAAwAAAAAAAAAAQABAAIAAQABAAAAAQAAAAoADAAOAAAAAAAAAAEAAAAKABYAGAABbWF0aAAIAAAAAAAAAAAAAA==) format("truetype")}</style>
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -1967,7 +1978,7 @@ L 63.24 61.766
   <p data-b="opecj">The two problems also have the same cause. The gradient has to pass through <b-m tex="Ω_c"><span class="c wblue sym" data-at="0,3" data-k="Ω_c"><span class="Om">ω</span><sub>c</sub></span></b-m> and a tanh at every single word, with no way around them.</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Vanishing and Exploding Gradients</span><span>12</span></div></section>
 
-<section class="page" id="gate-gradient" data-part="LSTMs and GRUs" data-view="reading" data-topic="gating vanishing" style="--gap: 22pt;">
+<section class="page" id="gate-gradient" data-view="reading" data-topic="gating vanishing" data-part="LSTMs and GRUs" style="--gap: 22pt;">
   <h2 data-b="j479d">Gradients Through a Gate</h2>
   <p data-b="aielm">Last chapter's fix for forgetting was a gate, a vector <b-m tex="z_{t}"><span class="c orange sym" data-at="0,5" data-k="z">z<sub>t</sub></span></b-m> of numbers between <span class="num">0</span> and <span class="num">1</span> deciding how much of the old hidden state to keep. It turns out to be a way around for the gradient too:</p>
   <b-eq data-pool="gate-eq" data-b="ransq" class=""><a id="eq-gate-grad" data-rt=""></a><a id="eq-gate" data-rt=""></a>
@@ -1981,7 +1992,7 @@ L 63.24 61.766
 <section class="page" id="lstm" data-view="reading" data-topic="lstm" style="">
   <h2 data-b="qqawr">Long Short-Term Memory</h2>
   <p data-b="j02u1">The Long Short-Term Memory unit (LSTM, Hochreiter and Schmidhuber, <span class="num">1997</span>) was built around that straight path. Alongside the hidden state it keeps a second vector, the <b class="def">cell state</b> <b-m tex="m_{t}"><span class="c orange sym" data-at="0,5" data-k="m">m<sub>t</sub></span></b-m>, which is only ever changed by a multiplication and an addition, along the top of the picture:</p>
-  <svg class="draw" viewBox="0 0 384 220" style="width: 90%" role="img" aria-label="An LSTM cell: the cell state runs along the top from m(t-1) to m(t) through a multiply (by the forget gate f) and an add (the input gate i times the candidate m-tilde). c(t-1) and x(t) run along the bottom bus into three sigmoid gates and one tanh. The output gate o multiplies tanh(m(t)) to give c(t)." data-b="w54qv">
+  <svg class="draw" viewBox="0 0 384 220" role="img" aria-label="An LSTM cell: the cell state runs along the top from m(t-1) to m(t) through a multiply (by the forget gate f) and an add (the input gate i times the candidate m-tilde). c(t-1) and x(t) run along the bottom bus into three sigmoid gates and one tanh. The output gate o multiplies tanh(m(t)) to give c(t)." style="width: 90%" data-b="w54qv">
     <defs>
       <marker id="ah000000-w54qv" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
@@ -1994,82 +2005,82 @@ L 63.24 61.766
       </marker>
     </defs>
     <g id="lstm-cell-w54qv-s1">
-      <rect x="9.4" y="25.5" width="53.2" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="9.4" y="25.5" width="53.2" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="36.0" y="37.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">mₜ₋₁</text>
     </g>
     <g id="lstm-cell-w54qv-s2">
-      <rect x="329.6" y="25.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="329.6" y="25.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="350.0" y="37.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">mₜ</text>
     </g>
     <g id="lstm-cell-w54qv-s3">
-      <rect x="9.4" y="169.5" width="53.2" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="9.4" y="169.5" width="53.2" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="36.0" y="181.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ₋₁</text>
     </g>
     <g id="lstm-cell-w54qv-s4">
-      <rect x="329.6" y="169.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="329.6" y="169.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="350.0" y="181.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ</text>
     </g>
     <g id="lstm-cell-w54qv-s5">
-      <rect x="63.6" y="197.5" width="40.8" height="17.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="63.6" y="197.5" width="40.8" height="17.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="84.0" y="209.6" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">xₜ</text>
     </g>
     <g id="lstm-cell-w54qv-s6">
-      <rect x="108.0" y="24.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="108.0" y="24.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="120.0" y="37.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">×</text>
     </g>
     <g id="lstm-cell-w54qv-s7">
-      <rect x="208.0" y="24.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="208.0" y="24.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="220.0" y="37.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="lstm-cell-w54qv-s8">
-      <rect x="208.0" y="74.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="208.0" y="74.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="220.0" y="87.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">×</text>
     </g>
     <g id="lstm-cell-w54qv-s9">
-      <rect x="292.0" y="74.0" width="36.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="292.0" y="74.0" width="36.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="310.0" y="86.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">tanh</text>
     </g>
     <g id="lstm-cell-w54qv-s10">
-      <rect x="298.0" y="122.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="298.0" y="122.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="310.0" y="135.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">×</text>
     </g>
     <g id="lstm-cell-w54qv-s11">
-      <rect x="102.0" y="117.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="102.0" y="117.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="120.0" y="131.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">σ</text>
       <text x="120.0" y="141.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">fₜ</text>
     </g>
-    <line x1="120.0" y1="178.0" x2="120.0" y2="147.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)" data-b="lstm-cell-w54qv-s11" data-b-at="b:0.500"></line>
+    <line x1="120.0" y1="178.0" x2="120.0" y2="147.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)" data-b="lstm-cell-w54qv-s11" data-b-at="b:0.500"></line>
     <g id="lstm-cell-w54qv-s12">
-      <rect x="150.0" y="117.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="150.0" y="117.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="168.0" y="131.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">σ</text>
       <text x="168.0" y="141.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">iₜ</text>
     </g>
-    <line x1="168.0" y1="178.0" x2="168.0" y2="147.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)" data-b="lstm-cell-w54qv-s12" data-b-at="b:0.500"></line>
+    <line x1="168.0" y1="178.0" x2="168.0" y2="147.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)" data-b="lstm-cell-w54qv-s12" data-b-at="b:0.500"></line>
     <g id="lstm-cell-w54qv-s13">
-      <rect x="202.0" y="117.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="202.0" y="117.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="220.0" y="131.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">tanh</text>
       <text x="220.0" y="141.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">m̃ₜ</text>
     </g>
-    <line x1="220.0" y1="178.0" x2="220.0" y2="147.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)" data-b="lstm-cell-w54qv-s13" data-b-at="b:0.500"></line>
+    <line x1="220.0" y1="178.0" x2="220.0" y2="147.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)" data-b="lstm-cell-w54qv-s13" data-b-at="b:0.500"></line>
     <g id="lstm-cell-w54qv-s14">
-      <rect x="248.0" y="117.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="248.0" y="117.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="266.0" y="131.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">σ</text>
       <text x="266.0" y="141.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">oₜ</text>
     </g>
-    <line x1="266.0" y1="178.0" x2="266.0" y2="147.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)" data-b="lstm-cell-w54qv-s14" data-b-at="b:0.500"></line>
-    <line x1="60.0" y1="178.0" x2="266.0" y2="178.0" stroke="#000000" stroke-width="1.00"></line>
-    <line x1="84.0" y1="196.0" x2="84.0" y2="178.0" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-w54qv)" data-a="lstm-cell-w54qv-s5" data-a-at="t:0.500:1.5"></line>
-    <line x1="60.0" y1="34.0" x2="108.0" y2="34.0" stroke="#DCB439" stroke-width="1.60" marker-end="url(#ahDCB439-w54qv)" data-a="lstm-cell-w54qv-s1" data-b="lstm-cell-w54qv-s6" data-a-at="r:0.500:-2.6" data-b-at="l:0.500"></line>
-    <line x1="132.0" y1="34.0" x2="208.0" y2="34.0" stroke="#DCB439" stroke-width="1.60" marker-end="url(#ahDCB439-w54qv)" data-a="lstm-cell-w54qv-s6" data-b="lstm-cell-w54qv-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="232.0" y1="34.0" x2="326.0" y2="34.0" stroke="#DCB439" stroke-width="1.60" marker-end="url(#ahDCB439-w54qv)" data-a="lstm-cell-w54qv-s7" data-a-at="r:0.500"></line>
-    <line x1="120.0" y1="117.0" x2="120.0" y2="44.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s11" data-b="lstm-cell-w54qv-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <polyline points="168.0,117.0 168.0,84.0 208.0,84.0" fill="none" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)"></polyline>
-    <line x1="220.0" y1="117.0" x2="220.0" y2="94.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s13" data-b="lstm-cell-w54qv-s8" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="220.0" y1="74.0" x2="220.0" y2="44.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s8" data-b="lstm-cell-w54qv-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="310.0" y1="34.0" x2="310.0" y2="74.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-w54qv)" data-b="lstm-cell-w54qv-s9" data-b-at="t:0.500"></line>
-    <line x1="310.0" y1="94.0" x2="310.0" y2="122.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s9" data-b="lstm-cell-w54qv-s10" data-a-at="b:0.500" data-b-at="t:0.500"></line>
-    <line x1="283.0" y1="132.0" x2="298.0" y2="132.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s14" data-b="lstm-cell-w54qv-s10" data-a-at="r:0.500:-1" data-b-at="l:0.500"></line>
-    <polyline points="310.0,142.0 310.0,178.0 326.0,178.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-w54qv)"></polyline>
+    <line x1="266.0" y1="178.0" x2="266.0" y2="147.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)" data-b="lstm-cell-w54qv-s14" data-b-at="b:0.500"></line>
+    <line x1="60.0" y1="178.0" x2="266.0" y2="178.0" stroke="#000000" stroke-width="1.0"></line>
+    <line x1="84.0" y1="196.0" x2="84.0" y2="178.0" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-w54qv)" data-a="lstm-cell-w54qv-s5" data-a-at="t:0.500:1.5"></line>
+    <line x1="60.0" y1="34.0" x2="108.0" y2="34.0" stroke="#DCB439" stroke-width="1.6" marker-end="url(#ahDCB439-w54qv)" data-a="lstm-cell-w54qv-s1" data-b="lstm-cell-w54qv-s6" data-a-at="r:0.500:-2.6" data-b-at="l:0.500"></line>
+    <line x1="132.0" y1="34.0" x2="208.0" y2="34.0" stroke="#DCB439" stroke-width="1.6" marker-end="url(#ahDCB439-w54qv)" data-a="lstm-cell-w54qv-s6" data-b="lstm-cell-w54qv-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="232.0" y1="34.0" x2="326.0" y2="34.0" stroke="#DCB439" stroke-width="1.6" marker-end="url(#ahDCB439-w54qv)" data-a="lstm-cell-w54qv-s7" data-a-at="r:0.500"></line>
+    <line x1="120.0" y1="117.0" x2="120.0" y2="44.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s11" data-b="lstm-cell-w54qv-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <polyline points="168.0,117.0 168.0,84.0 208.0,84.0" fill="none" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)"></polyline>
+    <line x1="220.0" y1="117.0" x2="220.0" y2="94.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s13" data-b="lstm-cell-w54qv-s8" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="220.0" y1="74.0" x2="220.0" y2="44.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s8" data-b="lstm-cell-w54qv-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="310.0" y1="34.0" x2="310.0" y2="74.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-w54qv)" data-b="lstm-cell-w54qv-s9" data-b-at="t:0.500"></line>
+    <line x1="310.0" y1="94.0" x2="310.0" y2="122.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s9" data-b="lstm-cell-w54qv-s10" data-a-at="b:0.500" data-b-at="t:0.500"></line>
+    <line x1="283.0" y1="132.0" x2="298.0" y2="132.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w54qv)" data-a="lstm-cell-w54qv-s14" data-b="lstm-cell-w54qv-s10" data-a-at="r:0.500:-1" data-b-at="l:0.500"></line>
+    <polyline points="310.0,142.0 310.0,178.0 326.0,178.0" fill="none" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-w54qv)"></polyline>
   </svg>
   <b-eq data-b="x5jo6" class=""><a id="eq-lstm-c" data-rt=""></a>
     <eq-row label="lstm-c" note="the new cell state">m_{t} = f_{t} \odot m_{t-1} + i_{t} \odot \tilde{m}_{t}</eq-row>
@@ -2095,7 +2106,7 @@ L 63.24 61.766
 <section class="page" id="lstm-chorus" data-view="reading" data-topic="lstm" style="--gap: 22pt;">
   <h2 data-b="guu6y">An LSTM on the Victory March</h2>
   <p data-b="aik94">We trained an LSTM with <span class="num">16</span> units on the chorus the same way as the RNN (<span class="num">1,000</span> steps, <b-m tex="α = 0.5">α = 0.5</b-m>), and it gets all <span class="num">50</span> next words right as well. Here's one of its units the two times the chorus sings "old notre dame":</p>
-  <table data-pool="lstm-table" class="tbl small num" data-b="z5ifn">
+  <table class="tbl small num" data-pool="lstm-table" data-b="z5ifn">
     <thead>
       <tr><th>word</th><th></th><th><b-m tex="f"><span class="c pink sym" data-at="0,1" data-k="f">f</span></b-m></th><th><b-m tex="i"><span class="c navy sym" data-at="0,1" data-k="i">i</span></b-m></th><th><b-m tex="m̃"><span class="c teal sym" data-at="0,2" data-k="m̃">m̃</span></b-m></th><th><b-m tex="o"><span class="c brown sym" data-at="0,1" data-k="o">o</span></b-m></th><th><b-m tex="m"><span class="c orange sym" data-at="0,1" data-k="m">m</span></b-m></th><th><b-m tex="c"><span class="c gold sym" data-at="0,1" data-k="c">c</span></b-m></th></tr>
     </thead>
@@ -2114,7 +2125,7 @@ L 63.24 61.766
 <section class="page" id="cell-memory" data-view="reading" data-topic="lstm vanishing" style="--gap: 19.4pt;">
   <h2 data-b="zmqco">Memory in the Cell State</h2>
   <p data-b="ha4xy">Pictured below is the same unit across the whole chorus. The cell state wanders well outside <span class="num">−1</span> to <span class="num">1</span>, while the hidden state, squashed by its tanh, never does:</p>
-  <b-fig src="fig/lstm-memory.svg" data-pool="lstm-memory" alt="One unit of the trained LSTM across the 50 words: its cell state (navy) climbs to about 2.7 by word 12 and sinks steadily to about -8 at word 35, its hidden state (gold) stays between -1 and 1. The two dames are marked." data-b="mgka3" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/lstm-memory.svg" alt="One unit of the trained LSTM across the 50 words: its cell state (navy) climbs to about 2.7 by word 12 and sinks steadily to about -8 at word 35, its hidden state (gold) stays between -1 and 1. The two dames are marked." data-pool="lstm-memory" data-b="mgka3" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -2654,7 +2665,7 @@ L 321.81 22.653369
 <section class="page" id="gru" data-view="reading" data-topic="gru" style="">
   <h2 data-b="em0yu">Gated Recurrent Units</h2>
   <p data-b="gj539">All those weights make the LSTM slow. The <b class="name">Gated Recurrent Unit</b> (GRU, Cho and others, <span class="num">2014</span>) is last chapter's gate made learnable, with no separate cell state. An update gate <b-m tex="z_{t}"><span class="c orange sym" data-at="0,5" data-k="z">z<sub>t</sub></span></b-m> does the job of the forget and input gates, and a reset gate <b-m tex="r_{t}"><span class="c magenta sym" data-at="0,5" data-k="r">r<sub>t</sub></span></b-m> decides how much of the old state the candidate gets to see:</p>
-  <svg class="draw" viewBox="0 0 384 220" style="width: 78%" role="img" aria-label="A GRU cell: the hidden state runs along the top from c(t-1) to c(t), multiplied by the update gate z and added to (1 - z) times the candidate c-tilde. c(t-1) and x(t) run along the bottom bus into the gates z and r and the candidate, and r goes into the candidate." data-b="w5t1k">
+  <svg class="draw" viewBox="0 0 384 220" role="img" aria-label="A GRU cell: the hidden state runs along the top from c(t-1) to c(t), multiplied by the update gate z and added to (1 - z) times the candidate c-tilde. c(t-1) and x(t) run along the bottom bus into the gates z and r and the candidate, and r goes into the candidate." style="width: 78%" data-b="w5t1k">
     <defs>
       <marker id="ah000000-w5t1k" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
@@ -2667,62 +2678,62 @@ L 321.81 22.653369
       </marker>
     </defs>
     <g id="gru-cell-w5t1k-s1">
-      <rect x="9.4" y="25.5" width="53.2" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="9.4" y="25.5" width="53.2" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="36.0" y="37.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ₋₁</text>
     </g>
     <g id="gru-cell-w5t1k-s2">
-      <rect x="329.6" y="25.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="329.6" y="25.5" width="40.8" height="17.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="350.0" y="37.6" font-size="10.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cₜ</text>
     </g>
     <g id="gru-cell-w5t1k-s3">
-      <rect x="79.6" y="199.5" width="40.8" height="17.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="79.6" y="199.5" width="40.8" height="17.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="100.0" y="211.6" font-size="10.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">xₜ</text>
     </g>
     <g id="gru-cell-w5t1k-s4">
-      <rect x="138.0" y="24.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="138.0" y="24.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="150.0" y="37.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">×</text>
     </g>
     <g id="gru-cell-w5t1k-s5">
-      <rect x="278.0" y="24.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="278.0" y="24.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="290.0" y="37.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="gru-cell-w5t1k-s6">
-      <rect x="195.0" y="78.0" width="30.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="195.0" y="78.0" width="30.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="210.0" y="91.2" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">1 −</text>
     </g>
     <g id="gru-cell-w5t1k-s7">
-      <rect x="278.0" y="78.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="278.0" y="78.0" width="24.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="290.0" y="91.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">×</text>
     </g>
     <g id="gru-cell-w5t1k-s8">
-      <rect x="132.0" y="121.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="132.0" y="121.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="150.0" y="135.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">σ</text>
       <text x="150.0" y="145.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">zₜ</text>
     </g>
-    <line x1="150.0" y1="182.0" x2="150.0" y2="151.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w5t1k)" data-b="gru-cell-w5t1k-s8" data-b-at="b:0.500"></line>
+    <line x1="150.0" y1="182.0" x2="150.0" y2="151.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w5t1k)" data-b="gru-cell-w5t1k-s8" data-b-at="b:0.500"></line>
     <g id="gru-cell-w5t1k-s9">
-      <rect x="208.0" y="121.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="208.0" y="121.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="226.0" y="135.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">σ</text>
       <text x="226.0" y="145.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">rₜ</text>
     </g>
-    <line x1="226.0" y1="182.0" x2="226.0" y2="151.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w5t1k)" data-b="gru-cell-w5t1k-s9" data-b-at="b:0.500"></line>
+    <line x1="226.0" y1="182.0" x2="226.0" y2="151.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w5t1k)" data-b="gru-cell-w5t1k-s9" data-b-at="b:0.500"></line>
     <g id="gru-cell-w5t1k-s10">
-      <rect x="272.0" y="121.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="272.0" y="121.0" width="36.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="290.0" y="135.0" font-size="9.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">tanh</text>
       <text x="290.0" y="145.0" font-size="6.3" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">c̃ₜ</text>
     </g>
-    <line x1="290.0" y1="182.0" x2="290.0" y2="151.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w5t1k)" data-b="gru-cell-w5t1k-s10" data-b-at="b:0.500"></line>
-    <polyline points="36.0,45.0 36.0,182.0 290.0,182.0" fill="none" stroke="#DCB439" stroke-width="1.10"></polyline>
-    <line x1="100.0" y1="198.0" x2="100.0" y2="182.0" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-w5t1k)" data-a="gru-cell-w5t1k-s3" data-a-at="t:0.500:1.5"></line>
-    <line x1="60.0" y1="34.0" x2="138.0" y2="34.0" stroke="#DCB439" stroke-width="1.60" marker-end="url(#ahDCB439-w5t1k)" data-a="gru-cell-w5t1k-s1" data-b="gru-cell-w5t1k-s4" data-a-at="r:0.500:-2.6" data-b-at="l:0.500"></line>
-    <line x1="162.0" y1="34.0" x2="278.0" y2="34.0" stroke="#DCB439" stroke-width="1.60" marker-end="url(#ahDCB439-w5t1k)" data-a="gru-cell-w5t1k-s4" data-b="gru-cell-w5t1k-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="302.0" y1="34.0" x2="326.0" y2="34.0" stroke="#DCB439" stroke-width="1.60" marker-end="url(#ahDCB439-w5t1k)" data-a="gru-cell-w5t1k-s5" data-a-at="r:0.500"></line>
-    <line x1="150.0" y1="121.0" x2="150.0" y2="44.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s8" data-b="gru-cell-w5t1k-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <polyline points="158.0,121.0 158.0,88.0 195.0,88.0" fill="none" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w5t1k)"></polyline>
-    <line x1="225.0" y1="88.0" x2="278.0" y2="88.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s6" data-b="gru-cell-w5t1k-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="243.0" y1="136.0" x2="273.0" y2="136.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s9" data-b="gru-cell-w5t1k-s10" data-a-at="r:0.500:-1" data-b-at="l:0.500:-1"></line>
-    <line x1="290.0" y1="121.0" x2="290.0" y2="98.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s10" data-b="gru-cell-w5t1k-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="290.0" y1="78.0" x2="290.0" y2="44.0" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s7" data-b="gru-cell-w5t1k-s5" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="290.0" y1="182.0" x2="290.0" y2="151.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w5t1k)" data-b="gru-cell-w5t1k-s10" data-b-at="b:0.500"></line>
+    <polyline points="36.0,45.0 36.0,182.0 290.0,182.0" fill="none" stroke="#DCB439" stroke-width="1.1"></polyline>
+    <line x1="100.0" y1="198.0" x2="100.0" y2="182.0" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-w5t1k)" data-a="gru-cell-w5t1k-s3" data-a-at="t:0.500:1.5"></line>
+    <line x1="60.0" y1="34.0" x2="138.0" y2="34.0" stroke="#DCB439" stroke-width="1.6" marker-end="url(#ahDCB439-w5t1k)" data-a="gru-cell-w5t1k-s1" data-b="gru-cell-w5t1k-s4" data-a-at="r:0.500:-2.6" data-b-at="l:0.500"></line>
+    <line x1="162.0" y1="34.0" x2="278.0" y2="34.0" stroke="#DCB439" stroke-width="1.6" marker-end="url(#ahDCB439-w5t1k)" data-a="gru-cell-w5t1k-s4" data-b="gru-cell-w5t1k-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="302.0" y1="34.0" x2="326.0" y2="34.0" stroke="#DCB439" stroke-width="1.6" marker-end="url(#ahDCB439-w5t1k)" data-a="gru-cell-w5t1k-s5" data-a-at="r:0.500"></line>
+    <line x1="150.0" y1="121.0" x2="150.0" y2="44.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s8" data-b="gru-cell-w5t1k-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <polyline points="158.0,121.0 158.0,88.0 195.0,88.0" fill="none" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w5t1k)"></polyline>
+    <line x1="225.0" y1="88.0" x2="278.0" y2="88.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s6" data-b="gru-cell-w5t1k-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="243.0" y1="136.0" x2="273.0" y2="136.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s9" data-b="gru-cell-w5t1k-s10" data-a-at="r:0.500:-1" data-b-at="l:0.500:-1"></line>
+    <line x1="290.0" y1="121.0" x2="290.0" y2="98.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s10" data-b="gru-cell-w5t1k-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="290.0" y1="78.0" x2="290.0" y2="44.0" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-w5t1k)" data-a="gru-cell-w5t1k-s7" data-b="gru-cell-w5t1k-s5" data-a-at="t:0.500" data-b-at="b:0.500"></line>
   </svg>
   <b-eq data-pool="gru-eq" data-b="cigav" class=""><a id="eq-gru" data-rt=""></a>
     <eq-row>z_{t} = \sigma\bp{x_{t} \Omega_{zx}\T + c_{t-1} \Omega_{zc}\T + b_z}</eq-row>
@@ -2733,7 +2744,7 @@ L 321.81 22.653369
   <p data-b="rfawq">When <b-m tex="z_{t}"><span class="c orange sym" data-at="0,5" data-k="z">z<sub>t</sub></span></b-m> is near <span class="num">1</span>, <b-m tex="c_{t}"><span class="c gold sym" data-at="0,5" data-k="c">c<sub>t</sub></span></b-m> is just <b-m tex="c_{t−1}"><span class="c gold sym" data-at="0,7" data-k="c">c<sub>t−1</sub></span></b-m> and the gradient passes straight across. That's <span class="num">2,784</span> recurrent weights for our <span class="num">16</span> units, three times the RNN's, and on many tasks <b class="take">GRUs do about as well as LSTMs</b>.</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · LSTMs and GRUs</span><span>18</span></div></section>
 
-<section class="page" id="clipping" data-part="Gradient Clipping" data-view="reading" data-topic="clipping exploding" style="--gap: 22pt;">
+<section class="page" id="clipping" data-view="reading" data-topic="clipping exploding" data-part="Gradient Clipping" style="--gap: 22pt;">
   <h2 data-b="d20cr">Gradient Clipping</h2>
   <p data-b="j2960">Unfortunately, <b class="warn">gates only fix half the problem</b>. The cell state's path keeps the gradient from vanishing, but every other path still goes through weight matrices, and LSTMs are still prone to exploding gradients. While ours trained, the gradient's size was usually around <span class="num">0.08</span>, and at step <span class="num">199</span> it jumped to <span class="num">3.09</span>, nearly forty times that.</p>
   <p data-b="hchfm">The usual fix is blunt. If the gradient's size (its norm, over all the weights at once) is bigger than some ceiling <b-m tex="τ">τ</b-m>, we scale it down to <b-m tex="τ">τ</b-m> before taking the step:</p>
@@ -2745,7 +2756,7 @@ L 321.81 22.653369
 
 <section class="page" id="clipping-practice" data-view="reading" data-topic="clipping" style="--gap: 22pt;">
   <h2 data-b="z6i76">Gradient Clipping in Practice</h2>
-  <b-fig src="fig/clip.svg" data-pool="clip" alt="The RNN's loss over 1,000 steps of gradient descent with a learning rate of 1: without clipping (red) it falls to about 0.3 with two sudden spikes, then just after step 500 jumps above 4 and settles at 3.5, with the gradient clipped at 1 (navy) it falls smoothly to almost 0" data-b="kydlw" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/clip.svg" alt="The RNN's loss over 1,000 steps of gradient descent with a learning rate of 1: without clipping (red) it falls to about 0.3 with two sudden spikes, then just after step 500 jumps above 4 and settles at 3.5, with the gradient clipped at 1 (navy) it falls smoothly to almost 0" data-pool="clip" data-b="kydlw" style="--ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -3374,10 +3385,10 @@ L 321.282188 22.623779
   <p data-b="pl3ug"><span class="mono">clip_grad_norm_</span> returns the norm before clipping, about <span class="num">8</span> to <span class="num">10</span> here (desktop PyTorch draws different random numbers, so its numbers differ), so every step is cut to a length of <span class="num">1</span>. <span class="mono">loss.backward()</span> runs BPTT for us, which after the last few pages is probably for the best.</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Gradient Clipping</span><span>21</span></div></section>
 
-<section class="page" id="static" data-part="Toward Attention" data-view="reading" data-topic="static-embeddings" style="--gap: 22pt;">
+<section class="page" id="static" data-view="reading" data-topic="static-embeddings" data-part="Toward Attention" style="--gap: 22pt;">
   <h2 data-b="gquxl">Static Embeddings</h2>
   <p data-b="k8xf1">Whatever the cell, the input for a word is the same. In our RNN it's a column of <b-m tex="Ω_x"><span class="c wblue sym" data-at="0,3" data-k="Ω_x"><span class="Om">ω</span><sub>x</sub></span></b-m>, the word's embedding. "cheer" appears three times in the chorus, and each time it gets exactly the same <span class="num">16</span> numbers, whether it's the first word of the song or the one in "send a volley cheer on high". An embedding that doesn't depend on the words around it is called a <b class="def">static embedding</b>.</p>
-  <b-fig src="fig/static-cheer.svg" data-pool="static-cheer" alt="The three cheers of the chorus as rows of 16 coloured cells: on the left their embeddings, identical in all three rows, on the right the hidden states after each, different in every row" data-b="eg5zo" style="--ar: 4.267;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 90" xmlns="http://www.w3.org/2000/svg" version="1.1"><style>@font-face{font-family:"AI2AI Omega";src:url(data:font/ttf;base64,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) format("truetype")}</style>
+  <b-fig src="fig/static-cheer.svg" alt="The three cheers of the chorus as rows of 16 coloured cells: on the left their embeddings, identical in all three rows, on the right the hidden states after each, different in every row" data-pool="static-cheer" data-b="eg5zo" style="--ar: 4.267;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 90" xmlns="http://www.w3.org/2000/svg" version="1.1"><style>@font-face{font-family:"AI2AI Omega";src:url(data:font/ttf;base64,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) format("truetype")}</style>
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -3554,7 +3565,7 @@ L 380.16 62.4
   <h2 data-b="kiigt">Attention</h2>
   <p data-b="ders9">That's a lot to ask of <span class="num">16</span> numbers. To predict "victory", anything the RNN needs from "cheer, cheer for old notre dame" has to survive <span class="num">49</span> updates of the hidden state, and the gradient that would teach it to keep it has to make the same <span class="num">49</span> steps back.</p>
   <p data-b="slrn2">Last chapter's attention was a way around that. Instead of trusting one hidden state to have remembered everything, each prediction looks back at every earlier hidden state directly and decides how much each one matters. Pictured below is what that does to the distance between words:</p>
-  <svg class="draw" viewBox="0 0 384 196" style="width: 74%" role="img" aria-label="Top, an RNN: hidden states c1, c2, c3, then a dashed arrow to c49 and c50, 49 steps from the first word to the last. Bottom, attention: c1, c2, c3 and c49 each joined to c50 by its own arrow, one step from every word." data-b="cguws">
+  <svg class="draw" viewBox="0 0 384 196" role="img" aria-label="Top, an RNN: hidden states c1, c2, c3, then a dashed arrow to c49 and c50, 49 steps from the first word to the last. Bottom, attention: c1, c2, c3 and c49 each joined to c50 by its own arrow, one step from every word." style="width: 74%" data-b="cguws">
     <defs>
       <marker id="ahDCB439-cguws" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
@@ -3562,66 +3573,66 @@ L 380.16 62.4
     </defs>
     <text x="4.0" y="32.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">RNN</text>
     <g id="paths-cguws-s1">
-      <rect x="50.8" y="19.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="50.8" y="19.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="70.0" y="28.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₁</text>
       <text x="70.0" y="33.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
     <g id="paths-cguws-s2">
-      <rect x="106.8" y="19.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="106.8" y="19.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="126.0" y="28.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₂</text>
       <text x="126.0" y="33.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
     <g id="paths-cguws-s3">
-      <rect x="162.8" y="19.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="162.8" y="19.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="182.0" y="28.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₃</text>
       <text x="182.0" y="33.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">for</text>
     </g>
     <g id="paths-cguws-s4">
-      <rect x="260.1" y="19.0" width="43.9" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="260.1" y="19.0" width="43.9" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="282.0" y="28.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₄₉</text>
       <text x="282.0" y="33.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">to</text>
     </g>
     <g id="paths-cguws-s5">
-      <rect x="316.1" y="19.0" width="43.9" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="316.1" y="19.0" width="43.9" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="338.0" y="28.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₅₀</text>
       <text x="338.0" y="33.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">victory</text>
     </g>
-    <line x1="89.2" y1="28.0" x2="106.8" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cguws)" data-a="paths-cguws-s1" data-b="paths-cguws-s2" data-a-at="r:0.500:0.1" data-b-at="l:0.500"></line>
-    <line x1="145.2" y1="28.0" x2="162.8" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cguws)" data-a="paths-cguws-s2" data-b="paths-cguws-s3" data-a-at="r:0.500:0.1" data-b-at="l:0.500"></line>
-    <line x1="201.2" y1="28.0" x2="260.1" y2="28.0" stroke="#DCB439" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahDCB439-cguws)" data-a="paths-cguws-s3" data-b="paths-cguws-s4" data-a-at="r:0.500:0.1" data-b-at="l:0.500"></line>
-    <line x1="303.9" y1="28.0" x2="316.1" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cguws)" data-a="paths-cguws-s4" data-b="paths-cguws-s5" data-a-at="r:0.500:-0.1" data-b-at="l:0.500"></line>
+    <line x1="89.2" y1="28.0" x2="106.8" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cguws)" data-a="paths-cguws-s1" data-b="paths-cguws-s2" data-a-at="r:0.500:0.1" data-b-at="l:0.500"></line>
+    <line x1="145.2" y1="28.0" x2="162.8" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cguws)" data-a="paths-cguws-s2" data-b="paths-cguws-s3" data-a-at="r:0.500:0.1" data-b-at="l:0.500"></line>
+    <line x1="201.2" y1="28.0" x2="260.1" y2="28.0" stroke="#DCB439" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahDCB439-cguws)" data-a="paths-cguws-s3" data-b="paths-cguws-s4" data-a-at="r:0.500:0.1" data-b-at="l:0.500"></line>
+    <line x1="303.9" y1="28.0" x2="316.1" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cguws)" data-a="paths-cguws-s4" data-b="paths-cguws-s5" data-a-at="r:0.500:-0.1" data-b-at="l:0.500"></line>
     <text x="204.0" y="60.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">49 steps from the first word to the last</text>
     <text x="4.0" y="160.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">attention</text>
     <g id="paths-cguws-s6">
-      <rect x="50.8" y="147.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="50.8" y="147.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="70.0" y="156.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₁</text>
       <text x="70.0" y="161.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
     <g id="paths-cguws-s7">
-      <rect x="106.8" y="147.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="106.8" y="147.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="126.0" y="156.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₂</text>
       <text x="126.0" y="161.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">cheer</text>
     </g>
     <g id="paths-cguws-s8">
-      <rect x="162.8" y="147.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="162.8" y="147.0" width="38.3" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="182.0" y="156.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₃</text>
       <text x="182.0" y="161.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">for</text>
     </g>
     <g id="paths-cguws-s9">
-      <rect x="260.1" y="147.0" width="43.9" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="260.1" y="147.0" width="43.9" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="282.0" y="156.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₄₉</text>
       <text x="282.0" y="161.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">to</text>
     </g>
     <g id="paths-cguws-s10">
-      <rect x="316.1" y="147.0" width="43.9" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="316.1" y="147.0" width="43.9" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="338.0" y="156.9" font-size="9.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c₅₀</text>
       <text x="338.0" y="161.8" font-size="3.2" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">victory</text>
     </g>
     <text x="232.0" y="160.0" font-size="9.0" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">· · ·</text>
-    <polyline points="70.0,147.0 70.0,100.0 350.0,100.0 350.0,147.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cguws)"></polyline>
-    <polyline points="126.0,147.0 126.0,110.0 344.0,110.0 344.0,147.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cguws)"></polyline>
-    <polyline points="182.0,147.0 182.0,120.0 338.0,120.0 338.0,147.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cguws)"></polyline>
-    <polyline points="282.0,147.0 282.0,130.0 332.0,130.0 332.0,147.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cguws)"></polyline>
+    <polyline points="70.0,147.0 70.0,100.0 350.0,100.0 350.0,147.0" fill="none" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cguws)"></polyline>
+    <polyline points="126.0,147.0 126.0,110.0 344.0,110.0 344.0,147.0" fill="none" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cguws)"></polyline>
+    <polyline points="182.0,147.0 182.0,120.0 338.0,120.0 338.0,147.0" fill="none" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cguws)"></polyline>
+    <polyline points="282.0,147.0 282.0,130.0 332.0,130.0 332.0,147.0" fill="none" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cguws)"></polyline>
     <text x="204.0" y="92.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">one step from every word</text>
   </svg>
   <p data-b="hf0pa">With attention <b class="take">every word is a single step from every other</b>, for the forward pass and for the gradient. The price is that every word gets compared with every word before it, <span class="num">1,275</span> comparisons for our <span class="num">50</span> words where the RNN takes <span class="num">50</span> steps, and about <span class="num">5</span> billion for a <span class="num">100,000</span>-word book. The work grows with the square of the length, an RNN's only with the length.</p>
@@ -3630,7 +3641,7 @@ L 380.16 62.4
 <section class="page" id="memory-caching" data-view="reading" data-topic="rnn-comeback attention" style="--gap: 17.1pt;">
   <h2 data-b="ch58b">Memory Caching</h2>
   <p data-b="xyq5b">That price is why RNNs haven't quite gone away. In February <span class="num">2026</span> a group at Google Research (Behrouz and others) proposed <b class="name">Memory Caching</b>, an RNN that reads its text in segments and saves a copy of its hidden state at the end of each one, so later words can look back at the saved copies as well as their own hidden state:</p>
-  <svg class="draw" viewBox="0 0 384 140" style="width: 382.5pt" role="img" aria-label="Ten small gold boxes in a row joined by arrows, in three segments of three and then the word being read now. The last box of each segment sends a copy up to a saved box, and all three saved boxes send arrows back down to the current word." data-b="fl1ck">
+  <svg class="draw" viewBox="0 0 384 140" role="img" aria-label="Ten small gold boxes in a row joined by arrows, in three segments of three and then the word being read now. The last box of each segment sends a copy up to a saved box, and all three saved boxes send arrows back down to the current word." style="width: 382.5pt" data-b="fl1ck">
     <defs>
       <marker id="ah000000-fl1ck" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
@@ -3640,75 +3651,75 @@ L 380.16 62.4
       </marker>
     </defs>
     <g id="memory-caching-fl1ck-s1">
-      <rect x="31.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="31.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="40.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="memory-caching-fl1ck-s2">
-      <rect x="61.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="61.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="70.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="memory-caching-fl1ck-s3">
-      <rect x="91.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="91.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="100.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="memory-caching-fl1ck-s4">
-      <rect x="139.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="139.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="148.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="memory-caching-fl1ck-s5">
-      <rect x="169.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="169.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="178.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="memory-caching-fl1ck-s6">
-      <rect x="199.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="199.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="208.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="memory-caching-fl1ck-s7">
-      <rect x="247.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="247.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="256.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="memory-caching-fl1ck-s8">
-      <rect x="277.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="277.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="286.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="memory-caching-fl1ck-s9">
-      <rect x="307.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="307.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="316.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
     <g id="memory-caching-fl1ck-s10">
-      <rect x="355.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="355.0" y="96.0" width="18.0" height="16.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="364.0" y="109.0" font-size="14.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold"></text>
     </g>
-    <line x1="49.0" y1="104.0" x2="61.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s1" data-b="memory-caching-fl1ck-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="79.0" y1="104.0" x2="91.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s2" data-b="memory-caching-fl1ck-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="109.0" y1="104.0" x2="139.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s3" data-b="memory-caching-fl1ck-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="157.0" y1="104.0" x2="169.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s4" data-b="memory-caching-fl1ck-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="187.0" y1="104.0" x2="199.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s5" data-b="memory-caching-fl1ck-s6" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="217.0" y1="104.0" x2="247.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s6" data-b="memory-caching-fl1ck-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="265.0" y1="104.0" x2="277.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s7" data-b="memory-caching-fl1ck-s8" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="295.0" y1="104.0" x2="307.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s8" data-b="memory-caching-fl1ck-s9" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <line x1="325.0" y1="104.0" x2="355.0" y2="104.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s9" data-b="memory-caching-fl1ck-s10" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="49.0" y1="104.0" x2="61.0" y2="104.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s1" data-b="memory-caching-fl1ck-s2" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="79.0" y1="104.0" x2="91.0" y2="104.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s2" data-b="memory-caching-fl1ck-s3" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="109.0" y1="104.0" x2="139.0" y2="104.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s3" data-b="memory-caching-fl1ck-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="157.0" y1="104.0" x2="169.0" y2="104.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s4" data-b="memory-caching-fl1ck-s5" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="187.0" y1="104.0" x2="199.0" y2="104.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s5" data-b="memory-caching-fl1ck-s6" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="217.0" y1="104.0" x2="247.0" y2="104.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s6" data-b="memory-caching-fl1ck-s7" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="265.0" y1="104.0" x2="277.0" y2="104.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s7" data-b="memory-caching-fl1ck-s8" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="295.0" y1="104.0" x2="307.0" y2="104.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s8" data-b="memory-caching-fl1ck-s9" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <line x1="325.0" y1="104.0" x2="355.0" y2="104.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-fl1ck)" data-a="memory-caching-fl1ck-s9" data-b="memory-caching-fl1ck-s10" data-a-at="r:0.500" data-b-at="l:0.500"></line>
     <g id="memory-caching-fl1ck-s11">
-      <rect x="76.0" y="33.6" width="48.0" height="12.8" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="76.0" y="33.6" width="48.0" height="12.8" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="100.0" y="42.7" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">saved 1</text>
     </g>
-    <line x1="100.0" y1="96.0" x2="100.0" y2="46.4" stroke="#000000" stroke-width="1.00" stroke-dasharray="3 2" marker-end="url(#ah000000-fl1ck)" data-a="memory-caching-fl1ck-s3" data-b="memory-caching-fl1ck-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="100.0" y1="96.0" x2="100.0" y2="46.4" stroke="#000000" stroke-width="1.0" stroke-dasharray="3 2" marker-end="url(#ah000000-fl1ck)" data-a="memory-caching-fl1ck-s3" data-b="memory-caching-fl1ck-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="70.0" y="128.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">segment 1</text>
     <g id="memory-caching-fl1ck-s12">
-      <rect x="184.0" y="33.6" width="48.0" height="12.8" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="184.0" y="33.6" width="48.0" height="12.8" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="208.0" y="42.7" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">saved 2</text>
     </g>
-    <line x1="208.0" y1="96.0" x2="208.0" y2="46.4" stroke="#000000" stroke-width="1.00" stroke-dasharray="3 2" marker-end="url(#ah000000-fl1ck)" data-a="memory-caching-fl1ck-s6" data-b="memory-caching-fl1ck-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="208.0" y1="96.0" x2="208.0" y2="46.4" stroke="#000000" stroke-width="1.0" stroke-dasharray="3 2" marker-end="url(#ah000000-fl1ck)" data-a="memory-caching-fl1ck-s6" data-b="memory-caching-fl1ck-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="178.0" y="128.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">segment 2</text>
     <g id="memory-caching-fl1ck-s13">
-      <rect x="292.0" y="33.6" width="48.0" height="12.8" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="292.0" y="33.6" width="48.0" height="12.8" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="316.0" y="42.7" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">saved 3</text>
     </g>
-    <line x1="316.0" y1="96.0" x2="316.0" y2="46.4" stroke="#000000" stroke-width="1.00" stroke-dasharray="3 2" marker-end="url(#ah000000-fl1ck)" data-a="memory-caching-fl1ck-s9" data-b="memory-caching-fl1ck-s13" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="316.0" y1="96.0" x2="316.0" y2="46.4" stroke="#000000" stroke-width="1.0" stroke-dasharray="3 2" marker-end="url(#ah000000-fl1ck)" data-a="memory-caching-fl1ck-s9" data-b="memory-caching-fl1ck-s13" data-a-at="t:0.500" data-b-at="b:0.500"></line>
     <text x="286.0" y="128.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">segment 3</text>
-    <polyline points="100.0,33.6 100.0,8.0 370.0,8.0 370.0,96.0" fill="none" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-fl1ck)"></polyline>
-    <polyline points="208.0,33.6 208.0,14.0 364.0,14.0 364.0,96.0" fill="none" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-fl1ck)"></polyline>
-    <polyline points="316.0,33.6 316.0,20.0 358.0,20.0 358.0,96.0" fill="none" stroke="#000000" stroke-width="1.00" marker-end="url(#ah000000-fl1ck)"></polyline>
+    <polyline points="100.0,33.6 100.0,8.0 370.0,8.0 370.0,96.0" fill="none" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-fl1ck)"></polyline>
+    <polyline points="208.0,33.6 208.0,14.0 364.0,14.0 364.0,96.0" fill="none" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-fl1ck)"></polyline>
+    <polyline points="316.0,33.6 316.0,20.0 358.0,20.0 358.0,96.0" fill="none" stroke="#000000" stroke-width="1.0" marker-end="url(#ah000000-fl1ck)"></polyline>
     <text x="364.0" y="128.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">now</text>
   </svg>
   <p data-b="qz0s7">Its memory grows by one hidden state per segment rather than one per word, a middle ground between an RNN's fixed memory and attention's growing one. It generally improved the recurrent models they added it to, and closed much of the gap to attention-based models on recall tasks.</p>
@@ -4069,7 +4080,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -4097,15 +4108,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -4114,6 +4171,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -4126,9 +4184,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

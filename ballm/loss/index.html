@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -2473,65 +2484,65 @@ z
 
 
 
-<section class="page over" id="r-vectors" data-part="Predictions" data-view="reading" data-topic="layers">
+<section class="page over" id="r-vectors" data-view="reading" data-topic="layers" data-part="Predictions">
   <h2 data-b="bu6jo">Predictions as Vectors</h2>
   <p data-b="acztp">In the last chapter every Notre Dame game became a vector, and a matrix of weights (plus a bias) turned it into a new vector, a <b class="def">linear transformation</b> that is already a model. That chapter ended needing a single number that says how wrong the model is, and to build one we first have to decide what its new vector means.</p>
   <p data-b="rfg51">Let's describe each game with two numbers, Notre Dame's <b class="ex">yard difference</b> (in hundreds of yards) and its <b class="ex">turnover difference</b>, and ask the question we keep coming back to: <b class="take">"Did we win?"</b> In <span class="num">2012</span> Notre Dame beat Navy <span class="num">50</span> to <span class="num">10</span>, gaining <span class="num">149</span> more yards and turning the ball over <span class="num">3</span> fewer times, so that game is <b-m tex="x = [1.49, −3]"><span class="c red sym" data-at="0,1" data-k="x">x</span> = [1.49, −3]</b-m>.</p>
-  <svg class="draw" viewBox="0 0 384 120" style="width: 86%" role="img" aria-label="Top row: x (1 by 2) @ Omega transposed (2 by 2) + b (1 by 2) = z (1 by 2), one number per answer. Bottom row, 2012 Navy: [1.49, −3] @ [[0, 1], [0, −1]] + [0, 0] = [0, 4.49], the first number for loss and the second for win." data-b="u2v45">
-  <defs></defs>
-  <g id="r-layer-u2v45-s1">
-  <rect x="26.0" y="16.0" width="44.0" height="28.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="48.0" y="31.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x</text>
-  <text x="48.0" y="40.8" font-size="5.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
-  </g>
-  <text x="88.0" y="35.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="r-layer-u2v45-s2">
-  <rect x="106.0" y="16.0" width="44.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="128.0" y="31.4" font-size="14.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ωᵀ</text>
-  <text x="128.0" y="40.8" font-size="5.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2, 2&gt;</text>
-  </g>
-  <text x="168.0" y="35.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
-  <g id="r-layer-u2v45-s3">
-  <rect x="186.0" y="16.0" width="44.0" height="28.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-  <text x="208.0" y="31.4" font-size="14.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b</text>
-  <text x="208.0" y="40.8" font-size="5.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
-  </g>
-  <text x="248.0" y="35.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="r-layer-u2v45-s4">
-  <rect x="268.0" y="16.0" width="44.0" height="28.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="290.0" y="31.4" font-size="14.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">z</text>
-  <text x="290.0" y="40.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
-  </g>
-  <g id="r-layer-u2v45-s5">
-  <rect x="14.0" y="76.0" width="68.0" height="24.0" rx="8.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.60"></rect>
-  <text x="31.0" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">1.49</text>
-  <text x="65.0" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">−3</text>
-  </g>
-  <text x="88.0" y="93.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="r-layer-u2v45-s6">
-  <rect x="101.0" y="66.0" width="54.0" height="44.0" rx="8.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.60"></rect>
-  <text x="116.0" y="84.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
-  <text x="140.0" y="84.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">1</text>
-  <text x="116.0" y="100.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
-  <text x="140.0" y="100.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">−1</text>
-  </g>
-  <text x="168.0" y="93.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
-  <g id="r-layer-u2v45-s7">
-  <rect x="181.0" y="76.0" width="54.0" height="24.0" rx="8.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.60"></rect>
-  <text x="194.5" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
-  <text x="221.5" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
-  </g>
-  <text x="248.0" y="93.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="r-layer-u2v45-s8">
-  <rect x="256.0" y="76.0" width="72.0" height="24.0" rx="8.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.60"></rect>
-  <text x="274.0" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
-  <text x="310.0" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">4.49</text>
-  </g>
-  <text x="274.0" y="71.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">loss</text>
-  <text x="310.0" y="71.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">win</text>
-  <text x="48.0" y="109.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">yards, turnovers</text>
-  <text x="352.0" y="33.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">one number</text>
-  <text x="352.0" y="41.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">per answer</text>
+  <svg class="draw" viewBox="0 0 384 120" role="img" aria-label="Top row: x (1 by 2) @ Omega transposed (2 by 2) + b (1 by 2) = z (1 by 2), one number per answer. Bottom row, 2012 Navy: [1.49, −3] @ [[0, 1], [0, −1]] + [0, 0] = [0, 4.49], the first number for loss and the second for win." style="width: 86%" data-b="u2v45">
+    <defs></defs>
+    <g id="r-layer-u2v45-s1">
+      <rect x="26.0" y="16.0" width="44.0" height="28.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="48.0" y="31.4" font-size="14.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x</text>
+      <text x="48.0" y="40.8" font-size="5.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
+    </g>
+    <text x="88.0" y="35.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="r-layer-u2v45-s2">
+      <rect x="106.0" y="16.0" width="44.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="128.0" y="31.4" font-size="14.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ωᵀ</text>
+      <text x="128.0" y="40.8" font-size="5.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2, 2&gt;</text>
+    </g>
+    <text x="168.0" y="35.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
+    <g id="r-layer-u2v45-s3">
+      <rect x="186.0" y="16.0" width="44.0" height="28.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
+      <text x="208.0" y="31.4" font-size="14.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b</text>
+      <text x="208.0" y="40.8" font-size="5.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
+    </g>
+    <text x="248.0" y="35.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="r-layer-u2v45-s4">
+      <rect x="268.0" y="16.0" width="44.0" height="28.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="290.0" y="31.4" font-size="14.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">z</text>
+      <text x="290.0" y="40.8" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;1, 2&gt;</text>
+    </g>
+    <g id="r-layer-u2v45-s5">
+      <rect x="14.0" y="76.0" width="68.0" height="24.0" rx="8.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.6"></rect>
+      <text x="31.0" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">1.49</text>
+      <text x="65.0" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">−3</text>
+    </g>
+    <text x="88.0" y="93.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="r-layer-u2v45-s6">
+      <rect x="101.0" y="66.0" width="54.0" height="44.0" rx="8.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.6"></rect>
+      <text x="116.0" y="84.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
+      <text x="140.0" y="84.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">1</text>
+      <text x="116.0" y="100.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
+      <text x="140.0" y="100.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">−1</text>
+    </g>
+    <text x="168.0" y="93.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
+    <g id="r-layer-u2v45-s7">
+      <rect x="181.0" y="76.0" width="54.0" height="24.0" rx="8.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.6"></rect>
+      <text x="194.5" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
+      <text x="221.5" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
+    </g>
+    <text x="248.0" y="93.0" font-size="14.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="r-layer-u2v45-s8">
+      <rect x="256.0" y="76.0" width="72.0" height="24.0" rx="8.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.6"></rect>
+      <text x="274.0" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
+      <text x="310.0" y="91.0" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">4.49</text>
+    </g>
+    <text x="274.0" y="71.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">loss</text>
+    <text x="310.0" y="71.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">win</text>
+    <text x="48.0" y="109.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">yards, turnovers</text>
+    <text x="352.0" y="33.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">one number</text>
+    <text x="352.0" y="41.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">per answer</text>
   </svg>
   <p data-b="aotb8">The weights here are ones we picked by hand. Like PyTorch's linear layer, <b-m tex="Ω"><span class="c wblue sym" data-at="0,1" data-k="Ω"><span class="Om">ω</span></span></b-m> has one row per answer and is flipped before multiplying (<b-m tex="Ω\T"><span class="c wblue sym" data-at="0,1" data-k="Ω"><span class="Om">ω</span></span><sup>T</sup></b-m>). The row for "loss" is all zeros, and the row for "win" adds the yards and subtracts the turnovers. Out come two numbers, one for each answer the model could give, and for Navy the "win" number is a lot bigger (<span class="num">4.49</span> to <span class="num">0</span>).</p>
 <div class="foot" data-rt=""><span>Loss Functions · Predictions</span><span>02</span></div></section>
@@ -3131,31 +3142,38 @@ z
   <b-eq data-b="gotnm" class=""><a id="eq-softmax" data-rt=""></a>
     <eq-row label="softmax" note="one probability per class">\yhat_i = \text{softmax}(z)_i = \frac{e^{z_i}}{\sum_{j} e^{z_j}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[2.1]</div><div class="eqml-e"><div class="eqml-note">one probability per class</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-DCB439 sa-0-7"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#DCB439;"><mtext>ŷ</mtext><mi mathvariant="normal">𝐢</mi></msub></mrow></mrow><mo>=</mo><mtext>softmax</mtext><msub><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-674EA7 sa-25-26"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#674EA7;">𝐳</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mi mathvariant="normal">i</mi></msub><mo>=</mo><mfrac><msup><mi mathvariant="normal">e</mi><mrow class="sym sym-674EA7 sa-41-44 tml-sml-pad"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi scriptlevel="2">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝐳</mi><mi scriptlevel="2">𝐢</mi></msub></mrow></mrow></msup><mrow><msub><mo movablelimits="false">∑</mo><mi mathvariant="normal">j</mi></msub><msup><mi mathvariant="normal">e</mi><mrow class="sym sym-674EA7 sa-59-62 tml-sml-pad"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi scriptlevel="2">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝐳</mi><mi scriptlevel="2">𝐣</mi></msub></mrow></mrow></msup></mrow></mfrac></mrow></math></div></div></div></b-eq>
-  <svg class="draw" viewBox="0 0 384 70" style="width: 92%" role="img" aria-label="2012 Navy: the logits z = [0, 4.49] (loss, win) go through softmax (e to the z over the sum of e to the z) and come out as the probabilities y-hat = [0.01, 0.99]" data-b="neer5">
-  <defs><marker id="ah8E7CC3-neer5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path></marker><marker id="ahDCB439-neer5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path></marker></defs>
-  <text x="46.0" y="16.0" font-size="7.5" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">logits  z</text>
-  <g id="r-softmax-neer5-s1">
-  <rect x="10.0" y="25.0" width="72.0" height="26.0" rx="8.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.60"></rect>
-  <text x="28.0" y="41.1" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
-  <text x="64.0" y="41.1" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">4.49</text>
-  </g>
-  <line x1="84.0" y1="38.0" x2="139.0" y2="38.0" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-neer5)" data-a="r-softmax-neer5-s1" data-b="r-softmax-neer5-s2"></line>
-  <g id="r-softmax-neer5-s2">
-  <rect x="140.0" y="21.0" width="72.0" height="34.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="176.0" y="37.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">softmax</text>
-  <text x="176.0" y="47.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">eᶻ / Σ eᶻ</text>
-  </g>
-  <line x1="213.0" y1="38.0" x2="268.0" y2="38.0" stroke="#DCB439" stroke-width="1.20" marker-end="url(#ahDCB439-neer5)" data-a="r-softmax-neer5-s2" data-b="r-softmax-neer5-s3"></line>
-  <text x="306.0" y="16.0" font-size="7.5" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">probabilities  ŷ</text>
-  <g id="r-softmax-neer5-s3">
-  <rect x="270.0" y="25.0" width="72.0" height="26.0" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.60"></rect>
-  <text x="288.0" y="41.1" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.01</text>
-  <text x="324.0" y="41.1" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.99</text>
-  </g>
-  <text x="288.0" y="60.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">loss</text>
-  <text x="324.0" y="60.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">win</text>
-  <text x="28.0" y="60.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">loss</text>
-  <text x="64.0" y="60.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">win</text>
+  <svg class="draw" viewBox="0 0 384 70" role="img" aria-label="2012 Navy: the logits z = [0, 4.49] (loss, win) go through softmax (e to the z over the sum of e to the z) and come out as the probabilities y-hat = [0.01, 0.99]" style="width: 92%" data-b="neer5">
+    <defs>
+      <marker id="ah8E7CC3-neer5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
+      <marker id="ahDCB439-neer5" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
+      </marker>
+    </defs>
+    <text x="46.0" y="16.0" font-size="7.5" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">logits  z</text>
+    <g id="r-softmax-neer5-s1">
+      <rect x="10.0" y="25.0" width="72.0" height="26.0" rx="8.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.6"></rect>
+      <text x="28.0" y="41.1" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
+      <text x="64.0" y="41.1" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">4.49</text>
+    </g>
+    <line x1="84.0" y1="38.0" x2="139.0" y2="38.0" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-neer5)" data-a="r-softmax-neer5-s1" data-b="r-softmax-neer5-s2"></line>
+    <g id="r-softmax-neer5-s2">
+      <rect x="140.0" y="21.0" width="72.0" height="34.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="176.0" y="37.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">softmax</text>
+      <text x="176.0" y="47.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">eᶻ / Σ eᶻ</text>
+    </g>
+    <line x1="213.0" y1="38.0" x2="268.0" y2="38.0" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-neer5)" data-a="r-softmax-neer5-s2" data-b="r-softmax-neer5-s3"></line>
+    <text x="306.0" y="16.0" font-size="7.5" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">probabilities  ŷ</text>
+    <g id="r-softmax-neer5-s3">
+      <rect x="270.0" y="25.0" width="72.0" height="26.0" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.6"></rect>
+      <text x="288.0" y="41.1" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.01</text>
+      <text x="324.0" y="41.1" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.99</text>
+    </g>
+    <text x="288.0" y="60.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">loss</text>
+    <text x="324.0" y="60.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">win</text>
+    <text x="28.0" y="60.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">loss</text>
+    <text x="64.0" y="60.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">win</text>
   </svg>
   <p data-b="w14vr">For Navy, <i>e</i><sup>0</sup> = <span class="num">1</span> and <i>e</i><sup>4.49</sup> = <span class="num">89.1</span>, so the model gives a win <b-m tex="89.1 / 90.1 = 0.989">89.1 / 90.1 = 0.989</b-m> and a loss <span class="num">0.011</span>. Purdue's logits become <span class="num">0.868</span> for a win, a good deal less sure. And the <span class="num">2016</span> Navy game (Notre Dame gained <span class="num">2</span> more yards, the turnovers were even, and it lost <span class="num">27</span> to <span class="num">28</span>) gets logits of <b-m tex="[0, 0.02]">[0, 0.02]</b-m> and probabilities of <span class="num">0.495</span> and <span class="num">0.505</span>, a coin flip, which for a one-point game seems about right.</p>
   <p data-b="jpll2">The biggest logit always becomes the biggest probability, so <b class="take">softmax never changes the prediction</b>. It only rescales the logits so we can read them. We call the probabilities it produces <b-m tex="ŷ"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span></b-m>, our model's <b class="def">output prediction</b>.</p>
@@ -3165,17 +3183,21 @@ z
   <h2 data-b="rsjz3">The Ground Truth</h2>
   <p data-b="wy593">Every game in our data comes with what actually happened, the <b class="def">ground truth</b>. To compare it with <b-m tex="ŷ"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span></b-m> we write it in the same shape, as a <b class="def">one-hot vector</b>: the same size as the output vector, with a <span class="num">1</span> at the index of the correct class and <span class="num">0</span>s everywhere else. A win is <b-m tex="y = [0, 1]"><span class="c green sym" data-at="0,1" data-k="y">y</span> = [0, 1]</b-m> and a loss is <b-m tex="y = [1, 0]"><span class="c green sym" data-at="0,1" data-k="y">y</span> = [1, 0]</b-m>.</p>
   <table class="tbl small" data-b="wrw9g">
-    <tbody><tr><th>Game</th><th>Score</th><th><b-m tex="ŷ"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span></b-m> (loss, win)</th><th><b-m tex="y"><span class="c green sym" data-at="0,1" data-k="y">y</span></b-m></th></tr>
-    <tr><td><span class="num">2012</span> Navy</td><td><span class="num">50</span>–<span class="num">10</span></td><td><b-m tex="[0.011, 0.989]">[0.011, 0.989]</b-m></td><td><b-m tex="[0, 1]">[0, 1]</b-m></td></tr>
-    <tr><td><span class="num">2012</span> Purdue</td><td><span class="num">20</span>–<span class="num">17</span></td><td><b-m tex="[0.132, 0.868]">[0.132, 0.868]</b-m></td><td><b-m tex="[0, 1]">[0, 1]</b-m></td></tr>
-    <tr><td><span class="num">2016</span> Navy</td><td><span class="num">27</span>–<span class="num">28</span></td><td><b-m tex="[0.495, 0.505]">[0.495, 0.505]</b-m></td><td><b-m tex="[1, 0]">[1, 0]</b-m></td></tr>
-    <tr><td><span class="num">2016</span> Virginia Tech</td><td><span class="num">31</span>–<span class="num">34</span></td><td><b-m tex="[0.091, 0.909]">[0.091, 0.909]</b-m></td><td><b-m tex="[1, 0]">[1, 0]</b-m></td></tr>
-  </tbody></table>
+    <thead>
+      <tr><th>Game</th><th>Score</th><th><b-m tex="ŷ"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span></b-m> (loss, win)</th><th><b-m tex="y"><span class="c green sym" data-at="0,1" data-k="y">y</span></b-m></th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="num">2012</span> Navy</td><td><span class="num">50</span>–<span class="num">10</span></td><td><b-m tex="[0.011, 0.989]">[0.011, 0.989]</b-m></td><td><b-m tex="[0, 1]">[0, 1]</b-m></td></tr>
+      <tr><td><span class="num">2012</span> Purdue</td><td><span class="num">20</span>–<span class="num">17</span></td><td><b-m tex="[0.132, 0.868]">[0.132, 0.868]</b-m></td><td><b-m tex="[0, 1]">[0, 1]</b-m></td></tr>
+      <tr><td><span class="num">2016</span> Navy</td><td><span class="num">27</span>–<span class="num">28</span></td><td><b-m tex="[0.495, 0.505]">[0.495, 0.505]</b-m></td><td><b-m tex="[1, 0]">[1, 0]</b-m></td></tr>
+      <tr><td><span class="num">2016</span> Virginia Tech</td><td><span class="num">31</span>–<span class="num">34</span></td><td><b-m tex="[0.091, 0.909]">[0.091, 0.909]</b-m></td><td><b-m tex="[1, 0]">[1, 0]</b-m></td></tr>
+    </tbody>
+  </table>
   <p data-b="eywp9">Notice that the ground truth is also a probability vector, just one with no doubt in it. We can think of it as the prediction a perfect model would have made (all of its probability on what happened).</p>
   <p data-b="euu92">Virginia Tech is the interesting row. Notre Dame outgained them by <span class="num">30</span> yards and won the turnover battle by <span class="num">2</span>, so the model was <span class="num">91%</span> sure of a win, and Notre Dame lost by <span class="num">3</span>. What we want now is <b class="take">a single number that says how far apart <b-m tex="ŷ"><span class="c gold sym" data-at="0,1" data-k="ŷ">ŷ</span></b-m> and <b-m tex="y"><span class="c green sym" data-at="0,1" data-k="y">y</span></b-m> are</b>.</p>
 <div class="foot" data-rt=""><span>Loss Functions · Predictions</span><span>07</span></div></section>
 
-<section class="page" id="r-right-wrong" data-part="Loss" data-view="reading" data-topic="loss" style="--gap: 22pt;">
+<section class="page" id="r-right-wrong" data-view="reading" data-topic="loss" data-part="Loss" style="--gap: 22pt;">
   <h2 data-b="kwt7h">Right or Wrong</h2>
   <p data-b="hqpzr">The simplest number we could use is the one we used to pick a class: was the biggest probability on the right class or not? Count the games where it was and we have the model's <b class="def">accuracy</b>, <span class="num">121</span> of <span class="num">141</span>.</p>
   <p data-b="erufg">Unfortunately, right-or-wrong <b class="warn">throws away the probabilities</b>. Navy (<span class="num">0.989</span> on a win) and Purdue (<span class="num">0.868</span>) count as exactly the same kind of "right". Virginia Tech (<span class="num">91%</span> sure of a win that never came) counts exactly the same as the <span class="num">2016</span> Navy coin flip that happened to land on the wrong side.</p>
@@ -4057,52 +4079,65 @@ L 291.866094 24.715527
 <section class="page" id="r-pipeline" data-view="reading" data-topic="formulation" style="--gap: 22pt;">
   <h2 data-b="ivix5">The Whole Pipeline</h2>
   <p data-b="e1pdo">Put together, here is everything that happens to one game on its way to a loss:</p>
-  <svg class="draw" viewBox="0 0 384 130" style="width: 100%" role="img" aria-label="2012 Navy: the game x = [1.49, −3] goes through one linear layer, x @ Omega transposed + b, to the logits z = [0, 4.49]; softmax turns them into the prediction y-hat = [0.01, 0.99]; the loss (cross-entropy) compares y-hat with the ground truth y = [0, 1] (Notre Dame won 50–10): L = −ln 0.989 = 0.011." data-b="m15we">
-  <defs><marker id="ah8E7CC3-m15we" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path></marker><marker id="ah93C47D-m15we" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#93C47D"></path></marker><marker id="ahDCB439-m15we" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path></marker><marker id="ahE06666-m15we" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path></marker></defs>
-  <text x="36.0" y="12.0" font-size="7.0" fill="#E06666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">game  x</text>
-  <g id="r-pipeline-m15we-s1">
-  <rect x="4.0" y="20.0" width="64.0" height="22.0" rx="8.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.60"></rect>
-  <text x="20.0" y="33.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">1.49</text>
-  <text x="52.0" y="33.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">−3</text>
-  </g>
-  <line x1="68.0" y1="31.0" x2="95.0" y2="31.0" stroke="#E06666" stroke-width="1.20" marker-end="url(#ahE06666-m15we)" data-a="r-pipeline-m15we-s1"></line>
-  <rect x="96.0" y="8.0" width="98.0" height="46.0" rx="10.0" fill="#C9DAF8" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="145.0" y="26.0" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">one linear layer</text>
-  <text x="145.0" y="42.0" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x @ Ωᵀ + b</text>
-  <line x1="194.0" y1="31.0" x2="215.0" y2="31.0" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-m15we)" data-b="r-pipeline-m15we-s2"></line>
-  <text x="252.0" y="12.0" font-size="7.0" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">logits  z</text>
-  <g id="r-pipeline-m15we-s2">
-  <rect x="216.0" y="20.0" width="72.0" height="22.0" rx="8.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.60"></rect>
-  <text x="234.0" y="33.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
-  <text x="270.0" y="33.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">4.49</text>
-  </g>
-  <line x1="288.0" y1="31.0" x2="318.0" y2="31.0" stroke="#8E7CC3" stroke-width="1.20" marker-end="url(#ah8E7CC3-m15we)" data-a="r-pipeline-m15we-s2" data-b="r-pipeline-m15we-s3"></line>
-  <g id="r-pipeline-m15we-s3">
-  <rect x="319.0" y="20.0" width="54.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="346.0" y="34.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">softmax</text>
-  </g>
-  <line x1="346.0" y1="42.0" x2="346.0" y2="74.0" stroke="#DCB439" stroke-width="1.20" marker-end="url(#ahDCB439-m15we)" data-a="r-pipeline-m15we-s3" data-b="r-pipeline-m15we-s4"></line>
-  <text x="346.0" y="112.0" font-size="7.0" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">predicted  ŷ</text>
-  <g id="r-pipeline-m15we-s4">
-  <rect x="312.0" y="76.0" width="68.0" height="22.0" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.60"></rect>
-  <text x="329.0" y="89.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.01</text>
-  <text x="363.0" y="89.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.99</text>
-  </g>
-  <line x1="312.0" y1="87.0" x2="243.0" y2="87.0" stroke="#DCB439" stroke-width="1.20" marker-end="url(#ahDCB439-m15we)" data-a="r-pipeline-m15we-s4" data-b="r-pipeline-m15we-s5"></line>
-  <g id="r-pipeline-m15we-s5">
-  <rect x="169.0" y="72.0" width="74.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="206.0" y="86.0" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">loss  <tspan fill="#CC0000">ℒ</tspan></text>
-  <text x="206.0" y="96.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">cross-entropy</text>
-  </g>
-  <line x1="132.0" y1="87.0" x2="169.0" y2="87.0" stroke="#93C47D" stroke-width="1.20" marker-end="url(#ah93C47D-m15we)" data-a="r-pipeline-m15we-s6" data-b="r-pipeline-m15we-s5"></line>
-  <g id="r-pipeline-m15we-s6">
-  <rect x="64.0" y="76.0" width="68.0" height="22.0" rx="8.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.60"></rect>
-  <text x="81.0" y="89.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
-  <text x="115.0" y="89.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">1</text>
-  </g>
-  <text x="98.0" y="112.0" font-size="7.0" fill="#6AA84F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">ground truth  y</text>
-  <text x="98.0" y="122.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">(Notre Dame won 50–10)</text>
-  <text x="206.0" y="118.0" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"><tspan fill="#CC0000">ℒ</tspan> = −ln 0.989 = 0.011</text>
+  <svg class="draw" viewBox="0 0 384 130" role="img" aria-label="2012 Navy: the game x = [1.49, −3] goes through one linear layer, x @ Omega transposed + b, to the logits z = [0, 4.49]; softmax turns them into the prediction y-hat = [0.01, 0.99]; the loss (cross-entropy) compares y-hat with the ground truth y = [0, 1] (Notre Dame won 50–10): L = −ln 0.989 = 0.011." style="width: 100%" data-b="m15we">
+    <defs>
+      <marker id="ah8E7CC3-m15we" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
+      <marker id="ah93C47D-m15we" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#93C47D"></path>
+      </marker>
+      <marker id="ahDCB439-m15we" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
+      </marker>
+      <marker id="ahE06666-m15we" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
+      </marker>
+    </defs>
+    <text x="36.0" y="12.0" font-size="7.0" fill="#E06666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">game  x</text>
+    <g id="r-pipeline-m15we-s1">
+      <rect x="4.0" y="20.0" width="64.0" height="22.0" rx="8.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.6"></rect>
+      <text x="20.0" y="33.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">1.49</text>
+      <text x="52.0" y="33.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">−3</text>
+    </g>
+    <line x1="68.0" y1="31.0" x2="95.0" y2="31.0" stroke="#E06666" stroke-width="1.2" marker-end="url(#ahE06666-m15we)" data-a="r-pipeline-m15we-s1"></line>
+    <rect x="96.0" y="8.0" width="98.0" height="46.0" rx="10.0" fill="#C9DAF8" stroke="#000000" stroke-width="1.4"></rect>
+    <text x="145.0" y="26.0" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">one linear layer</text>
+    <text x="145.0" y="42.0" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">x @ Ωᵀ + b</text>
+    <line x1="194.0" y1="31.0" x2="215.0" y2="31.0" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-m15we)" data-b="r-pipeline-m15we-s2"></line>
+    <text x="252.0" y="12.0" font-size="7.0" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">logits  z</text>
+    <g id="r-pipeline-m15we-s2">
+      <rect x="216.0" y="20.0" width="72.0" height="22.0" rx="8.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.6"></rect>
+      <text x="234.0" y="33.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
+      <text x="270.0" y="33.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">4.49</text>
+    </g>
+    <line x1="288.0" y1="31.0" x2="318.0" y2="31.0" stroke="#8E7CC3" stroke-width="1.2" marker-end="url(#ah8E7CC3-m15we)" data-a="r-pipeline-m15we-s2" data-b="r-pipeline-m15we-s3"></line>
+    <g id="r-pipeline-m15we-s3">
+      <rect x="319.0" y="20.0" width="54.0" height="22.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="346.0" y="34.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">softmax</text>
+    </g>
+    <line x1="346.0" y1="42.0" x2="346.0" y2="74.0" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-m15we)" data-a="r-pipeline-m15we-s3" data-b="r-pipeline-m15we-s4"></line>
+    <text x="346.0" y="112.0" font-size="7.0" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">predicted  ŷ</text>
+    <g id="r-pipeline-m15we-s4">
+      <rect x="312.0" y="76.0" width="68.0" height="22.0" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.6"></rect>
+      <text x="329.0" y="89.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.01</text>
+      <text x="363.0" y="89.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.99</text>
+    </g>
+    <line x1="312.0" y1="87.0" x2="243.0" y2="87.0" stroke="#DCB439" stroke-width="1.2" marker-end="url(#ahDCB439-m15we)" data-a="r-pipeline-m15we-s4" data-b="r-pipeline-m15we-s5"></line>
+    <g id="r-pipeline-m15we-s5">
+      <rect x="169.0" y="72.0" width="74.0" height="30.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="206.0" y="86.0" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">loss  <tspan fill="#CC0000">ℒ</tspan></text>
+      <text x="206.0" y="96.0" font-size="5.9" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">cross-entropy</text>
+    </g>
+    <line x1="132.0" y1="87.0" x2="169.0" y2="87.0" stroke="#93C47D" stroke-width="1.2" marker-end="url(#ah93C47D-m15we)" data-a="r-pipeline-m15we-s6" data-b="r-pipeline-m15we-s5"></line>
+    <g id="r-pipeline-m15we-s6">
+      <rect x="64.0" y="76.0" width="68.0" height="22.0" rx="8.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.6"></rect>
+      <text x="81.0" y="89.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0</text>
+      <text x="115.0" y="89.8" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">1</text>
+    </g>
+    <text x="98.0" y="112.0" font-size="7.0" fill="#6AA84F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">ground truth  y</text>
+    <text x="98.0" y="122.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">(Notre Dame won 50–10)</text>
+    <text x="206.0" y="118.0" font-size="8.5" fill="#000000" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold"><tspan fill="#CC0000">ℒ</tspan> = −ln 0.989 = 0.011</text>
   </svg>
   <p data-b="b0v0x">Every box is a function we can write down, so we can also write the whole thing as one function. Substituting the layer and softmax into cross-entropy gives</p>
   <b-eq data-b="wmdlr" class=""><a id="eq-ce-full" data-rt=""></a>
@@ -4481,7 +4516,7 @@ z
   <p data-b="v0puh">Unfortunately, <b-m tex="s">s</b-m> is only one direction to move in. Our model has six parameters (four weights in <b-m tex="Ω"><span class="c wblue sym" data-at="0,1" data-k="Ω"><span class="Om">ω</span></span></b-m> and two biases in <b-m tex="b"><span class="c gray sym" data-at="0,1" data-k="b">b</span></b-m>), and they can all move separately. Finding the bottom of the loss in all six at once is called <b class="def">optimization</b>.</p>
 <div class="foot" data-rt=""><span>Loss Functions · Loss</span><span>17</span></div></section>
 
-<section class="page" id="r-irishqwen" data-part="Text" data-view="reading" data-topic="cross-entropy">
+<section class="page" id="r-irishqwen" data-view="reading" data-topic="cross-entropy" data-part="Text">
   <h2 data-b="cjt5g">Cross-Entropy in irishQwen</h2>
   <p data-b="c4cf3">Nothing about cross-entropy is specific to football. Here is the loss function from irishQwen, the model we're building this semester, run on two of our games (Navy, and the Syracuse win the model hated):</p>
   <b-code lang="python" data-b="ubtge"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch</div><div class="ln"><span class="kw">import</span> torch.nn.functional <span class="kw">as</span> F</div><div class="ln"></div><div class="ln"><span class="kw">def</span> <span class="def">cross_entropy</span>(<span class="cc gold">Y_hat</span>, <span class="cc green">Y</span>):</div><div class="ln">    <span class="cm"># irishQwen's loss: Y is one-hot, Y_hat softmaxed</span></div><div class="ln">    <span class="cc gold">log_probs</span> = torch.log(<span class="cc gold">Y_hat</span>.clamp_min(<span class="nu nn">1e-12</span>))</div><div class="ln">    <span class="ctl">return</span> -(<span class="cc green">Y</span> * <span class="cc gold">log_probs</span>).sum(dim=-<span class="nu nn">1</span>).mean()</div><div class="ln"></div><div class="ln"><span class="cm"># 2012 Navy and 2014 Syracuse</span></div><div class="ln"><span class="cc purple">logits</span> = torch.tensor([[<span class="nu nn">0</span>., <span class="nu nn">4.49</span>],</div><div class="ln">                       [<span class="nu nn">0</span>., -<span class="nu nn">3.06</span>]])</div><div class="ln"><span class="cc green">Y</span> = torch.tensor([[<span class="nu nn">0</span>., <span class="nu nn">1</span>.],    <span class="cm"># won 50-10</span></div><div class="ln">                  [<span class="nu nn">0</span>., <span class="nu nn">1</span>.]])   <span class="cm"># won 31-15</span></div><div class="ln"><span class="cc gold">Y_hat</span> = F.softmax(<span class="cc purple">logits</span>, dim=-<span class="nu nn">1</span>)</div><div class="ln"><span class="bi">print</span>(<span class="st">"Y_hat:"</span>, <span class="cc gold">Y_hat</span>)</div><div class="ln"><span class="bi">print</span>(<span class="st">"loss:"</span>, cross_entropy(<span class="cc gold">Y_hat</span>, <span class="cc green">Y</span>))</div></div></b-code>
@@ -4496,15 +4531,19 @@ z
   <p data-b="yidnr">irishQwen reads Shakespeare and, at every position, predicts what comes next. Its classes are the <span class="num">512</span> <b class="def">tokens</b> in its vocabulary (pieces of text, which get chapters of their own soon), so its logits are <span class="mono">&lt;1, 512&gt;</span>, softmax turns them into <span class="num">512</span> probabilities, and the ground truth is a one-hot vector with its <span class="num">1</span> on the token that actually came next.</p>
   <p data-b="tqt9u">Take Hamlet's "To be, or not to be". After the token <span class="mono">" to"</span> the right answer is <span class="mono">" be"</span>, and the loss depends only on how much probability a model put there:</p>
   <table class="tbl small" data-b="j3dne">
-    <tbody><tr><th>A model that knows…</th><th><b-m tex="p">p</b-m>(" be")</th><th>loss</th><th>average over the whole text</th></tr>
-    <tr><td>nothing (every token <span class="num">1/512</span>)</td><td><span class="num">0.0020</span></td><td><span class="num">6.24</span></td><td><span class="num">6.24</span></td></tr>
-    <tr><td>how common each token is</td><td><span class="num">0.0051</span></td><td><span class="num">5.27</span></td><td><span class="num">5.27</span></td></tr>
-    <tr><td>what usually follows <span class="mono">" to"</span></td><td><span class="num">0.056</span></td><td><span class="num">2.88</span></td><td><span class="num">3.58</span></td></tr>
-  </tbody></table>
+    <thead>
+      <tr><th>A model that knows…</th><th><b-m tex="p">p</b-m>(" be")</th><th>loss</th><th>average over the whole text</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>nothing (every token <span class="num">1/512</span>)</td><td><span class="num">0.0020</span></td><td><span class="num">6.24</span></td><td><span class="num">6.24</span></td></tr>
+      <tr><td>how common each token is</td><td><span class="num">0.0051</span></td><td><span class="num">5.27</span></td><td><span class="num">5.27</span></td></tr>
+      <tr><td>what usually follows <span class="mono">" to"</span></td><td><span class="num">0.056</span></td><td><span class="num">2.88</span></td><td><span class="num">3.58</span></td></tr>
+    </tbody>
+  </table>
   <p data-b="wo45s">The last column is the average loss over all <span class="num">2,526,266</span> tokens of irishQwen's training text (the last two models were built by counting them). A model that knows nothing scores <b-m tex="ln 512 = 6.24">ln 512 = 6.24</b-m> on every token, just as our all-zeros football model scored <b-m tex="ln 2">ln 2</b-m> on every game. <b class="take">Training irishQwen is pushing that number down</b>, and the further down it goes, the less surprised the model is by Shakespeare.</p>
 <div class="foot" data-rt=""><span>Loss Functions · Text</span><span>19</span></div></section>
 
-<section class="page" id="r-training" data-part="Training" data-view="reading" data-topic="training" style="">
+<section class="page" id="r-training" data-view="reading" data-topic="training" data-part="Training" style="">
   <h2 data-b="zrpdv">Training a Model</h2>
   <p data-b="tcdsv"><b class="def">Training</b> a model lets it practice over and over on the same set of data, ideally improving every time. It improves by <b class="take">updating its parameters so the loss goes down</b>, and one pass over every example is called an <b class="def">epoch</b>.</p>
   <b-fig src="fig/training-curve.svg" alt="Average loss over the 141 games against epoch, from 0 to 200. It starts at the coin-flip loss of 0.693, drops quickly over the first 25 epochs and levels off at about 0.25." style="width: 90%; --ar: 2.133;" data-b="l67a8"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 180" xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -5129,7 +5168,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -5157,15 +5196,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -5174,6 +5259,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -5186,9 +5272,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

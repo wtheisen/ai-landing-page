@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -999,39 +1010,43 @@ svg.al-clone { z-index: 1; }
 
 
 
-<section class="page" id="blocks" data-part="Stacking Blocks" data-view="reading" data-topic="blocks">
+<section class="page" id="blocks" data-view="reading" data-topic="blocks" data-part="Stacking Blocks">
   <h2 data-b="vx3mw">Transformer Blocks</h2>
   <p data-b="l99q7">Over the last few chapters we've built the two halves of a transformer. Attention lets every token look back at the tokens before it and pull in what it needs, and the feed-forward network (or a room of experts) then works on each token on its own. Put one after the other and we get a <b class="def">transformer block</b>.</p>
-  <svg class="draw" viewBox="0 0 300 200" style="width: 46%" role="img" aria-label="A transformer block: the token vectors Ɛ of shape 7 by 256 go through masked attention, where tokens look at each other, then a feed forward network, where each token is on its own, giving new vectors of the same shape. The block is repeated 28 times in Qwen3-0.6B and 4 times in our Shakespeare model." data-b="hkkz6">
-  <defs><marker id="ah000000-hkkz6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#000000"></path></marker></defs>
-  <g id="block-simple-hkkz6-s1">
-  <rect x="75.0" y="170.0" width="70.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="110.0" y="183.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
-  <text x="110.0" y="190.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
-  </g>
-  <line x1="110.0" y1="170.0" x2="110.0" y2="152.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-hkkz6)" data-a="block-simple-hkkz6-s1"></line>
-  <rect x="40.0" y="40.0" width="140.0" height="112.0" rx="12.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <g id="block-simple-hkkz6-s2">
-  <rect x="51.0" y="110.0" width="118.0" height="28.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="110.0" y="123.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Masked attention</text>
-  <text x="110.0" y="133.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">tokens look at each other</text>
-  </g>
-  <line x1="110.0" y1="110.0" x2="110.0" y2="90.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-hkkz6)" data-a="block-simple-hkkz6-s2" data-b="block-simple-hkkz6-s3"></line>
-  <g id="block-simple-hkkz6-s3">
-  <rect x="51.0" y="62.0" width="118.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="110.0" y="75.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Feed forward</text>
-  <text x="110.0" y="85.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">each token on its own</text>
-  </g>
-  <line x1="110.0" y1="40.0" x2="110.0" y2="24.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-hkkz6)" data-b="block-simple-hkkz6-s4"></line>
-  <g id="block-simple-hkkz6-s4">
-  <rect x="75.0" y="1.0" width="70.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="110.0" y="13.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ′</text>
-  <text x="110.0" y="19.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
-  </g>
-  <text x="188.0" y="100.0" font-size="13.0" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">×28</text>
-  <text x="188.0" y="114.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">Qwen3-0.6B</text>
-  <text x="188.0" y="130.0" font-size="13.0" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">×4</text>
-  <text x="188.0" y="144.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">our Shakespeare model</text>
+  <svg class="draw" viewBox="0 0 300 200" role="img" aria-label="A transformer block: the token vectors Ɛ of shape 7 by 256 go through masked attention, where tokens look at each other, then a feed forward network, where each token is on its own, giving new vectors of the same shape. The block is repeated 28 times in Qwen3-0.6B and 4 times in our Shakespeare model." style="width: 46%" data-b="hkkz6">
+    <defs>
+      <marker id="ah000000-hkkz6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
+      </marker>
+    </defs>
+    <g id="block-simple-hkkz6-s1">
+      <rect x="75.0" y="170.0" width="70.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="110.0" y="183.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
+      <text x="110.0" y="190.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
+    </g>
+    <line x1="110.0" y1="170.0" x2="110.0" y2="152.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-hkkz6)" data-a="block-simple-hkkz6-s1"></line>
+    <rect x="40.0" y="40.0" width="140.0" height="112.0" rx="12.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+    <g id="block-simple-hkkz6-s2">
+      <rect x="51.0" y="110.0" width="118.0" height="28.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="110.0" y="123.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Masked attention</text>
+      <text x="110.0" y="133.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">tokens look at each other</text>
+    </g>
+    <line x1="110.0" y1="110.0" x2="110.0" y2="90.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-hkkz6)" data-a="block-simple-hkkz6-s2" data-b="block-simple-hkkz6-s3"></line>
+    <g id="block-simple-hkkz6-s3">
+      <rect x="51.0" y="62.0" width="118.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="110.0" y="75.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Feed forward</text>
+      <text x="110.0" y="85.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">each token on its own</text>
+    </g>
+    <line x1="110.0" y1="40.0" x2="110.0" y2="24.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-hkkz6)" data-b="block-simple-hkkz6-s4"></line>
+    <g id="block-simple-hkkz6-s4">
+      <rect x="75.0" y="1.0" width="70.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="110.0" y="13.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ′</text>
+      <text x="110.0" y="19.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
+    </g>
+    <text x="188.0" y="100.0" font-size="13.0" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">×28</text>
+    <text x="188.0" y="114.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">Qwen3-0.6B</text>
+    <text x="188.0" y="130.0" font-size="13.0" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">×4</text>
+    <text x="188.0" y="144.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">our Shakespeare model</text>
   </svg>
   <p data-b="sus7i">Our running example is the line every Shakespeare student knows, "lend me your ears". irishQwen's Shakespeare tokenizer has only <span class="num">512</span> tokens, so the line becomes <span class="num">7</span> of them, "le", "nd", " me", " your", " e", "ar" and "s". In the class's Shakespeare model each token is a vector of <span class="num">256</span> numbers, so the block takes in a <span class="num">7</span> × <span class="num">256</span> matrix and <b class="take">hands back a matrix of exactly the same shape</b>.</p>
   <p data-b="cige4">That's what makes blocks easy to stack, the output of one is a perfectly good input for the next. Qwen3-0.6B, the model irishQwen copies, stacks <span class="num">28</span> of them, and our Shakespeare model stacks <span class="num">4</span>. Unfortunately just stacking them doesn't work, and most of this chapter is about the small pieces that make it work.</p>
@@ -1041,7 +1056,7 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="mcp8i">Stacking Blocks</h2>
   <p data-b="fd1hw">To see what goes wrong, we can build <span class="num">28</span> blocks the way Qwen3 does (grouped-query attention, then a SwiGLU feed-forward network), fill them with random weights the way irishQwen does before training, and pass "lend me your ears" through them one block at a time.</p>
   <p data-b="s58hm">After each block we'll measure how big the vector for the last token, "s", is. A good measure is its <b class="def">root mean square</b> (RMS), roughly the size of a typical number in it. The embedding of "s" starts at an RMS of <span class="num">0.0626</span>:</p>
-  <b-fig src="fig/depth-plain.svg" style="width: 100%; --ar: 3.148;" alt="The RMS of the vector for &quot;s&quot; after each of 28 stacked random blocks, on a log scale. It starts at 0.0626, drops to 0.000746 after one block and 5.79e-20 after four, and is exactly 0 from the fifth block on." data-b="i0x0j"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 122" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/depth-plain.svg" alt="The RMS of the vector for &quot;s&quot; after each of 28 stacked random blocks, on a log scale. It starts at 0.0626, drops to 0.000746 after one block and 5.79e-20 after four, and is exactly 0 from the fifth block on." style="width: 100%; --ar: 3.148;" data-b="i0x0j"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 122" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -1355,36 +1370,40 @@ L 296.771719 12.606191
 <section class="page" id="residual" data-view="reading" data-topic="residual" style="">
   <h2 data-b="vc8j7">Residual Connections</h2>
   <p data-b="mifdb">The fix is pretty simple. Instead of replacing the token vectors with the block's output, we <b class="take">add the block's output to them</b>:</p>
-  <svg class="draw" viewBox="0 0 250 150" style="width: 58%" role="img" aria-label="A residual connection: X goes up through masked attention, and also skips around it, and the two meet in an addition, giving X plus Attention of X." data-b="nwcrx">
-  <defs><marker id="ah000000-nwcrx" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#000000"></path></marker></defs>
-  <g id="residual-nwcrx-s1">
-  <rect x="109.0" y="124.0" width="62.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="140.0" y="137.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X</text>
-  <text x="140.0" y="144.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
-  </g>
-  <line x1="140.0" y1="124.0" x2="140.0" y2="96.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-nwcrx)" data-a="residual-nwcrx-s1" data-b="residual-nwcrx-s2"></line>
-  <g id="residual-nwcrx-s2">
-  <rect x="88.0" y="69.0" width="104.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="140.0" y="84.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Masked attention</text>
-  </g>
-  <line x1="140.0" y1="69.0" x2="140.0" y2="45.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-nwcrx)" data-a="residual-nwcrx-s2" data-b="residual-nwcrx-s4"></line>
-  <circle id="residual-nwcrx-s4" cx="140.0" cy="38.0" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
-  <text x="140.0" y="42.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
-  <polyline points="140.0,112.0 58.0,112.0 58.0,38.0 133.0,38.0" fill="none" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-nwcrx)"></polyline>
-  <text x="54.0" y="78.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">X skips</text>
-  <text x="54.0" y="87.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">the block</text>
-  <line x1="140.0" y1="31.0" x2="140.0" y2="22.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-nwcrx)" data-a="residual-nwcrx-s4"></line>
-  <g id="residual-nwcrx-s3">
-  <text x="94.6" y="12.0" font-size="9.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">X</text>
-  <text x="105.9" y="12.0" font-size="9.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">+</text>
-  <text x="117.3" y="12.0" font-size="9.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Attention(</text>
-  <text x="174.1" y="12.0" font-size="9.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">X</text>
-  <text x="179.8" y="12.0" font-size="9.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">)</text>
-  </g>
+  <svg class="draw" viewBox="0 0 250 150" role="img" aria-label="A residual connection: X goes up through masked attention, and also skips around it, and the two meet in an addition, giving X plus Attention of X." style="width: 58%" data-b="nwcrx">
+    <defs>
+      <marker id="ah000000-nwcrx" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
+      </marker>
+    </defs>
+    <g id="residual-nwcrx-s1">
+      <rect x="109.0" y="124.0" width="62.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="140.0" y="137.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X</text>
+      <text x="140.0" y="144.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
+    </g>
+    <line x1="140.0" y1="124.0" x2="140.0" y2="96.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-nwcrx)" data-a="residual-nwcrx-s1" data-b="residual-nwcrx-s2"></line>
+    <g id="residual-nwcrx-s2">
+      <rect x="88.0" y="69.0" width="104.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="140.0" y="84.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Masked attention</text>
+    </g>
+    <line x1="140.0" y1="69.0" x2="140.0" y2="45.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-nwcrx)" data-a="residual-nwcrx-s2" data-b="residual-nwcrx-s4"></line>
+    <circle id="residual-nwcrx-s4" cx="140.0" cy="38.0" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
+    <text x="140.0" y="42.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
+    <polyline points="140.0,112.0 58.0,112.0 58.0,38.0 133.0,38.0" fill="none" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-nwcrx)"></polyline>
+    <text x="54.0" y="78.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">X skips</text>
+    <text x="54.0" y="87.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">the block</text>
+    <line x1="140.0" y1="31.0" x2="140.0" y2="22.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-nwcrx)" data-a="residual-nwcrx-s4"></line>
+    <g id="residual-nwcrx-s3">
+      <text x="94.6" y="12.0" font-size="9.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">X</text>
+      <text x="105.9" y="12.0" font-size="9.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">+</text>
+      <text x="117.3" y="12.0" font-size="9.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Attention(</text>
+      <text x="174.1" y="12.0" font-size="9.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">X</text>
+      <text x="179.8" y="12.0" font-size="9.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">)</text>
+    </g>
   </svg>
   <b-eq data-b="bkkcp" class="">
-  <eq-row note="attention adds to the tokens">\red{X} \leftarrow \red{X} + \text{Attention}(\red{X})</eq-row>
-  <eq-row note="and so does the feed-forward network">\red{X} \leftarrow \red{X} + \text{FFN}(\red{X})</eq-row>
+    <eq-row note="attention adds to the tokens">\red{X} \leftarrow \red{X} + \text{Attention}(\red{X})</eq-row>
+    <eq-row note="and so does the feed-forward network">\red{X} \leftarrow \red{X} + \text{FFN}(\red{X})</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">attention adds to the tokens</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><mrow class="sym sym-CC0000 sa-5-6" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo stretchy="false">←</mo><mrow><mrow class="sym sym-CC0000 sa-24-25" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo>+</mo><mtext>Attention</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow><mrow class="sym sym-CC0000 sa-51-52" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">and so does the feed-forward network</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><mrow class="sym sym-CC0000 sa-5-6" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo stretchy="false">←</mo><mrow><mrow class="sym sym-CC0000 sa-24-25" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo>+</mo><mtext>FFN</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow><mrow class="sym sym-CC0000 sa-45-46" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="u48jn">The path that goes around the block is called a <b class="def">residual connection</b> (or a skip connection). The block no longer has to pass the token along, it only has to work out what to change about it. Notice that if a block's weights were all <span class="num">0</span> it would add nothing, and the token would come out exactly as it went in.</p>
   <p data-b="w0y2c">Residual connections come from image classification. Kaiming He and his colleagues at Microsoft used them in 2015 to train a network <span class="num">152</span> layers deep, when most networks were closer to <span class="num">20</span>, and they've been in pretty much every deep network since.</p>
@@ -1393,64 +1412,71 @@ L 296.771719 12.606191
 <section class="page" id="residual-stream" data-view="reading" data-topic="residual" style="--gap: 11.5pt;">
   <h2 data-b="gnuni">The Residual Stream</h2>
   <p data-b="vbag9">With residual connections, a nice way to think of the whole model is as one stream of token vectors running from the embeddings straight to the top. Each attention layer and each feed-forward network sits beside the stream, reads from it, and adds its result back in:</p>
-  <svg class="draw" viewBox="0 0 330 230" style="width: 46%" role="img" aria-label="The residual stream: the token vectors Ɛ run straight up through the model. Block 1's attention, block 1's feed forward and so on up to block 28's feed forward each read from the stream and add their result back in at a plus." data-b="w9fbd">
-  <defs><marker id="ah666666-w9fbd" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#666666"></path></marker><marker id="ahE06666-w9fbd" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path></marker></defs>
-  <g id="residual-stream-w9fbd-s1">
-  <rect x="69.0" y="202.0" width="62.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="100.0" y="215.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
-  <text x="100.0" y="222.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
-  </g>
-  <line x1="100.0" y1="202.0" x2="100.0" y2="176.5" stroke="#E06666" stroke-width="1.60" marker-end="url(#ahE06666-w9fbd)" data-a="residual-stream-w9fbd-s1" data-b="residual-stream-w9fbd-s6"></line>
-  <circle id="residual-stream-w9fbd-s6" cx="100.0" cy="170.0" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
-  <text x="100.0" y="174.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
-  <g id="residual-stream-w9fbd-s2">
-  <rect x="156.0" y="173.0" width="128.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="220.0" y="185.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">block 1: attention</text>
-  <text x="220.0" y="195.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">reads, then adds back</text>
-  </g>
-  <polyline points="100.0,200.0 156.0,200.0 156.0,186.0" fill="none" stroke="#666666" stroke-width="1.00"></polyline>
-  <line x1="156.0" y1="186.0" x2="156.0" y2="186.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-w9fbd)"></line>
-  <polyline points="220.0,173.0 220.0,170.0 107.0,170.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-w9fbd)"></polyline>
-  <line x1="100.0" y1="163.5" x2="100.0" y2="116.5" stroke="#E06666" stroke-width="1.60" marker-end="url(#ahE06666-w9fbd)" data-a="residual-stream-w9fbd-s6" data-b="residual-stream-w9fbd-s7"></line>
-  <circle id="residual-stream-w9fbd-s7" cx="100.0" cy="110.0" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
-  <text x="100.0" y="114.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
-  <g id="residual-stream-w9fbd-s3">
-  <rect x="156.0" y="113.0" width="128.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="220.0" y="125.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">block 1: feed forward</text>
-  <text x="220.0" y="135.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">reads, then adds back</text>
-  </g>
-  <polyline points="100.0,140.0 156.0,140.0 156.0,126.0" fill="none" stroke="#666666" stroke-width="1.00"></polyline>
-  <line x1="156.0" y1="126.0" x2="156.0" y2="126.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-w9fbd)"></line>
-  <polyline points="220.0,113.0 220.0,110.0 107.0,110.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-w9fbd)"></polyline>
-  <line x1="100.0" y1="103.5" x2="100.0" y2="74.0" stroke="#E06666" stroke-width="1.60" stroke-dasharray="2 3"></line>
-  <line x1="100.0" y1="74.0" x2="100.0" y2="56.5" stroke="#E06666" stroke-width="1.60" marker-end="url(#ahE06666-w9fbd)" data-b="residual-stream-w9fbd-s8"></line>
-  <circle id="residual-stream-w9fbd-s8" cx="100.0" cy="50.0" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
-  <text x="100.0" y="54.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
-  <g id="residual-stream-w9fbd-s4">
-  <rect x="156.0" y="53.0" width="128.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="220.0" y="65.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">block 28: feed forward</text>
-  <text x="220.0" y="75.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">reads, then adds back</text>
-  </g>
-  <polyline points="100.0,80.0 156.0,80.0 156.0,66.0" fill="none" stroke="#666666" stroke-width="1.00"></polyline>
-  <line x1="156.0" y1="66.0" x2="156.0" y2="66.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-w9fbd)"></line>
-  <polyline points="220.0,53.0 220.0,50.0 107.0,50.0" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-w9fbd)"></polyline>
-  <line x1="100.0" y1="43.5" x2="100.0" y2="22.0" stroke="#E06666" stroke-width="1.60" marker-end="url(#ahE06666-w9fbd)" data-a="residual-stream-w9fbd-s8" data-b="residual-stream-w9fbd-s5"></line>
-  <g id="residual-stream-w9fbd-s5">
-  <rect x="69.0" y="1.0" width="62.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="100.0" y="13.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ₂₈</text>
-  <text x="100.0" y="19.8" font-size="4.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
-  </g>
-  <text x="60.0" y="120.0" font-size="7.0" fill="#E06666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">the residual</text>
-  <text x="60.0" y="129.0" font-size="7.0" fill="#E06666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">stream</text>
+  <svg class="draw" viewBox="0 0 330 230" role="img" aria-label="The residual stream: the token vectors Ɛ run straight up through the model. Block 1's attention, block 1's feed forward and so on up to block 28's feed forward each read from the stream and add their result back in at a plus." style="width: 46%" data-b="w9fbd">
+    <defs>
+      <marker id="ah666666-w9fbd" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
+      </marker>
+      <marker id="ahE06666-w9fbd" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
+      </marker>
+    </defs>
+    <g id="residual-stream-w9fbd-s1">
+      <rect x="69.0" y="202.0" width="62.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="100.0" y="215.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
+      <text x="100.0" y="222.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
+    </g>
+    <line x1="100.0" y1="202.0" x2="100.0" y2="176.5" stroke="#E06666" stroke-width="1.6" marker-end="url(#ahE06666-w9fbd)" data-a="residual-stream-w9fbd-s1" data-b="residual-stream-w9fbd-s6"></line>
+    <circle id="residual-stream-w9fbd-s6" cx="100.0" cy="170.0" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
+    <text x="100.0" y="174.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
+    <g id="residual-stream-w9fbd-s2">
+      <rect x="156.0" y="173.0" width="128.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="220.0" y="185.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">block 1: attention</text>
+      <text x="220.0" y="195.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">reads, then adds back</text>
+    </g>
+    <polyline points="100.0,200.0 156.0,200.0 156.0,186.0" fill="none" stroke="#666666" stroke-width="1.0"></polyline>
+    <line x1="156.0" y1="186.0" x2="156.0" y2="186.0" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-w9fbd)"></line>
+    <polyline points="220.0,173.0 220.0,170.0 107.0,170.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-w9fbd)"></polyline>
+    <line x1="100.0" y1="163.5" x2="100.0" y2="116.5" stroke="#E06666" stroke-width="1.6" marker-end="url(#ahE06666-w9fbd)" data-a="residual-stream-w9fbd-s6" data-b="residual-stream-w9fbd-s7"></line>
+    <circle id="residual-stream-w9fbd-s7" cx="100.0" cy="110.0" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
+    <text x="100.0" y="114.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
+    <g id="residual-stream-w9fbd-s3">
+      <rect x="156.0" y="113.0" width="128.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="220.0" y="125.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">block 1: feed forward</text>
+      <text x="220.0" y="135.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">reads, then adds back</text>
+    </g>
+    <polyline points="100.0,140.0 156.0,140.0 156.0,126.0" fill="none" stroke="#666666" stroke-width="1.0"></polyline>
+    <line x1="156.0" y1="126.0" x2="156.0" y2="126.0" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-w9fbd)"></line>
+    <polyline points="220.0,113.0 220.0,110.0 107.0,110.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-w9fbd)"></polyline>
+    <line x1="100.0" y1="103.5" x2="100.0" y2="74.0" stroke="#E06666" stroke-width="1.6" stroke-dasharray="2 3"></line>
+    <line x1="100.0" y1="74.0" x2="100.0" y2="56.5" stroke="#E06666" stroke-width="1.6" marker-end="url(#ahE06666-w9fbd)" data-b="residual-stream-w9fbd-s8"></line>
+    <circle id="residual-stream-w9fbd-s8" cx="100.0" cy="50.0" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
+    <text x="100.0" y="54.0" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
+    <g id="residual-stream-w9fbd-s4">
+      <rect x="156.0" y="53.0" width="128.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="220.0" y="65.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">block 28: feed forward</text>
+      <text x="220.0" y="75.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">reads, then adds back</text>
+    </g>
+    <polyline points="100.0,80.0 156.0,80.0 156.0,66.0" fill="none" stroke="#666666" stroke-width="1.0"></polyline>
+    <line x1="156.0" y1="66.0" x2="156.0" y2="66.0" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-w9fbd)"></line>
+    <polyline points="220.0,53.0 220.0,50.0 107.0,50.0" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-w9fbd)"></polyline>
+    <line x1="100.0" y1="43.5" x2="100.0" y2="22.0" stroke="#E06666" stroke-width="1.6" marker-end="url(#ahE06666-w9fbd)" data-a="residual-stream-w9fbd-s8" data-b="residual-stream-w9fbd-s5"></line>
+    <g id="residual-stream-w9fbd-s5">
+      <rect x="69.0" y="1.0" width="62.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="100.0" y="13.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ₂₈</text>
+      <text x="100.0" y="19.8" font-size="4.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
+    </g>
+    <text x="60.0" y="120.0" font-size="7.0" fill="#E06666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">the residual</text>
+    <text x="60.0" y="129.0" font-size="7.0" fill="#E06666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">stream</text>
   </svg>
   <p data-b="id63a">This is called the <b class="def">residual stream</b>. After <span class="num">28</span> blocks the vector for "s" is its embedding plus <span class="num">56</span> additions (an attention and a feed-forward network per block), so the embedding is still in there, along with everything the blocks have added about the tokens around it.</p>
   <p data-b="l895u">Back in our random blocks, adding instead of replacing does keep "s" alive. After one block the vector for "s" has a cosine similarity of <span class="num">0.94</span> with its embedding, and it hasn't shrunk at all (an RMS of <span class="num">0.0674</span>). Residual connections also make deep networks much easier to train, for reasons to do with how the gradients flow, which is a story for when we train irishQwen.</p>
 <div class="foot" data-rt=""><span>Transformer Blocks · Stacking Blocks</span><span>05</span></div></section>
 
-<section class="page" id="scale-drift" data-part="Normalization" data-view="reading" data-topic="norm" style="--gap: 16.3pt;">
+<section class="page" id="scale-drift" data-view="reading" data-topic="norm" data-part="Normalization" style="--gap: 16.3pt;">
   <h2 data-b="qv0mv">Scale Drift</h2>
   <p data-b="phpkx">Unfortunately adding has the opposite problem. Here are the same <span class="num">28</span> random blocks with residual connections:</p>
-  <b-fig src="fig/depth-residual.svg" style="width: 100%; --ar: 3.148;" alt="The RMS of &quot;s&quot; after each block, log scale. Without residuals (grey) it vanishes. With residuals only (red) it stays near 0.07 for a few blocks, reaches 2.08 after 8, 81.1 after 9, 78,200 after 10 and 8.75e10 after 11, then overflows." data-b="me0lx"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 122" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/depth-residual.svg" alt="The RMS of &quot;s&quot; after each block, log scale. Without residuals (grey) it vanishes. With residuals only (red) it stays near 0.07 for a few blocks, reaches 2.08 after 8, 81.1 after 9, 78,200 after 10 and 8.75e10 after 11, then overflows." style="width: 100%; --ar: 3.148;" data-b="me0lx"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 122" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -1821,53 +1847,60 @@ L 296.771719 87.376855
 <section class="page" id="layernorm" data-view="reading" data-topic="layernorm" style="--gap: 22pt;">
   <h2 data-b="gwuez">Layer Normalization</h2>
   <p data-b="og2hi">So we'd like every block to see its input at a sensible scale, whatever has piled up on the stream. Here are four of the numbers in "s" after nine of those residual-only blocks (the real vector has <span class="num">256</span>, but four fit on a page):</p>
-  <svg class="draw" viewBox="0 0 230 134" style="width: 56%" role="img" aria-label="LayerNorm on four numbers: −15.82, −36.73, 43.10 and 120.57. Subtract their mean, 27.78, and divide by their standard deviation, 61.05, giving −0.71, −1.06, 0.25 and 1.52, with mean 0 and standard deviation 1." data-b="blsfr">
-  <defs><marker id="ahDCB439-blsfr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path></marker><marker id="ahE06666-blsfr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path></marker></defs>
-  <text x="8.0" y="10.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">before: four of the numbers of "s"</text>
-  <g id="norm-layer-blsfr-s1">
-  <rect x="8.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="33.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−15.82</text>
-  </g>
-  <g id="norm-layer-blsfr-s2">
-  <rect x="63.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="88.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−36.73</text>
-  </g>
-  <g id="norm-layer-blsfr-s3">
-  <rect x="118.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="143.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">43.10</text>
-  </g>
-  <g id="norm-layer-blsfr-s4">
-  <rect x="173.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="198.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">120.57</text>
-  </g>
-  <line x1="115.5" y1="36.0" x2="115.5" y2="48.0" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-blsfr)" data-a="norm-layer-blsfr-s3" data-b="norm-layer-blsfr-s5"></line>
-  <g id="norm-layer-blsfr-s5">
-  <rect x="8.0" y="48.0" width="215.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="115.5" y="60.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">subtract the mean: 27.78</text>
-  <text x="115.5" y="69.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">divide by the std: 61.05</text>
-  </g>
-  <line x1="115.5" y1="76.0" x2="115.5" y2="88.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-blsfr)" data-a="norm-layer-blsfr-s5" data-b="norm-layer-blsfr-s8"></line>
-  <g id="norm-layer-blsfr-s6">
-  <rect x="8.0" y="88.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="33.0" y="101.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.71</text>
-  </g>
-  <g id="norm-layer-blsfr-s7">
-  <rect x="63.0" y="88.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="88.0" y="101.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−1.06</text>
-  </g>
-  <g id="norm-layer-blsfr-s8">
-  <rect x="118.0" y="88.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="143.0" y="101.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.25</text>
-  </g>
-  <g id="norm-layer-blsfr-s9">
-  <rect x="173.0" y="88.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="198.0" y="101.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1.52</text>
-  </g>
-  <text x="8.0" y="118.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">after: mean 0, standard deviation 1</text>
+  <svg class="draw" viewBox="0 0 230 134" role="img" aria-label="LayerNorm on four numbers: −15.82, −36.73, 43.10 and 120.57. Subtract their mean, 27.78, and divide by their standard deviation, 61.05, giving −0.71, −1.06, 0.25 and 1.52, with mean 0 and standard deviation 1." style="width: 56%" data-b="blsfr">
+    <defs>
+      <marker id="ahDCB439-blsfr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
+      </marker>
+      <marker id="ahE06666-blsfr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
+      </marker>
+    </defs>
+    <text x="8.0" y="10.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">before: four of the numbers of "s"</text>
+    <g id="norm-layer-blsfr-s1">
+      <rect x="8.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="33.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−15.82</text>
+    </g>
+    <g id="norm-layer-blsfr-s2">
+      <rect x="63.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="88.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−36.73</text>
+    </g>
+    <g id="norm-layer-blsfr-s3">
+      <rect x="118.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="143.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">43.10</text>
+    </g>
+    <g id="norm-layer-blsfr-s4">
+      <rect x="173.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="198.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">120.57</text>
+    </g>
+    <line x1="115.5" y1="36.0" x2="115.5" y2="48.0" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-blsfr)" data-a="norm-layer-blsfr-s3" data-b="norm-layer-blsfr-s5"></line>
+    <g id="norm-layer-blsfr-s5">
+      <rect x="8.0" y="48.0" width="215.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="115.5" y="60.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">subtract the mean: 27.78</text>
+      <text x="115.5" y="69.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">divide by the std: 61.05</text>
+    </g>
+    <line x1="115.5" y1="76.0" x2="115.5" y2="88.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-blsfr)" data-a="norm-layer-blsfr-s5" data-b="norm-layer-blsfr-s8"></line>
+    <g id="norm-layer-blsfr-s6">
+      <rect x="8.0" y="88.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="33.0" y="101.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.71</text>
+    </g>
+    <g id="norm-layer-blsfr-s7">
+      <rect x="63.0" y="88.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="88.0" y="101.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−1.06</text>
+    </g>
+    <g id="norm-layer-blsfr-s8">
+      <rect x="118.0" y="88.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="143.0" y="101.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.25</text>
+    </g>
+    <g id="norm-layer-blsfr-s9">
+      <rect x="173.0" y="88.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="198.0" y="101.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1.52</text>
+    </g>
+    <text x="8.0" y="118.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">after: mean 0, standard deviation 1</text>
   </svg>
   <p data-b="l6vzl"><b class="def">Layer normalization</b> (LayerNorm) fixes the scale one token at a time. It subtracts the token's mean, so the numbers are centered on <span class="num">0</span>, then divides by their standard deviation, so they have a standard deviation of <span class="num">1</span>. Then two learned vectors, <b-m tex="γ">γ</b-m> and <b-m tex="β">β</b-m>, scale and shift the result, so a layer can still make some numbers bigger than others if that turns out to help:</p>
   <b-eq data-b="bh59s" class=""><a id="eq-LN" data-rt=""></a>
-  <eq-row label="LN" note="ε is tiny (1e-5), so we never divide by 0">\green{y} = \frac{\red{x} - \text{E}[\red{x}]}{\sqrt{\text{Var}[\red{x}] + \epsilon}} * \gamma + \beta</eq-row>
+    <eq-row label="LN" note="ε is tiny (1e-5), so we never divide by 0">\green{y} = \frac{\red{x} - \text{E}[\red{x}]}{\sqrt{\text{Var}[\red{x}] + \epsilon}} * \gamma + \beta</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[12.1]</div><div class="eqml-e"><div class="eqml-note">ε is tiny (1e-5), so we never divide by 0</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><mrow class="sym sym-38761D sa-7-8" style="color:#38761D;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow></mrow><mo>=</mo><mfrac><mrow><mrow><mrow class="sym sym-CC0000 sa-23-24" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow></mrow><mo>−</mo><mtext>E</mtext><mrow><mo fence="true" form="prefix" stretchy="false">[</mo><mrow><mrow class="sym sym-CC0000 sa-42-43" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow></mrow><mo fence="true" form="postfix" stretchy="false">]</mo></mrow></mrow><msqrt><mrow><mtext>Var</mtext><mrow><mo fence="true" form="prefix" stretchy="false">[</mo><mrow><mrow class="sym sym-CC0000 sa-69-70" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow></mrow><mo fence="true" form="postfix" stretchy="false">]</mo></mrow><mo>+</mo><mi mathvariant="normal">ϵ</mi></mrow></msqrt></mfrac><mo>∗</mo><mi mathvariant="normal">γ</mi><mo>+</mo><mi mathvariant="normal">β</mi></mrow></math></div></div></div></b-eq>
 <div class="foot" data-rt=""><span>Transformer Blocks · Normalization</span><span>07</span></div></section>
 
@@ -1886,50 +1919,57 @@ L 296.771719 87.376855
   <h2 data-b="z1j70">RMSNorm</h2>
   <p data-b="bcv1s">Most modern LLMs, Qwen3 included, use a simpler version called <b class="def">RMSNorm</b>. It skips subtracting the mean and just divides by the root mean square, the same measure of size we've been plotting:</p>
   <b-eq data-b="ysas0" class=""><a id="eq-RMS" data-rt=""></a>
-  <eq-row label="RMS" note="no mean subtracted, and only γ (no β)">\green{y} = \frac{\red{x}}{\sqrt{\text{mean}(\red{x}^2) + \epsilon}} * \gamma</eq-row>
+    <eq-row label="RMS" note="no mean subtracted, and only γ (no β)">\green{y} = \frac{\red{x}}{\sqrt{\text{mean}(\red{x}^2) + \epsilon}} * \gamma</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[12.2]</div><div class="eqml-e"><div class="eqml-note">no mean subtracted, and only γ (no β)</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><mrow class="sym sym-38761D sa-7-8" style="color:#38761D;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#38761D;">𝐲</mi></mrow></mrow></mrow><mo>=</mo><mfrac><mrow><mrow class="sym sym-CC0000 sa-23-24" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow></mrow><msqrt><mrow><mtext>mean</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><msup><mrow><mrow class="sym sym-CC0000 sa-50-51" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow></mrow><mn>2</mn></msup><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>+</mo><mi mathvariant="normal">ϵ</mi></mrow></msqrt></mfrac><mo>∗</mo><mi mathvariant="normal">γ</mi></mrow></math></div></div></div></b-eq>
-  <svg class="draw" viewBox="0 0 230 126" style="width: 56%" role="img" aria-label="RMSNorm on the same four numbers: divide by their RMS, 67.07, giving −0.24, −0.55, 0.64 and 1.80, with an RMS of 1 but a mean that isn't 0." data-b="uizuf">
-  <defs><marker id="ahDCB439-uizuf" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path></marker><marker id="ahE06666-uizuf" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path></marker></defs>
-  <text x="8.0" y="10.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">before: the same four numbers</text>
-  <g id="norm-rms-uizuf-s1">
-  <rect x="8.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="33.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−15.82</text>
-  </g>
-  <g id="norm-rms-uizuf-s2">
-  <rect x="63.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="88.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−36.73</text>
-  </g>
-  <g id="norm-rms-uizuf-s3">
-  <rect x="118.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="143.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">43.10</text>
-  </g>
-  <g id="norm-rms-uizuf-s4">
-  <rect x="173.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="198.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">120.57</text>
-  </g>
-  <line x1="115.5" y1="36.0" x2="115.5" y2="48.0" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-uizuf)" data-a="norm-rms-uizuf-s3" data-b="norm-rms-uizuf-s5"></line>
-  <g id="norm-rms-uizuf-s5">
-  <rect x="8.0" y="48.0" width="215.0" height="19.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="115.5" y="60.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">divide by the RMS: 67.07</text>
-  </g>
-  <line x1="115.5" y1="67.0" x2="115.5" y2="79.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-uizuf)" data-a="norm-rms-uizuf-s5" data-b="norm-rms-uizuf-s8"></line>
-  <g id="norm-rms-uizuf-s6">
-  <rect x="8.0" y="79.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="33.0" y="92.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.24</text>
-  </g>
-  <g id="norm-rms-uizuf-s7">
-  <rect x="63.0" y="79.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="88.0" y="92.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.55</text>
-  </g>
-  <g id="norm-rms-uizuf-s8">
-  <rect x="118.0" y="79.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="143.0" y="92.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.64</text>
-  </g>
-  <g id="norm-rms-uizuf-s9">
-  <rect x="173.0" y="79.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="198.0" y="92.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1.80</text>
-  </g>
-  <text x="8.0" y="109.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">after: RMS 1 (the mean is not 0)</text>
+  <svg class="draw" viewBox="0 0 230 126" role="img" aria-label="RMSNorm on the same four numbers: divide by their RMS, 67.07, giving −0.24, −0.55, 0.64 and 1.80, with an RMS of 1 but a mean that isn't 0." style="width: 56%" data-b="uizuf">
+    <defs>
+      <marker id="ahDCB439-uizuf" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
+      </marker>
+      <marker id="ahE06666-uizuf" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
+      </marker>
+    </defs>
+    <text x="8.0" y="10.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">before: the same four numbers</text>
+    <g id="norm-rms-uizuf-s1">
+      <rect x="8.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="33.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−15.82</text>
+    </g>
+    <g id="norm-rms-uizuf-s2">
+      <rect x="63.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="88.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−36.73</text>
+    </g>
+    <g id="norm-rms-uizuf-s3">
+      <rect x="118.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="143.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">43.10</text>
+    </g>
+    <g id="norm-rms-uizuf-s4">
+      <rect x="173.0" y="16.0" width="50.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="198.0" y="29.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">120.57</text>
+    </g>
+    <line x1="115.5" y1="36.0" x2="115.5" y2="48.0" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-uizuf)" data-a="norm-rms-uizuf-s3" data-b="norm-rms-uizuf-s5"></line>
+    <g id="norm-rms-uizuf-s5">
+      <rect x="8.0" y="48.0" width="215.0" height="19.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="115.5" y="60.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">divide by the RMS: 67.07</text>
+    </g>
+    <line x1="115.5" y1="67.0" x2="115.5" y2="79.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-uizuf)" data-a="norm-rms-uizuf-s5" data-b="norm-rms-uizuf-s8"></line>
+    <g id="norm-rms-uizuf-s6">
+      <rect x="8.0" y="79.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="33.0" y="92.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.24</text>
+    </g>
+    <g id="norm-rms-uizuf-s7">
+      <rect x="63.0" y="79.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="88.0" y="92.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.55</text>
+    </g>
+    <g id="norm-rms-uizuf-s8">
+      <rect x="118.0" y="79.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="143.0" y="92.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.64</text>
+    </g>
+    <g id="norm-rms-uizuf-s9">
+      <rect x="173.0" y="79.0" width="50.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="198.0" y="92.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1.80</text>
+    </g>
+    <text x="8.0" y="109.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">after: RMS 1 (the mean is not 0)</text>
   </svg>
   <p data-b="hsbdw">The result has an RMS of <span class="num">1</span>, but its mean is <span class="num">0.41</span>, not <span class="num">0</span>, since nothing re-centered it. It turns out that doesn't matter much, the rescaling is what keeps blocks stable, and the re-centering was mostly along for the ride. In return RMSNorm needs one statistic instead of two and has half the weights (<b-m tex="γ">γ</b-m> but no <b-m tex="β">β</b-m>). irishQwen's <span class="mono">rms_norm.py</span> does exactly this, with <b-m tex="γ">γ</b-m> starting at all ones.</p>
 <div class="foot" data-rt=""><span>Transformer Blocks · Normalization</span><span>09</span></div></section>
@@ -1937,54 +1977,58 @@ L 296.771719 87.376855
 <section class="page" id="pre-norm" data-view="reading" data-topic="rmsnorm norm" style="">
   <h2 data-b="sgua5">Pre-Norm</h2>
   <p data-b="uvypv">Where the norm goes matters. The original transformer (Vaswani et al., 2017) normalized the stream itself, right after each addition. GPT-2 (2019) moved the norm inside the branch, so it normalizes a copy of the stream on its way into attention or the feed-forward network, and the stream itself is never normalized:</p>
-  <svg class="draw" viewBox="0 0 250 250" style="width: 44%" role="img" aria-label="A pre-norm block: X goes through RMSNorm 1 then masked attention and is added back to X, then through RMSNorm 2 then the feed forward network and is added back again. The skip paths go around the norms, so the stream itself is never normalized." data-b="gnexg">
-  <defs><marker id="ah000000-gnexg" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#000000"></path></marker></defs>
-  <g id="pre-norm-gnexg-s1">
-  <rect x="119.0" y="224.0" width="62.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="150.0" y="237.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X</text>
-  <text x="150.0" y="244.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
-  </g>
-  <line x1="150.0" y1="224.0" x2="150.0" y2="213.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s1" data-b="pre-norm-gnexg-s2"></line>
-  <g id="pre-norm-gnexg-s2">
-  <rect x="95.0" y="191.0" width="110.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="150.0" y="204.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RMSNorm 1</text>
-  </g>
-  <line x1="150.0" y1="191.0" x2="150.0" y2="180.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s2" data-b="pre-norm-gnexg-s3"></line>
-  <g id="pre-norm-gnexg-s3">
-  <rect x="95.0" y="154.0" width="110.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="150.0" y="169.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Masked attention</text>
-  </g>
-  <line x1="150.0" y1="154.0" x2="150.0" y2="143.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s3" data-b="pre-norm-gnexg-s7"></line>
-  <circle id="pre-norm-gnexg-s7" cx="150.0" cy="136.5" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
-  <text x="150.0" y="140.5" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
-  <polyline points="150.0,220.0 70.0,220.0 70.0,136.5 143.0,136.5" fill="none" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gnexg)"></polyline>
-  <line x1="150.0" y1="130.0" x2="150.0" y2="119.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s7" data-b="pre-norm-gnexg-s4"></line>
-  <g id="pre-norm-gnexg-s4">
-  <rect x="95.0" y="97.0" width="110.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="150.0" y="110.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RMSNorm 2</text>
-  </g>
-  <line x1="150.0" y1="97.0" x2="150.0" y2="86.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s4" data-b="pre-norm-gnexg-s5"></line>
-  <g id="pre-norm-gnexg-s5">
-  <rect x="95.0" y="64.0" width="110.0" height="22.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="150.0" y="77.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Feed forward</text>
-  </g>
-  <line x1="150.0" y1="64.0" x2="150.0" y2="53.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s5" data-b="pre-norm-gnexg-s8"></line>
-  <circle id="pre-norm-gnexg-s8" cx="150.0" cy="46.5" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
-  <text x="150.0" y="50.5" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
-  <polyline points="150.0,126.0 70.0,126.0 70.0,46.5 143.0,46.5" fill="none" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gnexg)"></polyline>
-  <line x1="150.0" y1="40.0" x2="150.0" y2="26.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s8" data-b="pre-norm-gnexg-s6"></line>
-  <g id="pre-norm-gnexg-s6">
-  <rect x="119.0" y="4.0" width="62.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="150.0" y="16.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X′</text>
-  <text x="150.0" y="22.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
-  </g>
-  <text x="66.0" y="170.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">the stream</text>
-  <text x="66.0" y="179.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">is never</text>
-  <text x="66.0" y="188.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">normalized</text>
+  <svg class="draw" viewBox="0 0 250 250" role="img" aria-label="A pre-norm block: X goes through RMSNorm 1 then masked attention and is added back to X, then through RMSNorm 2 then the feed forward network and is added back again. The skip paths go around the norms, so the stream itself is never normalized." style="width: 44%" data-b="gnexg">
+    <defs>
+      <marker id="ah000000-gnexg" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
+      </marker>
+    </defs>
+    <g id="pre-norm-gnexg-s1">
+      <rect x="119.0" y="224.0" width="62.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="150.0" y="237.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X</text>
+      <text x="150.0" y="244.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
+    </g>
+    <line x1="150.0" y1="224.0" x2="150.0" y2="213.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s1" data-b="pre-norm-gnexg-s2"></line>
+    <g id="pre-norm-gnexg-s2">
+      <rect x="95.0" y="191.0" width="110.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="150.0" y="204.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RMSNorm 1</text>
+    </g>
+    <line x1="150.0" y1="191.0" x2="150.0" y2="180.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s2" data-b="pre-norm-gnexg-s3"></line>
+    <g id="pre-norm-gnexg-s3">
+      <rect x="95.0" y="154.0" width="110.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="150.0" y="169.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Masked attention</text>
+    </g>
+    <line x1="150.0" y1="154.0" x2="150.0" y2="143.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s3" data-b="pre-norm-gnexg-s7"></line>
+    <circle id="pre-norm-gnexg-s7" cx="150.0" cy="136.5" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
+    <text x="150.0" y="140.5" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
+    <polyline points="150.0,220.0 70.0,220.0 70.0,136.5 143.0,136.5" fill="none" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gnexg)"></polyline>
+    <line x1="150.0" y1="130.0" x2="150.0" y2="119.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s7" data-b="pre-norm-gnexg-s4"></line>
+    <g id="pre-norm-gnexg-s4">
+      <rect x="95.0" y="97.0" width="110.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="150.0" y="110.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RMSNorm 2</text>
+    </g>
+    <line x1="150.0" y1="97.0" x2="150.0" y2="86.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s4" data-b="pre-norm-gnexg-s5"></line>
+    <g id="pre-norm-gnexg-s5">
+      <rect x="95.0" y="64.0" width="110.0" height="22.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="150.0" y="77.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Feed forward</text>
+    </g>
+    <line x1="150.0" y1="64.0" x2="150.0" y2="53.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s5" data-b="pre-norm-gnexg-s8"></line>
+    <circle id="pre-norm-gnexg-s8" cx="150.0" cy="46.5" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
+    <text x="150.0" y="50.5" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
+    <polyline points="150.0,126.0 70.0,126.0 70.0,46.5 143.0,46.5" fill="none" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gnexg)"></polyline>
+    <line x1="150.0" y1="40.0" x2="150.0" y2="26.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gnexg)" data-a="pre-norm-gnexg-s8" data-b="pre-norm-gnexg-s6"></line>
+    <g id="pre-norm-gnexg-s6">
+      <rect x="119.0" y="4.0" width="62.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="150.0" y="16.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X′</text>
+      <text x="150.0" y="22.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
+    </g>
+    <text x="66.0" y="170.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">the stream</text>
+    <text x="66.0" y="179.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">is never</text>
+    <text x="66.0" y="188.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">normalized</text>
   </svg>
   <b-eq data-b="ma1lj" class=""><a id="eq-pre-norm" data-rt=""></a>
-  <eq-row label="pre-norm" note="the norm only sees a copy">\red{X} \leftarrow \red{X} + \text{Attention}(\text{RMSNorm}(\red{X}))</eq-row>
-  <eq-row note="">\red{X} \leftarrow \red{X} + \text{FFN}(\text{RMSNorm}(\red{X}))</eq-row>
+    <eq-row label="pre-norm" note="the norm only sees a copy">\red{X} \leftarrow \red{X} + \text{Attention}(\text{RMSNorm}(\red{X}))</eq-row>
+    <eq-row>\red{X} \leftarrow \red{X} + \text{FFN}(\text{RMSNorm}(\red{X}))</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[12.3]</div><div class="eqml-e"><div class="eqml-note">the norm only sees a copy</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><mrow class="sym sym-CC0000 sa-5-6" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo stretchy="false">←</mo><mrow><mrow class="sym sym-CC0000 sa-24-25" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo>+</mo><mtext>Attention</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mtext>RMSNorm</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow><mrow class="sym sym-CC0000 sa-66-67" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><mrow class="sym sym-CC0000 sa-5-6" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo stretchy="false">←</mo><mrow><mrow class="sym sym-CC0000 sa-24-25" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo>+</mo><mtext>FFN</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mtext>RMSNorm</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow><mrow class="sym sym-CC0000 sa-60-61" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="ps4tk">This is called <b class="def">pre-norm</b>, and it's what Qwen3 uses. It keeps both things we wanted. Every block sees an input with an RMS of <span class="num">1</span>, however big the stream has grown, and the embedding still rides all the way up the stream untouched. Each block gets its own two RMSNorms (with their own <b-m tex="γ">γ</b-m>), one before attention and one before the feed-forward network.</p>
 <div class="foot" data-rt=""><span>Transformer Blocks · Normalization</span><span>10</span></div></section>
@@ -1992,7 +2036,7 @@ L 296.771719 87.376855
 <section class="page" id="pre-norm-depth" data-view="reading" data-topic="rmsnorm norm" style="">
   <h2 data-b="z81un">Pre-Norm at Depth</h2>
   <p data-b="tqlo4">Here are our <span class="num">28</span> random blocks a third time, now with a pre-norm RMSNorm in front of every attention and every feed-forward network:</p>
-  <b-fig src="fig/depth-prenorm.svg" style="width: 100%; --ar: 3.148;" alt="All three on one log-scale plot. No residuals (grey) vanishes, residuals only (red) overflows after 11 blocks, and residuals with pre-norm RMSNorm (blue) grows gently from 1.93 after one block to 10.2 after 28." data-b="jibd7"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 122" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/depth-prenorm.svg" alt="All three on one log-scale plot. No residuals (grey) vanishes, residuals only (red) overflows after 11 blocks, and residuals with pre-norm RMSNorm (blue) grows gently from 1.93 after one block to 10.2 after 28." style="width: 100%; --ar: 3.148;" data-b="jibd7"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 122" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -2453,7 +2497,7 @@ L 265.086875 87.376855
   <h2 data-b="kpihi">Saturated Attention</h2>
   <p data-b="zd70h">Pre-norm keeps the input to attention on a stable scale, but there's one more place numbers can grow, inside attention itself. Each attention score is a dot product of a query and a key, <b-m tex="q · k / √d_k">q · k / √d<sub>k</sub></b-m>, so if training makes <b-m tex="Ω_Q"><span class="c wblue sym" data-at="0,3" data-k="Ω_Q"><span class="Om">ω</span><sub>Q</sub></span></b-m> and <b-m tex="Ω_K"><span class="c wblue sym" data-at="0,3" data-k="Ω_K"><span class="Om">ω</span><sub>K</sub></span></b-m> twice as big, every query and key is twice as big and every score is four times as big.</p>
   <p data-b="a42ue">To see what that does, here's a random query (standing in for "s") and seven random keys (standing in for the prompt), with the query and keys made <span class="num">1</span>, <span class="num">2</span> and <span class="num">4</span> times bigger:</p>
-  <b-fig src="fig/sat-bars.svg" style="width: 100%; --ar: 4.000;" alt="Attention weights over the seven tokens when q and k are 1, 2 and 4 times bigger. At 1 times the weights are spread out with 0.43 on the biggest. At 2 times one token gets 0.96. At 4 times it gets all of it." data-b="mpgjv"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 96" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/sat-bars.svg" alt="Attention weights over the seven tokens when q and k are 1, 2 and 4 times bigger. At 1 times the weights are spread out with 0.43 on the biggest. At 2 times one token gets 0.96. At 4 times it gets all of it." style="width: 100%; --ar: 4.000;" data-b="mpgjv"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 96" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -3122,7 +3166,7 @@ L 376.32 79.68
   <h2 data-b="ojdco">QK-Norm</h2>
   <p data-b="aoblm">Qwen3's fix is to RMS-normalize every query and every key before the dot product. This is called <b class="def">QK-Norm</b>. It works on each head separately, over the head's <span class="num">32</span> numbers in our Shakespeare model (<span class="num">128</span> in Qwen3-0.6B), with one learned <b-m tex="γ">γ</b-m> for the queries and another for the keys:</p>
   <b-eq data-b="ji8gp" class=""><a id="eq-QK-Norm" data-rt=""></a>
-  <eq-row label="QK-Norm" note="the same is done to every key, with its own γ">q' = \frac{q}{\sqrt{\text{mean}(q^2) + \epsilon}} * \gamma_q</eq-row>
+    <eq-row label="QK-Norm" note="the same is done to every key, with its own γ">q' = \frac{q}{\sqrt{\text{mean}(q^2) + \epsilon}} * \gamma_q</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[12.4]</div><div class="eqml-e"><div class="eqml-note">the same is done to every key, with its own γ</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msup><mi mathvariant="normal">q</mi><mo lspace="0em" rspace="0em" class="tml-prime tml-med-pad">′</mo></msup><mo>=</mo><mfrac><mi mathvariant="normal">q</mi><msqrt><mrow><mtext>mean</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><msup><mi mathvariant="normal">q</mi><mn class="tml-med-pad">2</mn></msup><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>+</mo><mi mathvariant="normal">ϵ</mi></mrow></msqrt></mfrac><mo>∗</mo><msub><mi mathvariant="normal">γ</mi><mi mathvariant="normal">q</mi></msub></mrow></math></div></div></div></b-eq>
   <p data-b="zqjsi">In irishQwen QK-Norm happens right after the query and key projections and before RoPE (which we'll get to shortly). The values aren't normalized, since they never go through a softmax. Qwen3 added it and dropped the biases Qwen2 had on its queries, keys and values.</p>
 <div class="foot" data-rt=""><span>Transformer Blocks · Normalization</span><span>13</span></div></section>
@@ -3137,7 +3181,7 @@ L 376.32 79.68
   <p data-b="dydcz">The weights are <b class="take">exactly the same however big <b-m tex="q">q</b-m> and <b-m tex="k">k</b-m> get</b>, since dividing by the RMS undoes any scaling. The scores can no longer grow without limit, so the softmax can't saturate just because the weights grew. (Without the norm, the same query and keys gave <span class="num">0.434</span>, <span class="num">0.957</span> and <span class="num">1.0</span> for the biggest weight.)</p>
 <div class="foot" data-rt=""><span>Transformer Blocks · Normalization</span><span>14</span></div></section>
 
-<section class="page" id="order-blind" data-part="Position" data-view="reading" data-topic="position">
+<section class="page" id="order-blind" data-view="reading" data-topic="position" data-part="Position">
   <h2 data-b="ja9lr">Attention Is Order-Blind</h2>
   <p data-b="skpee">There's something we haven't given our blocks at all, the order of the tokens. Attention compares every query with every key, but nothing in that comparison says where the key is. Here's one attention head run on "lend me your ears" and on "lend your me ears" (" me" and " your" swapped):</p>
   <b-code lang="python" data-b="t09k1"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch, math</div><div class="ln">torch.manual_seed(<span class="nu nn">0</span>)</div><div class="ln">E = torch.randn(<span class="nu nn">512</span>, <span class="nu nn">256</span>) * math.sqrt(<span class="nu nn">2</span> / <span class="nu nn">512</span>)</div><div class="ln">Wq, Wk, Wv = [torch.randn(<span class="nu nn">256</span>, <span class="nu nn">32</span>) / <span class="nu nn">16</span> <span class="ctl">for</span> _ <span class="kw">in</span> <span class="bi">range</span>(<span class="nu nn">3</span>)]</div><div class="ln"></div><div class="ln"><span class="kw">def</span> <span class="def">head</span>(ids):</div><div class="ln">    <span class="cc red">X</span> = E[torch.tensor(ids)]</div><div class="ln">    Q, K, V = <span class="cc red">X</span> @ Wq, <span class="cc red">X</span> @ Wk, <span class="cc red">X</span> @ Wv</div><div class="ln">    S = Q @ K.T / math.sqrt(<span class="nu nn">32</span>)</div><div class="ln">    future = torch.ones(<span class="bi">len</span>(ids), <span class="bi">len</span>(ids)).tril() == <span class="nu nn">0</span></div><div class="ln">    S = S.masked_fill(future, -math.inf)</div><div class="ln">    <span class="ctl">return</span> torch.softmax(S, -<span class="nu nn">1</span>) @ V</div><div class="ln"></div><div class="ln">a = head([<span class="nu nn">316</span>, <span class="nu nn">269</span>, <span class="nu nn">320</span>, <span class="nu nn">350</span>, <span class="nu nn">335</span>, <span class="nu nn">290</span>, <span class="nu nn">115</span>])  <span class="cm"># me your</span></div><div class="ln">b = head([<span class="nu nn">316</span>, <span class="nu nn">269</span>, <span class="nu nn">350</span>, <span class="nu nn">320</span>, <span class="nu nn">335</span>, <span class="nu nn">290</span>, <span class="nu nn">115</span>])  <span class="cm"># your me</span></div><div class="ln"><span class="bi">print</span>(a[-<span class="nu nn">1</span>, :<span class="nu nn">4</span>])</div><div class="ln"><span class="bi">print</span>(b[-<span class="nu nn">1</span>, :<span class="nu nn">4</span>])</div></div></b-code>
@@ -3150,8 +3194,8 @@ L 376.32 79.68
   <h2 data-b="vgw1t">Positional Encodings</h2>
   <p data-b="cn6iz">The original transformer added a vector to each token's embedding saying where it is. Each position <b-m tex="pos">pos</b-m> gets its own vector, built from sine and cosine waves:</p>
   <b-eq data-b="fo5on" class=""><a id="eq-PE" data-rt=""></a>
-  <eq-row label="PE" note="i numbers the pairs of dimensions, d = 256 for us">\text{PE}(pos, 2i) = \sin\bp{pos / 10000^{2i/d}}</eq-row>
-  <eq-row note="">\text{PE}(pos, 2i+1) = \cos\bp{pos / 10000^{2i/d}}</eq-row>
+    <eq-row label="PE" note="i numbers the pairs of dimensions, d = 256 for us">\text{PE}(pos, 2i) = \sin\bp{pos / 10000^{2i/d}}</eq-row>
+    <eq-row>\text{PE}(pos, 2i+1) = \cos\bp{pos / 10000^{2i/d}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[12.5]</div><div class="eqml-e"><div class="eqml-note">i numbers the pairs of dimensions, d = 256 for us</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mtext>PE</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mo separator="true">,</mo><mn>2</mn><mi mathvariant="normal">i</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">sin</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">/</mi><msup><mn>10000</mn><mrow><mn>2</mn><mi mathvariant="normal">i</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi></mrow></msup><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mtext>PE</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mo separator="true">,</mo><mn>2</mn><mi mathvariant="normal">i</mi><mo>+</mo><mn>1</mn><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">cos</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mi mathvariant="normal">p</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">/</mi><msup><mn>10000</mn><mrow><mn>2</mn><mi mathvariant="normal">i</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi></mrow></msup><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="pgit9">These are called <b class="def">sinusoidal positional encodings</b>. Our Shakespeare model's context window is <span class="num">128</span> tokens, so we need <span class="num">128</span> of them:</p>
   <b-code lang="python" data-b="cuo02"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch</div><div class="ln">d, n = <span class="nu nn">256</span>, <span class="nu nn">128</span>        <span class="cm"># our model's C and ctx_len</span></div><div class="ln">pos = torch.arange(n).<span class="ty">float</span>().unsqueeze(<span class="nu nn">1</span>)  <span class="cm"># (128, 1)</span></div><div class="ln">two_i = torch.arange(<span class="nu nn">0</span>, d, <span class="nu nn">2</span>).<span class="ty">float</span>()       <span class="cm"># (128,)</span></div><div class="ln">angle = pos / <span class="nu nn">10000</span> ** (two_i / d)          <span class="cm"># (128, 128)</span></div><div class="ln">PE = torch.zeros(n, d)</div><div class="ln">PE[:, <span class="nu nn">0</span>::<span class="nu nn">2</span>] = torch.sin(angle)</div><div class="ln">PE[:, <span class="nu nn">1</span>::<span class="nu nn">2</span>] = torch.cos(angle)</div><div class="ln"><span class="bi">print</span>(PE[:<span class="nu nn">4</span>, :<span class="nu nn">4</span>])</div></div></b-code>
@@ -3165,7 +3209,7 @@ L 376.32 79.68
 <section class="page" id="pe-waves" data-view="reading" data-topic="position" style="">
   <h2 data-b="qakt6">Waves of Different Speeds</h2>
   <p data-b="frt67">Each pair of dimensions is a wave of a different speed. Here are three of the <span class="num">256</span> dimensions over the whole context window:</p>
-  <b-fig src="fig/pe-waves.svg" style="width: 100%; --ar: 3.254;" alt="Positional encoding values over positions 0 to 127. Dimension 0 is a fast wave that changes a lot from one position to the next, dimension 32 is a slower wave with a period of about 20 positions, and dimension 128 rises slowly from 0 to about 1 across the whole window." data-b="q4rq8"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 118" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/pe-waves.svg" alt="Positional encoding values over positions 0 to 127. Dimension 0 is a fast wave that changes a lot from one position to the next, dimension 32 is a slower wave with a period of about 20 positions, and dimension 128 rises slowly from 0 to about 1 across the whole window." style="width: 100%; --ar: 3.254;" data-b="q4rq8"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 118" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -3679,49 +3723,53 @@ L 260.164688 12.486191
   <h2 data-b="pj7t2">Rotations</h2>
   <p data-b="enu62">That's because the positions are mixed into the token vectors before the queries and keys are computed (over all <span class="num">127</span> places the score ranges from <span class="num">−2.84</span> to <span class="num">1.83</span>). We'd rather the distance was built in.</p>
   <p data-b="u482n">Think about two arrows on a clock face. If we turn both of them by the same angle, the angle between them doesn't change. So instead of adding a position, <b class="take">we turn each token's query and key by an angle that depends on its position</b>.</p>
-  <svg class="draw" viewBox="0 0 300 96" style="width: 64%" role="img" aria-label="Seven dials, one per token of lend me your ears, at positions m = 0 to 6. Each arrow is turned 30 degrees more than the one before: 0, 30, 60, 90, 120, 150 and 180 degrees. Tokens two apart, like me and e, always differ by 60 degrees." data-b="xc4gk">
-  <defs><marker id="ah333333-xc4gk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#333333"></path></marker></defs>
-  <circle id="rope-dials-xc4gk-s1" cx="24.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
-  <line x1="15.0" y1="38.0" x2="35.0" y2="38.0" stroke="#333333" stroke-width="1.20" marker-end="url(#ah333333-xc4gk)"></line>
-  <text x="24.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">0°</text>
-  <text x="24.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">le</text>
-  <text x="24.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 0</text>
-  <circle id="rope-dials-xc4gk-s2" cx="66.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
-  <line x1="58.2" y1="42.5" x2="75.5" y2="32.5" stroke="#333333" stroke-width="1.20" marker-end="url(#ah333333-xc4gk)"></line>
-  <text x="66.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">30°</text>
-  <text x="66.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">nd</text>
-  <text x="66.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 1</text>
-  <circle id="rope-dials-xc4gk-s3" cx="108.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
-  <line x1="103.5" y1="45.8" x2="113.5" y2="28.5" stroke="#333333" stroke-width="1.20" marker-end="url(#ah333333-xc4gk)"></line>
-  <text x="108.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">60°</text>
-  <text x="108.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">me</text>
-  <text x="108.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 2</text>
-  <circle id="rope-dials-xc4gk-s4" cx="150.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
-  <line x1="150.0" y1="47.0" x2="150.0" y2="27.0" stroke="#333333" stroke-width="1.20" marker-end="url(#ah333333-xc4gk)"></line>
-  <text x="150.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">90°</text>
-  <text x="150.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">your</text>
-  <text x="150.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 3</text>
-  <circle id="rope-dials-xc4gk-s5" cx="192.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
-  <line x1="196.5" y1="45.8" x2="186.5" y2="28.5" stroke="#333333" stroke-width="1.20" marker-end="url(#ah333333-xc4gk)"></line>
-  <text x="192.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">120°</text>
-  <text x="192.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">e</text>
-  <text x="192.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 4</text>
-  <circle id="rope-dials-xc4gk-s6" cx="234.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
-  <line x1="241.8" y1="42.5" x2="224.5" y2="32.5" stroke="#333333" stroke-width="1.20" marker-end="url(#ah333333-xc4gk)"></line>
-  <text x="234.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">150°</text>
-  <text x="234.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ar</text>
-  <text x="234.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 5</text>
-  <circle id="rope-dials-xc4gk-s7" cx="276.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
-  <line x1="285.0" y1="38.0" x2="265.0" y2="38.0" stroke="#333333" stroke-width="1.20" marker-end="url(#ah333333-xc4gk)"></line>
-  <text x="276.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">180°</text>
-  <text x="276.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">s</text>
-  <text x="276.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 6</text>
-  <line x1="108.0" y1="82.0" x2="192.0" y2="82.0" stroke="#002B5B" stroke-width="0.90"></line>
-  <text x="150.0" y="92.0" font-size="6.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">2 apart: arrows differ by 60°</text>
+  <svg class="draw" viewBox="0 0 300 96" role="img" aria-label="Seven dials, one per token of lend me your ears, at positions m = 0 to 6. Each arrow is turned 30 degrees more than the one before: 0, 30, 60, 90, 120, 150 and 180 degrees. Tokens two apart, like me and e, always differ by 60 degrees." style="width: 64%" data-b="xc4gk">
+    <defs>
+      <marker id="ah333333-xc4gk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#333333"></path>
+      </marker>
+    </defs>
+    <circle id="rope-dials-xc4gk-s1" cx="24.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
+    <line x1="15.0" y1="38.0" x2="35.0" y2="38.0" stroke="#333333" stroke-width="1.2" marker-end="url(#ah333333-xc4gk)"></line>
+    <text x="24.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">0°</text>
+    <text x="24.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">le</text>
+    <text x="24.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 0</text>
+    <circle id="rope-dials-xc4gk-s2" cx="66.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
+    <line x1="58.2" y1="42.5" x2="75.5" y2="32.5" stroke="#333333" stroke-width="1.2" marker-end="url(#ah333333-xc4gk)"></line>
+    <text x="66.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">30°</text>
+    <text x="66.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">nd</text>
+    <text x="66.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 1</text>
+    <circle id="rope-dials-xc4gk-s3" cx="108.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
+    <line x1="103.5" y1="45.8" x2="113.5" y2="28.5" stroke="#333333" stroke-width="1.2" marker-end="url(#ah333333-xc4gk)"></line>
+    <text x="108.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">60°</text>
+    <text x="108.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">me</text>
+    <text x="108.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 2</text>
+    <circle id="rope-dials-xc4gk-s4" cx="150.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
+    <line x1="150.0" y1="47.0" x2="150.0" y2="27.0" stroke="#333333" stroke-width="1.2" marker-end="url(#ah333333-xc4gk)"></line>
+    <text x="150.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">90°</text>
+    <text x="150.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">your</text>
+    <text x="150.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 3</text>
+    <circle id="rope-dials-xc4gk-s5" cx="192.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
+    <line x1="196.5" y1="45.8" x2="186.5" y2="28.5" stroke="#333333" stroke-width="1.2" marker-end="url(#ah333333-xc4gk)"></line>
+    <text x="192.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">120°</text>
+    <text x="192.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">e</text>
+    <text x="192.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 4</text>
+    <circle id="rope-dials-xc4gk-s6" cx="234.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
+    <line x1="241.8" y1="42.5" x2="224.5" y2="32.5" stroke="#333333" stroke-width="1.2" marker-end="url(#ah333333-xc4gk)"></line>
+    <text x="234.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">150°</text>
+    <text x="234.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ar</text>
+    <text x="234.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 5</text>
+    <circle id="rope-dials-xc4gk-s7" cx="276.0" cy="38.0" r="15.0" fill="#F3F3F3" stroke="#999999" stroke-width="1.2"></circle>
+    <line x1="285.0" y1="38.0" x2="265.0" y2="38.0" stroke="#333333" stroke-width="1.2" marker-end="url(#ah333333-xc4gk)"></line>
+    <text x="276.0" y="19.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">180°</text>
+    <text x="276.0" y="63.0" font-size="7.5" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">s</text>
+    <text x="276.0" y="71.0" font-size="5.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">m = 6</text>
+    <line x1="108.0" y1="82.0" x2="192.0" y2="82.0" stroke="#002B5B" stroke-width="0.9"></line>
+    <text x="150.0" y="92.0" font-size="6.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">2 apart: arrows differ by 60°</text>
   </svg>
   <p data-b="r7peg">In two dimensions, turning a vector by an angle <b-m tex="mθ">mθ</b-m> is a multiplication by a <b class="def">rotation matrix</b>:</p>
   <b-eq data-b="et53l" class=""><a id="eq-rotate" data-rt=""></a>
-  <eq-row label="rotate" note="m is the token's position">R(m) = \bb{\begin{matrix} \cos m\theta &amp; -\sin m\theta \\ \sin m\theta &amp; \cos m\theta \end{matrix}}</eq-row>
+    <eq-row label="rotate" note="m is the token's position">R(m) = \bb{\begin{matrix} \cos m\theta &amp; -\sin m\theta \\ \sin m\theta &amp; \cos m\theta \end{matrix}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[12.6]</div><div class="eqml-e"><div class="eqml-note">m is the token's position</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mi mathvariant="normal">R</mi><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mi mathvariant="normal">m</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mrow><mrow><mi mathvariant="normal">cos</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">θ</mi></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mrow><mo form="prefix" stretchy="false">−</mo><mrow><mi mathvariant="normal">sin</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">θ</mi></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mrow><mrow><mi mathvariant="normal">sin</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">θ</mi></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mrow><mrow><mi mathvariant="normal">cos</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">θ</mi></mrow></mtd></mtr></mtable><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="sitbl">The dot product of two arrows only depends on their lengths and the angle between them, so if a query at position <span class="num">4</span> is turned by <span class="num">120</span>° and a key at position <span class="num">3</span> by <span class="num">90</span>°, the angle between them grows by <span class="num">30</span>°, exactly as it would at positions <span class="num">51</span> and <span class="num">50</span>. <b class="take">The score only sees the distance, one position</b>.</p>
 <div class="foot" data-rt=""><span>Transformer Blocks · Position</span><span>19</span></div></section>
@@ -3730,8 +3778,8 @@ L 260.164688 12.486191
   <h2 data-b="e7ca0">Rotary Positional Embeddings</h2>
   <p data-b="weip9">Our queries and keys have <span class="num">32</span> numbers per head, not two, so RoPE splits them into <span class="num">16</span> pairs and turns each pair by its own angle. Pair <b-m tex="i">i</b-m> turns by <b-m tex="θ_i">θ<sub>i</sub></b-m> per position, with the same kind of fast and slow speeds as the sinusoidal waves:</p>
   <b-eq data-b="y6jni" class=""><a id="eq-RoPE" data-rt=""></a><a id="eq-speed" data-rt=""></a>
-  <eq-row label="speed" note="i = 0 … 15, d = 32 numbers per head">\theta_i = \text{base}^{-2i/d}</eq-row>
-  <eq-row label="RoPE" note="one 2 × 2 rotation per pair, zeros everywhere else">R(m) = \Bb{\begin{matrix} \cos m\theta_0 &amp; -\sin m\theta_0 &amp; &amp; \\ \sin m\theta_0 &amp; \cos m\theta_0 &amp; &amp; \\ &amp; &amp; \ddots &amp; \\ &amp; &amp; &amp; R_{15} \end{matrix}}</eq-row>
+    <eq-row label="speed" note="i = 0 … 15, d = 32 numbers per head">\theta_i = \text{base}^{-2i/d}</eq-row>
+    <eq-row label="RoPE" note="one 2 × 2 rotation per pair, zeros everywhere else">R(m) = \Bb{\begin{matrix} \cos m\theta_0 &amp; -\sin m\theta_0 &amp; &amp; \\ \sin m\theta_0 &amp; \cos m\theta_0 &amp; &amp; \\ &amp; &amp; \ddots &amp; \\ &amp; &amp; &amp; R_{15} \end{matrix}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[12.7]</div><div class="eqml-e"><div class="eqml-note">i = 0 … 15, d = 32 numbers per head</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msub><mi mathvariant="normal">θ</mi><mi mathvariant="normal">i</mi></msub><mo>=</mo><msup><mtext>base</mtext><mrow><mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo><mn>2</mn><mi mathvariant="normal">i</mi><mi mathvariant="normal">/</mi><mi mathvariant="normal">d</mi></mrow></msup></mrow></math></div><div class="eqml-n">[12.8]</div><div class="eqml-e"><div class="eqml-note">one 2 × 2 rotation per pair, zeros everywhere else</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mi mathvariant="normal">R</mi><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mi mathvariant="normal">m</mi><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mspace width="0.1667em"></mspace><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mrow><mrow><mi mathvariant="normal">cos</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mi mathvariant="normal">m</mi><msub><mi mathvariant="normal">θ</mi><mn>0</mn></msub></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mrow><mo form="prefix" stretchy="false">−</mo><mrow><mi mathvariant="normal">sin</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mi mathvariant="normal">m</mi><msub><mi mathvariant="normal">θ</mi><mn>0</mn></msub></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mrow></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mrow></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mrow><mrow><mi mathvariant="normal">sin</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mi mathvariant="normal">m</mi><msub><mi mathvariant="normal">θ</mi><mn>0</mn></msub></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mrow><mrow><mi mathvariant="normal">cos</mi><mo>⁡</mo><mspace width="0.1667em"></mspace></mrow><mi mathvariant="normal">m</mi><msub><mi mathvariant="normal">θ</mi><mn>0</mn></msub></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mrow></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mrow></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mrow></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mrow></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mi mathvariant="normal">⋱</mi></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mrow></mrow></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mrow></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mrow></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mrow></mrow></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><msub><mi mathvariant="normal">R</mi><mn>15</mn></msub></mtd></mtr></mtable><mspace width="0.1667em"></mspace><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="ye5kk">This is <b class="def">Rotary Positional Embeddings</b> (RoPE), from Jianlin Su and his colleagues in 2021. The query and key of the token at position <b-m tex="m">m</b-m> are both multiplied by <b-m tex="R(m)">R(m)</b-m> just before the dot product.</p>
   <p data-b="kierz">A few details matter for irishQwen. <b class="take">Only the queries and keys are rotated</b>, never the values, since position only matters for deciding who looks at whom. RoPE has no weights to learn, so one table of sines and cosines is shared by every block. Our Shakespeare model uses a base of <span class="num">10,000</span>, Qwen3-0.6B <span class="num">1,000,000</span> (slower pairs, for its much longer context). irishQwen pairs number <b-m tex="i">i</b-m> with <b-m tex="i + 16">i + 16</b-m> rather than its neighbor (quicker to compute, same idea).</p>
@@ -3751,7 +3799,7 @@ L 260.164688 12.486191
 <section class="page" id="rope-vs-sinusoidal" data-view="reading" data-topic="rope position" style="--gap: 22pt;">
   <h2 data-b="mhjuf">RoPE vs. Sinusoidal Encodings</h2>
   <p data-b="pt16l">Here's the score between " e" and " your", one position apart, at every place in the context window, with sinusoidal encodings added and with RoPE:</p>
-  <b-fig src="fig/rel-scores.svg" style="width: 100%; --ar: 2.743;" alt="The score between e and your, one position apart, as the pair slides through the context window. With sinusoidal encodings added (red) it wanders between about −2.8 and 1.8. With RoPE (blue) it is a flat line at −2.119." data-b="m2ytu"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 140" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/rel-scores.svg" alt="The score between e and your, one position apart, as the pair slides through the context window. With sinusoidal encodings added (red) it wanders between about −2.8 and 1.8. With RoPE (blue) it is a flat line at −2.119." style="width: 100%; --ar: 2.743;" data-b="m2ytu"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 140" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -4243,63 +4291,63 @@ L 274.186875 23.215527
   <p data-b="b8hhi">The sinusoidal score wanders with the position, while the RoPE score is a flat line. To your author this is one of the trickiest ideas of the last few years, the positions never touch the token vectors, and yet attention ends up knowing exactly how far apart every pair of tokens is.</p>
 <div class="foot" data-rt=""><span>Transformer Blocks · Position</span><span>22</span></div></section>
 
-<section class="page" id="dropout" data-part="Dropout" data-view="reading" data-topic="dropout" style="--gap: 22pt;">
+<section class="page" id="dropout" data-view="reading" data-topic="dropout" data-part="Dropout" style="--gap: 22pt;">
   <h2 data-b="l4dwd">Dropout</h2>
   <p data-b="aztai">One last piece of the older recipe is something Qwen3 leaves out. <b class="def">Dropout</b> sets random numbers in a layer's output to <span class="num">0</span> during training, a fresh random set at every step, so the network can't come to depend on any single number. To keep the average the same it scales up the numbers it keeps, dividing by <b-m tex="1 − p">1 − p</b-m>, where <b-m tex="p">p</b-m> is the chance of dropping each one:</p>
-  <svg class="draw" viewBox="0 0 300 120" style="width: 60%" role="img" aria-label="Dropout with p = 0.5 on four numbers, −0.24, −0.55, 0.64 and 1.80. The mask is 1, 1, 1, 0, so the result is −0.48, −1.10, 1.28 and 0.00: kept numbers doubled, the last dropped." data-b="ryq25">
-  <defs></defs>
-  <text x="92.0" y="21.0" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">x</text>
-  <g id="dropout-tiles-ryq25-s1">
-  <rect x="100.0" y="8.0" width="44.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="122.0" y="21.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.24</text>
-  </g>
-  <g id="dropout-tiles-ryq25-s2">
-  <rect x="149.0" y="8.0" width="44.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="171.0" y="21.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.55</text>
-  </g>
-  <g id="dropout-tiles-ryq25-s3">
-  <rect x="198.0" y="8.0" width="44.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="220.0" y="21.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.64</text>
-  </g>
-  <g id="dropout-tiles-ryq25-s4">
-  <rect x="247.0" y="8.0" width="44.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="269.0" y="21.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1.80</text>
-  </g>
-  <text x="92.0" y="59.0" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">mask m</text>
-  <g id="dropout-tiles-ryq25-s5">
-  <rect x="100.0" y="46.0" width="44.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="122.0" y="59.1" font-size="8.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
-  </g>
-  <g id="dropout-tiles-ryq25-s6">
-  <rect x="149.0" y="46.0" width="44.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="171.0" y="59.1" font-size="8.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
-  </g>
-  <g id="dropout-tiles-ryq25-s7">
-  <rect x="198.0" y="46.0" width="44.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="220.0" y="59.1" font-size="8.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
-  </g>
-  <g id="dropout-tiles-ryq25-s8">
-  <rect x="247.0" y="46.0" width="44.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="269.0" y="59.1" font-size="8.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0</text>
-  </g>
-  <text x="92.0" y="97.0" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">x · m / (1 − p)</text>
-  <g id="dropout-tiles-ryq25-s9">
-  <rect x="100.0" y="84.0" width="44.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="122.0" y="97.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.48</text>
-  </g>
-  <g id="dropout-tiles-ryq25-s10">
-  <rect x="149.0" y="84.0" width="44.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="171.0" y="97.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−1.10</text>
-  </g>
-  <g id="dropout-tiles-ryq25-s11">
-  <rect x="198.0" y="84.0" width="44.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="220.0" y="97.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1.28</text>
-  </g>
-  <g id="dropout-tiles-ryq25-s12">
-  <rect x="247.0" y="84.0" width="44.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="269.0" y="97.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.00</text>
-  </g>
-  <text x="100.0" y="112.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">p = 0.5: each number has a 50% chance of being dropped</text>
+  <svg class="draw" viewBox="0 0 300 120" role="img" aria-label="Dropout with p = 0.5 on four numbers, −0.24, −0.55, 0.64 and 1.80. The mask is 1, 1, 1, 0, so the result is −0.48, −1.10, 1.28 and 0.00: kept numbers doubled, the last dropped." style="width: 60%" data-b="ryq25">
+    <defs></defs>
+    <text x="92.0" y="21.0" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">x</text>
+    <g id="dropout-tiles-ryq25-s1">
+      <rect x="100.0" y="8.0" width="44.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="122.0" y="21.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.24</text>
+    </g>
+    <g id="dropout-tiles-ryq25-s2">
+      <rect x="149.0" y="8.0" width="44.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="171.0" y="21.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.55</text>
+    </g>
+    <g id="dropout-tiles-ryq25-s3">
+      <rect x="198.0" y="8.0" width="44.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="220.0" y="21.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.64</text>
+    </g>
+    <g id="dropout-tiles-ryq25-s4">
+      <rect x="247.0" y="8.0" width="44.0" height="20.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="269.0" y="21.1" font-size="8.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1.80</text>
+    </g>
+    <text x="92.0" y="59.0" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">mask m</text>
+    <g id="dropout-tiles-ryq25-s5">
+      <rect x="100.0" y="46.0" width="44.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="122.0" y="59.1" font-size="8.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
+    </g>
+    <g id="dropout-tiles-ryq25-s6">
+      <rect x="149.0" y="46.0" width="44.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="171.0" y="59.1" font-size="8.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
+    </g>
+    <g id="dropout-tiles-ryq25-s7">
+      <rect x="198.0" y="46.0" width="44.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="220.0" y="59.1" font-size="8.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
+    </g>
+    <g id="dropout-tiles-ryq25-s8">
+      <rect x="247.0" y="46.0" width="44.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="269.0" y="59.1" font-size="8.5" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0</text>
+    </g>
+    <text x="92.0" y="97.0" font-size="7.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">x · m / (1 − p)</text>
+    <g id="dropout-tiles-ryq25-s9">
+      <rect x="100.0" y="84.0" width="44.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="122.0" y="97.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−0.48</text>
+    </g>
+    <g id="dropout-tiles-ryq25-s10">
+      <rect x="149.0" y="84.0" width="44.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="171.0" y="97.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">−1.10</text>
+    </g>
+    <g id="dropout-tiles-ryq25-s11">
+      <rect x="198.0" y="84.0" width="44.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="220.0" y="97.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1.28</text>
+    </g>
+    <g id="dropout-tiles-ryq25-s12">
+      <rect x="247.0" y="84.0" width="44.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="269.0" y="97.1" font-size="8.5" fill="#6AA84F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.00</text>
+    </g>
+    <text x="100.0" y="112.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">p = 0.5: each number has a 50% chance of being dropped</text>
   </svg>
   <p data-b="gju0g">The next step gets a new mask, so a different set of numbers is dropped, and the numbers that survive are doubled (since <b-m tex="p">p</b-m> = <span class="num">0.5</span>). Dropout is <b class="take">only used during training</b>, when we use the model it does nothing at all.</p>
   <p data-b="akj6m">GPT-2 used dropout with <b-m tex="p">p</b-m> = <span class="num">0.1</span> in three places, on the embeddings, on the attention weights, and on the output of every attention layer and feed-forward network before it's added to the stream.</p>
@@ -4312,13 +4360,13 @@ L 274.186875 23.215527
   <p data-b="ozgg5">Our Shakespeare model is the exception to the rule. It trains for five passes over a <span class="num">5.4</span> MB corpus, which is exactly the setting where overfitting can happen. That's why the training script holds back the last <span class="num">5</span>% of the corpus as validation text, if the loss on those lines starts going up while the training loss keeps going down, the model has started memorizing Shakespeare.</p>
 <div class="foot" data-rt=""><span>Transformer Blocks · Dropout</span><span>24</span></div></section>
 
-<section class="page" id="silu" data-part="The Qwen3 Block" data-view="reading" data-topic="silu" style="--gap: 14.7pt;">
+<section class="page" id="silu" data-view="reading" data-topic="silu" data-part="The Qwen3 Block" style="--gap: 14.7pt;">
   <h2 data-b="pvr81">SiLU</h2>
   <p data-b="hdqei">There's one more difference inside the feed-forward network, the activation function. Instead of ReLU, Qwen3 uses <b class="def">SiLU</b> (also called Swish), which multiplies <b-m tex="x"><span class="c red sym" data-at="0,1" data-k="x">x</span></b-m> by its own sigmoid:</p>
   <b-eq data-b="paq96" class=""><a id="eq-SiLU" data-rt=""></a>
-  <eq-row label="SiLU">\text{SiLU}(x) = x \cdot \sigma(x) = \frac{x}{1 + e^{-x}}</eq-row>
+    <eq-row label="SiLU">\text{SiLU}(x) = x \cdot \sigma(x) = \frac{x}{1 + e^{-x}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[12.9]</div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mtext>SiLU</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-CC0000 sa-12-13"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mrow class="sym sym-CC0000 sa-17-18"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow><mo>⋅</mo><mi mathvariant="normal">σ</mi><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-CC0000 sa-32-33"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mfrac><mrow class="sym sym-CC0000 sa-43-44"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow><mrow><mn>1</mn><mo>+</mo><msup><mi mathvariant="normal">e</mi><mrow class="tml-sml-pad"><mo form="prefix" stretchy="false" lspace="0em" rspace="0em">−</mo><mrow class="sym sym-CC0000 sa-54-55"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi scriptlevel="2">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐱</mi></mrow></mrow></mrow></msup></mrow></mfrac></mrow></math></div></div></div></b-eq>
-  <b-fig src="fig/silu.svg" style="width: 100%; --ar: 3.254;" alt="ReLU and SiLU from −4 to 4. ReLU is 0 for negative inputs and x for positive ones, with a corner at 0. SiLU is a smooth curve that follows ReLU for large inputs, dips slightly below 0 for negative inputs, to −0.278 at x = −1.278, and goes back towards 0 for very negative inputs." data-b="cdg1w"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 118" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/silu.svg" alt="ReLU and SiLU from −4 to 4. ReLU is 0 for negative inputs and x for positive ones, with a corner at 0. SiLU is a smooth curve that follows ReLU for large inputs, dips slightly below 0 for negative inputs, to −0.278 at x = −1.278, and goes back towards 0 for very negative inputs." style="width: 100%; --ar: 3.254;" data-b="cdg1w"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 118" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -4617,81 +4665,90 @@ L 53.92 25.272031
   <p data-b="pdq5i">For big positive inputs SiLU is almost exactly ReLU, and for very negative ones it's almost <span class="num">0</span>. In between it's smooth, with no corner at <span class="num">0</span>, and it dips a little below <span class="num">0</span> (to <span class="num">−0.278</span> at <b-m tex="x"><span class="c red sym" data-at="0,1" data-k="x">x</span></b-m> = <span class="num">−1.278</span>).</p>
   <p data-b="hm5vv">Qwen3 uses it inside a <b class="def">SwiGLU</b> feed-forward network, where a "gate" branch goes through SiLU and decides how much of an "up" branch to let through:</p>
   <b-eq data-b="vrvwy" class=""><a id="eq-SwiGLU" data-rt=""></a>
-  <eq-row label="SwiGLU" note="⊙ multiplies number by number, no biases">\text{FFN}(\red{X}) = \bp{\text{SiLU}(\red{X}\,\Omega_{gate}) \odot \red{X}\,\Omega_{up}}\,\Omega_{down}</eq-row>
+    <eq-row label="SwiGLU" note="⊙ multiplies number by number, no biases">\text{FFN}(\red{X}) = \bp{\text{SiLU}(\red{X}\,\Omega_{gate}) \odot \red{X}\,\Omega_{up}}\,\Omega_{down}</eq-row>
   <div class="eq-ml" data-rt="" style="zoom: 0.947;"><div class="eqml" role="math"><div class="eqml-n">[12.10]</div><div class="eqml-e"><div class="eqml-note">⊙ multiplies number by number, no biases</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mtext>FFN</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow><mrow class="sym sym-CC0000 sa-16-17" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mtext>SiLU</mtext><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow><mrow class="sym sym-CC0000 sa-43-44" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mspace width="0.1667em"></mspace><mrow class="sym sym-1155CC sa-47-60"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mrow><mi mathvariant="normal">𝐠</mi><mi mathvariant="normal">𝐚</mi><mi mathvariant="normal">𝐭</mi><mi mathvariant="normal">𝐞</mi></mrow></msub></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo>⊙</mo><mrow><mrow class="sym sym-CC0000 sa-73-74" style="color:#CC0000;"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">𝐗</mi><mi mathvariant="normal">𝐐</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow></mrow><mspace width="0.1667em"></mspace><mrow class="sym sym-1155CC sa-77-88"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mrow><mi mathvariant="normal">𝐮</mi><mi mathvariant="normal">𝐩</mi></mrow></msub></mrow></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow><mspace width="0.1667em"></mspace><mrow class="sym sym-1155CC sa-91-104"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mrow><mi mathvariant="normal">𝐝</mi><mi mathvariant="normal">𝐨</mi><mi mathvariant="normal">𝐰</mi><mi mathvariant="normal">𝐧</mi></mrow></msub></mrow></mrow></mrow></math></div></div></div></b-eq>
 <div class="foot" data-rt=""><span>Transformer Blocks · The Qwen3 Block</span><span>25</span></div></section>
 
 <section class="page" id="qwen3-block" data-view="reading" data-topic="qwen3" style="--gap: 14.3pt;">
   <h2 data-b="hfy3b">The Qwen3 Block</h2>
   <p data-b="eh792">Putting it all together, here's one Qwen3 block, exactly as irishQwen's <span class="mono">qwen_transformer.py</span> builds it:</p>
-  <svg class="draw" viewBox="0 0 390 270" style="width: 74%" role="img" aria-label="One Qwen3 block: X goes through RMSNorm 1, then masked grouped-query attention, with QK-Norm and RoPE applied to the queries and keys inside it, and is added back to X. Then RMSNorm 2, then the SwiGLU feed forward network, SiLU of X times Omega gate, times X times Omega up, then times Omega down, added back again. 8 query heads and 4 KV heads, F = 768 (Qwen3-0.6B: 16, 8 and 3,072)." data-b="gjei6">
-  <defs><marker id="ah000000-gjei6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#000000"></path></marker><marker id="ah6D9EEB-gjei6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#6D9EEB"></path></marker></defs>
-  <g id="qwen3-block-gjei6-s1">
-  <rect x="119.0" y="244.0" width="62.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="150.0" y="257.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X</text>
-  <text x="150.0" y="264.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
-  </g>
-  <line x1="150.0" y1="244.0" x2="150.0" y2="233.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s1" data-b="qwen3-block-gjei6-s2"></line>
-  <g id="qwen3-block-gjei6-s2">
-  <rect x="91.0" y="211.0" width="118.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="150.0" y="224.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RMSNorm 1</text>
-  </g>
-  <line x1="150.0" y1="211.0" x2="150.0" y2="200.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s2" data-b="qwen3-block-gjei6-s3"></line>
-  <g id="qwen3-block-gjei6-s3">
-  <rect x="91.0" y="170.0" width="118.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="150.0" y="184.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Masked grouped-query</text>
-  <text x="150.0" y="194.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">attention</text>
-  </g>
-  <line x1="150.0" y1="170.0" x2="150.0" y2="159.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s3" data-b="qwen3-block-gjei6-s9"></line>
-  <circle id="qwen3-block-gjei6-s9" cx="150.0" cy="152.5" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
-  <text x="150.0" y="156.5" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
-  <polyline points="150.0,240.0 68.0,240.0 68.0,152.5 143.0,152.5" fill="none" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gjei6)"></polyline>
-  <line x1="150.0" y1="146.0" x2="150.0" y2="135.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s9" data-b="qwen3-block-gjei6-s4"></line>
-  <g id="qwen3-block-gjei6-s4">
-  <rect x="91.0" y="113.0" width="118.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="150.0" y="126.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RMSNorm 2</text>
-  </g>
-  <line x1="150.0" y1="113.0" x2="150.0" y2="102.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s4" data-b="qwen3-block-gjei6-s5"></line>
-  <g id="qwen3-block-gjei6-s5">
-  <rect x="91.0" y="76.0" width="118.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="150.0" y="88.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">SwiGLU</text>
-  <text x="150.0" y="98.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">feed forward</text>
-  </g>
-  <line x1="150.0" y1="76.0" x2="150.0" y2="65.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s5" data-b="qwen3-block-gjei6-s10"></line>
-  <circle id="qwen3-block-gjei6-s10" cx="150.0" cy="58.5" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
-  <text x="150.0" y="62.5" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
-  <polyline points="150.0,142.0 68.0,142.0 68.0,58.5 143.0,58.5" fill="none" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gjei6)"></polyline>
-  <line x1="150.0" y1="52.0" x2="150.0" y2="38.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s10" data-b="qwen3-block-gjei6-s6"></line>
-  <g id="qwen3-block-gjei6-s6">
-  <rect x="119.0" y="16.0" width="62.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="150.0" y="28.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X′</text>
-  <text x="150.0" y="34.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
-  </g>
-  <g id="qwen3-block-gjei6-s7">
-  <rect x="232.0" y="163.0" width="58.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="261.0" y="174.4" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">QK-Norm</text>
-  </g>
-  <g id="qwen3-block-gjei6-s8">
-  <rect x="232.0" y="189.0" width="58.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="261.0" y="200.4" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RoPE</text>
-  </g>
-  <line x1="232.0" y1="172.0" x2="209.0" y2="172.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-gjei6)" data-a="qwen3-block-gjei6-s7" data-b="qwen3-block-gjei6-s3"></line>
-  <line x1="232.0" y1="198.0" x2="209.0" y2="198.0" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-gjei6)" data-a="qwen3-block-gjei6-s8" data-b="qwen3-block-gjei6-s3"></line>
-  <text x="217.0" y="87.0" font-size="6.5" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start">SiLU(X Ω_gate) ⊙ (X Ω_up)</text>
-  <text x="217.0" y="96.0" font-size="6.5" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start">then @ Ω_down</text>
-  <text x="217.0" y="214.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">8 query heads, 4 KV heads (Qwen3-0.6B: 16, 8)</text>
-  <text x="217.0" y="106.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">F = 768 (Qwen3-0.6B: 3,072)</text>
+  <svg class="draw" viewBox="0 0 390 270" role="img" aria-label="One Qwen3 block: X goes through RMSNorm 1, then masked grouped-query attention, with QK-Norm and RoPE applied to the queries and keys inside it, and is added back to X. Then RMSNorm 2, then the SwiGLU feed forward network, SiLU of X times Omega gate, times X times Omega up, then times Omega down, added back again. 8 query heads and 4 KV heads, F = 768 (Qwen3-0.6B: 16, 8 and 3,072)." style="width: 74%" data-b="gjei6">
+    <defs>
+      <marker id="ah000000-gjei6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
+      </marker>
+      <marker id="ah6D9EEB-gjei6" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#6D9EEB"></path>
+      </marker>
+    </defs>
+    <g id="qwen3-block-gjei6-s1">
+      <rect x="119.0" y="244.0" width="62.0" height="24.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="150.0" y="257.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X</text>
+      <text x="150.0" y="264.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
+    </g>
+    <line x1="150.0" y1="244.0" x2="150.0" y2="233.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s1" data-b="qwen3-block-gjei6-s2"></line>
+    <g id="qwen3-block-gjei6-s2">
+      <rect x="91.0" y="211.0" width="118.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="150.0" y="224.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RMSNorm 1</text>
+    </g>
+    <line x1="150.0" y1="211.0" x2="150.0" y2="200.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s2" data-b="qwen3-block-gjei6-s3"></line>
+    <g id="qwen3-block-gjei6-s3">
+      <rect x="91.0" y="170.0" width="118.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="150.0" y="184.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Masked grouped-query</text>
+      <text x="150.0" y="194.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">attention</text>
+    </g>
+    <line x1="150.0" y1="170.0" x2="150.0" y2="159.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s3" data-b="qwen3-block-gjei6-s9"></line>
+    <circle id="qwen3-block-gjei6-s9" cx="150.0" cy="152.5" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
+    <text x="150.0" y="156.5" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
+    <polyline points="150.0,240.0 68.0,240.0 68.0,152.5 143.0,152.5" fill="none" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gjei6)"></polyline>
+    <line x1="150.0" y1="146.0" x2="150.0" y2="135.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s9" data-b="qwen3-block-gjei6-s4"></line>
+    <g id="qwen3-block-gjei6-s4">
+      <rect x="91.0" y="113.0" width="118.0" height="22.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="150.0" y="126.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RMSNorm 2</text>
+    </g>
+    <line x1="150.0" y1="113.0" x2="150.0" y2="102.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s4" data-b="qwen3-block-gjei6-s5"></line>
+    <g id="qwen3-block-gjei6-s5">
+      <rect x="91.0" y="76.0" width="118.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="150.0" y="88.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">SwiGLU</text>
+      <text x="150.0" y="98.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">feed forward</text>
+    </g>
+    <line x1="150.0" y1="76.0" x2="150.0" y2="65.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s5" data-b="qwen3-block-gjei6-s10"></line>
+    <circle id="qwen3-block-gjei6-s10" cx="150.0" cy="58.5" r="6.5" fill="white" stroke="#000000" stroke-width="1.2"></circle>
+    <text x="150.0" y="62.5" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
+    <polyline points="150.0,142.0 68.0,142.0 68.0,58.5 143.0,58.5" fill="none" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gjei6)"></polyline>
+    <line x1="150.0" y1="52.0" x2="150.0" y2="38.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-gjei6)" data-a="qwen3-block-gjei6-s10" data-b="qwen3-block-gjei6-s6"></line>
+    <g id="qwen3-block-gjei6-s6">
+      <rect x="119.0" y="16.0" width="62.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="150.0" y="28.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">X′</text>
+      <text x="150.0" y="34.8" font-size="4.3" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 256&gt;</text>
+    </g>
+    <g id="qwen3-block-gjei6-s7">
+      <rect x="232.0" y="163.0" width="58.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="261.0" y="174.4" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">QK-Norm</text>
+    </g>
+    <g id="qwen3-block-gjei6-s8">
+      <rect x="232.0" y="189.0" width="58.0" height="18.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="261.0" y="200.4" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">RoPE</text>
+    </g>
+    <line x1="232.0" y1="172.0" x2="209.0" y2="172.0" stroke="#6D9EEB" stroke-width="1.0" marker-end="url(#ah6D9EEB-gjei6)" data-a="qwen3-block-gjei6-s7" data-b="qwen3-block-gjei6-s3"></line>
+    <line x1="232.0" y1="198.0" x2="209.0" y2="198.0" stroke="#6D9EEB" stroke-width="1.0" marker-end="url(#ah6D9EEB-gjei6)" data-a="qwen3-block-gjei6-s8" data-b="qwen3-block-gjei6-s3"></line>
+    <text x="217.0" y="87.0" font-size="6.5" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start">SiLU(X Ω_gate) ⊙ (X Ω_up)</text>
+    <text x="217.0" y="96.0" font-size="6.5" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="start">then @ Ω_down</text>
+    <text x="217.0" y="214.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">8 query heads, 4 KV heads (Qwen3-0.6B: 16, 8)</text>
+    <text x="217.0" y="106.0" font-size="6.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">F = 768 (Qwen3-0.6B: 3,072)</text>
   </svg>
   <p data-b="t9yls">Compared with IrishChat, the GPT-2-style model the class built earlier, every one of the changes is in this picture:</p>
   <table class="tbl small" data-b="n9z0j">
-  <thead><tr><th></th><th>IrishChat (GPT-2-style)</th><th>Qwen3 / irishQwen</th></tr></thead>
-  <tbody>
-  <tr><td>attention</td><td>multi-head</td><td>grouped-query, with QK-Norm</td></tr>
-  <tr><td>activation</td><td>ReLU</td><td>SiLU, in a SwiGLU network</td></tr>
-  <tr><td>normalization</td><td>LayerNorm</td><td>RMSNorm (pre-norm)</td></tr>
-  <tr><td>position</td><td>added to the embeddings</td><td>RoPE on queries and keys</td></tr>
-  <tr><td>dropout</td><td>yes</td><td>none</td></tr>
-  </tbody>
+    <thead>
+      <tr><th></th><th>IrishChat (GPT-2-style)</th><th>Qwen3 / irishQwen</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>attention</td><td>multi-head</td><td>grouped-query, with QK-Norm</td></tr>
+      <tr><td>activation</td><td>ReLU</td><td>SiLU, in a SwiGLU network</td></tr>
+      <tr><td>normalization</td><td>LayerNorm</td><td>RMSNorm (pre-norm)</td></tr>
+      <tr><td>position</td><td>added to the embeddings</td><td>RoPE on queries and keys</td></tr>
+      <tr><td>dropout</td><td>yes</td><td>none</td></tr>
+    </tbody>
   </table>
 <div class="foot" data-rt=""><span>Transformer Blocks · The Qwen3 Block</span><span>26</span></div></section>
 
@@ -4734,47 +4791,51 @@ pre-norm  ['<span class="nu nn">1.93</span>', '<span class="nu nn">3.64</span>',
 <section class="page" id="to-irishqwen" data-view="reading" data-topic="qwen3" style="--gap: 22pt;">
   <h2 data-b="xjiow">From Blocks to irishQwen</h2>
   <p data-b="rnhnf">We now have every piece of irishQwen. The token ids go into the embedding table, the token vectors run up the residual stream through the blocks, a final RMSNorm puts them back on a common scale, and the output layer and a softmax turn each one into a probability for every token in the vocabulary:</p>
-  <svg class="draw" viewBox="0 0 300 274" style="width: 62%" role="img" aria-label="The whole model: the 7 token ids of lend me your ears go into the token embedding, 512 by 256, then 4 Qwen3 blocks (28 in Qwen3-0.6B), then the final RMSNorm, the linear output layer, 256 by 512, and a softmax, giving ŷ, 7 by 512." data-b="mfudl">
-  <defs><marker id="ah000000-mfudl" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#000000"></path></marker></defs>
-  <g id="irishqwen-stack-mfudl-s1">
-  <rect x="55.0" y="249.0" width="130.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="120.0" y="260.9" font-size="9.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">lend me your ears</text>
-  <text x="120.0" y="267.8" font-size="3.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">7 token ids</text>
-  </g>
-  <line x1="120.0" y1="249.0" x2="120.0" y2="237.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s1" data-b="irishqwen-stack-mfudl-s2"></line>
-  <g id="irishqwen-stack-mfudl-s2">
-  <rect x="56.0" y="211.0" width="128.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="120.0" y="223.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Token embedding</text>
-  <text x="120.0" y="233.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">&lt;512, 256&gt;</text>
-  </g>
-  <line x1="120.0" y1="211.0" x2="120.0" y2="199.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s2"></line>
-  <rect x="56.0" y="141.0" width="128.0" height="58.0" rx="10.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="120.0" y="165.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Qwen3 block</text>
-  <text x="120.0" y="177.0" font-size="5.8" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">RMSNorm, GQA, +, RMSNorm, SwiGLU, +</text>
-  <text x="192.0" y="167.0" font-size="12.0" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">×4</text>
-  <text x="192.0" y="179.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">Qwen3-0.6B: ×28</text>
-  <line x1="120.0" y1="141.0" x2="120.0" y2="129.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-mfudl)" data-b="irishqwen-stack-mfudl-s3"></line>
-  <g id="irishqwen-stack-mfudl-s3">
-  <rect x="56.0" y="109.0" width="128.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="120.0" y="121.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Final RMSNorm</text>
-  </g>
-  <line x1="120.0" y1="109.0" x2="120.0" y2="97.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s3" data-b="irishqwen-stack-mfudl-s4"></line>
-  <g id="irishqwen-stack-mfudl-s4">
-  <rect x="56.0" y="71.0" width="128.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="120.0" y="83.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Linear output layer</text>
-  <text x="120.0" y="93.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">&lt;256, 512&gt;</text>
-  </g>
-  <line x1="120.0" y1="71.0" x2="120.0" y2="59.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s4" data-b="irishqwen-stack-mfudl-s5"></line>
-  <g id="irishqwen-stack-mfudl-s5">
-  <rect x="56.0" y="39.0" width="128.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="120.0" y="51.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">softmax</text>
-  </g>
-  <line x1="120.0" y1="39.0" x2="120.0" y2="29.0" stroke="#000000" stroke-width="1.10" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s5" data-b="irishqwen-stack-mfudl-s6"></line>
-  <g id="irishqwen-stack-mfudl-s6">
-  <rect x="90.0" y="10.0" width="60.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="120.0" y="21.1" font-size="11.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ</text>
-  <text x="120.0" y="26.8" font-size="4.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 512&gt;</text>
-  </g>
+  <svg class="draw" viewBox="0 0 300 274" role="img" aria-label="The whole model: the 7 token ids of lend me your ears go into the token embedding, 512 by 256, then 4 Qwen3 blocks (28 in Qwen3-0.6B), then the final RMSNorm, the linear output layer, 256 by 512, and a softmax, giving ŷ, 7 by 512." style="width: 62%" data-b="mfudl">
+    <defs>
+      <marker id="ah000000-mfudl" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
+      </marker>
+    </defs>
+    <g id="irishqwen-stack-mfudl-s1">
+      <rect x="55.0" y="249.0" width="130.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="120.0" y="260.9" font-size="9.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">lend me your ears</text>
+      <text x="120.0" y="267.8" font-size="3.2" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">7 token ids</text>
+    </g>
+    <line x1="120.0" y1="249.0" x2="120.0" y2="237.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s1" data-b="irishqwen-stack-mfudl-s2"></line>
+    <g id="irishqwen-stack-mfudl-s2">
+      <rect x="56.0" y="211.0" width="128.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="120.0" y="223.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Token embedding</text>
+      <text x="120.0" y="233.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">&lt;512, 256&gt;</text>
+    </g>
+    <line x1="120.0" y1="211.0" x2="120.0" y2="199.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s2"></line>
+    <rect x="56.0" y="141.0" width="128.0" height="58.0" rx="10.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+    <text x="120.0" y="165.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Qwen3 block</text>
+    <text x="120.0" y="177.0" font-size="5.8" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">RMSNorm, GQA, +, RMSNorm, SwiGLU, +</text>
+    <text x="192.0" y="167.0" font-size="12.0" fill="#002B5B" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">×4</text>
+    <text x="192.0" y="179.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">Qwen3-0.6B: ×28</text>
+    <line x1="120.0" y1="141.0" x2="120.0" y2="129.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-mfudl)" data-b="irishqwen-stack-mfudl-s3"></line>
+    <g id="irishqwen-stack-mfudl-s3">
+      <rect x="56.0" y="109.0" width="128.0" height="20.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="120.0" y="121.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Final RMSNorm</text>
+    </g>
+    <line x1="120.0" y1="109.0" x2="120.0" y2="97.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s3" data-b="irishqwen-stack-mfudl-s4"></line>
+    <g id="irishqwen-stack-mfudl-s4">
+      <rect x="56.0" y="71.0" width="128.0" height="26.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="120.0" y="83.0" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Linear output layer</text>
+      <text x="120.0" y="93.0" font-size="5.2" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">&lt;256, 512&gt;</text>
+    </g>
+    <line x1="120.0" y1="71.0" x2="120.0" y2="59.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s4" data-b="irishqwen-stack-mfudl-s5"></line>
+    <g id="irishqwen-stack-mfudl-s5">
+      <rect x="56.0" y="39.0" width="128.0" height="20.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="120.0" y="51.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">softmax</text>
+    </g>
+    <line x1="120.0" y1="39.0" x2="120.0" y2="29.0" stroke="#000000" stroke-width="1.1" marker-end="url(#ah000000-mfudl)" data-a="irishqwen-stack-mfudl-s5" data-b="irishqwen-stack-mfudl-s6"></line>
+    <g id="irishqwen-stack-mfudl-s6">
+      <rect x="90.0" y="10.0" width="60.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="120.0" y="21.1" font-size="11.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">ŷ</text>
+      <text x="120.0" y="26.8" font-size="4.0" fill="#DCB439" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;7, 512&gt;</text>
+    </g>
   </svg>
   <p data-b="xizom">So far every block has had random weights, so the probabilities at the top mean nothing yet. In the next chapter we'll put these pieces together into one model, count its weights, and <b class="take">train it on Shakespeare</b>.</p>
 <div class="foot" data-rt=""><span>Transformer Blocks · The Qwen3 Block</span><span>31</span></div></section>
@@ -5133,7 +5194,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -5161,15 +5222,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -5178,6 +5285,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -5190,9 +5298,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -833,108 +844,108 @@ svg.al-clone { z-index: 1; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Backpropagation Through Time</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#lec-ffn-q">Review</a><a href="#lec-p-izza3">Sequence Data</a><a href="#lec-autograd">BPTT from Scratch</a><a href="#lec-forget">Vanishing and Exploding Gradients</a><a href="#lec-gates">LSTMs and GRUs</a><a href="#lec-static">Toward Attention</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="on">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="bptt-chapter.pdf" download>Reading</a><a href="bptt-chapter-slides.pdf" download>Lecture</a><a href="bptt-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="workbook">
 <section class="page cover" id="cover">
-  <svg class="draw" viewBox="0 0 384 220" style="width: 280.9pt" role="img" aria-label="A row of 50 gold bars, one per word of the chorus, shrinking and fading from right to left, with a row of navy dots underneath" data-b="d2a27">
+  <svg class="draw" viewBox="0 0 384 220" role="img" aria-label="A row of 50 gold bars, one per word of the chorus, shrinking and fading from right to left, with a row of navy dots underneath" style="width: 280.9pt" data-b="d2a27">
     <defs></defs>
     <rect x="5.2" y="175.5" width="4.7" height="16.2" rx="0.0" fill="#F9F2DB" stroke="none"></rect>
-    <ellipse cx="7.5" cy="205.8" rx="1.5" ry="1.5" fill="#D1D9E1" stroke="#D1D9E1" stroke-width="0.00"></ellipse>
+    <ellipse cx="7.5" cy="205.8" rx="1.5" ry="1.5" fill="#D1D9E1" stroke="#D1D9E1" stroke-width="0.0"></ellipse>
     <rect x="12.7" y="170.8" width="4.7" height="20.9" rx="0.0" fill="#F8F0D8" stroke="none"></rect>
-    <ellipse cx="15.1" cy="205.8" rx="1.5" ry="1.5" fill="#CDD5DF" stroke="#CDD5DF" stroke-width="0.00"></ellipse>
+    <ellipse cx="15.1" cy="205.8" rx="1.5" ry="1.5" fill="#CDD5DF" stroke="#CDD5DF" stroke-width="0.0"></ellipse>
     <rect x="20.3" y="168.5" width="4.7" height="23.2" rx="0.0" fill="#F8EFD5" stroke="none"></rect>
-    <ellipse cx="22.6" cy="205.8" rx="1.5" ry="1.5" fill="#C9D2DC" stroke="#C9D2DC" stroke-width="0.00"></ellipse>
+    <ellipse cx="22.6" cy="205.8" rx="1.5" ry="1.5" fill="#C9D2DC" stroke="#C9D2DC" stroke-width="0.0"></ellipse>
     <rect x="27.8" y="166.8" width="4.7" height="24.9" rx="0.0" fill="#F7EED1" stroke="none"></rect>
-    <ellipse cx="30.1" cy="205.8" rx="1.5" ry="1.5" fill="#C4CED9" stroke="#C4CED9" stroke-width="0.00"></ellipse>
+    <ellipse cx="30.1" cy="205.8" rx="1.5" ry="1.5" fill="#C4CED9" stroke="#C4CED9" stroke-width="0.0"></ellipse>
     <rect x="35.3" y="162.2" width="4.7" height="29.5" rx="0.0" fill="#F6ECCE" stroke="none"></rect>
-    <ellipse cx="37.6" cy="205.8" rx="1.5" ry="1.5" fill="#C0CBD7" stroke="#C0CBD7" stroke-width="0.00"></ellipse>
+    <ellipse cx="37.6" cy="205.8" rx="1.5" ry="1.5" fill="#C0CBD7" stroke="#C0CBD7" stroke-width="0.0"></ellipse>
     <rect x="42.8" y="155.4" width="4.7" height="36.3" rx="0.0" fill="#F6EBCB" stroke="none"></rect>
-    <ellipse cx="45.2" cy="205.8" rx="1.5" ry="1.5" fill="#BCC7D4" stroke="#BCC7D4" stroke-width="0.00"></ellipse>
+    <ellipse cx="45.2" cy="205.8" rx="1.5" ry="1.5" fill="#BCC7D4" stroke="#BCC7D4" stroke-width="0.0"></ellipse>
     <rect x="50.4" y="150.9" width="4.7" height="40.7" rx="0.0" fill="#F5EAC7" stroke="none"></rect>
-    <ellipse cx="52.7" cy="205.8" rx="1.5" ry="1.5" fill="#B7C4D1" stroke="#B7C4D1" stroke-width="0.00"></ellipse>
+    <ellipse cx="52.7" cy="205.8" rx="1.5" ry="1.5" fill="#B7C4D1" stroke="#B7C4D1" stroke-width="0.0"></ellipse>
     <rect x="57.9" y="150.1" width="4.7" height="41.6" rx="0.0" fill="#F5E9C4" stroke="none"></rect>
-    <ellipse cx="60.2" cy="205.8" rx="1.5" ry="1.5" fill="#B3C0CE" stroke="#B3C0CE" stroke-width="0.00"></ellipse>
+    <ellipse cx="60.2" cy="205.8" rx="1.5" ry="1.5" fill="#B3C0CE" stroke="#B3C0CE" stroke-width="0.0"></ellipse>
     <rect x="65.4" y="149.1" width="4.7" height="42.6" rx="0.0" fill="#F4E7C1" stroke="none"></rect>
-    <ellipse cx="67.8" cy="205.8" rx="1.5" ry="1.5" fill="#AFBCCC" stroke="#AFBCCC" stroke-width="0.00"></ellipse>
+    <ellipse cx="67.8" cy="205.8" rx="1.5" ry="1.5" fill="#AFBCCC" stroke="#AFBCCC" stroke-width="0.0"></ellipse>
     <rect x="73.0" y="145.9" width="4.7" height="45.8" rx="0.0" fill="#F3E6BE" stroke="none"></rect>
-    <ellipse cx="75.3" cy="205.8" rx="1.5" ry="1.5" fill="#ABB9C9" stroke="#ABB9C9" stroke-width="0.00"></ellipse>
+    <ellipse cx="75.3" cy="205.8" rx="1.5" ry="1.5" fill="#ABB9C9" stroke="#ABB9C9" stroke-width="0.0"></ellipse>
     <rect x="80.5" y="141.2" width="4.7" height="50.5" rx="0.0" fill="#F3E5BA" stroke="none"></rect>
-    <ellipse cx="82.8" cy="205.8" rx="1.5" ry="1.5" fill="#A6B5C6" stroke="#A6B5C6" stroke-width="0.00"></ellipse>
+    <ellipse cx="82.8" cy="205.8" rx="1.5" ry="1.5" fill="#A6B5C6" stroke="#A6B5C6" stroke-width="0.0"></ellipse>
     <rect x="88.0" y="138.4" width="4.7" height="53.2" rx="0.0" fill="#F2E4B7" stroke="none"></rect>
-    <ellipse cx="90.4" cy="205.8" rx="1.5" ry="1.5" fill="#A2B2C3" stroke="#A2B2C3" stroke-width="0.00"></ellipse>
+    <ellipse cx="90.4" cy="205.8" rx="1.5" ry="1.5" fill="#A2B2C3" stroke="#A2B2C3" stroke-width="0.0"></ellipse>
     <rect x="95.5" y="138.9" width="4.7" height="52.8" rx="0.0" fill="#F2E2B4" stroke="none"></rect>
-    <ellipse cx="97.9" cy="205.8" rx="1.5" ry="1.5" fill="#9EAEC1" stroke="#9EAEC1" stroke-width="0.00"></ellipse>
+    <ellipse cx="97.9" cy="205.8" rx="1.5" ry="1.5" fill="#9EAEC1" stroke="#9EAEC1" stroke-width="0.0"></ellipse>
     <rect x="103.1" y="134.6" width="4.7" height="57.1" rx="0.0" fill="#F1E1B0" stroke="none"></rect>
-    <ellipse cx="105.4" cy="205.8" rx="1.5" ry="1.5" fill="#9AABBE" stroke="#9AABBE" stroke-width="0.00"></ellipse>
+    <ellipse cx="105.4" cy="205.8" rx="1.5" ry="1.5" fill="#9AABBE" stroke="#9AABBE" stroke-width="0.0"></ellipse>
     <rect x="110.6" y="129.7" width="4.7" height="62.0" rx="0.0" fill="#F0E0AD" stroke="none"></rect>
-    <ellipse cx="112.9" cy="205.8" rx="1.5" ry="1.5" fill="#95A7BB" stroke="#95A7BB" stroke-width="0.00"></ellipse>
+    <ellipse cx="112.9" cy="205.8" rx="1.5" ry="1.5" fill="#95A7BB" stroke="#95A7BB" stroke-width="0.0"></ellipse>
     <rect x="118.1" y="127.4" width="4.7" height="64.3" rx="0.0" fill="#F0DFAA" stroke="none"></rect>
-    <ellipse cx="120.5" cy="205.8" rx="1.5" ry="1.5" fill="#91A4B8" stroke="#91A4B8" stroke-width="0.00"></ellipse>
+    <ellipse cx="120.5" cy="205.8" rx="1.5" ry="1.5" fill="#91A4B8" stroke="#91A4B8" stroke-width="0.0"></ellipse>
     <rect x="125.7" y="126.3" width="4.7" height="65.4" rx="0.0" fill="#EFDDA6" stroke="none"></rect>
-    <ellipse cx="128.0" cy="205.8" rx="1.5" ry="1.5" fill="#8DA0B6" stroke="#8DA0B6" stroke-width="0.00"></ellipse>
+    <ellipse cx="128.0" cy="205.8" rx="1.5" ry="1.5" fill="#8DA0B6" stroke="#8DA0B6" stroke-width="0.0"></ellipse>
     <rect x="133.2" y="125.1" width="4.7" height="66.6" rx="0.0" fill="#EFDCA3" stroke="none"></rect>
-    <ellipse cx="135.5" cy="205.8" rx="1.5" ry="1.5" fill="#899DB3" stroke="#899DB3" stroke-width="0.00"></ellipse>
+    <ellipse cx="135.5" cy="205.8" rx="1.5" ry="1.5" fill="#899DB3" stroke="#899DB3" stroke-width="0.0"></ellipse>
     <rect x="140.7" y="118.6" width="4.7" height="73.1" rx="0.0" fill="#EEDBA0" stroke="none"></rect>
-    <ellipse cx="143.1" cy="205.8" rx="1.5" ry="1.5" fill="#8499B0" stroke="#8499B0" stroke-width="0.00"></ellipse>
+    <ellipse cx="143.1" cy="205.8" rx="1.5" ry="1.5" fill="#8499B0" stroke="#8499B0" stroke-width="0.0"></ellipse>
     <rect x="148.3" y="112.3" width="4.7" height="79.4" rx="0.0" fill="#EEDA9C" stroke="none"></rect>
-    <ellipse cx="150.6" cy="205.8" rx="1.5" ry="1.5" fill="#8095AD" stroke="#8095AD" stroke-width="0.00"></ellipse>
+    <ellipse cx="150.6" cy="205.8" rx="1.5" ry="1.5" fill="#8095AD" stroke="#8095AD" stroke-width="0.0"></ellipse>
     <rect x="155.8" y="110.5" width="4.7" height="81.2" rx="0.0" fill="#EDD899" stroke="none"></rect>
-    <ellipse cx="158.1" cy="205.8" rx="1.5" ry="1.5" fill="#7C92AB" stroke="#7C92AB" stroke-width="0.00"></ellipse>
+    <ellipse cx="158.1" cy="205.8" rx="1.5" ry="1.5" fill="#7C92AB" stroke="#7C92AB" stroke-width="0.0"></ellipse>
     <rect x="163.3" y="109.1" width="4.7" height="82.6" rx="0.0" fill="#ECD796" stroke="none"></rect>
-    <ellipse cx="165.6" cy="205.8" rx="1.5" ry="1.5" fill="#778EA8" stroke="#778EA8" stroke-width="0.00"></ellipse>
+    <ellipse cx="165.6" cy="205.8" rx="1.5" ry="1.5" fill="#778EA8" stroke="#778EA8" stroke-width="0.0"></ellipse>
     <rect x="170.8" y="105.2" width="4.7" height="86.5" rx="0.0" fill="#ECD692" stroke="none"></rect>
-    <ellipse cx="173.2" cy="205.8" rx="1.5" ry="1.5" fill="#738BA5" stroke="#738BA5" stroke-width="0.00"></ellipse>
+    <ellipse cx="173.2" cy="205.8" rx="1.5" ry="1.5" fill="#738BA5" stroke="#738BA5" stroke-width="0.0"></ellipse>
     <rect x="178.4" y="98.5" width="4.7" height="93.2" rx="0.0" fill="#EBD58F" stroke="none"></rect>
-    <ellipse cx="180.7" cy="205.8" rx="1.5" ry="1.5" fill="#6F87A2" stroke="#6F87A2" stroke-width="0.00"></ellipse>
+    <ellipse cx="180.7" cy="205.8" rx="1.5" ry="1.5" fill="#6F87A2" stroke="#6F87A2" stroke-width="0.0"></ellipse>
     <rect x="185.9" y="94.4" width="4.7" height="97.3" rx="0.0" fill="#EBD38C" stroke="none"></rect>
-    <ellipse cx="188.2" cy="205.8" rx="1.5" ry="1.5" fill="#6B84A0" stroke="#6B84A0" stroke-width="0.00"></ellipse>
+    <ellipse cx="188.2" cy="205.8" rx="1.5" ry="1.5" fill="#6B84A0" stroke="#6B84A0" stroke-width="0.0"></ellipse>
     <rect x="193.4" y="94.9" width="4.7" height="96.8" rx="0.0" fill="#EAD289" stroke="none"></rect>
-    <ellipse cx="195.8" cy="205.8" rx="1.5" ry="1.5" fill="#66809D" stroke="#66809D" stroke-width="0.00"></ellipse>
+    <ellipse cx="195.8" cy="205.8" rx="1.5" ry="1.5" fill="#66809D" stroke="#66809D" stroke-width="0.0"></ellipse>
     <rect x="201.0" y="90.3" width="4.7" height="101.4" rx="0.0" fill="#E9D185" stroke="none"></rect>
-    <ellipse cx="203.3" cy="205.8" rx="1.5" ry="1.5" fill="#627D9A" stroke="#627D9A" stroke-width="0.00"></ellipse>
+    <ellipse cx="203.3" cy="205.8" rx="1.5" ry="1.5" fill="#627D9A" stroke="#627D9A" stroke-width="0.0"></ellipse>
     <rect x="208.5" y="84.0" width="4.7" height="107.6" rx="0.0" fill="#E9D082" stroke="none"></rect>
-    <ellipse cx="210.8" cy="205.8" rx="1.5" ry="1.5" fill="#5E7997" stroke="#5E7997" stroke-width="0.00"></ellipse>
+    <ellipse cx="210.8" cy="205.8" rx="1.5" ry="1.5" fill="#5E7997" stroke="#5E7997" stroke-width="0.0"></ellipse>
     <rect x="216.0" y="80.4" width="4.7" height="111.3" rx="0.0" fill="#E8CE7F" stroke="none"></rect>
-    <ellipse cx="218.4" cy="205.8" rx="1.5" ry="1.5" fill="#5A7695" stroke="#5A7695" stroke-width="0.00"></ellipse>
+    <ellipse cx="218.4" cy="205.8" rx="1.5" ry="1.5" fill="#5A7695" stroke="#5A7695" stroke-width="0.0"></ellipse>
     <rect x="223.5" y="78.1" width="4.7" height="113.6" rx="0.0" fill="#E8CD7B" stroke="none"></rect>
-    <ellipse cx="225.9" cy="205.8" rx="1.5" ry="1.5" fill="#557292" stroke="#557292" stroke-width="0.00"></ellipse>
+    <ellipse cx="225.9" cy="205.8" rx="1.5" ry="1.5" fill="#557292" stroke="#557292" stroke-width="0.0"></ellipse>
     <rect x="231.1" y="76.5" width="4.7" height="115.2" rx="0.0" fill="#E7CC78" stroke="none"></rect>
-    <ellipse cx="233.4" cy="205.8" rx="1.5" ry="1.5" fill="#516E8F" stroke="#516E8F" stroke-width="0.00"></ellipse>
+    <ellipse cx="233.4" cy="205.8" rx="1.5" ry="1.5" fill="#516E8F" stroke="#516E8F" stroke-width="0.0"></ellipse>
     <rect x="238.6" y="69.8" width="4.7" height="121.9" rx="0.0" fill="#E7CB75" stroke="none"></rect>
-    <ellipse cx="240.9" cy="205.8" rx="1.5" ry="1.5" fill="#4D6B8C" stroke="#4D6B8C" stroke-width="0.00"></ellipse>
+    <ellipse cx="240.9" cy="205.8" rx="1.5" ry="1.5" fill="#4D6B8C" stroke="#4D6B8C" stroke-width="0.0"></ellipse>
     <rect x="246.1" y="66.3" width="4.7" height="125.3" rx="0.0" fill="#E6C971" stroke="none"></rect>
-    <ellipse cx="248.5" cy="205.8" rx="1.5" ry="1.5" fill="#49678A" stroke="#49678A" stroke-width="0.00"></ellipse>
+    <ellipse cx="248.5" cy="205.8" rx="1.5" ry="1.5" fill="#49678A" stroke="#49678A" stroke-width="0.0"></ellipse>
     <rect x="253.7" y="66.0" width="4.7" height="125.7" rx="0.0" fill="#E5C86E" stroke="none"></rect>
-    <ellipse cx="256.0" cy="205.8" rx="1.5" ry="1.5" fill="#446487" stroke="#446487" stroke-width="0.00"></ellipse>
+    <ellipse cx="256.0" cy="205.8" rx="1.5" ry="1.5" fill="#446487" stroke="#446487" stroke-width="0.0"></ellipse>
     <rect x="261.2" y="64.0" width="4.7" height="127.7" rx="0.0" fill="#E5C76B" stroke="none"></rect>
-    <ellipse cx="263.5" cy="205.8" rx="1.5" ry="1.5" fill="#406084" stroke="#406084" stroke-width="0.00"></ellipse>
+    <ellipse cx="263.5" cy="205.8" rx="1.5" ry="1.5" fill="#406084" stroke="#406084" stroke-width="0.0"></ellipse>
     <rect x="268.7" y="57.9" width="4.7" height="133.8" rx="0.0" fill="#E4C667" stroke="none"></rect>
-    <ellipse cx="271.1" cy="205.8" rx="1.5" ry="1.5" fill="#3C5D81" stroke="#3C5D81" stroke-width="0.00"></ellipse>
+    <ellipse cx="271.1" cy="205.8" rx="1.5" ry="1.5" fill="#3C5D81" stroke="#3C5D81" stroke-width="0.0"></ellipse>
     <rect x="276.3" y="49.4" width="4.7" height="142.2" rx="0.0" fill="#E4C464" stroke="none"></rect>
-    <ellipse cx="278.6" cy="205.8" rx="1.5" ry="1.5" fill="#37597F" stroke="#37597F" stroke-width="0.00"></ellipse>
+    <ellipse cx="278.6" cy="205.8" rx="1.5" ry="1.5" fill="#37597F" stroke="#37597F" stroke-width="0.0"></ellipse>
     <rect x="283.8" y="47.0" width="4.7" height="144.7" rx="0.0" fill="#E3C361" stroke="none"></rect>
-    <ellipse cx="286.1" cy="205.8" rx="1.5" ry="1.5" fill="#33567C" stroke="#33567C" stroke-width="0.00"></ellipse>
+    <ellipse cx="286.1" cy="205.8" rx="1.5" ry="1.5" fill="#33567C" stroke="#33567C" stroke-width="0.0"></ellipse>
     <rect x="291.3" y="45.4" width="4.7" height="146.3" rx="0.0" fill="#E2C25D" stroke="none"></rect>
-    <ellipse cx="293.6" cy="205.8" rx="1.5" ry="1.5" fill="#2F5279" stroke="#2F5279" stroke-width="0.00"></ellipse>
+    <ellipse cx="293.6" cy="205.8" rx="1.5" ry="1.5" fill="#2F5279" stroke="#2F5279" stroke-width="0.0"></ellipse>
     <rect x="298.8" y="43.2" width="4.7" height="148.4" rx="0.0" fill="#E2C15A" stroke="none"></rect>
-    <ellipse cx="301.2" cy="205.8" rx="1.5" ry="1.5" fill="#2B4E76" stroke="#2B4E76" stroke-width="0.00"></ellipse>
+    <ellipse cx="301.2" cy="205.8" rx="1.5" ry="1.5" fill="#2B4E76" stroke="#2B4E76" stroke-width="0.0"></ellipse>
     <rect x="306.4" y="37.9" width="4.7" height="153.8" rx="0.0" fill="#E1BF57" stroke="none"></rect>
-    <ellipse cx="308.7" cy="205.8" rx="1.5" ry="1.5" fill="#264B74" stroke="#264B74" stroke-width="0.00"></ellipse>
+    <ellipse cx="308.7" cy="205.8" rx="1.5" ry="1.5" fill="#264B74" stroke="#264B74" stroke-width="0.0"></ellipse>
     <rect x="313.9" y="33.1" width="4.7" height="158.6" rx="0.0" fill="#E1BE54" stroke="none"></rect>
-    <ellipse cx="316.2" cy="205.8" rx="1.5" ry="1.5" fill="#224771" stroke="#224771" stroke-width="0.00"></ellipse>
+    <ellipse cx="316.2" cy="205.8" rx="1.5" ry="1.5" fill="#224771" stroke="#224771" stroke-width="0.0"></ellipse>
     <rect x="321.4" y="27.9" width="4.7" height="163.8" rx="0.0" fill="#E0BD50" stroke="none"></rect>
-    <ellipse cx="323.8" cy="205.8" rx="1.5" ry="1.5" fill="#1E446E" stroke="#1E446E" stroke-width="0.00"></ellipse>
+    <ellipse cx="323.8" cy="205.8" rx="1.5" ry="1.5" fill="#1E446E" stroke="#1E446E" stroke-width="0.0"></ellipse>
     <rect x="329.0" y="27.5" width="4.7" height="164.2" rx="0.0" fill="#E0BC4D" stroke="none"></rect>
-    <ellipse cx="331.3" cy="205.8" rx="1.5" ry="1.5" fill="#1A406B" stroke="#1A406B" stroke-width="0.00"></ellipse>
+    <ellipse cx="331.3" cy="205.8" rx="1.5" ry="1.5" fill="#1A406B" stroke="#1A406B" stroke-width="0.0"></ellipse>
     <rect x="336.5" y="23.0" width="4.7" height="168.7" rx="0.0" fill="#DFBA4A" stroke="none"></rect>
-    <ellipse cx="338.8" cy="205.8" rx="1.5" ry="1.5" fill="#153D69" stroke="#153D69" stroke-width="0.00"></ellipse>
+    <ellipse cx="338.8" cy="205.8" rx="1.5" ry="1.5" fill="#153D69" stroke="#153D69" stroke-width="0.0"></ellipse>
     <rect x="344.0" y="16.5" width="4.7" height="175.2" rx="0.0" fill="#DEB946" stroke="none"></rect>
-    <ellipse cx="346.4" cy="205.8" rx="1.5" ry="1.5" fill="#113966" stroke="#113966" stroke-width="0.00"></ellipse>
+    <ellipse cx="346.4" cy="205.8" rx="1.5" ry="1.5" fill="#113966" stroke="#113966" stroke-width="0.0"></ellipse>
     <rect x="351.5" y="16.8" width="4.7" height="174.9" rx="0.0" fill="#DEB843" stroke="none"></rect>
-    <ellipse cx="353.9" cy="205.8" rx="1.5" ry="1.5" fill="#0D3663" stroke="#0D3663" stroke-width="0.00"></ellipse>
+    <ellipse cx="353.9" cy="205.8" rx="1.5" ry="1.5" fill="#0D3663" stroke="#0D3663" stroke-width="0.0"></ellipse>
     <rect x="359.1" y="15.6" width="4.7" height="176.1" rx="0.0" fill="#DDB740" stroke="none"></rect>
-    <ellipse cx="361.4" cy="205.8" rx="1.5" ry="1.5" fill="#093260" stroke="#093260" stroke-width="0.00"></ellipse>
+    <ellipse cx="361.4" cy="205.8" rx="1.5" ry="1.5" fill="#093260" stroke="#093260" stroke-width="0.0"></ellipse>
     <rect x="366.6" y="12.6" width="4.7" height="179.1" rx="0.0" fill="#DDB53C" stroke="none"></rect>
-    <ellipse cx="368.9" cy="205.8" rx="1.5" ry="1.5" fill="#042F5E" stroke="#042F5E" stroke-width="0.00"></ellipse>
+    <ellipse cx="368.9" cy="205.8" rx="1.5" ry="1.5" fill="#042F5E" stroke="#042F5E" stroke-width="0.0"></ellipse>
     <rect x="374.1" y="12.1" width="4.7" height="179.6" rx="0.0" fill="#DCB439" stroke="none"></rect>
-    <ellipse cx="376.5" cy="205.8" rx="1.5" ry="1.5" fill="#002B5B" stroke="#002B5B" stroke-width="0.00"></ellipse>
+    <ellipse cx="376.5" cy="205.8" rx="1.5" ry="1.5" fill="#002B5B" stroke="#002B5B" stroke-width="0.0"></ellipse>
   </svg>
   <div class="cover-text" data-b="nz1vz">
     <div class="kicker">Unit 03 · Chapter 4</div>
@@ -944,7 +955,7 @@ svg.al-clone { z-index: 1; }
   </div>
 <div class="foot" data-rt=""><span>Backpropagation Through Time</span><span>01</span></div></section>
 
-<section class="page" id="lec-ffn-q" data-part="Review" data-view="slides workbook" data-topic="review" style="--gap: 22pt;">
+<section class="page" id="lec-ffn-q" data-view="slides workbook" data-topic="review" data-part="Review" style="--gap: 22pt;">
   <h2 data-b="kpjni">Feed-Forward Networks <span class="note"><b class="warn">(old exam question)</b></span></h2>
   <b-code lang="python" data-b="scnfo"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch</div><div class="ln"><span class="kw">import</span> torch.nn <span class="kw">as</span> nn</div><div class="ln"><span class="kw">class</span> <span class="def">FFN</span>(nn.Module):</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self):</div><div class="ln">        <span class="bi">super</span>(FFN, self).__init__()</div><div class="ln">        self.F1 = nn.Flatten()</div><div class="ln">        self.L1 = nn.Linear(<span class="nu nn">28</span>*<span class="nu nn">28</span>, <span class="nu nn">512</span>)</div><div class="ln">        self.R1 = nn.Sigmoid()</div><div class="ln">        self.L2 = nn.Linear(<span class="nu nn">512</span>, <span class="nu nn">256</span>)</div><div class="ln">        self.R2 = nn.Sigmoid()</div><div class="ln">        self.L3 = nn.Linear(<span class="nu nn">256</span>, <span class="nu nn">10</span>)</div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, <span class="cc red">x</span>):</div><div class="ln">        <span class="cc red">x</span> = self.F1(<span class="cc red">x</span>)</div><div class="ln">        <span class="cc red">x</span> = self.L1(<span class="cc red">x</span>)</div><div class="ln">        <span class="cc red">x</span> = self.R1(<span class="cc red">x</span>)</div><div class="ln">        <span class="cc red">x</span> = self.L2(<span class="cc red">x</span>)</div><div class="ln">        <span class="cc red">x</span> = self.R2(<span class="cc red">x</span>)</div><div class="ln">        <span class="cc red">x</span> = self.L3(<span class="cc red">x</span>)</div><div class="ln">        <span class="ctl">return</span> <span class="cc red">x</span></div></div></b-code>
   <aside class="qc exam" data-qsrc="pp03-ffn-a" data-b="nn7n1"><b>a.)</b> Draw the computation graph for the network.</aside>
@@ -961,7 +972,7 @@ svg.al-clone { z-index: 1; }
   
   
   
-<p data-b="x34oj"><b></b><span class="note"><b class="gray">Note:</b> You can assume <b class="def"><span class="mono">softmax</span></b> and <b class="def"><span class="mono">cross entropy loss</span></b> are used after the final layer, the two yielding a combined derivative of: <b-m tex="ŷ − y"><span class="c olive sym" data-at="0,1" data-k="ŷ">ŷ</span> − <span class="c green sym" data-at="4,5" data-k="y">y</span></b-m></span></p><aside class="qc exam" data-qsrc="pp03-ffn-b" data-b="ii9kg"><b>b.)</b> Give the loss as a single nested equation.</aside><div class="wbox" style="height: 60pt" data-start="ℒ =" data-b="yw0c1"><b-eq class="wstart" data-rt="" flush=""><eq-row>ℒ =</eq-row><div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-CC0000 sa-0-1"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow><mo>=</mo></mrow></math></div></div></div></b-eq></div><aside class="qc exam" data-b="xspph"><b>c.)</b> Give the derivative chain for calculating the gradient of the weights in the first layer.</aside><div class="wbox" style="height: 60pt" data-start="\frac{\partial ℒ}{\partial \Omega_1} =" data-b="xkagg"><b-eq class="wstart" data-rt="" flush=""><eq-row>\frac{\partial ℒ}{\partial \Omega_1} =</eq-row><div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mfrac><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-CC0000 sa-15-16"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow></mrow><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-1155CC sa-27-35"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mn>𝟏</mn></msub></mrow></mrow></mrow></mfrac><mo>=</mo></mrow></math></div></div></div></b-eq></div><aside class="qc exam" data-b="uybnk"><b>d.)</b> Write the actual equation you’d use to calculate the gradient for the weights in the first layer.</aside><div class="wbox" style="height: 60pt" data-start="\frac{\partial ℒ}{\partial \Omega_1} =" data-b="sy7tm"><b-eq class="wstart" data-rt="" flush=""><eq-row>\frac{\partial ℒ}{\partial \Omega_1} =</eq-row><div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mfrac><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-CC0000 sa-15-16"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow></mrow><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-1155CC sa-27-35"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mn>𝟏</mn></msub></mrow></mrow></mrow></mfrac><mo>=</mo></mrow></math></div></div></div></b-eq></div><div class="foot" data-rt=""><span>Backpropagation Through Time · Review</span><span>03</span></div></section>
+<p data-b="x34oj"><span class="note"><b class="gray">Note:</b> You can assume <b class="def"><span class="mono">softmax</span></b> and <b class="def"><span class="mono">cross entropy loss</span></b> are used after the final layer, the two yielding a combined derivative of: <b-m tex="ŷ − y"><span class="c olive sym" data-at="0,1" data-k="ŷ">ŷ</span> − <span class="c green sym" data-at="4,5" data-k="y">y</span></b-m></span></p><aside class="qc exam" data-qsrc="pp03-ffn-b" data-b="ii9kg"><b>b.)</b> Give the loss as a single nested equation.</aside><div class="wbox" style="height: 60pt" data-start="ℒ =" data-b="yw0c1"><b-eq class="wstart" data-rt="" flush=""><eq-row>ℒ =</eq-row><div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-CC0000 sa-0-1"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow><mo>=</mo></mrow></math></div></div></div></b-eq></div><aside class="qc exam" data-b="xspph"><b>c.)</b> Give the derivative chain for calculating the gradient of the weights in the first layer.</aside><div class="wbox" style="height: 60pt" data-start="\frac{\partial ℒ}{\partial \Omega_1} =" data-b="xkagg"><b-eq class="wstart" data-rt="" flush=""><eq-row>\frac{\partial ℒ}{\partial \Omega_1} =</eq-row><div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mfrac><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-CC0000 sa-15-16"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow></mrow><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-1155CC sa-27-35"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mn>𝟏</mn></msub></mrow></mrow></mrow></mfrac><mo>=</mo></mrow></math></div></div></div></b-eq></div><aside class="qc exam" data-b="uybnk"><b>d.)</b> Write the actual equation you’d use to calculate the gradient for the weights in the first layer.</aside><div class="wbox" style="height: 60pt" data-start="\frac{\partial ℒ}{\partial \Omega_1} =" data-b="sy7tm"><b-eq class="wstart" data-rt="" flush=""><eq-row>\frac{\partial ℒ}{\partial \Omega_1} =</eq-row><div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mfrac><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-CC0000 sa-15-16"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow></mrow><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-1155CC sa-27-35"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mn>𝟏</mn></msub></mrow></mrow></mrow></mfrac><mo>=</mo></mrow></math></div></div></div></b-eq></div><div class="foot" data-rt=""><span>Backpropagation Through Time · Review</span><span>03</span></div></section>
 
 <section class="page" id="lec-p-izza3" data-view="slides workbook" data-topic="sequence-data" data-part="Sequence Data" style="--gap: 22pt;">
   <h2 data-b="odri4">So Far</h2>
@@ -2168,7 +2179,7 @@ z
 
 <section class="page" id="lec-p-cm38g" data-view="slides workbook" data-topic="rnn-equations" style="--gap: 22pt;">
   <h2 data-b="o4k6w">Recurrent Neural Networks</h2>
-  <svg class="draw" viewBox="0 0 406 304" style="width: 80%" role="img" aria-label="One step of the RNN as two equations, read from the bottom up. The line Cheer, cheer for old Notre Dame is tokenized, its first token cheer (ID 0) looks up E[0] in the embedding, which is x t. x t, Omega x, c t minus 1, Omega c and b c feed the box c t = tanh(x t Omega x transposed + c t minus 1 Omega c transposed + b c), which gives c t; c t goes on to the next step and, with Omega y and b y, into the box y hat t = softmax(c t Omega y transposed + b y), which gives y hat t." data-b="snmup">
+  <svg class="draw" viewBox="0 0 406 304" role="img" aria-label="One step of the RNN as two equations, read from the bottom up. The line Cheer, cheer for old Notre Dame is tokenized, its first token cheer (ID 0) looks up E[0] in the embedding, which is x t. x t, Omega x, c t minus 1, Omega c and b c feed the box c t = tanh(x t Omega x transposed + c t minus 1 Omega c transposed + b c), which gives c t; c t goes on to the next step and, with Omega y and b y, into the box y hat t = softmax(c t Omega y transposed + b y), which gives y hat t." style="width: 80%" data-b="snmup">
     <defs>
       <marker id="ah666666-ae61f" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
@@ -2216,12 +2227,12 @@ z
       <text class="tk-sub" font-size="5.8" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="256.9" y="259.4">&lt;2,2&gt;</text>
     </g>
     <g id="rnn-cell-ae61f-bc">
-      <rect x="307.0" y="238.0" width="30.0" height="24.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+      <rect x="307.0" y="238.0" width="30.0" height="24.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
       <text x="322.0" y="251.2" font-size="12" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b<tspan baseline-shift="-8%" font-size="62%">c</tspan></text>
       <text x="322.0" y="258.8" font-size="4.3" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;2&gt;</text>
     </g>
     <g id="rnn-cell-ae61f-ceq">
-      <rect x="72.3" y="180.0" width="239.3" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="72.3" y="180.0" width="239.3" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <g data-row="" id="snmup-row1">
         <g data-sym="c_t" id="snmup-r1s1">
           <rect x="77.4" y="186.3" width="20.8" height="19.3" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.1" rx="4.4"></rect>
@@ -2255,7 +2266,7 @@ z
         <text x="297.4" y="199.9" font-size="11" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
       </g>
     </g>
-    <polyline points="322,236 322,224 302.3,224 302.3,210" fill="none" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-ae61f)" data-a="rnn-cell-ae61f-bc" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.961:2"></polyline>
+    <polyline points="322,236 322,224 302.3,224 302.3,210" fill="none" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-ae61f)" data-a="rnn-cell-ae61f-bc" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.961:2"></polyline>
     <g id="rnn-cell-ae61f-c" data-sym="c_t" data-dims="1,2" data-showdims="on">
       <rect x="180.5" y="120.5" width="23.1" height="30.9" rx="4.8" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="192.1" y="134.6" font-size="12" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="c_t|12" fill="#B8920F">c<tspan font-size="7.4" dy="3.4">t</tspan></text>
@@ -2268,12 +2279,12 @@ z
       <text class="tk-sub" font-size="5.8" fill="#1155CC" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="50" y="81.5">&lt;22,2&gt;</text>
     </g>
     <g id="rnn-cell-ae61f-by">
-      <rect x="319.0" y="60.0" width="30.0" height="24.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
+      <rect x="319.0" y="60.0" width="30.0" height="24.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
       <text x="334.0" y="73.2" font-size="12" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">b<tspan baseline-shift="-8%" font-size="62%">y</tspan></text>
       <text x="334.0" y="80.8" font-size="4.3" fill="#666666" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;22&gt;</text>
     </g>
     <g id="rnn-cell-ae61f-yeq">
-      <rect x="97.6" y="58.0" width="188.9" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="97.6" y="58.0" width="188.9" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <g data-row="" id="snmup-row2">
         <g data-sym="ŷ_t" id="snmup-r2s7">
           <rect x="102.6" y="64.3" width="20.8" height="19.3" fill="#EDEFCF" stroke="#A8A845" stroke-width="1.1" rx="4.4"></rect>
@@ -2298,23 +2309,23 @@ z
         <text x="273.6" y="77.9" font-size="11" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold">)</text>
       </g>
     </g>
-    <line x1="318.0" y1="72.0" x2="288.5" y2="72" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-ae61f)" data-a="rnn-cell-ae61f-by" data-b="rnn-cell-ae61f-yeq" data-a-at="l:0.500:1" data-b-at="r:0.500:2"></line>
+    <line x1="318.0" y1="72.0" x2="288.5" y2="72" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-ae61f)" data-a="rnn-cell-ae61f-by" data-b="rnn-cell-ae61f-yeq" data-a-at="l:0.500:1" data-b-at="r:0.500:2"></line>
     <g id="rnn-cell-ae61f-y" data-sym="ŷ_t" data-dims="1,22" data-showdims="on">
       <rect x="178.9" y="2.5" width="26.3" height="30.9" rx="4.8" fill="#EDEFCF" stroke="#A8A845" stroke-width="1.2"></rect>
       <text x="192.1" y="16.6" font-size="12" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="ŷ_t|12" fill="#6B6B00">ŷ<tspan font-size="7.4" dy="3.4">t</tspan></text>
       <text class="tk-sub" font-size="5.8" fill="#6B6B00" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle" data-auto="" x="192.1" y="27.5">&lt;1,22&gt;</text>
     </g>
-    <polyline points="62.1,234.5 62.1,224 81.9,224 81.9,210" fill="none" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-snmup)" data-a="rnn-cell-ae61f-x" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.040:2"></polyline>
-    <line x1="127" y1="234.5" x2="115.1" y2="210" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-snmup)" data-a="rnn-cell-ae61f-wx" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.179:2"></line>
-    <line x1="192" y1="234.5" x2="192" y2="210" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-snmup)" data-a="rnn-cell-ae61f-cp" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="257" y1="234.5" x2="268.8" y2="210" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-snmup)" data-a="rnn-cell-ae61f-wc" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.821:2"></line>
-    <line x1="192" y1="178" x2="192.1" y2="153.4" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-snmup)" data-a="rnn-cell-ae61f-ceq" data-b="rnn-cell-ae61f-c" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="203.6" y1="136" x2="340.0" y2="136.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-snmup)" data-a="rnn-cell-ae61f-c"></line>
-    <line x1="192.1" y1="120.5" x2="192.1" y2="88" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-snmup)" data-a="rnn-cell-ae61f-c" data-b="rnn-cell-ae61f-yeq" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="63.1" y1="72" x2="95.6" y2="72" stroke="#6D9EEB" stroke-width="1.00" marker-end="url(#ah6D9EEB-snmup)" data-a="rnn-cell-ae61f-wy" data-b="rnn-cell-ae61f-yeq" data-b-at="l:0.500:2"></line>
-    <line x1="192.1" y1="56" x2="192" y2="35.4" stroke="#A8A845" stroke-width="1.00" marker-end="url(#ahA8A845-snmup)" data-a="rnn-cell-ae61f-yeq" data-b="rnn-cell-ae61f-y" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <polyline points="62.1,234.5 62.1,224 81.9,224 81.9,210" fill="none" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-snmup)" data-a="rnn-cell-ae61f-x" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.040:2"></polyline>
+    <line x1="127" y1="234.5" x2="115.1" y2="210" stroke="#6D9EEB" stroke-width="1.0" marker-end="url(#ah6D9EEB-snmup)" data-a="rnn-cell-ae61f-wx" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.179:2"></line>
+    <line x1="192" y1="234.5" x2="192" y2="210" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-snmup)" data-a="rnn-cell-ae61f-cp" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="257" y1="234.5" x2="268.8" y2="210" stroke="#6D9EEB" stroke-width="1.0" marker-end="url(#ah6D9EEB-snmup)" data-a="rnn-cell-ae61f-wc" data-b="rnn-cell-ae61f-ceq" data-a-at="t:0.500:2" data-b-at="b:0.821:2"></line>
+    <line x1="192" y1="178" x2="192.1" y2="153.4" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-snmup)" data-a="rnn-cell-ae61f-ceq" data-b="rnn-cell-ae61f-c" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="203.6" y1="136" x2="340.0" y2="136.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-snmup)" data-a="rnn-cell-ae61f-c"></line>
+    <line x1="192.1" y1="120.5" x2="192.1" y2="88" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-snmup)" data-a="rnn-cell-ae61f-c" data-b="rnn-cell-ae61f-yeq" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="63.1" y1="72" x2="95.6" y2="72" stroke="#6D9EEB" stroke-width="1.0" marker-end="url(#ah6D9EEB-snmup)" data-a="rnn-cell-ae61f-wy" data-b="rnn-cell-ae61f-yeq" data-b-at="l:0.500:2"></line>
+    <line x1="192.1" y1="56" x2="192" y2="35.4" stroke="#A8A845" stroke-width="1.0" marker-end="url(#ahA8A845-snmup)" data-a="rnn-cell-ae61f-yeq" data-b="rnn-cell-ae61f-y" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <g id="rnn-cell-ae61f-e">
-      <rect x="17.0" y="281.0" width="90.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="17.0" y="281.0" width="90.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="62.0" y="293.1" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">embedding: E[0]</text>
     </g>
     <g id="rnn-cell-ae61f-t" data-tok="march" data-t="cheer" data-ids="on">
@@ -2323,14 +2334,14 @@ z
       <text class="tk-idl" x="150.2" y="296.7" font-size="5.9" fill="#674EA7" font-family="Consolas, 'Inconsolata LGC', monospace" font-weight="bold" text-anchor="middle">0</text>
     </g>
     <g id="rnn-cell-ae61f-tok">
-      <rect x="192.0" y="281.0" width="60.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="192.0" y="281.0" width="60.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="222.0" y="293.1" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">tokenize</text>
     </g>
     <text x="274.0" y="292.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="start">"Cheer, cheer for old Notre Dame"</text>
-    <line x1="62.0" y1="279.0" x2="62.1" y2="267.4" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-snmup)" data-a="rnn-cell-ae61f-e" data-b="rnn-cell-ae61f-x" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="132.0" y1="290.0" x2="109.0" y2="290.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-ae61f)" data-a="rnn-cell-ae61f-t" data-b="rnn-cell-ae61f-e" data-a-at="l:0.500:2" data-b-at="r:0.500:2"></line>
-    <line x1="190.0" y1="290.0" x2="168.1" y2="290.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-ae61f)" data-a="rnn-cell-ae61f-tok" data-b="rnn-cell-ae61f-t" data-a-at="l:0.500:2" data-b-at="r:0.500:2"></line>
-    <line x1="271.0" y1="290.0" x2="254.0" y2="290.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-ae61f)" data-b="rnn-cell-ae61f-tok" data-b-at="r:0.500:2"></line>
+    <line x1="62.0" y1="279.0" x2="62.1" y2="267.4" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-snmup)" data-a="rnn-cell-ae61f-e" data-b="rnn-cell-ae61f-x" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="132.0" y1="290.0" x2="109.0" y2="290.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-ae61f)" data-a="rnn-cell-ae61f-t" data-b="rnn-cell-ae61f-e" data-a-at="l:0.500:2" data-b-at="r:0.500:2"></line>
+    <line x1="190.0" y1="290.0" x2="168.1" y2="290.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-ae61f)" data-a="rnn-cell-ae61f-tok" data-b="rnn-cell-ae61f-t" data-a-at="l:0.500:2" data-b-at="r:0.500:2"></line>
+    <line x1="271.0" y1="290.0" x2="254.0" y2="290.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-ae61f)" data-b="rnn-cell-ae61f-tok" data-b-at="r:0.500:2"></line>
   </svg>
   
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Sequence Data</span><span>07</span></div></section>
@@ -3029,14 +3040,14 @@ L 380.16 86.4
 </svg>
 </b-fig>
   <p data-align="center" data-b="zzwwn">After <b-tok v="march" t="wake" data-f="purple" title="Victory March words: &quot;wake&quot; = 5"><span class="tk-t">wake</span><span class="tk-id">5</span></b-tok> <b-tok v="march" t="up" data-f="green" title="Victory March words: &quot;up&quot; = 6"><span class="tk-t">up</span><span class="tk-id">6</span></b-tok> <b-tok v="march" t="the" data-f="yellow" title="Victory March words: &quot;the&quot; = 7"><span class="tk-t">the</span><span class="tk-id">7</span></b-tok>: <b-tok v="march" t="echoes" data-f="red" title="Victory March words: &quot;echoes&quot; = 8"><span class="tk-t">echoes</span><span class="tk-id">8</span></b-tok> gets <span class="num">0.090</span></p>
-  <div class="pushgap" data-rt="" aria-hidden="true" style="height: 155.9pt;"></div><p data-push="" data-align="center" data-b="dh3m9">This is identical to how an <b class="ex"><span class="mono">LLM</span></b> like <b class="name">ChatGPT</b> or <b class="name">Claude</b> creates output too!</p>
+  <div class="pushgap" data-rt="" aria-hidden="true" style="height: 155.9pt;"></div><p data-align="center" data-push="" data-b="dh3m9">This is identical to how an <b class="ex"><span class="mono">LLM</span></b> like <b class="name">ChatGPT</b> or <b class="name">Claude</b> creates output too!</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Sequence Data</span><span>08</span></div></section>
 
 <section class="page" id="lec-p-8g3f8" data-view="slides workbook" data-topic="rnn-equations" style="--gap: 22pt;">
   <h2 data-b="wzpce">Output from an RNN</h2>
   
   
-<p data-b="t2sug">To train a text generation model, we can re-use cross entropy loss and think of text generation almost as a classification task.</p><b-fig src="fig/ce-loss.svg" style="width: 82.2%; --fig-h: none; --ar: 1.590;" alt="Two bar charts over the 22 words of the vocabulary, sorted by our untrained RNN's probability after cheer cheer for old. Top: the prediction ŷ, highest for (0.150), shake, old, name, with notre at 0.013. Bottom: the truth y, a single bar of 1 on notre. The loss is ℒ = −log ŷ[notre] = −log 0.013 = 4.32." crop="0 0 0 6.7" data-b="dsd2m"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 331.2 208.25" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<p data-b="t2sug">To train a text generation model, we can re-use cross entropy loss and think of text generation almost as a classification task.</p><b-fig src="fig/ce-loss.svg" alt="Two bar charts over the 22 words of the vocabulary, sorted by our untrained RNN's probability after cheer cheer for old. Top: the prediction ŷ, highest for (0.150), shake, old, name, with notre at 0.013. Bottom: the truth y, a single bar of 1 on notre. The loss is ℒ = −log ŷ[notre] = −log 0.013 = 4.32." crop="0 0 0 6.7" style="width: 82.2%; --fig-h: none; --ar: 1.590;" data-b="dsd2m"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 331.2 208.25" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -4097,7 +4108,7 @@ z
 <section class="page" id="lec-bptt" data-view="slides workbook" data-topic="bptt" style="--gap: 22pt;">
   <h2 data-b="nc8ra">Backpropagation Through Time</h2>
   <p data-b="a3xid"><b class="def">Backpropagation through time</b> (BPTT) is just <u class="fill blank" style="width: 289pt;">&nbsp;</u>, from the last word back to the first</p>
-  <svg class="draw" viewBox="0 0 164.8 182" style="width: 252.1pt" role="img" aria-label="The unrolled RNN with a loss above each prediction: solid arrows carry the forward pass, dashed red arrows carry the gradient down from each loss and back from each hidden state to the one before" data-b="cgg9b">
+  <svg class="draw" viewBox="0 0 164.8 182" role="img" aria-label="The unrolled RNN with a loss above each prediction: solid arrows carry the forward pass, dashed red arrows carry the gradient down from each loss and back from each hidden state to the one before" style="width: 252.1pt" data-b="cgg9b">
     <defs>
       <marker id="ahDCB439-cgg9b" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
@@ -4157,15 +4168,15 @@ z
       <rect x="134.9" y="9.3" width="22.2" height="17.5" rx="4" fill="#F4CCCC" stroke="#E06666" stroke-width="1"></rect>
       <text x="146" y="21.1" font-size="10.0" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="ℒ_2|10" fill="#CC0000">ℒ<tspan font-size="6.2" dy="2.8">2</tspan></text>
     </g>
-    <line x1="81.6" y1="159.3" x2="81.6" y2="118.8" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-cgg9b)" data-a="bptt-flow-cgg9b-s3" data-b="bptt-flow-cgg9b-s2" data-a-at="t:0.672" data-b-at="b:0.672"></line>
-    <line x1="33.8" y1="103.9" x2="68.9" y2="102.8" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cgg9b)" data-a="bptt-flow-cgg9b-s1" data-b="bptt-flow-cgg9b-s2" data-a-at="r:0.150" data-b-at="l:0.088"></line>
-    <line x1="143.6" y1="159.3" x2="143.6" y2="118.8" stroke="#E06666" stroke-width="1.10" marker-end="url(#ahE06666-cgg9b)" data-a="bptt-flow-cgg9b-s6" data-b="bptt-flow-cgg9b-s5" data-a-at="t:0.672" data-b-at="b:0.672"></line>
-    <line x1="143.6" y1="101.3" x2="143.6" y2="66.8" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cgg9b)" data-a="bptt-flow-cgg9b-s5" data-b="bptt-flow-cgg9b-s7" data-a-at="t:0.672" data-b-at="b:0.672"></line>
-    <line x1="87.8" y1="102.8" x2="130.9" y2="102.8" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-cgg9b)" data-a="bptt-flow-cgg9b-s2" data-b="bptt-flow-cgg9b-s5" data-a-at="r:0.088" data-b-at="l:0.088"></line>
-    <line x1="130.9" y1="117.3" x2="87.8" y2="117.3" stroke="#DCB439" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahDCB439-cgg9b)" data-a="bptt-flow-cgg9b-s5" data-b="bptt-flow-cgg9b-s2" data-a-at="l:0.912" data-b-at="r:0.912"></line>
-    <line x1="137.1" y1="66.8" x2="137.1" y2="101.3" stroke="#A8A845" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahA8A845-cgg9b)" data-a="bptt-flow-cgg9b-s7" data-b="bptt-flow-cgg9b-s5" data-a-at="b:0.328" data-b-at="t:0.328"></line>
-    <line x1="143.6" y1="49.3" x2="144.2" y2="22.8" stroke="#A8A845" stroke-width="1.10" marker-end="url(#ahA8A845-cgg9b)" data-a="bptt-flow-cgg9b-s7" data-b="bptt-flow-cgg9b-s18" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
-    <line x1="136.6" y1="22.8" x2="137.1" y2="48.8" stroke="#E06666" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahE06666-cgg9b)" data-a="bptt-flow-cgg9b-s18" data-b="bptt-flow-cgg9b-s7" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
+    <line x1="81.6" y1="159.3" x2="81.6" y2="118.8" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-cgg9b)" data-a="bptt-flow-cgg9b-s3" data-b="bptt-flow-cgg9b-s2" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="33.8" y1="103.9" x2="68.9" y2="102.8" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cgg9b)" data-a="bptt-flow-cgg9b-s1" data-b="bptt-flow-cgg9b-s2" data-a-at="r:0.150" data-b-at="l:0.088"></line>
+    <line x1="143.6" y1="159.3" x2="143.6" y2="118.8" stroke="#E06666" stroke-width="1.1" marker-end="url(#ahE06666-cgg9b)" data-a="bptt-flow-cgg9b-s6" data-b="bptt-flow-cgg9b-s5" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="143.6" y1="101.3" x2="143.6" y2="66.8" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cgg9b)" data-a="bptt-flow-cgg9b-s5" data-b="bptt-flow-cgg9b-s7" data-a-at="t:0.672" data-b-at="b:0.672"></line>
+    <line x1="87.8" y1="102.8" x2="130.9" y2="102.8" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-cgg9b)" data-a="bptt-flow-cgg9b-s2" data-b="bptt-flow-cgg9b-s5" data-a-at="r:0.088" data-b-at="l:0.088"></line>
+    <line x1="130.9" y1="117.3" x2="87.8" y2="117.3" stroke="#DCB439" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahDCB439-cgg9b)" data-a="bptt-flow-cgg9b-s5" data-b="bptt-flow-cgg9b-s2" data-a-at="l:0.912" data-b-at="r:0.912"></line>
+    <line x1="137.1" y1="66.8" x2="137.1" y2="101.3" stroke="#A8A845" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahA8A845-cgg9b)" data-a="bptt-flow-cgg9b-s7" data-b="bptt-flow-cgg9b-s5" data-a-at="b:0.328" data-b-at="t:0.328"></line>
+    <line x1="143.6" y1="49.3" x2="144.2" y2="22.8" stroke="#A8A845" stroke-width="1.1" marker-end="url(#ahA8A845-cgg9b)" data-a="bptt-flow-cgg9b-s7" data-b="bptt-flow-cgg9b-s18" data-a-at="t:0.672:0.5" data-b-at="b:0.672"></line>
+    <line x1="136.6" y1="22.8" x2="137.1" y2="48.8" stroke="#E06666" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahE06666-cgg9b)" data-a="bptt-flow-cgg9b-s18" data-b="bptt-flow-cgg9b-s7" data-a-at="b:0.328" data-b-at="t:0.328:0.5"></line>
   </svg>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Sequence Data</span><span>11</span></div></section>
 
@@ -4193,45 +4204,45 @@ z
 <section class="page s-tight" id="lec-bp-rnn-fwd" data-view="slides workbook" data-topic="bptt" style="--gap: 22pt;">
   <h2 data-b="leex6">BPTT by Hand - Recurrent Layer</h2>
   <p data-b="c6fhc">The same <b class="name">forward pass</b> as last time, except it also keeps the inputs <b-m tex="X"><span class="c red sym" data-at="0,1" data-k="X">X</span></b-m> for <b class="take">backward</b>.</p>
-  <b-code lang="python" chain="true" data-b="bqx8k"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">RNNLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_h):</div><div class="ln">        self.<span class="cc blue">Wx</span> = torch.randn(n_h, n_in) / n_in**<span class="nu nn">0.5</span></div><div class="ln">        self.<span class="cc blue">Wc</span> = torch.randn(n_h, n_h) / n_h**<span class="nu nn">0.5</span></div><div class="ln">        self.b = torch.zeros(n_h)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">_step</span>(self, x_t, c_prev):</div><div class="ln">        <span class="ctl">return</span> torch.tanh(x_t @ self.<span class="cc blue">Wx</span>.T</div><div class="ln">                          + c_prev @ self.<span class="cc blue">Wc</span>.T + self.b)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, <span class="cc red csym" data-e="X">X</span>):  <span class="cm"># (B, T, n_in)</span></div><div class="ln">        B, T, _ = <span class="cc red csym" data-e="X">X</span>.shape</div><div class="ln">        self.<span class="cc red csym" data-e="self.X">X</span> = <span class="cc red csym" data-e="X">X</span>  <span class="cm"># keep the inputs for backward too</span></div><div class="ln">        <span class="cc gold">c</span> = torch.zeros(B, self.<span class="cc blue">Wc</span>.shape[<span class="nu nn">0</span>])  <span class="cm"># c_0</span></div><div class="ln">        self.states = [<span class="cc gold">c</span>]  <span class="cm"># every c_t, for BPTT</span></div><div class="ln">        <span class="ctl">for</span> t <span class="kw">in</span> <span class="bi">range</span>(T):</div><div class="ln">            <span class="cc gold">c</span> = self._step(<span class="cc red csym" data-e="X">X</span>[:, t], <span class="cc gold">c</span>)</div><div class="ln">            self.states.append(<span class="cc gold">c</span>)</div><div class="ln">        <span class="ctl">return</span> torch.stack(self.states[<span class="nu nn">1</span>:], dim=<span class="nu nn">1</span>)</div></div></b-code>
+  <b-code lang="python" chain="" data-b="bqx8k"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">RNNLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_h):</div><div class="ln">        self.<span class="cc blue">Wx</span> = torch.randn(n_h, n_in) / n_in**<span class="nu nn">0.5</span></div><div class="ln">        self.<span class="cc blue">Wc</span> = torch.randn(n_h, n_h) / n_h**<span class="nu nn">0.5</span></div><div class="ln">        self.b = torch.zeros(n_h)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">_step</span>(self, x_t, c_prev):</div><div class="ln">        <span class="ctl">return</span> torch.tanh(x_t @ self.<span class="cc blue">Wx</span>.T</div><div class="ln">                          + c_prev @ self.<span class="cc blue">Wc</span>.T + self.b)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, <span class="cc red csym" data-e="X">X</span>):  <span class="cm"># (B, T, n_in)</span></div><div class="ln">        B, T, _ = <span class="cc red csym" data-e="X">X</span>.shape</div><div class="ln">        self.<span class="cc red csym" data-e="self.X">X</span> = <span class="cc red csym" data-e="X">X</span>  <span class="cm"># keep the inputs for backward too</span></div><div class="ln">        <span class="cc gold">c</span> = torch.zeros(B, self.<span class="cc blue">Wc</span>.shape[<span class="nu nn">0</span>])  <span class="cm"># c_0</span></div><div class="ln">        self.states = [<span class="cc gold">c</span>]  <span class="cm"># every c_t, for BPTT</span></div><div class="ln">        <span class="ctl">for</span> t <span class="kw">in</span> <span class="bi">range</span>(T):</div><div class="ln">            <span class="cc gold">c</span> = self._step(<span class="cc red csym" data-e="X">X</span>[:, t], <span class="cc gold">c</span>)</div><div class="ln">            self.states.append(<span class="cc gold">c</span>)</div><div class="ln">        <span class="ctl">return</span> torch.stack(self.states[<span class="nu nn">1</span>:], dim=<span class="nu nn">1</span>)</div></div></b-code>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · BPTT from Scratch</span><span>15</span></div></section>
 
 <section class="page s-tight" id="lec-bp-rnn-back" data-view="slides workbook" data-topic="bptt" style="--gap: 22pt;">
   <h2 data-b="hit1z">BPTT by Hand - Recurrent Layer Backward</h2>
   <p data-b="gjhkt">We walk the steps <u class="fill blank" style="width: 76.5pt;">&nbsp;</u>: each <b-m tex="c_t"><span class="c gold sym" data-at="0,3" data-k="c">c<sub>t</sub></span></b-m> gets gradient from <u class="fill blank" style="width: 20.8pt;">&nbsp;</u> and from <u class="fill blank" style="width: 34.3pt;">&nbsp;</u>, and the weight gradients are <u class="fill blank" style="width: 66.7pt;">&nbsp;</u> over every copy.</p>
-  <b-code lang="python" chain="true" data-b="n4qi6"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">backward</span>(self, dC):  <span class="cm"># (B, T, n_h): dℒ/dc_t from ŷ_t</span></div><div class="ln">    self.dWx = torch.zeros_like(self.<span class="cc blue">Wx</span>)</div><div class="ln">    self.dWc = torch.zeros_like(self.<span class="cc blue">Wc</span>)</div><div class="ln">    self.db = torch.zeros_like(self.b)</div><div class="ln">    dX = torch.zeros_like(self.<span class="cc red csym" data-e="self.X">X</span>)</div><div class="ln">    dc_next = torch.zeros_like(self.states[<span class="nu nn">0</span>])</div><div class="ln">    </div><div class="ln">    <span class="ctl">for</span> t <span class="kw">in</span> <span class="bi">reversed</span>(<span class="bi">range</span>(self.<span class="cc red csym" data-e="self.X">X</span>.shape[<span class="nu nn">1</span>])):  <span class="cm"># back</span></div><div class="ln">        dc = dC[:, t] + dc_next  <span class="cm"># from ŷ_t and from c_t+1</span></div><div class="ln">        dz = dc * (<span class="nu nn">1</span> - self.states[t + <span class="nu nn">1</span>] ** <span class="nu nn">2</span>)  <span class="cm"># tanh'</span></div><div class="ln">        self.dWx += dz.T @ self.<span class="cc red csym" data-e="self.X">X</span>[:, t]    <span class="cm"># add up the</span></div><div class="ln">        self.dWc += dz.T @ self.states[t]  <span class="cm"># gradient of</span></div><div class="ln">        self.db += dz.sum(dim=<span class="nu nn">0</span>)           <span class="cm"># every copy</span></div><div class="ln">        dX[:, t] = dz @ self.<span class="cc blue">Wx</span>    <span class="cm"># to the embedding</span></div><div class="ln">        dc_next = dz @ self.<span class="cc blue">Wc</span>     <span class="cm"># to c_t-1</span></div><div class="ln">    <span class="ctl">return</span> dX</div><div class="ln"></div><div class="ln">RNNLayer.backward = backward  <span class="cm"># add it to the class</span></div></div></b-code>
+  <b-code lang="python" chain="" data-b="n4qi6"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">backward</span>(self, dC):  <span class="cm"># (B, T, n_h): dℒ/dc_t from ŷ_t</span></div><div class="ln">    self.dWx = torch.zeros_like(self.<span class="cc blue">Wx</span>)</div><div class="ln">    self.dWc = torch.zeros_like(self.<span class="cc blue">Wc</span>)</div><div class="ln">    self.db = torch.zeros_like(self.b)</div><div class="ln">    dX = torch.zeros_like(self.<span class="cc red csym" data-e="self.X">X</span>)</div><div class="ln">    dc_next = torch.zeros_like(self.states[<span class="nu nn">0</span>])</div><div class="ln">    </div><div class="ln">    <span class="ctl">for</span> t <span class="kw">in</span> <span class="bi">reversed</span>(<span class="bi">range</span>(self.<span class="cc red csym" data-e="self.X">X</span>.shape[<span class="nu nn">1</span>])):  <span class="cm"># back</span></div><div class="ln">        dc = dC[:, t] + dc_next  <span class="cm"># from ŷ_t and from c_t+1</span></div><div class="ln">        dz = dc * (<span class="nu nn">1</span> - self.states[t + <span class="nu nn">1</span>] ** <span class="nu nn">2</span>)  <span class="cm"># tanh'</span></div><div class="ln">        self.dWx += dz.T @ self.<span class="cc red csym" data-e="self.X">X</span>[:, t]    <span class="cm"># add up the</span></div><div class="ln">        self.dWc += dz.T @ self.states[t]  <span class="cm"># gradient of</span></div><div class="ln">        self.db += dz.sum(dim=<span class="nu nn">0</span>)           <span class="cm"># every copy</span></div><div class="ln">        dX[:, t] = dz @ self.<span class="cc blue">Wx</span>    <span class="cm"># to the embedding</span></div><div class="ln">        dc_next = dz @ self.<span class="cc blue">Wc</span>     <span class="cm"># to c_t-1</span></div><div class="ln">    <span class="ctl">return</span> dX</div><div class="ln"></div><div class="ln">RNNLayer.backward = backward  <span class="cm"># add it to the class</span></div></div></b-code>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · BPTT from Scratch</span><span>16</span></div></section>
 
 <section class="page s-tight" id="lec-bp-update" data-view="slides workbook" data-topic="bptt" style="--gap: 22pt;">
   <h2 data-b="xpeaq">BPTT by Hand - Updating the Weights</h2>
-  <p data-b="we75g" data-align="center">Every copy of the cell shares <b-m tex="Ω_x"><span class="c wblue sym" data-at="0,3" data-k="Ω_x"><span class="Om">ω</span><sub>x</sub></span></b-m>, <b-m tex="Ω_c"><span class="c wblue sym" data-at="0,3" data-k="Ω_c"><span class="Om">ω</span><sub>c</sub></span></b-m> and <b-m tex="b_c"><span class="c gray sym" data-at="0,3" data-k="b_c">b<sub>c</sub></span></b-m></p>
+  <p data-align="center" data-b="we75g">Every copy of the cell shares <b-m tex="Ω_x"><span class="c wblue sym" data-at="0,3" data-k="Ω_x"><span class="Om">ω</span><sub>x</sub></span></b-m>, <b-m tex="Ω_c"><span class="c wblue sym" data-at="0,3" data-k="Ω_c"><span class="Om">ω</span><sub>c</sub></span></b-m> and <b-m tex="b_c"><span class="c gray sym" data-at="0,3" data-k="b_c">b<sub>c</sub></span></b-m></p>
   <b-eq data-align="center" data-b="bbx1w" class="">
     <eq-row>\Omega_{c} \leftarrow \Omega_{c} - \alpha \frac{\partial ℒ}{\partial \Omega_{c}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml flush" role="math"><div class="eqml-n"></div><div class="eqml-e"><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-1155CC sa-0-10"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐜</mi></msub></mrow></mrow><mo stretchy="false">←</mo><mrow class="sym sym-1155CC sa-22-32"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐜</mi></msub></mrow></mrow><mo>−</mo><mi mathvariant="normal">α</mi><mfrac><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-CC0000 sa-57-58"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi class="mathcal" style="color:#CC0000;">𝓛</mi></mrow></mrow></mrow><mrow><mi mathvariant="normal">∂</mi><mrow class="sym sym-1155CC sa-69-79"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐜</mi></msub></mrow></mrow></mrow></mfrac></mrow></math></div></div></div></b-eq>
-  <b-code lang="python" chain="true" data-b="umtnd"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">update</span>(self, lr):  <span class="cm"># one gradient descent step</span></div><div class="ln">    self.<span class="cc blue">Wx</span> -= lr * self.dWx</div><div class="ln">    self.<span class="cc blue">Wc</span> -= lr * self.dWc</div><div class="ln">    self.b -= lr * self.db</div><div class="ln"></div><div class="ln">RNNLayer.update = update  <span class="cm"># add it to the class</span></div></div></b-code>
+  <b-code lang="python" chain="" data-b="umtnd"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">update</span>(self, lr):  <span class="cm"># one gradient descent step</span></div><div class="ln">    self.<span class="cc blue">Wx</span> -= lr * self.dWx</div><div class="ln">    self.<span class="cc blue">Wc</span> -= lr * self.dWc</div><div class="ln">    self.b -= lr * self.db</div><div class="ln"></div><div class="ln">RNNLayer.update = update  <span class="cm"># add it to the class</span></div></div></b-code>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · BPTT from Scratch</span><span>17</span></div></section>
 
 <section class="page s-tight" id="lec-bp-linear" data-view="slides workbook" data-topic="bptt" style="--gap: 22pt;">
   <h2 data-b="cbctw">BPTT by Hand - Output Layer</h2>
-  <b-code lang="python" chain="true" data-b="pi2hz"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">LinearLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_out):</div><div class="ln">        self.W = torch.randn(n_out, n_in) * (<span class="nu nn">2</span>/n_in)**<span class="nu nn">0.5</span></div><div class="ln">        self.b = torch.zeros(n_out)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, <span class="cc red csym" data-e="X">X</span>):  <span class="cm"># every c_t at once</span></div><div class="ln">        self.<span class="cc red csym" data-e="self.X">X</span> = <span class="cc red csym" data-e="X">X</span></div><div class="ln">        <span class="ctl">return</span> <span class="cc red csym" data-e="X">X</span> @ self.W.T + self.b</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">backward</span>(self, dZ):  <span class="cm"># (B, T, n_out)</span></div><div class="ln">        self.dW = (dZ.transpose(<span class="nu nn">1</span>, <span class="nu nn">2</span>) @ self.<span class="cc red csym" data-e="self.X">X</span>).sum(dim=<span class="nu nn">0</span>)</div><div class="ln">        self.db = dZ.sum(dim=<span class="nu nn">1</span>).sum(dim=<span class="nu nn">0</span>)</div><div class="ln">        <span class="ctl">return</span> dZ @ self.W  <span class="cm"># dℒ/dc_t</span></div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">update</span>(self, lr):</div><div class="ln">        self.W -= lr * self.dW</div><div class="ln">        self.b -= lr * self.db</div></div></b-code>
+  <b-code lang="python" chain="" data-b="pi2hz"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">LinearLayer</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, n_in, n_out):</div><div class="ln">        self.W = torch.randn(n_out, n_in) * (<span class="nu nn">2</span>/n_in)**<span class="nu nn">0.5</span></div><div class="ln">        self.b = torch.zeros(n_out)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, <span class="cc red csym" data-e="X">X</span>):  <span class="cm"># every c_t at once</span></div><div class="ln">        self.<span class="cc red csym" data-e="self.X">X</span> = <span class="cc red csym" data-e="X">X</span></div><div class="ln">        <span class="ctl">return</span> <span class="cc red csym" data-e="X">X</span> @ self.W.T + self.b</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">backward</span>(self, dZ):  <span class="cm"># (B, T, n_out)</span></div><div class="ln">        self.dW = (dZ.transpose(<span class="nu nn">1</span>, <span class="nu nn">2</span>) @ self.<span class="cc red csym" data-e="self.X">X</span>).sum(dim=<span class="nu nn">0</span>)</div><div class="ln">        self.db = dZ.sum(dim=<span class="nu nn">1</span>).sum(dim=<span class="nu nn">0</span>)</div><div class="ln">        <span class="ctl">return</span> dZ @ self.W  <span class="cm"># dℒ/dc_t</span></div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">update</span>(self, lr):</div><div class="ln">        self.W -= lr * self.dW</div><div class="ln">        self.b -= lr * self.db</div></div></b-code>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · BPTT from Scratch</span><span>18</span></div></section>
 
 <section class="page s-tight" id="lec-bp-network" data-view="slides workbook" data-topic="bptt" style="--gap: 22pt;">
   <h2 data-b="cu0gx">BPTT by Hand - Network</h2>
-  <b-code lang="python" chain="true" data-b="kgxcw"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">Network</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, layers):</div><div class="ln">        self.layers = layers</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, <span class="cc red csym" data-e="X">X</span>):</div><div class="ln">        <span class="ctl">for</span> layer <span class="kw">in</span> self.layers:</div><div class="ln">            <span class="cc red csym" data-e="X">X</span> = layer.forward(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">        <span class="ctl">return</span> <span class="cc red csym" data-e="X">X</span>  <span class="cm"># logits</span></div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">backward</span>(self, d):</div><div class="ln">        <span class="ctl">for</span> layer <span class="kw">in</span> <span class="bi">reversed</span>(self.layers):</div><div class="ln">            d = layer.backward(d)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">update</span>(self, lr):</div><div class="ln">        <span class="ctl">for</span> layer <span class="kw">in</span> self.layers:</div><div class="ln">            layer.update(lr)</div></div></b-code>
+  <b-code lang="python" chain="" data-b="kgxcw"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div></div><div class="src"><div class="ln"><span class="kw">class</span> <span class="def">Network</span>:</div><div class="ln">    <span class="kw">def</span> <span class="def">__init__</span>(self, layers):</div><div class="ln">        self.layers = layers</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">forward</span>(self, <span class="cc red csym" data-e="X">X</span>):</div><div class="ln">        <span class="ctl">for</span> layer <span class="kw">in</span> self.layers:</div><div class="ln">            <span class="cc red csym" data-e="X">X</span> = layer.forward(<span class="cc red csym" data-e="X">X</span>)</div><div class="ln">        <span class="ctl">return</span> <span class="cc red csym" data-e="X">X</span>  <span class="cm"># logits</span></div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">backward</span>(self, d):</div><div class="ln">        <span class="ctl">for</span> layer <span class="kw">in</span> <span class="bi">reversed</span>(self.layers):</div><div class="ln">            d = layer.backward(d)</div><div class="ln"></div><div class="ln">    <span class="kw">def</span> <span class="def">update</span>(self, lr):</div><div class="ln">        <span class="ctl">for</span> layer <span class="kw">in</span> self.layers:</div><div class="ln">            layer.update(lr)</div></div></b-code>
   <p data-b="gngda"><span class="mono">Network.backward</span> runs the layers in <u class="fill blank" style="width: 53.3pt;">&nbsp;</u> order, each passing its gradient down, and <span class="mono">Network.update</span> steps <u class="fill blank" style="width: 78.2pt;">&nbsp;</u> at once.</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · BPTT from Scratch</span><span>19</span></div></section>
 
 <section class="page s-tight" id="lec-bp-ce" data-view="slides workbook" data-topic="bptt" style="--gap: 22pt;">
   <h2 data-b="sktj5">BPTT by Hand - Cross-Entropy</h2>
   <p data-b="py6yq">With <b class="name">softmax</b> and <b class="name">cross-entropy</b> together, the gradient of the logits is just <u class="fill blank" style="width: 54.5pt;">&nbsp;</u> (the review's <b>d.)</b>), averaged over the <span class="num">25</span> predictions.</p>
-  <b-code lang="python" chain="true" data-b="n6dtq"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">cross_entropy</span>(logits, <span class="cc green">y</span>):  <span class="cm"># (1, T, V), (1, T)</span></div><div class="ln">    <span class="cc gold">p</span> = torch.softmax(logits[<span class="nu nn">0</span>], dim=<span class="nu nn">1</span>)</div><div class="ln">    rows = torch.arange(<span class="cc green">y</span>.shape[<span class="nu nn">1</span>])</div><div class="ln">    loss = -torch.log(<span class="cc gold">p</span>[rows, <span class="cc green">y</span>[<span class="nu nn">0</span>]]).mean()</div><div class="ln">    d = <span class="cc gold">p</span>.clone()</div><div class="ln">    d[rows, <span class="cc green">y</span>[<span class="nu nn">0</span>]] -= <span class="nu nn">1</span>  <span class="cm"># softmax + CE: ŷ − y</span></div><div class="ln">    <span class="ctl">return</span> loss, (d / <span class="cc green">y</span>.shape[<span class="nu nn">1</span>])[<span class="nu">None</span>]</div></div></b-code>
+  <b-code lang="python" chain="" data-b="n6dtq"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div></div><div class="src"><div class="ln"><span class="kw">def</span> <span class="def">cross_entropy</span>(logits, <span class="cc green">y</span>):  <span class="cm"># (1, T, V), (1, T)</span></div><div class="ln">    <span class="cc gold">p</span> = torch.softmax(logits[<span class="nu nn">0</span>], dim=<span class="nu nn">1</span>)</div><div class="ln">    rows = torch.arange(<span class="cc green">y</span>.shape[<span class="nu nn">1</span>])</div><div class="ln">    loss = -torch.log(<span class="cc gold">p</span>[rows, <span class="cc green">y</span>[<span class="nu nn">0</span>]]).mean()</div><div class="ln">    d = <span class="cc gold">p</span>.clone()</div><div class="ln">    d[rows, <span class="cc green">y</span>[<span class="nu nn">0</span>]] -= <span class="nu nn">1</span>  <span class="cm"># softmax + CE: ŷ − y</span></div><div class="ln">    <span class="ctl">return</span> loss, (d / <span class="cc green">y</span>.shape[<span class="nu nn">1</span>])[<span class="nu">None</span>]</div></div></b-code>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · BPTT from Scratch</span><span>20</span></div></section>
 
 <section class="page s-tight" id="lec-bp-run" data-view="slides workbook" data-topic="bptt" style="--gap: 22pt;">
   <h2 data-b="s2aj6">Running BPTT by Hand</h2>
   <p data-b="r9ab9">Last lecture's <span class="num">2</span> hidden units are too few to remember the song, so we use <span class="num">16</span>. Each epoch: forward, <b class="name">BPTT</b>, then <u class="fill blank" style="width: 143.2pt;">&nbsp;</u>.</p>
-  <b-code lang="python" chain="true" data-b="ji0pn"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div></div><div class="src"><div class="ln"><span class="kw">import</span> re</div><div class="ln">text = <span class="st">"""Cheer, cheer for old Notre Dame,</span></div><div class="ln"><span class="st">Wake up the echoes cheering her name,</span></div><div class="ln"><span class="st">Send a volley cheer on high,</span></div><div class="ln"><span class="st">Shake down the thunder from the sky."""</span></div><div class="ln">tokens = re.sub(<span class="st">r"[^a-z ]"</span>, <span class="st">" "</span>, text.lower()).split()</div><div class="ln">vocab = <span class="ty">list</span>(<span class="ty">dict</span>.fromkeys(tokens))</div><div class="ln">ids = torch.tensor([[vocab.index(t) <span class="ctl">for</span> t <span class="kw">in</span> tokens]])</div><div class="ln"><span class="cc red csym" data-e="X">X</span>, <span class="cc green">y</span> = ids[:, :-<span class="nu nn">1</span>], ids[:, <span class="nu nn">1</span>:]  <span class="cm"># predict the next token</span></div><div class="ln">torch.manual_seed(<span class="nu nn">0</span>)</div><div class="ln">model = Network([Embedding(<span class="nu nn">22</span>, <span class="nu nn">8</span>), RNNLayer(<span class="nu nn">8</span>, <span class="nu nn">16</span>),</div><div class="ln">                 LinearLayer(<span class="nu nn">16</span>, <span class="nu nn">22</span>)])</div><div class="ln"><span class="ctl">for</span> epoch <span class="kw">in</span> <span class="bi">range</span>(<span class="nu nn">200</span>):</div><div class="ln">    loss, d = cross_entropy(model.forward(<span class="cc red csym" data-e="X">X</span>), <span class="cc green">y</span>)</div><div class="ln">    model.backward(d)  <span class="cm"># BPTT, by hand</span></div><div class="ln">    model.update(<span class="nu nn">0.5</span>)  <span class="cm"># one step of gradient descent</span></div><div class="ln">    <span class="ctl">if</span> epoch % <span class="nu nn">50</span> == <span class="nu nn">0</span>:</div><div class="ln">        <span class="bi">print</span>(<span class="st">f"epoch {epoch} loss: {loss.item():.4f}"</span>)</div><div class="ln">right = (model.forward(<span class="cc red csym" data-e="X">X</span>)[<span class="nu nn">0</span>].argmax(dim=<span class="nu nn">1</span>) == <span class="cc green">y</span>[<span class="nu nn">0</span>]).sum()</div><div class="ln"><span class="bi">print</span>(right.item(), <span class="st">"of"</span>, <span class="cc green">y</span>.shape[<span class="nu nn">1</span>], <span class="st">"next words right"</span>)</div></div></b-code>
+  <b-code lang="python" chain="" data-b="ji0pn"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div></div><div class="src"><div class="ln"><span class="kw">import</span> re</div><div class="ln">text = <span class="st">"""Cheer, cheer for old Notre Dame,</span></div><div class="ln"><span class="st">Wake up the echoes cheering her name,</span></div><div class="ln"><span class="st">Send a volley cheer on high,</span></div><div class="ln"><span class="st">Shake down the thunder from the sky."""</span></div><div class="ln">tokens = re.sub(<span class="st">r"[^a-z ]"</span>, <span class="st">" "</span>, text.lower()).split()</div><div class="ln">vocab = <span class="ty">list</span>(<span class="ty">dict</span>.fromkeys(tokens))</div><div class="ln">ids = torch.tensor([[vocab.index(t) <span class="ctl">for</span> t <span class="kw">in</span> tokens]])</div><div class="ln"><span class="cc red csym" data-e="X">X</span>, <span class="cc green">y</span> = ids[:, :-<span class="nu nn">1</span>], ids[:, <span class="nu nn">1</span>:]  <span class="cm"># predict the next token</span></div><div class="ln">torch.manual_seed(<span class="nu nn">0</span>)</div><div class="ln">model = Network([Embedding(<span class="nu nn">22</span>, <span class="nu nn">8</span>), RNNLayer(<span class="nu nn">8</span>, <span class="nu nn">16</span>),</div><div class="ln">                 LinearLayer(<span class="nu nn">16</span>, <span class="nu nn">22</span>)])</div><div class="ln"><span class="ctl">for</span> epoch <span class="kw">in</span> <span class="bi">range</span>(<span class="nu nn">200</span>):</div><div class="ln">    loss, d = cross_entropy(model.forward(<span class="cc red csym" data-e="X">X</span>), <span class="cc green">y</span>)</div><div class="ln">    model.backward(d)  <span class="cm"># BPTT, by hand</span></div><div class="ln">    model.update(<span class="nu nn">0.5</span>)  <span class="cm"># one step of gradient descent</span></div><div class="ln">    <span class="ctl">if</span> epoch % <span class="nu nn">50</span> == <span class="nu nn">0</span>:</div><div class="ln">        <span class="bi">print</span>(<span class="st">f"epoch {epoch} loss: {loss.item():.4f}"</span>)</div><div class="ln">right = (model.forward(<span class="cc red csym" data-e="X">X</span>)[<span class="nu nn">0</span>].argmax(dim=<span class="nu nn">1</span>) == <span class="cc green">y</span>[<span class="nu nn">0</span>]).sum()</div><div class="ln"><span class="bi">print</span>(right.item(), <span class="st">"of"</span>, <span class="cc green">y</span>.shape[<span class="nu nn">1</span>], <span class="st">"next words right"</span>)</div></div></b-code>
   <b-out data-b="m0dqi"><div class="label">Output</div><pre><span class="olab f-red">epoch 0 loss:</span> <span class="nu f-red">3.1958</span>
 <span class="olab f-red">epoch 50 loss:</span> <span class="nu f-red">0.2203</span>
 <span class="olab f-red">epoch 100 loss:</span> <span class="nu f-red">0.0775</span>
@@ -4242,7 +4253,7 @@ z
 <section class="page s-tight" id="lec-p-xa166" data-view="slides workbook" data-topic="uses generation" style="--gap: 22pt;">
   <h2 data-b="uzsgt">Text Generation</h2>
   <p data-b="rq1q3">Predict the next <b class="def">token</b>, then <u class="fill blank" style="width: 220.5pt;">&nbsp;</u>. We call this process <b class="def">autoregressive</b> text generation</p>
-  <b-code lang="python" chain="true" out="below" data-b="e5vhh"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div></div><div class="src"><div class="ln"><span class="kw">import</span> re</div><div class="ln"><span class="kw">import</span> torch</div><div class="ln"></div><div class="ln">song = <span class="st">"""Cheer, cheer for old Notre Dame,</span></div><div class="ln"><span class="st">Wake up the echoes cheering her name,</span></div><div class="ln"><span class="st">Send a volley cheer on high,</span></div><div class="ln"><span class="st">Shake down the"""</span></div><div class="ln"></div><div class="ln">split_song = re.sub(<span class="st">r"[^a-z ]"</span>, <span class="st">" "</span>, song.lower()).split() <span class="cm"># split song into tokens</span></div><div class="ln">num_new_tokens = <span class="nu nn">4</span> <span class="cm"># generate 10 new tokens</span></div><div class="ln"></div><div class="ln"><span class="ctl">for</span> t <span class="kw">in</span> <span class="bi">range</span>(num_new_tokens):</div><div class="ln">    <span class="cm"># get the token IDs for each token in our song</span></div><div class="ln">    <span class="cc red csym" data-e="X">X</span> = torch.tensor([[vocab.index(token) <span class="ctl">for</span> token <span class="kw">in</span> split_song]])</div><div class="ln">    logits = model.forward(<span class="cc red csym" data-e="X">X</span>) <span class="cm"># run our RNN on the token IDs to produce prediction logits</span></div><div class="ln">    split_song.append(vocab[logits[<span class="nu nn">0</span>, -<span class="nu nn">1</span>].argmax()]) <span class="cm"># append the most likely next token to the song</span></div><div class="ln"></div><div class="ln"><span class="bi">print</span>(split_song)  <span class="cm"># print original song with the 10 new predicted tokens on the end</span></div></div></b-code>
+  <b-code lang="python" out="below" chain="" data-b="e5vhh"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div></div><div class="src"><div class="ln"><span class="kw">import</span> re</div><div class="ln"><span class="kw">import</span> torch</div><div class="ln"></div><div class="ln">song = <span class="st">"""Cheer, cheer for old Notre Dame,</span></div><div class="ln"><span class="st">Wake up the echoes cheering her name,</span></div><div class="ln"><span class="st">Send a volley cheer on high,</span></div><div class="ln"><span class="st">Shake down the"""</span></div><div class="ln"></div><div class="ln">split_song = re.sub(<span class="st">r"[^a-z ]"</span>, <span class="st">" "</span>, song.lower()).split() <span class="cm"># split song into tokens</span></div><div class="ln">num_new_tokens = <span class="nu nn">4</span> <span class="cm"># generate 10 new tokens</span></div><div class="ln"></div><div class="ln"><span class="ctl">for</span> t <span class="kw">in</span> <span class="bi">range</span>(num_new_tokens):</div><div class="ln">    <span class="cm"># get the token IDs for each token in our song</span></div><div class="ln">    <span class="cc red csym" data-e="X">X</span> = torch.tensor([[vocab.index(token) <span class="ctl">for</span> token <span class="kw">in</span> split_song]])</div><div class="ln">    logits = model.forward(<span class="cc red csym" data-e="X">X</span>) <span class="cm"># run our RNN on the token IDs to produce prediction logits</span></div><div class="ln">    split_song.append(vocab[logits[<span class="nu nn">0</span>, -<span class="nu nn">1</span>].argmax()]) <span class="cm"># append the most likely next token to the song</span></div><div class="ln"></div><div class="ln"><span class="bi">print</span>(split_song)  <span class="cm"># print original song with the 10 new predicted tokens on the end</span></div></div></b-code>
   <b-out wrap="" tok="march" data-b="xkhjk"><div class="label">Output</div><pre>[<span class="otk" data-f="purple"><span class="oq">'</span>cheer<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>cheer<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>for<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>old<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>notre<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>dame<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>wake<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>up<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>the<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>echoes<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>cheering<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>her<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>name<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>send<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>a<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>volley<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>cheer<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>on<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>high<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>shake<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>down<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>the<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>thunder<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>from<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>the<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>sky<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>old<span class="oq">'</span></span>, <span class="otk" data-f="red"><span class="oq">'</span>notre<span class="oq">'</span></span>, <span class="otk" data-f="blue"><span class="oq">'</span>dame<span class="oq">'</span></span>, <span class="otk" data-f="purple"><span class="oq">'</span>wake<span class="oq">'</span></span>, <span class="otk" data-f="green"><span class="oq">'</span>up<span class="oq">'</span></span>, <span class="otk" data-f="yellow"><span class="oq">'</span>the<span class="oq">'</span></span>]</pre></b-out>
   
 <div class="foot" data-rt=""><span>Backpropagation Through Time · BPTT from Scratch</span><span>22</span></div></section>
@@ -4251,7 +4262,7 @@ z
   <h2 data-b="dptg7">Vanishing/Exploding Gradients</h2>
   <p data-b="d8jwk"><b class="name">RNNs</b> are particularly <b class="warn">vulnerable to the vanishing gradient problem</b> because we have to <b class="def">compute the gradients of the loss</b> <u class="fill blank" style="width: 205.4pt;">&nbsp;</u></p>
   
-  <b-fig src="fig/act-derivs.svg" alt="The slopes of the sigmoid and tanh: the sigmoid peaks at 0.25 at z = 0, tanh peaks at 1" style="--fig-h: none; width: 100%; --ar: 2.954;" data-b="e0hu0"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 130" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/act-derivs.svg" alt="The slopes of the sigmoid and tanh: the sigmoid peaks at 0.25 at z = 0, tanh peaks at 1" style="width: 100%; --fig-h: none; --ar: 2.954;" data-b="e0hu0"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 130" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -4589,7 +4600,7 @@ L 49.47 24.273779
   <h2 data-b="sbp3z">Vanishing Gradient</h2>
   <p data-b="n7eya">Since you are multiplying increasingly <u class="fill blank" style="width: 37.3pt;">&nbsp;</u> values with each other during backprop, the gradient eventually trends to <u class="fill blank" style="width: 8.9pt;">&nbsp;</u>, meaning <b class="warn">updates will stop happening</b>.</p>
   
-  <svg class="draw" viewBox="0 0 520 150" style="width: 670.5pt" role="img" aria-label="The gradient flowing back from the last word's loss through c50, c40 down to c1, shrinking from 1 to 0.17, 0.023, 0.0033, 0.0005 and 0.000092" data-b="e2vbq">
+  <svg class="draw" viewBox="0 0 520 150" role="img" aria-label="The gradient flowing back from the last word's loss through c50, c40 down to c1, shrinking from 1 to 0.17, 0.023, 0.0033, 0.0005 and 0.000092" style="width: 670.5pt" data-b="e2vbq">
     <defs>
       <marker id="ahE06666-e2vbq" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
@@ -4626,28 +4637,28 @@ L 49.47 24.273779
       <rect x="473.5" y="22.7" width="33.1" height="22.8" rx="5.2" fill="#F4CCCC" stroke="#E06666" stroke-width="1.3"></rect>
       <text x="490.1" y="38.1" font-size="13.0" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="ℒ_{50}|13" fill="#CC0000">ℒ<tspan font-size="8.1" dy="3.6">50</tspan></text>
     </g>
-    <line x1="473.5" y1="34.1" x2="436.5" y2="34.1" stroke="#E06666" stroke-width="1.40" marker-end="url(#ahE06666-e2vbq)" data-a="vanish-chain-e2vbq-s7" data-b="vanish-chain-e2vbq-s6" data-a-at="l:0.500" data-b-at="r:0.500"></line>
-    <line x1="407.5" y1="34.1" x2="360.5" y2="34.1" stroke="#DCB439" stroke-width="1.40" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s6" data-b="vanish-chain-e2vbq-s5" data-a-at="l:0.500" data-b-at="r:0.500"></line>
+    <line x1="473.5" y1="34.1" x2="436.5" y2="34.1" stroke="#E06666" stroke-width="1.4" marker-end="url(#ahE06666-e2vbq)" data-a="vanish-chain-e2vbq-s7" data-b="vanish-chain-e2vbq-s6" data-a-at="l:0.500" data-b-at="r:0.500"></line>
+    <line x1="407.5" y1="34.1" x2="360.5" y2="34.1" stroke="#DCB439" stroke-width="1.4" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s6" data-b="vanish-chain-e2vbq-s5" data-a-at="l:0.500" data-b-at="r:0.500"></line>
     <text x="384.0" y="22.0" font-size="6.5" fill="#666666" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">× (D Ωc)¹⁰</text>
-    <line x1="331.5" y1="34.1" x2="284.5" y2="34.1" stroke="#DCB439" stroke-width="1.40" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s5" data-b="vanish-chain-e2vbq-s4" data-a-at="l:0.500" data-b-at="r:0.500"></line>
+    <line x1="331.5" y1="34.1" x2="284.5" y2="34.1" stroke="#DCB439" stroke-width="1.4" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s5" data-b="vanish-chain-e2vbq-s4" data-a-at="l:0.500" data-b-at="r:0.500"></line>
     <text x="308.0" y="22.0" font-size="6.5" fill="#666666" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">× (D Ωc)¹⁰</text>
-    <line x1="255.5" y1="34.1" x2="208.5" y2="34.1" stroke="#DCB439" stroke-width="1.40" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s4" data-b="vanish-chain-e2vbq-s3" data-a-at="l:0.500" data-b-at="r:0.500"></line>
+    <line x1="255.5" y1="34.1" x2="208.5" y2="34.1" stroke="#DCB439" stroke-width="1.4" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s4" data-b="vanish-chain-e2vbq-s3" data-a-at="l:0.500" data-b-at="r:0.500"></line>
     <text x="232.0" y="22.0" font-size="6.5" fill="#666666" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">× (D Ωc)¹⁰</text>
-    <line x1="179.5" y1="34.1" x2="132.5" y2="34.1" stroke="#DCB439" stroke-width="1.40" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s3" data-b="vanish-chain-e2vbq-s2" data-a-at="l:0.500" data-b-at="r:0.500"></line>
+    <line x1="179.5" y1="34.1" x2="132.5" y2="34.1" stroke="#DCB439" stroke-width="1.4" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s3" data-b="vanish-chain-e2vbq-s2" data-a-at="l:0.500" data-b-at="r:0.500"></line>
     <text x="156.0" y="22.0" font-size="6.5" fill="#666666" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">× (D Ωc)¹⁰</text>
-    <line x1="103.5" y1="34.1" x2="54.3" y2="34.1" stroke="#DCB439" stroke-width="1.40" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s2" data-b="vanish-chain-e2vbq-s1" data-a-at="l:0.500" data-b-at="r:0.500"></line>
+    <line x1="103.5" y1="34.1" x2="54.3" y2="34.1" stroke="#DCB439" stroke-width="1.4" marker-end="url(#ahDCB439-e2vbq)" data-a="vanish-chain-e2vbq-s2" data-b="vanish-chain-e2vbq-s1" data-a-at="l:0.500" data-b-at="r:0.500"></line>
     <text x="78.0" y="22.0" font-size="6.5" fill="#666666" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">× (D Ωc)⁹</text>
-    <rect x="33.0" y="127.4" width="18.0" height="0.6" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
+    <rect x="33.0" y="127.4" width="18.0" height="0.6" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
     <text x="42.0" y="140.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">9.2×10⁻⁵</text>
-    <rect x="109.0" y="127.4" width="18.0" height="0.6" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
+    <rect x="109.0" y="127.4" width="18.0" height="0.6" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
     <text x="118.0" y="140.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.0005</text>
-    <rect x="185.0" y="127.4" width="18.0" height="0.6" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
+    <rect x="185.0" y="127.4" width="18.0" height="0.6" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
     <text x="194.0" y="140.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.0033</text>
-    <rect x="261.0" y="126.5" width="18.0" height="1.5" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
+    <rect x="261.0" y="126.5" width="18.0" height="1.5" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
     <text x="270.0" y="140.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.023</text>
-    <rect x="337.0" y="116.8" width="18.0" height="11.2" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
+    <rect x="337.0" y="116.8" width="18.0" height="11.2" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
     <text x="346.0" y="140.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.17</text>
-    <rect x="413.0" y="62.0" width="18.0" height="66.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
+    <rect x="413.0" y="62.0" width="18.0" height="66.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
     <text x="422.0" y="140.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
     <text x="4.0" y="98.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">size of</text>
     <text x="4.0" y="107.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">the gradient</text>
@@ -4657,7 +4668,7 @@ L 49.47 24.273779
 <section class="page" id="lec-explode" data-view="slides workbook" data-topic="vanishing exploding">
   <h2 data-b="iq8fk">Exploding Gradient</h2>
   <p data-b="cb29r">Almost the opposite of the <b class="def">vanishing gradient</b>, the <b class="def">exploding gradient</b> is when the gradients become <u class="fill blank" style="width: 290.8pt;">&nbsp;</u></p>
-  <b-fig src="fig/clip.svg" data-pool="clip" alt="The RNN's loss over 1,000 steps of gradient descent with a learning rate of 1: without clipping (red) it falls to about 0.3 with two sudden spikes, then just after step 500 jumps above 4 and settles at 3.5, with the gradient clipped at 1 (navy) it falls smoothly to almost 0" data-b="rpgr2" style="width: 91.6%; --fig-h: none; --ar: 2.560;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/clip.svg" alt="The RNN's loss over 1,000 steps of gradient descent with a learning rate of 1: without clipping (red) it falls to about 0.3 with two sudden spikes, then just after step 500 jumps above 4 and settles at 3.5, with the gradient clipped at 1 (navy) it falls smoothly to almost 0" style="width: 91.6%; --fig-h: none; --ar: 2.560;" data-pool="clip" data-b="rpgr2"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 150" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -5273,8 +5284,8 @@ L 321.282188 22.623779
  </defs>
 </svg>
 </b-fig>
-  <div class="pushgap" data-rt="" aria-hidden="true" style="height: 216pt;"></div><p data-b="zvxde" data-push="">An<b class="take"> </b><b class="def">exploding gradient</b> has a simple fix:<b class="take"> clip, or put a ceiling on, the size of the gradient</b> we'll accept.</p>
-  <p data-b="k0o5k" data-push="" data-align="center"><b class="warn">Vanishing gradients are harder</b>: they need a new kind of cell.</p>
+  <div class="pushgap" data-rt="" aria-hidden="true" style="height: 216pt;"></div><p data-push="" data-b="zvxde">An<b class="take"> </b><b class="def">exploding gradient</b> has a simple fix:<b class="take"> clip, or put a ceiling on, the size of the gradient</b> we'll accept.</p>
+  <p data-align="center" data-push="" data-b="k0o5k"><b class="warn">Vanishing gradients are harder</b>: they need a new kind of cell.</p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · BPTT from Scratch</span><span>25</span></div></section>
 
 <section class="page" id="lec-forget" data-view="slides workbook" data-topic="vanishing" data-part="Vanishing and Exploding Gradients" style="--gap: 22pt;">
@@ -5743,7 +5754,7 @@ z
   <h2 data-b="nv8j9">Gates and Computation Graphs</h2>
   <p data-b="igcg0">Add a new component called a <b class="def">gate</b> that allows each step choose how much of the <u class="fill blank" style="width: 153.8pt;">&nbsp;</u> to keep</p>
   
-  <svg class="draw symdims" viewBox="74.2 57.0 583.9 360.7" style="width: 600pt" role="img" aria-label="One step of an RNN with a single gate, read from the bottom up, in boxes of symbol tiles with their shapes. x t and the last hidden state c t minus 1 feed two pre-activations, Z z = x t Omega z x transposed + c t minus 1 Omega z c transposed + b z and Z c tilde = x t Omega x transposed + c t minus 1 Omega c transposed + b c; the gate z t = sigma(Z z) and the candidate c tilde t = tanh(Z c tilde) feed the update c t = z t times c t minus 1 plus (1 minus z t) times c tilde t. c t goes to the next step and up to Z y = c t Omega y transposed + b y and y hat t = softmax(Z y). The cell (blue outline) holds the update, the gate and the candidate." data-vars="d=2 h=2 V=22" data-b="pvxdk">
+  <svg class="draw symdims" viewBox="74.2 57.0 583.9 360.7" role="img" aria-label="One step of an RNN with a single gate, read from the bottom up, in boxes of symbol tiles with their shapes. x t and the last hidden state c t minus 1 feed two pre-activations, Z z = x t Omega z x transposed + c t minus 1 Omega z c transposed + b z and Z c tilde = x t Omega x transposed + c t minus 1 Omega c transposed + b c; the gate z t = sigma(Z z) and the candidate c tilde t = tanh(Z c tilde) feed the update c t = z t times c t minus 1 plus (1 minus z t) times c tilde t. c t goes to the next step and up to Z y = c t Omega y transposed + b y and y hat t = softmax(Z y). The cell (blue outline) holds the update, the gate and the candidate." data-vars="d=2 h=2 V=22" style="width: 600pt" data-b="pvxdk">
     <defs>
       <marker id="ahDCB439-pvxdk" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
@@ -6734,7 +6745,7 @@ L 268.637969 23.815527
 <section class="page" id="lec-lstm" data-view="slides workbook" data-topic="lstm" style="--gap: 22pt;">
   <h2 data-b="ko1tc">Long Short-Term Memory units - LSTMs (1997)</h2>
   <p data-b="falsi"><b class="name">LSTMs</b> introduce the idea of <u class="fill blank" style="width: 39.1pt;">&nbsp;</u> to help solve the <u class="fill blank" style="width: 67.6pt;">&nbsp;</u> gradient problem.</p>
-  <svg class="draw symdims" viewBox="-25.9 29.0 828.7 403.2" style="width: 600pt" role="img" aria-label="An LSTM step in boxes of symbol tiles with their shapes, read from the bottom up. x t and the last hidden state c t minus 1 feed four gates: the forget gate f t = sigma(x t Omega f x transposed + c t minus 1 Omega f c transposed + b f), the input gate i t = sigma(...), the candidate m tilde t = tanh(...) and the output gate o t = sigma(...). The cell state m t = f t times m t minus 1 plus i t times m tilde t (m t minus 1 comes in from the left) goes to the next step, and c t = o t times tanh(m t) goes to the next step and up to y hat t = softmax(c t Omega y transposed + b y). The cell (blue outline) holds the gates and both updates." data-b="jvvus">
+  <svg class="draw symdims" viewBox="-25.9 29.0 828.7 403.2" role="img" aria-label="An LSTM step in boxes of symbol tiles with their shapes, read from the bottom up. x t and the last hidden state c t minus 1 feed four gates: the forget gate f t = sigma(x t Omega f x transposed + c t minus 1 Omega f c transposed + b f), the input gate i t = sigma(...), the candidate m tilde t = tanh(...) and the output gate o t = sigma(...). The cell state m t = f t times m t minus 1 plus i t times m tilde t (m t minus 1 comes in from the left) goes to the next step, and c t = o t times tanh(m t) goes to the next step and up to y hat t = softmax(c t Omega y transposed + b y). The cell (blue outline) holds the gates and both updates." style="width: 600pt" data-b="jvvus">
     <defs>
       <marker id="ahE06666-jvvus" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
@@ -7065,8 +7076,8 @@ L 268.637969 23.815527
 
 <section class="page" id="lec-gru" data-view="slides workbook" data-topic="gru" style="--gap: 22pt;">
   <h2 data-b="on2lh">Gated Recurrent Units - GRUs (2014)</h2>
-  <p data-b="ronbk" data-align="center"><b class="def">GRUs</b> are a <b class="take">simpler version</b> of <b class="def">LSTMs</b> that simplify the gate structure</p>
-  <svg class="draw symdims" viewBox="66.2 30 653.1 372" style="width: 600pt" role="img" aria-label="A GRU step, laid out as on the slide: the last hidden state c t minus 1 (gold, left) runs along the middle into the update box c t = z t times c t minus 1 plus (1 minus z t) times c tilde t, which gives c t (right, to the next step) and, above, the output y hat t = softmax(c t Omega y transposed + b y). Below it the update gate z t = sigma(x t Omega z x transposed + c t minus 1 Omega z c transposed + b z) and the candidate c tilde t = tanh(x t Omega x transposed + (r t times c t minus 1) Omega c transposed + b c) feed the update box; the reset gate r t = sigma(...) under the candidate feeds it. The word x t (red, bottom) and c t minus 1 (gold, along the bottom) go into all three gates." data-b="e8lyu">
+  <p data-align="center" data-b="ronbk"><b class="def">GRUs</b> are a <b class="take">simpler version</b> of <b class="def">LSTMs</b> that simplify the gate structure</p>
+  <svg class="draw symdims" viewBox="66.2 30 653.1 372" role="img" aria-label="A GRU step, laid out as on the slide: the last hidden state c t minus 1 (gold, left) runs along the middle into the update box c t = z t times c t minus 1 plus (1 minus z t) times c tilde t, which gives c t (right, to the next step) and, above, the output y hat t = softmax(c t Omega y transposed + b y). Below it the update gate z t = sigma(x t Omega z x transposed + c t minus 1 Omega z c transposed + b z) and the candidate c tilde t = tanh(x t Omega x transposed + (r t times c t minus 1) Omega c transposed + b c) feed the update box; the reset gate r t = sigma(...) under the candidate feeds it. The word x t (red, bottom) and c t minus 1 (gold, along the bottom) go into all three gates." style="width: 600pt" data-b="e8lyu">
     <defs>
       <marker id="ahDCB439-e8lyu" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
@@ -7296,10 +7307,10 @@ L 268.637969 23.815527
   
 <div class="foot" data-rt=""><span>Backpropagation Through Time · LSTMs and GRUs</span><span>32</span></div></section>
 
-<section class="page" id="lec-static" data-part="Toward Attention" data-view="slides workbook" data-topic="static-embeddings" style="--gap: 22pt;">
+<section class="page" id="lec-static" data-view="slides workbook" data-topic="static-embeddings" data-part="Toward Attention" style="--gap: 22pt;">
   <h2 data-b="s6z54">Static Embeddings</h2>
   <p data-b="p13ro">So far, the inputs to our model are what are called <b class="warn">static embeddings</b>, embeddings that are <u class="fill blank" style="width: 377.9pt;">&nbsp;</u></p>
-  <svg class="draw" viewBox="0 0 540 196" style="width: 620pt" role="img" aria-label="The three cheers of the trained RNN's chorus, one per row, with what came before each: cheer (word 1); cheer cheer (word 2); send a volley cheer (word 17). Each cheer's embedding, the first 4 of its 16 numbers, is the same every time: -1.12, 0.66, -0.08, -0.39. The hidden state after it is different every time: c1 starts -0.73, 0.76, -0.51, -0.06; c2 starts -0.95, -0.66, 0.85, -0.99; c17 starts -0.89, 0.83, 0.84, -0.98." data-b="g3003">
+  <svg class="draw" viewBox="0 0 540 196" role="img" aria-label="The three cheers of the trained RNN's chorus, one per row, with what came before each: cheer (word 1); cheer cheer (word 2); send a volley cheer (word 17). Each cheer's embedding, the first 4 of its 16 numbers, is the same every time: -1.12, 0.66, -0.08, -0.39. The hidden state after it is different every time: c1 starts -0.73, 0.76, -0.51, -0.06; c2 starts -0.95, -0.66, 0.85, -0.99; c17 starts -0.89, 0.83, 0.84, -0.98." style="width: 620pt" data-b="g3003">
     <defs>
       <marker id="ahDCB439-g3003" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
@@ -7317,15 +7328,15 @@ L 268.637969 23.815527
     </g>
     <text x="130.0" y="62.0" font-size="6" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="normal">word 1</text>
     <g id="static-cheer-g3003-e0">
-      <rect x="142.0" y="33.0" width="173.6" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="142.0" y="33.0" width="173.6" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="228.8" y="46.9" font-size="8" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#000000">[−1.12, 0.66, −0.08, −0.39, …]</tspan></text>
     </g>
-    <line x1="131.4" y1="44" x2="140.0" y2="44.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-g3003)" data-a="static-cheer-g3003-t00" data-b="static-cheer-g3003-e0" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="131.4" y1="44" x2="140.0" y2="44.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-g3003)" data-a="static-cheer-g3003-t00" data-b="static-cheer-g3003-e0" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g id="static-cheer-g3003-c0">
-      <rect x="331.0" y="33.0" width="197.3" height="22.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="331.0" y="33.0" width="197.3" height="22.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="429.7" y="46.9" font-size="8" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">1</tspan><tspan fill="#000000"> = </tspan><tspan fill="#000000">[−0.73, 0.76, −0.51, −0.06, …]</tspan></text>
     </g>
-    <line x1="317.6" y1="44.0" x2="329.0" y2="44.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-g3003)" data-a="static-cheer-g3003-e0" data-b="static-cheer-g3003-c0" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="317.6" y1="44.0" x2="329.0" y2="44.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-g3003)" data-a="static-cheer-g3003-e0" data-b="static-cheer-g3003-c0" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g id="static-cheer-g3003-t10" data-tok="march" data-t="cheer">
       <rect x="60" y="82.6" width="32.1" height="14.8" rx="3.6" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.9"></rect>
       <text x="76" y="92.9" font-size="9" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">cheer</text>
@@ -7336,15 +7347,15 @@ L 268.637969 23.815527
     </g>
     <text x="130.0" y="108.0" font-size="6" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="normal">word 2</text>
     <g id="static-cheer-g3003-e1">
-      <rect x="142.0" y="79.0" width="173.6" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="142.0" y="79.0" width="173.6" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="228.8" y="92.9" font-size="8" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#000000">[−1.12, 0.66, −0.08, −0.39, …]</tspan></text>
     </g>
-    <line x1="131.4" y1="90" x2="140.0" y2="90.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-g3003)" data-a="static-cheer-g3003-t11" data-b="static-cheer-g3003-e1" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="131.4" y1="90" x2="140.0" y2="90.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-g3003)" data-a="static-cheer-g3003-t11" data-b="static-cheer-g3003-e1" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g id="static-cheer-g3003-c1">
-      <rect x="331.0" y="79.0" width="197.3" height="22.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="331.0" y="79.0" width="197.3" height="22.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="429.7" y="92.9" font-size="8" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">2</tspan><tspan fill="#000000"> = </tspan><tspan fill="#000000">[−0.95, −0.66, 0.85, −0.99, …]</tspan></text>
     </g>
-    <line x1="317.6" y1="90.0" x2="329.0" y2="90.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-g3003)" data-a="static-cheer-g3003-e1" data-b="static-cheer-g3003-c1" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="317.6" y1="90.0" x2="329.0" y2="90.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-g3003)" data-a="static-cheer-g3003-e1" data-b="static-cheer-g3003-c1" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g id="static-cheer-g3003-t20" data-tok="march" data-t="send">
       <rect x="4.6" y="128.6" width="29.1" height="14.8" rx="3.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
       <text x="19.1" y="138.9" font-size="9" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">send</text>
@@ -7363,15 +7374,15 @@ L 268.637969 23.815527
     </g>
     <text x="130.0" y="154.0" font-size="6" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="normal">word 17</text>
     <g id="static-cheer-g3003-e2">
-      <rect x="142.0" y="125.0" width="173.6" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
+      <rect x="142.0" y="125.0" width="173.6" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
       <text x="228.8" y="138.9" font-size="8" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#000000">[−1.12, 0.66, −0.08, −0.39, …]</tspan></text>
     </g>
-    <line x1="131.4" y1="136" x2="140.0" y2="136.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-g3003)" data-a="static-cheer-g3003-t23" data-b="static-cheer-g3003-e2" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="131.4" y1="136" x2="140.0" y2="136.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-g3003)" data-a="static-cheer-g3003-t23" data-b="static-cheer-g3003-e2" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <g id="static-cheer-g3003-c2">
-      <rect x="332.0" y="125.0" width="195.3" height="22.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="332.0" y="125.0" width="195.3" height="22.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="429.7" y="138.9" font-size="8" fill="#000000" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" xml:space="preserve"><tspan fill="#DCB439">c</tspan><tspan fill="#DCB439" baseline-shift="-8%" font-size="62%">17</tspan><tspan fill="#000000"> = </tspan><tspan fill="#000000">[−0.89, 0.83, 0.84, −0.98, …]</tspan></text>
     </g>
-    <line x1="317.6" y1="136.0" x2="330.0" y2="136.0" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-g3003)" data-a="static-cheer-g3003-e2" data-b="static-cheer-g3003-c2" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="317.6" y1="136.0" x2="330.0" y2="136.0" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-g3003)" data-a="static-cheer-g3003-e2" data-b="static-cheer-g3003-c2" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <text x="228.8" y="184.0" font-size="8" fill="#E06666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">the same every time</text>
     <text x="429.7" y="184.0" font-size="8" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">different every time</text>
   </svg>
@@ -7381,7 +7392,7 @@ L 268.637969 23.815527
 <section class="page" id="lec-rnn-attention" data-view="slides workbook" data-topic="attention" style="--gap: 22pt;">
   <h2 data-b="ezozb">Attention</h2>
   <p data-b="lyzn6">Bahdanau, Cho and Bengio (<span class="num">2014</span>): before each token it writes, the decoder looks back at every encoder <u class="fill blank" style="width: 87.2pt;">&nbsp;</u></p>
-  <svg class="draw" viewBox="0 0 380 192" style="width: 82%" role="img" aria-label="Attention, step by step: the encoder reads from, the, sky and keeps a hidden state c 1, c 2, c 3 for each word. The decoder state s is scored against each of them (s dot c j), a softmax turns the scores e into weights alpha, and the context v is the weighted sum of the c j. v goes into the decoder, which writes cielo." data-b="qby87">
+  <svg class="draw" viewBox="0 0 380 192" role="img" aria-label="Attention, step by step: the encoder reads from, the, sky and keeps a hidden state c 1, c 2, c 3 for each word. The decoder state s is scored against each of them (s dot c j), a softmax turns the scores e into weights alpha, and the context v is the weighted sum of the c j. v goes into the decoder, which writes cielo." style="width: 82%" data-b="qby87">
     <defs>
       <marker id="ah666666-qby87" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
@@ -7421,20 +7432,20 @@ L 268.637969 23.815527
       <text x="160.1" y="142.6" font-size="8.5" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="c_3|8.5" fill="#B8920F">c<tspan font-size="5.3" dy="2.4">3</tspan></text>
     </g>
     <g id="attention-qby87-s7">
-      <rect x="40.0" y="91.0" width="120.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="40.0" y="91.0" width="120.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="100.0" y="102.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">score each: s · cⱼ</text>
     </g>
     <g id="attention-qby87-s8">
-      <rect x="40.0" y="59.0" width="120.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="40.0" y="59.0" width="120.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="100.0" y="70.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">softmax</text>
     </g>
-    <line x1="100.0" y1="89.0" x2="100.0" y2="79.0" stroke="#8E7CC3" stroke-width="1.00" marker-end="url(#ah8E7CC3-qby87)" data-a="attention-qby87-s7" data-b="attention-qby87-s8" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="100.0" y1="89.0" x2="100.0" y2="79.0" stroke="#8E7CC3" stroke-width="1.0" marker-end="url(#ah8E7CC3-qby87)" data-a="attention-qby87-s7" data-b="attention-qby87-s8" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <text x="108.0" y="87.0" font-size="6.5" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">e₁ e₂ e₃</text>
     <g id="attention-qby87-s9">
-      <rect x="40.0" y="27.0" width="120.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
+      <rect x="40.0" y="27.0" width="120.0" height="18.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
       <text x="100.0" y="38.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">weighted sum: Σ αⱼ cⱼ</text>
     </g>
-    <line x1="100.0" y1="57.0" x2="100.0" y2="47.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-qby87)" data-a="attention-qby87-s8" data-b="attention-qby87-s9" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="100.0" y1="57.0" x2="100.0" y2="47.0" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-qby87)" data-a="attention-qby87-s8" data-b="attention-qby87-s9" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <text x="108.0" y="55.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">α₁ α₂ α₃</text>
     <g id="attention-qby87-s10" data-sym="v">
       <rect x="242.8" y="28.1" width="14.4" height="15.8" rx="3.6" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
@@ -7444,28 +7455,28 @@ L 268.637969 23.815527
       <rect x="242.8" y="92.1" width="14.4" height="15.8" rx="3.6" fill="#CCCCCC" stroke="#666666" stroke-width="0.9" stroke-dasharray="3 2"></rect>
       <text x="250" y="102.7" font-size="9" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold" data-sl="s|9" fill="#666666">s</text>
     </g>
-    <line x1="40.0" y1="167.8" x2="40.1" y2="149.5" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s1" data-b="attention-qby87-s2" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="100.0" y1="167.8" x2="100.1" y2="149.5" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s3" data-b="attention-qby87-s4" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="48.1" y1="140.1" x2="90" y2="140.1" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s2" data-b="attention-qby87-s4" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
-    <line x1="160.0" y1="167.8" x2="160.1" y2="149.5" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s5" data-b="attention-qby87-s6" data-a-at="t:0.497:2" data-b-at="b:0.500:2"></line>
-    <line x1="108.1" y1="140.1" x2="150" y2="140.1" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s4" data-b="attention-qby87-s6" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
-    <polyline points="40.1,132.6 67,111" fill="none" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s2" data-b="attention-qby87-s7" data-a-at="t:0.500:2" data-b-at="b:0.225:2"></polyline>
-    <polyline points="100.1,132.6 100,111" fill="none" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s4" data-b="attention-qby87-s7" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></polyline>
-    <polyline points="160.1,132.6 133,111" fill="none" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s6" data-b="attention-qby87-s7" data-a-at="t:0.500:2" data-b-at="b:0.775:2"></polyline>
-    <line x1="162.0" y1="36.0" x2="240.8" y2="36" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s9" data-b="attention-qby87-s10" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
-    <line x1="250" y1="43.9" x2="250" y2="90.1" stroke="#DCB439" stroke-width="1.00" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s10" data-b="attention-qby87-s11" data-a-at="b:0.500:2" data-b-at="t:0.500:2"></line>
-    <line x1="242.8" y1="100" x2="162.0" y2="100.0" stroke="#666666" stroke-width="1.00" stroke-dasharray="3 2" marker-end="url(#ah666666-qby87)" data-a="attention-qby87-s11" data-b="attention-qby87-s7" data-a-at="l:0.500:2" data-b-at="r:0.500:2"></line>
+    <line x1="40.0" y1="167.8" x2="40.1" y2="149.5" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s1" data-b="attention-qby87-s2" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="100.0" y1="167.8" x2="100.1" y2="149.5" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s3" data-b="attention-qby87-s4" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="48.1" y1="140.1" x2="90" y2="140.1" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s2" data-b="attention-qby87-s4" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="160.0" y1="167.8" x2="160.1" y2="149.5" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s5" data-b="attention-qby87-s6" data-a-at="t:0.497:2" data-b-at="b:0.500:2"></line>
+    <line x1="108.1" y1="140.1" x2="150" y2="140.1" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s4" data-b="attention-qby87-s6" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <polyline points="40.1,132.6 67,111" fill="none" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s2" data-b="attention-qby87-s7" data-a-at="t:0.500:2" data-b-at="b:0.225:2"></polyline>
+    <polyline points="100.1,132.6 100,111" fill="none" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s4" data-b="attention-qby87-s7" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></polyline>
+    <polyline points="160.1,132.6 133,111" fill="none" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s6" data-b="attention-qby87-s7" data-a-at="t:0.500:2" data-b-at="b:0.775:2"></polyline>
+    <line x1="162.0" y1="36.0" x2="240.8" y2="36" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s9" data-b="attention-qby87-s10" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="250" y1="43.9" x2="250" y2="90.1" stroke="#DCB439" stroke-width="1.0" marker-end="url(#ahDCB439-qby87)" data-a="attention-qby87-s10" data-b="attention-qby87-s11" data-a-at="b:0.500:2" data-b-at="t:0.500:2"></line>
+    <line x1="242.8" y1="100" x2="162.0" y2="100.0" stroke="#666666" stroke-width="1.0" stroke-dasharray="3 2" marker-end="url(#ah666666-qby87)" data-a="attention-qby87-s11" data-b="attention-qby87-s7" data-a-at="l:0.500:2" data-b-at="r:0.500:2"></line>
     <g id="attention-qby87-s12">
-      <rect x="308.0" y="91.0" width="44.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="308.0" y="91.0" width="44.0" height="18.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="330.0" y="102.6" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cielo</text>
     </g>
-    <line x1="257.2" y1="100" x2="306.0" y2="100.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-qby87)" data-a="attention-qby87-s11" data-b="attention-qby87-s12" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="257.2" y1="100" x2="306.0" y2="100.0" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-qby87)" data-a="attention-qby87-s11" data-b="attention-qby87-s12" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <text x="100.0" y="192.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">encoder</text>
     <text x="250.0" y="122.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">decoder</text>
     <text x="250.0" y="18.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">context vector</text>
   </svg>
   
-  <p data-b="udn05" data-align="center">Every word written gets <u class="fill blank" style="width: 153.8pt;">&nbsp;</u></p>
+  <p data-align="center" data-b="udn05">Every word written gets <u class="fill blank" style="width: 153.8pt;">&nbsp;</u></p>
 <div class="foot" data-rt=""><span>Backpropagation Through Time · Toward Attention</span><span>34</span></div></section>
 
 <section class="page" id="lec-attn-weights" data-view="slides workbook" data-topic="attention" style="--gap: 22pt;">
@@ -8224,7 +8235,7 @@ L 380.16 105
 <section class="page" id="lec-attention" data-view="slides workbook" data-topic="attention" style="--gap: 22pt;">
   <h2 data-b="io8ks">Attention</h2>
   <p data-b="ijc2w">Some parts of our <b class="name">context</b> are <b class="def">more important than others</b>! <b class="name">Attention</b> is a mechanism through which we can <u class="fill blank" style="width: 328.1pt;">&nbsp;</u></p>
-  <svg class="draw" viewBox="0 0 384 232" style="width: 570pt" role="img" aria-label="Top, an RNN: hidden states c1 (after cheer), c2 (cheer), c3 (for), then a dashed arrow to c49 (on) and c50 (to), each fed by its word's token from below: 49 steps from the first word to the last. Bottom, attention: the same hidden states and tokens, with c1, c2, c3 and c49 each joined to c50 by its own arrow, one step from every word." data-b="k612a">
+  <svg class="draw" viewBox="0 0 384 232" role="img" aria-label="Top, an RNN: hidden states c1 (after cheer), c2 (cheer), c3 (for), then a dashed arrow to c49 (on) and c50 (to), each fed by its word's token from below: 49 steps from the first word to the last. Bottom, attention: the same hidden states and tokens, with c1, c2, c3 and c49 each joined to c50 by its own arrow, one step from every word." style="width: 570pt" data-b="k612a">
     <defs>
       <marker id="ahDCB439-k612a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#DCB439"></path>
@@ -8235,106 +8246,106 @@ L 380.16 105
     </defs>
     <text x="4.0" y="31.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">RNN</text>
     <g id="paths-k612a-r0">
-      <rect x="52.0" y="18.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="52.0" y="18.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="70.0" y="32.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">1</tspan></text>
     </g>
     <g id="paths-k612a-rt0" data-tok="march" data-t="cheer">
       <rect x="56.6" y="51.8" width="26.8" height="12.4" rx="3" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
       <text x="70" y="60.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">cheer</text>
     </g>
-    <line x1="70" y1="49.8" x2="70.0" y2="40.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt0" data-b="paths-k612a-r0" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="70" y1="49.8" x2="70.0" y2="40.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt0" data-b="paths-k612a-r0" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <g id="paths-k612a-r1">
-      <rect x="108.0" y="18.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="108.0" y="18.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="126.0" y="32.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">2</tspan></text>
     </g>
     <g id="paths-k612a-rt1" data-tok="march" data-t="cheer">
       <rect x="112.6" y="51.8" width="26.8" height="12.4" rx="3" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
       <text x="126" y="60.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">cheer</text>
     </g>
-    <line x1="126" y1="49.8" x2="126.0" y2="40.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt1" data-b="paths-k612a-r1" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="126" y1="49.8" x2="126.0" y2="40.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt1" data-b="paths-k612a-r1" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <g id="paths-k612a-r2">
-      <rect x="164.0" y="18.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="164.0" y="18.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="182.0" y="32.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">3</tspan></text>
     </g>
     <g id="paths-k612a-rt2" data-tok="march" data-t="for">
       <rect x="173.6" y="51.8" width="16.8" height="12.4" rx="3" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
       <text x="182" y="60.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">for</text>
     </g>
-    <line x1="182" y1="49.8" x2="182.0" y2="40.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt2" data-b="paths-k612a-r2" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="182" y1="49.8" x2="182.0" y2="40.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt2" data-b="paths-k612a-r2" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <g id="paths-k612a-r3">
-      <rect x="262.0" y="18.0" width="40.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="262.0" y="18.0" width="40.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="282.0" y="32.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">49</tspan></text>
     </g>
     <g id="paths-k612a-rt3" data-tok="march" data-t="on">
       <rect x="274" y="51.8" width="15.9" height="12.4" rx="3" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
       <text x="281.9" y="60.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">on</text>
     </g>
-    <line x1="281.9" y1="49.8" x2="282.0" y2="40.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt3" data-b="paths-k612a-r3" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="281.9" y1="49.8" x2="282.0" y2="40.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt3" data-b="paths-k612a-r3" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <g id="paths-k612a-r4">
-      <rect x="318.0" y="18.0" width="40.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="318.0" y="18.0" width="40.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="338.0" y="32.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">50</tspan></text>
     </g>
     <g id="paths-k612a-rt4" data-tok="march" data-t="to">
       <rect x="331.1" y="51.8" width="13.8" height="12.4" rx="3" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
       <text x="338" y="60.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">to</text>
     </g>
-    <line x1="338" y1="49.8" x2="338.0" y2="40.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt4" data-b="paths-k612a-r4" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
-    <line x1="90.0" y1="28.0" x2="106.0" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-r0" data-b="paths-k612a-r1" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
-    <line x1="146.0" y1="28.0" x2="162.0" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-r1" data-b="paths-k612a-r2" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
-    <line x1="202.0" y1="28.0" x2="260.0" y2="28.0" stroke="#DCB439" stroke-width="1.10" stroke-dasharray="3 2" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-r2" data-b="paths-k612a-r3" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
-    <line x1="304.0" y1="28.0" x2="316.0" y2="28.0" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-r3" data-b="paths-k612a-r4" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="338" y1="49.8" x2="338.0" y2="40.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-rt4" data-b="paths-k612a-r4" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="90.0" y1="28.0" x2="106.0" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-r0" data-b="paths-k612a-r1" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="146.0" y1="28.0" x2="162.0" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-r1" data-b="paths-k612a-r2" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="202.0" y1="28.0" x2="260.0" y2="28.0" stroke="#DCB439" stroke-width="1.1" stroke-dasharray="3 2" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-r2" data-b="paths-k612a-r3" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
+    <line x1="304.0" y1="28.0" x2="316.0" y2="28.0" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-r3" data-b="paths-k612a-r4" data-a-at="r:0.500:2" data-b-at="l:0.500:2"></line>
     <text x="204.0" y="86.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="normal">49 steps from the first word to the last</text>
     <text x="4.0" y="179.0" font-size="8.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">attention</text>
     <g id="paths-k612a-a0">
-      <rect x="52.0" y="166.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="52.0" y="166.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="70.0" y="180.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">1</tspan></text>
     </g>
     <g id="paths-k612a-at0" data-tok="march" data-t="cheer">
       <rect x="56.6" y="199.8" width="26.8" height="12.4" rx="3" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
       <text x="70" y="208.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">cheer</text>
     </g>
-    <line x1="70" y1="197.8" x2="70.0" y2="188.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at0" data-b="paths-k612a-a0" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="70" y1="197.8" x2="70.0" y2="188.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at0" data-b="paths-k612a-a0" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <g id="paths-k612a-a1">
-      <rect x="108.0" y="166.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="108.0" y="166.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="126.0" y="180.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">2</tspan></text>
     </g>
     <g id="paths-k612a-at1" data-tok="march" data-t="cheer">
       <rect x="112.6" y="199.8" width="26.8" height="12.4" rx="3" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
       <text x="126" y="208.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">cheer</text>
     </g>
-    <line x1="126" y1="197.8" x2="126.0" y2="188.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at1" data-b="paths-k612a-a1" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="126" y1="197.8" x2="126.0" y2="188.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at1" data-b="paths-k612a-a1" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <g id="paths-k612a-a2">
-      <rect x="164.0" y="166.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="164.0" y="166.0" width="36.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="182.0" y="180.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">3</tspan></text>
     </g>
     <g id="paths-k612a-at2" data-tok="march" data-t="for">
       <rect x="173.6" y="199.8" width="16.8" height="12.4" rx="3" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
       <text x="182" y="208.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">for</text>
     </g>
-    <line x1="182" y1="197.8" x2="182.0" y2="188.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at2" data-b="paths-k612a-a2" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="182" y1="197.8" x2="182.0" y2="188.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at2" data-b="paths-k612a-a2" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <g id="paths-k612a-a3">
-      <rect x="262.0" y="166.0" width="40.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="262.0" y="166.0" width="40.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="282.0" y="180.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">49</tspan></text>
     </g>
     <g id="paths-k612a-at3" data-tok="march" data-t="on">
       <rect x="274" y="199.8" width="15.9" height="12.4" rx="3" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
       <text x="281.9" y="208.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">on</text>
     </g>
-    <line x1="281.9" y1="197.8" x2="282.0" y2="188.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at3" data-b="paths-k612a-a3" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="281.9" y1="197.8" x2="282.0" y2="188.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at3" data-b="paths-k612a-a3" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <g id="paths-k612a-a4">
-      <rect x="318.0" y="166.0" width="40.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
+      <rect x="318.0" y="166.0" width="40.0" height="20.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
       <text x="338.0" y="180.2" font-size="10" fill="#DCB439" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">c<tspan baseline-shift="-8%" font-size="62%">50</tspan></text>
     </g>
     <g id="paths-k612a-at4" data-tok="march" data-t="to">
       <rect x="331.1" y="199.8" width="13.8" height="12.4" rx="3" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
       <text x="338" y="208.4" font-size="7.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" font-weight="bold" text-anchor="middle" style="white-space: pre">to</text>
     </g>
-    <line x1="338" y1="197.8" x2="338.0" y2="188.0" stroke="#E06666" stroke-width="1.00" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at4" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
+    <line x1="338" y1="197.8" x2="338.0" y2="188.0" stroke="#E06666" stroke-width="1.0" marker-end="url(#ahE06666-k612a)" data-a="paths-k612a-at4" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="b:0.500:2"></line>
     <text x="232.0" y="179.0" font-size="9" fill="#DCB439" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">· · ·</text>
-    <polyline points="70.0,164.0 70.0,112.0 326.0,112.0 326.0,164.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-a0" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="t:0.200:2"></polyline>
-    <polyline points="126.0,164.0 126.0,122.0 334.0,122.0 334.0,164.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-a1" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="t:0.400:2"></polyline>
-    <polyline points="182.0,164.0 182.0,132.0 342.0,132.0 342.0,164.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-a2" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="t:0.600:2"></polyline>
-    <polyline points="282.0,164.0 282.0,142.0 350.0,142.0 350.0,164.0" fill="none" stroke="#DCB439" stroke-width="1.10" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-a3" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="t:0.800:2"></polyline>
+    <polyline points="70.0,164.0 70.0,112.0 326.0,112.0 326.0,164.0" fill="none" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-a0" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="t:0.200:2"></polyline>
+    <polyline points="126.0,164.0 126.0,122.0 334.0,122.0 334.0,164.0" fill="none" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-a1" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="t:0.400:2"></polyline>
+    <polyline points="182.0,164.0 182.0,132.0 342.0,132.0 342.0,164.0" fill="none" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-a2" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="t:0.600:2"></polyline>
+    <polyline points="282.0,164.0 282.0,142.0 350.0,142.0 350.0,164.0" fill="none" stroke="#DCB439" stroke-width="1.1" marker-end="url(#ahDCB439-k612a)" data-a="paths-k612a-a3" data-b="paths-k612a-a4" data-a-at="t:0.500:2" data-b-at="t:0.800:2"></polyline>
     <text x="204.0" y="104.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="normal">one step from every word</text>
   </svg>
   
@@ -8740,7 +8751,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -8768,15 +8779,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -8785,6 +8842,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -8797,9 +8855,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

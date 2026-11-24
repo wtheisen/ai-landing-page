@@ -844,7 +844,6 @@ svg.al-clone { z-index: 1; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Transformers</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#gpt">From Attention to GPT</a><a href="#word-order">Position</a><a href="#masking">Masking</a><a href="#residual">The Transformer Block</a><a href="#output">Output</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="on">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="transformer-chapter.pdf" download>Reading</a><a href="transformer-chapter-slides.pdf" download>Lecture</a><a href="transformer-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="reading">
 <section class="page cover" id="cover">
-  
   <b-fig src="fig/cover.svg" class="cover-art" alt="A triangle of small gold and navy cells: the attention weights of a tiny untrained transformer on the 51 words of the Victory March chorus, each word looking back at the words before it, everything above the diagonal masked" data-b="xr4yy" style="--ar: 1.745;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 220" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
@@ -1405,6 +1404,7 @@ L 384 0
  </defs>
 </svg>
 </b-fig>
+  
   <div class="cover-text" data-b="sae9i">
     <div class="kicker">Unit 03 · Chapter 6</div>
     <h1>Transformers</h1>
@@ -1459,9 +1459,9 @@ L 384 0
 
 
 
-<section class="page" id="gpt" data-part="From Attention to GPT" data-view="reading" data-topic="gpt">
-  
+<section class="page" id="gpt" data-view="reading" data-topic="gpt" data-part="From Attention to GPT">
   <h2 data-b="kexzx">Generative Pre-trained Transformers</h2>
+  
   <p data-b="pbumt">In the last chapter we built <b class="name">self-attention</b>, where every word gets back a weighted average of the other words' values, so the "dame" in "Notre Dame" can end up knowing about the "notre" in front of it.</p>
   <p data-b="jptqb">What attention hands back is just another row of numbers for every word. It doesn't write anything. The models that do write are built by stacking attention into a <b class="def">transformer</b>, the best known being OpenAI's GPT, short for Generative Pre-trained Transformer (the first came out in <span class="num">2018</span>).</p>
   <p data-b="huhwk">Our example is the chorus of the Victory March, written in <span class="num">1908</span> by Michael and John Shea:</p>
@@ -1503,7 +1503,7 @@ L 384 0
   
 <div class="foot" data-rt=""><span>Transformers · From Attention to GPT</span><span>04</span></div></section>
 
-<section class="page" id="word-order" data-part="Position" data-view="reading" data-topic="positional" style="--gap: 22pt;">
+<section class="page" id="word-order" data-view="reading" data-topic="positional" data-part="Position" style="--gap: 22pt;">
   <h2 data-b="hswxp">Word Order</h2>
   <p data-b="mgrn7">As we saw at the end of the last chapter, self-attention pays for working on every word at once by ignoring word order. Our tiny model is no different. Take the line "old notre dame will win over all", run it through our model's attention, and look at the output for "dame":</p>
   <b-eq data-b="sp4p1" class="">
@@ -3435,7 +3435,7 @@ Q 90.272797 12.234063 80.352289 11.357683
   
 <div class="foot" data-rt=""><span>Transformers · Position</span><span>08</span></div></section>
 
-<section class="page" id="masking" data-part="Masking" data-view="reading" data-topic="masking" style="--gap: 22pt;">
+<section class="page" id="masking" data-view="reading" data-topic="masking" data-part="Masking" style="--gap: 22pt;">
   <h2 data-b="wv831">Causal Masking</h2>
   <p data-b="a77bz">Training on next-token prediction has a catch. We don't want to run the model <span class="num">50</span> times, once for each start of the chorus, so we give it every word at once and ask every position to guess the word after it. Unfortunately, attention lets every word look at every other word, including the one it's meant to be guessing. The row for "notre" could just look at "dame" and copy it, and <b class="warn">the model would learn to cheat</b>.</p>
   <p data-b="zcsrj">The fix is called <b class="def">masking</b>. Before the softmax in the last chapter's attention equation, every score where a word looks at a later word is set to <b-m tex="−∞">−∞</b-m>:</p>
@@ -4446,7 +4446,7 @@ z
   
 <div class="foot" data-rt=""><span>Transformers · Masking</span><span>10</span></div></section>
 
-<section class="page" id="residual" data-part="The Transformer Block" data-view="reading" data-topic="block" style="--gap: 22pt;">
+<section class="page" id="residual" data-view="reading" data-topic="block" data-part="The Transformer Block" style="--gap: 22pt;">
   <h2 data-b="th377">Residual Connections</h2>
   <p data-b="sel61">Attention gives back, for every word, a weighted average of the values of the words it can see. If that became the word's new row, "notre" would be replaced by something about half "for" (its biggest weight, <span class="num">0.50</span>) and only <span class="num">16%</span> itself. So instead of replacing each row, we add the attention output on top of it:</p>
   <b-eq data-b="nsr54" class=""><a id="eq-res" data-rt=""></a>
@@ -4493,7 +4493,7 @@ z
     <eq-row label="block" note="attention sublayer">X \leftarrow X + \mathrm{Attention}\bp{\mathrm{LN}(X)}</eq-row>
     <eq-row note="feed-forward sublayer">X \leftarrow X + \mathrm{FFN}\bp{\mathrm{LN}(X)}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[6.8]</div><div class="eqml-e"><div class="eqml-note">attention sublayer</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-CC0000 sa-0-1"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow><mo stretchy="false">←</mo><mrow class="sym sym-CC0000 sa-13-14"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow><mo>+</mo><mrow><mpadded lspace="0" style="color:#CC0000;"><mi mathvariant="normal">Attention</mi></mpadded></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow><mpadded lspace="0" style="color:#666666;"><mi mathvariant="normal">LN</mi></mpadded></mrow><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-CC0000 sa-51-52"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">feed-forward sublayer</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow class="sym sym-CC0000 sa-0-1"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow><mo stretchy="false">←</mo><mrow class="sym sym-CC0000 sa-13-14"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow><mo>+</mo><mrow><mpadded lspace="0" style="color:#674EA7;"><mi mathvariant="normal">FFN</mi></mpadded></mrow><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mrow><mpadded lspace="0" style="color:#666666;"><mi mathvariant="normal">LN</mi></mpadded></mrow><mrow><mo fence="true" form="prefix" stretchy="false">(</mo><mrow class="sym sym-CC0000 sa-45-46"><mpadded width="0.1px"><mphantom><msub><mi mathvariant="normal">X</mi><mi mathvariant="normal">Q</mi></msub></mphantom></mpadded><mrow><mi style="color:#CC0000;">𝐗</mi></mrow></mrow><mo fence="true" form="postfix" stretchy="false">)</mo></mrow><mo fence="true" form="postfix" stretchy="true">)</mo></mrow></mrow></math></div></div></div></b-eq>
-  <svg class="draw" viewBox="0 0 384 300" style="width: 368pt" role="img" aria-label="Inside a transformer block with GPT-2 small's sizes. Left, masked self-attention: layer norm gives H, then Q, K and V, Q times K transposed over the square root of 64, the mask, a softmax of each row, the weights times V, and the heads concatenated and multiplied by Wo. Right, feed-forward: layer norm, a linear layer from 768 to 3072, ReLU (GELU in GPT-2), a linear layer back to 768" data-b="jce61">
+  <svg class="draw" viewBox="0 0 384 300" role="img" aria-label="Inside a transformer block with GPT-2 small's sizes. Left, masked self-attention: layer norm gives H, then Q, K and V, Q times K transposed over the square root of 64, the mask, a softmax of each row, the weights times V, and the heads concatenated and multiplied by Wo. Right, feed-forward: layer norm, a linear layer from 768 to 3072, ReLU (GELU in GPT-2), a linear layer back to 768" style="width: 368pt" data-b="jce61">
     <defs>
       <marker id="ah002B5B-jce61" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -4501,92 +4501,92 @@ z
     </defs>
     <text x="98.0" y="12.0" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Masked Self-Attention</text>
     <g id="block-jce61-s1">
-      <rect x="34.0" y="273.5" width="128.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="34.0" y="273.5" width="128.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="98.0" y="284.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization → H</text>
     </g>
     <g id="block-jce61-s2">
-      <rect x="19.0" y="235.5" width="50.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="19.0" y="235.5" width="50.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="44.0" y="246.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle"></text>
     </g>
     <text x="29.4" y="246.6" font-size="7.5" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start"><tspan fill="#674EA7">Q</tspan> = HΩ</text>
     <text x="54.8" y="248.9" font-size="4.9" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start">Q</text>
     <g id="block-jce61-s3">
-      <rect x="73.0" y="235.5" width="50.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="73.0" y="235.5" width="50.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="98.0" y="246.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle"></text>
     </g>
     <text x="84.1" y="246.6" font-size="7.5" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start"><tspan fill="#CC0000">K</tspan> = HΩ</text>
     <text x="108.7" y="248.9" font-size="4.9" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start">K</text>
     <g id="block-jce61-s4">
-      <rect x="127.0" y="235.5" width="50.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="127.0" y="235.5" width="50.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="152.0" y="246.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle"></text>
     </g>
     <text x="138.1" y="246.6" font-size="7.5" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start"><tspan fill="#38761D">V</tspan> = HΩ</text>
     <text x="162.7" y="248.9" font-size="4.9" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start">V</text>
     <g id="block-jce61-s5">
-      <rect x="39.0" y="197.5" width="82.0" height="26.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="39.0" y="197.5" width="82.0" height="26.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <g data-tiles="">
-        <text x="80.0" y="207" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle"><tspan fill="#674EA7">Q</tspan> <tspan fill="#CC0000">K</tspan>ᵀ</text>
+        <text x="80.0" y="207" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle"><tspan fill="#674EA7">Q</tspan><tspan fill="#CC0000">K</tspan>ᵀ</text>
         <line x1="71" y1="210.3" x2="89" y2="210.3" stroke="#002B5B" stroke-width="0.6"></line>
         <text x="80.0" y="218.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">√64</text>
       </g>
     </g>
     <g id="block-jce61-s6">
-      <rect x="28.0" y="169.5" width="104.0" height="17.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="28.0" y="169.5" width="104.0" height="17.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="80.0" y="180.3" font-size="6.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Mask: −∞ above diagonal</text>
     </g>
     <g id="block-jce61-s7">
-      <rect x="34.0" y="141.5" width="92.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="34.0" y="141.5" width="92.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="80.0" y="152.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Softmax (each row)</text>
     </g>
     <g id="block-jce61-s8">
-      <rect x="46.0" y="111.5" width="104.0" height="17.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="46.0" y="111.5" width="104.0" height="17.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="98.0" y="122.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">weights · <tspan fill="#38761D">V</tspan></text>
     </g>
     <g id="block-jce61-s9">
-      <rect x="34.0" y="77.5" width="128.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="34.0" y="77.5" width="128.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="98.0" y="88.8" font-size="8.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle"></text>
     </g>
     <text x="55.5" y="88.6" font-size="7.5" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start">Concatenate heads, × Ω</text>
     <text x="136.7" y="90.9" font-size="4.9" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="start">O</text>
     <text x="166.0" y="89.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">768 × 768</text>
     <text x="98.0" y="34.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">to the residual +</text>
-    <line x1="98.0" y1="273.5" x2="44.0" y2="252.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s1" data-b="block-jce61-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="98.0" y1="273.5" x2="98.0" y2="252.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s1" data-b="block-jce61-s3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="98.0" y1="273.5" x2="152.0" y2="252.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s1" data-b="block-jce61-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="44.0" y1="235.5" x2="61.0" y2="223.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s2" data-b="block-jce61-s5" data-a-at="t:0.500" data-b-at="b:0.268"></line>
-    <line x1="98.0" y1="235.5" x2="99.0" y2="223.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s3" data-b="block-jce61-s5" data-a-at="t:0.500" data-b-at="b:0.732"></line>
-    <line x1="80.0" y1="197.5" x2="80.0" y2="186.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s5" data-b="block-jce61-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="80.0" y1="169.5" x2="80.0" y2="158.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s6" data-b="block-jce61-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="80.0" y1="141.5" x2="80.0" y2="128.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s7" data-b="block-jce61-s8" data-a-at="t:0.500" data-b-at="b:0.327"></line>
-    <polyline points="152.0,235.5 152.0,120.0 150.0,120.0" fill="none" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)"></polyline>
-    <line x1="98.0" y1="111.5" x2="98.0" y2="94.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s8" data-b="block-jce61-s9" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="98.0" y1="77.5" x2="98.0" y2="40.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s9" data-a-at="t:0.500"></line>
+    <line x1="98.0" y1="273.5" x2="44.0" y2="252.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s1" data-b="block-jce61-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="98.0" y1="273.5" x2="98.0" y2="252.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s1" data-b="block-jce61-s3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="98.0" y1="273.5" x2="152.0" y2="252.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s1" data-b="block-jce61-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="44.0" y1="235.5" x2="61.0" y2="223.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s2" data-b="block-jce61-s5" data-a-at="t:0.500" data-b-at="b:0.268"></line>
+    <line x1="98.0" y1="235.5" x2="99.0" y2="223.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s3" data-b="block-jce61-s5" data-a-at="t:0.500" data-b-at="b:0.732"></line>
+    <line x1="80.0" y1="197.5" x2="80.0" y2="186.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s5" data-b="block-jce61-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="80.0" y1="169.5" x2="80.0" y2="158.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s6" data-b="block-jce61-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="80.0" y1="141.5" x2="80.0" y2="128.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s7" data-b="block-jce61-s8" data-a-at="t:0.500" data-b-at="b:0.327"></line>
+    <polyline points="152.0,235.5 152.0,120.0 150.0,120.0" fill="none" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)"></polyline>
+    <line x1="98.0" y1="111.5" x2="98.0" y2="94.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s8" data-b="block-jce61-s9" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="98.0" y1="77.5" x2="98.0" y2="40.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s9" data-a-at="t:0.500"></line>
     <text x="160.0" y="186.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">12 heads,</text>
     <text x="160.0" y="194.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">64 columns each</text>
-    <line x1="214.0" y1="20.0" x2="214.0" y2="290.0" stroke="#DDDDDD" stroke-width="1.00"></line>
+    <line x1="214.0" y1="20.0" x2="214.0" y2="290.0" stroke="#DDDDDD" stroke-width="1.0"></line>
     <text x="300.0" y="12.0" font-size="8.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Feed-Forward</text>
     <g id="block-jce61-s10">
-      <rect x="236.0" y="273.5" width="128.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="236.0" y="273.5" width="128.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="300.0" y="284.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization → H</text>
     </g>
     <g id="block-jce61-s11">
-      <rect x="236.0" y="219.5" width="128.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="236.0" y="219.5" width="128.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="300.0" y="230.6" font-size="7.5" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">Linear H Ω₁ (768 → 3072)</text>
     </g>
     <g id="block-jce61-s12">
-      <rect x="244.0" y="159.5" width="112.0" height="17.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="244.0" y="159.5" width="112.0" height="17.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <text x="300.0" y="170.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">ReLU (GELU in GPT-2)</text>
     </g>
     <g id="block-jce61-s13">
-      <rect x="236.0" y="99.5" width="128.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="236.0" y="99.5" width="128.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="300.0" y="110.6" font-size="7.5" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="middle">Linear Ω₂ (3072 → 768)</text>
     </g>
     <text x="306.0" y="256.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">each word on its own</text>
     <text x="300.0" y="34.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">to the residual +</text>
-    <line x1="300.0" y1="273.5" x2="300.0" y2="236.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s10" data-b="block-jce61-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="300.0" y1="219.5" x2="300.0" y2="176.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s11" data-b="block-jce61-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="300.0" y1="159.5" x2="300.0" y2="116.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s12" data-b="block-jce61-s13" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="300.0" y1="99.5" x2="300.0" y2="40.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s13" data-a-at="t:0.500"></line>
+    <line x1="300.0" y1="273.5" x2="300.0" y2="236.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s10" data-b="block-jce61-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="300.0" y1="219.5" x2="300.0" y2="176.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s11" data-b="block-jce61-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="300.0" y1="159.5" x2="300.0" y2="116.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s12" data-b="block-jce61-s13" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="300.0" y1="99.5" x2="300.0" y2="40.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-jce61)" data-a="block-jce61-s13" data-a-at="t:0.500"></line>
   </svg>
   <p data-b="vdnnk">Pictured above are the two sublayers at GPT-2 small's size, with <span class="num">12</span> attention heads of <span class="num">64</span> columns each. A block's output has <b class="take">exactly the same shape as its input</b>, a row of <b-m tex="d">d</b-m> numbers per word.</p>
   
@@ -4595,7 +4595,7 @@ z
 <section class="page" id="stacking" data-view="reading" data-topic="gpt">
   <h2 data-b="u9wiw">Stacking Blocks</h2>
   <p data-b="np9cm">Since a block gives back rows of the same shape it was given, the output of one block can go straight into another, and another after that. Pictured below is the whole model.</p>
-  <svg class="draw" viewBox="0 0 384 344" style="width: 345pt" role="img" aria-label="Left: the decoder-only transformer from bottom to top: the text, a tokenizer, embeddings plus positional encoding, transformer blocks 1 to N, a layer normalization, a linear layer and a softmax giving the next word. Right: one block, layer normalization, masked self-attention and a residual add, then layer normalization, a feed-forward MLP and a second residual add" data-b="yhc9c">
+  <svg class="draw" viewBox="0 0 384 344" role="img" aria-label="Left: the decoder-only transformer from bottom to top: the text, a tokenizer, embeddings plus positional encoding, transformer blocks 1 to N, a layer normalization, a linear layer and a softmax giving the next word. Right: one block, layer normalization, masked self-attention and a residual add, then layer normalization, a feed-forward MLP and a second residual add" style="width: 345pt" data-b="yhc9c">
     <defs>
       <marker id="ah002B5B-yhc9c" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
@@ -4622,46 +4622,46 @@ z
       <text x="119.5" y="328.2" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">notre</text>
     </g>
     <g id="gpt-yhc9c-s2">
-      <rect x="16.0" y="291.5" width="112.0" height="17.0" rx="4.0" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="16.0" y="291.5" width="112.0" height="17.0" rx="4.0" fill="#FFFFFF" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="72.0" y="302.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Tokenizer</text>
     </g>
     <g id="gpt-yhc9c-s3">
-      <rect x="16.0" y="265.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="16.0" y="265.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="72.0" y="276.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Embeddings</text>
     </g>
     <g id="gpt-yhc9c-s4">
-      <ellipse cx="72.0" cy="249.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.20"></ellipse>
+      <ellipse cx="72.0" cy="249.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.2"></ellipse>
       <text x="72.0" y="252.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="gpt-yhc9c-s5">
-      <rect x="1.0" y="238.0" width="38.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="1.0" y="238.0" width="38.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="20.0" y="247.5" font-size="6.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Positional</text>
       <text x="20.0" y="254.7" font-size="6.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Encoding</text>
     </g>
     <g id="gpt-yhc9c-s6">
-      <rect x="16.0" y="213.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="16.0" y="213.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="72.0" y="224.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Transformer Block 1</text>
     </g>
     <g id="gpt-yhc9c-s7">
-      <rect x="16.0" y="187.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="16.0" y="187.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="72.0" y="198.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Transformer Block 2</text>
     </g>
     <text x="72.0" y="176.0" font-size="11.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">⋮</text>
     <g id="gpt-yhc9c-s8">
-      <rect x="16.0" y="147.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
+      <rect x="16.0" y="147.5" width="112.0" height="17.0" rx="4.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
       <text x="72.0" y="158.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Transformer Block N</text>
     </g>
     <text x="10.0" y="186.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start">× N</text>
     <g id="gpt-yhc9c-s9">
-      <rect x="16.0" y="121.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="16.0" y="121.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="72.0" y="132.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization</text>
     </g>
     <g id="gpt-yhc9c-s10">
-      <rect x="16.0" y="95.5" width="112.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.20"></rect>
+      <rect x="16.0" y="95.5" width="112.0" height="17.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.2"></rect>
       <text x="72.0" y="106.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Linear</text>
     </g>
     <g id="gpt-yhc9c-s11">
-      <rect x="16.0" y="69.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="16.0" y="69.5" width="112.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="72.0" y="80.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Softmax</text>
     </g>
     <g id="gpt-yhc9c-s12" data-tok="march" data-t="dame">
@@ -4669,54 +4669,54 @@ z
       <text x="86" y="48.2" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold" style="white-space: pre">dame</text>
     </g>
     <text x="70.0" y="48.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="end">next word:</text>
-    <line x1="72.0" y1="317.5" x2="72.0" y2="308.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s1" data-b="gpt-yhc9c-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="291.5" x2="72.0" y2="282.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s2" data-b="gpt-yhc9c-s3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="265.5" x2="72.0" y2="256.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s3" data-b="gpt-yhc9c-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="242.0" x2="72.0" y2="230.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s4" data-b="gpt-yhc9c-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="213.5" x2="72.0" y2="204.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s6" data-b="gpt-yhc9c-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="147.5" x2="72.0" y2="138.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s8" data-b="gpt-yhc9c-s9" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="121.5" x2="72.0" y2="112.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s9" data-b="gpt-yhc9c-s10" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="95.5" x2="72.0" y2="86.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s10" data-b="gpt-yhc9c-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="72.0" y1="69.5" x2="72.0" y2="54.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s11" data-b="gpt-yhc9c-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="39.0" y1="249.0" x2="65.0" y2="249.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s5" data-b="gpt-yhc9c-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
-    <rect x="168.0" y="36.0" width="200.0" height="286.0" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.20"></rect>
-    <line x1="128.0" y1="213.5" x2="168.0" y2="36.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="3 2"></line>
-    <line x1="128.0" y1="230.5" x2="168.0" y2="322.0" stroke="#666666" stroke-width="0.80" stroke-dasharray="3 2"></line>
+    <line x1="72.0" y1="317.5" x2="72.0" y2="308.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s1" data-b="gpt-yhc9c-s2" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="291.5" x2="72.0" y2="282.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s2" data-b="gpt-yhc9c-s3" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="265.5" x2="72.0" y2="256.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s3" data-b="gpt-yhc9c-s4" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="242.0" x2="72.0" y2="230.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s4" data-b="gpt-yhc9c-s6" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="213.5" x2="72.0" y2="204.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s6" data-b="gpt-yhc9c-s7" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="147.5" x2="72.0" y2="138.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s8" data-b="gpt-yhc9c-s9" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="121.5" x2="72.0" y2="112.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s9" data-b="gpt-yhc9c-s10" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="95.5" x2="72.0" y2="86.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s10" data-b="gpt-yhc9c-s11" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="72.0" y1="69.5" x2="72.0" y2="54.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s11" data-b="gpt-yhc9c-s12" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="39.0" y1="249.0" x2="65.0" y2="249.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s5" data-b="gpt-yhc9c-s4" data-a-at="r:0.500" data-b-at="l:0.500"></line>
+    <rect x="168.0" y="36.0" width="200.0" height="286.0" rx="8.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.2"></rect>
+    <line x1="128.0" y1="213.5" x2="168.0" y2="36.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="3 2"></line>
+    <line x1="128.0" y1="230.5" x2="168.0" y2="322.0" stroke="#666666" stroke-width="0.8" stroke-dasharray="3 2"></line>
     <text x="258.0" y="336.0" font-size="7.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block input (one row per word)</text>
     <g id="gpt-yhc9c-s13">
-      <rect x="198.0" y="287.5" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="198.0" y="287.5" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="258.0" y="298.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization</text>
     </g>
     <g id="gpt-yhc9c-s14">
-      <rect x="198.0" y="257.5" width="120.0" height="17.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.20"></rect>
+      <rect x="198.0" y="257.5" width="120.0" height="17.0" rx="4.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.2"></rect>
       <text x="258.0" y="268.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Masked Self-Attention</text>
     </g>
     <g id="gpt-yhc9c-s15">
-      <ellipse cx="258.0" cy="236.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.20"></ellipse>
+      <ellipse cx="258.0" cy="236.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.2"></ellipse>
       <text x="258.0" y="239.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <g id="gpt-yhc9c-s16">
-      <rect x="198.0" y="195.5" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.20"></rect>
+      <rect x="198.0" y="195.5" width="120.0" height="17.0" rx="4.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.2"></rect>
       <text x="258.0" y="206.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Layer Normalization</text>
     </g>
     <g id="gpt-yhc9c-s17">
-      <rect x="198.0" y="165.5" width="120.0" height="17.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.20"></rect>
+      <rect x="198.0" y="165.5" width="120.0" height="17.0" rx="4.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.2"></rect>
       <text x="258.0" y="176.6" font-size="7.5" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Feed-Forward (MLP)</text>
     </g>
     <g id="gpt-yhc9c-s18">
-      <ellipse cx="258.0" cy="142.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.20"></ellipse>
+      <ellipse cx="258.0" cy="142.0" rx="7.0" ry="7.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.2"></ellipse>
       <text x="258.0" y="145.2" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">+</text>
     </g>
     <text x="258.0" y="28.0" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">block output</text>
-    <line x1="258.0" y1="328.0" x2="258.0" y2="304.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-b="gpt-yhc9c-s13" data-b-at="b:0.500"></line>
-    <line x1="258.0" y1="287.5" x2="258.0" y2="274.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s13" data-b="gpt-yhc9c-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="258.0" y1="257.5" x2="258.0" y2="243.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s14" data-b="gpt-yhc9c-s15" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="258.0" y1="229.0" x2="258.0" y2="212.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s15" data-b="gpt-yhc9c-s16" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="258.0" y1="195.5" x2="258.0" y2="182.5" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s16" data-b="gpt-yhc9c-s17" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="258.0" y1="165.5" x2="258.0" y2="149.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s17" data-b="gpt-yhc9c-s18" data-a-at="t:0.500" data-b-at="b:0.500"></line>
-    <line x1="258.0" y1="135.0" x2="258.0" y2="34.0" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s18" data-a-at="t:0.500"></line>
-    <polyline points="258.0,316.0 350.0,316.0 350.0,236.0 265.0,236.0" fill="none" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)"></polyline>
-    <polyline points="258.0,222.0 350.0,222.0 350.0,142.0 265.0,142.0" fill="none" stroke="#002B5B" stroke-width="1.00" marker-end="url(#ah002B5B-yhc9c)"></polyline>
+    <line x1="258.0" y1="328.0" x2="258.0" y2="304.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-b="gpt-yhc9c-s13" data-b-at="b:0.500"></line>
+    <line x1="258.0" y1="287.5" x2="258.0" y2="274.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s13" data-b="gpt-yhc9c-s14" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="258.0" y1="257.5" x2="258.0" y2="243.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s14" data-b="gpt-yhc9c-s15" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="258.0" y1="229.0" x2="258.0" y2="212.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s15" data-b="gpt-yhc9c-s16" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="258.0" y1="195.5" x2="258.0" y2="182.5" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s16" data-b="gpt-yhc9c-s17" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="258.0" y1="165.5" x2="258.0" y2="149.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s17" data-b="gpt-yhc9c-s18" data-a-at="t:0.500" data-b-at="b:0.500"></line>
+    <line x1="258.0" y1="135.0" x2="258.0" y2="34.0" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)" data-a="gpt-yhc9c-s18" data-a-at="t:0.500"></line>
+    <polyline points="258.0,316.0 350.0,316.0 350.0,236.0 265.0,236.0" fill="none" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)"></polyline>
+    <polyline points="258.0,222.0 350.0,222.0 350.0,142.0 265.0,142.0" fill="none" stroke="#002B5B" stroke-width="1.0" marker-end="url(#ah002B5B-yhc9c)"></polyline>
     <text x="346.0" y="278.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">residual</text>
     <text x="346.0" y="184.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">residual</text>
   </svg>
@@ -4724,7 +4724,7 @@ z
   
 <div class="foot" data-rt=""><span>Transformers · The Transformer Block</span><span>15</span></div></section>
 
-<section class="page" id="output" data-part="Output" data-view="reading" data-topic="output" style="--gap: 13.9pt;">
+<section class="page" id="output" data-view="reading" data-topic="output" data-part="Output" style="--gap: 13.9pt;">
   <h2 data-b="xjupr">The Output Softmax</h2>
   <p data-b="lg0t8">To turn the rows into guesses, they get one more layer norm and are multiplied by the transposed embedding matrix, which gives every position one score per word in the vocabulary, and a softmax of each row turns the scores into probabilities:</p>
   <b-eq data-b="l8uxa" class=""><a id="eq-out" data-rt=""></a>

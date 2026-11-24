@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -833,18 +844,18 @@ svg.al-clone { z-index: 1; }
 <nav class="navbar chap web-only" aria-label="Chapter"><a class="brand" href="/ai2ai/" title="All chapters">Exploring Artificial Intelligence</a><span class="crumb">Model Evaluation</span><details class="navmenu toc"><summary class="nb"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg><span>Sections</span></summary><div class="menu"><a href="#evaluation">Confusion Matrices</a><a href="#imbalanced">Imbalanced Datasets</a><a href="#roc-curves">ROC and AUC</a><a href="#k-fold">Grid Search</a><a href="#regression-errors">Diagnosing a Model</a><a href="#learning-curves">Learning Curves</a></div></details><span class="spacer"></span><span class="viewbar" role="group" aria-label="View"><a href="index.html" class="on">Reading</a><a href="index-slides.html" class="">Lecture</a><a href="index-workbook.html" class="">Workbook</a></span><span class="tools"><details class="navmenu pdfmenu"><summary class="nb" title="Export PDF"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="M8 2v8m-3.5-3.5L8 10l3.5-3.5M3 13.5h10"/></svg><span>PDF</span></summary><div class="menu"><span class="hd">Download PDF</span><a href="eval-chapter.pdf" download>Reading</a><a href="eval-chapter-slides.pdf" download>Lecture</a><a href="eval-chapter-workbook.pdf" download>Workbook</a><button type="button" onclick="this.closest('details').open=false;window.eaiNotesPDF?eaiNotesPDF():window.print()">This page as shown, with notes</button></div></details></span></nav>
 <main class="book view" data-view="reading">
 <section class="page cover" id="cover">
-  
-  <svg class="draw" viewBox="0 0 384 220" style="width: 280.9pt" role="img" aria-label="Four coloured squares in a two by two grid beside a gold ROC curve climbing from the bottom left corner to the top, the area under it shaded" data-b="f0k9u">
+  <svg class="draw" viewBox="0 0 384 220" role="img" aria-label="Four coloured squares in a two by two grid beside a gold ROC curve climbing from the bottom left corner to the top, the area under it shaded" style="width: 280.9pt" data-b="f0k9u">
     <defs></defs>
     <rect x="62.3" y="58.1" width="51.9" height="51.9" rx="0.0" fill="#4C8434" stroke="none"></rect>
     <rect x="118.3" y="58.1" width="51.9" height="51.9" rx="0.0" fill="#D11919" stroke="none"></rect>
     <rect x="62.3" y="114.2" width="51.9" height="51.9" rx="0.0" fill="#E0BC4D" stroke="none"></rect>
     <rect x="118.3" y="114.2" width="51.9" height="51.9" rx="0.0" fill="#2966D1" stroke="none"></rect>
-    <polygon points="212.8,166.0 212.8,166.0 212.8,166.0 212.8,165.0 212.8,165.0 212.8,123.9 215.9,123.9 215.9,123.9 215.9,123.9 215.9,119.8 219.0,119.8 219.0,119.8 219.0,119.8 219.0,105.4 222.1,105.4 222.1,105.4 222.1,105.4 222.1,103.3 225.2,103.3 225.2,103.3 225.2,103.3 225.2,101.3 228.3,101.3 228.3,101.3 228.3,101.3 228.3,100.2 231.4,100.2 231.4,100.2 231.4,100.2 231.4,87.9 234.6,87.9 234.6,87.9 234.6,87.9 234.6,81.7 237.7,81.7 237.7,81.7 237.7,81.7 237.7,79.7 240.8,79.7 240.8,79.7 240.8,79.7 240.8,76.6 243.9,76.6 243.9,76.6 243.9,76.6 243.9,75.6 247.0,75.6 247.0,75.6 247.0,75.6 247.0,72.5 253.2,72.5 253.2,72.5 253.2,72.5 253.2,70.4 256.3,70.4 256.3,70.4 256.3,70.4 256.3,68.4 259.5,68.4 259.5,68.4 259.5,68.4 259.5,66.3 262.6,66.3 262.6,66.3 262.6,66.3 262.6,64.3 265.7,64.3 265.7,64.3 265.7,64.3 265.7,62.2 268.8,62.2 268.8,62.2 268.8,62.2 268.8,59.1 303.0,59.1 303.0,59.1 303.0,59.1 303.0,57.1 321.7,57.1 321.7,57.1 321.7,166.0 321.7,166.0 321.7,166.0 303.0,166.0 303.0,166.0 303.0,166.0 303.0,166.0 268.8,166.0 268.8,166.0 268.8,166.0 268.8,166.0 265.7,166.0 265.7,166.0 265.7,166.0 265.7,166.0 262.6,166.0 262.6,166.0 262.6,166.0 262.6,166.0 259.5,166.0 259.5,166.0 259.5,166.0 259.5,166.0 256.3,166.0 256.3,166.0 256.3,166.0 256.3,166.0 253.2,166.0 253.2,166.0 253.2,166.0 253.2,166.0 247.0,166.0 247.0,166.0 247.0,166.0 247.0,166.0 243.9,166.0 243.9,166.0 243.9,166.0 243.9,166.0 240.8,166.0 240.8,166.0 240.8,166.0 240.8,166.0 237.7,166.0 237.7,166.0 237.7,166.0 237.7,166.0 234.6,166.0 234.6,166.0 234.6,166.0 234.6,166.0 231.4,166.0 231.4,166.0 231.4,166.0 231.4,166.0 228.3,166.0 228.3,166.0 228.3,166.0 228.3,166.0 225.2,166.0 225.2,166.0 225.2,166.0 225.2,166.0 222.1,166.0 222.1,166.0 222.1,166.0 222.1,166.0 219.0,166.0 219.0,166.0 219.0,166.0 219.0,166.0 215.9,166.0 215.9,166.0 215.9,166.0 215.9,166.0 212.8,166.0 212.8,166.0 212.8,166.0 212.8,166.0 212.8,166.0" fill="#F9F2DB" stroke="#F9F2DB" stroke-width="0.00"></polygon>
-    <polyline points="212.8,166.0 212.8,165.0 212.8,123.9 215.9,123.9 215.9,119.8 219.0,119.8 219.0,105.4 222.1,105.4 222.1,103.3 225.2,103.3 225.2,101.3 228.3,101.3 228.3,100.2 231.4,100.2 231.4,87.9 234.6,87.9 234.6,81.7 237.7,81.7 237.7,79.7 240.8,79.7 240.8,76.6 243.9,76.6 243.9,75.6 247.0,75.6 247.0,72.5 253.2,72.5 253.2,70.4 256.3,70.4 256.3,68.4 259.5,68.4 259.5,66.3 262.6,66.3 262.6,64.3 265.7,64.3 265.7,62.2 268.8,62.2 268.8,59.1 303.0,59.1 303.0,57.1 321.7,57.1" fill="none" stroke="#DCB439" stroke-width="2.60"></polyline>
-    <line x1="212.8" y1="166.0" x2="321.7" y2="57.1" stroke="#9AA5B1" stroke-width="1.00" stroke-dasharray="4 3"></line>
-    <polyline points="212.8,51.9 212.8,166.0 326.9,166.0" fill="none" stroke="#002B5B" stroke-width="1.60"></polyline>
+    <polygon points="212.8,166.0 212.8,166.0 212.8,166.0 212.8,165.0 212.8,165.0 212.8,123.9 215.9,123.9 215.9,123.9 215.9,123.9 215.9,119.8 219.0,119.8 219.0,119.8 219.0,119.8 219.0,105.4 222.1,105.4 222.1,105.4 222.1,105.4 222.1,103.3 225.2,103.3 225.2,103.3 225.2,103.3 225.2,101.3 228.3,101.3 228.3,101.3 228.3,101.3 228.3,100.2 231.4,100.2 231.4,100.2 231.4,100.2 231.4,87.9 234.6,87.9 234.6,87.9 234.6,87.9 234.6,81.7 237.7,81.7 237.7,81.7 237.7,81.7 237.7,79.7 240.8,79.7 240.8,79.7 240.8,79.7 240.8,76.6 243.9,76.6 243.9,76.6 243.9,76.6 243.9,75.6 247.0,75.6 247.0,75.6 247.0,75.6 247.0,72.5 253.2,72.5 253.2,72.5 253.2,72.5 253.2,70.4 256.3,70.4 256.3,70.4 256.3,70.4 256.3,68.4 259.5,68.4 259.5,68.4 259.5,68.4 259.5,66.3 262.6,66.3 262.6,66.3 262.6,66.3 262.6,64.3 265.7,64.3 265.7,64.3 265.7,64.3 265.7,62.2 268.8,62.2 268.8,62.2 268.8,62.2 268.8,59.1 303.0,59.1 303.0,59.1 303.0,59.1 303.0,57.1 321.7,57.1 321.7,57.1 321.7,166.0 321.7,166.0 321.7,166.0 303.0,166.0 303.0,166.0 303.0,166.0 303.0,166.0 268.8,166.0 268.8,166.0 268.8,166.0 268.8,166.0 265.7,166.0 265.7,166.0 265.7,166.0 265.7,166.0 262.6,166.0 262.6,166.0 262.6,166.0 262.6,166.0 259.5,166.0 259.5,166.0 259.5,166.0 259.5,166.0 256.3,166.0 256.3,166.0 256.3,166.0 256.3,166.0 253.2,166.0 253.2,166.0 253.2,166.0 253.2,166.0 247.0,166.0 247.0,166.0 247.0,166.0 247.0,166.0 243.9,166.0 243.9,166.0 243.9,166.0 243.9,166.0 240.8,166.0 240.8,166.0 240.8,166.0 240.8,166.0 237.7,166.0 237.7,166.0 237.7,166.0 237.7,166.0 234.6,166.0 234.6,166.0 234.6,166.0 234.6,166.0 231.4,166.0 231.4,166.0 231.4,166.0 231.4,166.0 228.3,166.0 228.3,166.0 228.3,166.0 228.3,166.0 225.2,166.0 225.2,166.0 225.2,166.0 225.2,166.0 222.1,166.0 222.1,166.0 222.1,166.0 222.1,166.0 219.0,166.0 219.0,166.0 219.0,166.0 219.0,166.0 215.9,166.0 215.9,166.0 215.9,166.0 215.9,166.0 212.8,166.0 212.8,166.0 212.8,166.0 212.8,166.0 212.8,166.0" fill="#F9F2DB" stroke="#F9F2DB" stroke-width="0.0"></polygon>
+    <polyline points="212.8,166.0 212.8,165.0 212.8,123.9 215.9,123.9 215.9,119.8 219.0,119.8 219.0,105.4 222.1,105.4 222.1,103.3 225.2,103.3 225.2,101.3 228.3,101.3 228.3,100.2 231.4,100.2 231.4,87.9 234.6,87.9 234.6,81.7 237.7,81.7 237.7,79.7 240.8,79.7 240.8,76.6 243.9,76.6 243.9,75.6 247.0,75.6 247.0,72.5 253.2,72.5 253.2,70.4 256.3,70.4 256.3,68.4 259.5,68.4 259.5,66.3 262.6,66.3 262.6,64.3 265.7,64.3 265.7,62.2 268.8,62.2 268.8,59.1 303.0,59.1 303.0,57.1 321.7,57.1" fill="none" stroke="#DCB439" stroke-width="2.6"></polyline>
+    <line x1="212.8" y1="166.0" x2="321.7" y2="57.1" stroke="#9AA5B1" stroke-width="1.0" stroke-dasharray="4 3"></line>
+    <polyline points="212.8,51.9 212.8,166.0 326.9,166.0" fill="none" stroke="#002B5B" stroke-width="1.6"></polyline>
   </svg>
+  
   <div class="cover-text" data-b="we3bf">
     <div class="kicker">Unit 02 · Chapter 11</div>
     <h1>Model Evaluation</h1>
@@ -929,7 +940,7 @@ svg.al-clone { z-index: 1; }
 
 
 
-<section class="page" id="evaluation" data-part="Confusion Matrices" data-view="reading" data-topic="cross-validation accuracy" style="--gap: 16.4pt;">
+<section class="page" id="evaluation" data-view="reading" data-topic="cross-validation accuracy" data-part="Confusion Matrices" style="--gap: 16.4pt;">
   <h2 data-b="xeuuo">Model Evaluation</h2>
   <p data-b="mwpxc">We now have a whole shelf of classifiers that answer "Did we win?" for a Notre Dame game. <b class="name">kNN</b> looks up the nearest games, a <b class="name">decision tree</b> asks a few questions about yards, <b class="name">logistic regression</b> gives us a probability, and an <b class="name">ensemble</b> lets a few hundred trees vote. Each one came with a single number, its accuracy on unseen games, measured with the five-fold cross-validation from <b class="name">k-Nearest Neighbors</b>:</p>
   
@@ -954,7 +965,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="confusion-matrices" data-view="reading" data-topic="confusion-matrix" style="--gap: 22pt;">
   <h2 data-b="crn4g">Confusion Matrices</h2>
   <p data-b="ti9ge">Notre Dame wins three games in four, so <b class="take">nobody needs a model to tell them we'll probably win</b>, the games worth predicting are the losses. Let's take our <b class="name">logistic regression</b> on yards and look at its <span class="num">141</span> answers, each made by a model that never saw that game. A game can only end up one of four ways (won or lost, called a win or a loss), so we count each:</p>
-  <svg class="draw" viewBox="0 0 384 132" style="width: 382.5pt" role="img" aria-label="The confusion matrix of logistic regression on yards for unseen games, losses as the positive class: 19 true positives (losses called losses), 16 false negatives (losses called wins), 7 false positives (wins called losses) and 99 true negatives (wins called wins)" data-b="vv5df">
+  <svg class="draw" viewBox="0 0 384 132" role="img" aria-label="The confusion matrix of logistic regression on yards for unseen games, losses as the positive class: 19 true positives (losses called losses), 16 false negatives (losses called wins), 7 false positives (wins called losses) and 99 true negatives (wins called wins)" style="width: 382.5pt" data-b="vv5df">
     <defs></defs>
     <g id="confusion-vv5df-s1">
       <rect x="132.0" y="13.8" width="57.6" height="55.2" rx="0.0" fill="#E5EDE2" stroke="none"></rect>
@@ -989,7 +1000,7 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="positive-class" data-view="reading" data-topic="confusion-matrix" style="--gap: 22pt;">
   <h2 data-b="yd4l3">Positive and Negative Classes</h2>
   <p data-b="wfy9e">Our question from here on is "Did we lose?", and the first thing we want to know is which games each model gets wrong, not just how many.</p>
-  <p data-b="rckiz">The class we're trying to identify is called the <b class="def"></b><b class="take"><span class="mono">positive class</span></b> and the other one the <b class="warn"><span class="mono">negative class</span></b>. Here we're trying to spot losses, so <b class="take">a loss is our positive class</b> and a win the negative one.</p>
+  <p data-b="rckiz">The class we're trying to identify is called the <b class="take"><span class="mono">positive class</span></b> and the other one the <b class="warn"><span class="mono">negative class</span></b>. Here we're trying to spot losses, so <b class="take">a loss is our positive class</b> and a win the negative one.</p>
   <p data-b="b3w2r">That gives the four cells their names. A <b class="def">true positive</b> is a loss called a loss, a <b class="def">true negative</b> is a win called a win, a <b class="def">false positive</b> is a win we called a loss, and a <b class="def">false negative</b> is a loss we called a win. Notice that the model gets <span class="num">99</span> of <span class="num">106</span> wins right but <b class="warn">only <span class="num">19</span> of <span class="num">35</span> losses</b>.</p>
 <div class="foot" data-rt=""><span>Model Evaluation · Confusion Matrices</span><span>04</span></div></section>
 
@@ -1460,7 +1471,7 @@ z
     <eq-row label="accuracy" note="accuracy">\text{Accuracy} = \frac{\green{TP} + \green{TN}}{\green{TP} + \green{TN} + \red{FP} + \red{FN}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[11.1]</div><div class="eqml-e"><div class="eqml-note">accuracy</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mtext>Accuracy</mtext><mo>=</mo><mfrac><mrow><mrow><mrow style="color:#38761D;"><mi mathvariant="normal">𝐓</mi><mi mathvariant="normal">𝐏</mi></mrow></mrow><mo>+</mo><mrow><mrow style="color:#38761D;"><mi mathvariant="normal">𝐓</mi><mi mathvariant="normal">𝐍</mi></mrow></mrow></mrow><mrow><mrow><mrow style="color:#38761D;"><mi mathvariant="normal">𝐓</mi><mi mathvariant="normal">𝐏</mi></mrow></mrow><mo>+</mo><mrow><mrow style="color:#38761D;"><mi mathvariant="normal">𝐓</mi><mi mathvariant="normal">𝐍</mi></mrow></mrow><mo>+</mo><mrow><mrow style="color:#CC0000;"><mi mathvariant="normal">𝐅</mi><mi mathvariant="normal">𝐏</mi></mrow></mrow><mo>+</mo><mrow><mrow style="color:#CC0000;"><mi mathvariant="normal">𝐅</mi><mi mathvariant="normal">𝐍</mi></mrow></mrow></mrow></mfrac></mrow></math></div></div></div></b-eq>
   <p data-b="eftnf">For our model that's <b-m tex="(99 + 19)/141">(99 + 19)/141</b-m>, or <span class="num">83.7%</span>, and always guessing "win" gets <span class="num">75.2%</span>. Here are three of our classifiers side by side, after the "model" that always says "win":</p>
-  <svg class="draw" viewBox="0 0 384 104" style="width: 382.5pt" role="img" aria-label="Confusion matrices on unseen games, rows lost and won, columns predicted loss and win: always guessing win (0, 35, 0, 106), kNN (16, 19, 7, 99), a depth-3 tree (16, 19, 6, 100) and logistic regression (19, 16, 7, 99)" data-b="n6q0x">
+  <svg class="draw" viewBox="0 0 384 104" role="img" aria-label="Confusion matrices on unseen games, rows lost and won, columns predicted loss and win: always guessing win (0, 35, 0, 106), kNN (16, 19, 7, 99), a depth-3 tree (16, 19, 6, 100) and logistic regression (19, 16, 7, 99)" style="width: 382.5pt" data-b="n6q0x">
     <defs></defs>
     <g id="confusion-models-n6q0x-s1">
       <rect x="19.6" y="16.4" width="33.5" height="32.0" rx="0.0" fill="#E5EDE2" stroke="none"></rect>
@@ -1585,72 +1596,72 @@ z
 <section class="page" id="accuracy-vs-precision" data-view="reading" data-topic="precision">
   <h2 data-b="ab3xf">Accuracy vs. Precision</h2>
   <p data-b="za65d">In measurement, <b class="def">accuracy</b> is how close our measurements land to the true value and <b class="def">precision</b> is how close they land to each other. The usual picture is a target and a handful of shots:</p>
-  <svg class="draw" viewBox="0 0 384 210" style="width: 82%" role="img" aria-label="Four targets on axes of accuracy (across) and precision (up). Low accuracy, low precision: shots scattered off to one side. High accuracy, low precision: shots scattered around the bullseye. Low accuracy, high precision: a tight group near the edge. High accuracy, high precision: a tight group on the bullseye" data-b="d68ro">
+  <svg class="draw" viewBox="0 0 384 210" role="img" aria-label="Four targets on axes of accuracy (across) and precision (up). Low accuracy, low precision: shots scattered off to one side. High accuracy, low precision: shots scattered around the bullseye. Low accuracy, high precision: a tight group near the edge. High accuracy, high precision: a tight group on the bullseye" style="width: 82%" data-b="d68ro">
     <defs>
       <marker id="ah002B5B-d68ro" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill="#002B5B"></path>
       </marker>
     </defs>
-    <ellipse cx="149.6" cy="131.6" rx="32.8" ry="32.8" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="131.6" rx="26.2" ry="26.2" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="131.6" rx="19.7" ry="19.7" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="131.6" rx="13.1" ry="13.1" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="131.6" rx="6.6" ry="6.6" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="131.6" rx="3.3" ry="3.3" fill="#990000" stroke="#990000" stroke-width="1.00"></ellipse>
-    <ellipse cx="228.3" cy="131.6" rx="32.8" ry="32.8" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="131.6" rx="26.2" ry="26.2" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="131.6" rx="19.7" ry="19.7" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="131.6" rx="13.1" ry="13.1" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="131.6" rx="6.6" ry="6.6" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="131.6" rx="3.3" ry="3.3" fill="#990000" stroke="#990000" stroke-width="1.00"></ellipse>
-    <ellipse cx="149.6" cy="53.0" rx="32.8" ry="32.8" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="53.0" rx="26.2" ry="26.2" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="53.0" rx="19.7" ry="19.7" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="53.0" rx="13.1" ry="13.1" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="53.0" rx="6.6" ry="6.6" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="149.6" cy="53.0" rx="3.3" ry="3.3" fill="#990000" stroke="#990000" stroke-width="1.00"></ellipse>
-    <ellipse cx="228.3" cy="53.0" rx="32.8" ry="32.8" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="53.0" rx="26.2" ry="26.2" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="53.0" rx="19.7" ry="19.7" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="53.0" rx="13.1" ry="13.1" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="53.0" rx="6.6" ry="6.6" fill="none" stroke="#990000" stroke-width="1.40"></ellipse>
-    <ellipse cx="228.3" cy="53.0" rx="3.3" ry="3.3" fill="#990000" stroke="#990000" stroke-width="1.00"></ellipse>
-    <line x1="107.0" y1="174.3" x2="273.7" y2="174.3" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-d68ro)"></line>
-    <line x1="107.0" y1="174.3" x2="107.0" y2="7.5" stroke="#002B5B" stroke-width="1.60" marker-end="url(#ah002B5B-d68ro)"></line>
+    <ellipse cx="149.6" cy="131.6" rx="32.8" ry="32.8" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="131.6" rx="26.2" ry="26.2" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="131.6" rx="19.7" ry="19.7" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="131.6" rx="13.1" ry="13.1" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="131.6" rx="6.6" ry="6.6" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="131.6" rx="3.3" ry="3.3" fill="#990000" stroke="#990000" stroke-width="1.0"></ellipse>
+    <ellipse cx="228.3" cy="131.6" rx="32.8" ry="32.8" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="131.6" rx="26.2" ry="26.2" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="131.6" rx="19.7" ry="19.7" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="131.6" rx="13.1" ry="13.1" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="131.6" rx="6.6" ry="6.6" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="131.6" rx="3.3" ry="3.3" fill="#990000" stroke="#990000" stroke-width="1.0"></ellipse>
+    <ellipse cx="149.6" cy="53.0" rx="32.8" ry="32.8" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="53.0" rx="26.2" ry="26.2" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="53.0" rx="19.7" ry="19.7" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="53.0" rx="13.1" ry="13.1" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="53.0" rx="6.6" ry="6.6" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="149.6" cy="53.0" rx="3.3" ry="3.3" fill="#990000" stroke="#990000" stroke-width="1.0"></ellipse>
+    <ellipse cx="228.3" cy="53.0" rx="32.8" ry="32.8" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="53.0" rx="26.2" ry="26.2" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="53.0" rx="19.7" ry="19.7" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="53.0" rx="13.1" ry="13.1" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="53.0" rx="6.6" ry="6.6" fill="none" stroke="#990000" stroke-width="1.4"></ellipse>
+    <ellipse cx="228.3" cy="53.0" rx="3.3" ry="3.3" fill="#990000" stroke="#990000" stroke-width="1.0"></ellipse>
+    <line x1="107.0" y1="174.3" x2="273.7" y2="174.3" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-d68ro)"></line>
+    <line x1="107.0" y1="174.3" x2="107.0" y2="7.5" stroke="#002B5B" stroke-width="1.6" marker-end="url(#ah002B5B-d68ro)"></line>
     <text x="270.9" y="167.3" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-style="italic">Accuracy</text>
     <text x="111.1" y="12.1" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-style="italic">Precision</text>
     <text x="149.6" y="184.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">low</text>
     <text x="228.3" y="184.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">high</text>
     <text x="100.4" y="133.6" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">low</text>
     <text x="100.4" y="54.9" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="end">high</text>
-    <ellipse cx="131.6" cy="114.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="128.9" cy="125.6" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="127.1" cy="126.6" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="132.1" cy="103.7" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="126.7" cy="123.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="136.4" cy="113.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="132.6" cy="126.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="227.9" cy="123.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="212.4" cy="137.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="205.8" cy="146.9" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="206.5" cy="134.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="213.3" cy="128.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="230.1" cy="133.8" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="198.6" cy="138.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="134.7" cy="38.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="131.3" cy="39.3" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="132.6" cy="40.1" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="137.3" cy="40.1" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="134.8" cy="36.2" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="133.5" cy="38.5" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="135.1" cy="38.1" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="225.4" cy="52.8" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="231.4" cy="56.5" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="230.2" cy="52.7" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="226.8" cy="48.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="230.0" cy="55.7" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="228.4" cy="51.6" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
-    <ellipse cx="227.8" cy="51.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.60"></ellipse>
+    <ellipse cx="131.6" cy="114.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="128.9" cy="125.6" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="127.1" cy="126.6" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="132.1" cy="103.7" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="126.7" cy="123.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="136.4" cy="113.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="132.6" cy="126.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="227.9" cy="123.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="212.4" cy="137.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="205.8" cy="146.9" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="206.5" cy="134.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="213.3" cy="128.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="230.1" cy="133.8" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="198.6" cy="138.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="134.7" cy="38.0" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="131.3" cy="39.3" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="132.6" cy="40.1" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="137.3" cy="40.1" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="134.8" cy="36.2" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="133.5" cy="38.5" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="135.1" cy="38.1" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="225.4" cy="52.8" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="231.4" cy="56.5" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="230.2" cy="52.7" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="226.8" cy="48.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="230.0" cy="55.7" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="228.4" cy="51.6" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
+    <ellipse cx="227.8" cy="51.4" rx="2.3" ry="2.3" fill="#002B5B" stroke="#FFFFFF" stroke-width="0.6"></ellipse>
   </svg>
   <p data-b="u9ylg">Top left is precise but not accurate, every shot landed in nearly the same spot, it just wasn't the bullseye (a rifle with a crooked sight does exactly this). Bottom right is accurate but not precise, the shots are all over the place but they're all over the place around the middle, so on average they're about right. <b class="take">Only the top right is both.</b></p>
   <p data-b="fwsam">Unfortunately the analogy only goes so far. A classifier's precision is just the formula on the last page, and says nothing about how its mistakes are spread out. What does carry over is that <b class="take">the two numbers measure different things</b>, and a model can be good at one and bad at the other.</p>
@@ -1659,196 +1670,196 @@ z
 <section class="page" id="precision-vs-recall" data-view="reading" data-topic="precision recall" style="--gap: 16.8pt;">
   <h2 data-b="ivabb">Precision vs. Recall</h2>
   <p data-b="ge9jr">The classic picture puts every sample in a box, the ones we're looking for on one side, and circles the ones the model picked. Here are our games, with a circle around the <span class="num">26</span> our model called losses:</p>
-  <svg class="draw" viewBox="0 0 384 200" style="width: 100%" role="img" aria-label="A box of all 141 games split into losses (35 crosses, left) and wins (106 dots, right), with a circle around the 26 games the model called losses: 19 losses and 7 wins inside, 16 losses and 99 wins outside. Beside it, precision as the losses in the circle over everything in the circle (19/26 = 0.731) and recall as the losses in the circle over every loss (19/35 = 0.543)" data-b="u0n87">
+  <svg class="draw" viewBox="0 0 384 200" role="img" aria-label="A box of all 141 games split into losses (35 crosses, left) and wins (106 dots, right), with a circle around the 26 games the model called losses: 19 losses and 7 wins inside, 16 losses and 99 wins outside. Beside it, precision as the losses in the circle over everything in the circle (19/26 = 0.731) and recall as the losses in the circle over every loss (19/35 = 0.543)" style="width: 100%" data-b="u0n87">
     <defs></defs>
     <ellipse cx="63.0" cy="107.2" rx="54.4" ry="54.4" fill="#F3F6FA" stroke="none"></ellipse>
-    <line x1="63.0" y1="193.1" x2="63.0" y2="21.2" stroke="#666666" stroke-width="0.80"></line>
+    <line x1="63.0" y1="193.1" x2="63.0" y2="21.2" stroke="#666666" stroke-width="0.8"></line>
     <polygon points="237.9,38.4 237.3,38.4 236.2,38.5 235.1,38.7 234.0,39.1 233.0,39.5 232.0,40.0 231.0,40.6 230.2,41.3 229.7,41.7 229.3,42.2 228.6,43.0 228.0,44.0 227.5,45.0 227.1,46.0 226.7,47.1 226.5,48.2 226.4,49.3 226.4,49.9 226.4,50.4 226.5,51.5 226.7,52.6 227.1,53.7 227.5,54.8 228.0,55.7 228.6,56.7 229.3,57.5 229.7,58.0 230.2,58.4 231.0,59.1 232.0,59.7 233.0,60.2 234.0,60.6 235.1,61.0 236.2,61.2 237.3,61.3 237.9,61.3 237.9,49.9 237.9,38.4" fill="#EA9999" stroke="none"></polygon>
     <polygon points="237.9,73.9 237.3,73.9 236.2,74.0 235.1,74.3 234.0,74.6 233.0,75.0 232.0,75.5 231.0,76.2 230.2,76.9 229.7,77.3 229.3,77.7 228.6,78.6 228.0,79.5 227.5,80.5 227.1,81.5 226.7,82.6 226.5,83.7 226.4,84.8 226.4,85.4 226.4,86.0 226.5,87.1 226.7,88.2 227.1,89.3 227.5,90.3 228.0,91.3 228.6,92.2 229.3,93.1 229.7,93.5 230.2,93.9 231.0,94.6 232.0,95.2 233.0,95.8 234.0,96.2 235.1,96.5 236.2,96.7 237.3,96.8 237.9,96.8 237.9,85.4 237.9,73.9" fill="#EA9999" stroke="none"></polygon>
     <polygon points="237.9,96.8 238.4,96.8 239.5,96.7 240.6,96.5 241.7,96.2 242.8,95.8 243.7,95.2 244.7,94.6 245.5,93.9 246.0,93.5 246.4,93.1 247.1,92.2 247.7,91.3 248.2,90.3 248.6,89.3 249.0,88.2 249.2,87.1 249.3,86.0 249.3,85.4 249.3,84.8 249.2,83.7 249.0,82.6 248.6,81.5 248.2,80.5 247.7,79.5 247.1,78.6 246.4,77.7 246.0,77.3 245.5,76.9 244.7,76.2 243.7,75.5 242.8,75.0 241.7,74.6 240.6,74.3 239.5,74.0 238.4,73.9 237.9,73.9 237.9,85.4 237.9,96.8" fill="#38761D" stroke="none"></polygon>
     <polygon points="237.9,115.8 237.3,115.8 236.2,115.9 235.1,116.1 234.0,116.4 233.0,116.9 232.0,117.4 231.0,118.0 230.2,118.7 229.7,119.1 229.3,119.5 228.6,120.4 228.0,121.3 227.5,122.3 227.1,123.4 226.7,124.4 226.5,125.5 226.4,126.7 226.4,127.2 226.4,127.8 226.5,128.9 226.7,130.0 227.1,131.1 227.5,132.1 228.0,133.1 228.6,134.0 229.3,134.9 229.7,135.3 230.2,135.7 231.0,136.4 232.0,137.1 233.0,137.6 234.0,138.0 235.1,138.3 236.2,138.6 237.3,138.7 237.9,138.7 237.9,127.2 237.9,115.8" fill="#EA9999" stroke="none"></polygon>
     <rect x="222.9" y="147.9" width="14.9" height="29.8" rx="0.0" fill="#CC0000" stroke="none"></rect>
     <polygon points="237.9,151.3 237.3,151.3 236.2,151.4 235.1,151.6 234.0,152.0 233.0,152.4 232.0,152.9 231.0,153.5 230.2,154.3 229.7,154.7 229.3,155.1 228.6,155.9 228.0,156.9 227.5,157.9 227.1,158.9 226.7,160.0 226.5,161.1 226.4,162.2 226.4,162.8 226.4,163.3 226.5,164.5 226.7,165.6 227.1,166.6 227.5,167.7 228.0,168.6 228.6,169.6 229.3,170.5 229.7,170.9 230.2,171.3 231.0,172.0 232.0,172.6 233.0,173.1 234.0,173.6 235.1,173.9 236.2,174.1 237.3,174.2 237.9,174.2 237.9,162.8 237.9,151.3" fill="#EA9999" stroke="none"></polygon>
-    <line x1="47.9" y1="95.3" x2="51.2" y2="91.9" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="47.9" y1="91.9" x2="51.2" y2="95.3" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="12.3" y1="119.9" x2="15.6" y2="116.5" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="12.3" y1="116.5" x2="15.6" y2="119.9" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="27.2" y1="106.1" x2="30.6" y2="102.7" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="27.2" y1="102.7" x2="30.6" y2="106.1" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="29.2" y1="94.5" x2="32.5" y2="91.2" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="29.2" y1="91.2" x2="32.5" y2="94.5" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="21.8" y1="84.3" x2="25.2" y2="81.0" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="21.8" y1="81.0" x2="25.2" y2="84.3" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="42.6" y1="143.0" x2="45.9" y2="139.7" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="42.6" y1="139.7" x2="45.9" y2="143.0" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="22.6" y1="139.5" x2="25.9" y2="136.2" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="22.6" y1="136.2" x2="25.9" y2="139.5" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="43.9" y1="155.3" x2="47.3" y2="151.9" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="43.9" y1="151.9" x2="47.3" y2="155.3" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="49.4" y1="82.8" x2="52.7" y2="79.5" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="49.4" y1="79.5" x2="52.7" y2="82.8" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="50.4" y1="126.3" x2="53.7" y2="123.0" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="50.4" y1="123.0" x2="53.7" y2="126.3" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="51.4" y1="145.9" x2="54.8" y2="142.6" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="51.4" y1="142.6" x2="54.8" y2="145.9" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="35.8" y1="125.4" x2="39.2" y2="122.1" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="35.8" y1="122.1" x2="39.2" y2="125.4" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="54.0" y1="157.4" x2="57.3" y2="154.1" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="54.0" y1="154.1" x2="57.3" y2="157.4" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="56.2" y1="88.4" x2="59.5" y2="85.1" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="56.2" y1="85.1" x2="59.5" y2="88.4" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="47.2" y1="61.0" x2="50.5" y2="57.7" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="47.2" y1="57.7" x2="50.5" y2="61.0" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="56.2" y1="74.5" x2="59.5" y2="71.1" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="56.2" y1="71.1" x2="59.5" y2="74.5" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="18.3" y1="101.4" x2="21.6" y2="98.1" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="18.3" y1="98.1" x2="21.6" y2="101.4" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="41.8" y1="130.6" x2="45.1" y2="127.2" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="41.8" y1="127.2" x2="45.1" y2="130.6" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="37.3" y1="80.8" x2="40.6" y2="77.5" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="37.3" y1="77.5" x2="40.6" y2="80.8" stroke="#EA9999" stroke-width="1.10"></line>
-    <line x1="32.5" y1="170.7" x2="35.8" y2="167.3" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="32.5" y1="167.3" x2="35.8" y2="170.7" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="17.9" y1="69.0" x2="21.2" y2="65.7" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="17.9" y1="65.7" x2="21.2" y2="69.0" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="35.1" y1="39.3" x2="38.4" y2="35.9" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="35.1" y1="35.9" x2="38.4" y2="39.3" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="43.2" y1="176.8" x2="46.5" y2="173.5" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="43.2" y1="173.5" x2="46.5" y2="176.8" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="24.3" y1="158.8" x2="27.6" y2="155.5" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="24.3" y1="155.5" x2="27.6" y2="158.8" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="14.9" y1="145.2" x2="18.2" y2="141.8" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="14.9" y1="141.8" x2="18.2" y2="145.2" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="41.2" y1="45.3" x2="44.5" y2="42.0" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="41.2" y1="42.0" x2="44.5" y2="45.3" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="57.9" y1="167.6" x2="61.3" y2="164.3" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="57.9" y1="164.3" x2="61.3" y2="167.6" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="34.6" y1="45.9" x2="37.9" y2="42.6" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="34.6" y1="42.6" x2="37.9" y2="45.9" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="8.0" y1="180.7" x2="11.3" y2="177.4" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="8.0" y1="177.4" x2="11.3" y2="180.7" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="28.5" y1="51.5" x2="31.8" y2="48.2" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="28.5" y1="48.2" x2="31.8" y2="51.5" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="28.0" y1="147.6" x2="31.3" y2="144.3" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="28.0" y1="144.3" x2="31.3" y2="147.6" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="36.0" y1="32.1" x2="39.3" y2="28.8" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="36.0" y1="28.8" x2="39.3" y2="32.1" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="7.6" y1="135.2" x2="10.9" y2="131.9" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="7.6" y1="131.9" x2="10.9" y2="135.2" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="11.4" y1="48.3" x2="14.8" y2="45.0" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="11.4" y1="45.0" x2="14.8" y2="48.3" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="51.7" y1="32.5" x2="55.0" y2="29.2" stroke="#CC0000" stroke-width="1.10"></line>
-    <line x1="51.7" y1="29.2" x2="55.0" y2="32.5" stroke="#CC0000" stroke-width="1.10"></line>
-    <ellipse cx="80.1" cy="126.6" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="91.1" cy="80.7" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="107.4" cy="118.0" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="88.5" cy="96.9" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="77.2" cy="100.1" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="75.0" cy="88.0" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="87.4" cy="72.0" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.00"></ellipse>
-    <ellipse cx="88.4" cy="37.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="75.9" cy="165.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="67.1" cy="49.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.3" cy="150.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="107.9" cy="155.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="107.2" cy="57.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="113.2" cy="39.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="83.0" cy="167.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="108.3" cy="66.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="99.7" cy="61.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="75.9" cy="25.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="72.5" cy="33.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="107.2" cy="164.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="112.1" cy="74.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="97.0" cy="69.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="107.0" cy="31.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="70.8" cy="177.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="104.8" cy="178.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="115.0" cy="31.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="111.0" cy="169.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="114.2" cy="60.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="93.0" cy="28.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="92.8" cy="175.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="100.7" cy="55.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="69.3" cy="170.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="76.9" cy="182.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="75.7" cy="48.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="95.6" cy="40.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="114.4" cy="181.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="85.6" cy="183.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="96.2" cy="183.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="99.2" cy="170.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="110.6" cy="46.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="86.8" cy="45.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.9" cy="159.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="103.5" cy="184.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="99.1" cy="157.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="71.8" cy="56.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="69.7" cy="185.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="83.3" cy="26.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="90.0" cy="163.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="81.6" cy="176.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="104.1" cy="76.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="114.2" cy="105.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.8" cy="47.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="115.3" cy="137.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="110.4" cy="145.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="98.6" cy="177.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="87.5" cy="53.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="100.6" cy="27.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="67.5" cy="26.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="79.4" cy="36.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.8" cy="167.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="98.0" cy="47.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="86.0" cy="31.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="82.3" cy="59.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="111.2" cy="187.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="105.5" cy="40.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="100.9" cy="34.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="111.1" cy="175.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="113.5" cy="97.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="100.8" cy="142.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="75.4" cy="41.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="112.6" cy="120.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="94.0" cy="56.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="106.0" cy="135.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="95.3" cy="147.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="90.2" cy="150.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.6" cy="173.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="115.9" cy="54.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.5" cy="85.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="68.3" cy="39.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="109.9" cy="25.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="104.5" cy="47.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="75.3" cy="173.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="81.9" cy="188.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="105.0" cy="172.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="104.1" cy="148.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="96.6" cy="163.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="94.8" cy="189.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="108.2" cy="83.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.2" cy="67.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="114.1" cy="114.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="69.1" cy="164.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="91.8" cy="156.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="115.7" cy="130.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="83.6" cy="160.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="83.0" cy="154.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.4" cy="78.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="88.4" cy="171.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="71.1" cy="157.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="91.7" cy="64.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="87.8" cy="189.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="111.0" cy="88.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="116.6" cy="142.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="81.7" cy="49.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="77.0" cy="156.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="93.4" cy="168.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <ellipse cx="87.0" cy="177.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.00"></ellipse>
-    <line x1="219.5" y1="67.0" x2="256.2" y2="67.0" stroke="#000000" stroke-width="1.00"></line>
-    <line x1="219.5" y1="144.4" x2="256.2" y2="144.4" stroke="#000000" stroke-width="1.00"></line>
-    <rect x="5.7" y="21.2" width="114.6" height="171.9" rx="0.0" fill="none" stroke="#002B5B" stroke-width="1.40"></rect>
-    <ellipse cx="63.0" cy="107.2" rx="54.4" ry="54.4" fill="none" stroke="#002B5B" stroke-width="1.60"></ellipse>
+    <line x1="47.9" y1="95.3" x2="51.2" y2="91.9" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="47.9" y1="91.9" x2="51.2" y2="95.3" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="12.3" y1="119.9" x2="15.6" y2="116.5" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="12.3" y1="116.5" x2="15.6" y2="119.9" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="27.2" y1="106.1" x2="30.6" y2="102.7" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="27.2" y1="102.7" x2="30.6" y2="106.1" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="29.2" y1="94.5" x2="32.5" y2="91.2" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="29.2" y1="91.2" x2="32.5" y2="94.5" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="21.8" y1="84.3" x2="25.2" y2="81.0" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="21.8" y1="81.0" x2="25.2" y2="84.3" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="42.6" y1="143.0" x2="45.9" y2="139.7" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="42.6" y1="139.7" x2="45.9" y2="143.0" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="22.6" y1="139.5" x2="25.9" y2="136.2" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="22.6" y1="136.2" x2="25.9" y2="139.5" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="43.9" y1="155.3" x2="47.3" y2="151.9" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="43.9" y1="151.9" x2="47.3" y2="155.3" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="49.4" y1="82.8" x2="52.7" y2="79.5" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="49.4" y1="79.5" x2="52.7" y2="82.8" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="50.4" y1="126.3" x2="53.7" y2="123.0" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="50.4" y1="123.0" x2="53.7" y2="126.3" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="51.4" y1="145.9" x2="54.8" y2="142.6" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="51.4" y1="142.6" x2="54.8" y2="145.9" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="35.8" y1="125.4" x2="39.2" y2="122.1" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="35.8" y1="122.1" x2="39.2" y2="125.4" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="54.0" y1="157.4" x2="57.3" y2="154.1" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="54.0" y1="154.1" x2="57.3" y2="157.4" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="56.2" y1="88.4" x2="59.5" y2="85.1" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="56.2" y1="85.1" x2="59.5" y2="88.4" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="47.2" y1="61.0" x2="50.5" y2="57.7" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="47.2" y1="57.7" x2="50.5" y2="61.0" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="56.2" y1="74.5" x2="59.5" y2="71.1" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="56.2" y1="71.1" x2="59.5" y2="74.5" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="18.3" y1="101.4" x2="21.6" y2="98.1" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="18.3" y1="98.1" x2="21.6" y2="101.4" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="41.8" y1="130.6" x2="45.1" y2="127.2" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="41.8" y1="127.2" x2="45.1" y2="130.6" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="37.3" y1="80.8" x2="40.6" y2="77.5" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="37.3" y1="77.5" x2="40.6" y2="80.8" stroke="#EA9999" stroke-width="1.1"></line>
+    <line x1="32.5" y1="170.7" x2="35.8" y2="167.3" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="32.5" y1="167.3" x2="35.8" y2="170.7" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="17.9" y1="69.0" x2="21.2" y2="65.7" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="17.9" y1="65.7" x2="21.2" y2="69.0" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="35.1" y1="39.3" x2="38.4" y2="35.9" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="35.1" y1="35.9" x2="38.4" y2="39.3" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="43.2" y1="176.8" x2="46.5" y2="173.5" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="43.2" y1="173.5" x2="46.5" y2="176.8" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="24.3" y1="158.8" x2="27.6" y2="155.5" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="24.3" y1="155.5" x2="27.6" y2="158.8" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="14.9" y1="145.2" x2="18.2" y2="141.8" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="14.9" y1="141.8" x2="18.2" y2="145.2" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="41.2" y1="45.3" x2="44.5" y2="42.0" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="41.2" y1="42.0" x2="44.5" y2="45.3" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="57.9" y1="167.6" x2="61.3" y2="164.3" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="57.9" y1="164.3" x2="61.3" y2="167.6" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="34.6" y1="45.9" x2="37.9" y2="42.6" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="34.6" y1="42.6" x2="37.9" y2="45.9" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="8.0" y1="180.7" x2="11.3" y2="177.4" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="8.0" y1="177.4" x2="11.3" y2="180.7" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="28.5" y1="51.5" x2="31.8" y2="48.2" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="28.5" y1="48.2" x2="31.8" y2="51.5" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="28.0" y1="147.6" x2="31.3" y2="144.3" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="28.0" y1="144.3" x2="31.3" y2="147.6" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="36.0" y1="32.1" x2="39.3" y2="28.8" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="36.0" y1="28.8" x2="39.3" y2="32.1" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="7.6" y1="135.2" x2="10.9" y2="131.9" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="7.6" y1="131.9" x2="10.9" y2="135.2" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="11.4" y1="48.3" x2="14.8" y2="45.0" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="11.4" y1="45.0" x2="14.8" y2="48.3" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="51.7" y1="32.5" x2="55.0" y2="29.2" stroke="#CC0000" stroke-width="1.1"></line>
+    <line x1="51.7" y1="29.2" x2="55.0" y2="32.5" stroke="#CC0000" stroke-width="1.1"></line>
+    <ellipse cx="80.1" cy="126.6" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="91.1" cy="80.7" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="107.4" cy="118.0" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="88.5" cy="96.9" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="77.2" cy="100.1" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="75.0" cy="88.0" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="87.4" cy="72.0" rx="1.5" ry="1.5" fill="#38761D" stroke="#38761D" stroke-width="0.0"></ellipse>
+    <ellipse cx="88.4" cy="37.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="75.9" cy="165.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="67.1" cy="49.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.3" cy="150.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="107.9" cy="155.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="107.2" cy="57.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="113.2" cy="39.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="83.0" cy="167.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="108.3" cy="66.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="99.7" cy="61.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="75.9" cy="25.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="72.5" cy="33.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="107.2" cy="164.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="112.1" cy="74.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="97.0" cy="69.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="107.0" cy="31.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="70.8" cy="177.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="104.8" cy="178.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="115.0" cy="31.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="111.0" cy="169.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="114.2" cy="60.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="93.0" cy="28.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="92.8" cy="175.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="100.7" cy="55.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="69.3" cy="170.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="76.9" cy="182.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="75.7" cy="48.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="95.6" cy="40.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="114.4" cy="181.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="85.6" cy="183.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="96.2" cy="183.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="99.2" cy="170.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="110.6" cy="46.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="86.8" cy="45.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.9" cy="159.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="103.5" cy="184.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="99.1" cy="157.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="71.8" cy="56.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="69.7" cy="185.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="83.3" cy="26.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="90.0" cy="163.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="81.6" cy="176.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="104.1" cy="76.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="114.2" cy="105.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.8" cy="47.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="115.3" cy="137.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="110.4" cy="145.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="98.6" cy="177.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="87.5" cy="53.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="100.6" cy="27.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="67.5" cy="26.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="79.4" cy="36.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.8" cy="167.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="98.0" cy="47.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="86.0" cy="31.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="82.3" cy="59.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="111.2" cy="187.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="105.5" cy="40.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="100.9" cy="34.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="111.1" cy="175.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="113.5" cy="97.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="100.8" cy="142.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="75.4" cy="41.0" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="112.6" cy="120.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="94.0" cy="56.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="106.0" cy="135.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="95.3" cy="147.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="90.2" cy="150.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.6" cy="173.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="115.9" cy="54.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.5" cy="85.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="68.3" cy="39.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="109.9" cy="25.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="104.5" cy="47.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="75.3" cy="173.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="81.9" cy="188.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="105.0" cy="172.1" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="104.1" cy="148.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="96.6" cy="163.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="94.8" cy="189.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="108.2" cy="83.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.2" cy="67.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="114.1" cy="114.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="69.1" cy="164.3" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="91.8" cy="156.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="115.7" cy="130.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="83.6" cy="160.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="83.0" cy="154.4" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.4" cy="78.2" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="88.4" cy="171.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="71.1" cy="157.8" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="91.7" cy="64.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="87.8" cy="189.6" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="111.0" cy="88.7" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="116.6" cy="142.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="81.7" cy="49.9" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="77.0" cy="156.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="93.4" cy="168.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <ellipse cx="87.0" cy="177.5" rx="1.5" ry="1.5" fill="#B6D7A8" stroke="#B6D7A8" stroke-width="0.0"></ellipse>
+    <line x1="219.5" y1="67.0" x2="256.2" y2="67.0" stroke="#000000" stroke-width="1.0"></line>
+    <line x1="219.5" y1="144.4" x2="256.2" y2="144.4" stroke="#000000" stroke-width="1.0"></line>
+    <rect x="5.7" y="21.2" width="114.6" height="171.9" rx="0.0" fill="none" stroke="#002B5B" stroke-width="1.4"></rect>
+    <ellipse cx="63.0" cy="107.2" rx="54.4" ry="54.4" fill="none" stroke="#002B5B" stroke-width="1.6"></ellipse>
     <text x="34.4" y="14.8" font-size="8.0" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">losses (35)</text>
     <text x="91.7" y="14.8" font-size="8.0" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">wins (106)</text>
     <text x="212.1" y="69.5" font-size="10.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="end">Precision =</text>
@@ -1879,7 +1890,7 @@ z
   <h2 data-b="wooq2">Classification Reports</h2>
   <p data-b="lgd1s">In sklearn, <span class="mono">cross_val_predict</span> gives each game's prediction from the model that didn't see it (the same five folds as <span class="mono">cross_val_score</span>), and <span class="mono">classification_report</span> prints precision, recall and F1 with each class taking a turn as the positive one (<span class="mono">1 - games["win"]</span> makes a loss the <span class="num">1</span>):</p>
   <b-code lang="python" files="https://ai.williamtheisen.com/static/data/ai2ai/nd_football.csv" marks="6:28-49:gold 15:6-27:gold" data-pool="pool-n5zwzj" data-b="jrv0a"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div></div><div class="src"><div class="ln"><span class="kw">import</span> pandas <span class="kw">as</span> pd</div><div class="ln"></div><div class="ln"><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression</div><div class="ln"></div><div class="ln"><span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_predict</div><div class="ln"><span class="kw">from</span> sklearn.metrics <span class="kw">import</span> <mark class="gold">classification_report</mark></div><div class="ln"></div><div class="ln">games = pd.read_csv(<span class="st">"nd_football.csv"</span>)</div><div class="ln">X = games[[<span class="st">"nd_total_yards"</span>, <span class="st">"opp_total_yards"</span>]] / <span class="nu">100</span></div><div class="ln">y = <span class="nu">1</span> - games[<span class="st">"win"</span>]   <span class="cm"># a loss is our positive class</span></div><div class="ln"></div><div class="ln">model = LogisticRegression(C=<span class="nu">1e9</span>)</div><div class="ln">pred = cross_val_predict(model, X, y, cv=<span class="nu">5</span>)</div><div class="ln"></div><div class="ln"><span class="bi">print</span>(<mark class="gold">classification_report</mark>(y, pred, digits=<span class="nu">3</span>,</div><div class="ln">                            target_names=[<span class="st">"win"</span>, <span class="st">"loss"</span>]))</div></div></b-code>
-  <b-out data-pool="pool-rik9z5" data-b="gqhmv"><div class="label">Output</div><pre>              precision    recall  f1-score   support
+  <b-out data-b="gqhmv"><div class="label">Output</div><pre>              precision    recall  f1-score   support
 
          win      <span class="nu nn">0.861</span>     <span class="nu nn">0.934</span>     <span class="nu nn">0.896</span>       <span class="nu nn">106</span>
         <span class="cc red">loss</span>      <span class="nu nn">0.731</span>     <span class="nu nn">0.543</span>     <span class="nu nn">0.623</span>        <span class="nu nn">35</span>
@@ -1890,7 +1901,7 @@ weighted avg      <span class="nu nn">0.829</span>     <span class="nu nn">0.837
   <p data-b="twq6b">Our row is <span class="mono">loss</span>, and the <span class="mono">win</span> row is what we'd get with wins as the positive class.</p>
 <div class="foot" data-rt=""><span>Model Evaluation · Confusion Matrices</span><span>12</span></div></section>
 
-<section class="page" id="imbalanced" data-part="Imbalanced Datasets" data-view="reading" data-topic="imbalance" style="--gap: 15.3pt;">
+<section class="page" id="imbalanced" data-view="reading" data-topic="imbalance" data-part="Imbalanced Datasets" style="--gap: 15.3pt;">
   <h2 data-b="wrgmv">Imbalanced Datasets</h2>
   <p data-b="b2pgk">A dataset where one class is much rarer than the other is called an <b class="def">imbalanced dataset</b>, and ours, <span class="num">106</span> wins to <span class="num">35</span> losses, is one. A model fit to it learns that "win" is usually a safe answer, since being wrong about a loss only costs it one game in four.</p>
   <p data-b="bt3sw">One fix is to make each loss count for more while fitting. With class weights, each loss counts about three times as much as a win (<span class="num">106</span> to <span class="num">35</span>), so the two classes count the same in total. In sklearn that's <span class="mono">class_weight="balanced"</span>, and it moves the model's line toward the wins:</p>
@@ -2680,10 +2691,10 @@ L 233.96875 5.116406
   <p data-b="v6jtl">So every threshold gives a different confusion matrix, and <b class="take">raising recall costs precision</b>. Where to set it is a choice about which mistake we mind more, not something the data can decide for us.</p>
 <div class="foot" data-rt=""><span>Model Evaluation · Imbalanced Datasets</span><span>14</span></div></section>
 
-<section class="page" id="roc-curves" data-part="ROC and AUC" data-view="reading" data-topic="roc-auc" style="--gap: 22pt;">
+<section class="page" id="roc-curves" data-view="reading" data-topic="roc-auc" data-part="ROC and AUC" style="--gap: 22pt;">
   <h2 data-b="b2ith">ROC Curves</h2>
   <p data-b="eb4j4">Rather than pick one threshold, we can draw all of them. For each threshold, plot the share of losses called losses (the true positive rate, which is just recall) against the share of wins called losses (the false positive rate). Sliding the threshold from <span class="num">1</span> to <span class="num">0</span> traces a curve from the bottom left, where nothing is called a loss, to the top right:</p>
-  <b-fig src="fig/roc.svg" alt="ROC curves on unseen games for kNN (AUC 0.72), a depth-3 tree (0.74), logistic regression on yards (0.86) and logistic regression on 15 stats (0.91), above a dashed diagonal for random guessing" crop="0 0 18.3 0" data-b="q67vk" data-pool="roc" style="--ar: 1.937;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 313.73 162" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/roc.svg" alt="ROC curves on unseen games for kNN (AUC 0.72), a depth-3 tree (0.74), logistic regression on yards (0.86) and logistic regression on 15 stats (0.91), above a dashed diagonal for random guessing" crop="0 0 18.3 0" data-pool="roc" data-b="q67vk" style="--ar: 1.937;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 313.73 162" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -3077,10 +3088,10 @@ L 207.315644 87.812031
   <p data-b="z4yso">The loss is ranked higher in <span class="num">86.2%</span> of the <span class="num">3,710</span> pairs, exactly the AUC. So it measures how well a model sorts the games, not how well one threshold does.</p>
 <div class="foot" data-rt=""><span>Model Evaluation · ROC and AUC</span><span>17</span></div></section>
 
-<section class="page" id="k-fold" data-part="Grid Search" data-view="reading" data-topic="cross-validation">
+<section class="page" id="k-fold" data-view="reading" data-topic="cross-validation" data-part="Grid Search">
   <h2 data-b="tpizq">K-Fold Cross-Validation</h2>
   <p data-b="eemaj">Every "unseen games" number in this chapter comes from the same trick, the one we first used in k-Nearest Neighbors. We split our <span class="num">141</span> games into five groups, called folds, train on four of them and test on the fifth, then rotate until every fold has had its turn as the test set:</p>
-  <svg class="draw" viewBox="0 0 384 150" style="width: 92%" role="img" aria-label="Five rows, one per iteration, each splitting the data into five folds: the test fold (gold) moves one place to the right each iteration and the other four (blue) are used for training" data-b="h7nqc">
+  <svg class="draw" viewBox="0 0 384 150" role="img" aria-label="Five rows, one per iteration, each splitting the data into five folds: the test fold (gold) moves one place to the right each iteration and the other four (blue) are used for training" style="width: 92%" data-b="h7nqc">
     <defs></defs>
     <g id="kfold-h7nqc-s1">
       <rect x="109.6" y="2.1" width="42.3" height="23.2" rx="0.0" fill="#E1BF57" stroke="none"></rect>
@@ -3481,78 +3492,78 @@ z
 <section class="page" id="random-search" data-view="reading" data-topic="grid-search" style="--gap: 20.8pt;">
   <h2 data-b="sslk7">Random Search</h2>
   <p data-b="qgt9c">Grid search gets expensive quickly, since every hyperparameter we add multiplies the number of combinations. A decision tree has more settings than kNN, and trying <span class="num">8</span> depths, <span class="num">6</span> leaf sizes and <span class="num">5</span> split sizes is already <span class="num">240</span> trees, each trained five times. The usual alternative is <b class="def">random search</b>, which tries a fixed number of combinations picked at random:</p>
-  <svg class="draw" viewBox="0 0 384 185" style="width: 100%" role="img" aria-label="Grid search and random search side by side, nine trials each in a square of an important parameter (across) and an unimportant one (up). The grid's nine trials only use three values of the important parameter, random search's use nine. Above each square, accuracy along the important parameter has a single peak, and random search has a trial near it" data-b="in7xc">
+  <svg class="draw" viewBox="0 0 384 185" role="img" aria-label="Grid search and random search side by side, nine trials each in a square of an important parameter (across) and an unimportant one (up). The grid's nine trials only use three values of the important parameter, random search's use nine. Above each square, accuracy along the important parameter has a single peak, and random search has a trial near it" style="width: 100%" data-b="in7xc">
     <defs></defs>
-    <rect x="48.2" y="58.6" width="101.1" height="101.1" rx="0.0" fill="none" stroke="#002B5B" stroke-width="1.20"></rect>
-    <polygon points="48.2,49.7 48.2,54.6 48.7,54.6 49.2,54.6 49.7,54.6 50.2,54.6 50.7,54.6 51.2,54.6 51.7,54.6 52.2,54.6 52.7,54.6 53.2,54.6 53.8,54.6 54.3,54.6 54.8,54.6 55.3,54.6 55.8,54.6 56.3,54.6 56.8,54.6 57.3,54.6 57.8,54.6 58.3,54.6 58.8,54.6 59.3,54.6 59.9,54.6 60.4,54.6 60.9,54.6 61.4,54.6 61.9,54.6 62.4,54.6 62.9,54.6 63.4,54.6 63.9,54.6 64.4,54.6 64.9,54.6 65.4,54.6 65.9,54.6 66.5,54.6 67.0,54.6 67.5,54.6 68.0,54.6 68.5,54.6 69.0,54.6 69.5,54.6 70.0,54.6 70.5,54.6 71.0,54.6 71.5,54.6 72.0,54.6 72.6,54.6 73.1,54.6 73.6,54.6 74.1,54.6 74.6,54.6 75.1,54.6 75.6,54.6 76.1,54.6 76.6,54.6 77.1,54.6 77.6,54.6 78.1,54.6 78.6,54.6 79.2,54.6 79.7,54.6 80.2,54.6 80.7,54.6 81.2,54.6 81.7,54.6 82.2,54.6 82.7,54.6 83.2,54.6 83.7,54.6 84.2,54.6 84.7,54.6 85.3,54.6 85.8,54.6 86.3,54.6 86.8,54.6 87.3,54.6 87.8,54.6 88.3,54.6 88.8,54.6 89.3,54.6 89.8,54.6 90.3,54.6 90.8,54.6 91.3,54.6 91.9,54.6 92.4,54.6 92.9,54.6 93.4,54.6 93.9,54.6 94.4,54.6 94.9,54.6 95.4,54.6 95.9,54.6 96.4,54.6 96.9,54.6 97.4,54.6 98.0,54.6 98.5,54.6 99.0,54.6 99.5,54.6 100.0,54.6 100.5,54.6 101.0,54.6 101.5,54.6 102.0,54.6 102.5,54.6 103.0,54.6 103.5,54.6 104.0,54.6 104.6,54.6 105.1,54.6 105.6,54.6 106.1,54.6 106.6,54.6 107.1,54.6 107.6,54.6 108.1,54.6 108.6,54.6 109.1,54.6 109.6,54.6 110.1,54.6 110.7,54.6 111.2,54.6 111.7,54.6 112.2,54.6 112.7,54.6 113.2,54.6 113.7,54.6 114.2,54.6 114.7,54.6 115.2,54.6 115.7,54.6 116.2,54.6 116.7,54.6 117.3,54.6 117.8,54.6 118.3,54.6 118.8,54.6 119.3,54.6 119.8,54.6 120.3,54.6 120.8,54.6 121.3,54.6 121.8,54.6 122.3,54.6 122.8,54.6 123.4,54.6 123.9,54.6 124.4,54.6 124.9,54.6 125.4,54.6 125.9,54.6 126.4,54.6 126.9,54.6 127.4,54.6 127.9,54.6 128.4,54.6 128.9,54.6 129.4,54.6 130.0,54.6 130.5,54.6 131.0,54.6 131.5,54.6 132.0,54.6 132.5,54.6 133.0,54.6 133.5,54.6 134.0,54.6 134.5,54.6 135.0,54.6 135.5,54.6 136.1,54.6 136.6,54.6 137.1,54.6 137.6,54.6 138.1,54.6 138.6,54.6 139.1,54.6 139.6,54.6 140.1,54.6 140.6,54.6 141.1,54.6 141.6,54.6 142.1,54.6 142.7,54.6 143.2,54.6 143.7,54.6 144.2,54.6 144.7,54.6 145.2,54.6 145.7,54.6 146.2,54.6 146.7,54.6 147.2,54.6 147.7,54.6 148.2,54.6 148.8,54.6 149.3,54.6 149.3,49.7 149.3,49.7 148.8,49.7 148.2,49.7 147.7,49.7 147.2,49.7 146.7,49.7 146.2,49.7 145.7,49.7 145.2,49.7 144.7,49.7 144.2,49.7 143.7,49.7 143.2,49.7 142.7,49.7 142.1,49.7 141.6,49.7 141.1,49.7 140.6,49.7 140.1,49.7 139.6,49.6 139.1,49.6 138.6,49.6 138.1,49.6 137.6,49.5 137.1,49.5 136.6,49.5 136.1,49.4 135.5,49.4 135.0,49.3 134.5,49.2 134.0,49.1 133.5,49.0 133.0,48.9 132.5,48.7 132.0,48.6 131.5,48.4 131.0,48.2 130.5,48.0 130.0,47.7 129.4,47.4 128.9,47.1 128.4,46.8 127.9,46.4 127.4,46.0 126.9,45.5 126.4,45.1 125.9,44.5 125.4,44.0 124.9,43.4 124.4,42.7 123.9,42.1 123.4,41.4 122.8,40.6 122.3,39.8 121.8,39.0 121.3,38.2 120.8,37.4 120.3,36.5 119.8,35.7 119.3,34.8 118.8,33.9 118.3,33.1 117.8,32.2 117.3,31.4 116.7,30.6 116.2,29.8 115.7,29.1 115.2,28.4 114.7,27.8 114.2,27.3 113.7,26.8 113.2,26.4 112.7,26.0 112.2,25.8 111.7,25.6 111.2,25.5 110.7,25.5 110.1,25.6 109.6,25.7 109.1,26.0 108.6,26.3 108.1,26.7 107.6,27.1 107.1,27.7 106.6,28.3 106.1,28.9 105.6,29.7 105.1,30.4 104.6,31.2 104.0,32.0 103.5,32.9 103.0,33.7 102.5,34.6 102.0,35.5 101.5,36.3 101.0,37.2 100.5,38.0 100.0,38.9 99.5,39.7 99.0,40.4 98.5,41.2 98.0,41.9 97.4,42.6 96.9,43.2 96.4,43.8 95.9,44.4 95.4,44.9 94.9,45.4 94.4,45.9 93.9,46.3 93.4,46.7 92.9,47.0 92.4,47.4 91.9,47.6 91.3,47.9 90.8,48.1 90.3,48.3 89.8,48.5 89.3,48.7 88.8,48.8 88.3,49.0 87.8,49.1 87.3,49.2 86.8,49.3 86.3,49.3 85.8,49.4 85.3,49.5 84.7,49.5 84.2,49.5 83.7,49.6 83.2,49.6 82.7,49.6 82.2,49.6 81.7,49.7 81.2,49.7 80.7,49.7 80.2,49.7 79.7,49.7 79.2,49.7 78.6,49.7 78.1,49.7 77.6,49.7 77.1,49.7 76.6,49.7 76.1,49.7 75.6,49.7 75.1,49.7 74.6,49.7 74.1,49.7 73.6,49.7 73.1,49.7 72.6,49.7 72.0,49.7 71.5,49.7 71.0,49.7 70.5,49.7 70.0,49.7 69.5,49.7 69.0,49.7 68.5,49.7 68.0,49.7 67.5,49.7 67.0,49.7 66.5,49.7 65.9,49.7 65.4,49.7 64.9,49.7 64.4,49.7 63.9,49.7 63.4,49.7 62.9,49.7 62.4,49.7 61.9,49.7 61.4,49.7 60.9,49.7 60.4,49.7 59.9,49.7 59.3,49.7 58.8,49.7 58.3,49.7 57.8,49.7 57.3,49.7 56.8,49.7 56.3,49.7 55.8,49.7 55.3,49.7 54.8,49.7 54.3,49.7 53.8,49.7 53.2,49.7 52.7,49.7 52.2,49.7 51.7,49.7 51.2,49.7 50.7,49.7 50.2,49.7 49.7,49.7 49.2,49.7 48.7,49.7 48.2,49.7" fill="#CDDDC6" stroke="#CDDDC6" stroke-width="0.00"></polygon>
-    <polygon points="32.0,159.7 44.1,159.7 44.1,159.2 44.1,158.7 44.1,158.2 44.1,157.7 44.1,157.2 44.1,156.7 44.1,156.2 44.1,155.7 44.1,155.2 44.1,154.6 44.1,154.1 44.1,153.6 44.1,153.1 44.1,152.6 44.1,152.1 44.1,151.6 44.1,151.1 44.1,150.6 44.1,150.1 44.1,149.6 44.1,149.1 44.1,148.6 44.1,148.0 44.1,147.5 44.1,147.0 44.1,146.5 44.1,146.0 44.1,145.5 44.1,145.0 44.1,144.5 44.1,144.0 44.1,143.5 44.1,143.0 44.1,142.5 44.1,141.9 44.1,141.4 44.1,140.9 44.1,140.4 44.1,139.9 44.1,139.4 44.1,138.9 44.1,138.4 44.1,137.9 44.1,137.4 44.1,136.9 44.1,136.4 44.1,135.9 44.1,135.3 44.1,134.8 44.1,134.3 44.1,133.8 44.1,133.3 44.1,132.8 44.1,132.3 44.1,131.8 44.1,131.3 44.1,130.8 44.1,130.3 44.1,129.8 44.1,129.2 44.1,128.7 44.1,128.2 44.1,127.7 44.1,127.2 44.1,126.7 44.1,126.2 44.1,125.7 44.1,125.2 44.1,124.7 44.1,124.2 44.1,123.7 44.1,123.2 44.1,122.6 44.1,122.1 44.1,121.6 44.1,121.1 44.1,120.6 44.1,120.1 44.1,119.6 44.1,119.1 44.1,118.6 44.1,118.1 44.1,117.6 44.1,117.1 44.1,116.5 44.1,116.0 44.1,115.5 44.1,115.0 44.1,114.5 44.1,114.0 44.1,113.5 44.1,113.0 44.1,112.5 44.1,112.0 44.1,111.5 44.1,111.0 44.1,110.5 44.1,109.9 44.1,109.4 44.1,108.9 44.1,108.4 44.1,107.9 44.1,107.4 44.1,106.9 44.1,106.4 44.1,105.9 44.1,105.4 44.1,104.9 44.1,104.4 44.1,103.8 44.1,103.3 44.1,102.8 44.1,102.3 44.1,101.8 44.1,101.3 44.1,100.8 44.1,100.3 44.1,99.8 44.1,99.3 44.1,98.8 44.1,98.3 44.1,97.8 44.1,97.2 44.1,96.7 44.1,96.2 44.1,95.7 44.1,95.2 44.1,94.7 44.1,94.2 44.1,93.7 44.1,93.2 44.1,92.7 44.1,92.2 44.1,91.7 44.1,91.1 44.1,90.6 44.1,90.1 44.1,89.6 44.1,89.1 44.1,88.6 44.1,88.1 44.1,87.6 44.1,87.1 44.1,86.6 44.1,86.1 44.1,85.6 44.1,85.1 44.1,84.5 44.1,84.0 44.1,83.5 44.1,83.0 44.1,82.5 44.1,82.0 44.1,81.5 44.1,81.0 44.1,80.5 44.1,80.0 44.1,79.5 44.1,79.0 44.1,78.4 44.1,77.9 44.1,77.4 44.1,76.9 44.1,76.4 44.1,75.9 44.1,75.4 44.1,74.9 44.1,74.4 44.1,73.9 44.1,73.4 44.1,72.9 44.1,72.4 44.1,71.8 44.1,71.3 44.1,70.8 44.1,70.3 44.1,69.8 44.1,69.3 44.1,68.8 44.1,68.3 44.1,67.8 44.1,67.3 44.1,66.8 44.1,66.3 44.1,65.7 44.1,65.2 44.1,64.7 44.1,64.2 44.1,63.7 44.1,63.2 44.1,62.7 44.1,62.2 44.1,61.7 44.1,61.2 44.1,60.7 44.1,60.2 44.1,59.6 44.1,59.1 44.1,58.6 32.0,58.6 32.0,58.6 32.0,59.1 32.0,59.6 32.0,60.2 32.0,60.7 32.0,61.2 32.0,61.7 32.0,62.2 32.0,62.7 32.0,63.2 32.0,63.7 32.0,64.2 32.0,64.7 32.0,65.2 32.0,65.7 32.0,66.3 32.0,66.8 32.0,67.3 32.0,67.8 32.0,68.3 32.0,68.8 32.0,69.3 32.0,69.8 32.0,70.3 32.0,70.8 32.0,71.3 32.0,71.8 32.0,72.4 32.0,72.9 32.0,73.4 32.0,73.9 32.0,74.4 32.0,74.9 32.0,75.4 32.0,75.9 32.0,76.4 32.0,76.9 32.0,77.4 32.0,77.9 32.0,78.4 32.0,79.0 32.0,79.5 32.0,80.0 32.0,80.5 32.0,81.0 32.0,81.5 32.0,82.0 32.0,82.5 32.0,83.0 32.0,83.5 32.0,84.0 32.0,84.5 32.0,85.1 32.0,85.6 32.0,86.1 32.0,86.6 32.0,87.1 32.0,87.6 32.0,88.1 32.0,88.6 32.0,89.1 32.0,89.6 32.0,90.1 32.0,90.6 32.0,91.1 32.0,91.7 32.0,92.2 32.0,92.7 32.0,93.2 32.0,93.7 32.0,94.2 32.0,94.7 32.0,95.2 32.0,95.7 32.0,96.2 32.0,96.7 32.0,97.2 32.0,97.8 32.0,98.3 32.0,98.8 32.0,99.3 32.0,99.8 32.0,100.3 32.0,100.8 32.0,101.3 32.0,101.8 32.0,102.3 32.0,102.8 32.0,103.3 32.0,103.8 32.0,104.4 32.0,104.9 32.0,105.4 32.0,105.9 32.0,106.4 32.0,106.9 32.0,107.4 32.0,107.9 32.0,108.4 32.0,108.9 32.0,109.4 32.0,109.9 32.0,110.5 32.0,111.0 32.0,111.5 32.0,112.0 32.0,112.5 32.0,113.0 32.0,113.5 32.0,114.0 32.0,114.5 32.0,115.0 32.0,115.5 32.0,116.0 32.0,116.5 32.0,117.1 32.0,117.6 32.0,118.1 32.0,118.6 32.0,119.1 32.0,119.6 32.0,120.1 32.0,120.6 32.0,121.1 32.0,121.6 32.0,122.1 32.0,122.6 32.0,123.2 32.0,123.7 32.0,124.2 32.0,124.7 32.0,125.2 32.0,125.7 32.0,126.2 32.0,126.7 32.0,127.2 32.0,127.7 32.0,128.2 32.0,128.7 32.0,129.2 32.0,129.8 32.0,130.3 32.0,130.8 32.0,131.3 32.0,131.8 32.0,132.3 32.0,132.8 32.0,133.3 32.0,133.8 32.0,134.3 32.0,134.8 32.0,135.3 32.0,135.9 32.0,136.4 32.0,136.9 32.0,137.4 32.0,137.9 32.0,138.4 32.0,138.9 32.0,139.4 32.0,139.9 32.0,140.4 32.0,140.9 32.0,141.4 32.0,141.9 32.0,142.5 32.0,143.0 32.0,143.5 32.0,144.0 32.0,144.5 32.0,145.0 32.0,145.5 32.0,146.0 32.0,146.5 32.0,147.0 32.0,147.5 32.0,148.0 32.0,148.6 32.0,149.1 32.0,149.6 32.0,150.1 32.0,150.6 32.0,151.1 32.0,151.6 32.0,152.1 32.0,152.6 32.0,153.1 32.0,153.6 32.0,154.1 32.0,154.6 32.0,155.2 32.0,155.7 32.0,156.2 32.0,156.7 32.0,157.2 32.0,157.7 32.0,158.2 32.0,158.7 32.0,159.2 32.0,159.7" fill="#F4E8C4" stroke="#F4E8C4" stroke-width="0.00"></polygon>
-    <rect x="244.8" y="58.6" width="101.1" height="101.1" rx="0.0" fill="none" stroke="#002B5B" stroke-width="1.20"></rect>
-    <polygon points="244.8,49.7 244.8,54.6 245.4,54.6 245.9,54.6 246.4,54.6 246.9,54.6 247.4,54.6 247.9,54.6 248.4,54.6 248.9,54.6 249.4,54.6 249.9,54.6 250.4,54.6 250.9,54.6 251.5,54.6 252.0,54.6 252.5,54.6 253.0,54.6 253.5,54.6 254.0,54.6 254.5,54.6 255.0,54.6 255.5,54.6 256.0,54.6 256.5,54.6 257.0,54.6 257.5,54.6 258.1,54.6 258.6,54.6 259.1,54.6 259.6,54.6 260.1,54.6 260.6,54.6 261.1,54.6 261.6,54.6 262.1,54.6 262.6,54.6 263.1,54.6 263.6,54.6 264.2,54.6 264.7,54.6 265.2,54.6 265.7,54.6 266.2,54.6 266.7,54.6 267.2,54.6 267.7,54.6 268.2,54.6 268.7,54.6 269.2,54.6 269.7,54.6 270.2,54.6 270.8,54.6 271.3,54.6 271.8,54.6 272.3,54.6 272.8,54.6 273.3,54.6 273.8,54.6 274.3,54.6 274.8,54.6 275.3,54.6 275.8,54.6 276.3,54.6 276.9,54.6 277.4,54.6 277.9,54.6 278.4,54.6 278.9,54.6 279.4,54.6 279.9,54.6 280.4,54.6 280.9,54.6 281.4,54.6 281.9,54.6 282.4,54.6 282.9,54.6 283.5,54.6 284.0,54.6 284.5,54.6 285.0,54.6 285.5,54.6 286.0,54.6 286.5,54.6 287.0,54.6 287.5,54.6 288.0,54.6 288.5,54.6 289.0,54.6 289.6,54.6 290.1,54.6 290.6,54.6 291.1,54.6 291.6,54.6 292.1,54.6 292.6,54.6 293.1,54.6 293.6,54.6 294.1,54.6 294.6,54.6 295.1,54.6 295.7,54.6 296.2,54.6 296.7,54.6 297.2,54.6 297.7,54.6 298.2,54.6 298.7,54.6 299.2,54.6 299.7,54.6 300.2,54.6 300.7,54.6 301.2,54.6 301.7,54.6 302.3,54.6 302.8,54.6 303.3,54.6 303.8,54.6 304.3,54.6 304.8,54.6 305.3,54.6 305.8,54.6 306.3,54.6 306.8,54.6 307.3,54.6 307.8,54.6 308.4,54.6 308.9,54.6 309.4,54.6 309.9,54.6 310.4,54.6 310.9,54.6 311.4,54.6 311.9,54.6 312.4,54.6 312.9,54.6 313.4,54.6 313.9,54.6 314.4,54.6 315.0,54.6 315.5,54.6 316.0,54.6 316.5,54.6 317.0,54.6 317.5,54.6 318.0,54.6 318.5,54.6 319.0,54.6 319.5,54.6 320.0,54.6 320.5,54.6 321.1,54.6 321.6,54.6 322.1,54.6 322.6,54.6 323.1,54.6 323.6,54.6 324.1,54.6 324.6,54.6 325.1,54.6 325.6,54.6 326.1,54.6 326.6,54.6 327.1,54.6 327.7,54.6 328.2,54.6 328.7,54.6 329.2,54.6 329.7,54.6 330.2,54.6 330.7,54.6 331.2,54.6 331.7,54.6 332.2,54.6 332.7,54.6 333.2,54.6 333.8,54.6 334.3,54.6 334.8,54.6 335.3,54.6 335.8,54.6 336.3,54.6 336.8,54.6 337.3,54.6 337.8,54.6 338.3,54.6 338.8,54.6 339.3,54.6 339.8,54.6 340.4,54.6 340.9,54.6 341.4,54.6 341.9,54.6 342.4,54.6 342.9,54.6 343.4,54.6 343.9,54.6 344.4,54.6 344.9,54.6 345.4,54.6 345.9,54.6 345.9,49.7 345.9,49.7 345.4,49.7 344.9,49.7 344.4,49.7 343.9,49.7 343.4,49.7 342.9,49.7 342.4,49.7 341.9,49.7 341.4,49.7 340.9,49.7 340.4,49.7 339.8,49.7 339.3,49.7 338.8,49.7 338.3,49.7 337.8,49.7 337.3,49.7 336.8,49.7 336.3,49.6 335.8,49.6 335.3,49.6 334.8,49.6 334.3,49.5 333.8,49.5 333.2,49.5 332.7,49.4 332.2,49.4 331.7,49.3 331.2,49.2 330.7,49.1 330.2,49.0 329.7,48.9 329.2,48.7 328.7,48.6 328.2,48.4 327.7,48.2 327.1,48.0 326.6,47.7 326.1,47.4 325.6,47.1 325.1,46.8 324.6,46.4 324.1,46.0 323.6,45.5 323.1,45.1 322.6,44.5 322.1,44.0 321.6,43.4 321.1,42.7 320.5,42.1 320.0,41.4 319.5,40.6 319.0,39.8 318.5,39.0 318.0,38.2 317.5,37.4 317.0,36.5 316.5,35.7 316.0,34.8 315.5,33.9 315.0,33.1 314.4,32.2 313.9,31.4 313.4,30.6 312.9,29.8 312.4,29.1 311.9,28.4 311.4,27.8 310.9,27.3 310.4,26.8 309.9,26.4 309.4,26.0 308.9,25.8 308.4,25.6 307.8,25.5 307.3,25.5 306.8,25.6 306.3,25.7 305.8,26.0 305.3,26.3 304.8,26.7 304.3,27.1 303.8,27.7 303.3,28.3 302.8,28.9 302.3,29.7 301.7,30.4 301.2,31.2 300.7,32.0 300.2,32.9 299.7,33.7 299.2,34.6 298.7,35.5 298.2,36.3 297.7,37.2 297.2,38.0 296.7,38.9 296.2,39.7 295.7,40.4 295.1,41.2 294.6,41.9 294.1,42.6 293.6,43.2 293.1,43.8 292.6,44.4 292.1,44.9 291.6,45.4 291.1,45.9 290.6,46.3 290.1,46.7 289.6,47.0 289.0,47.4 288.5,47.6 288.0,47.9 287.5,48.1 287.0,48.3 286.5,48.5 286.0,48.7 285.5,48.8 285.0,49.0 284.5,49.1 284.0,49.2 283.5,49.3 282.9,49.3 282.4,49.4 281.9,49.5 281.4,49.5 280.9,49.5 280.4,49.6 279.9,49.6 279.4,49.6 278.9,49.6 278.4,49.7 277.9,49.7 277.4,49.7 276.9,49.7 276.3,49.7 275.8,49.7 275.3,49.7 274.8,49.7 274.3,49.7 273.8,49.7 273.3,49.7 272.8,49.7 272.3,49.7 271.8,49.7 271.3,49.7 270.8,49.7 270.2,49.7 269.7,49.7 269.2,49.7 268.7,49.7 268.2,49.7 267.7,49.7 267.2,49.7 266.7,49.7 266.2,49.7 265.7,49.7 265.2,49.7 264.7,49.7 264.2,49.7 263.6,49.7 263.1,49.7 262.6,49.7 262.1,49.7 261.6,49.7 261.1,49.7 260.6,49.7 260.1,49.7 259.6,49.7 259.1,49.7 258.6,49.7 258.1,49.7 257.5,49.7 257.0,49.7 256.5,49.7 256.0,49.7 255.5,49.7 255.0,49.7 254.5,49.7 254.0,49.7 253.5,49.7 253.0,49.7 252.5,49.7 252.0,49.7 251.5,49.7 250.9,49.7 250.4,49.7 249.9,49.7 249.4,49.7 248.9,49.7 248.4,49.7 247.9,49.7 247.4,49.7 246.9,49.7 246.4,49.7 245.9,49.7 245.4,49.7 244.8,49.7" fill="#CDDDC6" stroke="#CDDDC6" stroke-width="0.00"></polygon>
-    <polygon points="228.7,159.7 240.8,159.7 240.8,159.2 240.8,158.7 240.8,158.2 240.8,157.7 240.8,157.2 240.8,156.7 240.8,156.2 240.8,155.7 240.8,155.2 240.8,154.6 240.8,154.1 240.8,153.6 240.8,153.1 240.8,152.6 240.8,152.1 240.8,151.6 240.8,151.1 240.8,150.6 240.8,150.1 240.8,149.6 240.8,149.1 240.8,148.6 240.8,148.0 240.8,147.5 240.8,147.0 240.8,146.5 240.8,146.0 240.8,145.5 240.8,145.0 240.8,144.5 240.8,144.0 240.8,143.5 240.8,143.0 240.8,142.5 240.8,141.9 240.8,141.4 240.8,140.9 240.8,140.4 240.8,139.9 240.8,139.4 240.8,138.9 240.8,138.4 240.8,137.9 240.8,137.4 240.8,136.9 240.8,136.4 240.8,135.9 240.8,135.3 240.8,134.8 240.8,134.3 240.8,133.8 240.8,133.3 240.8,132.8 240.8,132.3 240.8,131.8 240.8,131.3 240.8,130.8 240.8,130.3 240.8,129.8 240.8,129.2 240.8,128.7 240.8,128.2 240.8,127.7 240.8,127.2 240.8,126.7 240.8,126.2 240.8,125.7 240.8,125.2 240.8,124.7 240.8,124.2 240.8,123.7 240.8,123.2 240.8,122.6 240.8,122.1 240.8,121.6 240.8,121.1 240.8,120.6 240.8,120.1 240.8,119.6 240.8,119.1 240.8,118.6 240.8,118.1 240.8,117.6 240.8,117.1 240.8,116.5 240.8,116.0 240.8,115.5 240.8,115.0 240.8,114.5 240.8,114.0 240.8,113.5 240.8,113.0 240.8,112.5 240.8,112.0 240.8,111.5 240.8,111.0 240.8,110.5 240.8,109.9 240.8,109.4 240.8,108.9 240.8,108.4 240.8,107.9 240.8,107.4 240.8,106.9 240.8,106.4 240.8,105.9 240.8,105.4 240.8,104.9 240.8,104.4 240.8,103.8 240.8,103.3 240.8,102.8 240.8,102.3 240.8,101.8 240.8,101.3 240.8,100.8 240.8,100.3 240.8,99.8 240.8,99.3 240.8,98.8 240.8,98.3 240.8,97.8 240.8,97.2 240.8,96.7 240.8,96.2 240.8,95.7 240.8,95.2 240.8,94.7 240.8,94.2 240.8,93.7 240.8,93.2 240.8,92.7 240.8,92.2 240.8,91.7 240.8,91.1 240.8,90.6 240.8,90.1 240.8,89.6 240.8,89.1 240.8,88.6 240.8,88.1 240.8,87.6 240.8,87.1 240.8,86.6 240.8,86.1 240.8,85.6 240.8,85.1 240.8,84.5 240.8,84.0 240.8,83.5 240.8,83.0 240.8,82.5 240.8,82.0 240.8,81.5 240.8,81.0 240.8,80.5 240.8,80.0 240.8,79.5 240.8,79.0 240.8,78.4 240.8,77.9 240.8,77.4 240.8,76.9 240.8,76.4 240.8,75.9 240.8,75.4 240.8,74.9 240.8,74.4 240.8,73.9 240.8,73.4 240.8,72.9 240.8,72.4 240.8,71.8 240.8,71.3 240.8,70.8 240.8,70.3 240.8,69.8 240.8,69.3 240.8,68.8 240.8,68.3 240.8,67.8 240.8,67.3 240.8,66.8 240.8,66.3 240.8,65.7 240.8,65.2 240.8,64.7 240.8,64.2 240.8,63.7 240.8,63.2 240.8,62.7 240.8,62.2 240.8,61.7 240.8,61.2 240.8,60.7 240.8,60.2 240.8,59.6 240.8,59.1 240.8,58.6 228.7,58.6 228.7,58.6 228.7,59.1 228.7,59.6 228.7,60.2 228.7,60.7 228.7,61.2 228.7,61.7 228.7,62.2 228.7,62.7 228.7,63.2 228.7,63.7 228.7,64.2 228.7,64.7 228.7,65.2 228.7,65.7 228.7,66.3 228.7,66.8 228.7,67.3 228.7,67.8 228.7,68.3 228.7,68.8 228.7,69.3 228.7,69.8 228.7,70.3 228.7,70.8 228.7,71.3 228.7,71.8 228.7,72.4 228.7,72.9 228.7,73.4 228.7,73.9 228.7,74.4 228.7,74.9 228.7,75.4 228.7,75.9 228.7,76.4 228.7,76.9 228.7,77.4 228.7,77.9 228.7,78.4 228.7,79.0 228.7,79.5 228.7,80.0 228.7,80.5 228.7,81.0 228.7,81.5 228.7,82.0 228.7,82.5 228.7,83.0 228.7,83.5 228.7,84.0 228.7,84.5 228.7,85.1 228.7,85.6 228.7,86.1 228.7,86.6 228.7,87.1 228.7,87.6 228.7,88.1 228.7,88.6 228.7,89.1 228.7,89.6 228.7,90.1 228.7,90.6 228.7,91.1 228.7,91.7 228.7,92.2 228.7,92.7 228.7,93.2 228.7,93.7 228.7,94.2 228.7,94.7 228.7,95.2 228.7,95.7 228.7,96.2 228.7,96.7 228.7,97.2 228.7,97.8 228.7,98.3 228.7,98.8 228.7,99.3 228.7,99.8 228.7,100.3 228.7,100.8 228.7,101.3 228.7,101.8 228.7,102.3 228.7,102.8 228.7,103.3 228.7,103.8 228.7,104.4 228.7,104.9 228.7,105.4 228.7,105.9 228.7,106.4 228.7,106.9 228.7,107.4 228.7,107.9 228.7,108.4 228.7,108.9 228.7,109.4 228.7,109.9 228.7,110.5 228.7,111.0 228.7,111.5 228.7,112.0 228.7,112.5 228.7,113.0 228.7,113.5 228.7,114.0 228.7,114.5 228.7,115.0 228.7,115.5 228.7,116.0 228.7,116.5 228.7,117.1 228.7,117.6 228.7,118.1 228.7,118.6 228.7,119.1 228.7,119.6 228.7,120.1 228.7,120.6 228.7,121.1 228.7,121.6 228.7,122.1 228.7,122.6 228.7,123.2 228.7,123.7 228.7,124.2 228.7,124.7 228.7,125.2 228.7,125.7 228.7,126.2 228.7,126.7 228.7,127.2 228.7,127.7 228.7,128.2 228.7,128.7 228.7,129.2 228.7,129.8 228.7,130.3 228.7,130.8 228.7,131.3 228.7,131.8 228.7,132.3 228.7,132.8 228.7,133.3 228.7,133.8 228.7,134.3 228.7,134.8 228.7,135.3 228.7,135.9 228.7,136.4 228.7,136.9 228.7,137.4 228.7,137.9 228.7,138.4 228.7,138.9 228.7,139.4 228.7,139.9 228.7,140.4 228.7,140.9 228.7,141.4 228.7,141.9 228.7,142.5 228.7,143.0 228.7,143.5 228.7,144.0 228.7,144.5 228.7,145.0 228.7,145.5 228.7,146.0 228.7,146.5 228.7,147.0 228.7,147.5 228.7,148.0 228.7,148.6 228.7,149.1 228.7,149.6 228.7,150.1 228.7,150.6 228.7,151.1 228.7,151.6 228.7,152.1 228.7,152.6 228.7,153.1 228.7,153.6 228.7,154.1 228.7,154.6 228.7,155.2 228.7,155.7 228.7,156.2 228.7,156.7 228.7,157.2 228.7,157.7 228.7,158.2 228.7,158.7 228.7,159.2 228.7,159.7" fill="#F4E8C4" stroke="#F4E8C4" stroke-width="0.00"></polygon>
-    <polyline points="48.2,49.7 48.7,49.7 49.2,49.7 49.7,49.7 50.2,49.7 50.7,49.7 51.2,49.7 51.7,49.7 52.2,49.7 52.7,49.7 53.2,49.7 53.8,49.7 54.3,49.7 54.8,49.7 55.3,49.7 55.8,49.7 56.3,49.7 56.8,49.7 57.3,49.7 57.8,49.7 58.3,49.7 58.8,49.7 59.3,49.7 59.9,49.7 60.4,49.7 60.9,49.7 61.4,49.7 61.9,49.7 62.4,49.7 62.9,49.7 63.4,49.7 63.9,49.7 64.4,49.7 64.9,49.7 65.4,49.7 65.9,49.7 66.5,49.7 67.0,49.7 67.5,49.7 68.0,49.7 68.5,49.7 69.0,49.7 69.5,49.7 70.0,49.7 70.5,49.7 71.0,49.7 71.5,49.7 72.0,49.7 72.6,49.7 73.1,49.7 73.6,49.7 74.1,49.7 74.6,49.7 75.1,49.7 75.6,49.7 76.1,49.7 76.6,49.7 77.1,49.7 77.6,49.7 78.1,49.7 78.6,49.7 79.2,49.7 79.7,49.7 80.2,49.7 80.7,49.7 81.2,49.7 81.7,49.7 82.2,49.6 82.7,49.6 83.2,49.6 83.7,49.6 84.2,49.5 84.7,49.5 85.3,49.5 85.8,49.4 86.3,49.3 86.8,49.3 87.3,49.2 87.8,49.1 88.3,49.0 88.8,48.8 89.3,48.7 89.8,48.5 90.3,48.3 90.8,48.1 91.3,47.9 91.9,47.6 92.4,47.4 92.9,47.0 93.4,46.7 93.9,46.3 94.4,45.9 94.9,45.4 95.4,44.9 95.9,44.4 96.4,43.8 96.9,43.2 97.4,42.6 98.0,41.9 98.5,41.2 99.0,40.4 99.5,39.7 100.0,38.9 100.5,38.0 101.0,37.2 101.5,36.3 102.0,35.5 102.5,34.6 103.0,33.7 103.5,32.9 104.0,32.0 104.6,31.2 105.1,30.4 105.6,29.7 106.1,28.9 106.6,28.3 107.1,27.7 107.6,27.1 108.1,26.7 108.6,26.3 109.1,26.0 109.6,25.7 110.1,25.6 110.7,25.5 111.2,25.5 111.7,25.6 112.2,25.8 112.7,26.0 113.2,26.4 113.7,26.8 114.2,27.3 114.7,27.8 115.2,28.4 115.7,29.1 116.2,29.8 116.7,30.6 117.3,31.4 117.8,32.2 118.3,33.1 118.8,33.9 119.3,34.8 119.8,35.7 120.3,36.5 120.8,37.4 121.3,38.2 121.8,39.0 122.3,39.8 122.8,40.6 123.4,41.4 123.9,42.1 124.4,42.7 124.9,43.4 125.4,44.0 125.9,44.5 126.4,45.1 126.9,45.5 127.4,46.0 127.9,46.4 128.4,46.8 128.9,47.1 129.4,47.4 130.0,47.7 130.5,48.0 131.0,48.2 131.5,48.4 132.0,48.6 132.5,48.7 133.0,48.9 133.5,49.0 134.0,49.1 134.5,49.2 135.0,49.3 135.5,49.4 136.1,49.4 136.6,49.5 137.1,49.5 137.6,49.5 138.1,49.6 138.6,49.6 139.1,49.6 139.6,49.6 140.1,49.7 140.6,49.7 141.1,49.7 141.6,49.7 142.1,49.7 142.7,49.7 143.2,49.7 143.7,49.7 144.2,49.7 144.7,49.7 145.2,49.7 145.7,49.7 146.2,49.7 146.7,49.7 147.2,49.7 147.7,49.7 148.2,49.7 148.8,49.7 149.3,49.7" fill="none" stroke="#38761D" stroke-width="1.00"></polyline>
-    <line x1="68.4" y1="139.5" x2="68.4" y2="49.7" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="68.4" y1="109.2" x2="68.4" y2="49.7" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="68.4" y1="78.9" x2="68.4" y2="49.7" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="98.7" y1="139.5" x2="98.7" y2="40.8" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="98.7" y1="109.2" x2="98.7" y2="40.8" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="98.7" y1="78.9" x2="98.7" y2="40.8" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="129.0" y1="139.5" x2="129.0" y2="47.2" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="129.0" y1="109.2" x2="129.0" y2="47.2" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="129.0" y1="78.9" x2="129.0" y2="47.2" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <polyline points="244.8,49.7 245.4,49.7 245.9,49.7 246.4,49.7 246.9,49.7 247.4,49.7 247.9,49.7 248.4,49.7 248.9,49.7 249.4,49.7 249.9,49.7 250.4,49.7 250.9,49.7 251.5,49.7 252.0,49.7 252.5,49.7 253.0,49.7 253.5,49.7 254.0,49.7 254.5,49.7 255.0,49.7 255.5,49.7 256.0,49.7 256.5,49.7 257.0,49.7 257.5,49.7 258.1,49.7 258.6,49.7 259.1,49.7 259.6,49.7 260.1,49.7 260.6,49.7 261.1,49.7 261.6,49.7 262.1,49.7 262.6,49.7 263.1,49.7 263.6,49.7 264.2,49.7 264.7,49.7 265.2,49.7 265.7,49.7 266.2,49.7 266.7,49.7 267.2,49.7 267.7,49.7 268.2,49.7 268.7,49.7 269.2,49.7 269.7,49.7 270.2,49.7 270.8,49.7 271.3,49.7 271.8,49.7 272.3,49.7 272.8,49.7 273.3,49.7 273.8,49.7 274.3,49.7 274.8,49.7 275.3,49.7 275.8,49.7 276.3,49.7 276.9,49.7 277.4,49.7 277.9,49.7 278.4,49.7 278.9,49.6 279.4,49.6 279.9,49.6 280.4,49.6 280.9,49.5 281.4,49.5 281.9,49.5 282.4,49.4 282.9,49.3 283.5,49.3 284.0,49.2 284.5,49.1 285.0,49.0 285.5,48.8 286.0,48.7 286.5,48.5 287.0,48.3 287.5,48.1 288.0,47.9 288.5,47.6 289.0,47.4 289.6,47.0 290.1,46.7 290.6,46.3 291.1,45.9 291.6,45.4 292.1,44.9 292.6,44.4 293.1,43.8 293.6,43.2 294.1,42.6 294.6,41.9 295.1,41.2 295.7,40.4 296.2,39.7 296.7,38.9 297.2,38.0 297.7,37.2 298.2,36.3 298.7,35.5 299.2,34.6 299.7,33.7 300.2,32.9 300.7,32.0 301.2,31.2 301.7,30.4 302.3,29.7 302.8,28.9 303.3,28.3 303.8,27.7 304.3,27.1 304.8,26.7 305.3,26.3 305.8,26.0 306.3,25.7 306.8,25.6 307.3,25.5 307.8,25.5 308.4,25.6 308.9,25.8 309.4,26.0 309.9,26.4 310.4,26.8 310.9,27.3 311.4,27.8 311.9,28.4 312.4,29.1 312.9,29.8 313.4,30.6 313.9,31.4 314.4,32.2 315.0,33.1 315.5,33.9 316.0,34.8 316.5,35.7 317.0,36.5 317.5,37.4 318.0,38.2 318.5,39.0 319.0,39.8 319.5,40.6 320.0,41.4 320.5,42.1 321.1,42.7 321.6,43.4 322.1,44.0 322.6,44.5 323.1,45.1 323.6,45.5 324.1,46.0 324.6,46.4 325.1,46.8 325.6,47.1 326.1,47.4 326.6,47.7 327.1,48.0 327.7,48.2 328.2,48.4 328.7,48.6 329.2,48.7 329.7,48.9 330.2,49.0 330.7,49.1 331.2,49.2 331.7,49.3 332.2,49.4 332.7,49.4 333.2,49.5 333.8,49.5 334.3,49.5 334.8,49.6 335.3,49.6 335.8,49.6 336.3,49.6 336.8,49.7 337.3,49.7 337.8,49.7 338.3,49.7 338.8,49.7 339.3,49.7 339.8,49.7 340.4,49.7 340.9,49.7 341.4,49.7 341.9,49.7 342.4,49.7 342.9,49.7 343.4,49.7 343.9,49.7 344.4,49.7 344.9,49.7 345.4,49.7 345.9,49.7" fill="none" stroke="#38761D" stroke-width="1.00"></polyline>
-    <line x1="260.2" y1="131.5" x2="260.2" y2="49.7" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="321.0" y1="102.2" x2="321.0" y2="42.6" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="260.9" y1="114.9" x2="260.9" y2="49.7" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="293.6" y1="138.1" x2="293.6" y2="43.2" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="315.3" y1="142.0" x2="315.3" y2="33.7" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="286.2" y1="107.8" x2="286.2" y2="48.6" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="289.5" y1="101.8" x2="289.5" y2="47.1" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="315.6" y1="70.4" x2="315.6" y2="34.1" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <line x1="277.1" y1="96.6" x2="277.1" y2="49.7" stroke="#9AA5B1" stroke-width="0.60" stroke-dasharray="1.2 1.2"></line>
-    <ellipse cx="68.4" cy="139.5" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="68.4" cy="109.2" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="68.4" cy="78.9" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="98.7" cy="139.5" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="98.7" cy="109.2" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="98.7" cy="78.9" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="129.0" cy="139.5" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="129.0" cy="109.2" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="129.0" cy="78.9" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
+    <rect x="48.2" y="58.6" width="101.1" height="101.1" rx="0.0" fill="none" stroke="#002B5B" stroke-width="1.2"></rect>
+    <polygon points="48.2,49.7 48.2,54.6 48.7,54.6 49.2,54.6 49.7,54.6 50.2,54.6 50.7,54.6 51.2,54.6 51.7,54.6 52.2,54.6 52.7,54.6 53.2,54.6 53.8,54.6 54.3,54.6 54.8,54.6 55.3,54.6 55.8,54.6 56.3,54.6 56.8,54.6 57.3,54.6 57.8,54.6 58.3,54.6 58.8,54.6 59.3,54.6 59.9,54.6 60.4,54.6 60.9,54.6 61.4,54.6 61.9,54.6 62.4,54.6 62.9,54.6 63.4,54.6 63.9,54.6 64.4,54.6 64.9,54.6 65.4,54.6 65.9,54.6 66.5,54.6 67.0,54.6 67.5,54.6 68.0,54.6 68.5,54.6 69.0,54.6 69.5,54.6 70.0,54.6 70.5,54.6 71.0,54.6 71.5,54.6 72.0,54.6 72.6,54.6 73.1,54.6 73.6,54.6 74.1,54.6 74.6,54.6 75.1,54.6 75.6,54.6 76.1,54.6 76.6,54.6 77.1,54.6 77.6,54.6 78.1,54.6 78.6,54.6 79.2,54.6 79.7,54.6 80.2,54.6 80.7,54.6 81.2,54.6 81.7,54.6 82.2,54.6 82.7,54.6 83.2,54.6 83.7,54.6 84.2,54.6 84.7,54.6 85.3,54.6 85.8,54.6 86.3,54.6 86.8,54.6 87.3,54.6 87.8,54.6 88.3,54.6 88.8,54.6 89.3,54.6 89.8,54.6 90.3,54.6 90.8,54.6 91.3,54.6 91.9,54.6 92.4,54.6 92.9,54.6 93.4,54.6 93.9,54.6 94.4,54.6 94.9,54.6 95.4,54.6 95.9,54.6 96.4,54.6 96.9,54.6 97.4,54.6 98.0,54.6 98.5,54.6 99.0,54.6 99.5,54.6 100.0,54.6 100.5,54.6 101.0,54.6 101.5,54.6 102.0,54.6 102.5,54.6 103.0,54.6 103.5,54.6 104.0,54.6 104.6,54.6 105.1,54.6 105.6,54.6 106.1,54.6 106.6,54.6 107.1,54.6 107.6,54.6 108.1,54.6 108.6,54.6 109.1,54.6 109.6,54.6 110.1,54.6 110.7,54.6 111.2,54.6 111.7,54.6 112.2,54.6 112.7,54.6 113.2,54.6 113.7,54.6 114.2,54.6 114.7,54.6 115.2,54.6 115.7,54.6 116.2,54.6 116.7,54.6 117.3,54.6 117.8,54.6 118.3,54.6 118.8,54.6 119.3,54.6 119.8,54.6 120.3,54.6 120.8,54.6 121.3,54.6 121.8,54.6 122.3,54.6 122.8,54.6 123.4,54.6 123.9,54.6 124.4,54.6 124.9,54.6 125.4,54.6 125.9,54.6 126.4,54.6 126.9,54.6 127.4,54.6 127.9,54.6 128.4,54.6 128.9,54.6 129.4,54.6 130.0,54.6 130.5,54.6 131.0,54.6 131.5,54.6 132.0,54.6 132.5,54.6 133.0,54.6 133.5,54.6 134.0,54.6 134.5,54.6 135.0,54.6 135.5,54.6 136.1,54.6 136.6,54.6 137.1,54.6 137.6,54.6 138.1,54.6 138.6,54.6 139.1,54.6 139.6,54.6 140.1,54.6 140.6,54.6 141.1,54.6 141.6,54.6 142.1,54.6 142.7,54.6 143.2,54.6 143.7,54.6 144.2,54.6 144.7,54.6 145.2,54.6 145.7,54.6 146.2,54.6 146.7,54.6 147.2,54.6 147.7,54.6 148.2,54.6 148.8,54.6 149.3,54.6 149.3,49.7 149.3,49.7 148.8,49.7 148.2,49.7 147.7,49.7 147.2,49.7 146.7,49.7 146.2,49.7 145.7,49.7 145.2,49.7 144.7,49.7 144.2,49.7 143.7,49.7 143.2,49.7 142.7,49.7 142.1,49.7 141.6,49.7 141.1,49.7 140.6,49.7 140.1,49.7 139.6,49.6 139.1,49.6 138.6,49.6 138.1,49.6 137.6,49.5 137.1,49.5 136.6,49.5 136.1,49.4 135.5,49.4 135.0,49.3 134.5,49.2 134.0,49.1 133.5,49.0 133.0,48.9 132.5,48.7 132.0,48.6 131.5,48.4 131.0,48.2 130.5,48.0 130.0,47.7 129.4,47.4 128.9,47.1 128.4,46.8 127.9,46.4 127.4,46.0 126.9,45.5 126.4,45.1 125.9,44.5 125.4,44.0 124.9,43.4 124.4,42.7 123.9,42.1 123.4,41.4 122.8,40.6 122.3,39.8 121.8,39.0 121.3,38.2 120.8,37.4 120.3,36.5 119.8,35.7 119.3,34.8 118.8,33.9 118.3,33.1 117.8,32.2 117.3,31.4 116.7,30.6 116.2,29.8 115.7,29.1 115.2,28.4 114.7,27.8 114.2,27.3 113.7,26.8 113.2,26.4 112.7,26.0 112.2,25.8 111.7,25.6 111.2,25.5 110.7,25.5 110.1,25.6 109.6,25.7 109.1,26.0 108.6,26.3 108.1,26.7 107.6,27.1 107.1,27.7 106.6,28.3 106.1,28.9 105.6,29.7 105.1,30.4 104.6,31.2 104.0,32.0 103.5,32.9 103.0,33.7 102.5,34.6 102.0,35.5 101.5,36.3 101.0,37.2 100.5,38.0 100.0,38.9 99.5,39.7 99.0,40.4 98.5,41.2 98.0,41.9 97.4,42.6 96.9,43.2 96.4,43.8 95.9,44.4 95.4,44.9 94.9,45.4 94.4,45.9 93.9,46.3 93.4,46.7 92.9,47.0 92.4,47.4 91.9,47.6 91.3,47.9 90.8,48.1 90.3,48.3 89.8,48.5 89.3,48.7 88.8,48.8 88.3,49.0 87.8,49.1 87.3,49.2 86.8,49.3 86.3,49.3 85.8,49.4 85.3,49.5 84.7,49.5 84.2,49.5 83.7,49.6 83.2,49.6 82.7,49.6 82.2,49.6 81.7,49.7 81.2,49.7 80.7,49.7 80.2,49.7 79.7,49.7 79.2,49.7 78.6,49.7 78.1,49.7 77.6,49.7 77.1,49.7 76.6,49.7 76.1,49.7 75.6,49.7 75.1,49.7 74.6,49.7 74.1,49.7 73.6,49.7 73.1,49.7 72.6,49.7 72.0,49.7 71.5,49.7 71.0,49.7 70.5,49.7 70.0,49.7 69.5,49.7 69.0,49.7 68.5,49.7 68.0,49.7 67.5,49.7 67.0,49.7 66.5,49.7 65.9,49.7 65.4,49.7 64.9,49.7 64.4,49.7 63.9,49.7 63.4,49.7 62.9,49.7 62.4,49.7 61.9,49.7 61.4,49.7 60.9,49.7 60.4,49.7 59.9,49.7 59.3,49.7 58.8,49.7 58.3,49.7 57.8,49.7 57.3,49.7 56.8,49.7 56.3,49.7 55.8,49.7 55.3,49.7 54.8,49.7 54.3,49.7 53.8,49.7 53.2,49.7 52.7,49.7 52.2,49.7 51.7,49.7 51.2,49.7 50.7,49.7 50.2,49.7 49.7,49.7 49.2,49.7 48.7,49.7 48.2,49.7" fill="#CDDDC6" stroke="#CDDDC6" stroke-width="0.0"></polygon>
+    <polygon points="32.0,159.7 44.1,159.7 44.1,159.2 44.1,158.7 44.1,158.2 44.1,157.7 44.1,157.2 44.1,156.7 44.1,156.2 44.1,155.7 44.1,155.2 44.1,154.6 44.1,154.1 44.1,153.6 44.1,153.1 44.1,152.6 44.1,152.1 44.1,151.6 44.1,151.1 44.1,150.6 44.1,150.1 44.1,149.6 44.1,149.1 44.1,148.6 44.1,148.0 44.1,147.5 44.1,147.0 44.1,146.5 44.1,146.0 44.1,145.5 44.1,145.0 44.1,144.5 44.1,144.0 44.1,143.5 44.1,143.0 44.1,142.5 44.1,141.9 44.1,141.4 44.1,140.9 44.1,140.4 44.1,139.9 44.1,139.4 44.1,138.9 44.1,138.4 44.1,137.9 44.1,137.4 44.1,136.9 44.1,136.4 44.1,135.9 44.1,135.3 44.1,134.8 44.1,134.3 44.1,133.8 44.1,133.3 44.1,132.8 44.1,132.3 44.1,131.8 44.1,131.3 44.1,130.8 44.1,130.3 44.1,129.8 44.1,129.2 44.1,128.7 44.1,128.2 44.1,127.7 44.1,127.2 44.1,126.7 44.1,126.2 44.1,125.7 44.1,125.2 44.1,124.7 44.1,124.2 44.1,123.7 44.1,123.2 44.1,122.6 44.1,122.1 44.1,121.6 44.1,121.1 44.1,120.6 44.1,120.1 44.1,119.6 44.1,119.1 44.1,118.6 44.1,118.1 44.1,117.6 44.1,117.1 44.1,116.5 44.1,116.0 44.1,115.5 44.1,115.0 44.1,114.5 44.1,114.0 44.1,113.5 44.1,113.0 44.1,112.5 44.1,112.0 44.1,111.5 44.1,111.0 44.1,110.5 44.1,109.9 44.1,109.4 44.1,108.9 44.1,108.4 44.1,107.9 44.1,107.4 44.1,106.9 44.1,106.4 44.1,105.9 44.1,105.4 44.1,104.9 44.1,104.4 44.1,103.8 44.1,103.3 44.1,102.8 44.1,102.3 44.1,101.8 44.1,101.3 44.1,100.8 44.1,100.3 44.1,99.8 44.1,99.3 44.1,98.8 44.1,98.3 44.1,97.8 44.1,97.2 44.1,96.7 44.1,96.2 44.1,95.7 44.1,95.2 44.1,94.7 44.1,94.2 44.1,93.7 44.1,93.2 44.1,92.7 44.1,92.2 44.1,91.7 44.1,91.1 44.1,90.6 44.1,90.1 44.1,89.6 44.1,89.1 44.1,88.6 44.1,88.1 44.1,87.6 44.1,87.1 44.1,86.6 44.1,86.1 44.1,85.6 44.1,85.1 44.1,84.5 44.1,84.0 44.1,83.5 44.1,83.0 44.1,82.5 44.1,82.0 44.1,81.5 44.1,81.0 44.1,80.5 44.1,80.0 44.1,79.5 44.1,79.0 44.1,78.4 44.1,77.9 44.1,77.4 44.1,76.9 44.1,76.4 44.1,75.9 44.1,75.4 44.1,74.9 44.1,74.4 44.1,73.9 44.1,73.4 44.1,72.9 44.1,72.4 44.1,71.8 44.1,71.3 44.1,70.8 44.1,70.3 44.1,69.8 44.1,69.3 44.1,68.8 44.1,68.3 44.1,67.8 44.1,67.3 44.1,66.8 44.1,66.3 44.1,65.7 44.1,65.2 44.1,64.7 44.1,64.2 44.1,63.7 44.1,63.2 44.1,62.7 44.1,62.2 44.1,61.7 44.1,61.2 44.1,60.7 44.1,60.2 44.1,59.6 44.1,59.1 44.1,58.6 32.0,58.6 32.0,58.6 32.0,59.1 32.0,59.6 32.0,60.2 32.0,60.7 32.0,61.2 32.0,61.7 32.0,62.2 32.0,62.7 32.0,63.2 32.0,63.7 32.0,64.2 32.0,64.7 32.0,65.2 32.0,65.7 32.0,66.3 32.0,66.8 32.0,67.3 32.0,67.8 32.0,68.3 32.0,68.8 32.0,69.3 32.0,69.8 32.0,70.3 32.0,70.8 32.0,71.3 32.0,71.8 32.0,72.4 32.0,72.9 32.0,73.4 32.0,73.9 32.0,74.4 32.0,74.9 32.0,75.4 32.0,75.9 32.0,76.4 32.0,76.9 32.0,77.4 32.0,77.9 32.0,78.4 32.0,79.0 32.0,79.5 32.0,80.0 32.0,80.5 32.0,81.0 32.0,81.5 32.0,82.0 32.0,82.5 32.0,83.0 32.0,83.5 32.0,84.0 32.0,84.5 32.0,85.1 32.0,85.6 32.0,86.1 32.0,86.6 32.0,87.1 32.0,87.6 32.0,88.1 32.0,88.6 32.0,89.1 32.0,89.6 32.0,90.1 32.0,90.6 32.0,91.1 32.0,91.7 32.0,92.2 32.0,92.7 32.0,93.2 32.0,93.7 32.0,94.2 32.0,94.7 32.0,95.2 32.0,95.7 32.0,96.2 32.0,96.7 32.0,97.2 32.0,97.8 32.0,98.3 32.0,98.8 32.0,99.3 32.0,99.8 32.0,100.3 32.0,100.8 32.0,101.3 32.0,101.8 32.0,102.3 32.0,102.8 32.0,103.3 32.0,103.8 32.0,104.4 32.0,104.9 32.0,105.4 32.0,105.9 32.0,106.4 32.0,106.9 32.0,107.4 32.0,107.9 32.0,108.4 32.0,108.9 32.0,109.4 32.0,109.9 32.0,110.5 32.0,111.0 32.0,111.5 32.0,112.0 32.0,112.5 32.0,113.0 32.0,113.5 32.0,114.0 32.0,114.5 32.0,115.0 32.0,115.5 32.0,116.0 32.0,116.5 32.0,117.1 32.0,117.6 32.0,118.1 32.0,118.6 32.0,119.1 32.0,119.6 32.0,120.1 32.0,120.6 32.0,121.1 32.0,121.6 32.0,122.1 32.0,122.6 32.0,123.2 32.0,123.7 32.0,124.2 32.0,124.7 32.0,125.2 32.0,125.7 32.0,126.2 32.0,126.7 32.0,127.2 32.0,127.7 32.0,128.2 32.0,128.7 32.0,129.2 32.0,129.8 32.0,130.3 32.0,130.8 32.0,131.3 32.0,131.8 32.0,132.3 32.0,132.8 32.0,133.3 32.0,133.8 32.0,134.3 32.0,134.8 32.0,135.3 32.0,135.9 32.0,136.4 32.0,136.9 32.0,137.4 32.0,137.9 32.0,138.4 32.0,138.9 32.0,139.4 32.0,139.9 32.0,140.4 32.0,140.9 32.0,141.4 32.0,141.9 32.0,142.5 32.0,143.0 32.0,143.5 32.0,144.0 32.0,144.5 32.0,145.0 32.0,145.5 32.0,146.0 32.0,146.5 32.0,147.0 32.0,147.5 32.0,148.0 32.0,148.6 32.0,149.1 32.0,149.6 32.0,150.1 32.0,150.6 32.0,151.1 32.0,151.6 32.0,152.1 32.0,152.6 32.0,153.1 32.0,153.6 32.0,154.1 32.0,154.6 32.0,155.2 32.0,155.7 32.0,156.2 32.0,156.7 32.0,157.2 32.0,157.7 32.0,158.2 32.0,158.7 32.0,159.2 32.0,159.7" fill="#F4E8C4" stroke="#F4E8C4" stroke-width="0.0"></polygon>
+    <rect x="244.8" y="58.6" width="101.1" height="101.1" rx="0.0" fill="none" stroke="#002B5B" stroke-width="1.2"></rect>
+    <polygon points="244.8,49.7 244.8,54.6 245.4,54.6 245.9,54.6 246.4,54.6 246.9,54.6 247.4,54.6 247.9,54.6 248.4,54.6 248.9,54.6 249.4,54.6 249.9,54.6 250.4,54.6 250.9,54.6 251.5,54.6 252.0,54.6 252.5,54.6 253.0,54.6 253.5,54.6 254.0,54.6 254.5,54.6 255.0,54.6 255.5,54.6 256.0,54.6 256.5,54.6 257.0,54.6 257.5,54.6 258.1,54.6 258.6,54.6 259.1,54.6 259.6,54.6 260.1,54.6 260.6,54.6 261.1,54.6 261.6,54.6 262.1,54.6 262.6,54.6 263.1,54.6 263.6,54.6 264.2,54.6 264.7,54.6 265.2,54.6 265.7,54.6 266.2,54.6 266.7,54.6 267.2,54.6 267.7,54.6 268.2,54.6 268.7,54.6 269.2,54.6 269.7,54.6 270.2,54.6 270.8,54.6 271.3,54.6 271.8,54.6 272.3,54.6 272.8,54.6 273.3,54.6 273.8,54.6 274.3,54.6 274.8,54.6 275.3,54.6 275.8,54.6 276.3,54.6 276.9,54.6 277.4,54.6 277.9,54.6 278.4,54.6 278.9,54.6 279.4,54.6 279.9,54.6 280.4,54.6 280.9,54.6 281.4,54.6 281.9,54.6 282.4,54.6 282.9,54.6 283.5,54.6 284.0,54.6 284.5,54.6 285.0,54.6 285.5,54.6 286.0,54.6 286.5,54.6 287.0,54.6 287.5,54.6 288.0,54.6 288.5,54.6 289.0,54.6 289.6,54.6 290.1,54.6 290.6,54.6 291.1,54.6 291.6,54.6 292.1,54.6 292.6,54.6 293.1,54.6 293.6,54.6 294.1,54.6 294.6,54.6 295.1,54.6 295.7,54.6 296.2,54.6 296.7,54.6 297.2,54.6 297.7,54.6 298.2,54.6 298.7,54.6 299.2,54.6 299.7,54.6 300.2,54.6 300.7,54.6 301.2,54.6 301.7,54.6 302.3,54.6 302.8,54.6 303.3,54.6 303.8,54.6 304.3,54.6 304.8,54.6 305.3,54.6 305.8,54.6 306.3,54.6 306.8,54.6 307.3,54.6 307.8,54.6 308.4,54.6 308.9,54.6 309.4,54.6 309.9,54.6 310.4,54.6 310.9,54.6 311.4,54.6 311.9,54.6 312.4,54.6 312.9,54.6 313.4,54.6 313.9,54.6 314.4,54.6 315.0,54.6 315.5,54.6 316.0,54.6 316.5,54.6 317.0,54.6 317.5,54.6 318.0,54.6 318.5,54.6 319.0,54.6 319.5,54.6 320.0,54.6 320.5,54.6 321.1,54.6 321.6,54.6 322.1,54.6 322.6,54.6 323.1,54.6 323.6,54.6 324.1,54.6 324.6,54.6 325.1,54.6 325.6,54.6 326.1,54.6 326.6,54.6 327.1,54.6 327.7,54.6 328.2,54.6 328.7,54.6 329.2,54.6 329.7,54.6 330.2,54.6 330.7,54.6 331.2,54.6 331.7,54.6 332.2,54.6 332.7,54.6 333.2,54.6 333.8,54.6 334.3,54.6 334.8,54.6 335.3,54.6 335.8,54.6 336.3,54.6 336.8,54.6 337.3,54.6 337.8,54.6 338.3,54.6 338.8,54.6 339.3,54.6 339.8,54.6 340.4,54.6 340.9,54.6 341.4,54.6 341.9,54.6 342.4,54.6 342.9,54.6 343.4,54.6 343.9,54.6 344.4,54.6 344.9,54.6 345.4,54.6 345.9,54.6 345.9,49.7 345.9,49.7 345.4,49.7 344.9,49.7 344.4,49.7 343.9,49.7 343.4,49.7 342.9,49.7 342.4,49.7 341.9,49.7 341.4,49.7 340.9,49.7 340.4,49.7 339.8,49.7 339.3,49.7 338.8,49.7 338.3,49.7 337.8,49.7 337.3,49.7 336.8,49.7 336.3,49.6 335.8,49.6 335.3,49.6 334.8,49.6 334.3,49.5 333.8,49.5 333.2,49.5 332.7,49.4 332.2,49.4 331.7,49.3 331.2,49.2 330.7,49.1 330.2,49.0 329.7,48.9 329.2,48.7 328.7,48.6 328.2,48.4 327.7,48.2 327.1,48.0 326.6,47.7 326.1,47.4 325.6,47.1 325.1,46.8 324.6,46.4 324.1,46.0 323.6,45.5 323.1,45.1 322.6,44.5 322.1,44.0 321.6,43.4 321.1,42.7 320.5,42.1 320.0,41.4 319.5,40.6 319.0,39.8 318.5,39.0 318.0,38.2 317.5,37.4 317.0,36.5 316.5,35.7 316.0,34.8 315.5,33.9 315.0,33.1 314.4,32.2 313.9,31.4 313.4,30.6 312.9,29.8 312.4,29.1 311.9,28.4 311.4,27.8 310.9,27.3 310.4,26.8 309.9,26.4 309.4,26.0 308.9,25.8 308.4,25.6 307.8,25.5 307.3,25.5 306.8,25.6 306.3,25.7 305.8,26.0 305.3,26.3 304.8,26.7 304.3,27.1 303.8,27.7 303.3,28.3 302.8,28.9 302.3,29.7 301.7,30.4 301.2,31.2 300.7,32.0 300.2,32.9 299.7,33.7 299.2,34.6 298.7,35.5 298.2,36.3 297.7,37.2 297.2,38.0 296.7,38.9 296.2,39.7 295.7,40.4 295.1,41.2 294.6,41.9 294.1,42.6 293.6,43.2 293.1,43.8 292.6,44.4 292.1,44.9 291.6,45.4 291.1,45.9 290.6,46.3 290.1,46.7 289.6,47.0 289.0,47.4 288.5,47.6 288.0,47.9 287.5,48.1 287.0,48.3 286.5,48.5 286.0,48.7 285.5,48.8 285.0,49.0 284.5,49.1 284.0,49.2 283.5,49.3 282.9,49.3 282.4,49.4 281.9,49.5 281.4,49.5 280.9,49.5 280.4,49.6 279.9,49.6 279.4,49.6 278.9,49.6 278.4,49.7 277.9,49.7 277.4,49.7 276.9,49.7 276.3,49.7 275.8,49.7 275.3,49.7 274.8,49.7 274.3,49.7 273.8,49.7 273.3,49.7 272.8,49.7 272.3,49.7 271.8,49.7 271.3,49.7 270.8,49.7 270.2,49.7 269.7,49.7 269.2,49.7 268.7,49.7 268.2,49.7 267.7,49.7 267.2,49.7 266.7,49.7 266.2,49.7 265.7,49.7 265.2,49.7 264.7,49.7 264.2,49.7 263.6,49.7 263.1,49.7 262.6,49.7 262.1,49.7 261.6,49.7 261.1,49.7 260.6,49.7 260.1,49.7 259.6,49.7 259.1,49.7 258.6,49.7 258.1,49.7 257.5,49.7 257.0,49.7 256.5,49.7 256.0,49.7 255.5,49.7 255.0,49.7 254.5,49.7 254.0,49.7 253.5,49.7 253.0,49.7 252.5,49.7 252.0,49.7 251.5,49.7 250.9,49.7 250.4,49.7 249.9,49.7 249.4,49.7 248.9,49.7 248.4,49.7 247.9,49.7 247.4,49.7 246.9,49.7 246.4,49.7 245.9,49.7 245.4,49.7 244.8,49.7" fill="#CDDDC6" stroke="#CDDDC6" stroke-width="0.0"></polygon>
+    <polygon points="228.7,159.7 240.8,159.7 240.8,159.2 240.8,158.7 240.8,158.2 240.8,157.7 240.8,157.2 240.8,156.7 240.8,156.2 240.8,155.7 240.8,155.2 240.8,154.6 240.8,154.1 240.8,153.6 240.8,153.1 240.8,152.6 240.8,152.1 240.8,151.6 240.8,151.1 240.8,150.6 240.8,150.1 240.8,149.6 240.8,149.1 240.8,148.6 240.8,148.0 240.8,147.5 240.8,147.0 240.8,146.5 240.8,146.0 240.8,145.5 240.8,145.0 240.8,144.5 240.8,144.0 240.8,143.5 240.8,143.0 240.8,142.5 240.8,141.9 240.8,141.4 240.8,140.9 240.8,140.4 240.8,139.9 240.8,139.4 240.8,138.9 240.8,138.4 240.8,137.9 240.8,137.4 240.8,136.9 240.8,136.4 240.8,135.9 240.8,135.3 240.8,134.8 240.8,134.3 240.8,133.8 240.8,133.3 240.8,132.8 240.8,132.3 240.8,131.8 240.8,131.3 240.8,130.8 240.8,130.3 240.8,129.8 240.8,129.2 240.8,128.7 240.8,128.2 240.8,127.7 240.8,127.2 240.8,126.7 240.8,126.2 240.8,125.7 240.8,125.2 240.8,124.7 240.8,124.2 240.8,123.7 240.8,123.2 240.8,122.6 240.8,122.1 240.8,121.6 240.8,121.1 240.8,120.6 240.8,120.1 240.8,119.6 240.8,119.1 240.8,118.6 240.8,118.1 240.8,117.6 240.8,117.1 240.8,116.5 240.8,116.0 240.8,115.5 240.8,115.0 240.8,114.5 240.8,114.0 240.8,113.5 240.8,113.0 240.8,112.5 240.8,112.0 240.8,111.5 240.8,111.0 240.8,110.5 240.8,109.9 240.8,109.4 240.8,108.9 240.8,108.4 240.8,107.9 240.8,107.4 240.8,106.9 240.8,106.4 240.8,105.9 240.8,105.4 240.8,104.9 240.8,104.4 240.8,103.8 240.8,103.3 240.8,102.8 240.8,102.3 240.8,101.8 240.8,101.3 240.8,100.8 240.8,100.3 240.8,99.8 240.8,99.3 240.8,98.8 240.8,98.3 240.8,97.8 240.8,97.2 240.8,96.7 240.8,96.2 240.8,95.7 240.8,95.2 240.8,94.7 240.8,94.2 240.8,93.7 240.8,93.2 240.8,92.7 240.8,92.2 240.8,91.7 240.8,91.1 240.8,90.6 240.8,90.1 240.8,89.6 240.8,89.1 240.8,88.6 240.8,88.1 240.8,87.6 240.8,87.1 240.8,86.6 240.8,86.1 240.8,85.6 240.8,85.1 240.8,84.5 240.8,84.0 240.8,83.5 240.8,83.0 240.8,82.5 240.8,82.0 240.8,81.5 240.8,81.0 240.8,80.5 240.8,80.0 240.8,79.5 240.8,79.0 240.8,78.4 240.8,77.9 240.8,77.4 240.8,76.9 240.8,76.4 240.8,75.9 240.8,75.4 240.8,74.9 240.8,74.4 240.8,73.9 240.8,73.4 240.8,72.9 240.8,72.4 240.8,71.8 240.8,71.3 240.8,70.8 240.8,70.3 240.8,69.8 240.8,69.3 240.8,68.8 240.8,68.3 240.8,67.8 240.8,67.3 240.8,66.8 240.8,66.3 240.8,65.7 240.8,65.2 240.8,64.7 240.8,64.2 240.8,63.7 240.8,63.2 240.8,62.7 240.8,62.2 240.8,61.7 240.8,61.2 240.8,60.7 240.8,60.2 240.8,59.6 240.8,59.1 240.8,58.6 228.7,58.6 228.7,58.6 228.7,59.1 228.7,59.6 228.7,60.2 228.7,60.7 228.7,61.2 228.7,61.7 228.7,62.2 228.7,62.7 228.7,63.2 228.7,63.7 228.7,64.2 228.7,64.7 228.7,65.2 228.7,65.7 228.7,66.3 228.7,66.8 228.7,67.3 228.7,67.8 228.7,68.3 228.7,68.8 228.7,69.3 228.7,69.8 228.7,70.3 228.7,70.8 228.7,71.3 228.7,71.8 228.7,72.4 228.7,72.9 228.7,73.4 228.7,73.9 228.7,74.4 228.7,74.9 228.7,75.4 228.7,75.9 228.7,76.4 228.7,76.9 228.7,77.4 228.7,77.9 228.7,78.4 228.7,79.0 228.7,79.5 228.7,80.0 228.7,80.5 228.7,81.0 228.7,81.5 228.7,82.0 228.7,82.5 228.7,83.0 228.7,83.5 228.7,84.0 228.7,84.5 228.7,85.1 228.7,85.6 228.7,86.1 228.7,86.6 228.7,87.1 228.7,87.6 228.7,88.1 228.7,88.6 228.7,89.1 228.7,89.6 228.7,90.1 228.7,90.6 228.7,91.1 228.7,91.7 228.7,92.2 228.7,92.7 228.7,93.2 228.7,93.7 228.7,94.2 228.7,94.7 228.7,95.2 228.7,95.7 228.7,96.2 228.7,96.7 228.7,97.2 228.7,97.8 228.7,98.3 228.7,98.8 228.7,99.3 228.7,99.8 228.7,100.3 228.7,100.8 228.7,101.3 228.7,101.8 228.7,102.3 228.7,102.8 228.7,103.3 228.7,103.8 228.7,104.4 228.7,104.9 228.7,105.4 228.7,105.9 228.7,106.4 228.7,106.9 228.7,107.4 228.7,107.9 228.7,108.4 228.7,108.9 228.7,109.4 228.7,109.9 228.7,110.5 228.7,111.0 228.7,111.5 228.7,112.0 228.7,112.5 228.7,113.0 228.7,113.5 228.7,114.0 228.7,114.5 228.7,115.0 228.7,115.5 228.7,116.0 228.7,116.5 228.7,117.1 228.7,117.6 228.7,118.1 228.7,118.6 228.7,119.1 228.7,119.6 228.7,120.1 228.7,120.6 228.7,121.1 228.7,121.6 228.7,122.1 228.7,122.6 228.7,123.2 228.7,123.7 228.7,124.2 228.7,124.7 228.7,125.2 228.7,125.7 228.7,126.2 228.7,126.7 228.7,127.2 228.7,127.7 228.7,128.2 228.7,128.7 228.7,129.2 228.7,129.8 228.7,130.3 228.7,130.8 228.7,131.3 228.7,131.8 228.7,132.3 228.7,132.8 228.7,133.3 228.7,133.8 228.7,134.3 228.7,134.8 228.7,135.3 228.7,135.9 228.7,136.4 228.7,136.9 228.7,137.4 228.7,137.9 228.7,138.4 228.7,138.9 228.7,139.4 228.7,139.9 228.7,140.4 228.7,140.9 228.7,141.4 228.7,141.9 228.7,142.5 228.7,143.0 228.7,143.5 228.7,144.0 228.7,144.5 228.7,145.0 228.7,145.5 228.7,146.0 228.7,146.5 228.7,147.0 228.7,147.5 228.7,148.0 228.7,148.6 228.7,149.1 228.7,149.6 228.7,150.1 228.7,150.6 228.7,151.1 228.7,151.6 228.7,152.1 228.7,152.6 228.7,153.1 228.7,153.6 228.7,154.1 228.7,154.6 228.7,155.2 228.7,155.7 228.7,156.2 228.7,156.7 228.7,157.2 228.7,157.7 228.7,158.2 228.7,158.7 228.7,159.2 228.7,159.7" fill="#F4E8C4" stroke="#F4E8C4" stroke-width="0.0"></polygon>
+    <polyline points="48.2,49.7 48.7,49.7 49.2,49.7 49.7,49.7 50.2,49.7 50.7,49.7 51.2,49.7 51.7,49.7 52.2,49.7 52.7,49.7 53.2,49.7 53.8,49.7 54.3,49.7 54.8,49.7 55.3,49.7 55.8,49.7 56.3,49.7 56.8,49.7 57.3,49.7 57.8,49.7 58.3,49.7 58.8,49.7 59.3,49.7 59.9,49.7 60.4,49.7 60.9,49.7 61.4,49.7 61.9,49.7 62.4,49.7 62.9,49.7 63.4,49.7 63.9,49.7 64.4,49.7 64.9,49.7 65.4,49.7 65.9,49.7 66.5,49.7 67.0,49.7 67.5,49.7 68.0,49.7 68.5,49.7 69.0,49.7 69.5,49.7 70.0,49.7 70.5,49.7 71.0,49.7 71.5,49.7 72.0,49.7 72.6,49.7 73.1,49.7 73.6,49.7 74.1,49.7 74.6,49.7 75.1,49.7 75.6,49.7 76.1,49.7 76.6,49.7 77.1,49.7 77.6,49.7 78.1,49.7 78.6,49.7 79.2,49.7 79.7,49.7 80.2,49.7 80.7,49.7 81.2,49.7 81.7,49.7 82.2,49.6 82.7,49.6 83.2,49.6 83.7,49.6 84.2,49.5 84.7,49.5 85.3,49.5 85.8,49.4 86.3,49.3 86.8,49.3 87.3,49.2 87.8,49.1 88.3,49.0 88.8,48.8 89.3,48.7 89.8,48.5 90.3,48.3 90.8,48.1 91.3,47.9 91.9,47.6 92.4,47.4 92.9,47.0 93.4,46.7 93.9,46.3 94.4,45.9 94.9,45.4 95.4,44.9 95.9,44.4 96.4,43.8 96.9,43.2 97.4,42.6 98.0,41.9 98.5,41.2 99.0,40.4 99.5,39.7 100.0,38.9 100.5,38.0 101.0,37.2 101.5,36.3 102.0,35.5 102.5,34.6 103.0,33.7 103.5,32.9 104.0,32.0 104.6,31.2 105.1,30.4 105.6,29.7 106.1,28.9 106.6,28.3 107.1,27.7 107.6,27.1 108.1,26.7 108.6,26.3 109.1,26.0 109.6,25.7 110.1,25.6 110.7,25.5 111.2,25.5 111.7,25.6 112.2,25.8 112.7,26.0 113.2,26.4 113.7,26.8 114.2,27.3 114.7,27.8 115.2,28.4 115.7,29.1 116.2,29.8 116.7,30.6 117.3,31.4 117.8,32.2 118.3,33.1 118.8,33.9 119.3,34.8 119.8,35.7 120.3,36.5 120.8,37.4 121.3,38.2 121.8,39.0 122.3,39.8 122.8,40.6 123.4,41.4 123.9,42.1 124.4,42.7 124.9,43.4 125.4,44.0 125.9,44.5 126.4,45.1 126.9,45.5 127.4,46.0 127.9,46.4 128.4,46.8 128.9,47.1 129.4,47.4 130.0,47.7 130.5,48.0 131.0,48.2 131.5,48.4 132.0,48.6 132.5,48.7 133.0,48.9 133.5,49.0 134.0,49.1 134.5,49.2 135.0,49.3 135.5,49.4 136.1,49.4 136.6,49.5 137.1,49.5 137.6,49.5 138.1,49.6 138.6,49.6 139.1,49.6 139.6,49.6 140.1,49.7 140.6,49.7 141.1,49.7 141.6,49.7 142.1,49.7 142.7,49.7 143.2,49.7 143.7,49.7 144.2,49.7 144.7,49.7 145.2,49.7 145.7,49.7 146.2,49.7 146.7,49.7 147.2,49.7 147.7,49.7 148.2,49.7 148.8,49.7 149.3,49.7" fill="none" stroke="#38761D" stroke-width="1.0"></polyline>
+    <line x1="68.4" y1="139.5" x2="68.4" y2="49.7" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="68.4" y1="109.2" x2="68.4" y2="49.7" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="68.4" y1="78.9" x2="68.4" y2="49.7" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="98.7" y1="139.5" x2="98.7" y2="40.8" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="98.7" y1="109.2" x2="98.7" y2="40.8" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="98.7" y1="78.9" x2="98.7" y2="40.8" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="129.0" y1="139.5" x2="129.0" y2="47.2" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="129.0" y1="109.2" x2="129.0" y2="47.2" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="129.0" y1="78.9" x2="129.0" y2="47.2" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <polyline points="244.8,49.7 245.4,49.7 245.9,49.7 246.4,49.7 246.9,49.7 247.4,49.7 247.9,49.7 248.4,49.7 248.9,49.7 249.4,49.7 249.9,49.7 250.4,49.7 250.9,49.7 251.5,49.7 252.0,49.7 252.5,49.7 253.0,49.7 253.5,49.7 254.0,49.7 254.5,49.7 255.0,49.7 255.5,49.7 256.0,49.7 256.5,49.7 257.0,49.7 257.5,49.7 258.1,49.7 258.6,49.7 259.1,49.7 259.6,49.7 260.1,49.7 260.6,49.7 261.1,49.7 261.6,49.7 262.1,49.7 262.6,49.7 263.1,49.7 263.6,49.7 264.2,49.7 264.7,49.7 265.2,49.7 265.7,49.7 266.2,49.7 266.7,49.7 267.2,49.7 267.7,49.7 268.2,49.7 268.7,49.7 269.2,49.7 269.7,49.7 270.2,49.7 270.8,49.7 271.3,49.7 271.8,49.7 272.3,49.7 272.8,49.7 273.3,49.7 273.8,49.7 274.3,49.7 274.8,49.7 275.3,49.7 275.8,49.7 276.3,49.7 276.9,49.7 277.4,49.7 277.9,49.7 278.4,49.7 278.9,49.6 279.4,49.6 279.9,49.6 280.4,49.6 280.9,49.5 281.4,49.5 281.9,49.5 282.4,49.4 282.9,49.3 283.5,49.3 284.0,49.2 284.5,49.1 285.0,49.0 285.5,48.8 286.0,48.7 286.5,48.5 287.0,48.3 287.5,48.1 288.0,47.9 288.5,47.6 289.0,47.4 289.6,47.0 290.1,46.7 290.6,46.3 291.1,45.9 291.6,45.4 292.1,44.9 292.6,44.4 293.1,43.8 293.6,43.2 294.1,42.6 294.6,41.9 295.1,41.2 295.7,40.4 296.2,39.7 296.7,38.9 297.2,38.0 297.7,37.2 298.2,36.3 298.7,35.5 299.2,34.6 299.7,33.7 300.2,32.9 300.7,32.0 301.2,31.2 301.7,30.4 302.3,29.7 302.8,28.9 303.3,28.3 303.8,27.7 304.3,27.1 304.8,26.7 305.3,26.3 305.8,26.0 306.3,25.7 306.8,25.6 307.3,25.5 307.8,25.5 308.4,25.6 308.9,25.8 309.4,26.0 309.9,26.4 310.4,26.8 310.9,27.3 311.4,27.8 311.9,28.4 312.4,29.1 312.9,29.8 313.4,30.6 313.9,31.4 314.4,32.2 315.0,33.1 315.5,33.9 316.0,34.8 316.5,35.7 317.0,36.5 317.5,37.4 318.0,38.2 318.5,39.0 319.0,39.8 319.5,40.6 320.0,41.4 320.5,42.1 321.1,42.7 321.6,43.4 322.1,44.0 322.6,44.5 323.1,45.1 323.6,45.5 324.1,46.0 324.6,46.4 325.1,46.8 325.6,47.1 326.1,47.4 326.6,47.7 327.1,48.0 327.7,48.2 328.2,48.4 328.7,48.6 329.2,48.7 329.7,48.9 330.2,49.0 330.7,49.1 331.2,49.2 331.7,49.3 332.2,49.4 332.7,49.4 333.2,49.5 333.8,49.5 334.3,49.5 334.8,49.6 335.3,49.6 335.8,49.6 336.3,49.6 336.8,49.7 337.3,49.7 337.8,49.7 338.3,49.7 338.8,49.7 339.3,49.7 339.8,49.7 340.4,49.7 340.9,49.7 341.4,49.7 341.9,49.7 342.4,49.7 342.9,49.7 343.4,49.7 343.9,49.7 344.4,49.7 344.9,49.7 345.4,49.7 345.9,49.7" fill="none" stroke="#38761D" stroke-width="1.0"></polyline>
+    <line x1="260.2" y1="131.5" x2="260.2" y2="49.7" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="321.0" y1="102.2" x2="321.0" y2="42.6" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="260.9" y1="114.9" x2="260.9" y2="49.7" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="293.6" y1="138.1" x2="293.6" y2="43.2" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="315.3" y1="142.0" x2="315.3" y2="33.7" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="286.2" y1="107.8" x2="286.2" y2="48.6" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="289.5" y1="101.8" x2="289.5" y2="47.1" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="315.6" y1="70.4" x2="315.6" y2="34.1" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <line x1="277.1" y1="96.6" x2="277.1" y2="49.7" stroke="#9AA5B1" stroke-width="0.6" stroke-dasharray="1.2 1.2"></line>
+    <ellipse cx="68.4" cy="139.5" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="68.4" cy="109.2" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="68.4" cy="78.9" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="98.7" cy="139.5" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="98.7" cy="109.2" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="98.7" cy="78.9" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="129.0" cy="139.5" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="129.0" cy="109.2" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="129.0" cy="78.9" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
     <text x="98.7" y="175.2" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">important parameter</text>
     <text transform="rotate(-90 24.4 109.2)" x="24.4" y="111.8" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">unimportant parameter</text>
     <text x="98.7" y="10.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Grid search</text>
     <text x="151.3" y="38.3" font-size="7.0" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="start">accuracy</text>
-    <ellipse cx="260.2" cy="131.5" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="321.0" cy="102.2" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="260.9" cy="114.9" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="293.6" cy="138.1" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="315.3" cy="142.0" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="286.2" cy="107.8" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="289.5" cy="101.8" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="315.6" cy="70.4" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="277.1" cy="96.6" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.00"></ellipse>
+    <ellipse cx="260.2" cy="131.5" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="321.0" cy="102.2" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="260.9" cy="114.9" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="293.6" cy="138.1" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="315.3" cy="142.0" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="286.2" cy="107.8" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="289.5" cy="101.8" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="315.6" cy="70.4" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="277.1" cy="96.6" rx="2.5" ry="2.5" fill="#002B5B" stroke="#002B5B" stroke-width="1.0"></ellipse>
     <text x="295.4" y="175.2" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">important parameter</text>
     <text transform="rotate(-90 221.1 109.2)" x="221.1" y="111.8" font-size="7.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">unimportant parameter</text>
     <text x="295.4" y="10.0" font-size="9.0" fill="#002B5B" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Random search</text>
     <text x="348.0" y="38.3" font-size="7.0" fill="#38761D" font-family="Arial, Helvetica, sans-serif" text-anchor="start">accuracy</text>
-    <ellipse cx="68.4" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="68.4" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="68.4" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="98.7" cy="40.8" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="98.7" cy="40.8" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="98.7" cy="40.8" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="129.0" cy="47.2" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="129.0" cy="47.2" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="129.0" cy="47.2" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="260.2" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="321.0" cy="42.6" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="260.9" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="293.6" cy="43.2" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="315.3" cy="33.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="286.2" cy="48.6" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="289.5" cy="47.1" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="315.6" cy="34.1" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
-    <ellipse cx="277.1" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.00"></ellipse>
+    <ellipse cx="68.4" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="68.4" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="68.4" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="98.7" cy="40.8" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="98.7" cy="40.8" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="98.7" cy="40.8" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="129.0" cy="47.2" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="129.0" cy="47.2" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="129.0" cy="47.2" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="260.2" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="321.0" cy="42.6" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="260.9" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="293.6" cy="43.2" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="315.3" cy="33.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="286.2" cy="48.6" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="289.5" cy="47.1" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="315.6" cy="34.1" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
+    <ellipse cx="277.1" cy="49.7" rx="2.0" ry="2.0" fill="#FFFFFF" stroke="#002B5B" stroke-width="1.0"></ellipse>
   </svg>
   <p data-b="qgi65">Pictured above is why it works so well (the accuracy curves are made up). Often only one or two hyperparameters really matter. With nine tries the grid only ever tests three values of the one that matters, while random search tests nine different values of it, and so has a much better chance of landing near the peak (this was Bergstra and Bengio's argument in <span class="num">2012</span>).</p>
 <div class="foot" data-rt=""><span>Model Evaluation · Grid Search</span><span>21</span></div></section>
@@ -5214,7 +5225,7 @@ z
   <p data-b="qd2hg">Which point on the front to pick is up to us, not the data (a tree that has to fit on a slide might be the <span class="num">4</span>-leaf one at <span class="num">80.8%</span>). The same idea turns up whenever two numbers pull against each other, and a precision and recall curve is really a front too, one point per threshold (on the right above).</p>
 <div class="foot" data-rt=""><span>Model Evaluation · Grid Search</span><span>24</span></div></section>
 
-<section class="page" id="regression-errors" data-part="Diagnosing a Model" data-view="reading" data-topic="regression-metrics" style="--gap: 22pt;">
+<section class="page" id="regression-errors" data-view="reading" data-topic="regression-metrics" data-part="Diagnosing a Model" style="--gap: 22pt;">
   <h2 data-b="rrp80">Regression Errors</h2>
   <p data-b="g4n9w">Grid search can't tell us why a model is wrong. For that we look at its mistakes, easiest to see in a model that predicts a number, like Linear Regression's points from yards. Its mistakes are residuals, and we already minimized their <b class="def">mean squared error</b>:</p>
   <b-eq data-pool="mse" data-b="pl7am" class=""><a id="eq-mse" data-rt=""></a>
@@ -6208,10 +6219,10 @@ L 380.16 148.75
   
 <div class="foot" data-rt=""><span>Model Evaluation · Diagnosing a Model</span><span>27</span></div></section>
 
-<section class="page" id="learning-curves" data-part="Learning Curves" data-view="reading" data-topic="learning-curves" style="--gap: 12.2pt;">
+<section class="page" id="learning-curves" data-view="reading" data-topic="learning-curves" data-part="Learning Curves" style="--gap: 12.2pt;">
   <h2 data-b="j8dl7">Learning Curves</h2>
   <p data-b="cyrt9">Every score so far is a snapshot of one finished model. A <b class="def">learning curve</b> shows instead how the score changes as the model gets more to learn from. Here is logistic regression on the <span class="num">15</span> box-score stats, fit to more and more of each training fold and scored both on the games it was fit to and on the held-out fifth:</p>
-  <b-fig src="fig/learning-size.svg" data-pool="learning-size" alt="Accuracy against the number of training games for logistic regression on 15 stats: 100% on the games it was fit to with 20 to 40 games, falling to 92%, while accuracy on unseen games climbs from 80% to about 86%" data-b="vexy9" style="--ar: 2.743;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 140" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/learning-size.svg" alt="Accuracy against the number of training games for logistic regression on 15 stats: 100% on the games it was fit to with 20 to 40 games, falling to 92%, while accuracy on unseen games climbs from 80% to about 86%" data-pool="learning-size" data-b="vexy9" style="--ar: 2.743;"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 140" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -7157,7 +7168,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -7185,15 +7196,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -7202,6 +7259,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -7214,9 +7272,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

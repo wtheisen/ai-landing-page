@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -1328,12 +1339,12 @@ svg.al-clone { z-index: 1; }
 
 
 
-<section class="page" id="self-attention-again" data-part="One Head, One Question" data-view="reading" data-topic="recap" style="">
+<section class="page" id="self-attention-again" data-view="reading" data-topic="recap" data-part="One Head, One Question" style="">
   <h2 data-b="cbslw">Self-Attention, Again</h2>
   <p data-b="zay8j">In Self-Attention we gave every token a way to look straight back at the tokens before it. Each token's embedding is multiplied by three weight matrices to make a <b class="def">query</b>, a <b class="def">key</b> and a <b class="def">value</b>, every query is compared with every key, and a softmax turns the scores into attention weights:</p>
   <b-eq data-b="kpma2" class=""><a id="eq-ca" data-rt=""></a><a id="eq-attn" data-rt=""></a>
-  <eq-row label="attn" note="one row of context per token">\text{Context} = \text{softmax}\bp{\frac{\purple{Q}\,\red{K}^{T}}{\sqrt{d_k}}}\,\green{V}</eq-row>
-  <eq-row label="ca" note="the context is added back to the embeddings">\red{\text{Ɛ}_{\text{CA}}} = \red{\text{Ɛ}} + \text{Context}</eq-row>
+    <eq-row label="attn" note="one row of context per token">\text{Context} = \text{softmax}\bp{\frac{\purple{Q}\,\red{K}^{T}}{\sqrt{d_k}}}\,\green{V}</eq-row>
+    <eq-row label="ca" note="the context is added back to the embeddings">\red{\text{Ɛ}_{\text{CA}}} = \red{\text{Ɛ}} + \text{Context}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[9.1]</div><div class="eqml-e"><div class="eqml-note">one row of context per token</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mtext>Context</mtext><mrow><mspace width="0.2778em"></mspace><mo>=</mo><mspace width="0.2778em"></mspace></mrow><mtext>softmax</mtext><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mfrac><mrow><mrow><mi style="color:#674EA7;">𝐐</mi></mrow><mspace width="0.1667em"></mspace><msup><mrow><mi style="color:#CC0000;">𝐊</mi></mrow><mi mathvariant="normal">T</mi></msup></mrow><msqrt><msub><mi mathvariant="normal">d</mi><mi mathvariant="normal">k</mi></msub></msqrt></mfrac><mo fence="true" form="postfix" stretchy="true">)</mo></mrow><mspace width="0.1667em"></mspace><mrow><mi style="color:#38761D;">𝐕</mi></mrow></mrow></math></div><div class="eqml-n">[9.2]</div><div class="eqml-e"><div class="eqml-note">the context is added back to the embeddings</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><msub style="color:#CC0000;"><mtext>Ɛ</mtext><mtext>𝐂𝐀</mtext></msub></mrow><mo>=</mo><mrow><mtext style="color:#CC0000;">Ɛ</mtext></mrow><mo>+</mo><mtext>Context</mtext></mrow></math></div></div></div></b-eq>
   <p data-b="ouoev">Our running example is the line Antony keeps repeating in <i>Julius Caesar</i>, "so are they all, all honorable", which we'll split into <span class="num">6</span> word tokens (leaving out the comma). At the size of GPT-2 small, every token's embedding has <span class="num">768</span> numbers, so <b-m tex="Ɛ">Ɛ</b-m> is <span class="mono">&lt;6, 768&gt;</span>. With <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b> and <b class="warn"><b-m tex="Ω_K"><span class="Om">ω</span><sub>K</sub></b-m></b> of <span class="mono">&lt;768, 64&gt;</span>, <b-m tex="Q">Q</b-m> and <b-m tex="K">K</b-m> are <span class="mono">&lt;6, 64&gt;</span>, and the attention weights are <span class="mono">&lt;6, 6&gt;</span>, one row per token.</p>
   <p data-b="t7a8b">Look at a single row of those weights, say the row for "honorable". It's <span class="num">6</span> numbers that add up to <span class="num">1</span>, and the context for "honorable" is the values of the <span class="num">6</span> tokens averaged with those weights. <b class="take">One row, one weighted average.</b> Whether one average is enough depends on what "honorable" needs to know.</p>
@@ -1351,7 +1362,9 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="zbyaa">Attention by Hand</h2>
   <p data-b="bj0ma">Here's a self-attention small enough to do with a pencil. Each token gets just <span class="num">4</span> numbers, and we picked them ourselves so each one means something: does the word say <i>who</i> we're talking about, is it <i>plural</i>, is it a <i>describing</i> word, or is it something <i>other</i>.</p>
   <table class="tbl small num" data-b="ye89e">
-    <thead><tr><th>token</th><th>who</th><th>plural</th><th>describes</th><th>other</th></tr></thead>
+    <thead>
+      <tr><th>token</th><th>who</th><th>plural</th><th>describes</th><th>other</th></tr>
+    </thead>
     <tbody>
       <tr><td>so</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
       <tr><td>are</td><td>0</td><td>1</td><td>0</td><td>1</td></tr>
@@ -1362,7 +1375,7 @@ svg.al-clone { z-index: 1; }
   </table>
   <p data-b="ua8ce">We pick <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b> and <b class="warn"><b-m tex="Ω_K"><span class="Om">ω</span><sub>K</sub></b-m></b> ourselves too. A describing word's query asks both questions at once, and a key answers the first if its token says who, the second if its token describes:</p>
   <b-eq data-b="xh2rw" class="">
-  <eq-row note="each &lt;4, 2&gt;">\purple{\Omega_Q} = \bb{\begin{matrix} 0 &amp; 0 \\ 0 &amp; 0 \\ 2 &amp; 2 \\ 0 &amp; 0 \end{matrix}} \qquad \red{\Omega_K} = \bb{\begin{matrix} 2 &amp; 0 \\ 0 &amp; 0 \\ 0 &amp; 2 \\ 0 &amp; 0 \end{matrix}}</eq-row>
+    <eq-row note="each &lt;4, 2&gt;">\purple{\Omega_Q} = \bb{\begin{matrix} 0 &amp; 0 \\ 0 &amp; 0 \\ 2 &amp; 2 \\ 0 &amp; 0 \end{matrix}} \qquad \red{\Omega_K} = \bb{\begin{matrix} 2 &amp; 0 \\ 0 &amp; 0 \\ 0 &amp; 2 \\ 0 &amp; 0 \end{matrix}}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">each &lt;4, 2&gt;</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐐</mi></msub></mrow><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>0</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>0</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>0</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>0</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>2</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>2</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>0</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>0</mn></mtd></mtr></mtable><mo fence="true" form="postfix" stretchy="true">]</mo></mrow><mspace width="2em"></mspace><mrow><msub style="color:#CC0000;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐊</mi></msub></mrow><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>2</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>0</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>0</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>0</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>0</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>2</mn></mtd></mtr><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>0</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>0</mn></mtd></mtr></mtable><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div></div></div></b-eq>
 <div class="foot" data-rt=""><span>Multi-Head Attention · One Head, One Question</span><span>04</span></div></section>
 
@@ -1371,82 +1384,82 @@ svg.al-clone { z-index: 1; }
   <p data-b="lg3vd">So "honorable" gets the query [<span class="num">2</span>, <span class="num">2</span>], "they" gets the key [<span class="num">2</span>, <span class="num">0</span>], "honorable" gets the key [<span class="num">0</span>, <span class="num">2</span>], and every other token gets [<span class="num">0</span>, <span class="num">0</span>]. The query's dot product with each key is <span class="num">4</span> for "they" and "honorable" and <span class="num">0</span> for the rest. Divided by <b-m tex="√2">√2</b-m> that's <span class="num">2.83</span>, and the softmax turns the six scores into <span class="num">0.447</span> for "they", <span class="num">0.447</span> for "honorable" and <span class="num">0.026</span> for each of the other four.</p>
   <p data-b="ojiv4">To finish the attention we need values. We'll keep it simple and let each token's value be its embedding (<b class="take"><b-m tex="Ω_V"><span class="Om">ω</span><sub>V</sub></b-m></b> is the identity), so the context for "honorable" is <span class="num">0.447</span> of "they", <span class="num">0.447</span> of "honorable" and a little of everything else:</p>
   <b-eq data-b="gqsst" class="">
-  <eq-row note="who, plural, describes, other">\text{Context}_{\text{honorable}} = \bb{\begin{matrix} 0.447 &amp; 0.526 &amp; 0.447 &amp; 0.106 \end{matrix}}</eq-row>
+    <eq-row note="who, plural, describes, other">\text{Context}_{\text{honorable}} = \bb{\begin{matrix} 0.447 &amp; 0.526 &amp; 0.447 &amp; 0.106 \end{matrix}}</eq-row>
   <div class="eq-ml" data-rt="" style="zoom: 0.811;"><div class="eqml" role="math"><div class="eqml-n"></div><div class="eqml-e"><div class="eqml-note">who, plural, describes, other</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msub><mtext>Context</mtext><mtext>honorable</mtext></msub><mo>=</mo><mrow><mo fence="true" form="prefix" stretchy="true">[</mo><mtable><mtr><mtd style="padding-left:0em;padding-right:5.9776pt;"><mn>0.447</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>0.526</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:5.9776pt;"><mn>0.447</mn></mtd><mtd style="padding-left:5.9776pt;padding-right:0em;"><mn>0.106</mn></mtd></mtr></mtable><mo fence="true" form="postfix" stretchy="true">]</mo></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="ni5vp">The query asked two questions and got back <b class="warn">half of each answer</b>. "Who" comes through at <span class="num">0.447</span> and "describes" at <span class="num">0.447</span>, neither of them clearly.</p>
   <p data-b="pi9hj">Bigger numbers in <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b> and <b class="warn"><b-m tex="Ω_K"><span class="Om">ω</span><sub>K</sub></b-m></b> wouldn't help much. The scores for "they" and "honorable" are tied, so the softmax splits the attention between them however sharp it is, and if we tilt the query towards one of them the other answer just fades further. As long as both questions share one row of weights, <b class="take">being surer about "they" means saying less about "honorable"</b>.</p>
 <div class="foot" data-rt=""><span>Multi-Head Attention · One Head, One Question</span><span>05</span></div></section>
 
-<section class="page" id="two-heads" data-part="Multi-Head Attention" data-view="reading" data-topic="mha" style="--gap: 22pt;">
+<section class="page" id="two-heads" data-view="reading" data-topic="mha" data-part="Multi-Head Attention" style="--gap: 22pt;">
   <h2 data-b="j03d4">Two Heads</h2>
   <p data-b="n01ox">The fix is to stop asking both questions in one attention. Give the first column of <b-m tex="Q">Q</b-m> and <b-m tex="K">K</b-m> to one attention and the second column to another, and let each do its own softmax. Each now compares one number with one number (so <b-m tex="d_k">d<sub>k</sub></b-m> is <span class="num">1</span> and there's nothing to divide by).</p>
   <p data-b="ii85b">In the first, only "they" has a key, so "honorable" scores <span class="num">4</span> against "they" and <span class="num">0</span> against everything else, and the softmax gives "they" <span class="num">0.916</span>. The second does the same for "honorable" itself:</p>
-  <svg class="draw" viewBox="0 0 384 128" style="width: 100%" role="img" aria-label="The attention weights of &quot;honorable&quot; over so, are, they, all, all, honorable. One head asking both questions: 0.026, 0.026, 0.447, 0.026, 0.026, 0.447. Head 1: 0.916 on they, 0.017 on each of the others. Head 2: 0.916 on honorable, 0.017 on each of the others" data-b="fwj52">
-  <defs></defs>
-  <g id="two-head-rows-fwj52-s1">
-  <rect x="72.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="96.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
-  </g>
-  <g id="two-head-rows-fwj52-s2">
-  <rect x="124.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="148.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
-  </g>
-  <g id="two-head-rows-fwj52-s3">
-  <rect x="176.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="200.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
-  </g>
-  <g id="two-head-rows-fwj52-s4">
-  <rect x="228.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="252.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  </g>
-  <g id="two-head-rows-fwj52-s5">
-  <rect x="280.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="304.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  </g>
-  <g id="two-head-rows-fwj52-s6">
-  <rect x="332.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="356.0" y="18.5" font-size="7.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honorable</text>
-  </g>
-  <text x="62.0" y="52.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">one head</text>
-  <rect x="72.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="96.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.026</text>
-  <rect x="124.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="148.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.026</text>
-  <rect x="176.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="200.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.447</text>
-  <rect x="228.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="252.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.026</text>
-  <rect x="280.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="304.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.026</text>
-  <rect x="332.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="356.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.447</text>
-  <text x="62.0" y="86.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">head 1</text>
-  <rect x="72.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="96.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <rect x="124.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="148.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <rect x="176.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="200.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.916</text>
-  <rect x="228.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="252.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <rect x="280.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="304.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <rect x="332.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="356.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <text x="62.0" y="120.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">head 2</text>
-  <rect x="72.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="96.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <rect x="124.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="148.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <rect x="176.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="200.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <rect x="228.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="252.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <rect x="280.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="304.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
-  <rect x="332.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.00"></rect>
-  <text x="356.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.916</text>
-  <line x1="10.0" y1="64.0" x2="382.0" y2="64.0" stroke="#BBBBBB" stroke-width="0.80" stroke-dasharray="3 3"></line>
+  <svg class="draw" viewBox="0 0 384 128" role="img" aria-label="The attention weights of &quot;honorable&quot; over so, are, they, all, all, honorable. One head asking both questions: 0.026, 0.026, 0.447, 0.026, 0.026, 0.447. Head 1: 0.916 on they, 0.017 on each of the others. Head 2: 0.916 on honorable, 0.017 on each of the others" style="width: 100%" data-b="fwj52">
+    <defs></defs>
+    <g id="two-head-rows-fwj52-s1">
+      <rect x="72.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="96.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
+    </g>
+    <g id="two-head-rows-fwj52-s2">
+      <rect x="124.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="148.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
+    </g>
+    <g id="two-head-rows-fwj52-s3">
+      <rect x="176.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="200.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
+    </g>
+    <g id="two-head-rows-fwj52-s4">
+      <rect x="228.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="252.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    </g>
+    <g id="two-head-rows-fwj52-s5">
+      <rect x="280.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="304.0" y="18.9" font-size="8.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    </g>
+    <g id="two-head-rows-fwj52-s6">
+      <rect x="332.0" y="5.0" width="48.0" height="22.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="356.0" y="18.5" font-size="7.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honorable</text>
+    </g>
+    <text x="62.0" y="52.0" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">one head</text>
+    <rect x="72.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="96.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.026</text>
+    <rect x="124.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="148.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.026</text>
+    <rect x="176.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="200.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.447</text>
+    <rect x="228.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="252.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.026</text>
+    <rect x="280.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="304.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.026</text>
+    <rect x="332.0" y="37.0" width="48.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="356.0" y="51.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.447</text>
+    <text x="62.0" y="86.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">head 1</text>
+    <rect x="72.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="96.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <rect x="124.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="148.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <rect x="176.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="200.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.916</text>
+    <rect x="228.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="252.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <rect x="280.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="304.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <rect x="332.0" y="71.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="356.0" y="85.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <text x="62.0" y="120.0" font-size="9.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">head 2</text>
+    <rect x="72.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="96.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <rect x="124.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="148.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <rect x="176.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="200.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <rect x="228.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="252.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <rect x="280.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="304.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">0.017</text>
+    <rect x="332.0" y="105.0" width="48.0" height="22.0" rx="4.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.0"></rect>
+    <text x="356.0" y="119.5" font-size="8.5" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">0.916</text>
+    <line x1="10.0" y1="64.0" x2="382.0" y2="64.0" stroke="#BBBBBB" stroke-width="0.8" stroke-dasharray="3 3"></line>
   </svg>
   <p data-b="pyujs">Each of these is called an <b class="def">attention head</b>, and running several heads side by side on the same tokens is <b class="def">multi-head attention</b>. <b class="take">Each head gets its own row of weights</b>, so neither has to give anything up for the other.</p>
 <div class="foot" data-rt=""><span>Multi-Head Attention · Multi-Head Attention</span><span>06</span></div></section>
@@ -1474,8 +1487,8 @@ svg.al-clone { z-index: 1; }
   <p data-b="ls8iu">Each head produces its own context, so we need some way to turn several contexts back into one. The first step is to put them side by side, <b class="def">concatenating</b> them (written ⧺). With two heads whose values have <span class="num">384</span> numbers each, our six tokens get two <span class="mono">&lt;6, 384&gt;</span> contexts, and side by side that's <span class="mono">&lt;6, 768&gt;</span>, the size of <b-m tex="Ɛ">Ɛ</b-m> again.</p>
   <p data-b="gl6ju">Concatenating alone leaves each head's answer in its own slot, though: the first <span class="num">384</span> numbers only ever come from head 1 and the last <span class="num">384</span> from head 2. So the concatenated context is multiplied by one more weight matrix, the <b class="def">output weights</b> <b class="c wblue"><b-m tex="Ω_O"><span class="Om">ω</span><sub>O</sub></b-m></b> <span class="mono">&lt;768, 768&gt;</span>, which <b class="take">mixes the heads' answers</b> so every one of the <span class="num">768</span> numbers we add back to <b-m tex="Ɛ">Ɛ</b-m> can use all of them:</p>
   <b-eq data-b="to494" class=""><a id="eq-mha" data-rt=""></a><a id="eq-head" data-rt=""></a>
-  <eq-row label="head" note="every head has its own Ω_Q, Ω_K and Ω_V">\text{head}_i = \text{softmax}\bp{\frac{\purple{Q_i}\,\red{K_i}^{T}}{\sqrt{d_k}}}\,\green{V_i}</eq-row>
-  <eq-row label="mha" note="concatenate, mix, add back">\red{\text{Ɛ}_{\text{CA}}} = \red{\text{Ɛ}} + \text{Concat}\bp{\text{head}_1, \ldots, \text{head}_h}\,\blue{\Omega_O}</eq-row>
+    <eq-row label="head" note="every head has its own Ω_Q, Ω_K and Ω_V">\text{head}_i = \text{softmax}\bp{\frac{\purple{Q_i}\,\red{K_i}^{T}}{\sqrt{d_k}}}\,\green{V_i}</eq-row>
+    <eq-row label="mha" note="concatenate, mix, add back">\red{\text{Ɛ}_{\text{CA}}} = \red{\text{Ɛ}} + \text{Concat}\bp{\text{head}_1, \ldots, \text{head}_h}\,\blue{\Omega_O}</eq-row>
   <div class="eq-ml" data-rt=""><div class="eqml" role="math"><div class="eqml-n">[9.3]</div><div class="eqml-e"><div class="eqml-note">every head has its own <span class="Om">ω</span>_Q, <span class="Om">ω</span>_K and <span class="Om">ω</span>_V</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><msub><mtext>head</mtext><mi mathvariant="normal">i</mi></msub><mo>=</mo><mtext>softmax</mtext><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><mfrac><mrow><mrow><msub style="color:#674EA7;"><mi mathvariant="normal">𝐐</mi><mi mathvariant="normal">𝐢</mi></msub></mrow><mspace width="0.1667em"></mspace><msup><mrow><msub style="color:#CC0000;"><mi mathvariant="normal">𝐊</mi><mi mathvariant="normal">𝐢</mi></msub></mrow><mi mathvariant="normal">T</mi></msup></mrow><msqrt><msub><mi mathvariant="normal">d</mi><mi mathvariant="normal">k</mi></msub></msqrt></mfrac><mo fence="true" form="postfix" stretchy="true">)</mo></mrow><mspace width="0.1667em"></mspace><mrow><msub style="color:#38761D;"><mi mathvariant="normal">𝐕</mi><mi mathvariant="normal">𝐢</mi></msub></mrow></mrow></math></div><div class="eqml-n">[9.4]</div><div class="eqml-e"><div class="eqml-note">concatenate, mix, add back</div><math display="block" displaystyle="true" style="display:inline-block"><mrow><mrow><msub style="color:#CC0000;"><mtext>Ɛ</mtext><mtext>𝐂𝐀</mtext></msub></mrow><mo>=</mo><mrow><mtext style="color:#CC0000;">Ɛ</mtext></mrow><mo>+</mo><mtext>Concat</mtext><mrow><mo fence="true" form="prefix" stretchy="true">(</mo><msub><mtext>head</mtext><mn>1</mn></msub><mo separator="true">,</mo><mi mathvariant="normal">…</mi><mo separator="true">,</mo><msub><mtext>head</mtext><mi mathvariant="normal">h</mi></msub><mo fence="true" form="postfix" stretchy="true">)</mo></mrow><mspace width="0.1667em"></mspace><mrow><msub style="color:#1155CC;"><mi mathvariant="normal">𝛀</mi><mi mathvariant="normal">𝐎</mi></msub></mrow></mrow></math></div></div></div></b-eq>
   <p data-b="rq2u7">With a single head we didn't need <b class="c wblue"><b-m tex="Ω_O"><span class="Om">ω</span><sub>O</sub></b-m></b>, since <b class="take"><b-m tex="Ω_V"><span class="Om">ω</span><sub>V</sub></b-m></b> was already <span class="mono">&lt;768, 768&gt;</span> and the context came out the right size to add to <b-m tex="Ɛ">Ɛ</b-m> straight away.</p>
 <div class="foot" data-rt=""><span>Multi-Head Attention · Multi-Head Attention</span><span>09</span></div></section>
@@ -1483,139 +1496,143 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="head-size" data-view="reading" data-topic="mha">
   <h2 data-b="ippv3">Head Size</h2>
   <p data-b="spoi0">GPT-2 small has <span class="num">12</span> heads in every attention layer, and it gets their size by sharing its <span class="num">768</span> numbers out evenly: <b-m tex="768 / 12">768 / 12</b-m> is <span class="num">64</span>, so every head's <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b>, <b class="warn"><b-m tex="Ω_K"><span class="Om">ω</span><sub>K</sub></b-m></b> and <b class="take"><b-m tex="Ω_V"><span class="Om">ω</span><sub>V</sub></b-m></b> are <span class="mono">&lt;768, 64&gt;</span>. The twelve contexts of <span class="mono">&lt;6, 64&gt;</span> side by side are <span class="mono">&lt;6, 768&gt;</span> again, ready for <b class="c wblue"><b-m tex="Ω_O"><span class="Om">ω</span><sub>O</sub></b-m></b>:</p>
-  <svg class="draw" viewBox="0 0 384 220" style="width: 85%" role="img" aria-label="Ɛ &lt;6, 768&gt; feeds twelve heads, each making a context of &lt;6, 64&gt;; the twelve contexts side by side are &lt;6, 768&gt;, times Ω_O &lt;768, 768&gt;, plus Ɛ, is Ɛ_CA &lt;6, 768&gt;" data-b="y7eg9">
-  <defs><marker id="ahE06666-y7eg9" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path></marker></defs>
-  <g id="head-stack-y7eg9-s1">
-  <rect x="6.0" y="3.0" width="372.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="192.0" y="17.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
-  <text x="192.0" y="25.8" font-size="5.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 768&gt;</text>
-  </g>
-  <line x1="27.0" y1="30.0" x2="27.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="14.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="27.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="27.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
-  <text x="27.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="27.0" y1="110.0" x2="27.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="12.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="27.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="57.0" y1="30.0" x2="57.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="44.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="57.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="57.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">2</text>
-  <text x="57.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="57.0" y1="110.0" x2="57.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="42.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="57.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="87.0" y1="30.0" x2="87.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="74.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="87.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="87.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">3</text>
-  <text x="87.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="87.0" y1="110.0" x2="87.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="72.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="87.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="117.0" y1="30.0" x2="117.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="104.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="117.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="117.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">4</text>
-  <text x="117.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="117.0" y1="110.0" x2="117.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="102.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="117.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="147.0" y1="30.0" x2="147.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="134.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="147.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="147.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">5</text>
-  <text x="147.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="147.0" y1="110.0" x2="147.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="132.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="147.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="177.0" y1="30.0" x2="177.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="164.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="177.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="177.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">6</text>
-  <text x="177.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="177.0" y1="110.0" x2="177.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="162.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="177.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="207.0" y1="30.0" x2="207.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="194.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="207.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="207.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">7</text>
-  <text x="207.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="207.0" y1="110.0" x2="207.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="192.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="207.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="237.0" y1="30.0" x2="237.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="224.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="237.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="237.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">8</text>
-  <text x="237.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="237.0" y1="110.0" x2="237.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="222.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="237.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="267.0" y1="30.0" x2="267.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="254.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="267.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="267.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">9</text>
-  <text x="267.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="267.0" y1="110.0" x2="267.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="252.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="267.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="297.0" y1="30.0" x2="297.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="284.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="297.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="297.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">10</text>
-  <text x="297.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="297.0" y1="110.0" x2="297.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="282.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="297.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="327.0" y1="30.0" x2="327.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="314.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="327.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="327.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">11</text>
-  <text x="327.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="327.0" y1="110.0" x2="327.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="312.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="327.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="357.0" y1="30.0" x2="357.0" y2="46.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
-  <rect x="344.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.30"></rect>
-  <text x="357.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
-  <text x="357.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">12</text>
-  <text x="357.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <line x1="357.0" y1="110.0" x2="357.0" y2="126.0" stroke="#E06666" stroke-width="0.90" marker-end="url(#ahE06666-y7eg9)"></line>
-  <rect x="342.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.00"></rect>
-  <text x="357.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
-  <text x="192.0" y="166.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">the 12 contexts side by side (⧺): &lt;6, 768&gt;</text>
-  <g id="head-stack-y7eg9-s2">
-  <rect x="71.0" y="185.0" width="82.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="112.0" y="199.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Concatenated</text>
-  <text x="112.0" y="209.0" font-size="5.6" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">&lt;6, 768&gt;</text>
-  </g>
-  <text x="162.0" y="204.3" font-size="12.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
-  <g id="head-stack-y7eg9-s3">
-  <rect x="170.0" y="185.7" width="44.0" height="28.6" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="192.0" y="201.1" font-size="11.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ωₒ</text>
-  <text x="192.0" y="211.1" font-size="6.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;768, 768&gt;</text>
-  </g>
-  <text x="222.0" y="204.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
-  <g id="head-stack-y7eg9-s4">
-  <rect x="230.0" y="185.7" width="36.0" height="28.6" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="248.0" y="201.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
-  <text x="248.0" y="211.1" font-size="6.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 768&gt;</text>
-  </g>
-  <text x="274.0" y="204.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
-  <g id="head-stack-y7eg9-s5">
-  <rect x="282.0" y="185.7" width="44.0" height="28.6" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="304.0" y="201.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ_CA</text>
-  <text x="304.0" y="211.1" font-size="6.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 768&gt;</text>
-  </g>
+  <svg class="draw" viewBox="0 0 384 220" role="img" aria-label="Ɛ &lt;6, 768&gt; feeds twelve heads, each making a context of &lt;6, 64&gt;; the twelve contexts side by side are &lt;6, 768&gt;, times Ω_O &lt;768, 768&gt;, plus Ɛ, is Ɛ_CA &lt;6, 768&gt;" style="width: 85%" data-b="y7eg9">
+    <defs>
+      <marker id="ahE06666-y7eg9" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#E06666"></path>
+      </marker>
+    </defs>
+    <g id="head-stack-y7eg9-s1">
+      <rect x="6.0" y="3.0" width="372.0" height="26.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="192.0" y="17.2" font-size="12.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
+      <text x="192.0" y="25.8" font-size="5.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 768&gt;</text>
+    </g>
+    <line x1="27.0" y1="30.0" x2="27.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="14.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="27.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="27.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">1</text>
+    <text x="27.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="27.0" y1="110.0" x2="27.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="12.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="27.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="57.0" y1="30.0" x2="57.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="44.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="57.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="57.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">2</text>
+    <text x="57.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="57.0" y1="110.0" x2="57.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="42.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="57.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="87.0" y1="30.0" x2="87.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="74.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="87.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="87.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">3</text>
+    <text x="87.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="87.0" y1="110.0" x2="87.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="72.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="87.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="117.0" y1="30.0" x2="117.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="104.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="117.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="117.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">4</text>
+    <text x="117.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="117.0" y1="110.0" x2="117.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="102.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="117.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="147.0" y1="30.0" x2="147.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="134.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="147.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="147.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">5</text>
+    <text x="147.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="147.0" y1="110.0" x2="147.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="132.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="147.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="177.0" y1="30.0" x2="177.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="164.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="177.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="177.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">6</text>
+    <text x="177.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="177.0" y1="110.0" x2="177.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="162.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="177.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="207.0" y1="30.0" x2="207.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="194.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="207.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="207.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">7</text>
+    <text x="207.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="207.0" y1="110.0" x2="207.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="192.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="207.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="237.0" y1="30.0" x2="237.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="224.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="237.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="237.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">8</text>
+    <text x="237.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="237.0" y1="110.0" x2="237.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="222.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="237.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="267.0" y1="30.0" x2="267.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="254.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="267.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="267.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">9</text>
+    <text x="267.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="267.0" y1="110.0" x2="267.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="252.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="267.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="297.0" y1="30.0" x2="297.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="284.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="297.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="297.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">10</text>
+    <text x="297.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="297.0" y1="110.0" x2="297.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="282.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="297.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="327.0" y1="30.0" x2="327.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="314.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="327.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="327.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">11</text>
+    <text x="327.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="327.0" y1="110.0" x2="327.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="312.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="327.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="357.0" y1="30.0" x2="357.0" y2="46.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)" data-a="head-stack-y7eg9-s1"></line>
+    <rect x="344.0" y="48.0" width="26.0" height="62.0" rx="6.0" fill="#FFFFFF" stroke="#6D9EEB" stroke-width="1.3"></rect>
+    <text x="357.0" y="62.0" font-size="5.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head</text>
+    <text x="357.0" y="75.0" font-size="10.0" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">12</text>
+    <text x="357.0" y="104.0" font-size="3.6" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <line x1="357.0" y1="110.0" x2="357.0" y2="126.0" stroke="#E06666" stroke-width="0.9" marker-end="url(#ahE06666-y7eg9)"></line>
+    <rect x="342.0" y="128.0" width="30.0" height="20.0" rx="2.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.0"></rect>
+    <text x="357.0" y="141.0" font-size="3.6" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 64&gt;</text>
+    <text x="192.0" y="166.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">the 12 contexts side by side (⧺): &lt;6, 768&gt;</text>
+    <g id="head-stack-y7eg9-s2">
+      <rect x="71.0" y="185.0" width="82.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="112.0" y="199.0" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Concatenated</text>
+      <text x="112.0" y="209.0" font-size="5.6" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">&lt;6, 768&gt;</text>
+    </g>
+    <text x="162.0" y="204.3" font-size="12.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">@</text>
+    <g id="head-stack-y7eg9-s3">
+      <rect x="170.0" y="185.7" width="44.0" height="28.6" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="192.0" y="201.1" font-size="11.0" fill="#4A86E8" font-family="'AI2AI Omega', Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ωₒ</text>
+      <text x="192.0" y="211.1" font-size="6.5" fill="#4A86E8" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;768, 768&gt;</text>
+    </g>
+    <text x="222.0" y="204.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">+</text>
+    <g id="head-stack-y7eg9-s4">
+      <rect x="230.0" y="185.7" width="36.0" height="28.6" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="248.0" y="201.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ</text>
+      <text x="248.0" y="211.1" font-size="6.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 768&gt;</text>
+    </g>
+    <text x="274.0" y="204.7" font-size="13.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">=</text>
+    <g id="head-stack-y7eg9-s5">
+      <rect x="282.0" y="185.7" width="44.0" height="28.6" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="304.0" y="201.1" font-size="11.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Ɛ_CA</text>
+      <text x="304.0" y="211.1" font-size="6.5" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;6, 768&gt;</text>
+    </g>
   </svg>
   <p data-b="baopt">Splitting the numbers this way means <b class="take">twelve heads cost the same as one</b>. One head's <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b> holds <b-m tex="768 × 64">768 × 64</b-m> = <span class="num">49,152</span> weights, twelve of them hold <span class="num">589,824</span>, and that's exactly <b-m tex="768 × 768">768 × 768</b-m>, the size of a single head's <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b> if it used all <span class="num">768</span> numbers. The same goes for <b class="warn"><b-m tex="Ω_K"><span class="Om">ω</span><sub>K</sub></b-m></b> and <b class="take"><b-m tex="Ω_V"><span class="Om">ω</span><sub>V</sub></b-m></b>.</p>
   <p data-b="digj1">The original transformer did the same with <span class="num">8</span> heads of <span class="num">64</span> for <span class="num">512</span> numbers. irishQwen sets its head size separately, <span class="num">16</span> heads of <span class="num">128</span> for its <span class="num">1,024</span> numbers, which is perfectly allowed: <b class="c wblue"><b-m tex="Ω_O"><span class="Om">ω</span><sub>O</sub></b-m></b> just has to be <span class="mono">&lt;2048, 1024&gt;</span> to bring the result back to size.</p>
 <div class="foot" data-rt=""><span>Multi-Head Attention · Multi-Head Attention</span><span>10</span></div></section>
 
-<section class="page" id="mha-in-code" data-part="Logical Partitioning" data-view="reading" data-topic="mha">
+<section class="page" id="mha-in-code" data-view="reading" data-topic="mha" data-part="Logical Partitioning">
   <h2 data-b="la97m">Multi-Head Attention in Code</h2>
   <p data-b="z68aq">The most direct way to write multi-head attention is a loop, one head at a time, each with its own three weight matrices. We use random weights and embeddings at GPT-2 small's size, and the mask from Self-Attention so no token looks at the tokens after it:</p>
   <b-code lang="python" data-b="g762s"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div><div>21</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch</div><div class="ln">torch.manual_seed(<span class="nu nn">0</span>)</div><div class="ln">T, d, H = <span class="nu nn">6</span>, <span class="nu nn">768</span>, <span class="nu nn">12</span></div><div class="ln">dk = d // H            <span class="cm"># 64 numbers per head</span></div><div class="ln">E = torch.randn(T, d)  <span class="cm"># Ɛ: our 6 tokens</span></div><div class="ln">mask = torch.triu(torch.ones(T, T), diagonal=<span class="nu nn">1</span>).<span class="ty">bool</span>()</div><div class="ln"></div><div class="ln">heads = []</div><div class="ln"><span class="ctl">for</span> <span class="cc gold">h</span> <span class="kw">in</span> <span class="bi">range</span>(H):</div><div class="ln">    <span class="cc purple">WQ</span> = torch.randn(d, dk) / d ** <span class="nu nn">0.5</span>  <span class="cm"># this head's</span></div><div class="ln">    <span class="cc red">WK</span> = torch.randn(d, dk) / d ** <span class="nu nn">0.5</span>  <span class="cm"># own weights</span></div><div class="ln">    <span class="cc green">WV</span> = torch.randn(d, dk) / d ** <span class="nu nn">0.5</span></div><div class="ln">    <span class="cc purple">Q</span>, <span class="cc red">K</span>, <span class="cc green">V</span> = E @ <span class="cc purple">WQ</span>, E @ <span class="cc red">WK</span>, E @ <span class="cc green">WV</span>  <span class="cm"># &lt;6, 64&gt; each</span></div><div class="ln">    S = (<span class="cc purple">Q</span> @ <span class="cc red">K</span>.T / dk ** <span class="nu nn">0.5</span>).masked_fill(mask, -<span class="nu nn">1e9</span>)</div><div class="ln">    A = torch.softmax(S, dim=-<span class="nu nn">1</span>)        <span class="cm"># &lt;6, 6&gt;</span></div><div class="ln">    heads.append(A @ <span class="cc green">V</span>)                 <span class="cm"># &lt;6, 64&gt;</span></div><div class="ln"></div><div class="ln">ctx = torch.cat(heads, dim=<span class="nu nn">1</span>)  <span class="cm"># &lt;6, 768&gt;</span></div><div class="ln"><span class="cc blue">WO</span> = torch.randn(d, d) / d ** <span class="nu nn">0.5</span></div><div class="ln">E_CA = E + ctx @ <span class="cc blue">WO</span></div><div class="ln"><span class="bi">print</span>(heads[<span class="nu nn">0</span>].shape, ctx.shape, E_CA.shape)</div></div></b-code>
@@ -1635,174 +1652,178 @@ svg.al-clone { z-index: 1; }
 <section class="page" id="splitting-heads" data-view="reading" data-topic="partition">
   <h2 data-b="kw3nc">Splitting the Heads</h2>
   <p data-b="d5miw">To give each head its section without a loop, we reshape. <span class="mono">Q.view(6, 12, 64)</span> reads each token's <span class="num">768</span> numbers as <span class="num">12</span> blocks of <span class="num">64</span>, and <span class="mono">transpose(0, 1)</span> swaps the first two dimensions, so the heads come first. Nothing is computed, the same numbers are just grouped differently:</p>
-  <svg class="draw" viewBox="0 0 384 250" style="width: 85%" role="img" aria-label="Q &lt;6, 768&gt; drawn as six rows of twelve blocks, one block of 64 numbers per head; after Q.view(6, 12, 64).transpose(0, 1) the same numbers are twelve matrices of &lt;6, 64&gt;, Qh &lt;12, 6, 64&gt;" data-b="xj6ih">
-  <defs><marker id="ah8E7CC3-xj6ih" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path></marker></defs>
-  <text x="38.0" y="28.0" font-size="12.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">Q</text>
-  <text x="38.0" y="38.0" font-size="4.5" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">&lt;6, 768&gt;</text>
-  <text x="56.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 1</text>
-  <rect x="42.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="42.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="42.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="42.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="42.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="42.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="84.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 2</text>
-  <rect x="70.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="70.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="70.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="70.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="70.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="70.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="112.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 3</text>
-  <rect x="98.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="98.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="98.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="98.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="98.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="98.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="140.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 4</text>
-  <rect x="126.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="126.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="126.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="126.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="126.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="126.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="168.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 5</text>
-  <rect x="154.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="154.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="154.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="154.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="154.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="154.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="196.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 6</text>
-  <rect x="182.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="182.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="182.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="182.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="182.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="182.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="224.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 7</text>
-  <rect x="210.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="210.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="210.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="210.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="210.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="210.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="252.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 8</text>
-  <rect x="238.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="238.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="238.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="238.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="238.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="238.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="280.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 9</text>
-  <rect x="266.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="266.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="266.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="266.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="266.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="266.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="308.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 10</text>
-  <rect x="294.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="294.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="294.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="294.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="294.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="294.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="336.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 11</text>
-  <rect x="322.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="322.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="322.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="322.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="322.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="322.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="364.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 12</text>
-  <rect x="350.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="350.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="350.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="350.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="350.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <rect x="350.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.60"></rect>
-  <text x="210.0" y="80.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">64 numbers per head, 12 heads per row, one row per token</text>
-  <line x1="192.0" y1="88.0" x2="192.0" y2="118.0" stroke="#8E7CC3" stroke-width="1.30" marker-end="url(#ah8E7CC3-xj6ih)"></line>
-  <text x="200.0" y="100.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Q.view(6, 12, 64)</text>
-  <text x="200.0" y="112.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">.transpose(0, 1)</text>
-  <rect x="219.0" y="170.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="219.0" y1="179.0" x2="283.0" y2="179.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="219.0" y1="188.0" x2="283.0" y2="188.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="219.0" y1="197.0" x2="283.0" y2="197.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="219.0" y1="206.0" x2="283.0" y2="206.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="219.0" y1="215.0" x2="283.0" y2="215.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="210.0" y="166.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="210.0" y1="175.0" x2="274.0" y2="175.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="210.0" y1="184.0" x2="274.0" y2="184.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="210.0" y1="193.0" x2="274.0" y2="193.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="210.0" y1="202.0" x2="274.0" y2="202.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="210.0" y1="211.0" x2="274.0" y2="211.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="201.0" y="162.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="201.0" y1="171.0" x2="265.0" y2="171.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="201.0" y1="180.0" x2="265.0" y2="180.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="201.0" y1="189.0" x2="265.0" y2="189.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="201.0" y1="198.0" x2="265.0" y2="198.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="201.0" y1="207.0" x2="265.0" y2="207.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="192.0" y="158.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="192.0" y1="167.0" x2="256.0" y2="167.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="192.0" y1="176.0" x2="256.0" y2="176.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="192.0" y1="185.0" x2="256.0" y2="185.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="192.0" y1="194.0" x2="256.0" y2="194.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="192.0" y1="203.0" x2="256.0" y2="203.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="183.0" y="154.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="183.0" y1="163.0" x2="247.0" y2="163.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="183.0" y1="172.0" x2="247.0" y2="172.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="183.0" y1="181.0" x2="247.0" y2="181.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="183.0" y1="190.0" x2="247.0" y2="190.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="183.0" y1="199.0" x2="247.0" y2="199.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="174.0" y="150.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="174.0" y1="159.0" x2="238.0" y2="159.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="174.0" y1="168.0" x2="238.0" y2="168.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="174.0" y1="177.0" x2="238.0" y2="177.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="174.0" y1="186.0" x2="238.0" y2="186.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="174.0" y1="195.0" x2="238.0" y2="195.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="165.0" y="146.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="165.0" y1="155.0" x2="229.0" y2="155.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="165.0" y1="164.0" x2="229.0" y2="164.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="165.0" y1="173.0" x2="229.0" y2="173.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="165.0" y1="182.0" x2="229.0" y2="182.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="165.0" y1="191.0" x2="229.0" y2="191.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="156.0" y="142.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="156.0" y1="151.0" x2="220.0" y2="151.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="156.0" y1="160.0" x2="220.0" y2="160.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="156.0" y1="169.0" x2="220.0" y2="169.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="156.0" y1="178.0" x2="220.0" y2="178.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="156.0" y1="187.0" x2="220.0" y2="187.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="147.0" y="138.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="147.0" y1="147.0" x2="211.0" y2="147.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="147.0" y1="156.0" x2="211.0" y2="156.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="147.0" y1="165.0" x2="211.0" y2="165.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="147.0" y1="174.0" x2="211.0" y2="174.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="147.0" y1="183.0" x2="211.0" y2="183.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="138.0" y="134.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="138.0" y1="143.0" x2="202.0" y2="143.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="138.0" y1="152.0" x2="202.0" y2="152.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="138.0" y1="161.0" x2="202.0" y2="161.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="138.0" y1="170.0" x2="202.0" y2="170.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="138.0" y1="179.0" x2="202.0" y2="179.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="129.0" y="130.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="129.0" y1="139.0" x2="193.0" y2="139.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="129.0" y1="148.0" x2="193.0" y2="148.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="129.0" y1="157.0" x2="193.0" y2="157.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="129.0" y1="166.0" x2="193.0" y2="166.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="129.0" y1="175.0" x2="193.0" y2="175.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <rect x="120.0" y="126.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <line x1="120.0" y1="135.0" x2="184.0" y2="135.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="120.0" y1="144.0" x2="184.0" y2="144.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="120.0" y1="153.0" x2="184.0" y2="153.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="120.0" y1="162.0" x2="184.0" y2="162.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <line x1="120.0" y1="171.0" x2="184.0" y2="171.0" stroke="#8E7CC3" stroke-width="0.40"></line>
-  <text x="152.0" y="156.0" font-size="7.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 1</text>
-  <text x="330.0" y="172.0" font-size="12.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Qh</text>
-  <text x="330.0" y="182.0" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;12, 6, 64&gt;</text>
-  <text x="192.0" y="244.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">the same numbers, 12 matrices of &lt;6, 64&gt;</text>
+  <svg class="draw" viewBox="0 0 384 250" role="img" aria-label="Q &lt;6, 768&gt; drawn as six rows of twelve blocks, one block of 64 numbers per head; after Q.view(6, 12, 64).transpose(0, 1) the same numbers are twelve matrices of &lt;6, 64&gt;, Qh &lt;12, 6, 64&gt;" style="width: 85%" data-b="xj6ih">
+    <defs>
+      <marker id="ah8E7CC3-xj6ih" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#8E7CC3"></path>
+      </marker>
+    </defs>
+    <text x="38.0" y="28.0" font-size="12.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">Q</text>
+    <text x="38.0" y="38.0" font-size="4.5" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end" font-weight="bold">&lt;6, 768&gt;</text>
+    <text x="56.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 1</text>
+    <rect x="42.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="42.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="42.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="42.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="42.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="42.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="84.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 2</text>
+    <rect x="70.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="70.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="70.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="70.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="70.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="70.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="112.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 3</text>
+    <rect x="98.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="98.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="98.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="98.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="98.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="98.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="140.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 4</text>
+    <rect x="126.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="126.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="126.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="126.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="126.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="126.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="168.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 5</text>
+    <rect x="154.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="154.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="154.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="154.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="154.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="154.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="196.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 6</text>
+    <rect x="182.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="182.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="182.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="182.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="182.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="182.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="224.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 7</text>
+    <rect x="210.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="210.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="210.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="210.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="210.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="210.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="252.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 8</text>
+    <rect x="238.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="238.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="238.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="238.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="238.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="238.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="280.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 9</text>
+    <rect x="266.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="266.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="266.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="266.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="266.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="266.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="308.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 10</text>
+    <rect x="294.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="294.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="294.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="294.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="294.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="294.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="336.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 11</text>
+    <rect x="322.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="322.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="322.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="322.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="322.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="322.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="364.0" y="10.0" font-size="4.8" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 12</text>
+    <rect x="350.0" y="14.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="350.0" y="23.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="350.0" y="32.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="350.0" y="41.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="350.0" y="50.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <rect x="350.0" y="59.0" width="28.0" height="9.0" rx="0.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.6"></rect>
+    <text x="210.0" y="80.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">64 numbers per head, 12 heads per row, one row per token</text>
+    <line x1="192.0" y1="88.0" x2="192.0" y2="118.0" stroke="#8E7CC3" stroke-width="1.3" marker-end="url(#ah8E7CC3-xj6ih)"></line>
+    <text x="200.0" y="100.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">Q.view(6, 12, 64)</text>
+    <text x="200.0" y="112.0" font-size="8.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="start" font-weight="bold">.transpose(0, 1)</text>
+    <rect x="219.0" y="170.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="219.0" y1="179.0" x2="283.0" y2="179.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="219.0" y1="188.0" x2="283.0" y2="188.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="219.0" y1="197.0" x2="283.0" y2="197.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="219.0" y1="206.0" x2="283.0" y2="206.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="219.0" y1="215.0" x2="283.0" y2="215.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="210.0" y="166.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="210.0" y1="175.0" x2="274.0" y2="175.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="210.0" y1="184.0" x2="274.0" y2="184.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="210.0" y1="193.0" x2="274.0" y2="193.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="210.0" y1="202.0" x2="274.0" y2="202.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="210.0" y1="211.0" x2="274.0" y2="211.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="201.0" y="162.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="201.0" y1="171.0" x2="265.0" y2="171.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="201.0" y1="180.0" x2="265.0" y2="180.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="201.0" y1="189.0" x2="265.0" y2="189.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="201.0" y1="198.0" x2="265.0" y2="198.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="201.0" y1="207.0" x2="265.0" y2="207.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="192.0" y="158.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="192.0" y1="167.0" x2="256.0" y2="167.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="192.0" y1="176.0" x2="256.0" y2="176.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="192.0" y1="185.0" x2="256.0" y2="185.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="192.0" y1="194.0" x2="256.0" y2="194.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="192.0" y1="203.0" x2="256.0" y2="203.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="183.0" y="154.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="183.0" y1="163.0" x2="247.0" y2="163.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="183.0" y1="172.0" x2="247.0" y2="172.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="183.0" y1="181.0" x2="247.0" y2="181.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="183.0" y1="190.0" x2="247.0" y2="190.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="183.0" y1="199.0" x2="247.0" y2="199.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="174.0" y="150.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="174.0" y1="159.0" x2="238.0" y2="159.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="174.0" y1="168.0" x2="238.0" y2="168.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="174.0" y1="177.0" x2="238.0" y2="177.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="174.0" y1="186.0" x2="238.0" y2="186.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="174.0" y1="195.0" x2="238.0" y2="195.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="165.0" y="146.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="165.0" y1="155.0" x2="229.0" y2="155.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="165.0" y1="164.0" x2="229.0" y2="164.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="165.0" y1="173.0" x2="229.0" y2="173.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="165.0" y1="182.0" x2="229.0" y2="182.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="165.0" y1="191.0" x2="229.0" y2="191.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="156.0" y="142.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="156.0" y1="151.0" x2="220.0" y2="151.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="156.0" y1="160.0" x2="220.0" y2="160.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="156.0" y1="169.0" x2="220.0" y2="169.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="156.0" y1="178.0" x2="220.0" y2="178.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="156.0" y1="187.0" x2="220.0" y2="187.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="147.0" y="138.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="147.0" y1="147.0" x2="211.0" y2="147.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="147.0" y1="156.0" x2="211.0" y2="156.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="147.0" y1="165.0" x2="211.0" y2="165.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="147.0" y1="174.0" x2="211.0" y2="174.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="147.0" y1="183.0" x2="211.0" y2="183.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="138.0" y="134.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="138.0" y1="143.0" x2="202.0" y2="143.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="138.0" y1="152.0" x2="202.0" y2="152.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="138.0" y1="161.0" x2="202.0" y2="161.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="138.0" y1="170.0" x2="202.0" y2="170.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="138.0" y1="179.0" x2="202.0" y2="179.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="129.0" y="130.0" width="64.0" height="54.0" rx="3.0" fill="#B4A7D6" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="129.0" y1="139.0" x2="193.0" y2="139.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="129.0" y1="148.0" x2="193.0" y2="148.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="129.0" y1="157.0" x2="193.0" y2="157.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="129.0" y1="166.0" x2="193.0" y2="166.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="129.0" y1="175.0" x2="193.0" y2="175.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <rect x="120.0" y="126.0" width="64.0" height="54.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+    <line x1="120.0" y1="135.0" x2="184.0" y2="135.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="120.0" y1="144.0" x2="184.0" y2="144.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="120.0" y1="153.0" x2="184.0" y2="153.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="120.0" y1="162.0" x2="184.0" y2="162.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <line x1="120.0" y1="171.0" x2="184.0" y2="171.0" stroke="#8E7CC3" stroke-width="0.4"></line>
+    <text x="152.0" y="156.0" font-size="7.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">head 1</text>
+    <text x="330.0" y="172.0" font-size="12.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">Qh</text>
+    <text x="330.0" y="182.0" font-size="5.0" fill="#8E7CC3" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">&lt;12, 6, 64&gt;</text>
+    <text x="192.0" y="244.0" font-size="6.5" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">the same numbers, 12 matrices of &lt;6, 64&gt;</text>
   </svg>
   <p data-b="eyz4u">Now <span class="mono">Qh</span> is <span class="mono">&lt;12, 6, 64&gt;</span>, twelve <span class="mono">&lt;6, 64&gt;</span> matrices in a stack, and <span class="mono">@</span> works on stacks: <span class="mono">Qh @ Kh.transpose(1, 2)</span> multiplies head 1's queries by head 1's keys, head 2's by head 2's, and so on, giving <span class="mono">&lt;12, 6, 6&gt;</span>, <b class="take">twelve sets of attention weights in one multiplication</b>.</p>
   <p data-b="cy7ba">irishQwen does exactly this in <span class="mono">_split_heads</span>, with one more dimension in front for a batch of prompts and <span class="mono">permute</span> doing the swap.</p>
@@ -1830,7 +1851,7 @@ svg.al-clone { z-index: 1; }
   <p data-b="k3vkl">They match (<span class="mono">allclose</span> allows for the last digit or so of rounding). So the twelve heads in the loop and the twelve heads in one big multiplication are the same twelve heads, <b class="take">only the bookkeeping is different</b>. That's how attention layers are written in practice.</p>
 <div class="foot" data-rt=""><span>Multi-Head Attention · Logical Partitioning</span><span>15</span></div></section>
 
-<section class="page" id="generating-text" data-part="Generating Text" data-view="reading" data-topic="kv-cache" style="--gap: 22pt;">
+<section class="page" id="generating-text" data-view="reading" data-topic="kv-cache" data-part="Generating Text" style="--gap: 22pt;">
   <h2 data-b="k7bvx">Generating Text</h2>
   <p data-b="bfhsv">So far we've run attention once over a fixed prompt. A language model generating text runs it over and over. Given "so are they all, all honorable", it predicts the next token, say "men", adds it to the end, and runs again on all <span class="num">7</span> tokens to predict the token after that. Generating one token at a time, each one fed back in, is called <b class="def">auto-regressive</b> generation.</p>
   <p data-b="dg0z0">Done exactly like that, the model does a lot of work twice. At every step every token goes through <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b>, <b class="warn"><b-m tex="Ω_K"><span class="Om">ω</span><sub>K</sub></b-m></b> and <b class="take"><b-m tex="Ω_V"><span class="Om">ω</span><sub>V</sub></b-m></b> again, in every head of every layer. With our <span class="num">6</span>-token prompt and <span class="num">100</span> new tokens, the steps run <span class="num">6</span>, <span class="num">7</span>, <span class="num">8</span> … <span class="num">105</span> tokens, <span class="num">5,550</span> in all, when each token only really needed to go through once, <span class="num">105</span> times in all.</p>
@@ -1841,161 +1862,161 @@ svg.al-clone { z-index: 1; }
   <h2 data-b="vov4g">What Changes and What Doesn't</h2>
   <p data-b="yzt8d">Because of the mask, a token only ever attends to itself and the tokens before it. When "men" is added, nothing about "so", "are", "they", "all", "all" or "honorable" changes: they couldn't see "men" before it arrived and they still can't. Their contexts are the same, and so are their keys and values, <b class="take">in every head of every layer</b>.</p>
   <p data-b="ur7li">The only new work is for the new token. "men" needs its own query, key and value, and its query has to be compared with every key so far. Pictured below are the keys and values worked out at each of the first four steps, without and with keeping the old ones:</p>
-  <svg class="draw" viewBox="0 0 384 250" style="width: 80%" role="img" aria-label="Four steps of generating men, come, i after so are they all all honorable. Without a cache every token's keys and values are worked out again at every step, 6 + 7 + 8 + 9 = 30. With a KV cache only the new token's are worked out (6 at step 1, then 1 at each step), 9 in all, and the rest are reused" data-b="q8pxy">
-  <defs></defs>
-  <text x="4.0" y="12.0" font-size="9.0" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Without a cache: 30 tokens through Ωₖ and Ωᵥ</text>
-  <text x="85.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
-  <text x="115.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
-  <text x="145.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
-  <text x="175.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  <text x="205.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  <text x="235.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honor.</text>
-  <text x="265.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">men</text>
-  <text x="295.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">come</text>
-  <text x="325.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">i</text>
-  <text x="64.0" y="45.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 1</text>
-  <rect x="71.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="85.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="101.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="115.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="131.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="145.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="161.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="175.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="191.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="205.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="221.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="235.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <text x="64.0" y="65.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 2</text>
-  <rect x="71.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="85.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="101.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="115.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="131.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="145.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="161.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="175.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="191.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="205.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="221.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="235.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="251.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="265.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <text x="64.0" y="85.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 3</text>
-  <rect x="71.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="85.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="101.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="115.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="131.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="145.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="161.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="175.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="191.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="205.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="221.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="235.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="251.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="265.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="281.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="295.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <text x="64.0" y="105.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 4</text>
-  <rect x="71.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="85.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="101.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="115.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="131.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="145.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="161.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="175.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="191.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="205.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="221.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="235.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="251.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="265.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="281.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="295.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="311.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="325.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <text x="4.0" y="132.0" font-size="9.0" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">With a KV cache: 9 tokens through Ωₖ and Ωᵥ</text>
-  <text x="85.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
-  <text x="115.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
-  <text x="145.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
-  <text x="175.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  <text x="205.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
-  <text x="235.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honor.</text>
-  <text x="265.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">men</text>
-  <text x="295.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">come</text>
-  <text x="325.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">i</text>
-  <text x="64.0" y="165.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 1</text>
-  <rect x="71.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="85.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="101.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="115.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="131.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="145.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="161.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="175.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="191.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="205.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="221.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="235.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <text x="64.0" y="185.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 2</text>
-  <rect x="71.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="85.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="101.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="115.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="131.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="145.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="161.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="175.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="191.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="205.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="221.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="235.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="251.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="265.0" y="185.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <text x="64.0" y="205.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 3</text>
-  <rect x="71.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="85.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="101.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="115.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="131.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="145.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="161.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="175.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="191.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="205.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="221.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="235.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="251.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="265.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="281.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="295.0" y="205.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <text x="64.0" y="225.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 4</text>
-  <rect x="71.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="85.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="101.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="115.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="131.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="145.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="161.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="175.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="191.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="205.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="221.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="235.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="251.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="265.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="281.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.90"></rect>
-  <text x="295.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
-  <rect x="311.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.90"></rect>
-  <text x="325.0" y="225.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+  <svg class="draw" viewBox="0 0 384 250" role="img" aria-label="Four steps of generating men, come, i after so are they all all honorable. Without a cache every token's keys and values are worked out again at every step, 6 + 7 + 8 + 9 = 30. With a KV cache only the new token's are worked out (6 at step 1, then 1 at each step), 9 in all, and the rest are reused" style="width: 80%" data-b="q8pxy">
+    <defs></defs>
+    <text x="4.0" y="12.0" font-size="9.0" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">Without a cache: 30 tokens through Ωₖ and Ωᵥ</text>
+    <text x="85.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
+    <text x="115.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
+    <text x="145.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
+    <text x="175.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    <text x="205.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    <text x="235.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honor.</text>
+    <text x="265.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">men</text>
+    <text x="295.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">come</text>
+    <text x="325.0" y="26.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">i</text>
+    <text x="64.0" y="45.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 1</text>
+    <rect x="71.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="85.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="101.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="115.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="131.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="145.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="161.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="175.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="191.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="205.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="221.5" y="34.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="235.0" y="45.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <text x="64.0" y="65.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 2</text>
+    <rect x="71.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="85.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="101.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="115.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="131.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="145.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="161.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="175.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="191.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="205.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="221.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="235.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="251.5" y="54.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="265.0" y="65.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <text x="64.0" y="85.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 3</text>
+    <rect x="71.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="85.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="101.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="115.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="131.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="145.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="161.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="175.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="191.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="205.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="221.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="235.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="251.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="265.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="281.5" y="74.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="295.0" y="85.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <text x="64.0" y="105.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 4</text>
+    <rect x="71.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="85.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="101.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="115.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="131.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="145.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="161.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="175.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="191.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="205.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="221.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="235.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="251.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="265.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="281.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="295.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="311.5" y="94.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="325.0" y="105.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <text x="4.0" y="132.0" font-size="9.0" fill="#002B5B" font-family="'AI2AI Omega', Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">With a KV cache: 9 tokens through Ωₖ and Ωᵥ</text>
+    <text x="85.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">so</text>
+    <text x="115.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">are</text>
+    <text x="145.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">they</text>
+    <text x="175.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    <text x="205.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">all</text>
+    <text x="235.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">honor.</text>
+    <text x="265.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">men</text>
+    <text x="295.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">come</text>
+    <text x="325.0" y="146.0" font-size="6.0" fill="#E06666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">i</text>
+    <text x="64.0" y="165.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 1</text>
+    <rect x="71.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="85.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="101.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="115.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="131.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="145.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="161.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="175.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="191.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="205.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="221.5" y="154.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="235.0" y="165.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <text x="64.0" y="185.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 2</text>
+    <rect x="71.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="85.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="101.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="115.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="131.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="145.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="161.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="175.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="191.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="205.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="221.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="235.0" y="185.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="251.5" y="174.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="265.0" y="185.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <text x="64.0" y="205.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 3</text>
+    <rect x="71.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="85.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="101.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="115.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="131.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="145.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="161.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="175.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="191.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="205.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="221.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="235.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="251.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="265.0" y="205.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="281.5" y="194.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="295.0" y="205.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <text x="64.0" y="225.0" font-size="7.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="end">step 4</text>
+    <rect x="71.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="85.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="101.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="115.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="131.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="145.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="161.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="175.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="191.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="205.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="221.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="235.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="251.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="265.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="281.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#CCCCCC" stroke="#666666" stroke-width="0.9"></rect>
+    <text x="295.0" y="225.0" font-size="6.0" fill="#666666" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
+    <rect x="311.5" y="214.0" width="27.0" height="16.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.9"></rect>
+    <text x="325.0" y="225.0" font-size="6.0" fill="#B8920F" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle" font-weight="bold">k v</text>
   </svg>
   <p data-b="mmofx">Notice also that the old queries are never needed again. Only the newest token's row of attention weights is used to predict the next token, and that row needs <b class="take">one query but every key and value</b>.</p>
 <div class="foot" data-rt=""><span>Multi-Head Attention · Generating Text</span><span>17</span></div></section>
 
-<section class="page" id="kv-cache" data-part="KV Cache" data-view="reading" data-topic="kv-cache" style="--gap: 22pt;">
+<section class="page" id="kv-cache" data-view="reading" data-topic="kv-cache" data-part="KV Cache" style="--gap: 22pt;">
   <h2 data-b="buy7o">The KV Cache</h2>
   <p data-b="gxysb">So we keep them. A <b class="def">KV cache</b> stores the keys and values of every token so far, so they can be reused instead of worked out again. At each step only the new token goes through <b class="purple"><b-m tex="Ω_Q"><span class="Om">ω</span><sub>Q</sub></b-m></b>, <b class="warn"><b-m tex="Ω_K"><span class="Om">ω</span><sub>K</sub></b-m></b> and <b class="take"><b-m tex="Ω_V"><span class="Om">ω</span><sub>V</sub></b-m></b>, its key and value are added to the cache, and its query is compared with every cached key.</p>
   <p data-b="sadwr">In multi-head attention <b class="take">every head has its own cache</b>, since every head has its own keys and values. In GPT-2 small, after our <span class="num">6</span> tokens, each head's cache holds a <span class="mono">&lt;6, 64&gt;</span> matrix of keys and another of values, and every layer has twelve heads. With logical partitioning these are just slices of one <span class="mono">&lt;12, 6, 64&gt;</span> tensor of keys and one of values per layer.</p>
@@ -2019,7 +2040,7 @@ svg.al-clone { z-index: 1; }
   <p data-b="xlkix">The new token's context from the cache matches the last row of the full calculation. <b class="take">Caching changes how much we compute, not what we compute.</b> There's no mask in the cached version because there's nothing to hide, the cache only holds the past.</p>
 <div class="foot" data-rt=""><span>Multi-Head Attention · KV Cache</span><span>20</span></div></section>
 
-<section class="page" id="prefill-and-decode" data-part="Prefill and Decode" data-view="reading" data-topic="prefill-decode" style="--gap: 22pt;">
+<section class="page" id="prefill-and-decode" data-view="reading" data-topic="prefill-decode" data-part="Prefill and Decode" style="--gap: 22pt;">
   <h2 data-b="gf2gb">Prefill and Decode</h2>
   <p data-b="uocfq">With a cache, answering a prompt happens in two quite different phases. First the model reads the whole prompt. Every prompt token is already known, so they can all go through the layers at once, in parallel, the way we've been running attention all chapter. This is called <b class="def">prefill</b>, and it fills the KV cache.</p>
   <p data-b="njnxt">Then the model writes. Each new token depends on the one before, so they come out one at a time, each going through the layers alone and attending to the cache. This is called <b class="def">decode</b>. Prefill is <b class="take">a few big multiplications</b>, decode is <b class="take">many small ones</b>, and every new message you send is prefilled before the model starts decoding its reply.</p>
@@ -2387,7 +2408,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -2415,15 +2436,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -2432,6 +2499,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -2444,9 +2512,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';

@@ -379,16 +379,18 @@ u.fill.blank { display: inline-block; vertical-align: baseline; }
    or red when it isn't the answer */
 .book[data-view="slides"] b-code u.fill.filled { color: var(--navy) !important; border-bottom: 2pt solid #38761D; }
 .book[data-view="slides"] b-code u.fill.filled.wrong { border-bottom-color: #CC0000; }
+/* an edited cell out of editing (book.js close): the edited code as code; a tap on it opens the editor again */
+b-code.run-view { cursor: text; }
 /* colours on code written in a Lecture (book.js eaiCodeColors): a pen's colour on the letters (as .cc), the highlighter's
    box (as marks); .eai-cc is the box laid over an opened editor that draws its text with them */
 .eai-cc { position: absolute; pointer-events: none; white-space: pre-wrap; overflow-wrap: break-word; overflow: hidden; margin: 0; box-sizing: border-box; border-style: solid; border-color: transparent; background: none; }
-.eai-cc .t-blue, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
-.eai-cc .t-red, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
-.eai-cc .t-green, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
-.eai-cc .t-purple, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
-.eai-cc .t-gold, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
+.eai-cc .t-blue, b-code.run-view .t-blue, b-code.run-view .t-blue *, .book[data-view="slides"] b-code u.fill.pen-blue { color: #1155CC !important; font-weight: 700; }
+.eai-cc .t-red, b-code.run-view .t-red, b-code.run-view .t-red *, .book[data-view="slides"] b-code u.fill.pen-red { color: #CC0000 !important; font-weight: 700; }
+.eai-cc .t-green, b-code.run-view .t-green, b-code.run-view .t-green *, .book[data-view="slides"] b-code u.fill.pen-green { color: #38761D !important; font-weight: 700; }
+.eai-cc .t-purple, b-code.run-view .t-purple, b-code.run-view .t-purple *, .book[data-view="slides"] b-code u.fill.pen-purple { color: #674EA7 !important; font-weight: 700; }
+.eai-cc .t-gold, b-code.run-view .t-gold, b-code.run-view .t-gold *, .book[data-view="slides"] b-code u.fill.pen-gold { color: #DCB439 !important; font-weight: 700; }
 .book[data-view="slides"] b-code u.fill[class*="pen-"] * { color: inherit !important; }   /* a picked colour over the code's own */
-.eai-cc .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
+.eai-cc .h-gold, b-code.run-view .h-gold, .book[data-view="slides"] b-code u.fill.hl-gold { background: #fff2cc; box-shadow: 0 0 0 1px #ffd966; border-radius: 2px; }
 /* Blanks are 20% larger than the text around them in the Lecture, so the space they keep fits handwriting
    (Eric, 2026-11-03: "my handwriting is larger than the text size we use"). Not in the Workbook, where students reveal the
    text instead (Eric, same day), and not in code, where columns must line up. */
@@ -593,6 +595,15 @@ svg.ink path.ink-note { display: none; }   /* private notes (the iPad app's Note
 @media screen { html.ink-ghost svg.ink path.ink-note { display: inline; opacity: .3; } }
 @media screen {
   html.ink-ghost .book[data-view="slides"] u.fill:not(.shown), html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) * { color: rgba(0, 43, 91, .3) !important; }
+  /* a blank whose answer was coloured in the editor (a colour circle on its text): its faint answer keeps the colour (Eric, 2026-11-20); a coloured phrase round a blank doesn't count */
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.def * { color: rgba(220, 180, 57, .5) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.name * { color: rgba(0, 43, 91, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.take * { color: rgba(56, 118, 29, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.warn * { color: rgba(204, 0, 0, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.ex * { color: rgba(90, 171, 188, .45) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.gray * { color: rgba(67, 67, 67, .3) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.purple * { color: rgba(103, 78, 167, .35) !important; }
+  html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange, html.ink-ghost .book[data-view="slides"] u.fill:not(.shown) b.orange * { color: rgba(217, 119, 87, .4) !important; }
   html.ink-ghost .book[data-view="slides"] [data-fill]:not(.shown):not(svg *) > * { visibility: visible; opacity: .28; }
   html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown), html.ink-ghost:not(.eai-proj) .book[data-view="slides"] :is(b-m .sym[data-fill], .eq-ml .eqfill):not(.shown) * { color: rgba(0, 43, 91, .3) !important; }   /* tile blanks: faint for the instructor, like text blanks */
   html.ink-ghost .book[data-view="slides"] svg.draw :is([data-fill=""], [data-rt-fill]):not(.shown),
@@ -916,7 +927,7 @@ svg.al-clone { z-index: 1; }
 
 
 
-<section class="page" id="validation-loss" data-part="Measuring a Model" data-view="reading" data-topic="harness" style="--gap: 22pt;">
+<section class="page" id="validation-loss" data-view="reading" data-topic="harness" data-part="Measuring a Model" style="--gap: 22pt;">
   <h2 data-b="qq9mx">Validation Loss</h2>
   <p data-b="qyh53">Last chapter we finally trained irishQwen. We cut all of Shakespeare into about <span class="num">2.5</span> million tokens, held the end of the corpus back, made five passes over the rest, and kept whichever epoch did best on that held-out text. The number we watched the whole time was the <b class="def">validation loss</b>, the cross-entropy on text the model never trained on.</p>
   <p data-b="dzxd2">It went down, a lot, and the samples at the end of training looked a bit like Shakespeare. The obvious next question is whether irishQwen is any good. Before we can answer that we need a way to compare it with other models, starting with a version of the loss that doesn't depend on the tokenizer.</p>
@@ -978,7 +989,9 @@ D. background detection
   <p data-b="uysll">We could let the model write a reply and then try to find a letter in it. Instead, the harness never lets it write anything at all. It runs the prompt through the model once and reads off the probability of the very next token being <span class="mono">" A"</span>, <span class="mono">" B"</span>, <span class="mono">" C"</span> or <span class="mono">" D"</span> (with the space, since after <span class="mono">Answer:</span> that's how the letter would actually appear). <b class="take">Whichever letter is most likely is the model's answer.</b></p>
   <p data-b="xz08m">That only works cleanly if each letter is a single token. For both of our tokenizers it is:</p>
   <table class="tbl small num" data-b="qubt0">
-    <thead><tr><th>next token</th><th>Qwen3 id</th><th>irishQwen id</th></tr></thead>
+    <thead>
+      <tr><th>next token</th><th>Qwen3 id</th><th>irishQwen id</th></tr>
+    </thead>
     <tbody>
       <tr><td>" A"</td><td>362</td><td>337</td></tr>
       <tr><td>" B"</td><td>425</td><td>382</td></tr>
@@ -993,582 +1006,582 @@ D. background detection
 <section class="page" id="context-window" data-view="reading" data-topic="tokens" style="--gap: 22pt;">
   <h2 data-b="wj5p7">The Context Window</h2>
   <p data-b="wd81m">Qwen3's tokenizer cuts our prompt into <span class="num">50</span> tokens, mostly one per word, and its window holds <span class="num">32</span> thousand. irishQwen's byte-level BPE tokenizer only learned <span class="num">512</span> tokens, all from Shakespeare, so words like "detection" and "distribution" come out in pieces. The same prompt is <span class="num">143</span> irishQwen tokens:</p>
-  <svg class="draw" viewBox="0 0 640 205" style="width: 382.5pt" role="img" aria-label="The prompt cut into irishQwen's 143 tokens, mostly pieces of words; the first 16 are grey because they fall outside the 128-token window" data-b="ufjxg">
-  <defs></defs>
-  <text x="4.0" y="12.0" font-size="10.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">irishQwen tokenizer: 143 tokens; only the last 127 fit before the answer</text>
-  <g id="irish-tokens-ufjxg-s1">
-  <rect x="4.0" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="14.6" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">The</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s2">
-  <rect x="27.1" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="35.2" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·f</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s3">
-  <rect x="45.2" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="50.7" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">o</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s4">
-  <rect x="58.2" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="66.3" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ll</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s5">
-  <rect x="76.3" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="84.4" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ow</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s6">
-  <rect x="94.4" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="105.0" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ing</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s7">
-  <rect x="117.5" y="20.0" width="26.2" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="130.6" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·are</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s8">
-  <rect x="145.7" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="156.2" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·mu</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s9">
-  <rect x="168.8" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="174.3" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">l</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s10">
-  <rect x="181.8" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="187.4" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">t</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s11">
-  <rect x="194.9" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="200.4" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">i</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s12">
-  <rect x="207.9" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="213.4" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">p</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s13">
-  <rect x="221.0" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="229.0" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">le</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s14">
-  <rect x="239.0" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="247.1" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·c</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s15">
-  <rect x="257.1" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="265.2" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ho</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s16">
-  <rect x="275.2" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.80"></rect>
-  <text x="280.7" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">i</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s17">
-  <rect x="288.2" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="296.3" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ce</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s18">
-  <rect x="306.3" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="311.8" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s19">
-  <rect x="319.4" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="327.4" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">qu</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s20">
-  <rect x="337.4" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="348.0" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">est</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s21">
-  <rect x="360.6" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="371.1" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s22">
-  <rect x="383.7" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="389.2" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">s</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s23">
-  <rect x="396.7" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="402.2" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s24">
-  <rect x="409.8" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="415.3" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">(</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s25">
-  <rect x="422.8" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="428.3" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">w</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s26">
-  <rect x="435.8" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="446.4" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ith</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s27">
-  <rect x="459.0" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="469.5" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·an</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s28">
-  <rect x="482.1" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="487.6" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">s</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s29">
-  <rect x="495.1" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="500.6" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">w</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s30">
-  <rect x="508.2" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="518.7" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ers</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s31">
-  <rect x="531.3" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="536.8" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">)</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s32">
-  <rect x="544.3" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="552.4" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·a</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s33">
-  <rect x="562.4" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="567.9" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">b</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s34">
-  <rect x="575.4" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="586.0" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">out</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s35">
-  <rect x="598.6" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="606.6" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·m</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s36">
-  <rect x="616.6" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="622.2" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">a</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s37">
-  <rect x="4.0" y="39.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="12.0" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ch</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s38">
-  <rect x="22.1" y="39.0" width="21.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="32.6" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ine</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s39">
-  <rect x="45.2" y="39.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="53.2" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·l</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s40">
-  <rect x="63.3" y="39.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="73.8" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ear</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s41">
-  <rect x="86.4" y="39.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="91.9" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">n</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s42">
-  <rect x="99.4" y="39.0" width="21.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="110.0" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ing</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s43">
-  <rect x="122.6" y="39.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="128.1" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s44">
-  <rect x="135.6" y="39.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="141.1" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s45">
-  <rect x="4.0" y="58.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="9.5" y="68.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s46">
-  <rect x="4.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="9.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">A</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s47">
-  <rect x="17.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="22.6" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">n</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s48">
-  <rect x="30.1" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="38.1" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ot</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s49">
-  <rect x="48.2" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="58.7" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">her</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s50">
-  <rect x="71.3" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="79.3" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·t</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s51">
-  <rect x="89.4" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="97.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">er</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s52">
-  <rect x="107.4" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="113.0" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">m</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s53">
-  <rect x="120.5" y="77.0" width="26.2" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="133.6" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·for</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s54">
-  <rect x="148.6" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="154.2" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s55">
-  <rect x="161.7" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="172.2" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">out</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s56">
-  <rect x="184.8" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="190.3" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">-</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s57">
-  <rect x="197.8" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="203.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">o</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s58">
-  <rect x="210.9" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="216.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">f</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s59">
-  <rect x="223.9" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="229.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">-</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s60">
-  <rect x="237.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="242.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">d</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s61">
-  <rect x="250.0" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="258.0" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">is</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s62">
-  <rect x="268.1" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="273.6" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">t</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s63">
-  <rect x="281.1" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="289.2" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ri</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s64">
-  <rect x="299.2" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="304.7" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">b</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s65">
-  <rect x="312.2" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="320.3" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ut</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s66">
-  <rect x="330.3" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="340.9" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s67">
-  <rect x="353.4" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="361.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·d</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s68">
-  <rect x="371.5" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="379.6" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">et</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s69">
-  <rect x="389.6" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="395.1" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s70">
-  <rect x="402.6" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="410.7" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ct</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s71">
-  <rect x="420.7" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="431.3" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s72">
-  <rect x="443.8" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="454.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·is</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s73">
-  <rect x="467.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="472.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">?</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s74">
-  <rect x="480.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="485.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s75">
-  <rect x="4.0" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="9.5" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">A</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s76">
-  <rect x="17.0" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="22.6" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s77">
-  <rect x="30.1" y="96.0" width="21.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="40.6" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·an</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s78">
-  <rect x="53.2" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="61.2" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">om</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s79">
-  <rect x="71.3" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="79.3" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">al</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s80">
-  <rect x="89.4" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="94.9" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">y</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s81">
-  <rect x="102.4" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="110.4" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·d</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s82">
-  <rect x="120.5" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="128.5" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">et</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s83">
-  <rect x="138.6" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="144.1" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s84">
-  <rect x="151.6" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="159.6" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ct</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s85">
-  <rect x="169.7" y="96.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="180.2" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s86">
-  <rect x="192.8" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="198.3" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s87">
-  <rect x="4.0" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="9.5" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">B</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s88">
-  <rect x="17.0" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="22.6" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s89">
-  <rect x="30.1" y="115.0" width="21.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="40.6" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·on</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s90">
-  <rect x="53.2" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="58.7" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s91">
-  <rect x="66.2" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="71.8" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">-</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s92">
-  <rect x="79.3" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="84.8" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">c</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s93">
-  <rect x="92.3" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="97.8" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">l</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s94">
-  <rect x="105.4" y="115.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="113.4" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">as</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s95">
-  <rect x="123.4" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="129.0" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">s</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s96">
-  <rect x="136.5" y="115.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="144.5" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·d</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s97">
-  <rect x="154.6" y="115.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="162.6" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">et</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s98">
-  <rect x="172.6" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="178.2" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s99">
-  <rect x="185.7" y="115.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="193.7" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ct</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s100">
-  <rect x="203.8" y="115.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="214.3" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s101">
-  <rect x="226.9" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="232.4" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s102">
-  <rect x="4.0" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="9.5" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">C</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s103">
-  <rect x="17.0" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="22.6" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s104">
-  <rect x="30.1" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="38.1" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·t</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s105">
-  <rect x="48.2" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="56.2" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ra</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s106">
-  <rect x="66.2" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="74.3" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">in</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s107">
-  <rect x="84.3" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="89.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">-</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s108">
-  <rect x="97.4" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="102.9" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">t</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s109">
-  <rect x="110.4" y="134.0" width="21.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="121.0" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">est</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s110">
-  <rect x="133.5" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="141.6" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·m</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s111">
-  <rect x="151.6" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="159.6" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">is</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s112">
-  <rect x="169.7" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="175.2" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">m</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s113">
-  <rect x="182.7" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="190.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">at</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s114">
-  <rect x="200.8" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="208.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ch</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s115">
-  <rect x="218.9" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="224.4" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s116">
-  <rect x="231.9" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="240.0" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ro</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s117">
-  <rect x="250.0" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="255.5" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">b</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s118">
-  <rect x="263.0" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="268.6" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">u</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s119">
-  <rect x="276.1" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="284.1" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">st</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s120">
-  <rect x="294.2" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="299.7" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">n</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s121">
-  <rect x="307.2" y="134.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="317.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ess</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s122">
-  <rect x="330.3" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="335.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s123">
-  <rect x="4.0" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="9.5" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">D</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s124">
-  <rect x="17.0" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="22.6" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s125">
-  <rect x="30.1" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="38.1" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·b</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s126">
-  <rect x="48.2" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="53.7" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">a</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s127">
-  <rect x="61.2" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="69.2" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ck</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s128">
-  <rect x="79.3" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="84.8" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">g</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s129">
-  <rect x="92.3" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="97.8" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">r</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s130">
-  <rect x="105.4" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="113.4" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ou</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s131">
-  <rect x="123.4" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="131.5" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">nd</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s132">
-  <rect x="141.5" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="149.6" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·d</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s133">
-  <rect x="159.6" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="167.6" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">et</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s134">
-  <rect x="177.7" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="183.2" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s135">
-  <rect x="190.7" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="198.8" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ct</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s136">
-  <rect x="208.8" y="153.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="219.4" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s137">
-  <rect x="231.9" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="237.4" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s138">
-  <rect x="4.0" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="9.5" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">A</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s139">
-  <rect x="17.0" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.80"></rect>
-  <text x="22.6" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">n</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s140">
-  <rect x="30.1" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.80"></rect>
-  <text x="35.6" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">s</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s141">
-  <rect x="43.1" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.80"></rect>
-  <text x="48.6" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">w</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s142">
-  <rect x="56.2" y="172.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.80"></rect>
-  <text x="64.2" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">er</text>
-  </g>
-  <g id="irish-tokens-ufjxg-s143">
-  <rect x="74.2" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.80"></rect>
-  <text x="79.8" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">:</text>
-  </g>
-  <text x="636.0" y="200.0" font-size="9.0" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">16 grey tokens fall outside the 128-token window and are dropped</text>
+  <svg class="draw" viewBox="0 0 640 205" role="img" aria-label="The prompt cut into irishQwen's 143 tokens, mostly pieces of words; the first 16 are grey because they fall outside the 128-token window" style="width: 382.5pt" data-b="ufjxg">
+    <defs></defs>
+    <text x="4.0" y="12.0" font-size="10.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="start" font-weight="bold">irishQwen tokenizer: 143 tokens; only the last 127 fit before the answer</text>
+    <g id="irish-tokens-ufjxg-s1">
+      <rect x="4.0" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="14.6" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">The</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s2">
+      <rect x="27.1" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="35.2" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·f</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s3">
+      <rect x="45.2" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="50.7" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">o</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s4">
+      <rect x="58.2" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="66.3" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ll</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s5">
+      <rect x="76.3" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="84.4" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ow</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s6">
+      <rect x="94.4" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="105.0" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ing</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s7">
+      <rect x="117.5" y="20.0" width="26.2" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="130.6" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·are</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s8">
+      <rect x="145.7" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="156.2" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·mu</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s9">
+      <rect x="168.8" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="174.3" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">l</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s10">
+      <rect x="181.8" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="187.4" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">t</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s11">
+      <rect x="194.9" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="200.4" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">i</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s12">
+      <rect x="207.9" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="213.4" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">p</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s13">
+      <rect x="221.0" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="229.0" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">le</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s14">
+      <rect x="239.0" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="247.1" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·c</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s15">
+      <rect x="257.1" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="265.2" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ho</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s16">
+      <rect x="275.2" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F3F3F3" stroke="#BBBBBB" stroke-width="0.8"></rect>
+      <text x="280.7" y="30.5" font-size="9.0" fill="#999999" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">i</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s17">
+      <rect x="288.2" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="296.3" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ce</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s18">
+      <rect x="306.3" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="311.8" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s19">
+      <rect x="319.4" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="327.4" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">qu</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s20">
+      <rect x="337.4" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="348.0" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">est</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s21">
+      <rect x="360.6" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="371.1" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s22">
+      <rect x="383.7" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="389.2" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">s</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s23">
+      <rect x="396.7" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="402.2" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s24">
+      <rect x="409.8" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="415.3" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">(</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s25">
+      <rect x="422.8" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="428.3" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">w</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s26">
+      <rect x="435.8" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="446.4" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ith</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s27">
+      <rect x="459.0" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="469.5" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·an</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s28">
+      <rect x="482.1" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="487.6" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">s</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s29">
+      <rect x="495.1" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="500.6" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">w</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s30">
+      <rect x="508.2" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="518.7" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ers</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s31">
+      <rect x="531.3" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="536.8" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">)</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s32">
+      <rect x="544.3" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="552.4" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·a</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s33">
+      <rect x="562.4" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="567.9" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">b</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s34">
+      <rect x="575.4" y="20.0" width="21.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="586.0" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">out</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s35">
+      <rect x="598.6" y="20.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="606.6" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·m</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s36">
+      <rect x="616.6" y="20.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="622.2" y="30.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">a</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s37">
+      <rect x="4.0" y="39.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="12.0" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ch</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s38">
+      <rect x="22.1" y="39.0" width="21.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="32.6" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ine</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s39">
+      <rect x="45.2" y="39.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="53.2" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·l</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s40">
+      <rect x="63.3" y="39.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="73.8" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ear</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s41">
+      <rect x="86.4" y="39.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="91.9" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">n</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s42">
+      <rect x="99.4" y="39.0" width="21.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="110.0" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ing</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s43">
+      <rect x="122.6" y="39.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="128.1" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s44">
+      <rect x="135.6" y="39.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="141.1" y="49.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s45">
+      <rect x="4.0" y="58.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="9.5" y="68.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s46">
+      <rect x="4.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="9.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">A</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s47">
+      <rect x="17.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="22.6" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">n</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s48">
+      <rect x="30.1" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="38.1" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ot</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s49">
+      <rect x="48.2" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="58.7" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">her</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s50">
+      <rect x="71.3" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="79.3" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·t</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s51">
+      <rect x="89.4" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="97.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">er</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s52">
+      <rect x="107.4" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="113.0" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">m</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s53">
+      <rect x="120.5" y="77.0" width="26.2" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="133.6" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·for</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s54">
+      <rect x="148.6" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="154.2" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s55">
+      <rect x="161.7" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="172.2" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">out</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s56">
+      <rect x="184.8" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="190.3" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">-</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s57">
+      <rect x="197.8" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="203.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">o</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s58">
+      <rect x="210.9" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="216.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">f</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s59">
+      <rect x="223.9" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="229.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">-</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s60">
+      <rect x="237.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="242.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">d</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s61">
+      <rect x="250.0" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="258.0" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">is</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s62">
+      <rect x="268.1" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="273.6" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">t</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s63">
+      <rect x="281.1" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="289.2" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ri</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s64">
+      <rect x="299.2" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="304.7" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">b</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s65">
+      <rect x="312.2" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="320.3" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ut</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s66">
+      <rect x="330.3" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="340.9" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s67">
+      <rect x="353.4" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="361.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·d</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s68">
+      <rect x="371.5" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="379.6" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">et</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s69">
+      <rect x="389.6" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="395.1" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s70">
+      <rect x="402.6" y="77.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="410.7" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ct</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s71">
+      <rect x="420.7" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="431.3" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s72">
+      <rect x="443.8" y="77.0" width="21.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="454.4" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·is</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s73">
+      <rect x="467.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="472.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">?</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s74">
+      <rect x="480.0" y="77.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="485.5" y="87.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s75">
+      <rect x="4.0" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="9.5" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">A</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s76">
+      <rect x="17.0" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="22.6" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s77">
+      <rect x="30.1" y="96.0" width="21.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="40.6" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·an</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s78">
+      <rect x="53.2" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="61.2" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">om</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s79">
+      <rect x="71.3" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="79.3" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">al</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s80">
+      <rect x="89.4" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="94.9" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">y</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s81">
+      <rect x="102.4" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="110.4" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·d</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s82">
+      <rect x="120.5" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="128.5" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">et</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s83">
+      <rect x="138.6" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="144.1" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s84">
+      <rect x="151.6" y="96.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="159.6" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ct</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s85">
+      <rect x="169.7" y="96.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="180.2" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s86">
+      <rect x="192.8" y="96.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="198.3" y="106.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s87">
+      <rect x="4.0" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="9.5" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">B</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s88">
+      <rect x="17.0" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="22.6" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s89">
+      <rect x="30.1" y="115.0" width="21.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="40.6" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·on</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s90">
+      <rect x="53.2" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="58.7" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s91">
+      <rect x="66.2" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="71.8" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">-</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s92">
+      <rect x="79.3" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="84.8" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">c</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s93">
+      <rect x="92.3" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="97.8" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">l</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s94">
+      <rect x="105.4" y="115.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="113.4" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">as</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s95">
+      <rect x="123.4" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="129.0" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">s</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s96">
+      <rect x="136.5" y="115.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="144.5" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·d</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s97">
+      <rect x="154.6" y="115.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="162.6" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">et</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s98">
+      <rect x="172.6" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="178.2" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s99">
+      <rect x="185.7" y="115.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="193.7" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ct</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s100">
+      <rect x="203.8" y="115.0" width="21.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="214.3" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s101">
+      <rect x="226.9" y="115.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="232.4" y="125.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s102">
+      <rect x="4.0" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="9.5" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">C</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s103">
+      <rect x="17.0" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="22.6" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s104">
+      <rect x="30.1" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="38.1" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·t</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s105">
+      <rect x="48.2" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="56.2" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ra</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s106">
+      <rect x="66.2" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="74.3" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">in</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s107">
+      <rect x="84.3" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="89.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">-</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s108">
+      <rect x="97.4" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="102.9" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">t</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s109">
+      <rect x="110.4" y="134.0" width="21.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="121.0" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">est</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s110">
+      <rect x="133.5" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="141.6" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·m</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s111">
+      <rect x="151.6" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="159.6" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">is</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s112">
+      <rect x="169.7" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="175.2" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">m</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s113">
+      <rect x="182.7" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="190.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">at</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s114">
+      <rect x="200.8" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="208.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ch</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s115">
+      <rect x="218.9" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="224.4" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s116">
+      <rect x="231.9" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="240.0" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ro</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s117">
+      <rect x="250.0" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="255.5" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">b</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s118">
+      <rect x="263.0" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="268.6" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">u</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s119">
+      <rect x="276.1" y="134.0" width="16.1" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="284.1" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">st</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s120">
+      <rect x="294.2" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="299.7" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">n</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s121">
+      <rect x="307.2" y="134.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="317.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ess</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s122">
+      <rect x="330.3" y="134.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="335.8" y="144.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s123">
+      <rect x="4.0" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="9.5" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">D</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s124">
+      <rect x="17.0" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="22.6" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">.</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s125">
+      <rect x="30.1" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="38.1" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·b</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s126">
+      <rect x="48.2" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="53.7" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">a</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s127">
+      <rect x="61.2" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="69.2" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ck</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s128">
+      <rect x="79.3" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="84.8" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">g</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s129">
+      <rect x="92.3" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="97.8" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">r</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s130">
+      <rect x="105.4" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="113.4" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ou</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s131">
+      <rect x="123.4" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="131.5" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">nd</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s132">
+      <rect x="141.5" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="149.6" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">·d</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s133">
+      <rect x="159.6" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="167.6" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">et</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s134">
+      <rect x="177.7" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="183.2" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">e</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s135">
+      <rect x="190.7" y="153.0" width="16.1" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="198.8" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ct</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s136">
+      <rect x="208.8" y="153.0" width="21.1" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="219.4" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">ion</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s137">
+      <rect x="231.9" y="153.0" width="11.0" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="237.4" y="163.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">↵</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s138">
+      <rect x="4.0" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="9.5" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">A</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s139">
+      <rect x="17.0" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#F4CCCC" stroke="#E06666" stroke-width="0.8"></rect>
+      <text x="22.6" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">n</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s140">
+      <rect x="30.1" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="0.8"></rect>
+      <text x="35.6" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">s</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s141">
+      <rect x="43.1" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="0.8"></rect>
+      <text x="48.6" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">w</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s142">
+      <rect x="56.2" y="172.0" width="16.1" height="15.0" rx="3.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="0.8"></rect>
+      <text x="64.2" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">er</text>
+    </g>
+    <g id="irish-tokens-ufjxg-s143">
+      <rect x="74.2" y="172.0" width="11.0" height="15.0" rx="3.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="0.8"></rect>
+      <text x="79.8" y="182.5" font-size="9.0" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">:</text>
+    </g>
+    <text x="636.0" y="200.0" font-size="9.0" fill="#CC0000" font-family="Arial, Helvetica, sans-serif" text-anchor="end" font-weight="bold">16 grey tokens fall outside the 128-token window and are dropped</text>
   </svg>
   <p data-b="qdap6">We trained irishQwen with a <b class="def">context window</b> of <span class="num">128</span> tokens, and the slot after <span class="mono">Answer:</span> needs one of them, so it can only see the last <span class="num">127</span> tokens of the prompt. The first <span class="num">16</span>, greyed out above, fall off the front. irishQwen never sees the words "The following are multiple choice questions". <b class="warn">It is answering a question it can only partly read.</b></p>
   <p data-b="du2id">That's not a bug in the harness, it's just what a <span class="num">128</span>-token model is. Qwen3, on the other hand, sees every word.</p>
@@ -1588,61 +1601,65 @@ D. background detection
 <section class="page" id="harness" data-view="reading" data-topic="harness" style="--gap: 15pt;">
   <h2 data-b="aycb9">The Harness</h2>
   <p data-b="v1rd8">Look at everything we had to decide before we got that one wrong answer. Which questions, how to write them into a prompt, how to run the model, what to read from its output, how to grade it, and what to count. Together those choices are called the <b class="def">harness</b>:</p>
-  <svg class="draw" viewBox="0 0 384 168" style="width: 382.5pt" role="img" aria-label="Six stages, in two rows of three: dataset (399 MMLU questions), prompt (0-shot template), model (one forward pass), output (P(A), P(B), P(C), P(D)), grader (biggest letter equals the key?), metric (accuracy)" data-b="o72w4">
-  <defs><marker id="ah000000-o72w4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#000000"></path></marker></defs>
-  <g id="anatomy-r-o72w4-s1">
-  <rect x="10.0" y="8.0" width="108.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="64.0" y="25.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">dataset</text>
-  </g>
-  <g id="anatomy-r-o72w4-s2">
-  <rect x="10.0" y="44.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="64.0" y="58.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">399 MMLU questions</text>
-  </g>
-  <g id="anatomy-r-o72w4-s3">
-  <rect x="140.0" y="8.0" width="108.0" height="28.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="194.0" y="25.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">prompt</text>
-  </g>
-  <g id="anatomy-r-o72w4-s4">
-  <rect x="140.0" y="44.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="194.0" y="58.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">0-shot template</text>
-  </g>
-  <line x1="119.0" y1="22.0" x2="139.0" y2="22.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-o72w4)" data-a="anatomy-r-o72w4-s1" data-b="anatomy-r-o72w4-s3"></line>
-  <g id="anatomy-r-o72w4-s5">
-  <rect x="270.0" y="8.0" width="108.0" height="28.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="324.0" y="25.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">model</text>
-  </g>
-  <g id="anatomy-r-o72w4-s6">
-  <rect x="270.0" y="44.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="324.0" y="58.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">one forward pass</text>
-  </g>
-  <line x1="249.0" y1="22.0" x2="269.0" y2="22.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-o72w4)" data-a="anatomy-r-o72w4-s3" data-b="anatomy-r-o72w4-s5"></line>
-  <g id="anatomy-r-o72w4-s7">
-  <rect x="10.0" y="92.0" width="108.0" height="28.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-  <text x="64.0" y="109.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">output</text>
-  </g>
-  <g id="anatomy-r-o72w4-s8">
-  <rect x="10.0" y="128.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="64.0" y="142.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">P(A), P(B), P(C), P(D)</text>
-  </g>
-  <g id="anatomy-r-o72w4-s9">
-  <rect x="140.0" y="92.0" width="108.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="194.0" y="109.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">grader</text>
-  </g>
-  <g id="anatomy-r-o72w4-s10">
-  <rect x="140.0" y="128.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="194.0" y="142.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">biggest letter = key?</text>
-  </g>
-  <line x1="119.0" y1="106.0" x2="139.0" y2="106.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-o72w4)" data-a="anatomy-r-o72w4-s7" data-b="anatomy-r-o72w4-s9"></line>
-  <g id="anatomy-r-o72w4-s11">
-  <rect x="270.0" y="92.0" width="108.0" height="28.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="324.0" y="109.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">metric</text>
-  </g>
-  <g id="anatomy-r-o72w4-s12">
-  <rect x="270.0" y="128.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.40"></rect>
-  <text x="324.0" y="142.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">accuracy</text>
-  </g>
-  <line x1="249.0" y1="106.0" x2="269.0" y2="106.0" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-o72w4)" data-a="anatomy-r-o72w4-s9" data-b="anatomy-r-o72w4-s11"></line>
-  <polyline points="324.0,72.0 324.0,78.0 64.0,78.0 64.0,91.0" fill="none" stroke="#000000" stroke-width="1.30" marker-end="url(#ah000000-o72w4)"></polyline>
+  <svg class="draw" viewBox="0 0 384 168" role="img" aria-label="Six stages, in two rows of three: dataset (399 MMLU questions), prompt (0-shot template), model (one forward pass), output (P(A), P(B), P(C), P(D)), grader (biggest letter equals the key?), metric (accuracy)" style="width: 382.5pt" data-b="o72w4">
+    <defs>
+      <marker id="ah000000-o72w4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
+      </marker>
+    </defs>
+    <g id="anatomy-r-o72w4-s1">
+      <rect x="10.0" y="8.0" width="108.0" height="28.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="64.0" y="25.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">dataset</text>
+    </g>
+    <g id="anatomy-r-o72w4-s2">
+      <rect x="10.0" y="44.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="64.0" y="58.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">399 MMLU questions</text>
+    </g>
+    <g id="anatomy-r-o72w4-s3">
+      <rect x="140.0" y="8.0" width="108.0" height="28.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="194.0" y="25.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">prompt</text>
+    </g>
+    <g id="anatomy-r-o72w4-s4">
+      <rect x="140.0" y="44.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="194.0" y="58.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">0-shot template</text>
+    </g>
+    <line x1="119.0" y1="22.0" x2="139.0" y2="22.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-o72w4)" data-a="anatomy-r-o72w4-s1" data-b="anatomy-r-o72w4-s3"></line>
+    <g id="anatomy-r-o72w4-s5">
+      <rect x="270.0" y="8.0" width="108.0" height="28.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="324.0" y="25.9" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">model</text>
+    </g>
+    <g id="anatomy-r-o72w4-s6">
+      <rect x="270.0" y="44.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="324.0" y="58.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">one forward pass</text>
+    </g>
+    <line x1="249.0" y1="22.0" x2="269.0" y2="22.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-o72w4)" data-a="anatomy-r-o72w4-s3" data-b="anatomy-r-o72w4-s5"></line>
+    <g id="anatomy-r-o72w4-s7">
+      <rect x="10.0" y="92.0" width="108.0" height="28.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
+      <text x="64.0" y="109.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">output</text>
+    </g>
+    <g id="anatomy-r-o72w4-s8">
+      <rect x="10.0" y="128.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="64.0" y="142.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">P(A), P(B), P(C), P(D)</text>
+    </g>
+    <g id="anatomy-r-o72w4-s9">
+      <rect x="140.0" y="92.0" width="108.0" height="28.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="194.0" y="109.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">grader</text>
+    </g>
+    <g id="anatomy-r-o72w4-s10">
+      <rect x="140.0" y="128.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="194.0" y="142.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">biggest letter = key?</text>
+    </g>
+    <line x1="119.0" y1="106.0" x2="139.0" y2="106.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-o72w4)" data-a="anatomy-r-o72w4-s7" data-b="anatomy-r-o72w4-s9"></line>
+    <g id="anatomy-r-o72w4-s11">
+      <rect x="270.0" y="92.0" width="108.0" height="28.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="324.0" y="109.8" font-size="11.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">metric</text>
+    </g>
+    <g id="anatomy-r-o72w4-s12">
+      <rect x="270.0" y="128.0" width="108.0" height="24.0" rx="5.0" fill="#FFFFFF" stroke="#000000" stroke-width="1.4"></rect>
+      <text x="324.0" y="142.8" font-size="8.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">accuracy</text>
+    </g>
+    <line x1="249.0" y1="106.0" x2="269.0" y2="106.0" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-o72w4)" data-a="anatomy-r-o72w4-s9" data-b="anatomy-r-o72w4-s11"></line>
+    <polyline points="324.0,72.0 324.0,78.0 64.0,78.0 64.0,91.0" fill="none" stroke="#000000" stroke-width="1.3" marker-end="url(#ah000000-o72w4)"></polyline>
   </svg>
   <p data-b="yy53k">Every one of those stages is a knob. A harness could instead let the model write <span class="num">256</span> tokens and take the first letter it finds, or sample at a temperature instead of picking the most likely token, or put example questions in the prompt. <b class="take">The same model on the same questions gets a different score under a different harness</b>, so a score without its harness doesn't mean much.</p>
   <p data-b="yozjf">The knob that moves scores the most is usually the prompt.</p>
@@ -1653,7 +1670,9 @@ D. background detection
   <p data-b="bqrhe">Our prompt asks the question cold. MMLU is usually run <b class="def">5-shot</b> instead: five solved questions from the same subject (taken from a separate dev split) go in front of ours, each ending in <span class="mono">Answer:</span> and its letter, so the model sees the pattern before it has to follow it. Ours is called <b class="def">0-shot</b>.</p>
   <p data-b="rsb58">Five examples make the prompt much longer:</p>
   <table class="tbl small num" data-b="rctoz">
-    <thead><tr><th></th><th>characters</th><th>Qwen3 tokens</th><th>irishQwen tokens</th></tr></thead>
+    <thead>
+      <tr><th></th><th>characters</th><th>Qwen3 tokens</th><th>irishQwen tokens</th></tr>
+    </thead>
     <tbody>
       <tr><td>0-shot</td><td>244</td><td>50</td><td>143</td></tr>
       <tr><td>5-shot</td><td>2,528</td><td>622</td><td>1,426</td></tr>
@@ -1663,11 +1682,13 @@ D. background detection
   <p data-b="fal8b">For Qwen3 it matters a great deal. Our 0-shot harness gives Qwen3-0.6B-Base <span class="num">39.6%</span> on our sample. Qwen3's own technical report gives it <span class="num">52.8%</span> on MMLU, 5-shot. <b class="take">Same model, about thirteen points apart</b>, and the main difference is five examples in the prompt (and the report used all of MMLU, not our <span class="num">399</span>). Whenever you see a score, look for the harness next to it.</p>
 <div class="foot" data-rt=""><span>Evaluating LLMs · Measuring a Model</span><span>11</span></div></section>
 
-<section class="page" id="three-models" data-part="Three Models, One Harness" data-view="reading" data-topic="three-models" style="--gap: 22pt;">
+<section class="page" id="three-models" data-view="reading" data-topic="three-models" data-part="Three Models, One Harness" style="--gap: 22pt;">
   <h2 data-b="dw9ie">Three Models, One Harness</h2>
   <p data-b="odczl">Now we can do what benchmarks are for, which is comparing models. We ran the same harness (the same <span class="num">399</span> MMLU questions, 0-shot, next-token scoring) on three models:</p>
   <table class="tbl small" data-b="hpx44">
-    <thead><tr><th></th><th>untrained irishQwen</th><th>Shakespeare irishQwen</th><th>Qwen3-0.6B-Base</th></tr></thead>
+    <thead>
+      <tr><th></th><th>untrained irishQwen</th><th>Shakespeare irishQwen</th><th>Qwen3-0.6B-Base</th></tr>
+    </thead>
     <tbody>
       <tr><td>parameters</td><td>3.4 M</td><td>3.4 M</td><td>0.6 B (28 layers)</td></tr>
       <tr><td>trained on</td><td>nothing (random weights)</td><td>≈ 13 M tokens of Shakespeare</td><td>≈ 36 T tokens of web, code and math</td></tr>
@@ -2717,11 +2738,13 @@ L 372.48 87.6
   <p data-b="w1bo6">The two evals answer different questions. Bits per character asks <b class="take">how well does it model this kind of text?</b> MMLU asks whether it knows things. irishQwen is pretty good at the first and hopeless at the second, and neither number alone would have told us that. Picking an eval really means picking the question you want answered.</p>
 <div class="foot" data-rt=""><span>Evaluating LLMs · Three Models, One Harness</span><span>18</span></div></section>
 
-<section class="page" id="big-five" data-part="Benchmarks in the Wild" data-view="reading" data-topic="benchmarks" style="--gap: 14.9pt;">
+<section class="page" id="big-five" data-view="reading" data-topic="benchmarks" data-part="Benchmarks in the Wild" style="--gap: 14.9pt;">
   <h2 data-b="s708l">The Big Five</h2>
   <p data-b="wk36j">MMLU is one of a handful of benchmarks that almost every model release in <span class="num">2026</span> reports. Each was built to answer a slightly different question, and each grades differently:</p>
   <table class="tbl small" data-b="iesel">
-    <thead><tr><th>benchmark</th><th>tests</th><th>format</th><th>size</th><th>graded by</th></tr></thead>
+    <thead>
+      <tr><th>benchmark</th><th>tests</th><th>format</th><th>size</th><th>graded by</th></tr>
+    </thead>
     <tbody>
       <tr><td><b>MMLU / -Pro</b></td><td>broad knowledge</td><td>4 or 10 choices</td><td>~14k / 12k</td><td>exact letter</td></tr>
       <tr><td><b>GPQA Diamond</b></td><td>PhD-level science</td><td>4 choices</td><td>198</td><td>exact letter</td></tr>
@@ -3252,7 +3275,9 @@ z
   <p data-b="cl87x">The American Invitational Mathematics Examination is a real high school competition: fifteen problems in three hours, every answer an integer from <span class="mono">000</span> to <span class="mono">999</span>. Two exams a year gives <span class="num">30</span> problems, so one problem is worth <span class="num">3.3</span> points of score.</p>
   <p data-b="rxi04">Integer answers make grading look easy. It isn't quite. Ask a model for the remainder when <b-m tex="2^2026">2<sup>2026</sup></b-m> is divided by <span class="num">1000</span> and it might write any of these:</p>
   <table class="tbl small" data-b="pg1ce">
-    <thead><tr><th>model output</th><th>strict match</th><th>extract and normalize</th></tr></thead>
+    <thead>
+      <tr><th>model output</th><th>strict match</th><th>extract and normalize</th></tr>
+    </thead>
     <tbody>
       <tr><td><span class="mono">864</span></td><td>✓</td><td>✓</td></tr>
       <tr><td><span class="mono">The answer is 864.</span></td><td>✗</td><td>✓</td></tr>
@@ -3457,7 +3482,7 @@ z
   <p data-b="fmmbi">GPT-5 solved <span class="num">23.3%</span> of the public tasks at launch. On Scale's own leaderboard, where every model runs inside the same agent scaffold, the top public score was <span class="num">61.5%</span> as of October <span class="num">2026</span>. Labs reporting from their own scaffolds claim much more, which is the harness problem again. And in July <span class="num">2026</span>, OpenAI estimated that <b class="warn">about <span class="num">30%</span> of the public tasks were broken</b> (tests that reject working fixes, tests that demand details the issue never asks for, misleading descriptions), and withdrew the recommendation it had made five months earlier.</p>
 <div class="foot" data-rt=""><span>Evaluating LLMs · Benchmarks in the Wild</span><span>25</span></div></section>
 
-<section class="page" id="contamination" data-part="Trusting a Score" data-view="reading" data-topic="contamination">
+<section class="page" id="contamination" data-view="reading" data-topic="contamination" data-part="Trusting a Score">
   <h2 data-b="c3b69">Contamination</h2>
   <p data-b="gi1as">SWE-bench Pro replaced <b class="name">SWE-bench Verified</b>. On February <span class="num">23</span>, <span class="num">2026</span>, OpenAI announced it had stopped reporting Verified scores, for two reasons. Of <span class="num">138</span> problems it audited by hand, <span class="num">59.4%</span> had flawed tests or descriptions. And <b class="warn">every frontier model it tested had seen some of the problems in training</b>, and some could write out the original fix word for word.</p>
   <p data-b="sk5k3">That second problem is <b class="def">contamination</b>: test questions (or their answers) end up in the training data, usually because they're on the web. A contaminated model isn't solving the problem, it's remembering it. Labs check for it with:</p>
@@ -3473,50 +3498,56 @@ z
 <section class="page" id="graders" data-view="reading" data-topic="graders">
   <h2 data-b="dbhx7">Who Grades?</h2>
   <p data-b="dnzqf">We've now seen four different graders: a letter compared with a key, a number parsed out of text, an LLM judge, and hidden tests. The rule is to use <b class="take">the cheapest grader that can still tell right from wrong</b>:</p>
-  <svg class="draw" viewBox="0 0 640 196" style="width: 382.5pt" role="img" aria-label="Six graders as a staircase, cheapest first: exact match (multiple choice, free), parse and check (math answer, free), unit tests (code, compute), LLM with a rubric (essay, summary, cents), pairwise judge (open chat, cents or votes), human experts (medical, legal, expensive). Further right is more open-ended, more expensive and noisier" data-b="lodr3">
-  <defs><marker id="ah666666-lodr3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#666666"></path></marker></defs>
-  <g id="graders-lodr3-s1">
-  <rect x="6.0" y="108.0" width="94.0" height="52.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="53.0" y="124.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">exact match</text>
-  <text x="53.0" y="137.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">multiple choice</text>
-  <text x="53.0" y="152.0" font-size="8.5" fill="#4A86E8" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">free</text>
-  </g>
-  <g id="graders-lodr3-s2">
-  <rect x="112.0" y="88.0" width="94.0" height="72.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="159.0" y="104.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">parse + check</text>
-  <text x="159.0" y="117.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">math answer</text>
-  <text x="159.0" y="152.0" font-size="8.5" fill="#4A86E8" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">free</text>
-  </g>
-  <g id="graders-lodr3-s3">
-  <rect x="218.0" y="68.0" width="94.0" height="92.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="265.0" y="84.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">unit tests</text>
-  <text x="265.0" y="97.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">code</text>
-  <text x="265.0" y="152.0" font-size="8.5" fill="#6AA84F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">compute</text>
-  </g>
-  <g id="graders-lodr3-s4">
-  <rect x="324.0" y="48.0" width="94.0" height="112.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="371.0" y="64.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">LLM + rubric</text>
-  <text x="371.0" y="77.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">essay, summary</text>
-  <text x="371.0" y="152.0" font-size="8.5" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cents</text>
-  </g>
-  <g id="graders-lodr3-s5">
-  <rect x="430.0" y="28.0" width="94.0" height="132.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="477.0" y="44.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">pairwise judge</text>
-  <text x="477.0" y="57.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">open chat</text>
-  <text x="477.0" y="152.0" font-size="8.5" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cents / votes</text>
-  </g>
-  <g id="graders-lodr3-s6">
-  <rect x="536.0" y="8.0" width="94.0" height="152.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="583.0" y="24.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">human experts</text>
-  <text x="583.0" y="37.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">medical, legal</text>
-  <text x="583.0" y="152.0" font-size="8.5" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">$$$</text>
-  </g>
-  <line x1="6.0" y1="174.0" x2="634.0" y2="174.0" stroke="#666666" stroke-width="1.00" marker-end="url(#ah666666-lodr3)"></line>
-  <text x="320.0" y="190.0" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">more open-ended · more expensive · noisier</text>
+  <svg class="draw" viewBox="0 0 640 196" role="img" aria-label="Six graders as a staircase, cheapest first: exact match (multiple choice, free), parse and check (math answer, free), unit tests (code, compute), LLM with a rubric (essay, summary, cents), pairwise judge (open chat, cents or votes), human experts (medical, legal, expensive). Further right is more open-ended, more expensive and noisier" style="width: 382.5pt" data-b="lodr3">
+    <defs>
+      <marker id="ah666666-lodr3" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#666666"></path>
+      </marker>
+    </defs>
+    <g id="graders-lodr3-s1">
+      <rect x="6.0" y="108.0" width="94.0" height="52.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="53.0" y="124.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">exact match</text>
+      <text x="53.0" y="137.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">multiple choice</text>
+      <text x="53.0" y="152.0" font-size="8.5" fill="#4A86E8" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">free</text>
+    </g>
+    <g id="graders-lodr3-s2">
+      <rect x="112.0" y="88.0" width="94.0" height="72.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="159.0" y="104.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">parse + check</text>
+      <text x="159.0" y="117.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">math answer</text>
+      <text x="159.0" y="152.0" font-size="8.5" fill="#4A86E8" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">free</text>
+    </g>
+    <g id="graders-lodr3-s3">
+      <rect x="218.0" y="68.0" width="94.0" height="92.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="265.0" y="84.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">unit tests</text>
+      <text x="265.0" y="97.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">code</text>
+      <text x="265.0" y="152.0" font-size="8.5" fill="#6AA84F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">compute</text>
+    </g>
+    <g id="graders-lodr3-s4">
+      <rect x="324.0" y="48.0" width="94.0" height="112.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="371.0" y="64.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">LLM + rubric</text>
+      <text x="371.0" y="77.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">essay, summary</text>
+      <text x="371.0" y="152.0" font-size="8.5" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cents</text>
+    </g>
+    <g id="graders-lodr3-s5">
+      <rect x="430.0" y="28.0" width="94.0" height="132.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="477.0" y="44.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">pairwise judge</text>
+      <text x="477.0" y="57.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">open chat</text>
+      <text x="477.0" y="152.0" font-size="8.5" fill="#B8920F" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">cents / votes</text>
+    </g>
+    <g id="graders-lodr3-s6">
+      <rect x="536.0" y="8.0" width="94.0" height="152.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="583.0" y="24.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">human experts</text>
+      <text x="583.0" y="37.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">medical, legal</text>
+      <text x="583.0" y="152.0" font-size="8.5" fill="#8E7CC3" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">$$$</text>
+    </g>
+    <line x1="6.0" y1="174.0" x2="634.0" y2="174.0" stroke="#666666" stroke-width="1.0" marker-end="url(#ah666666-lodr3)"></line>
+    <text x="320.0" y="190.0" font-size="9.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">more open-ended · more expensive · noisier</text>
   </svg>
   <p data-b="bkb31">Further right, answers are more open-ended and grading costs more and gets noisier. An essay has no answer key, so someone (or something) has to judge it. LLM judges are cheap, but they have known habits:</p>
   <table class="tbl small" data-b="gf4l2">
-    <thead><tr><th>bias</th><th>what it does</th><th>usual fix</th></tr></thead>
+    <thead>
+      <tr><th>bias</th><th>what it does</th><th>usual fix</th></tr>
+    </thead>
     <tbody>
       <tr><td><b>position</b></td><td>prefers whichever answer comes first (or second)</td><td>swap the order, average</td></tr>
       <tr><td><b>verbosity</b></td><td>longer answers look better</td><td>control for length</td></tr>
@@ -3551,7 +3582,7 @@ z
   <b-code lang="python" data-b="ueomr"><div class="gutter" aria-hidden="true"><div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div></div><div class="src"><div class="ln"><span class="kw">import</span> torch</div><div class="ln"></div><div class="ln">p = <span class="nu nn">0.6</span>                       <span class="cm"># one attempt succeeds</span></div><div class="ln">k = torch.arange(<span class="nu nn">1</span>, <span class="nu nn">11</span>)       <span class="cm"># 1 to 10 attempts</span></div><div class="ln">pass_at_k = <span class="nu nn">1</span> - (<span class="nu nn">1</span> - p) ** k  <span class="cm"># at least one works</span></div><div class="ln">pass_hat_k = p ** k           <span class="cm"># every one works</span></div><div class="ln"><span class="bi">print</span>(<span class="st">"pass@5:"</span>, <span class="bi">round</span>(pass_at_k[<span class="nu nn">4</span>].item(), <span class="nu nn">3</span>))</div><div class="ln"><span class="bi">print</span>(<span class="st">"pass^5:"</span>, <span class="bi">round</span>(pass_hat_k[<span class="nu nn">4</span>].item(), <span class="nu nn">3</span>))</div></div></b-code>
   <b-out data-b="r32rg"><div class="label">Output</div><pre><span class="olab">pass@<span class="nu nn">5</span>:</span> <span class="nu nn">0.99</span>
 <span class="olab">pass^<span class="nu nn">5</span>:</span> <span class="nu nn">0.078</span></pre></b-out>
-  <b-fig src="fig/passk.svg" style="width: 70%; --ar: 2.259;" alt="pass@k rises from 0.6 toward 100% as attempts k go from 1 to 10, pass^k falls toward 0; at k = 5 they are 99% and 8%" data-b="xw560"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 170" xmlns="http://www.w3.org/2000/svg" version="1.1">
+  <b-fig src="fig/passk.svg" alt="pass@k rises from 0.6 toward 100% as attempts k go from 1 to 10, pass^k falls toward 0; at k = 5 they are 99% and 8%" style="width: 70%; --ar: 2.259;" data-b="xw560"><svg xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 384 170" xmlns="http://www.w3.org/2000/svg" version="1.1">
  <metadata>
   <rdf:rdf xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:work>
@@ -3874,43 +3905,47 @@ z
   <p data-b="bw2f9"><b class="def">pass@k</b> asks if <i>any</i> of the <b-m tex="k">k</b-m> tries worked, <b class="def">pass^k</b> if <i>all</i> of them did. At <span class="num">60%</span> per try, five tries give <span class="num">99%</span> or <span class="num">8%</span>, depending on which one you report. pass@k makes sense when a test runner can pick out the good attempt. <b class="take">If a person is going to rely on the model every time, pass^k is the honest one.</b></p>
 <div class="foot" data-rt=""><span>Evaluating LLMs · Trusting a Score</span><span>30</span></div></section>
 
-<section class="page" id="agentic-evals" data-part="Agents" data-view="reading" data-topic="agents" style="--gap: 22pt;">
+<section class="page" id="agentic-evals" data-view="reading" data-topic="agents" data-part="Agents" style="--gap: 22pt;">
   <h2 data-b="ur7yw">Agentic Evals</h2>
   <p data-b="gv2qg">pass^k matters most for agents. SWE-bench Pro was the first agentic eval we've seen: the model doesn't answer once, it works for many steps, reading files, running commands and seeing what happened, and only the end state is graded:</p>
-  <svg class="draw" viewBox="0 0 640 132" style="width: 382.5pt" role="img" aria-label="A task (issue, goal) goes to an agent (model plus scaffold), which sends actions to an environment (repo, shell, web, user) and gets observations back, about 30 steps; a grader (hidden tests, state check) then says pass or fail" data-b="a9rlq">
-  <defs><marker id="ah000000-a9rlq" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#000000"></path></marker></defs>
-  <g id="agent-loop-a9rlq-s1">
-  <rect x="6.0" y="10.0" width="92.0" height="40.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="52.0" y="29.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">task</text>
-  <text x="52.0" y="39.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">issue · goal</text>
-  </g>
-  <g id="agent-loop-a9rlq-s2">
-  <rect x="155.0" y="10.0" width="130.0" height="40.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.40"></rect>
-  <text x="220.0" y="29.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">agent</text>
-  <text x="220.0" y="39.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">model + scaffold</text>
-  </g>
-  <g id="agent-loop-a9rlq-s3">
-  <rect x="365.0" y="10.0" width="170.0" height="40.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="450.0" y="29.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">environment</text>
-  <text x="450.0" y="39.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">repo · shell · web · user</text>
-  </g>
-  <g id="agent-loop-a9rlq-s4">
-  <rect x="365.0" y="84.0" width="170.0" height="40.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="450.0" y="103.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">grader</text>
-  <text x="450.0" y="113.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">hidden tests · state check</text>
-  </g>
-  <g id="agent-loop-a9rlq-s5">
-  <rect x="551.0" y="91.0" width="82.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="592.0" y="107.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">pass / fail</text>
-  </g>
-  <line x1="98.0" y1="30.0" x2="155.0" y2="30.0" stroke="#000000" stroke-width="1.40" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s1" data-b="agent-loop-a9rlq-s2"></line>
-  <line x1="285.0" y1="22.0" x2="365.0" y2="22.0" stroke="#000000" stroke-width="1.40" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s2" data-b="agent-loop-a9rlq-s3"></line>
-  <line x1="365.0" y1="38.0" x2="285.0" y2="38.0" stroke="#000000" stroke-width="1.40" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s3" data-b="agent-loop-a9rlq-s2"></line>
-  <text x="325.0" y="16.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">action</text>
-  <text x="325.0" y="50.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">observation</text>
-  <text x="325.0" y="64.0" font-size="9.0" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">× 30 steps</text>
-  <line x1="450.0" y1="50.0" x2="450.0" y2="84.0" stroke="#000000" stroke-width="1.40" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s3" data-b="agent-loop-a9rlq-s4"></line>
-  <line x1="535.0" y1="104.0" x2="551.0" y2="104.0" stroke="#000000" stroke-width="1.40" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s4" data-b="agent-loop-a9rlq-s5"></line>
+  <svg class="draw" viewBox="0 0 640 132" role="img" aria-label="A task (issue, goal) goes to an agent (model plus scaffold), which sends actions to an environment (repo, shell, web, user) and gets observations back, about 30 steps; a grader (hidden tests, state check) then says pass or fail" style="width: 382.5pt" data-b="a9rlq">
+    <defs>
+      <marker id="ah000000-a9rlq" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+        <path d="M0 0 L10 5 L0 10 z" fill="#000000"></path>
+      </marker>
+    </defs>
+    <g id="agent-loop-a9rlq-s1">
+      <rect x="6.0" y="10.0" width="92.0" height="40.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="52.0" y="29.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">task</text>
+      <text x="52.0" y="39.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">issue · goal</text>
+    </g>
+    <g id="agent-loop-a9rlq-s2">
+      <rect x="155.0" y="10.0" width="130.0" height="40.0" rx="5.0" fill="#D9D2E9" stroke="#8E7CC3" stroke-width="1.4"></rect>
+      <text x="220.0" y="29.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">agent</text>
+      <text x="220.0" y="39.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">model + scaffold</text>
+    </g>
+    <g id="agent-loop-a9rlq-s3">
+      <rect x="365.0" y="10.0" width="170.0" height="40.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="450.0" y="29.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">environment</text>
+      <text x="450.0" y="39.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">repo · shell · web · user</text>
+    </g>
+    <g id="agent-loop-a9rlq-s4">
+      <rect x="365.0" y="84.0" width="170.0" height="40.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="450.0" y="103.0" font-size="12.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">grader</text>
+      <text x="450.0" y="113.0" font-size="8.4" fill="#000000" font-family="Consolas, 'Inconsolata LGC', monospace" text-anchor="middle">hidden tests · state check</text>
+    </g>
+    <g id="agent-loop-a9rlq-s5">
+      <rect x="551.0" y="91.0" width="82.0" height="26.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="592.0" y="107.5" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">pass / fail</text>
+    </g>
+    <line x1="98.0" y1="30.0" x2="155.0" y2="30.0" stroke="#000000" stroke-width="1.4" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s1" data-b="agent-loop-a9rlq-s2"></line>
+    <line x1="285.0" y1="22.0" x2="365.0" y2="22.0" stroke="#000000" stroke-width="1.4" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s2" data-b="agent-loop-a9rlq-s3"></line>
+    <line x1="365.0" y1="38.0" x2="285.0" y2="38.0" stroke="#000000" stroke-width="1.4" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s3" data-b="agent-loop-a9rlq-s2"></line>
+    <text x="325.0" y="16.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">action</text>
+    <text x="325.0" y="50.0" font-size="8.0" fill="#666666" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">observation</text>
+    <text x="325.0" y="64.0" font-size="9.0" fill="#674EA7" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">× 30 steps</text>
+    <line x1="450.0" y1="50.0" x2="450.0" y2="84.0" stroke="#000000" stroke-width="1.4" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s3" data-b="agent-loop-a9rlq-s4"></line>
+    <line x1="535.0" y1="104.0" x2="551.0" y2="104.0" stroke="#000000" stroke-width="1.4" marker-end="url(#ah000000-a9rlq)" data-a="agent-loop-a9rlq-s4" data-b="agent-loop-a9rlq-s5"></line>
   </svg>
   <p data-b="napjj">Terminal-Bench (shell tasks in a container), τ-bench (tool use with a simulated customer) and OSWorld (a whole desktop computer) work the same way. The model is also never alone: the tools, retries and step budget around it (the <b class="def">scaffold</b>) change the score, so <b class="take">model and scaffold are measured together</b>.</p>
 <div class="foot" data-rt=""><span>Evaluating LLMs · Agents</span><span>31</span></div></section>
@@ -4517,80 +4552,80 @@ z
 <section class="page" id="which-eval" data-view="reading" data-topic="which-eval" style="--gap: 22pt;">
   <h2 data-b="i01pq">Which Eval Answers What?</h2>
   <p data-b="tjh66">There's no single number for how good a model is, only answers to particular questions. Each family of evals answers one:</p>
-  <svg class="draw" viewBox="0 0 640 250" style="width: 382.5pt" role="img" aria-label="Four questions with three evals each. Does it know it: MMLU-Pro, GPQA Diamond, HLE. Can it finish a task: SWE-bench Pro, tau-bench, OSWorld. Do people prefer it: LMArena, LLM-judge suites, product A/B tests. Could it cause harm: METR horizons, WMDP, pre-deploy audits. Harnesses that run them: lm-evaluation-harness (EleutherAI), HELM (Stanford CRFM), Inspect (UK AI Security Institute)" data-b="v0ap6">
-  <defs></defs>
-  <rect x="6.0" y="2.0" width="146.0" height="172.0" rx="8.0" fill="#FFFFFF" stroke="#DDDDDD" stroke-width="1.00"></rect>
-  <text x="79.0" y="22.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Does it know it?</text>
-  <g id="which-eval-v0ap6-s1">
-  <rect x="18.0" y="41.0" width="122.0" height="30.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="79.0" y="59.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">MMLU-Pro</text>
-  </g>
-  <g id="which-eval-v0ap6-s2">
-  <rect x="18.0" y="83.0" width="122.0" height="30.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="79.0" y="101.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">GPQA Diamond</text>
-  </g>
-  <g id="which-eval-v0ap6-s3">
-  <rect x="18.0" y="125.0" width="122.0" height="30.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.40"></rect>
-  <text x="79.0" y="143.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">HLE</text>
-  </g>
-  <rect x="166.0" y="2.0" width="146.0" height="172.0" rx="8.0" fill="#FFFFFF" stroke="#DDDDDD" stroke-width="1.00"></rect>
-  <text x="239.0" y="22.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Can it finish a task?</text>
-  <g id="which-eval-v0ap6-s4">
-  <rect x="178.0" y="41.0" width="122.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="239.0" y="59.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">SWE-bench Pro</text>
-  </g>
-  <g id="which-eval-v0ap6-s5">
-  <rect x="178.0" y="83.0" width="122.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="239.0" y="101.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">τ-bench</text>
-  </g>
-  <g id="which-eval-v0ap6-s6">
-  <rect x="178.0" y="125.0" width="122.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.40"></rect>
-  <text x="239.0" y="143.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">OSWorld</text>
-  </g>
-  <rect x="326.0" y="2.0" width="146.0" height="172.0" rx="8.0" fill="#FFFFFF" stroke="#DDDDDD" stroke-width="1.00"></rect>
-  <text x="399.0" y="22.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Do people prefer it?</text>
-  <g id="which-eval-v0ap6-s7">
-  <rect x="338.0" y="41.0" width="122.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="399.0" y="59.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">LMArena</text>
-  </g>
-  <g id="which-eval-v0ap6-s8">
-  <rect x="338.0" y="83.0" width="122.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="399.0" y="101.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">LLM-judge suites</text>
-  </g>
-  <g id="which-eval-v0ap6-s9">
-  <rect x="338.0" y="125.0" width="122.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.40"></rect>
-  <text x="399.0" y="143.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">product A/B tests</text>
-  </g>
-  <rect x="486.0" y="2.0" width="146.0" height="172.0" rx="8.0" fill="#FFFFFF" stroke="#DDDDDD" stroke-width="1.00"></rect>
-  <text x="559.0" y="22.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Could it cause harm?</text>
-  <g id="which-eval-v0ap6-s10">
-  <rect x="498.0" y="41.0" width="122.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="559.0" y="59.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">METR horizons</text>
-  </g>
-  <g id="which-eval-v0ap6-s11">
-  <rect x="498.0" y="83.0" width="122.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="559.0" y="101.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">WMDP</text>
-  </g>
-  <g id="which-eval-v0ap6-s12">
-  <rect x="498.0" y="125.0" width="122.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.40"></rect>
-  <text x="559.0" y="143.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">pre-deploy audits</text>
-  </g>
-  <text x="320.0" y="194.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Harnesses that run them</text>
-  <g id="which-eval-v0ap6-s13">
-  <rect x="20.0" y="207.0" width="180.0" height="34.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-  <text x="110.0" y="223.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">lm-evaluation-harness</text>
-  <text x="110.0" y="233.0" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">EleutherAI</text>
-  </g>
-  <g id="which-eval-v0ap6-s14">
-  <rect x="230.0" y="207.0" width="180.0" height="34.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-  <text x="320.0" y="223.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">HELM</text>
-  <text x="320.0" y="233.0" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Stanford CRFM</text>
-  </g>
-  <g id="which-eval-v0ap6-s15">
-  <rect x="440.0" y="207.0" width="180.0" height="34.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.40"></rect>
-  <text x="530.0" y="223.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Inspect</text>
-  <text x="530.0" y="233.0" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">UK AI Security Institute</text>
-  </g>
+  <svg class="draw" viewBox="0 0 640 250" role="img" aria-label="Four questions with three evals each. Does it know it: MMLU-Pro, GPQA Diamond, HLE. Can it finish a task: SWE-bench Pro, tau-bench, OSWorld. Do people prefer it: LMArena, LLM-judge suites, product A/B tests. Could it cause harm: METR horizons, WMDP, pre-deploy audits. Harnesses that run them: lm-evaluation-harness (EleutherAI), HELM (Stanford CRFM), Inspect (UK AI Security Institute)" style="width: 382.5pt" data-b="v0ap6">
+    <defs></defs>
+    <rect x="6.0" y="2.0" width="146.0" height="172.0" rx="8.0" fill="#FFFFFF" stroke="#DDDDDD" stroke-width="1.0"></rect>
+    <text x="79.0" y="22.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Does it know it?</text>
+    <g id="which-eval-v0ap6-s1">
+      <rect x="18.0" y="41.0" width="122.0" height="30.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="79.0" y="59.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">MMLU-Pro</text>
+    </g>
+    <g id="which-eval-v0ap6-s2">
+      <rect x="18.0" y="83.0" width="122.0" height="30.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="79.0" y="101.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">GPQA Diamond</text>
+    </g>
+    <g id="which-eval-v0ap6-s3">
+      <rect x="18.0" y="125.0" width="122.0" height="30.0" rx="5.0" fill="#C9DAF8" stroke="#6D9EEB" stroke-width="1.4"></rect>
+      <text x="79.0" y="143.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">HLE</text>
+    </g>
+    <rect x="166.0" y="2.0" width="146.0" height="172.0" rx="8.0" fill="#FFFFFF" stroke="#DDDDDD" stroke-width="1.0"></rect>
+    <text x="239.0" y="22.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Can it finish a task?</text>
+    <g id="which-eval-v0ap6-s4">
+      <rect x="178.0" y="41.0" width="122.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="239.0" y="59.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">SWE-bench Pro</text>
+    </g>
+    <g id="which-eval-v0ap6-s5">
+      <rect x="178.0" y="83.0" width="122.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="239.0" y="101.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">τ-bench</text>
+    </g>
+    <g id="which-eval-v0ap6-s6">
+      <rect x="178.0" y="125.0" width="122.0" height="30.0" rx="5.0" fill="#D9EAD3" stroke="#93C47D" stroke-width="1.4"></rect>
+      <text x="239.0" y="143.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">OSWorld</text>
+    </g>
+    <rect x="326.0" y="2.0" width="146.0" height="172.0" rx="8.0" fill="#FFFFFF" stroke="#DDDDDD" stroke-width="1.0"></rect>
+    <text x="399.0" y="22.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Do people prefer it?</text>
+    <g id="which-eval-v0ap6-s7">
+      <rect x="338.0" y="41.0" width="122.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="399.0" y="59.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">LMArena</text>
+    </g>
+    <g id="which-eval-v0ap6-s8">
+      <rect x="338.0" y="83.0" width="122.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="399.0" y="101.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">LLM-judge suites</text>
+    </g>
+    <g id="which-eval-v0ap6-s9">
+      <rect x="338.0" y="125.0" width="122.0" height="30.0" rx="5.0" fill="#FFF2CC" stroke="#DCB439" stroke-width="1.4"></rect>
+      <text x="399.0" y="143.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">product A/B tests</text>
+    </g>
+    <rect x="486.0" y="2.0" width="146.0" height="172.0" rx="8.0" fill="#FFFFFF" stroke="#DDDDDD" stroke-width="1.0"></rect>
+    <text x="559.0" y="22.0" font-size="10.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Could it cause harm?</text>
+    <g id="which-eval-v0ap6-s10">
+      <rect x="498.0" y="41.0" width="122.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="559.0" y="59.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">METR horizons</text>
+    </g>
+    <g id="which-eval-v0ap6-s11">
+      <rect x="498.0" y="83.0" width="122.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="559.0" y="101.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">WMDP</text>
+    </g>
+    <g id="which-eval-v0ap6-s12">
+      <rect x="498.0" y="125.0" width="122.0" height="30.0" rx="5.0" fill="#F4CCCC" stroke="#E06666" stroke-width="1.4"></rect>
+      <text x="559.0" y="143.3" font-size="9.5" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">pre-deploy audits</text>
+    </g>
+    <text x="320.0" y="194.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Harnesses that run them</text>
+    <g id="which-eval-v0ap6-s13">
+      <rect x="20.0" y="207.0" width="180.0" height="34.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
+      <text x="110.0" y="223.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">lm-evaluation-harness</text>
+      <text x="110.0" y="233.0" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">EleutherAI</text>
+    </g>
+    <g id="which-eval-v0ap6-s14">
+      <rect x="230.0" y="207.0" width="180.0" height="34.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
+      <text x="320.0" y="223.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">HELM</text>
+      <text x="320.0" y="233.0" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">Stanford CRFM</text>
+    </g>
+    <g id="which-eval-v0ap6-s15">
+      <rect x="440.0" y="207.0" width="180.0" height="34.0" rx="5.0" fill="#CCCCCC" stroke="#666666" stroke-width="1.4"></rect>
+      <text x="530.0" y="223.0" font-size="10.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-weight="bold">Inspect</text>
+      <text x="530.0" y="233.0" font-size="7.0" fill="#000000" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">UK AI Security Institute</text>
+    </g>
   </svg>
   <p data-b="vu5ga">Our three models only ever faced the first column, and even that needed a trick. We scored Qwen3-0.6B-Base by reading letters off its next-token probabilities because it's a base model: it continues text, it doesn't answer it. Ask it a question and it's as likely to carry on with another question as to reply.</p>
   <p data-b="a6at0">Nearly every model on these leaderboards is something else, an assistant that answers when asked. <b class="take">Getting from a base model to an assistant</b> takes more training, and the first step of that is showing the model examples of what an answer looks like.</p>
@@ -4950,7 +4985,7 @@ function eaiRunCode() {
     var label = out.querySelector('.label'), bar = document.createElement('span'); bar.className = 'run-bar web-only';
     bar.innerHTML = '<span class="run-status"></span><button type="button" data-a="reset" hidden>Reset</button><button type="button" data-a="edit">Edit</button><button type="button" data-a="prior" title="Start Python over, run every code cell above this one in order, then this one" hidden>\u25b6\u25b6 Run prior</button><button type="button" data-a="run">\u25b6 Run</button>';
     label.appendChild(bar);
-    var status = bar.querySelector('.run-status'), editor = null;
+    var status = bar.querySelector('.run-status'), editor = null, view = null;
     if (fills.length) {
       // Run waits for the blanks (filled in, or tapped open), or for Edit (which shows them as written so far: ___ for
       // one not filled in, never its answer; Eric, 2026-11-13: to add code a student asks about)
@@ -4978,15 +5013,61 @@ function eaiRunCode() {
       if (!d.reset) { var f = filled(), mk = editor && window.eaiCodeColors && eaiCodeColors.get(editor); if (f) d.fills = f; if (mk) d.marks = mk; }
       d.original = original; d.printed = printed; d.stored = !!storedFigs; block.dispatchEvent(new CustomEvent('eai-run', { bubbles: true, detail: d })); }
     function edit(quiet) {
-      if (editor) return;
+      if (editor) { if (view) reopen(); return; }
       editor = document.createElement('textarea'); editor.className = 'run-editor'; editor.spellcheck = false; editor.value = fills.length ? blanked() : source(block);
       // in the iPad app the Pencil writes code (its zoomed line), so the editor never brings up the on-screen keyboard
       var app = window.eaiNativeApp && window.eaiNativeApp.ink; if (app) editor.setAttribute('inputmode', 'none');
       editor.rows = editor.value.split('\n').length + 1; block.hidden = true; block.after(editor); bar.querySelector('[data-a="reset"]').hidden = false; if (!quiet && !app) editor.focus(); if (fills.length) ready();
       editor.addEventListener('eai-colors', function () { if (editor) tell({ src: editor.value, edit: true }); });
+      editor.addEventListener('eai-shut', close);   // the iPad app's zoomed line is done
       var typed = null; editor.addEventListener('input', function () { clearTimeout(typed); typed = setTimeout(function () { if (editor) tell({ src: editor.value, edit: true }); }, 700); });
       editor.addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.shiftKey || e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } if (e.key === 'Tab') { e.preventDefault(); editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end'); } });
     }
+    // An edited cell out of editing (Eric, 2026-11-20: "tapping anywhere outside of the code text area should exit
+    // edit mode and re-add all of the formatting"): the editor hides and the edited code shows as code again (a b-code
+    // of it, with the colours written in it); a tap on it (or Edit) opens the editor again where it was tapped. A tap
+    // outside the editor and its Run bar closes it; lecture notes and the projector show an edited cell closed.
+    function close() {
+      // not in the Book Editor itself (the page is saved from the DOM) nor where b-code isn't drawn (a published page)
+      if (!editor || (window.Book && Book.mode === 'edit') || !window.customElements || !customElements.get('b-code')) return;
+      var src = editor.value, lang = block.getAttribute('lang');
+      // no data-b, no python lang, norun: not a cell to anything that looks for cells (keys, Run prior, Run bars)
+      if (!view) { view = document.createElement('b-code'); view.className = 'run-view'; view.setAttribute('norun', ''); if (lang && !/^(python|py)$/i.test(lang)) view.setAttribute('lang', lang); view.setAttribute('data-src', src); editor.after(view); view.addEventListener('click', tapView); }
+      else { view.setAttribute('data-src', src); view.render(); }   // drawn afresh: its colours painted once
+      if (!view.firstElementChild) { view.remove(); view = null; return; }   // not drawn: stay open
+      paintView();
+      if (!editor.hidden) { editor.hidden = true; editor.dispatchEvent(new CustomEvent('eai-close', { bubbles: true })); }   // the iPad app closes its zoomed line
+    }
+    function reopen(at) {
+      if (!view) return; view.remove(); view = null; editor.hidden = false;
+      if (at != null) { editor.selectionStart = editor.selectionEnd = at; editor.dispatchEvent(new MouseEvent('click', { bubbles: true })); }   // the iPad app opens its zoomed line there
+    }
+    function tapView(e) {
+      var ln = e.target.closest && e.target.closest('.ln'), lns = [].slice.call(view.querySelectorAll('.src > .ln')), k = Math.max(0, lns.indexOf(ln));
+      var at = editor.value.split('\n').slice(0, k).reduce(function (s, l) { return s + l.length + 1; }, 0);
+      reopen(at);
+    }
+    // the colours written in the editor (eaiCodeColors' marks, character ranges of its text) on the closed code
+    function paintView() {
+      var mk = window.eaiCodeColors && eaiCodeColors.get(editor); if (!mk) return;
+      var lns = [].slice.call(view.querySelectorAll('.src > .ln')), starts = [], at = 0;
+      editor.value.split('\n').forEach(function (l) { starts.push(at); at += l.length + 1; });
+      mk.forEach(function (m) {
+        var p = m[2].split(':'), cls = (p[0] === 't' ? 't-' : 'h-') + p[1];
+        lns.forEach(function (ln, k) {
+          var a = Math.max(m[0], starts[k]) - starts[k], b = Math.min(m[1], starts[k] + (editor.value.split('\n')[k] || '').length) - starts[k];
+          if (b <= a) return;
+          var w = document.createTreeWalker(ln, NodeFilter.SHOW_TEXT), n, pos = 0, todo = [];
+          while ((n = w.nextNode())) { var L = n.data.length, x = Math.max(a - pos, 0), y = Math.min(b - pos, L); if (y > x) todo.push([n, x, y]); pos += L; }
+          todo.forEach(function (t) { var n = t[0]; if (t[2] < n.data.length) n.splitText(t[2]); var mid = t[1] > 0 ? n.splitText(t[1]) : n, sp = document.createElement('span'); sp.className = cls; mid.before(sp); sp.appendChild(mid); });
+        });
+      });
+    }
+    document.addEventListener('click', function (e) {
+      if (!editor || view || editor.hidden || !editor.isConnected) return;
+      var t = e.target; if (!t || !t.closest || t === editor || bar.contains(t) || t.closest('.eai-cc')) return;
+      close();
+    }, true);
     // the cell's code with its blanks as they stand: what's written in them, ___ for one that isn't (or isn't shown)
     function blanked() {
       return [].map.call(block.querySelectorAll('.ln'), function (l) {
@@ -4995,6 +5076,7 @@ function eaiRunCode() {
       }).join('\n');
     }
     function reset(quiet) {
+      if (view) { view.remove(); view = null; }
       if (editor) { editor.remove(); editor = null; } block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; if (printed || out) show(printed);
       if (storedFigs) out.appendChild(storedFigs.cloneNode(true));
       out.classList.toggle('run-new', !printed && !storedFigs); out.classList.remove('shown'); status.textContent = ''; out._ran = false;
@@ -5007,9 +5089,10 @@ function eaiRunCode() {
       try {
         if (!d) { if (block._eaiShowing) { block._eaiShowing = false; reset(true); } return; }
         block._eaiShowing = true;
-        if (d.src != null && d.src !== original) { edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } }
-        else if (editor) { editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
+        if (d.src != null && d.src !== original) { var fresh = !editor, wasClosed = !!view; if (fresh) edit(true); if (editor.value !== d.src) { editor.value = d.src; editor.rows = d.src.split('\n').length + 1; } block._eaiCloseLive = fresh || wasClosed; }
+        else if (editor) { if (view) { view.remove(); view = null; } editor.remove(); editor = null; block.hidden = false; bar.querySelector('[data-a="reset"]').hidden = true; }
         if (editor && window.eaiCodeColors) eaiCodeColors.set(editor, d.marks || null);
+        if (editor && block._eaiCloseLive) close();   // shown as it was edited: closed, as code (an editor being written in stays open)
         fills.forEach(function (u, i) { var f = d.fills && d.fills[i]; Book.fillBlank(u, f ? f[0] : null, f ? f[1] : null); });
         if (d.out != null || (d.figs && d.figs.length)) { show(d.out || '', !!d.err, d.figs || []); out.classList.add('shown'); }
         status.textContent = d.out != null || d.src != null ? 'As run in lecture' : 'As written in lecture';
