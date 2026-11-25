@@ -1,74 +1,11 @@
 {
  "_last": {
-  "at": "2026-11-24T19:29:17Z",
+  "at": "2026-11-25T18:37:29Z",
   "event": "schedule",
   "failed": [],
-  "ok": [
-   "attention",
-   "backprop",
-   "ballm-attention",
-   "ballm-attnvar",
-   "ballm-blocks",
-   "ballm-bpe",
-   "ballm-embeddings",
-   "ballm-evals",
-   "ballm-hdd",
-   "ballm-irishqwen",
-   "ballm-loss",
-   "ballm-mha",
-   "ballm-moe",
-   "ballm-optim",
-   "ballm-rag-lora",
-   "ballm-reasoning",
-   "ballm-rnn",
-   "ballm-tokenization",
-   "bptt",
-   "cnn",
-   "eval",
-   "ffn",
-   "linreg",
-   "optreg",
-   "pca",
-   "rnn",
-   "search",
-   "svm",
-   "transformer"
-  ],
-  "over": {
-   "attention": [
-    "qkv",
-    "lec-sa-code"
-   ],
-   "backprop": [
-    "chain",
-    "lec-p-224uu"
-   ],
-   "ballm-hdd": [
-    "normalization"
-   ],
-   "ballm-loss": [
-    "r-vectors"
-   ],
-   "ballm-optim": [
-    "multilayer-backprop"
-   ],
-   "ballm-reasoning": [
-    "p-7ywaz"
-   ],
-   "bptt": [
-    "gates"
-   ],
-   "eval": [
-    "residual-plots"
-   ],
-   "ffn": [
-    "p-qhx95"
-   ],
-   "transformer": [
-    "lec-output"
-   ]
-  },
-  "run": "45470484744"
+  "ok": [],
+  "over": {},
+  "run": "45676909770"
  },
  "attention": {
   "at": "2026-11-24T19:29:28Z",
